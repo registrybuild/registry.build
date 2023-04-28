@@ -189,9 +189,10 @@ const Module = (props) => {
             ),
           ].map((m) => (
             <div className="package" key={m[1]}>
-              <Link to={`/${m[1]}`}>
+              {/* TODO fix broken bazel_skylib_gazelle_plugin link and switch back to Link */}
+              <a href={`/${m[1]}`}>
                 {m[1]} {m[2]}
-              </Link>
+              </a>
             </div>
           ))}
           <div className="package">
