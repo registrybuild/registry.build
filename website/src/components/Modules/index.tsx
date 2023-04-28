@@ -6,7 +6,7 @@ import { CheckCircle2, GitCommit, Github, History, Star } from "lucide-react";
 const Module = (props) => (
   <Link
     className={props.selected ? "package selected" : "package"}
-    to={`/${props.data.repo.full_name}`}
+    to={`/github/${props.data.repo.full_name}`}
   >
     <div className="package-header">
       <div className="package-name">{props.data.name}</div>
@@ -50,7 +50,7 @@ const Module = (props) => (
 );
 
 const Modules = (props) => {
-  let [count, setCount] = useState(21);
+  let [count, setCount] = useState(24);
   let single = props.matches && props.matches.length == 1;
   let double = props.matches && props.matches.length == 2;
   return (
@@ -74,7 +74,7 @@ const Modules = (props) => {
       {count < props.matches.length && (
         <button
           className="packages-load-more"
-          onClick={() => setCount(count + 21)}
+          onClick={() => setCount(count + 24)}
         >
           Load more
         </button>

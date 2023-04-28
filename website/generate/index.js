@@ -19,7 +19,7 @@ module.exports = async function modules(context, options) {
 
         for (let module of r.modules) {
           actions.addRoute({
-            path: `/${module.name}`,
+            path: `/bazel/${module.name}`,
             component: "@site/src/components/Page",
             modules: {
               data: jsonPath,
@@ -29,7 +29,7 @@ module.exports = async function modules(context, options) {
         }
 
         actions.addRoute({
-          path: `/${r.repo.full_name}`,
+          path: `/github/${r.repo.full_name}`,
           component: "@site/src/components/Page",
           modules: {
             data: jsonPath,
