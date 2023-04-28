@@ -7,19 +7,19 @@ module.exports = async function modules(context, options) {
       /* ... */
     },
     async contentLoaded({ content, actions }) {
-      let modules = Object.values(data);
+      let repos = Object.values(data);
 
       let index = [];
 
-      for (let m of modules) {
+      for (let r of repos) {
         const jsonPath = await actions.createData(
-          `${m.owner}/${m.name}.json`,
-          JSON.stringify(m)
+          `${r.owner}/${r.name}.json`,
+          JSON.stringify(r)
         );
 
-        if (m.module.name) {
+        for (let module of r.modules) {
           actions.addRoute({
-            path: `/${m.module.name}`,
+            path: `/${module.name}`,
             component: "@site/src/components/Page",
             modules: {
               data: jsonPath,
@@ -29,7 +29,7 @@ module.exports = async function modules(context, options) {
         }
 
         actions.addRoute({
-          path: `/${m.repo.full_name}`,
+          path: `/${r.repo.full_name}`,
           component: "@site/src/components/Page",
           modules: {
             data: jsonPath,
@@ -38,20 +38,22 @@ module.exports = async function modules(context, options) {
         });
 
         index.push({
-          name: m.name,
-          module: { versions: m.module.versions },
+          name: r.name,
+          modules: r.modules.map((m) => {
+            name: m.name;
+          }),
           repo: {
-            full_name: m.repo.full_name,
-            description: m.repo.description,
-            owner: { avatar_url: m.repo.owner.avatar_url },
-            stargazers_count: m.repo.stargazers_count,
+            full_name: r.repo.full_name,
+            description: r.repo.description,
+            owner: { avatar_url: r.repo.owner.avatar_url },
+            stargazers_count: r.repo.stargazers_count,
           },
           releases:
-            m.releases.length > 0
+            r.releases.length > 0
               ? [
                   {
-                    tag_name: m.releases[0].tag_name,
-                    published_at: m.releases[0].published_at,
+                    tag_name: r.releases[0].tag_name,
+                    published_at: r.releases[0].published_at,
                   },
                 ]
               : [],

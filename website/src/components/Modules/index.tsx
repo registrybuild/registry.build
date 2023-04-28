@@ -38,7 +38,7 @@ const Module = (props) => (
         <Github className="package-icon" />
         {props.data.repo.full_name}
       </div>
-      {props.data.module.versions && (
+      {props.data.modules.length > 0 && (
         <div className="package-registry">
           <CheckCircle2 className="package-icon" />
           BCR

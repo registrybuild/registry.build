@@ -228,7 +228,7 @@ func main() {
 	for _, module := range modules {
 		for _, repo := range module.Repository {
 			d := Data{
-				Module: module,
+				Modules: []Module{},
 			}
 			// todo capture module name here
 			if strings.HasPrefix(repo, "github:") {
@@ -300,8 +300,15 @@ func main() {
 				if err == nil {
 					d.Root.Module = string(f)
 				}
-				if _, ok := data[r]; !ok {
-					// todo support repos with multiple modules
+				if existingData, ok := data[r]; ok {
+					if module.Name != "" {
+						existingData.Modules = append(existingData.Modules, module)
+						data[r] = existingData
+					}
+				} else {
+					if module.Name != "" {
+						d.Modules = append(d.Modules, module)
+					}
 					data[r] = d
 				}
 			}
@@ -502,7 +509,7 @@ type Module struct {
 type Data struct {
 	Name     string    `json:"name"`
 	Owner    string    `json:"owner"`
-	Module   Module    `json:"module"`
+	Modules  []Module  `json:"modules"`
 	Releases []Release `json:"releases"`
 	Root     Root      `json:"root"`
 	Repo     Repo      `json:"repo"`

@@ -67,7 +67,7 @@ const Module = (props) => {
               {props.data.repo.full_name}
             </a>
           </div>
-          {props.data.module.versions && (
+          {props.data.modules.length > 0 && (
             <div className="package-registry">
               <CheckCircle2 className="package-icon" />
               <a
@@ -87,9 +87,10 @@ const Module = (props) => {
             {props.data.repo.visibility}
           </div>
         </div>
-        {props.data.module.maintainers && (
+        {/* todo render repos with multiple modules nicely  */}
+        {props.data.modules[0] && props.data.modules[0].maintainers && (
           <div className="package-stats">
-            {props.data.module.maintainers.map((m) => (
+            {props.data.modules[0].maintainers.map((m) => (
               <div className="package-maintainer" key={m.github}>
                 <User className="package-icon" />
                 <a target="_blank" href={`https://github.com/${m.github}`}>
@@ -152,7 +153,7 @@ const Module = (props) => {
               <select
                 className="package-release-dropdown"
                 onChange={(e) => history.push("#releases@" + e.target.value)}
-                value={getVersion()}
+                value={getVersion(location)}
               >
                 {props.data.releases.map((r) => (
                   <option value={r.tag_name}>{r.tag_name}</option>
@@ -190,9 +191,9 @@ const Module = (props) => {
           ].map((m) => (
             <div className="package" key={m[1]}>
               {/* TODO fix broken bazel_skylib_gazelle_plugin link and switch back to Link */}
-              <a href={`/${m[1]}`}>
+              <Link href={`/${m[1]}`}>
                 {m[1]} {m[2]}
-              </a>
+              </Link>
             </div>
           ))}
           <div className="package">
