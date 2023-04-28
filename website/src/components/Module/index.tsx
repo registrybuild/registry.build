@@ -14,6 +14,7 @@ import {
   User,
 } from "lucide-react";
 import { useHistory, useLocation } from "@docusaurus/router";
+import Link from "@docusaurus/Link";
 
 const Module = (props) => {
   let history = useHistory();
@@ -188,9 +189,9 @@ const Module = (props) => {
             ),
           ].map((m) => (
             <div className="package" key={m[1]}>
-              <a href={`#!${m[1]}`}>
+              <Link to={`/${m[1]}`}>
                 {m[1]} {m[2]}
-              </a>
+              </Link>
             </div>
           ))}
           <div className="package">
