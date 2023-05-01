@@ -28,7 +28,7 @@ const Page = (props) => {
               onKeyUp={(e) => {
                 if (e.keyCode == 13) {
                   history.push(
-                    `/${
+                    `/github/${
                       matches[Math.min(selected, matches.length - 1)].repo
                         .full_name
                     }`
