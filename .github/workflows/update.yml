@@ -15,6 +15,9 @@ concurrency:
   group: "pages"
   cancel-in-progress: false
 
+env:
+  GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+
 jobs:
   deploy:
     environment:
@@ -47,3 +50,10 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v2
+      - name: Print Github Rate limit
+        run: |
+          curl -L \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer $GITHUB_TOKEN"\
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            https://api.github.com/rate_limit
