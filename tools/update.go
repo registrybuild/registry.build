@@ -400,7 +400,7 @@ func getMetadata(repo string) error {
 	}
 
 	req.Header.Set("Accept", "application/vnd.github+json")
-	req.Header.Set("Authorization", "Bearer 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")
+	req.Header.Set("Authorization", "Bearer "+os.Getenv("GITHUB_TOKEN"))
 	req.Header.Set("X-GitHub-Api-Version", "2022-11-28")
 
 	client := &http.Client{}
