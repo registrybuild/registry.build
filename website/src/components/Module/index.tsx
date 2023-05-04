@@ -28,9 +28,15 @@ const Module = (props) => {
 
   let module = props.data.modules[0];
   let versionData =
-    module && module.version_data[release.tag_name.replace("v", "")];
+    release &&
+    module &&
+    module.version_data &&
+    module.version_data[release.tag_name.replace("v", "")];
   let yanked =
-    module && module.yanked_versions[release.tag_name.replace("v", "")];
+    release &&
+    module &&
+    module.yanked_versions &&
+    module.yanked_versions[release.tag_name.replace("v", "")];
   let tab = getTab(location);
   console.log(props.data);
   return (
@@ -89,7 +95,7 @@ const Module = (props) => {
               {release.assets.length.toLocaleString()} assets
             </div>
           )}
-          {release.assets.length > 0 && (
+          {release && release.assets.length > 0 && (
             <div className="package-assets">
               <Download className="package-icon" />
               {release.assets
@@ -99,7 +105,7 @@ const Module = (props) => {
               downloads
             </div>
           )}
-          {release.assets.length > 0 && (
+          {release && release.assets.length > 0 && (
             <div className="package-assets">
               <ArrowUpDown className="package-icon" />
               {size(
@@ -226,7 +232,7 @@ const Module = (props) => {
                     </ul>
                   </div>
                 )}
-                {release.assets.length > 0 && (
+                {release && release.assets.length > 0 && (
                   <div className="package-assets">
                     <b>Assets:</b>
                     <ul>
