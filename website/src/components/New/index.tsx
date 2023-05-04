@@ -212,7 +212,7 @@ build:remote --remote_executor=grpcs://remote.buildbuddy.io\n\n`;
 
     let bazelVersion = this.state.bazelVersion;
 
-    if (this.state.tools.includes("bb CLI")) {
+    if (this.state.tools.includes("BB CLI")) {
       bazelVersion = `buildbuddy-io/5.0.7\n${bazelVersion}`;
     }
 
