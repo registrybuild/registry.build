@@ -260,6 +260,7 @@ build --remote_executor=grpcs://remote.buildbuddy.io\n\n`;
                   <div className="new-builder-config">
                     Project name:{" "}
                     <input
+                      className="new-builder-project-name"
                       type="text"
                       value={this.state.name}
                       onChange={(e) => this.setState({ name: e.target.value })}
