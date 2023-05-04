@@ -1,0 +1,988 @@
+<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><h1 dir="auto"><a id="user-content-closure-rules-for-bazel-αlpha-" class="anchor" aria-hidden="true" href="#closure-rules-for-bazel-αlpha-"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Closure Rules for Bazel (αlpha) <a href="https://buildkite.com/bazel/closure-compiler-rules-closure-postsubmit" rel="nofollow"><img src="https://camo.githubusercontent.com/36b313d9526538ffedeab1a2d860c2eb09285e9dd3d0e028b91239c0ea9c0210/68747470733a2f2f62616467652e6275696c646b6974652e636f6d2f37353639343130653261323636313037363539313839373238333035316236643133376633353130323136373235336665642e737667" alt="Bazel CI build status" data-canonical-src="https://badge.buildkite.com/7569410e2a2661076591897283051b6d137f35102167253fed.svg" style="max-width: 100%;"></a></h1>
+<table>
+<thead>
+<tr>
+<th>JavaScript</th>
+<th>Templating</th>
+<th>Stylesheets</th>
+<th>Miscellaneous</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="#closure_js_library">closure_js_library</a></td>
+<td><a href="#closure_js_template_library">closure_js_template_library</a></td>
+<td><a href="#closure_css_library">closure_css_library</a></td>
+<td><a href="#closure_js_proto_library">closure_js_proto_library</a></td>
+</tr>
+<tr>
+<td><a href="#closure_js_binary">closure_js_binary</a></td>
+<td><a href="#closure_java_template_library">closure_java_template_library</a></td>
+<td><a href="#closure_css_binary">closure_css_binary</a></td>
+<td><a href="#phantomjs_test">phantomjs_test</a></td>
+</tr>
+<tr>
+<td><a href="#closure_js_test">closure_js_test</a></td>
+<td><a href="#closure_py_template_library">closure_py_template_library</a></td>
+<td></td>
+<td><a href="#closure_proto_library">closure_proto_library</a> (Experimental)</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td><a href="https://github.com/grpc/grpc-web/blob/9b7b2d5411c486aa646ba2491cfd894d5352775b/bazel/closure_grpc_web_library.bzl#L149">closure_grpc_web_library</a> (Experimental)</td>
+</tr>
+</tbody>
+</table>
+<h2 dir="auto"><a id="user-content-overview" class="anchor" aria-hidden="true" href="#overview"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Overview</h2>
+<p dir="auto">Closure Rules provides a polished JavaScript build system for <a href="http://bazel.build/" rel="nofollow">Bazel</a> that
+emphasizes type safety, strictness, testability, and optimization. These rules
+are built with the <a href="https://developers.google.com/closure/" rel="nofollow">Closure Tools</a>, which are what Google used to create
+websites like Google.com and Gmail. The goal of this project is to take the
+frontend development methodology that Google actually uses internally, and make
+it easily available to outside developers.</p>
+<p dir="auto">Closure Rules is an <em>abstract</em> build system. This is what sets it apart from
+Grunt, Gulp, Webpacker, Brunch, Broccoli, etc. These projects all provide a
+concrete framework for explaining <em>how</em> to build your project. Closure Rules
+instead provides a framework for declaring <em>what</em> your project is. Closure Rules
+is then able to use this abstract definition to infer an optimal build strategy.</p>
+<p dir="auto">Closure Rules is also an <em>austere</em> build system. The Closure Compiler doesn't
+play games. It enforces a type system that can be stricter than Java. From a
+stylistic perspective, Closure is <a href="https://github.com/google/closure-library/blob/master/closure/goog/html/safehtml.js">verbose</a> like Java; there's no cryptic
+symbols or implicit behavior; the code says exactly what it's doing.  This sets
+Closure apart from traditional JavaScript development, where terseness was
+favored over readability, because minifiers weren't very good. Furthermore, the
+Closure Library and Templates help you follow security best practices which will
+keep your users safe.</p>
+<h3 dir="auto"><a id="user-content-whats-included" class="anchor" aria-hidden="true" href="#whats-included"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>What's Included</h3>
+<p dir="auto">Closure Rules bundles the following tools and makes them "just work."</p>
+<ul dir="auto">
+<li><a href="http://bazel.build/" rel="nofollow">Bazel</a>: The build system Google uses to manage a repository with petabytes of
+code.</li>
+<li><a href="https://developers.google.com/closure/compiler/" rel="nofollow">Closure Compiler</a>: Type-safe, null-safe, optimizing JavaScript compiler that
+transpiles <a href="http://es6-features.org/" rel="nofollow">ECMASCRIPT6</a> to minified ES3 JavaScript that can run in any
+browser.</li>
+<li><a href="https://developers.google.com/closure/library/" rel="nofollow">Closure Library</a>: Google's core JavaScript libraries.</li>
+<li><a href="https://developers.google.com/closure/templates/" rel="nofollow">Closure Templates</a>: Type-safe HTML templating system that compiles to both
+JavaScript and Java. This is one of the most secure templating systems
+available. It's where Google has put the most thought into preventing things
+like XSS attacks. It also supports i18n and l10n.</li>
+<li><a href="https://github.com/google/closure-stylesheets">Closure Stylesheets</a>: CSS compiler supporting class name minification,
+variables, functions, conditionals, mixins, and bidirectional layout.</li>
+<li><a href="http://phantomjs.org/" rel="nofollow">PhantomJS</a>: Headless web browser used for automating JavaScript unit tests in
+a command line environment.</li>
+<li><a href="https://github.com/google/protobuf">Protocol Buffers</a>: Google's language-neutral, platform-neutral, extensible
+mechanism for serializing structured data. This is used instead of untyped
+JSON.</li>
+</ul>
+<h3 dir="auto"><a id="user-content-mailing-lists" class="anchor" aria-hidden="true" href="#mailing-lists"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Mailing Lists</h3>
+<ul dir="auto">
+<li><a href="https://groups.google.com/forum/#!forum/closure-rules-announce" rel="nofollow">closure-rules-announce</a></li>
+<li><a href="https://groups.google.com/forum/#!forum/closure-rules-discuss" rel="nofollow">closure-rules-discuss</a></li>
+</ul>
+<h3 dir="auto"><a id="user-content-caveat-emptor" class="anchor" aria-hidden="true" href="#caveat-emptor"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Caveat Emptor</h3>
+<p dir="auto">Closure Rules is production ready, but its design is not yet finalized. Breaking
+changes will be introduced. However they will be well-documented in the release
+notes.</p>
+<h2 dir="auto"><a id="user-content-setup" class="anchor" aria-hidden="true" href="#setup"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Setup</h2>
+<p dir="auto">First you must <a href="https://docs.bazel.build/versions/master/install.html" rel="nofollow">install Bazel</a>. Then you add the following to your <code>WORKSPACE</code>
+file:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@bazel_tools//tools/build_defs/repo:http.bzl&quot;, &quot;http_archive&quot;)
+
+http_archive(
+    name = &quot;io_bazel_rules_closure&quot;,
+    sha256 = &quot;9498e57368efb82b985db1ed426a767cbf1ba0398fd7aed632fc3908654e1b1e&quot;,
+    strip_prefix = &quot;rules_closure-0.12.0&quot;,
+    urls = [
+        &quot;https://mirror.bazel.build/github.com/bazelbuild/rules_closure/archive/0.12.0.tar.gz&quot;,
+        &quot;https://github.com/bazelbuild/rules_closure/archive/0.12.0.tar.gz&quot;,
+    ],
+)
+
+load(&quot;@io_bazel_rules_closure//closure:repositories.bzl&quot;, &quot;rules_closure_dependencies&quot;, &quot;rules_closure_toolchains&quot;)
+rules_closure_dependencies()
+rules_closure_toolchains()
+
+# Only needed if you want to run your tests on headless Chrome
+load(&quot;@io_bazel_rules_closure//closure:defs.bzl&quot;, &quot;setup_web_test_repositories&quot;)
+setup_web_test_repositories(
+    chromium = True,
+)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@bazel_tools//tools/build_defs/repo:http.bzl"</span>, <span class="pl-s">"http_archive"</span>)
+
+<span class="pl-en">http_archive</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"io_bazel_rules_closure"</span>,
+    <span class="pl-s1">sha256</span> <span class="pl-c1">=</span> <span class="pl-s">"9498e57368efb82b985db1ed426a767cbf1ba0398fd7aed632fc3908654e1b1e"</span>,
+    <span class="pl-s1">strip_prefix</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_closure-0.12.0"</span>,
+    <span class="pl-s1">urls</span> <span class="pl-c1">=</span> [
+        <span class="pl-s">"https://mirror.bazel.build/github.com/bazelbuild/rules_closure/archive/0.12.0.tar.gz"</span>,
+        <span class="pl-s">"https://github.com/bazelbuild/rules_closure/archive/0.12.0.tar.gz"</span>,
+    ],
+)
+
+<span class="pl-en">load</span>(<span class="pl-s">"@io_bazel_rules_closure//closure:repositories.bzl"</span>, <span class="pl-s">"rules_closure_dependencies"</span>, <span class="pl-s">"rules_closure_toolchains"</span>)
+<span class="pl-en">rules_closure_dependencies</span>()
+<span class="pl-en">rules_closure_toolchains</span>()
+
+<span class="pl-c"># Only needed if you want to run your tests on headless Chrome</span>
+<span class="pl-en">load</span>(<span class="pl-s">"@io_bazel_rules_closure//closure:defs.bzl"</span>, <span class="pl-s">"setup_web_test_repositories"</span>)
+<span class="pl-en">setup_web_test_repositories</span>(
+    <span class="pl-s1">chromium</span> <span class="pl-c1">=</span> <span class="pl-c1">True</span>,
+)</pre></div>
+<p dir="auto">You are not required to install the Closure Tools, PhantomJS, or anything else
+for that matter; they will be fetched automatically by Bazel.</p>
+<h3 dir="auto"><a id="user-content-overriding-dependency-versions" class="anchor" aria-hidden="true" href="#overriding-dependency-versions"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Overriding Dependency Versions</h3>
+<p dir="auto">When you call <code>rules_closure_dependencies()</code> in your <code>WORKSPACE</code> file, it causes a
+few dozen external dependencies to be added to your project, e.g. Guava, Guice,
+JSR305, etc. You might need to customize this behavior.</p>
+<p dir="auto">To override the version of any dependency, modify your <code>WORKSPACE</code> file to pass
+<code>omit_&lt;dependency_name&gt;=True</code> to <code>rules_closure_dependencies()</code>. Next define your
+custom dependency version. A full list of dependencies is available from
+<a href="https://github.com/bazelbuild/rules_closure/tree/master/closure/repositories.bzl">repositories.bzl</a>. For example, to override the version of Guava:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@io_bazel_rules_closure//closure:repositories.bzl&quot;, &quot;rules_closure_dependencies&quot;, &quot;rules_closure_toolchains&quot;)
+rules_closure_dependencies(
+    omit_com_google_guava=True,
+)
+rules_closure_toolchains()
+
+load(&quot;@bazel_tools//tools/build_defs/repo:java.bzl&quot;, &quot;java_import_external&quot;)
+java_import_external(
+    name = &quot;com_google_guava&quot;,
+    licenses = [&quot;notice&quot;],  # Apache 2.0
+    jar_urls = [
+        &quot;https://mirror.bazel.build/repo1.maven.org/maven2/com/google/guava/guava/24.1-jre/guava-24.1-jre.jar&quot;,
+        &quot;https://repo1.maven.org/maven2/com/google/guava/guava/24.1-jre/guava-24.1-jre.jar&quot;,
+    ],
+    jar_sha256 = &quot;31bfe27bdf9cba00cb4f3691136d3bc7847dfc87bfe772ca7a9eb68ff31d79f5&quot;,
+    exports = [
+        &quot;@com_google_code_findbugs_jsr305&quot;,
+        &quot;@com_google_errorprone_error_prone_annotations&quot;,
+    ],
+)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@io_bazel_rules_closure//closure:repositories.bzl"</span>, <span class="pl-s">"rules_closure_dependencies"</span>, <span class="pl-s">"rules_closure_toolchains"</span>)
+<span class="pl-en">rules_closure_dependencies</span>(
+    <span class="pl-s1">omit_com_google_guava</span><span class="pl-c1">=</span><span class="pl-c1">True</span>,
+)
+<span class="pl-en">rules_closure_toolchains</span>()
+
+<span class="pl-en">load</span>(<span class="pl-s">"@bazel_tools//tools/build_defs/repo:java.bzl"</span>, <span class="pl-s">"java_import_external"</span>)
+<span class="pl-en">java_import_external</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"com_google_guava"</span>,
+    <span class="pl-s1">licenses</span> <span class="pl-c1">=</span> [<span class="pl-s">"notice"</span>],  <span class="pl-c"># Apache 2.0</span>
+    <span class="pl-s1">jar_urls</span> <span class="pl-c1">=</span> [
+        <span class="pl-s">"https://mirror.bazel.build/repo1.maven.org/maven2/com/google/guava/guava/24.1-jre/guava-24.1-jre.jar"</span>,
+        <span class="pl-s">"https://repo1.maven.org/maven2/com/google/guava/guava/24.1-jre/guava-24.1-jre.jar"</span>,
+    ],
+    <span class="pl-s1">jar_sha256</span> <span class="pl-c1">=</span> <span class="pl-s">"31bfe27bdf9cba00cb4f3691136d3bc7847dfc87bfe772ca7a9eb68ff31d79f5"</span>,
+    <span class="pl-s1">exports</span> <span class="pl-c1">=</span> [
+        <span class="pl-s">"@com_google_code_findbugs_jsr305"</span>,
+        <span class="pl-s">"@com_google_errorprone_error_prone_annotations"</span>,
+    ],
+)</pre></div>
+<h2 dir="auto"><a id="user-content-examples" class="anchor" aria-hidden="true" href="#examples"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Examples</h2>
+<p dir="auto">Please see the test directories within this project for concrete examples of usage:</p>
+<ul dir="auto">
+<li><a href="https://github.com/bazelbuild/rules_closure/tree/master/closure/testing/test">//closure/testing/test</a></li>
+<li><a href="https://github.com/bazelbuild/rules_closure/tree/master/closure/compiler/test">//closure/compiler/test</a></li>
+<li><a href="https://github.com/bazelbuild/rules_closure/tree/master/closure/templates/test">//closure/templates/test</a></li>
+<li><a href="https://github.com/bazelbuild/rules_closure/tree/master/closure/stylesheets/test">//closure/stylesheets/test</a></li>
+<li><a href="https://github.com/bazelbuild/rules_closure/tree/master/closure/protobuf/test">//closure/protobuf/test</a></li>
+</ul>
+<h1 dir="auto"><a id="user-content-reference" class="anchor" aria-hidden="true" href="#reference"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Reference</h1>
+<h2 dir="auto"><a id="user-content-closure_js_library" class="anchor" aria-hidden="true" href="#closure_js_library"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>closure_js_library</h2>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@io_bazel_rules_closure//closure:defs.bzl&quot;, &quot;closure_js_library&quot;)
+closure_js_library(name, srcs, data, deps, exports, suppress, convention,
+                   no_closure_library)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@io_bazel_rules_closure//closure:defs.bzl"</span>, <span class="pl-s">"closure_js_library"</span>)
+<span class="pl-en">closure_js_library</span>(<span class="pl-s1">name</span>, <span class="pl-s1">srcs</span>, <span class="pl-s1">data</span>, <span class="pl-s1">deps</span>, <span class="pl-s1">exports</span>, <span class="pl-s1">suppress</span>, <span class="pl-s1">convention</span>,
+                   <span class="pl-s1">no_closure_library</span>)</pre></div>
+<p dir="auto">Defines a set of JavaScript sources.</p>
+<p dir="auto">The purpose of this rule is to define an abstract graph of JavaScript sources.
+It must be used in conjunction with <a href="#closure_js_binary">closure_js_binary</a> to output a minified
+file.</p>
+<p dir="auto">This rule will perform syntax checking and linting on your files. This can be
+tuned with the <code>suppress</code> attribute. To learn more about what the linter wants,
+read the <a href="https://google.github.io/styleguide/jsguide.html" rel="nofollow">Google JavaScript Style Guide</a>.</p>
+<p dir="auto">Strict dependency checking is performed on the sources listed in each library
+target. See the documentation of the <code>deps</code> attribute for further information.</p>
+<h4 dir="auto"><a id="user-content-rule-polymorphism" class="anchor" aria-hidden="true" href="#rule-polymorphism"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Rule Polymorphism</h4>
+<p dir="auto">This rule can be referenced as though it were the following:</p>
+<ul dir="auto">
+<li><a href="https://docs.bazel.build/versions/master/be/general.html#filegroup" rel="nofollow">filegroup</a>: <code>srcs</code> will always be empty and <code>data</code> will contain all
+transitive JS sources and data.</li>
+</ul>
+<h3 dir="auto"><a id="user-content-arguments" class="anchor" aria-hidden="true" href="#arguments"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Arguments</h3>
+<ul dir="auto">
+<li>
+<p dir="auto"><strong>name:</strong> (<a href="https://docs.bazel.build/versions/master/build-ref.html#name" rel="nofollow">Name</a>; required) A unique name for this rule. The standard
+convention is that this be the same name as the Bazel package with <code>srcs = glob(['*.js'])</code>. If it contains a subset of the <code>.js</code> srcs in the package,
+then convention states that the <code>_lib</code> suffix should be used.</p>
+</li>
+<li>
+<p dir="auto"><strong>srcs:</strong> (List of <a href="https://docs.bazel.build/versions/master/build-ref.html#labels" rel="nofollow">labels</a>; optional) The list of <code>.js</code> source files that
+represent this library. This can include files marked as <code>@externs</code> or
+<code>@nocompile</code>. This attribute is required unless the <code>exports</code> attribute is
+being defined.</p>
+</li>
+<li>
+<p dir="auto"><strong>data:</strong> (List of <a href="https://docs.bazel.build/versions/master/build-ref.html#labels" rel="nofollow">labels</a>; optional) Runfiles directly referenced by JS
+sources in this rule. For example, if the JS generated injected an img tag
+into the page with a hard coded image named foo.png, then you might want to
+list that image here, so it ends up in the webserver runfiles.</p>
+</li>
+<li>
+<p dir="auto"><strong>deps:</strong> (List of <a href="https://docs.bazel.build/versions/master/build-ref.html#labels" rel="nofollow">labels</a>; optional) Direct <a href="https://docs.bazel.build/versions/master/build-ref.html#dependencies" rel="nofollow">dependency</a> list. These can
+point to <a href="#closure_js_library">closure_js_library</a>, <a href="#closure_js_template_library">closure_js_template_library</a>,
+<a href="#closure_css_library">closure_css_library</a> and <a href="#closure_js_proto_library">closure_js_proto_library</a> rules.</p>
+</li>
+<li>
+<p dir="auto"><strong>exports:</strong> (List of <a href="https://docs.bazel.build/versions/master/build-ref.html#labels" rel="nofollow">labels</a>; optional) Listing dependencies here will cause
+them to become <em>direct</em> dependencies in parent rules. This functions similarly
+to <a href="https://docs.bazel.build/versions/master/be/java.html#java_library.exports" rel="nofollow">java_library.exports</a>. This can be used to create aliases for rules in
+another package. It can also be also be used to export private targets within
+the package. Another use is to roll up a bunch of fine-grained libraries into
+a single big one.</p>
+</li>
+<li>
+<p dir="auto"><strong>suppress</strong> (List of String; optional; default is <code>[]</code>) List of codes the
+linter should ignore. Warning and error messages that are allowed to be
+suppressed, will display the codes for disabling it. For example, if the
+linter says:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="foo.js:123: WARNING lintChecks JSC_MUST_BE_PRIVATE - Property bar_ must be marked @private"><pre class="notranslate"><code>foo.js:123: WARNING lintChecks JSC_MUST_BE_PRIVATE - Property bar_ must be marked @private
+</code></pre></div>
+<p dir="auto">Then the diagnostic code <code>"JSC_MUST_BE_PRIVATE"</code> can be used in the <code>suppress</code>
+list. It is also possible to use the group code <code>"lintChecks"</code> to disable all
+diagnostic codes associated with linting.</p>
+<p dir="auto">If a code is used that isn't necessary, an error is raised. Therefore the use
+of fine-grained suppression codes is maintainable.</p>
+</li>
+<li>
+<p dir="auto"><strong>convention</strong> (String; optional; default is <code>"CLOSURE"</code>) Specifies the coding
+convention which affects how the linter operates. This can be the following
+values:</p>
+<ul dir="auto">
+<li><code>NONE</code>: Don't take any special practices into consideration.</li>
+<li><code>CLOSURE</code>: Take <a href="https://github.com/google/closure-compiler/blob/master/src/com/google/javascript/jscomp/ClosureCodingConvention.java">Closure coding conventions</a> into consideration when
+linting. See the <a href="https://google.github.io/styleguide/jsguide.html" rel="nofollow">Google JavaScript Style Guide</a> for more information.</li>
+<li><code>GOOGLE</code>: Take <a href="https://github.com/google/closure-compiler/blob/master/src/com/google/javascript/jscomp/GoogleCodingConvention.java">Google coding conventions</a> into consideration when
+linting. See the <a href="https://google.github.io/styleguide/jsguide.html" rel="nofollow">Google JavaScript Style Guide</a> for more information.</li>
+</ul>
+</li>
+<li>
+<p dir="auto"><strong>no_closure_library</strong> (Boolean; optional; default is <code>False</code>) Do not link
+Closure Library <a href="https://github.com/google/closure-library/blob/master/closure/goog/base.js">base.js</a>. If this flag is used, an error will be raised if
+any <code>deps</code> do not also specify this flag.</p>
+<p dir="auto">All <a href="#closure_js_library">closure_js_library</a> rules with nonempty <code>srcs</code> have an implicit
+dependency on <code>@closure_library//:closure/goog/base.js</code>. This is a lightweight
+file that boostraps very important functions, e.g. <code>goog.provide</code>. Linking
+this file by default is important because:</p>
+<ol dir="auto">
+<li>It is logically impossible to say <code>goog.require('goog')</code>.</li>
+<li>The Closure Compiler will sometimes generate synthetic code that calls
+these functions. For example, the <a href="https://github.com/google/closure-compiler/blob/1281ed9ded137eaf578bb65a588850bf13f38aa4/src/com/google/javascript/jscomp/ProcessEs6Modules.java">ProcessEs6Modules</a> compiler pass turns
+ES6 module directives into <code>goog.provide</code> / <code>goog.require</code> statements.</li>
+</ol>
+<p dir="auto">The only tradeoff is that when compiling in <code>WHITESPACE_ONLY</code> mode, this code
+will show up in the resulting binary. Therefore this flag provides the option
+to remove it.</p>
+</li>
+</ul>
+<h2 dir="auto"><a id="user-content-closure_js_binary" class="anchor" aria-hidden="true" href="#closure_js_binary"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>closure_js_binary</h2>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@io_bazel_rules_closure//closure:defs.bzl&quot;, &quot;closure_js_binary&quot;)
+closure_js_binary(name, deps, css, debug, language, entry_points,
+                  dependency_mode, compilation_level, formatting,
+                  output_wrapper, property_renaming_report, defs)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@io_bazel_rules_closure//closure:defs.bzl"</span>, <span class="pl-s">"closure_js_binary"</span>)
+<span class="pl-en">closure_js_binary</span>(<span class="pl-s1">name</span>, <span class="pl-s1">deps</span>, <span class="pl-s1">css</span>, <span class="pl-s1">debug</span>, <span class="pl-s1">language</span>, <span class="pl-s1">entry_points</span>,
+                  <span class="pl-s1">dependency_mode</span>, <span class="pl-s1">compilation_level</span>, <span class="pl-s1">formatting</span>,
+                  <span class="pl-s1">output_wrapper</span>, <span class="pl-s1">property_renaming_report</span>, <span class="pl-s1">defs</span>)</pre></div>
+<p dir="auto">Turns JavaScript libraries into a minified optimized blob of code.</p>
+<p dir="auto">This rule must be used in conjunction with <a href="#closure_js_library">closure_js_library</a>.</p>
+<h4 dir="auto"><a id="user-content-implicit-output-targets" class="anchor" aria-hidden="true" href="#implicit-output-targets"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Implicit Output Targets</h4>
+<ul dir="auto">
+<li>
+<p dir="auto"><em>name</em>.js: A minified JavaScript file containing all transitive sources.</p>
+</li>
+<li>
+<p dir="auto"><em>name</em>.js.map: Sourcemap file mapping compiled sources to their raw
+sources. This file can be loaded into browsers such as Chrome and Firefox to
+view a stacktrace when an error is thrown by compiled sources.</p>
+</li>
+</ul>
+<h4 dir="auto"><a id="user-content-rule-polymorphism-1" class="anchor" aria-hidden="true" href="#rule-polymorphism-1"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Rule Polymorphism</h4>
+<p dir="auto">This rule can be referenced as though it were the following:</p>
+<ul dir="auto">
+<li>
+<p dir="auto"><a href="https://docs.bazel.build/versions/master/be/general.html#filegroup" rel="nofollow">filegroup</a>: <code>srcs</code> will be the .js and .js.map output files and <code>data</code> will
+contain those files in addition to all transitive JS sources and data.</p>
+</li>
+<li>
+<p dir="auto"><a href="#closure_js_library">closure_js_library</a>: <code>srcs</code> will be the .js output file, <code>language</code> will be
+the output language, <code>deps</code> will be empty, <code>data</code> will contain all transitive
+data, and <code>no_closure_library</code> will be <code>True</code>.</p>
+</li>
+</ul>
+<h3 dir="auto"><a id="user-content-arguments-1" class="anchor" aria-hidden="true" href="#arguments-1"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Arguments</h3>
+<ul dir="auto">
+<li>
+<p dir="auto"><strong>name:</strong> (<a href="https://docs.bazel.build/versions/master/build-ref.html#name" rel="nofollow">Name</a>; required) A unique name for this rule. Convention states
+that such rules be named <code>foo_bin</code> or <code>foo_dbg</code> if <code>debug = True</code>.</p>
+</li>
+<li>
+<p dir="auto"><strong>deps:</strong> (List of <a href="https://docs.bazel.build/versions/master/build-ref.html#labels" rel="nofollow">labels</a>; required) Direct dependency list. This attribute
+has the same meaning as it does in <a href="#closure_js_library">closure_js_library</a>.  These can point to
+<a href="#closure_js_library">closure_js_library</a> and <a href="#closure_js_template_library">closure_js_template_library</a> rules.</p>
+</li>
+<li>
+<p dir="auto"><strong>css:</strong> (Label; optional) CSS class renaming target, which must point to a
+<a href="#closure_css_binary">closure_css_binary</a> rule. This causes the CSS name mapping file generated by
+the CSS compiler to be included in the compiled JavaScript.  This tells
+Closure Compiler how to minify CSS class names.</p>
+<p dir="auto">This attribute is required if any of JavaScript or template sources depend on
+a <a href="#closure_css_library">closure_css_library</a>. This rule will check that all the referenced CSS
+libraries are present in the CSS binary.</p>
+</li>
+<li>
+<p dir="auto"><strong>debug:</strong> (Boolean; optional; default is <code>False</code>) Enables debug mode. Many
+types of properties and variable names will be renamed to include <code>$</code>
+characters, to help you spot bugs when using <code>ADVANCED</code> compilation
+mode. Assert statements will not be stripped. Dependency directives will be
+removed.</p>
+</li>
+<li>
+<p dir="auto"><strong>language:</strong> (String; optional; default is <code>"ECMASCRIPT3"</code>) Output language
+variant to which library sources are transpiled. The default is ES3 because it
+works in all browsers. The input language is calculated automatically based on
+the <code>language</code> attribute of <a href="#closure_js_library">closure_js_library</a> dependencies.</p>
+</li>
+<li>
+<p dir="auto"><strong>entry_points:</strong> (List of String; optional; default is <code>[]</code>) List of
+unreferenced namespaces that should <em>not</em> be pruned by the compiler. This
+should only be necessary when you want to invoke them from a <code>&lt;script&gt;</code> tag on
+your HTML page. See <a href="https://github.com/bazelbuild/rules_closure/blob/master/closure/compiler/test/exports_and_entry_points/BUILD">Exports and Entry Points</a> to learn how this works with
+the <code>@export</code> feature. For further context, see the Closure Compiler
+documentation on <a href="https://github.com/google/closure-compiler/wiki/Managing-Dependencies">managing dependencies</a>.</p>
+</li>
+<li>
+<p dir="auto"><strong>dependency_mode:</strong> (String; optional; default is <code>"LOOSE"</code>) In rare
+circumstances you may want to set this flag to <code>"STRICT"</code>. See the
+<a href="https://github.com/bazelbuild/rules_closure/blob/master/closure/compiler/test/exports_and_entry_points/BUILD">Exports and Entry Points</a> unit tests and the Closure Compiler's
+<a href="https://github.com/google/closure-compiler/wiki/Managing-Dependencies">managing dependencies</a> documentation for more information.</p>
+</li>
+<li>
+<p dir="auto"><strong>compilation_level:</strong> (String; optional; default is <code>"ADVANCED"</code>) Specifies
+how minified you want your JavaScript binary to be. Valid options are:</p>
+<ul dir="auto">
+<li>
+<p dir="auto"><code>ADVANCED</code>: Enables maximal minification and type checking. This is
+<em>strongly</em> recommended for production binaries. <strong>Warning:</strong> Properties that
+are accessed with dot notation will be renamed. Use quoted notation if this
+presents problems for you, e.g. <code>foo['bar']</code>, <code>{'bar': ...}</code>.</p>
+</li>
+<li>
+<p dir="auto"><code>SIMPLE</code>: Tells the Closure Compiler to function more like a traditional
+JavaScript minifier. Type checking becomes disabled. Local variable names
+will be minified, but object properties and global names will
+not. Namespaces will be managed. Code that will never execute will be
+removed. Local functions and variables can be inlined, but globals can not.</p>
+</li>
+<li>
+<p dir="auto"><code>WHITESPACE_ONLY</code>: Tells the Closure Compiler to strip whitespace and
+comments. Transpilation between languages will still work. Type checking
+becomes disabled. No symbols will be renamed. Nothing will be inlined.
+Dependency statements will not be removed. <strong>ProTip:</strong> If you're using the
+Closure Library, you'll need to look into the <code>CLOSURE_NO_DEPS</code> and
+<code>goog.ENABLE_DEBUG_LOADER</code> options in order to execute the compiled output.)</p>
+</li>
+</ul>
+</li>
+<li>
+<p dir="auto"><strong>formatting:</strong> (String; optional) Specifies what is passed to the
+<code>--formatting</code> flag of the Closure Compiler. The following options are valid:</p>
+<ul dir="auto">
+<li><code>PRETTY_PRINT</code></li>
+<li><code>PRINT_INPUT_DELIMITER</code></li>
+<li><code>SINGLE_QUOTES</code></li>
+</ul>
+</li>
+<li>
+<p dir="auto"><strong>output_wrapper:</strong> (String; optional) Interpolate output into this string at
+the place denoted by the marker token <code>%output%</code>. Use the marker token
+<code>%output|jsstring%</code> to do JS string escaping on the output. The default
+behavior is to generate code that pollutes the global namespace. Many users
+will want to set this to <code>"(function(){%output%}).call(this);"</code> instead. See
+the <a href="https://github.com/google/closure-compiler/wiki/FAQ#when-using-advanced-optimizations-closure-compiler-adds-new-variables-to-the-global-scope-how-do-i-make-sure-my-variables-dont-collide-with-other-scripts-on-the-page">Closure Compiler FAQ</a> for more details.</p>
+</li>
+<li>
+<p dir="auto"><strong>property_renaming_report:</strong> (File; optional) Output file for property
+renaming report. It will contain lines in the form of <code>old:new</code>. This feature
+has some fringe use cases, such as minifying JSON messages. However it's
+recommended that you use protobuf instead.</p>
+</li>
+<li>
+<p dir="auto"><strong>defs:</strong> (List of strings; optional) Specifies additional flags to be passed
+to the Closure Compiler, e.g. <code>"--hide_warnings_for=some/path/"</code>. To see what
+flags are available, run:
+<code>bazel run @io_bazel_rules_closure//third_party/java/jscomp:main -- --help</code></p>
+</li>
+</ul>
+<h3 dir="auto"><a id="user-content-support-for-angularjs" class="anchor" aria-hidden="true" href="#support-for-angularjs"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Support for AngularJS</h3>
+<p dir="auto">When compiling AngularJS applications, you need to pass custom flags to the
+Closure Compiler. This can be accomplished by adding the following to your
+<a href="#closure_js_binary">closure_js_binary</a> rule:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="closure_js_binary(
+    # ...
+    defs = [
+        &quot;--angular_pass&quot;,
+        &quot;--export_local_property_definitions&quot;,
+    ],
+)"><pre><span class="pl-en">closure_js_binary</span>(
+    <span class="pl-c"># ...</span>
+    <span class="pl-s1">defs</span> <span class="pl-c1">=</span> [
+        <span class="pl-s">"--angular_pass"</span>,
+        <span class="pl-s">"--export_local_property_definitions"</span>,
+    ],
+)</pre></div>
+<h2 dir="auto"><a id="user-content-closure_js_test" class="anchor" aria-hidden="true" href="#closure_js_test"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>closure_js_test</h2>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@io_bazel_rules_closure//closure:defs.bzl&quot;, &quot;closure_js_test&quot;)
+closure_js_test(name, srcs, data, deps, css, html, language, suppress,
+                compilation_level, entry_points, defs)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@io_bazel_rules_closure//closure:defs.bzl"</span>, <span class="pl-s">"closure_js_test"</span>)
+<span class="pl-en">closure_js_test</span>(<span class="pl-s1">name</span>, <span class="pl-s1">srcs</span>, <span class="pl-s1">data</span>, <span class="pl-s1">deps</span>, <span class="pl-s1">css</span>, <span class="pl-s1">html</span>, <span class="pl-s1">language</span>, <span class="pl-s1">suppress</span>,
+                <span class="pl-s1">compilation_level</span>, <span class="pl-s1">entry_points</span>, <span class="pl-s1">defs</span>)</pre></div>
+<p dir="auto">Runs JavaScript unit tests inside a headless web browser.</p>
+<p dir="auto">This is a build macro that composes <a href="#closure_js_library">closure_js_library</a>, <a href="#closure_js_binary">closure_js_binary</a>,
+and <a href="#phantomjs_test">phantomjs_test</a>.</p>
+<p dir="auto">A test is defined as any function in the global namespace that begins with
+<code>test</code>, <code>setUp</code>, or <code>tearDown</code>. You are not required to <code>@export</code> these
+functions. If you don't have a global namespace, because you're using
+<code>goog.module</code> or <code>goog.scope</code>, then you must register your test functions with
+<code>goog.testing.testSuite</code>.</p>
+<p dir="auto">Each test file should require <code>goog.testing.jsunit</code> and <code>goog.testing.asserts</code>
+because they run the tests and provide useful <a href="https://github.com/google/closure-library/blob/master/closure/goog/testing/asserts.js#L1308">testing functions</a> such
+as <code>assertEquals()</code>.</p>
+<p dir="auto">Any JavaScript file related to testing is strongly recommended to contain a
+<code>goog.setTestOnly()</code> statement in the file. However this is not required,
+because some projects might not want to directly reference Closure Library
+functions.</p>
+<h4 dir="auto"><a id="user-content-no-network-access" class="anchor" aria-hidden="true" href="#no-network-access"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>No Network Access</h4>
+<p dir="auto">Your test will run within a hermetically sealed environment. You are not allowed
+to send HTTP requests to any external servers. It is expected that you'll use
+Closure Library mocks for things like XHR. However a local HTTP server is
+started up on a random port that allows to request runfiles under the
+<code>/filez/WORKSPACE_NAME/</code> path.</p>
+<h4 dir="auto"><a id="user-content-rule-polymorphism-2" class="anchor" aria-hidden="true" href="#rule-polymorphism-2"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Rule Polymorphism</h4>
+<p dir="auto">This rule can be referenced as though it were the following:</p>
+<ul dir="auto">
+<li><a href="https://docs.bazel.build/versions/master/be/general.html#filegroup" rel="nofollow">filegroup</a>: <code>srcs</code> will be the outputted executable, <code>data</code> will contain
+all transitive sources, data, and other runfiles.</li>
+</ul>
+<h3 dir="auto"><a id="user-content-arguments-2" class="anchor" aria-hidden="true" href="#arguments-2"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Arguments</h3>
+<ul dir="auto">
+<li>
+<p dir="auto"><strong>name:</strong> (<a href="https://docs.bazel.build/versions/master/build-ref.html#name" rel="nofollow">Name</a>; required) A unique name for this rule.</p>
+</li>
+<li>
+<p dir="auto"><strong>srcs:</strong> (List of <a href="https://docs.bazel.build/versions/master/build-ref.html#labels" rel="nofollow">labels</a>; required) List of <code>_test.js</code> source files that
+register test functions.</p>
+</li>
+<li>
+<p dir="auto"><strong>deps:</strong> (List of <a href="https://docs.bazel.build/versions/master/build-ref.html#labels" rel="nofollow">labels</a>; optional) Direct dependency list passed along to
+<a href="#closure_js_library">closure_js_library</a>.</p>
+</li>
+<li>
+<p dir="auto"><strong>data:</strong> (List of <a href="https://docs.bazel.build/versions/master/build-ref.html#labels" rel="nofollow">labels</a>; optional) Passed to <a href="#closure_js_library">closure_js_library</a>.</p>
+</li>
+<li>
+<p dir="auto"><strong>css:</strong> Passed to <a href="#closure_js_binary">closure_js_binary</a>.</p>
+</li>
+<li>
+<p dir="auto"><strong>html:</strong> Passed to <a href="#phantomjs_test">phantomjs_test</a>.</p>
+</li>
+<li>
+<p dir="auto"><strong>language:</strong> Passed to <a href="#closure_js_binary">closure_js_binary</a>.</p>
+</li>
+<li>
+<p dir="auto"><strong>compilation_level:</strong> Passed to <a href="#closure_js_binary">closure_js_binary</a>. Setting this to
+<code>"WHITESPACE_ONLY"</code> will cause tests to run significantly faster (at the
+expense of type checking.)</p>
+</li>
+<li>
+<p dir="auto"><strong>suppress:</strong> Passed to <a href="#closure_js_library">closure_js_library</a>.</p>
+</li>
+<li>
+<p dir="auto"><strong>entry_points:</strong> If a dict, the source file is looked up for the value to pass to <a href="#closure_js_binary">closure_js_binary</a>.  Otherwise, passed directly to <a href="#closure_js_binary">closure_js_binary</a>.</p>
+</li>
+<li>
+<p dir="auto"><strong>defs:</strong> Passed to <a href="#closure_js_binary">closure_js_binary</a>.</p>
+</li>
+</ul>
+<h2 dir="auto"><a id="user-content-phantomjs_test" class="anchor" aria-hidden="true" href="#phantomjs_test"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>phantomjs_test</h2>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@io_bazel_rules_closure//closure:defs.bzl&quot;, &quot;phantomjs_test&quot;)
+phantomjs_test(name, data, deps, html, harness, runner)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@io_bazel_rules_closure//closure:defs.bzl"</span>, <span class="pl-s">"phantomjs_test"</span>)
+<span class="pl-en">phantomjs_test</span>(<span class="pl-s1">name</span>, <span class="pl-s1">data</span>, <span class="pl-s1">deps</span>, <span class="pl-s1">html</span>, <span class="pl-s1">harness</span>, <span class="pl-s1">runner</span>)</pre></div>
+<p dir="auto">Runs PhantomJS (QtWebKit) for unit testing purposes.</p>
+<p dir="auto">This is a low level rule. Please use the <a href="#closure_js_test">closure_js_test</a> macro if possible.</p>
+<h4 dir="auto"><a id="user-content-rule-polymorphism-3" class="anchor" aria-hidden="true" href="#rule-polymorphism-3"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Rule Polymorphism</h4>
+<p dir="auto">This rule can be referenced as though it were the following:</p>
+<ul dir="auto">
+<li><a href="https://docs.bazel.build/versions/master/be/general.html#filegroup" rel="nofollow">filegroup</a>: <code>srcs</code> will be the outputted executable, <code>data</code> will contain
+all transitive sources, data, and other runfiles.</li>
+</ul>
+<h3 dir="auto"><a id="user-content-arguments-3" class="anchor" aria-hidden="true" href="#arguments-3"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Arguments</h3>
+<ul dir="auto">
+<li>
+<p dir="auto"><strong>name:</strong> (<a href="https://docs.bazel.build/versions/master/build-ref.html#name" rel="nofollow">Name</a>; required) Unique name for this rule.</p>
+</li>
+<li>
+<p dir="auto"><strong>data:</strong> (List of <a href="https://docs.bazel.build/versions/master/build-ref.html#labels" rel="nofollow">labels</a>; optional) Additional runfiles for the local HTTP
+server to serve, under the <code>/filez/</code> + repository path. This attribute should
+not be necessary, because the transitive runfile data is already collected
+from dependencies.</p>
+</li>
+<li>
+<p dir="auto"><strong>deps:</strong> (List of <a href="https://docs.bazel.build/versions/master/build-ref.html#labels" rel="nofollow">labels</a>; required) Labels of Skylark rules exporting
+<code>transitive_js_srcs</code>. Each source will be inserted into the webpage in its own
+<code>&lt;script&gt;</code> tag based on a depth-first preordering.</p>
+</li>
+<li>
+<p dir="auto"><strong>html:</strong> (Label; optional; default is
+<code>"@io_bazel_rules_closure//closure/testing:empty.html"</code>) HTML file containing
+DOM structure of virtual web page <em>before</em> <code>&lt;script&gt;</code> tags are automatically
+inserted. Do not include a doctype in this file.</p>
+</li>
+<li>
+<p dir="auto"><strong>harness:</strong> (Label; required; default is
+<code>"@io_bazel_rules_closure//closure/testing:phantomjs_harness"</code>) JS binary or
+library exporting a single source file, to be used as the PhantomJS outer
+script.</p>
+</li>
+<li>
+<p dir="auto"><strong>runner:</strong> (Label; optional; default is
+<code>"@io_bazel_rules_closure//closure/testing:phantomjs_jsunit_runner"</code>) Same as
+<code>deps</code> but guaranteed to be loaded inside the virtual web page last. This
+should run whatever tests got loaded by <code>deps</code> and then invoke <code>callPhantom</code>
+to report the result to the <code>harness</code>.</p>
+</li>
+</ul>
+<h2 dir="auto"><a id="user-content-closure_js_template_library" class="anchor" aria-hidden="true" href="#closure_js_template_library"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>closure_js_template_library</h2>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@io_bazel_rules_closure//closure:defs.bzl&quot;, &quot;closure_js_template_library&quot;)
+closure_js_template_library(name, srcs, data, deps, globals, plugin_modules,
+                            should_generate_js_doc,
+                            should_generate_soy_msg_defs,
+                            bidi_global_dir,
+                            soy_msgs_are_external,
+                            defs)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@io_bazel_rules_closure//closure:defs.bzl"</span>, <span class="pl-s">"closure_js_template_library"</span>)
+<span class="pl-en">closure_js_template_library</span>(<span class="pl-s1">name</span>, <span class="pl-s1">srcs</span>, <span class="pl-s1">data</span>, <span class="pl-s1">deps</span>, <span class="pl-s1">globals</span>, <span class="pl-s1">plugin_modules</span>,
+                            <span class="pl-s1">should_generate_js_doc</span>,
+                            <span class="pl-s1">should_generate_soy_msg_defs</span>,
+                            <span class="pl-s1">bidi_global_dir</span>,
+                            <span class="pl-s1">soy_msgs_are_external</span>,
+                            <span class="pl-s1">defs</span>)</pre></div>
+<p dir="auto">Compiles Closure templates to JavaScript source files.</p>
+<p dir="auto">This rule is necessary in order to render Closure templates from within
+JavaScript code.</p>
+<p dir="auto">This rule pulls in a transitive dependency on the Closure Library.</p>
+<p dir="auto">The documentation on using Closure Templates can be found
+<a href="https://developers.google.com/closure/templates/" rel="nofollow">here</a>.</p>
+<p dir="auto">For additional help on using some of these attributes, please see the output of
+the following:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="bazel run @com_google_template_soy//:SoyToJsSrcCompiler -- --help"><pre class="notranslate"><code>bazel run @com_google_template_soy//:SoyToJsSrcCompiler -- --help
+</code></pre></div>
+<h4 dir="auto"><a id="user-content-implicit-output-targets-1" class="anchor" aria-hidden="true" href="#implicit-output-targets-1"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Implicit Output Targets</h4>
+<ul dir="auto">
+<li><em>src</em>.js: A separate JavaScript source file is generated for each file listed
+under <code>srcs</code>. The filename will be the same as the template with a <code>.js</code>
+suffix. For example <code>foo.soy</code> would become <code>foo.soy.js</code>.</li>
+</ul>
+<h4 dir="auto"><a id="user-content-rule-polymorphism-4" class="anchor" aria-hidden="true" href="#rule-polymorphism-4"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Rule Polymorphism</h4>
+<p dir="auto">This rule can be referenced as though it were the following:</p>
+<ul dir="auto">
+<li>
+<p dir="auto"><a href="https://docs.bazel.build/versions/master/be/general.html#filegroup" rel="nofollow">filegroup</a>: <code>srcs</code> will be the generated JS output files and <code>data</code> will
+contain all transitive JS sources and data.</p>
+</li>
+<li>
+<p dir="auto"><a href="#closure_js_library">closure_js_library</a>: <code>srcs</code> will be the generated JS output files, <code>data</code>
+will contain the transitive data, <code>deps</code> will contain necessary libraries, and
+<code>no_closure_library</code> will be <code>False</code>.</p>
+</li>
+</ul>
+<h3 dir="auto"><a id="user-content-arguments-4" class="anchor" aria-hidden="true" href="#arguments-4"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Arguments</h3>
+<ul dir="auto">
+<li>
+<p dir="auto"><strong>name:</strong> (<a href="https://docs.bazel.build/versions/master/build-ref.html#name" rel="nofollow">Name</a>; required) A unique name for this rule.</p>
+</li>
+<li>
+<p dir="auto"><strong>srcs:</strong> (List of <a href="https://docs.bazel.build/versions/master/build-ref.html#labels" rel="nofollow">labels</a>; required) A list of <code>.soy</code> source files that
+represent this library.</p>
+</li>
+<li>
+<p dir="auto"><strong>data:</strong> (List of <a href="https://docs.bazel.build/versions/master/build-ref.html#labels" rel="nofollow">labels</a>; optional) Runfiles directly referenced by Soy
+sources in this rule. For example, if the template has an <code>&lt;img src=foo.png&gt;</code>
+tag, then the data attribute of its rule should be set to <code>["foo.png"]</code> so the
+image is available in the web server runfiles.</p>
+</li>
+<li>
+<p dir="auto"><strong>deps:</strong> (List of <a href="https://docs.bazel.build/versions/master/build-ref.html#labels" rel="nofollow">labels</a>; optional) List of <a href="#closure_js_library">closure_js_library</a>,
+<a href="#closure_js_template_library">closure_js_template_library</a> and <a href="#closure_js_proto_library">closure_js_proto_library</a> targets which
+define symbols referenced by the template.</p>
+</li>
+<li>
+<p dir="auto"><strong>globals:</strong> (List of <a href="https://docs.bazel.build/versions/master/build-ref.html#labels" rel="nofollow">labels</a>; optional) List of text files containing symbol
+definitions that are only considered at compile-time. For example, this file
+might look as follows:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="com.foo.bar.Debug.PRODUCTION = 0
+com.foo.bar.Debug.DEBUG = 1
+com.foo.bar.Debug.RAW = 2"><pre class="notranslate"><code>com.foo.bar.Debug.PRODUCTION = 0
+com.foo.bar.Debug.DEBUG = 1
+com.foo.bar.Debug.RAW = 2
+</code></pre></div>
+</li>
+<li>
+<p dir="auto"><strong>plugin_modules:</strong> (List of <a href="https://docs.bazel.build/versions/master/build-ref.html#labels" rel="nofollow">labels</a>; optional; default is <code>[]</code>) Passed along
+verbatim to the SoyToJsSrcCompiler above.</p>
+</li>
+<li>
+<p dir="auto"><strong>should_generate_js_doc:</strong> (Boolean; optional; default is <code>True</code>) Passed
+along verbatim to the SoyToJsSrcCompiler above.</p>
+</li>
+<li>
+<p dir="auto"><strong>should_generate_soy_msg_defs:</strong> (Boolean; optional; default is <code>False</code>)
+Passed along verbatim to the SoyToJsSrcCompiler above.</p>
+</li>
+<li>
+<p dir="auto"><strong>bidi_global_dir:</strong> (Integer; optional; default is <code>1</code>)
+Passed along verbatim to the SoyToJsSrcCompiler above.
+Valid values are 1 (LTR) or -1 (RTL).</p>
+</li>
+<li>
+<p dir="auto"><strong>soy_msgs_are_external:</strong> (Boolean; optional; default is <code>False</code>) Passed
+along verbatim to the SoyToJsSrcCompiler above.</p>
+</li>
+<li>
+<p dir="auto"><strong>defs:</strong> (List of strings; optional) Passed along verbatim to the
+SoyToJsSrcCompiler above.</p>
+</li>
+</ul>
+<h2 dir="auto"><a id="user-content-closure_java_template_library" class="anchor" aria-hidden="true" href="#closure_java_template_library"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>closure_java_template_library</h2>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@io_bazel_rules_closure//closure:defs.bzl&quot;, &quot;closure_java_template_library&quot;)
+closure_java_template_library(name, srcs, data, deps, java_package)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@io_bazel_rules_closure//closure:defs.bzl"</span>, <span class="pl-s">"closure_java_template_library"</span>)
+<span class="pl-en">closure_java_template_library</span>(<span class="pl-s1">name</span>, <span class="pl-s1">srcs</span>, <span class="pl-s1">data</span>, <span class="pl-s1">deps</span>, <span class="pl-s1">java_package</span>)</pre></div>
+<p dir="auto">Compiles Closure templates to Java source files.</p>
+<p dir="auto">This rule is necessary in order to serve Closure templates from a Java backend.</p>
+<p dir="auto">Unlike <a href="#closure_js_template_library">closure_js_template_library</a>, globals are not specified by this rule.
+They get added at runtime by your Java code when serving templates.</p>
+<p dir="auto">This rule pulls in a transitive dependency on Guava, Guice, and ICU4J.</p>
+<p dir="auto">The documentation on using Closure Templates can be found
+<a href="https://developers.google.com/closure/templates/" rel="nofollow">here</a>.</p>
+<p dir="auto">For additional help on using some of these attributes, please see the output of
+the following:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="bazel run @com_google_template_soy//:SoyParseInfoGenerator -- --help"><pre class="notranslate"><code>bazel run @com_google_template_soy//:SoyParseInfoGenerator -- --help
+</code></pre></div>
+<h4 dir="auto"><a id="user-content-implicit-output-targets-2" class="anchor" aria-hidden="true" href="#implicit-output-targets-2"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Implicit Output Targets</h4>
+<ul dir="auto">
+<li>SrcSoyInfo.java: A separate Java source file is generated for each file
+listed under <code>srcs</code>. The filename will be the same as the template, converted
+to upper camel case, with a <code>SoyInfo.java</code> suffix. For example <code>foo_bar.soy</code>
+would become <code>FooBarSoyInfo.java</code>.</li>
+</ul>
+<h4 dir="auto"><a id="user-content-rule-polymorphism-5" class="anchor" aria-hidden="true" href="#rule-polymorphism-5"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Rule Polymorphism</h4>
+<p dir="auto">This rule can be referenced as though it were the following:</p>
+<ul dir="auto">
+<li>
+<p dir="auto"><a href="https://docs.bazel.build/versions/master/be/general.html#filegroup" rel="nofollow">filegroup</a>: <code>srcs</code> will be the compiled jar file and <code>data</code> will contain all
+transitive data.</p>
+</li>
+<li>
+<p dir="auto"><a href="https://docs.bazel.build/versions/master/be/java.html#java_library" rel="nofollow">java_library</a>: <code>srcs</code> will be the generated Java source files, and <code>data</code>
+will contain the transitive data.</p>
+</li>
+</ul>
+<h3 dir="auto"><a id="user-content-arguments-5" class="anchor" aria-hidden="true" href="#arguments-5"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Arguments</h3>
+<ul dir="auto">
+<li>
+<p dir="auto"><strong>name:</strong> (<a href="https://docs.bazel.build/versions/master/build-ref.html#name" rel="nofollow">Name</a>; required) A unique name for this rule.</p>
+</li>
+<li>
+<p dir="auto"><strong>srcs:</strong> (List of <a href="https://docs.bazel.build/versions/master/build-ref.html#labels" rel="nofollow">labels</a>; required) A list of <code>.soy</code> source files that
+represent this library.</p>
+</li>
+<li>
+<p dir="auto"><strong>data:</strong> (List of <a href="https://docs.bazel.build/versions/master/build-ref.html#labels" rel="nofollow">labels</a>; optional) Runfiles directly referenced by Soy
+sources in this rule. For example, if the template has an <code>&lt;img src=foo.png&gt;</code>
+tag, then the data attribute of its rule should be set to <code>["foo.png"]</code> so the
+image is available in the web server runfiles.</p>
+</li>
+<li>
+<p dir="auto"><strong>deps:</strong> (List of <a href="https://docs.bazel.build/versions/master/build-ref.html#labels" rel="nofollow">labels</a>; optional) Soy files to parse but not to generate
+outputs for.</p>
+</li>
+<li>
+<p dir="auto"><strong>java_package:</strong> (List of <a href="https://docs.bazel.build/versions/master/build-ref.html#labels" rel="nofollow">labels</a>; required) The package for the Java files
+that are generated, e.g. <code>"com.foo.soy"</code>.</p>
+</li>
+</ul>
+<h2 dir="auto"><a id="user-content-closure_py_template_library" class="anchor" aria-hidden="true" href="#closure_py_template_library"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>closure_py_template_library</h2>
+<p dir="auto">TODO</p>
+<h2 dir="auto"><a id="user-content-closure_css_library" class="anchor" aria-hidden="true" href="#closure_css_library"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>closure_css_library</h2>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@io_bazel_rules_closure//closure:defs.bzl&quot;, &quot;closure_css_library&quot;)
+closure_css_library(name, srcs, data, deps)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@io_bazel_rules_closure//closure:defs.bzl"</span>, <span class="pl-s">"closure_css_library"</span>)
+<span class="pl-en">closure_css_library</span>(<span class="pl-s1">name</span>, <span class="pl-s1">srcs</span>, <span class="pl-s1">data</span>, <span class="pl-s1">deps</span>)</pre></div>
+<p dir="auto">Defines a set of CSS stylesheets.</p>
+<p dir="auto">This rule does not compile your stylesheets; it is used in conjunction with
+<a href="#closure_css_binary">closure_css_binary</a> which produces the minified CSS file.</p>
+<p dir="auto">This rule should be referenced by any <a href="#closure_js_library">closure_js_library</a> rule whose sources
+contain a <code>goog.getCssName('foo')</code> call if <code>foo</code> is a CSS class name defined by
+this rule. The same concept applies to <a href="#closure_js_template_library">closure_js_template_library</a> rules that
+contain <code>{css('foo')}</code> expressions.</p>
+<h4 dir="auto"><a id="user-content-rule-polymorphism-6" class="anchor" aria-hidden="true" href="#rule-polymorphism-6"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Rule Polymorphism</h4>
+<p dir="auto">This rule can be referenced as though it were the following:</p>
+<ul dir="auto">
+<li>
+<p dir="auto"><a href="https://docs.bazel.build/versions/master/be/general.html#filegroup" rel="nofollow">filegroup</a>: <code>srcs</code> will be the generated JS output files and <code>data</code> will
+contain all transitive CSS/GSS sources and data.</p>
+</li>
+<li>
+<p dir="auto"><a href="#closure_js_library">closure_js_library</a>: <code>srcs</code> is empty, <code>data</code> is the transitive CSS sources
+and data, and <code>no_closure_library</code> is <code>True</code>. However the
+closure_css_library rule does pass special information along when used as a
+dep in closure_js_library. See its documentation to learn more.</p>
+</li>
+</ul>
+<h3 dir="auto"><a id="user-content-arguments-6" class="anchor" aria-hidden="true" href="#arguments-6"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Arguments</h3>
+<ul dir="auto">
+<li>
+<p dir="auto"><strong>name:</strong> (<a href="https://docs.bazel.build/versions/master/build-ref.html#name" rel="nofollow">Name</a>; required) A unique name for this rule. Convention states
+that this end with <code>_lib</code>.</p>
+</li>
+<li>
+<p dir="auto"><strong>srcs:</strong> (List of <a href="https://docs.bazel.build/versions/master/build-ref.html#labels" rel="nofollow">labels</a>; required) A list of <code>.gss</code> or <code>.css</code> source files
+that represent this library.</p>
+<p dir="auto">The order of stylsheets is <code>srcs</code> is undefined. If a CSS file overrides
+definitions in another CSS file, then each file must be specified in separate
+<a href="#closure_css_library">closure_css_library</a> targets. That way Bazel can order your CSS definitions
+based on the depth-first preordering of dependent rules.</p>
+<p dir="auto">It is strongly recommended you use <code>@provide</code> and <code>@require</code> statements in
+your stylesheets so the CSS compiler can assert that the ordering is accurate.</p>
+</li>
+<li>
+<p dir="auto"><strong>data:</strong> (List of <a href="https://docs.bazel.build/versions/master/build-ref.html#labels" rel="nofollow">labels</a>; optional) Runfiles directly referenced by CSS
+sources in this rule. For example, if the CSS has a <code>url(foo.png)</code> then the
+data attribute of its rule should be set to <code>["foo.png"]</code> so the image is
+available in the web server runfiles.</p>
+</li>
+<li>
+<p dir="auto"><strong>deps:</strong> (List of <a href="https://docs.bazel.build/versions/master/build-ref.html#labels" rel="nofollow">labels</a>; optional) List of other <a href="#closure_css_library">closure_css_library</a>
+targets on which the CSS files in <code>srcs</code> depend.</p>
+</li>
+<li>
+<p dir="auto"><strong>orientation:</strong> (String; optional; default is <code>"LTR"</code>) Defines the text
+direction for which this CSS was designed. This value can be:</p>
+<ul dir="auto">
+<li><code>LTR</code>: Outputs a sheet suitable for left to right display.</li>
+<li><code>RTL</code>: Outputs a sheet suitable for right to left display.</li>
+</ul>
+<p dir="auto">An error will be raised if any <code>deps</code> do not have the same orientation. CSS
+libraries with different orientations can be linked together by creating an
+intermediary <a href="#closure_css_binary">closure_css_binary</a> that flips its orientation.</p>
+</li>
+</ul>
+<h2 dir="auto"><a id="user-content-closure_css_binary" class="anchor" aria-hidden="true" href="#closure_css_binary"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>closure_css_binary</h2>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@io_bazel_rules_closure//closure:defs.bzl&quot;, &quot;closure_css_binary&quot;)
+closure_css_binary(name, deps, renaming, debug, defs)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@io_bazel_rules_closure//closure:defs.bzl"</span>, <span class="pl-s">"closure_css_binary"</span>)
+<span class="pl-en">closure_css_binary</span>(<span class="pl-s1">name</span>, <span class="pl-s1">deps</span>, <span class="pl-s1">renaming</span>, <span class="pl-s1">debug</span>, <span class="pl-s1">defs</span>)</pre></div>
+<p dir="auto">Turns stylesheets defined by <a href="#closure_css_library">closure_css_library</a> rules into a single minified
+CSS file.</p>
+<p dir="auto">Closure-specific syntax such as variables, functions, conditionals, and mixins
+will be evaluated and turned into normal CSS. The documentation on using these
+features can be found <a href="https://github.com/google/closure-stylesheets">here</a>.</p>
+<p dir="auto">Unlike most CSS minifiers, this will minify class names by default. So this rule
+can be referenced by the <code>css</code> flag of <a href="#closure_js_binary">closure_js_binary</a>, in order to let the
+Closure Compiler know how to substitute the minified class names. See the
+<code>renaming</code> documentation below for more information.</p>
+<h4 dir="auto"><a id="user-content-implicit-output-targets-3" class="anchor" aria-hidden="true" href="#implicit-output-targets-3"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Implicit Output Targets</h4>
+<ul dir="auto">
+<li>
+<p dir="auto"><em>name</em>.css: A minified CSS file defining the transitive closure of dependent
+stylesheets compiled in a depth-first preordering.</p>
+</li>
+<li>
+<p dir="auto"><em>name</em>.css.map: <a href="https://developer.chrome.com/devtools/docs/css-preprocessors" rel="nofollow">CSS sourcemap file</a>. This tells browsers like
+Chrome and Firefox where your CSS definitions are located in their original
+source files.</p>
+</li>
+<li>
+<p dir="auto"><em>name</em>.css.js: JavaScript file containing a <code>goog.setCssNameMapping()</code>
+statement which tells the Closure Compiler and Library how to minify CSS class
+names. The use of this file is largely handled transparently by the build
+system. The user should only need to worry about this file when rendering Soy
+templates from Java code, because its contents will need to be parsed into a
+map using a regular expression, which is then passed to the Soy Tofu Java
+runtime.</p>
+</li>
+</ul>
+<h4 dir="auto"><a id="user-content-rule-polymorphism-7" class="anchor" aria-hidden="true" href="#rule-polymorphism-7"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Rule Polymorphism</h4>
+<p dir="auto">This rule can be referenced as though it were the following:</p>
+<ul dir="auto">
+<li>
+<p dir="auto"><a href="https://docs.bazel.build/versions/master/be/general.html#filegroup" rel="nofollow">filegroup</a>: <code>srcs</code> will be the generated .css, .css.map, and .css.js output
+files. <code>data</code> will contain all transitive CSS/GSS sources and data.</p>
+</li>
+<li>
+<p dir="auto"><a href="#closure_css_library">closure_css_library</a>: <code>srcs</code> is the output .css file, <code>data</code> is the
+transitive CSS sources and data, and <code>orientation</code> is the output orientation.</p>
+</li>
+</ul>
+<h3 dir="auto"><a id="user-content-arguments-7" class="anchor" aria-hidden="true" href="#arguments-7"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Arguments</h3>
+<ul dir="auto">
+<li>
+<p dir="auto"><strong>name:</strong> (<a href="https://docs.bazel.build/versions/master/build-ref.html#name" rel="nofollow">Name</a>; required) A unique name for this rule. Convention states
+that such rules be named <code>foo_bin</code> or <code>foo_dbg</code> if <code>debug = True</code>.</p>
+</li>
+<li>
+<p dir="auto"><strong>deps:</strong> (List of <a href="https://docs.bazel.build/versions/master/build-ref.html#labels" rel="nofollow">labels</a>; required) List of <a href="#closure_css_library">closure_css_library</a> rules to
+compile. All dependencies must have their <code>orientation</code> attribute set to the
+same value.</p>
+</li>
+<li>
+<p dir="auto"><strong>renaming:</strong> (Boolean; optional; default is <code>True</code>) Enables CSS class name
+minification. This is one of the most powerful features of the Closure Tools.
+By default, this will turn class names like <code>.foo-bar</code> into things like
+<code>.a-b</code>. If <code>debug = True</code> then it will be renamed <code>.foo_-bar_</code>.</p>
+<p dir="auto">In order for this to work, you must update your JavaScript code to use the
+<code>goog.getCssName("foo-bar")</code> when referencing class names. JavaScript
+library targets that reference CSS classes must add the appropriate CSS
+library to its <code>deps</code> attribute. The <code>css</code> attribute of the
+<a href="#closure_js_binary">closure_js_binary</a> also needs to be updated to point to this CSS binary
+target, so the build system can verify (at compile time) that your CSS and
+JS binaries are both being compiled in a harmonious way.</p>
+<p dir="auto">You'll also need update your templates to say <code>{css('foo-bar')}</code> in place of
+class names. The <a href="#closure_js_template_library">closure_js_template_library</a> must also depend on the
+appropriate CSS library.</p>
+</li>
+<li>
+<p dir="auto"><strong>debug:</strong> (Boolean; optional; default is <code>False</code>) Enables debug mode, which
+causes the compiled stylesheet to be pretty printed. If <code>renaming = True</code> then
+class names will be renamed, but still readable to humans.</p>
+</li>
+<li>
+<p dir="auto"><strong>orientation:</strong> (String; optional; default is <code>"NOCHANGE"</code>) Specify this
+option to perform automatic right to left conversion of the input. You can
+choose between:</p>
+<ul dir="auto">
+<li><code>NOCHANGE</code>: Uses same orientation as was specified in dependent libraries.</li>
+<li><code>LTR</code>: Outputs a sheet suitable for left to right display.</li>
+<li><code>RTL</code>: Outputs a sheet suitable for right to left display.</li>
+</ul>
+<p dir="auto">The input orientation is calculated from the <code>orientation</code> flag of all
+<a href="#closure_css_library">closure_css_library</a> targets listed in <code>deps</code>. If the input orientation is
+different than the requested output orientation, then 'left' and 'right'
+values in direction sensitive style rules are flipped. If the input already
+has the desired orientation, this option effectively does nothing except for
+defining <code>GSS_LTR</code> and <code>GSS_RTL</code>, respectively.</p>
+</li>
+<li>
+<p dir="auto"><strong>vendor:</strong> (String; optional; default is <code>None</code>) Creates
+browser-vendor-specific output by stripping all proprietary browser-vendor
+properties from the output except for those associated with this vendor. Valid
+values are:</p>
+<ul dir="auto">
+<li><code>WEBKIT</code></li>
+<li><code>MOZILLA</code></li>
+<li><code>MICROSOFT</code></li>
+<li><code>OPERA</code></li>
+<li><code>KONQUEROR</code></li>
+</ul>
+<p dir="auto">The default behavior is to not strip any browser-vendor properties.</p>
+</li>
+<li>
+<p dir="auto"><strong>defs:</strong> (List of strings; optional) Specifies additional flags to be passed
+to the Closure Stylesheets compiler. To see what flags are available, run:
+<code>bazel run @com_google_closure_stylesheets//:ClosureCommandLineCompiler -- --help</code></p>
+</li>
+</ul>
+<h2 dir="auto"><a id="user-content-closure_js_proto_library" class="anchor" aria-hidden="true" href="#closure_js_proto_library"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>closure_js_proto_library</h2>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@io_bazel_rules_closure//closure:defs.bzl&quot;, &quot;closure_js_proto_library&quot;)
+closure_js_proto_library(name, srcs, add_require_for_enums, binary,
+                         import_style)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@io_bazel_rules_closure//closure:defs.bzl"</span>, <span class="pl-s">"closure_js_proto_library"</span>)
+<span class="pl-en">closure_js_proto_library</span>(<span class="pl-s1">name</span>, <span class="pl-s1">srcs</span>, <span class="pl-s1">add_require_for_enums</span>, <span class="pl-s1">binary</span>,
+                         <span class="pl-s1">import_style</span>)</pre></div>
+<p dir="auto">Defines a set of Protocol Buffer files.</p>
+<h4 dir="auto"><a id="user-content-documentation" class="anchor" aria-hidden="true" href="#documentation"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Documentation</h4>
+<ul dir="auto">
+<li><a href="https://github.com/google/protobuf">Protocol Buffers</a> GitHub project</li>
+<li><a href="https://github.com/google/protobuf/tree/master/js">Protobuf JavaScript</a></li>
+<li><a href="https://github.com/google/protobuf/blob/master/src/google/protobuf/compiler/js/js_generator.h">Generator Options</a></li>
+</ul>
+<h4 dir="auto"><a id="user-content-implicit-output-targets-4" class="anchor" aria-hidden="true" href="#implicit-output-targets-4"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Implicit Output Targets</h4>
+<ul dir="auto">
+<li>
+<p dir="auto"><em>name</em>.js: A generated protocol buffer JavaScript library.</p>
+</li>
+<li>
+<p dir="auto"><em>name</em>.descriptor: A protoc FileDescriptorsSet representation of the .proto
+files.</p>
+</li>
+</ul>
+<h4 dir="auto"><a id="user-content-rule-polymorphism-8" class="anchor" aria-hidden="true" href="#rule-polymorphism-8"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Rule Polymorphism</h4>
+<p dir="auto">This rule can be referenced as though it were the following:</p>
+<ul dir="auto">
+<li>
+<p dir="auto"><a href="https://docs.bazel.build/versions/master/be/general.html#filegroup" rel="nofollow">filegroup</a>: <code>srcs</code> will be empty and <code>data</code> will contain all transitive JS
+sources and data.</p>
+</li>
+<li>
+<p dir="auto"><a href="#closure_js_library">closure_js_library</a>: <code>srcs</code> will be the generated JS output files, <code>data</code>
+will contain the transitive data, and <code>deps</code> will contain necessary libraries.</p>
+</li>
+</ul>
+<h3 dir="auto"><a id="user-content-arguments-8" class="anchor" aria-hidden="true" href="#arguments-8"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Arguments</h3>
+<ul dir="auto">
+<li>
+<p dir="auto"><strong>name:</strong> (<a href="https://docs.bazel.build/versions/master/build-ref.html#name" rel="nofollow">Name</a>; required) A unique name for this rule. Convention states
+that such rules be named <code>foo_proto</code>.</p>
+</li>
+<li>
+<p dir="auto"><strong>srcs:</strong> (List of <a href="https://docs.bazel.build/versions/master/build-ref.html#labels" rel="nofollow">labels</a>; required) A list of <code>.proto</code> source files that
+represent this library.</p>
+</li>
+<li>
+<p dir="auto"><strong>add_require_for_enums:</strong> (Boolean; optional; default is <code>False</code>) Add a
+<code>goog.require()</code> call for each enum type used. If false, a forward
+declaration with <code>goog.forwardDeclare</code> is produced instead.</p>
+</li>
+<li>
+<p dir="auto"><strong>binary:</strong> (Boolean; optional; default is <code>True</code>) Enable binary-format
+support.</p>
+</li>
+<li>
+<p dir="auto"><strong>import_style:</strong> (String; optional; default is <code>IMPORT_CLOSURE</code>) Specifies
+the type of imports that should be used. Valid values are:</p>
+<ul dir="auto">
+<li><code>IMPORT_CLOSURE</code>    // goog.require()</li>
+<li><code>IMPORT_COMMONJS</code>   // require()</li>
+<li><code>IMPORT_BROWSER</code>    // no import statements</li>
+<li><code>IMPORT_ES6</code>        // import { member } from ''</li>
+</ul>
+</li>
+</ul>
+<h2 dir="auto"><a id="user-content-closure_proto_library" class="anchor" aria-hidden="true" href="#closure_proto_library"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>closure_proto_library</h2>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@io_bazel_rules_closure//closure:defs.bzl&quot;, &quot;closure_proto_library&quot;)
+closure_proto_library(name, deps)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@io_bazel_rules_closure//closure:defs.bzl"</span>, <span class="pl-s">"closure_proto_library"</span>)
+<span class="pl-en">closure_proto_library</span>(<span class="pl-s1">name</span>, <span class="pl-s1">deps</span>)</pre></div>
+<p dir="auto"><code>closure_proto_library</code> generates JS code from <code>.proto</code> files.</p>
+<p dir="auto"><code>deps</code> must point to <a href="https://docs.bazel.build/versions/master/be/protocol-buffer.html#proto_library" rel="nofollow">proto_library</a> rules.</p>
+<h4 dir="auto"><a id="user-content-rule-polymorphism-9" class="anchor" aria-hidden="true" href="#rule-polymorphism-9"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Rule Polymorphism</h4>
+<p dir="auto">This rule can be referenced as though it were the following:</p>
+<ul dir="auto">
+<li>
+<p dir="auto"><a href="#closure_js_library">closure_js_library</a>: <code>srcs</code> will be the generated JS files,
+and <code>deps</code> will contain necessary libraries.</p>
+</li>
+<li>
+<p dir="auto"><strong>name:</strong> (<a href="https://docs.bazel.build/versions/master/build-ref.html#name" rel="nofollow">Name</a>; required) A unique name for this rule. Convention states
+that such rules be named <code>*_closure_proto</code>.</p>
+</li>
+<li>
+<p dir="auto"><strong>deps:</strong> (List of <a href="https://docs.bazel.build/versions/master/build-ref.html#labels" rel="nofollow">labels</a>; required) The list of <a href="https://docs.bazel.build/versions/master/be/protocol-buffer.html#proto_library" rel="nofollow">proto_library</a> rules
+to generate JS code for.</p>
+</li>
+</ul>
+</article></div>

@@ -1,0 +1,314 @@
+<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><h1 dir="auto"><a id="user-content-python-rules-for-bazel" class="anchor" aria-hidden="true" href="#python-rules-for-bazel"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Python Rules for Bazel</h1>
+<ul dir="auto">
+<li>Postsubmit <a href="https://buildkite.com/bazel/python-rules-python-postsubmit" rel="nofollow"><img src="https://camo.githubusercontent.com/0871bd13e80ed87a72a41f4292ccebb9e17714fc14c87257e9278854192c8e1e/68747470733a2f2f62616467652e6275696c646b6974652e636f6d2f30626366653538623666353734316161636230396231323438353936396261376131323035393535613435623533653835342e7376673f6272616e63683d6d61696e" alt="Build status" data-canonical-src="https://badge.buildkite.com/0bcfe58b6f5741aacb09b12485969ba7a1205955a45b53e854.svg?branch=main" style="max-width: 100%;"></a></li>
+<li>Postsubmit + Current Bazel Incompatible Flags <a href="https://buildkite.com/bazel/rules-python-plus-bazelisk-migrate" rel="nofollow"><img src="https://camo.githubusercontent.com/eceb1a2a22441e018263eb980c4856ea7fc89af39a1330626fceaa0b639d6d0b/68747470733a2f2f62616467652e6275696c646b6974652e636f6d2f32313930303731363661623661373739386232323735386537616533663332323330303133393866666235366135616432612e7376673f6272616e63683d6d61696e" alt="Build status" data-canonical-src="https://badge.buildkite.com/219007166ab6a7798b22758e7ae3f3223001398ffb56a5ad2a.svg?branch=main" style="max-width: 100%;"></a></li>
+</ul>
+<h2 dir="auto"><a id="user-content-overview" class="anchor" aria-hidden="true" href="#overview"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Overview</h2>
+<p dir="auto">This repository is the home of the core Python rules -- <code>py_library</code>,
+<code>py_binary</code>, <code>py_test</code>, <code>py_proto_library</code>, and related symbols that provide the basis for Python
+support in Bazel. It also contains package installation rules for integrating with PyPI and other package indices. Documentation lives in the
+<a href="https://github.com/bazelbuild/rules_python/tree/main/docs"><code>docs/</code></a>
+directory and in the
+<a href="https://docs.bazel.build/versions/master/be/python.html" rel="nofollow">Bazel Build Encyclopedia</a>.</p>
+<p dir="auto">Currently the core rules are bundled with Bazel itself, and the symbols in this
+repository are simple aliases. However, in the future the rules will be
+migrated to Starlark and debundled from Bazel. Therefore, the future-proof way
+to depend on Python rules is via this repository. See<a href="#Migrating-from-the-bundled-rules"><code>Migrating from the Bundled Rules</code></a> below.</p>
+<p dir="auto">The core rules are stable. Their implementation in Bazel is subject to Bazel's
+<a href="https://docs.bazel.build/versions/master/backward-compatibility.html" rel="nofollow">backward compatibility policy</a>.
+Once they are fully migrated to rules_python, they may evolve at a different
+rate, but this repository will still follow
+<a href="https://semver.org" rel="nofollow">semantic versioning</a>.</p>
+<p dir="auto">The package installation rules (<code>pip_install</code>, <code>pip_parse</code> etc.) are less stable. We may make breaking
+changes as they evolve.</p>
+<p dir="auto">This repository is maintained by the Bazel community. Neither Google, nor the
+Bazel team, provides support for the code. However, this repository is part of
+the test suite used to vet new Bazel releases. See the <a href="CONTRIBUTING.md">How to
+contribute</a> page for information on our development workflow.</p>
+<h2 dir="auto"><a id="user-content-getting-started" class="anchor" aria-hidden="true" href="#getting-started"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Getting started</h2>
+<p dir="auto">The next two sections cover using <code>rules_python</code> with bzlmod and
+the older way of configuring bazel with a <code>WORKSPACE</code> file.</p>
+<h3 dir="auto"><a id="user-content-using-bzlmod" class="anchor" aria-hidden="true" href="#using-bzlmod"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Using bzlmod</h3>
+<p dir="auto">To import rules_python in your project, you first need to add it to your
+<code>MODULE.bazel</code> file, using the snippet provided in the
+<a href="https://github.com/bazelbuild/rules_python/releases">release you choose</a>.</p>
+<h4 dir="auto"><a id="user-content-toolchain-registration-with-bzlmod" class="anchor" aria-hidden="true" href="#toolchain-registration-with-bzlmod"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Toolchain registration with bzlmod</h4>
+<p dir="auto">To register a hermetic Python toolchain rather than rely on a system-installed interpreter for runtime execution, you can add to the <code>MODULE.bazel</code> file:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="# Find the latest version number here: https://github.com/bazelbuild/rules_python/releases
+# and change the version number if needed in the line below.
+bazel_dep(name = &quot;rules_python&quot;, version = &quot;0.20.0&quot;)
+
+# You do not have to use pip for the toolchain, but most people
+# will use it for the dependency management.
+pip = use_extension(&quot;@rules_python//python:extensions.bzl&quot;, &quot;pip&quot;)
+
+pip.parse(
+    name = &quot;pip&quot;,
+    requirements_lock = &quot;//:requirements_lock.txt&quot;,
+)
+
+use_repo(pip, &quot;pip&quot;)
+
+# Register a specific python toolchain instead of using the host version
+python = use_extension(&quot;@rules_python//python:extensions.bzl&quot;, &quot;python&quot;)
+
+use_repo(python, &quot;python3_10_toolchains&quot;)
+
+register_toolchains(
+    &quot;@python3_10_toolchains//:all&quot;,
+)"><pre><span class="pl-c"># Find the latest version number here: https://github.com/bazelbuild/rules_python/releases</span>
+<span class="pl-c"># and change the version number if needed in the line below.</span>
+<span class="pl-en">bazel_dep</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_python"</span>, <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"0.20.0"</span>)
+
+<span class="pl-c"># You do not have to use pip for the toolchain, but most people</span>
+<span class="pl-c"># will use it for the dependency management.</span>
+<span class="pl-s1">pip</span> <span class="pl-c1">=</span> <span class="pl-en">use_extension</span>(<span class="pl-s">"@rules_python//python:extensions.bzl"</span>, <span class="pl-s">"pip"</span>)
+
+<span class="pl-s1">pip</span>.<span class="pl-en">parse</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"pip"</span>,
+    <span class="pl-s1">requirements_lock</span> <span class="pl-c1">=</span> <span class="pl-s">"//:requirements_lock.txt"</span>,
+)
+
+<span class="pl-en">use_repo</span>(<span class="pl-s1">pip</span>, <span class="pl-s">"pip"</span>)
+
+<span class="pl-c"># Register a specific python toolchain instead of using the host version</span>
+<span class="pl-s1">python</span> <span class="pl-c1">=</span> <span class="pl-en">use_extension</span>(<span class="pl-s">"@rules_python//python:extensions.bzl"</span>, <span class="pl-s">"python"</span>)
+
+<span class="pl-en">use_repo</span>(<span class="pl-s1">python</span>, <span class="pl-s">"python3_10_toolchains"</span>)
+
+<span class="pl-en">register_toolchains</span>(
+    <span class="pl-s">"@python3_10_toolchains//:all"</span>,
+)</pre></div>
+<h3 dir="auto"><a id="user-content-using-a-workspace-file" class="anchor" aria-hidden="true" href="#using-a-workspace-file"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Using a WORKSPACE file</h3>
+<p dir="auto">To import rules_python in your project, you first need to add it to your
+<code>WORKSPACE</code> file, using the snippet provided in the
+<a href="https://github.com/bazelbuild/rules_python/releases">release you choose</a></p>
+<p dir="auto">To depend on a particular unreleased version, you can do:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@bazel_tools//tools/build_defs/repo:http.bzl&quot;, &quot;http_archive&quot;)
+
+rules_python_version = &quot;740825b7f74930c62f44af95c9a4c1bd428d2c53&quot; # Latest @ 2021-06-23
+
+http_archive(
+    name = &quot;rules_python&quot;,
+    # Bazel will print the proper value to add here during the first build.
+    # sha256 = &quot;FIXME&quot;,
+    strip_prefix = &quot;rules_python-{}&quot;.format(rules_python_version),
+    url = &quot;https://github.com/bazelbuild/rules_python/archive/{}.zip&quot;.format(rules_python_version),
+)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@bazel_tools//tools/build_defs/repo:http.bzl"</span>, <span class="pl-s">"http_archive"</span>)
+
+<span class="pl-s1">rules_python_version</span> <span class="pl-c1">=</span> <span class="pl-s">"740825b7f74930c62f44af95c9a4c1bd428d2c53"</span> <span class="pl-c"># Latest @ 2021-06-23</span>
+
+<span class="pl-en">http_archive</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_python"</span>,
+    <span class="pl-c"># Bazel will print the proper value to add here during the first build.</span>
+    <span class="pl-c"># sha256 = "FIXME",</span>
+    <span class="pl-s1">strip_prefix</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_python-{}"</span>.<span class="pl-en">format</span>(<span class="pl-s1">rules_python_version</span>),
+    <span class="pl-s1">url</span> <span class="pl-c1">=</span> <span class="pl-s">"https://github.com/bazelbuild/rules_python/archive/{}.zip"</span>.<span class="pl-en">format</span>(<span class="pl-s1">rules_python_version</span>),
+)</pre></div>
+<h4 dir="auto"><a id="user-content-toolchain-registration" class="anchor" aria-hidden="true" href="#toolchain-registration"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Toolchain registration</h4>
+<p dir="auto">To register a hermetic Python toolchain rather than rely on a system-installed interpreter for runtime execution, you can add to the <code>WORKSPACE</code> file:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@rules_python//python:repositories.bzl&quot;, &quot;python_register_toolchains&quot;)
+
+python_register_toolchains(
+    name = &quot;python3_9&quot;,
+    # Available versions are listed in @rules_python//python:versions.bzl.
+    # We recommend using the same version your team is already standardized on.
+    python_version = &quot;3.9&quot;,
+)
+
+load(&quot;@python3_9//:defs.bzl&quot;, &quot;interpreter&quot;)
+
+load(&quot;@rules_python//python:pip.bzl&quot;, &quot;pip_parse&quot;)
+
+pip_parse(
+    ...
+    python_interpreter_target = interpreter,
+    ...
+)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@rules_python//python:repositories.bzl"</span>, <span class="pl-s">"python_register_toolchains"</span>)
+
+<span class="pl-en">python_register_toolchains</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"python3_9"</span>,
+    <span class="pl-c"># Available versions are listed in @rules_python//python:versions.bzl.</span>
+    <span class="pl-c"># We recommend using the same version your team is already standardized on.</span>
+    <span class="pl-s1">python_version</span> <span class="pl-c1">=</span> <span class="pl-s">"3.9"</span>,
+)
+
+<span class="pl-en">load</span>(<span class="pl-s">"@python3_9//:defs.bzl"</span>, <span class="pl-s">"interpreter"</span>)
+
+<span class="pl-en">load</span>(<span class="pl-s">"@rules_python//python:pip.bzl"</span>, <span class="pl-s">"pip_parse"</span>)
+
+<span class="pl-en">pip_parse</span>(
+    ...
+    <span class="pl-s1">python_interpreter_target</span> <span class="pl-c1">=</span> <span class="pl-s1">interpreter</span>,
+    ...
+)</pre></div>
+<p dir="auto">After registration, your Python targets will use the toolchain's interpreter during execution, but a system-installed interpreter
+is still used to 'bootstrap' Python targets (see <a class="issue-link js-issue-link" data-error-text="Failed to load title" data-id="1213269189" data-permission-text="Title is private" data-url="https://github.com/bazelbuild/rules_python/issues/691" data-hovercard-type="issue" data-hovercard-url="/bazelbuild/rules_python/issues/691/hovercard" href="https://github.com/bazelbuild/rules_python/issues/691">#691</a>).
+You may also find some quirks while using this toolchain. Please refer to <a href="https://python-build-standalone.readthedocs.io/en/latest/quirks.html" rel="nofollow">python-build-standalone documentation's <em>Quirks</em> section</a> for details.</p>
+<h3 dir="auto"><a id="user-content-toolchain-usage-in-other-rules" class="anchor" aria-hidden="true" href="#toolchain-usage-in-other-rules"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Toolchain usage in other rules</h3>
+<p dir="auto">Python toolchains can be utilised in other bazel rules, such as <code>genrule()</code>, by adding the <code>toolchains=["@rules_python//python:current_py_toolchain"]</code> attribute. The path to the python interpreter can be obtained by using the <code>$(PYTHON2)</code> and <code>$(PYTHON3)</code> <a href="https://bazel.build/reference/be/make-variables" rel="nofollow">"Make" Variables</a>. See the <a href="tests/load_from_macro/BUILD.bazel"><code>test_current_py_toolchain</code></a> target for an example.</p>
+<h3 dir="auto"><a id="user-content-hello-world" class="anchor" aria-hidden="true" href="#hello-world"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>"Hello World"</h3>
+<p dir="auto">Once you've imported the rule set into your <code>WORKSPACE</code> using any of these
+methods, you can then load the core rules in your <code>BUILD</code> files with:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@rules_python//python:defs.bzl&quot;, &quot;py_binary&quot;)
+
+py_binary(
+  name = &quot;main&quot;,
+  srcs = [&quot;main.py&quot;],
+)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@rules_python//python:defs.bzl"</span>, <span class="pl-s">"py_binary"</span>)
+
+<span class="pl-en">py_binary</span>(
+  <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"main"</span>,
+  <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> [<span class="pl-s">"main.py"</span>],
+)</pre></div>
+<h2 dir="auto"><a id="user-content-using-the-package-installation-rules" class="anchor" aria-hidden="true" href="#using-the-package-installation-rules"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Using the package installation rules</h2>
+<p dir="auto">Usage of the packaging rules involves two main steps.</p>
+<ol dir="auto">
+<li><a href="#installing-third_party-packages">Installing third_party packages</a></li>
+<li><a href="#using-third_party-packages-as-dependencies">Using third_party packages as dependencies</a></li>
+</ol>
+<p dir="auto">The package installation rules create two kinds of repositories: A central external repo that holds
+downloaded wheel files, and individual external repos for each wheel's extracted
+contents. Users only need to interact with the central external repo; the wheel repos
+are essentially an implementation detail. The central external repo provides a
+<code>WORKSPACE</code> macro to create the wheel repos, as well as a function, <code>requirement()</code>, for use in
+<code>BUILD</code> files that translates a pip package name into the label of a <code>py_library</code>
+target in the appropriate wheel repo.</p>
+<h3 dir="auto"><a id="user-content-installing-third_party-packages" class="anchor" aria-hidden="true" href="#installing-third_party-packages"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Installing third_party packages</h3>
+<h4 dir="auto"><a id="user-content-using-bzlmod-1" class="anchor" aria-hidden="true" href="#using-bzlmod-1"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Using bzlmod</h4>
+<p dir="auto">To add pip dependencies to your <code>MODULE.bazel</code> file, use the <code>pip.parse</code> extension, and call it to create the
+central external repo and individual wheel external repos.</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="pip.parse(
+    name = &quot;my_deps&quot;,
+    requirements_lock = &quot;//:requirements_lock.txt&quot;,
+)
+
+use_repo(pip, &quot;my_deps&quot;)"><pre><span class="pl-s1">pip</span>.<span class="pl-en">parse</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"my_deps"</span>,
+    <span class="pl-s1">requirements_lock</span> <span class="pl-c1">=</span> <span class="pl-s">"//:requirements_lock.txt"</span>,
+)
+
+<span class="pl-en">use_repo</span>(<span class="pl-s1">pip</span>, <span class="pl-s">"my_deps"</span>)</pre></div>
+<h4 dir="auto"><a id="user-content-using-a-workspace-file-1" class="anchor" aria-hidden="true" href="#using-a-workspace-file-1"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Using a WORKSPACE file</h4>
+<p dir="auto">To add pip dependencies to your <code>WORKSPACE</code>, load the <code>pip_parse</code> function, and call it to create the
+central external repo and individual wheel external repos.</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@rules_python//python:pip.bzl&quot;, &quot;pip_parse&quot;)
+
+# Create a central repo that knows about the dependencies needed from
+# requirements_lock.txt.
+pip_parse(
+   name = &quot;my_deps&quot;,
+   requirements_lock = &quot;//path/to:requirements_lock.txt&quot;,
+)
+# Load the starlark macro which will define your dependencies.
+load(&quot;@my_deps//:requirements.bzl&quot;, &quot;install_deps&quot;)
+# Call it to define repos for your requirements.
+install_deps()"><pre><span class="pl-en">load</span>(<span class="pl-s">"@rules_python//python:pip.bzl"</span>, <span class="pl-s">"pip_parse"</span>)
+
+<span class="pl-c"># Create a central repo that knows about the dependencies needed from</span>
+<span class="pl-c"># requirements_lock.txt.</span>
+<span class="pl-en">pip_parse</span>(
+   <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"my_deps"</span>,
+   <span class="pl-s1">requirements_lock</span> <span class="pl-c1">=</span> <span class="pl-s">"//path/to:requirements_lock.txt"</span>,
+)
+<span class="pl-c"># Load the starlark macro which will define your dependencies.</span>
+<span class="pl-en">load</span>(<span class="pl-s">"@my_deps//:requirements.bzl"</span>, <span class="pl-s">"install_deps"</span>)
+<span class="pl-c"># Call it to define repos for your requirements.</span>
+<span class="pl-en">install_deps</span>()</pre></div>
+<h4 dir="auto"><a id="user-content-pip-rules" class="anchor" aria-hidden="true" href="#pip-rules"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>pip rules</h4>
+<p dir="auto">Note that since <code>pip_parse</code> is a repository rule and therefore executes pip at WORKSPACE-evaluation time, Bazel has no
+information about the Python toolchain and cannot enforce that the interpreter
+used to invoke pip matches the interpreter used to run <code>py_binary</code> targets. By
+default, <code>pip_parse</code> uses the system command <code>"python3"</code>. This can be overridden by passing the
+<code>python_interpreter</code> attribute or <code>python_interpreter_target</code> attribute to <code>pip_parse</code>.</p>
+<p dir="auto">You can have multiple <code>pip_parse</code>s in the same workspace. This will create multiple external repos that have no relation to one another, and may result in downloading the same wheels multiple times.</p>
+<p dir="auto">As with any repository rule, if you would like to ensure that <code>pip_parse</code> is
+re-executed in order to pick up a non-hermetic change to your environment (e.g.,
+updating your system <code>python</code> interpreter), you can force it to re-execute by running
+<code>bazel sync --only [pip_parse name]</code>.</p>
+<p dir="auto">Note: The <code>pip_install</code> rule is deprecated. <code>pip_parse</code> offers identical functionality and both <code>pip_install</code>
+and <code>pip_parse</code> now have the same implementation. The name <code>pip_install</code> may be removed in a future version of the rules.
+The maintainers have taken all reasonable efforts to faciliate a smooth transition, but some users of <code>pip_install</code> will
+need to replace their existing <code>requirements.txt</code> with a fully resolved set of dependencies using a tool such as
+<code>pip-tools</code> or the <code>compile_pip_requirements</code> repository rule.</p>
+<h3 dir="auto"><a id="user-content-using-third_party-packages-as-dependencies" class="anchor" aria-hidden="true" href="#using-third_party-packages-as-dependencies"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Using third_party packages as dependencies</h3>
+<p dir="auto">Each extracted wheel repo contains a <code>py_library</code> target representing
+the wheel's contents. There are two ways to access this library. The
+first is using the <code>requirement()</code> function defined in the central
+repo's <code>//:requirements.bzl</code> file. This function maps a pip package
+name to a label:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@my_deps//:requirements.bzl&quot;, &quot;requirement&quot;)
+
+py_library(
+    name = &quot;mylib&quot;,
+    srcs = [&quot;mylib.py&quot;],
+    deps = [
+        &quot;:myotherlib&quot;,
+        requirement(&quot;some_pip_dep&quot;),
+        requirement(&quot;another_pip_dep&quot;),
+    ]
+)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@my_deps//:requirements.bzl"</span>, <span class="pl-s">"requirement"</span>)
+
+<span class="pl-en">py_library</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"mylib"</span>,
+    <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> [<span class="pl-s">"mylib.py"</span>],
+    <span class="pl-s1">deps</span> <span class="pl-c1">=</span> [
+        <span class="pl-s">":myotherlib"</span>,
+        <span class="pl-en">requirement</span>(<span class="pl-s">"some_pip_dep"</span>),
+        <span class="pl-en">requirement</span>(<span class="pl-s">"another_pip_dep"</span>),
+    ]
+)</pre></div>
+<p dir="auto">The reason <code>requirement()</code> exists is that the pattern for the labels,
+while not expected to change frequently, is not guaranteed to be
+stable. Using <code>requirement()</code> ensures that you do not have to refactor
+your <code>BUILD</code> files if the pattern changes.</p>
+<p dir="auto">On the other hand, using <code>requirement()</code> has several drawbacks; see
+<a href="https://github.com/bazelbuild/rules_python/issues/414" data-hovercard-type="issue" data-hovercard-url="/bazelbuild/rules_python/issues/414/hovercard">this issue</a> for an enumeration. If you don't
+want to use <code>requirement()</code> then you can instead use the library
+labels directly. For <code>pip_parse</code> the labels are of the form</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="@{name}_{package}//:pkg"><pre class="notranslate"><code>@{name}_{package}//:pkg
+</code></pre></div>
+<p dir="auto">Here <code>name</code> is the <code>name</code> attribute that was passed to <code>pip_parse</code> and
+<code>package</code> is the pip package name with characters that are illegal in
+Bazel label names (e.g. <code>-</code>, <code>.</code>) replaced with <code>_</code>. If you need to
+update <code>name</code> from "old" to "new", then you can run the following
+buildozer command:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="buildozer 'substitute deps @old_([^/]+)//:pkg @new_${1}//:pkg' //...:*"><pre class="notranslate"><code>buildozer 'substitute deps @old_([^/]+)//:pkg @new_${1}//:pkg' //...:*
+</code></pre></div>
+<p dir="auto">For <code>pip_install</code> the labels are instead of the form</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="@{name}//pypi__{package}"><pre class="notranslate"><code>@{name}//pypi__{package}
+</code></pre></div>
+<h4 dir="auto"><a id="user-content-extras-dependencies" class="anchor" aria-hidden="true" href="#extras-dependencies"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>'Extras' dependencies</h4>
+<p dir="auto">Any 'extras' specified in the requirements lock-file will be automatically added as transitive dependencies of the
+package. In the example above, you'd just put <code>requirement("useful_dep")</code>.</p>
+<h3 dir="auto"><a id="user-content-consuming-wheel-dists-directly" class="anchor" aria-hidden="true" href="#consuming-wheel-dists-directly"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Consuming Wheel Dists Directly</h3>
+<p dir="auto">If you need to depend on the wheel dists themselves, for instance to pass them
+to some other packaging tool, you can get a handle to them with the <code>whl_requirement</code> macro. For example:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="filegroup(
+    name = &quot;whl_files&quot;,
+    data = [
+        whl_requirement(&quot;boto3&quot;),
+    ]
+)"><pre><span class="pl-en">filegroup</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"whl_files"</span>,
+    <span class="pl-s1">data</span> <span class="pl-c1">=</span> [
+        <span class="pl-en">whl_requirement</span>(<span class="pl-s">"boto3"</span>),
+    ]
+)</pre></div>
+<h2 dir="auto"><a id="user-content-migrating-from-the-bundled-rules" class="anchor" aria-hidden="true" href="#migrating-from-the-bundled-rules"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Migrating from the bundled rules</h2>
+<p dir="auto">The core rules are currently available in Bazel as built-in symbols, but this
+form is deprecated. Instead, you should depend on rules_python in your
+<code>WORKSPACE</code> file and load the Python rules from
+<code>@rules_python//python:defs.bzl</code>.</p>
+<p dir="auto">A <a href="https://github.com/bazelbuild/buildtools/blob/master/buildifier/README.md">buildifier</a>
+fix is available to automatically migrate <code>BUILD</code> and <code>.bzl</code> files to add the
+appropriate <code>load()</code> statements and rewrite uses of <code>native.py_*</code>.</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="# Also consider using the -r flag to modify an entire workspace.
+buildifier --lint=fix --warnings=native-py &lt;files&gt;"><pre><span class="pl-c"><span class="pl-c">#</span> Also consider using the -r flag to modify an entire workspace.</span>
+buildifier --lint=fix --warnings=native-py <span class="pl-k">&lt;</span>files<span class="pl-k">&gt;</span></pre></div>
+<p dir="auto">Currently the <code>WORKSPACE</code> file needs to be updated manually as per <a href="#Getting-started">Getting
+started</a> above.</p>
+<p dir="auto">Note that Starlark-defined bundled symbols underneath
+<code>@bazel_tools//tools/python</code> are also deprecated. These are not yet rewritten
+by buildifier.</p>
+</article></div>
