@@ -1,1 +1,1956 @@
-{"message":"API rate limit exceeded for installation ID 36708394.","documentation_url":"https://docs.github.com/rest/overview/resources-in-the-rest-api#rate-limiting"}
+<div id="readme" class="adoc" data-path="README.adoc"><article class="markdown-body entry-content container-lg" itemprop="text"><h1 dir="auto"><a id="user-content-ruby-rules-for-bazel" class="anchor" aria-hidden="true" href="#ruby-rules-for-bazel"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Ruby Rules® for Bazel</h1>
+<div id="user-content-toc" dir="auto">
+<div id="user-content-toctitle" dir="auto">Table of Contents</div>
+<ul dir="auto">
+<li><a href="#contributors-wanted">1. Contributors Wanted</a></li>
+<li><a href="#build-status-activity">2. Build Status &amp; Activity</a></li>
+<li><a href="#rules-development-status">3. Rules Development Status</a></li>
+<li><a href="#table-of-contents">4. Table of Contents</a></li>
+<li><a href="#usage">5. Usage</a>
+<ul dir="auto">
+<li><a href="#workspace-file">5.1. <code>WORKSPACE</code> File</a>
+<ul dir="auto">
+<li><a href="#load-dependencies-select-ruby-sdk-and-define-one-or-more-bundles">5.1.1. Load dependencies, select Ruby SDK and define one or more Bundles</a></li>
+</ul>
+</li>
+<li><a href="#build-bazel-files">5.2. <code>BUILD.bazel</code> file(s)</a>
+<ul dir="auto">
+<li><a href="#define-ruby-executable-library-and-an-rspec">5.2.1. Define Ruby Executable, Library and an RSpec</a></li>
+<li><a href="#package-ruby-files-as-a-gem">5.2.2. Package Ruby files as a Gem</a></li>
+</ul>
+</li>
+<li><a href="#tool-specific-setup">5.3. Tool Specific Setup</a>
+<ul dir="auto">
+<li><a href="#asdf">5.3.1. ASDF</a></li>
+</ul>
+</li>
+<li><a href="#rule-dependency-diagram">5.4. Rule Dependency Diagram</a></li>
+</ul>
+</li>
+<li><a href="#rules">6. Rules</a>
+<ul dir="auto">
+<li><a href="#ruby_library">6.1. <code>ruby_library</code></a></li>
+<li><a href="#ruby_binary">6.2. <code>ruby_binary</code></a></li>
+<li><a href="#ruby_test">6.3. <code>ruby_test</code></a></li>
+<li><a href="#ruby_bundle">6.4. <code>ruby_bundle</code></a>
+<ul dir="auto">
+<li><a href="#conventions">6.4.1. Conventions</a></li>
+<li><a href="#workspace">6.4.2. <code>WORKSPACE</code>:</a>
+<ul dir="auto">
+<li><a href="#vendor-directory-handling">Vendor directory handling</a></li>
+</ul>
+</li>
+<li><a href="#build-bazel">6.4.3. <code>BUILD.bazel</code>:</a></li>
+</ul>
+</li>
+<li><a href="#ruby_rspec">6.5. <code>ruby_rspec</code></a></li>
+<li><a href="#ruby_gem">6.6. <code>ruby_gem</code></a></li>
+</ul>
+</li>
+<li><a href="#potential-future-features">7. Potential Future Features</a></li>
+<li><a href="#contributing">8. Contributing</a>
+<ul dir="auto">
+<li><a href="#setup">8.1. Setup</a>
+<ul dir="auto">
+<li><a href="#using-the-script">8.1.1. Using the Script</a></li>
+<li><a href="#os-specific-setup">8.1.2. OS-Specific Setup</a></li>
+</ul>
+</li>
+<li><a href="#verifying-your-environment">8.2. Verifying Your Environment</a>
+<ul dir="auto">
+<li><a href="#issues-during-setup">8.2.1. Issues During Setup</a></li>
+</ul>
+</li>
+<li><a href="#developing-rules">8.3. Developing Rules</a></li>
+<li><a href="#running-tests">8.4. Running Tests</a>
+<ul dir="auto">
+<li><a href="#test-script">8.4.1. Test Script</a></li>
+</ul>
+</li>
+<li><a href="#linter">8.5. Linter</a></li>
+<li><a href="#regenerating-readme-pdf-changelog">8.6. Regenerating README.pdf &amp; Changelog</a></li>
+</ul>
+</li>
+<li><a href="#copyright">9. Copyright</a></li>
+</ul>
+</div>
+<div dir="auto">
+<h2 id="user-content-contributors-wanted" dir="auto"><a id="user-content-1-contributors-wanted" class="anchor" aria-hidden="true" href="#1-contributors-wanted"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>1. Contributors Wanted</h2>
+<div dir="auto">
+<div dir="auto">
+<p dir="auto">This repo is primarily maintained by <a href="https://github.com/kigster">Konstantin Gredeskoul</a> and <a href="https://github.com/yugui">Yuki "Yugui" Sonoda</a>.</p>
+</div>
+<div dir="auto">
+<p dir="auto">We are both very busy and would really <strong>love more contributors to join the core team</strong>.</p>
+</div>
+<div dir="auto">
+<p dir="auto">If you are interested in developing Ruby Rules for Bazel, please submit a couple of PRs and then lets talk!</p>
+</div>
+<div dir="auto">
+<table>
+<tbody><tr>
+<td>
+<div dir="auto">Tip</div>
+</td>
+<td>
+You can read or print this README in a proper PDF format by grabbing our <a href="README.pdf">README.pdf</a>.
+</td>
+</tr>
+</tbody></table>
+</div>
+</div>
+</div>
+<div dir="auto">
+<h2 id="user-content-build-status-activity" dir="auto"><a id="user-content-2-build-status--activity" class="anchor" aria-hidden="true" href="#2-build-status--activity"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>2. Build Status &amp; Activity</h2>
+<div dir="auto">
+<table>
+
+
+
+
+<thead>
+<tr>
+<th><strong>CI Status</strong></th>
+<th><strong>Activity &amp; Documentation</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><p dir="auto"><span><a href="https://circleci.com/gh/bazelruby/rules_ruby" rel="nofollow"><img src="https://camo.githubusercontent.com/6da26d5944062cfc741f4df845ae6db120f53d54c8a21e6ec8df8dd20712ebb1/68747470733a2f2f636972636c6563692e636f6d2f67682f62617a656c727562792f72756c65735f727562792e7376673f7374796c653d736869656c64" alt="CircleCI" data-canonical-src="https://circleci.com/gh/bazelruby/rules_ruby.svg?style=shield" style="max-width: 100%;"></a></span>  </p></td>
+<td><p dir="auto"><span><a target="_blank" rel="noopener noreferrer nofollow" href="https://camo.githubusercontent.com/81ca135f88debb166800702a685d2017783827bd9560952df3fc34b8412e4f8e/68747470733a2f2f696d672e736869656c64732e696f2f6769746875622f636f6d6d69742d61637469766974792f6d2f62617a656c727562792f72756c65735f727562793f7374796c653d666f722d7468652d6261646765"><img src="https://camo.githubusercontent.com/81ca135f88debb166800702a685d2017783827bd9560952df3fc34b8412e4f8e/68747470733a2f2f696d672e736869656c64732e696f2f6769746875622f636f6d6d69742d61637469766974792f6d2f62617a656c727562792f72756c65735f727562793f7374796c653d666f722d7468652d6261646765" alt="activity" data-canonical-src="https://img.shields.io/github/commit-activity/m/bazelruby/rules_ruby?style=for-the-badge" style="max-width: 100%;"></a></span>  </p></td>
+</tr>
+<tr>
+<td><p dir="auto"><span><a href="https://travis-ci.org/bazelruby/rules_ruby" rel="nofollow"><img src="https://camo.githubusercontent.com/77eda0fed7669cd1298ff04d918e19dccf4694a66e7e898c1c08d11cd47aa2f7/68747470733a2f2f7472617669732d63692e6f72672f62617a656c727562792f72756c65735f727562792e7376673f6272616e63683d6d6173746572" alt="Build Status" data-canonical-src="https://travis-ci.org/bazelruby/rules_ruby.svg?branch=master" style="max-width: 100%;"></a></span>  </p></td>
+<td><p dir="auto"><a href="CHANGELOG.md"><span><img src="https://camo.githubusercontent.com/1c67ffb76953d1f10ce950d6099d05bbdc0863b8cb694135f92bfdf7afd9d633/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f6368616e67652d6c6f672d627269676874677265656e" alt="changelog&lt;/a&gt;" data-canonical-src="https://img.shields.io/badge/change-log-brightgreen" style="max-width: 100%;"></span>  </a><a href="README.pdf"><span><img src="https://camo.githubusercontent.com/5c054f81c3433e608851d9f6fe1f4a6d734679a5926aff10c362fbc2bbff97c6/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f524541444d452d7064662d626c7565" alt="readme.pdf&lt;/a&gt;" data-canonical-src="https://img.shields.io/badge/README-pdf-blue" style="max-width: 100%;"></span></a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div dir="auto">
+<h2 id="user-content-rules-development-status" dir="auto"><a id="user-content-3-rules-development-status" class="anchor" aria-hidden="true" href="#3-rules-development-status"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>3. Rules Development Status</h2>
+<div dir="auto">
+<table>
+
+
+
+
+<thead>
+<tr>
+<th><strong>Readiness</strong></th>
+<th><strong>Types of Applications</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><p dir="auto"><span><a target="_blank" rel="noopener noreferrer" href="docs/img/status-ready.svg"><img src="docs/img/status-ready.svg" alt="Ready" style="max-width: 100%;"></a></span></p></td>
+<td><p dir="auto">ruby apps, ruby gems, micro-services, ideally in a mono-repo</p></td>
+</tr>
+<tr>
+<td><p dir="auto"><span><a target="_blank" rel="noopener noreferrer" href="docs/img/status-ready.svg"><img src="docs/img/status-ready.svg" alt="Wait" style="max-width: 100%;"></a></span></p></td>
+<td><p dir="auto">medium-sized Ruby on Rails apps, ideally in a mono-repo</p></td>
+</tr>
+<tr>
+<td><p dir="auto"><span><a target="_blank" rel="noopener noreferrer" href="docs/img/status-wait.svg"><img src="docs/img/status-wait.svg" alt="Not Ready" style="max-width: 100%;"></a></span></p></td>
+<td><p dir="auto">complex Ruby on Rails monoliths, single-repo</p></td>
+</tr>
+</tbody>
+</table>
+<div dir="auto">
+<table>
+<tbody><tr>
+<td>
+<div dir="auto">Note</div>
+</td>
+<td>
+we have a short guide on <a href="https://github.com/bazelruby/rules_ruby/wiki/Build-your-ruby-project">Building your first Ruby Project</a> on the Wiki. We encourage you to check it out.
+</td>
+</tr>
+</tbody></table>
+</div>
+</div>
+</div>
+<div dir="auto">
+<h2 id="user-content-table-of-contents" dir="auto"><a id="user-content-4-table-of-contents" class="anchor" aria-hidden="true" href="#4-table-of-contents"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>4. Table of Contents</h2>
+<div dir="auto">
+<div dir="auto">
+<ul dir="auto">
+<li>
+<p dir="auto"><a href="#ruby-rules-for-bazelhttpsbazelbuild-build-system">Ruby Rules® for Bazel Build System</a></p>
+<div dir="auto">
+<ul dir="auto">
+<li>
+<p dir="auto"><a href="#build-status-activity">Build Status &amp; Activity</a></p>
+</li>
+<li>
+<p dir="auto"><a href="#rules-development-status">Rules Development Status</a></p>
+</li>
+<li>
+<p dir="auto"><a href="#table-of-contents">Table of Contents</a></p>
+</li>
+<li>
+<p dir="auto"><a href="#usage">Usage</a></p>
+<div dir="auto">
+<ul dir="auto">
+<li>
+<p dir="auto"><a href="#workspace-file"><code>WORKSPACE</code> File</a></p>
+</li>
+<li>
+<p dir="auto"><a href="#buildbazel-files"><code>BUILD.bazel</code> file(s)</a> <strong>* <a href="#tool-specific-setup">Tool Specific Setup</a> </strong>* <a href="#rule-dependency-diagram">Rule Dependency Diagram</a></p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p dir="auto"><a href="#rules">Rules</a></p>
+<div dir="auto">
+<ul dir="auto">
+<li>
+<p dir="auto"><a href="#ruby_library"><code>ruby_library</code></a></p>
+</li>
+<li>
+<p dir="auto"><a href="#ruby_binary"><code>ruby_binary</code></a></p>
+</li>
+<li>
+<p dir="auto"><a href="#ruby_test"><code>ruby_test</code></a></p>
+</li>
+<li>
+<p dir="auto"><a href="#ruby_bundle"><code>ruby_bundle</code></a></p>
+</li>
+<li>
+<p dir="auto"><a href="#ruby_rspec"><code>ruby_rspec</code></a></p>
+</li>
+<li>
+<p dir="auto"><a href="#ruby_gem"><code>ruby_gem</code></a></p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p dir="auto"><a href="#potential-future-features">Potential Future Features</a></p>
+</li>
+<li>
+<p dir="auto"><a href="#contributing">Contributing</a></p>
+<div dir="auto">
+<ul dir="auto">
+<li>
+<p dir="auto"><a href="#setup">Setup</a></p>
+</li>
+<li>
+<p dir="auto"><a href="#verifying-your-environment">Verifying Your Environment</a></p>
+</li>
+<li>
+<p dir="auto"><a href="#developing-rules">Developing Rules</a></p>
+</li>
+<li>
+<p dir="auto"><a href="#running-tests">Running Tests</a></p>
+</li>
+<li>
+<p dir="auto"><a href="#linter">Linter</a></p>
+</li>
+<li>
+<p dir="auto"><a href="#regenerating-readmepdf-changelog">Regenerating README.pdf &amp; Changelog</a></p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p dir="auto"><a href="#copyright">Copyright</a></p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div dir="auto">
+<h2 id="user-content-usage" dir="auto"><a id="user-content-5-usage" class="anchor" aria-hidden="true" href="#5-usage"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>5. Usage</h2>
+<div dir="auto">
+<div dir="auto">
+<h3 id="user-content-workspace-file" dir="auto"><a id="user-content-51-workspace-file" class="anchor" aria-hidden="true" href="#51-workspace-file"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>5.1. <code>WORKSPACE</code> File</h3>
+<div dir="auto">
+<h4 id="user-content-load-dependencies-select-ruby-sdk-and-define-one-or-more-bundles" dir="auto"><a id="user-content-511-load-dependencies-select-ruby-sdk-and-define-one-or-more-bundles" class="anchor" aria-hidden="true" href="#511-load-dependencies-select-ruby-sdk-and-define-one-or-more-bundles"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>5.1.1. Load dependencies, select Ruby SDK and define one or more Bundles</h4>
+<div dir="auto">
+<div dir="auto">
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="workspace(name = &quot;my_ruby_project&quot;)
+
+load(&quot;@bazel_tools//tools/build_defs/repo:http.bzl&quot;, &quot;http_archive&quot;)
+load(&quot;@bazel_tools//tools/build_defs/repo:git.bzl&quot;, &quot;git_repository&quot;)
+
+#———————————————————————————————————————————————————————————————————————
+# To get the latest ruby rules, grab the 'master' branch.
+#———————————————————————————————————————————————————————————————————————
+
+git_repository(
+    name = &quot;bazelruby_rules_ruby&quot;,
+    remote = &quot;https://github.com/bazelruby/rules_ruby.git&quot;,
+    branch = &quot;master&quot;
+)
+
+load(
+    &quot;@bazelruby_rules_ruby//ruby:deps.bzl&quot;,
+    &quot;rules_ruby_dependencies&quot;,
+    &quot;rules_ruby_select_sdk&quot;,
+)
+
+rules_ruby_dependencies()
+
+#———————————————————————————————————————————————————————————————————————
+# Specify Ruby version — this will either build Ruby or use a local
+# RBENV installation if the Ruby version matches.
+#———————————————————————————————————————————————————————————————————————
+
+load(&quot;@bazel_skylib//:workspace.bzl&quot;, &quot;bazel_skylib_workspace&quot;)
+bazel_skylib_workspace()
+
+rules_ruby_select_sdk(version = &quot;3.0.2&quot;)
+
+#———————————————————————————————————————————————————————————————————————
+# Now, load the ruby_bundle rule &amp; install gems specified in the Gemfile
+#———————————————————————————————————————————————————————————————————————
+
+load(
+    &quot;@bazelruby_rules_ruby//ruby:defs.bzl&quot;,
+    &quot;ruby_bundle&quot;,
+)
+
+ruby_bundle(
+    name = &quot;bundle&quot;,
+    # Specify additional paths to be loaded from the gems at runtime, if any.
+    # Since spec.require_paths in Gem specifications are auto-included, directory paths
+    # in spec.require_paths do not need to be listed in includes hash.
+    includes = {
+        &quot;grpc&quot;: [&quot;etc&quot;],
+    },
+    excludes = {
+        &quot;mini_portile&quot;: [&quot;test/**/*&quot;],
+    },
+    gemfile = &quot;//:Gemfile&quot;,
+    gemfile_lock = &quot;//:Gemfile.lock&quot;,
+)
+
+# You can specify more than one bundle in the WORKSPACE file
+ruby_bundle(
+    name = &quot;bundle_app_shopping&quot;,
+    gemfile = &quot;//:apps/shopping/Gemfile&quot;,
+    gemfile_lock = &quot;//:apps/shopping/Gemfile.lock&quot;,
+)
+
+# You can also install from Gemfile using `gemspec`.
+ruby_bundle(
+    name = &quot;bundle_gemspec&quot;,
+    srcs = [&quot;//:lib/my_gem/my_gem.gemspec&quot;],
+    gemfile = &quot;//:lib/my_gem/Gemfile&quot;,
+    gemfile_lock = &quot;//:lib/my_gem/Gemfile.lock&quot;,
+)"><pre><span class="pl-en">workspace</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"my_ruby_project"</span>)
+
+<span class="pl-en">load</span>(<span class="pl-s">"@bazel_tools//tools/build_defs/repo:http.bzl"</span>, <span class="pl-s">"http_archive"</span>)
+<span class="pl-en">load</span>(<span class="pl-s">"@bazel_tools//tools/build_defs/repo:git.bzl"</span>, <span class="pl-s">"git_repository"</span>)
+
+<span class="pl-c">#———————————————————————————————————————————————————————————————————————</span>
+<span class="pl-c"># To get the latest ruby rules, grab the 'master' branch.</span>
+<span class="pl-c">#———————————————————————————————————————————————————————————————————————</span>
+
+<span class="pl-en">git_repository</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"bazelruby_rules_ruby"</span>,
+    <span class="pl-s1">remote</span> <span class="pl-c1">=</span> <span class="pl-s">"https://github.com/bazelruby/rules_ruby.git"</span>,
+    <span class="pl-s1">branch</span> <span class="pl-c1">=</span> <span class="pl-s">"master"</span>
+)
+
+<span class="pl-en">load</span>(
+    <span class="pl-s">"@bazelruby_rules_ruby//ruby:deps.bzl"</span>,
+    <span class="pl-s">"rules_ruby_dependencies"</span>,
+    <span class="pl-s">"rules_ruby_select_sdk"</span>,
+)
+
+<span class="pl-en">rules_ruby_dependencies</span>()
+
+<span class="pl-c">#———————————————————————————————————————————————————————————————————————</span>
+<span class="pl-c"># Specify Ruby version — this will either build Ruby or use a local</span>
+<span class="pl-c"># RBENV installation if the Ruby version matches.</span>
+<span class="pl-c">#———————————————————————————————————————————————————————————————————————</span>
+
+<span class="pl-en">load</span>(<span class="pl-s">"@bazel_skylib//:workspace.bzl"</span>, <span class="pl-s">"bazel_skylib_workspace"</span>)
+<span class="pl-en">bazel_skylib_workspace</span>()
+
+<span class="pl-en">rules_ruby_select_sdk</span>(<span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"3.0.2"</span>)
+
+<span class="pl-c">#———————————————————————————————————————————————————————————————————————</span>
+<span class="pl-c"># Now, load the ruby_bundle rule &amp; install gems specified in the Gemfile</span>
+<span class="pl-c">#———————————————————————————————————————————————————————————————————————</span>
+
+<span class="pl-en">load</span>(
+    <span class="pl-s">"@bazelruby_rules_ruby//ruby:defs.bzl"</span>,
+    <span class="pl-s">"ruby_bundle"</span>,
+)
+
+<span class="pl-en">ruby_bundle</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"bundle"</span>,
+    <span class="pl-c"># Specify additional paths to be loaded from the gems at runtime, if any.</span>
+    <span class="pl-c"># Since spec.require_paths in Gem specifications are auto-included, directory paths</span>
+    <span class="pl-c"># in spec.require_paths do not need to be listed in includes hash.</span>
+    <span class="pl-s1">includes</span> <span class="pl-c1">=</span> {
+        <span class="pl-s">"grpc"</span>: [<span class="pl-s">"etc"</span>],
+    },
+    <span class="pl-s1">excludes</span> <span class="pl-c1">=</span> {
+        <span class="pl-s">"mini_portile"</span>: [<span class="pl-s">"test/**/*"</span>],
+    },
+    <span class="pl-s1">gemfile</span> <span class="pl-c1">=</span> <span class="pl-s">"//:Gemfile"</span>,
+    <span class="pl-s1">gemfile_lock</span> <span class="pl-c1">=</span> <span class="pl-s">"//:Gemfile.lock"</span>,
+)
+
+<span class="pl-c"># You can specify more than one bundle in the WORKSPACE file</span>
+<span class="pl-en">ruby_bundle</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"bundle_app_shopping"</span>,
+    <span class="pl-s1">gemfile</span> <span class="pl-c1">=</span> <span class="pl-s">"//:apps/shopping/Gemfile"</span>,
+    <span class="pl-s1">gemfile_lock</span> <span class="pl-c1">=</span> <span class="pl-s">"//:apps/shopping/Gemfile.lock"</span>,
+)
+
+<span class="pl-c"># You can also install from Gemfile using `gemspec`.</span>
+<span class="pl-en">ruby_bundle</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"bundle_gemspec"</span>,
+    <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> [<span class="pl-s">"//:lib/my_gem/my_gem.gemspec"</span>],
+    <span class="pl-s1">gemfile</span> <span class="pl-c1">=</span> <span class="pl-s">"//:lib/my_gem/Gemfile"</span>,
+    <span class="pl-s1">gemfile_lock</span> <span class="pl-c1">=</span> <span class="pl-s">"//:lib/my_gem/Gemfile.lock"</span>,
+)</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div dir="auto">
+<h3 id="user-content-build-bazel-files" dir="auto"><a id="user-content-52-buildbazel-files" class="anchor" aria-hidden="true" href="#52-buildbazel-files"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>5.2. <code>BUILD.bazel</code> file(s)</h3>
+<div dir="auto">
+<p dir="auto">Any of the project <code>BUILD</code> files can now reference any gems included in the <code>Gemfile</code> referenced by the <code>ruby_bundle</code> rule, and defined in the project’s <code>WORKSPACE</code> file.</p>
+</div>
+<div dir="auto">
+<h4 id="user-content-define-ruby-executable-library-and-an-rspec" dir="auto"><a id="user-content-521-define-ruby-executable-library-and-an-rspec" class="anchor" aria-hidden="true" href="#521-define-ruby-executable-library-and-an-rspec"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>5.2.1. Define Ruby Executable, Library and an RSpec</h4>
+<div dir="auto">
+<p dir="auto">Add <code>ruby_library</code>, <code>ruby_binary</code>, <code>ruby_rspec</code> or <code>ruby_test</code> into your <code>BUILD.bazel</code> files.</p>
+</div>
+<div dir="auto">
+<div dir="auto">
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="#———————————————————————————————————————————————————————————————————————
+# Define Ruby executable, test, spec and package a gem
+#———————————————————————————————————————————————————————————————————————
+
+load(
+    &quot;@bazelruby_rules_ruby//ruby:defs.bzl&quot;,
+    &quot;ruby_binary&quot;,
+    &quot;ruby_library&quot;,
+    &quot;ruby_test&quot;,
+    &quot;ruby_rspec&quot;,
+)
+
+ruby_library(
+    name = &quot;foo&quot;,
+    srcs = glob([&quot;lib/**/*.rb&quot;]),
+    includes = [&quot;lib&quot;],
+    deps = [
+      &quot;@bundle//:activesupport&quot;,
+      &quot;@bundle//:awesome_print&quot;,
+      &quot;@bundle//:rubocop&quot;,
+    ]
+)
+
+ruby_binary(
+    name = &quot;bar&quot;,
+    srcs = [&quot;bin/bar&quot;],
+    deps = [&quot;:foo&quot;],
+)
+
+ruby_test(
+    name = &quot;foo-test&quot;,
+    srcs = [&quot;test/foo_test.rb&quot;],
+    deps = [&quot;:foo&quot;],
+)
+
+ruby_rspec(
+    name = &quot;foo-spec&quot;,
+    specs = glob([&quot;spec/**/*.rb&quot;]),
+    rspec_args = { &quot;--format&quot;: &quot;progress&quot; },
+    deps = [&quot;:foo&quot;]
+}"><pre><span class="pl-c">#———————————————————————————————————————————————————————————————————————</span>
+<span class="pl-c"># Define Ruby executable, test, spec and package a gem</span>
+<span class="pl-c">#———————————————————————————————————————————————————————————————————————</span>
+
+<span class="pl-en">load</span>(
+    <span class="pl-s">"@bazelruby_rules_ruby//ruby:defs.bzl"</span>,
+    <span class="pl-s">"ruby_binary"</span>,
+    <span class="pl-s">"ruby_library"</span>,
+    <span class="pl-s">"ruby_test"</span>,
+    <span class="pl-s">"ruby_rspec"</span>,
+)
+
+<span class="pl-en">ruby_library</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"foo"</span>,
+    <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> <span class="pl-en">glob</span>([<span class="pl-s">"lib/**/*.rb"</span>]),
+    <span class="pl-s1">includes</span> <span class="pl-c1">=</span> [<span class="pl-s">"lib"</span>],
+    <span class="pl-s1">deps</span> <span class="pl-c1">=</span> [
+      <span class="pl-s">"@bundle//:activesupport"</span>,
+      <span class="pl-s">"@bundle//:awesome_print"</span>,
+      <span class="pl-s">"@bundle//:rubocop"</span>,
+    ]
+)
+
+<span class="pl-en">ruby_binary</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"bar"</span>,
+    <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> [<span class="pl-s">"bin/bar"</span>],
+    <span class="pl-s1">deps</span> <span class="pl-c1">=</span> [<span class="pl-s">":foo"</span>],
+)
+
+<span class="pl-en">ruby_test</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"foo-test"</span>,
+    <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> [<span class="pl-s">"test/foo_test.rb"</span>],
+    <span class="pl-s1">deps</span> <span class="pl-c1">=</span> [<span class="pl-s">":foo"</span>],
+)
+
+<span class="pl-s1">ruby_rspec</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"foo-spec"</span>,
+    <span class="pl-s1">specs</span> <span class="pl-c1">=</span> <span class="pl-en">glob</span>([<span class="pl-s">"spec/**/*.rb"</span>]),
+    <span class="pl-s1">rspec_args</span> <span class="pl-c1">=</span> { <span class="pl-s">"--format"</span>: <span class="pl-s">"progress"</span> },
+    <span class="pl-s1">deps</span> <span class="pl-c1">=</span> [<span class="pl-s">":foo"</span>]
+}</pre></div>
+</div>
+</div>
+</div>
+<div dir="auto">
+<h4 id="user-content-package-ruby-files-as-a-gem" dir="auto"><a id="user-content-522-package-ruby-files-as-a-gem" class="anchor" aria-hidden="true" href="#522-package-ruby-files-as-a-gem"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>5.2.2. Package Ruby files as a Gem</h4>
+<div dir="auto">
+<p dir="auto">Use <code>ruby_gem</code> rule to package any number of ruby files or folders into a Ruby-Gem compatible ZIP archive.</p>
+</div>
+<div dir="auto">
+<div dir="auto">
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(
+    &quot;@bazelruby_rules_ruby//ruby:defs.bzl&quot;,
+    &quot;ruby_gem&quot;,
+)
+
+ruby_gem(
+    name            = &quot;awesome-sauce-gem&quot;, # name of the build target
+    gem_name        = &quot;awesome-sauce&quot;,     # name of the gem
+    gem_version     = &quot;0.1.0&quot;,
+    gem_summary     = &quot;Example gem to demonstrate Bazel Gem packaging&quot;,
+    gem_description = &quot;Example gem to demonstrate Bazel Gem packaging&quot;,
+    gem_homepage    = &quot;https://github.com/bazelruby/rules_ruby&quot;,
+    gem_authors     = [
+        &quot;BazelRuby&quot;,
+        &quot;Konstantin Gredeskoul&quot;
+    ],
+    gem_author_emails = [
+        &quot;bazelruby@googlegroups.com&quot;,
+    ],
+    gem_runtime_dependencies = {
+        &quot;colored2&quot;: &quot;~&gt; 3.1.2&quot;,
+        &quot;hashie&quot;: &quot;&quot;,
+    },
+    gem_development_dependencies = {
+        &quot;rspec&quot;: &quot;&quot;,
+        &quot;rspec-its&quot;: &quot;&quot;,
+        &quot;rubocop&quot;: &quot;&quot;,
+    },
+    srcs = [
+        glob(&quot;{bin,exe,lib,spec}/**/*.rb&quot;)
+    ],
+    deps = [
+        &quot;//lib:example_gem&quot;,
+    ],
+)"><pre><span class="pl-en">load</span>(
+    <span class="pl-s">"@bazelruby_rules_ruby//ruby:defs.bzl"</span>,
+    <span class="pl-s">"ruby_gem"</span>,
+)
+
+<span class="pl-en">ruby_gem</span>(
+    <span class="pl-s1">name</span>            <span class="pl-c1">=</span> <span class="pl-s">"awesome-sauce-gem"</span>, <span class="pl-c"># name of the build target</span>
+    <span class="pl-s1">gem_name</span>        <span class="pl-c1">=</span> <span class="pl-s">"awesome-sauce"</span>,     <span class="pl-c"># name of the gem</span>
+    <span class="pl-s1">gem_version</span>     <span class="pl-c1">=</span> <span class="pl-s">"0.1.0"</span>,
+    <span class="pl-s1">gem_summary</span>     <span class="pl-c1">=</span> <span class="pl-s">"Example gem to demonstrate Bazel Gem packaging"</span>,
+    <span class="pl-s1">gem_description</span> <span class="pl-c1">=</span> <span class="pl-s">"Example gem to demonstrate Bazel Gem packaging"</span>,
+    <span class="pl-s1">gem_homepage</span>    <span class="pl-c1">=</span> <span class="pl-s">"https://github.com/bazelruby/rules_ruby"</span>,
+    <span class="pl-s1">gem_authors</span>     <span class="pl-c1">=</span> [
+        <span class="pl-s">"BazelRuby"</span>,
+        <span class="pl-s">"Konstantin Gredeskoul"</span>
+    ],
+    <span class="pl-s1">gem_author_emails</span> <span class="pl-c1">=</span> [
+        <span class="pl-s">"bazelruby@googlegroups.com"</span>,
+    ],
+    <span class="pl-s1">gem_runtime_dependencies</span> <span class="pl-c1">=</span> {
+        <span class="pl-s">"colored2"</span>: <span class="pl-s">"~&gt; 3.1.2"</span>,
+        <span class="pl-s">"hashie"</span>: <span class="pl-s">""</span>,
+    },
+    <span class="pl-s1">gem_development_dependencies</span> <span class="pl-c1">=</span> {
+        <span class="pl-s">"rspec"</span>: <span class="pl-s">""</span>,
+        <span class="pl-s">"rspec-its"</span>: <span class="pl-s">""</span>,
+        <span class="pl-s">"rubocop"</span>: <span class="pl-s">""</span>,
+    },
+    <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> [
+        <span class="pl-en">glob</span>(<span class="pl-s">"{bin,exe,lib,spec}/**/*.rb"</span>)
+    ],
+    <span class="pl-s1">deps</span> <span class="pl-c1">=</span> [
+        <span class="pl-s">"//lib:example_gem"</span>,
+    ],
+)</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div dir="auto">
+<h3 id="user-content-tool-specific-setup" dir="auto"><a id="user-content-53-tool-specific-setup" class="anchor" aria-hidden="true" href="#53-tool-specific-setup"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>5.3. Tool Specific Setup</h3>
+<div dir="auto">
+<h4 id="user-content-asdf" dir="auto"><a id="user-content-531-asdf" class="anchor" aria-hidden="true" href="#531-asdf"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>5.3.1. ASDF</h4>
+<div dir="auto">
+<p dir="auto">If you are using ASDF to manage your ruby installs, you can use them by adding <code>.bazelrc</code>:</p>
+</div>
+<div dir="auto">
+<div dir="auto">
+<pre>build --test_env=ASDF_DIR --test_env=ASDF_DATA_DIR
+build --action_env=ASDF_DIR --test_env=ASDF_DATA_DIR</pre>
+</div>
+</div>
+<div dir="auto">
+<p dir="auto">You will have to be sure to export the <code>ASDF_DATA_DIR</code> in your profile since it’s not set by default. e.g. <code>export ASDF_DATA_DIR="$HOME/.asdf"</code></p>
+</div>
+</div>
+</div>
+<div dir="auto">
+<h3 id="user-content-rule-dependency-diagram" dir="auto"><a id="user-content-54-rule-dependency-diagram" class="anchor" aria-hidden="true" href="#54-rule-dependency-diagram"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>5.4. Rule Dependency Diagram</h3>
+<div dir="auto">
+<table>
+<tbody><tr>
+<td>
+<div dir="auto">Note</div>
+</td>
+<td>
+this diagram is somewhat outdated.
+</td>
+</tr>
+</tbody></table>
+</div>
+<div dir="auto">
+<p dir="auto">The following diagram attempts to capture the implementation behind <code>ruby_library</code> that depends on the result of <code>bundle install</code>, and a <code>ruby_binary</code> that depends on both:</p>
+</div>
+<div dir="auto">
+<div dir="auto">
+<a target="_blank" rel="noopener noreferrer" href="docs/img/ruby_rules.png"><img src="docs/img/ruby_rules.png" alt="Ruby Rules" style="max-width: 100%;"></a>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div dir="auto">
+<h2 id="user-content-rules" dir="auto"><a id="user-content-6-rules" class="anchor" aria-hidden="true" href="#6-rules"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>6. Rules</h2>
+<div dir="auto">
+<div dir="auto">
+<h3 id="user-content-ruby_library" dir="auto"><a id="user-content-61-ruby_library" class="anchor" aria-hidden="true" href="#61-ruby_library"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>6.1. <code>ruby_library</code></h3>
+<div dir="auto">
+<div dir="auto">
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="ruby_library(
+    name,
+    deps,
+    srcs,
+    data,
+    compatible_with,
+    deprecation,
+    distribs,
+    features,
+    licenses,
+    restricted_to,
+    tags,
+    testonly,
+    toolchains,
+    visibility)"><pre><span class="pl-en">ruby_library</span>(
+    <span class="pl-s1">name</span>,
+    <span class="pl-s1">deps</span>,
+    <span class="pl-s1">srcs</span>,
+    <span class="pl-s1">data</span>,
+    <span class="pl-s1">compatible_with</span>,
+    <span class="pl-s1">deprecation</span>,
+    <span class="pl-s1">distribs</span>,
+    <span class="pl-s1">features</span>,
+    <span class="pl-s1">licenses</span>,
+    <span class="pl-s1">restricted_to</span>,
+    <span class="pl-s1">tags</span>,
+    <span class="pl-s1">testonly</span>,
+    <span class="pl-s1">toolchains</span>,
+    <span class="pl-s1">visibility</span>)</pre></div>
+</div>
+</div>
+<table>
+
+
+
+
+<thead>
+<tr>
+<th>Attributes</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><p dir="auto"><code>name</code></p></td>
+<td><div dir="auto"><div dir="auto">
+<p dir="auto"><code>Name, required</code></p>
+</div>
+<div dir="auto">
+<p dir="auto">A unique name for this rule.</p>
+</div></div></td>
+</tr>
+<tr>
+<td><p dir="auto"><code>srcs</code></p></td>
+<td><div dir="auto"><div dir="auto">
+<p dir="auto"><code>List of Labels, optional</code></p>
+</div>
+<div dir="auto">
+<p dir="auto">List of <code>.rb</code> files.</p>
+</div>
+<div dir="auto">
+<p dir="auto">At least <code>srcs</code> or <code>deps</code> must be present</p>
+</div></div></td>
+</tr>
+<tr>
+<td><p dir="auto"><code>deps</code></p></td>
+<td><div dir="auto"><div dir="auto">
+<p dir="auto"><code>List of labels, optional</code></p>
+</div>
+<div dir="auto">
+<p dir="auto">List of targets that are required by the <code>srcs</code> Ruby files.</p>
+</div>
+<div dir="auto">
+<p dir="auto">At least <code>srcs</code> or <code>deps</code> must be present</p>
+</div></div></td>
+</tr>
+<tr>
+<td><p dir="auto"><code>includes</code></p></td>
+<td><div dir="auto"><div dir="auto">
+<p dir="auto"><code>List of strings, optional</code></p>
+</div>
+<div dir="auto">
+<p dir="auto">List of paths to be added to <code>$LOAD_PATH</code> at runtime. The paths must be relative to the the workspace which this rule belongs to.</p>
+</div></div></td>
+</tr>
+<tr>
+<td><p dir="auto"><code>rubyopt</code></p></td>
+<td><div dir="auto"><div dir="auto">
+<p dir="auto"><code>List of strings, optional</code></p>
+</div>
+<div dir="auto">
+<p dir="auto">List of options to be passed to the Ruby interpreter at runtime.</p>
+</div>
+<div dir="auto">
+<table>
+<tbody><tr>
+<td>
+<div dir="auto">Note</div>
+</td>
+<td>
+<code>-I</code> option should usually go to <code>includes</code> attribute.
+</td>
+</tr>
+</tbody></table>
+</div></div></td>
+</tr>
+<tr>
+<td colspan="2"><p dir="auto"><em>And other <a href="https://docs.bazel.build/versions/master/be/common-definitions.html#common-attributes" rel="nofollow">common attributes</a>.</em></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div dir="auto">
+<h3 id="user-content-ruby_binary" dir="auto"><a id="user-content-62-ruby_binary" class="anchor" aria-hidden="true" href="#62-ruby_binary"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>6.2. <code>ruby_binary</code></h3>
+<div dir="auto">
+<div dir="auto">
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="ruby_binary(
+    name,
+    deps,
+    srcs,
+    data,
+    main,
+    compatible_with,
+    deprecation,
+    distribs,
+    features,
+    licenses,
+    restricted_to,
+    tags,
+    testonly,
+    toolchains,
+    visibility,
+    args,
+    output_licenses
+)"><pre><span class="pl-en">ruby_binary</span>(
+    <span class="pl-s1">name</span>,
+    <span class="pl-s1">deps</span>,
+    <span class="pl-s1">srcs</span>,
+    <span class="pl-s1">data</span>,
+    <span class="pl-s1">main</span>,
+    <span class="pl-s1">compatible_with</span>,
+    <span class="pl-s1">deprecation</span>,
+    <span class="pl-s1">distribs</span>,
+    <span class="pl-s1">features</span>,
+    <span class="pl-s1">licenses</span>,
+    <span class="pl-s1">restricted_to</span>,
+    <span class="pl-s1">tags</span>,
+    <span class="pl-s1">testonly</span>,
+    <span class="pl-s1">toolchains</span>,
+    <span class="pl-s1">visibility</span>,
+    <span class="pl-s1">args</span>,
+    <span class="pl-s1">output_licenses</span>
+)</pre></div>
+</div>
+</div>
+<table>
+
+
+
+
+<thead>
+<tr>
+<th>Attributes</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><p dir="auto"><code>name</code></p></td>
+<td><div dir="auto"><div dir="auto">
+<p dir="auto"><code>Name, required</code></p>
+</div>
+<div dir="auto">
+<p dir="auto">A unique name for this rule.</p>
+</div></div></td>
+</tr>
+<tr>
+<td><p dir="auto"><code>srcs</code></p></td>
+<td><div dir="auto"><div dir="auto">
+<p dir="auto"><code>List of Labels, required</code></p>
+</div>
+<div dir="auto">
+<p dir="auto">List of <code>.rb</code> files.</p>
+</div></div></td>
+</tr>
+<tr>
+<td><p dir="auto"><code>deps</code></p></td>
+<td><div dir="auto"><div dir="auto">
+<p dir="auto"><code>List of labels, optional</code></p>
+</div>
+<div dir="auto">
+<p dir="auto">List of targets that are required by the <code>srcs</code> Ruby files.</p>
+</div></div></td>
+</tr>
+<tr>
+<td><p dir="auto"><code>main</code></p></td>
+<td><div dir="auto"><div dir="auto">
+<p dir="auto"><code>Label, optional</code></p>
+</div>
+<div dir="auto">
+<p dir="auto">The entrypoint file. It must be also in <code>srcs</code>.</p>
+</div>
+<div dir="auto">
+<p dir="auto">If not specified, <code>$(NAME).rb</code> where <code>$(NAME)</code> is the <code>name</code> of this rule.</p>
+</div></div></td>
+</tr>
+<tr>
+<td><p dir="auto"><code>includes</code></p></td>
+<td><div dir="auto"><div dir="auto">
+<p dir="auto"><code>List of strings, optional</code></p>
+</div>
+<div dir="auto">
+<p dir="auto">List of paths to be added to <code>$LOAD_PATH</code> at runtime. The paths must be relative to the the workspace which this rule belongs to.</p>
+</div></div></td>
+</tr>
+<tr>
+<td><p dir="auto"><code>rubyopt</code></p></td>
+<td><div dir="auto"><div dir="auto">
+<p dir="auto"><code>List of strings, optional</code></p>
+</div>
+<div dir="auto">
+<p dir="auto">List of options to be passed to the Ruby interpreter at runtime.</p>
+</div>
+<div dir="auto">
+<table>
+<tbody><tr>
+<td>
+<div dir="auto">Note</div>
+</td>
+<td>
+<code>-I</code> option should usually go to <code>includes</code> attribute.
+</td>
+</tr>
+</tbody></table>
+</div></div></td>
+</tr>
+<tr>
+<td colspan="2"><p dir="auto"><em>And other <a href="https://docs.bazel.build/versions/master/be/common-definitions.html#common-attributes" rel="nofollow">common attributes</a>.</em></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div dir="auto">
+<h3 id="user-content-ruby_test" dir="auto"><a id="user-content-63-ruby_test" class="anchor" aria-hidden="true" href="#63-ruby_test"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>6.3. <code>ruby_test</code></h3>
+<div dir="auto">
+<div dir="auto">
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="ruby_test(
+    name,
+    deps,
+    srcs,
+    data,
+    main,
+    compatible_with,
+    deprecation,
+    distribs,
+    features,
+    licenses,
+    restricted_to,
+    tags,
+    testonly,
+    toolchains,
+    visibility,
+    args,
+    size,
+    timeout,
+    flaky,
+    local,
+    shard_count
+)"><pre><span class="pl-en">ruby_test</span>(
+    <span class="pl-s1">name</span>,
+    <span class="pl-s1">deps</span>,
+    <span class="pl-s1">srcs</span>,
+    <span class="pl-s1">data</span>,
+    <span class="pl-s1">main</span>,
+    <span class="pl-s1">compatible_with</span>,
+    <span class="pl-s1">deprecation</span>,
+    <span class="pl-s1">distribs</span>,
+    <span class="pl-s1">features</span>,
+    <span class="pl-s1">licenses</span>,
+    <span class="pl-s1">restricted_to</span>,
+    <span class="pl-s1">tags</span>,
+    <span class="pl-s1">testonly</span>,
+    <span class="pl-s1">toolchains</span>,
+    <span class="pl-s1">visibility</span>,
+    <span class="pl-s1">args</span>,
+    <span class="pl-s1">size</span>,
+    <span class="pl-s1">timeout</span>,
+    <span class="pl-s1">flaky</span>,
+    <span class="pl-s1">local</span>,
+    <span class="pl-s1">shard_count</span>
+)</pre></div>
+</div>
+</div>
+<table>
+
+
+
+
+<thead>
+<tr>
+<th>Attributes</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><p dir="auto"><code>name</code></p></td>
+<td><div dir="auto"><div dir="auto">
+<p dir="auto"><code>Name, required</code></p>
+</div>
+<div dir="auto">
+<p dir="auto">A unique name for this rule.</p>
+</div></div></td>
+</tr>
+<tr>
+<td><p dir="auto"><code>srcs</code></p></td>
+<td><div dir="auto"><div dir="auto">
+<p dir="auto"><code>List of Labels, required</code></p>
+</div>
+<div dir="auto">
+<p dir="auto">List of <code>.rb</code> files.</p>
+</div></div></td>
+</tr>
+<tr>
+<td><p dir="auto"><code>deps</code></p></td>
+<td><div dir="auto"><div dir="auto">
+<p dir="auto"><code>List of labels, optional</code></p>
+</div>
+<div dir="auto">
+<p dir="auto">List of targets that are required by the <code>srcs</code> Ruby files.</p>
+</div></div></td>
+</tr>
+<tr>
+<td><p dir="auto"><code>main</code></p></td>
+<td><div dir="auto"><div dir="auto">
+<p dir="auto"><code>Label, optional</code></p>
+</div>
+<div dir="auto">
+<p dir="auto">The entrypoint file. It must be also in <code>srcs</code>.</p>
+</div>
+<div dir="auto">
+<p dir="auto">If not specified, <code>$(NAME).rb</code> where <code>$(NAME)</code> is the <code>name</code> of this rule.</p>
+</div></div></td>
+</tr>
+<tr>
+<td><p dir="auto"><code>includes</code></p></td>
+<td><div dir="auto"><div dir="auto">
+<p dir="auto"><code>List of strings, optional</code></p>
+</div>
+<div dir="auto">
+<p dir="auto">List of paths to be added to <code>$LOAD_PATH</code> at runtime. The paths must be relative to the the workspace which this rule belongs to.</p>
+</div></div></td>
+</tr>
+<tr>
+<td><p dir="auto"><code>rubyopt</code></p></td>
+<td><div dir="auto"><div dir="auto">
+<p dir="auto"><code>List of strings, optional</code></p>
+</div>
+<div dir="auto">
+<p dir="auto">List of options to be passed to the Ruby interpreter at runtime.</p>
+</div>
+<div dir="auto">
+<table>
+<tbody><tr>
+<td>
+<div dir="auto">Note</div>
+</td>
+<td>
+<code>-I</code> option should usually go to <code>includes</code> attribute.
+</td>
+</tr>
+</tbody></table>
+</div></div></td>
+</tr>
+<tr>
+<td colspan="2"><p dir="auto">And other <a href="https://docs.bazel.build/versions/master/be/common-definitions.html#common-attributes" rel="nofollow">common attributes</a>.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div dir="auto">
+<h3 id="user-content-ruby_bundle" dir="auto"><a id="user-content-64-ruby_bundle" class="anchor" aria-hidden="true" href="#64-ruby_bundle"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>6.4. <code>ruby_bundle</code></h3>
+<div dir="auto">
+<p dir="auto"><strong>NOTE: This is a repository rule, and can only be used in a <code>WORKSPACE</code> file.</strong></p>
+</div>
+<div dir="auto">
+<p dir="auto">This rule installs gems defined in a Gemfile using Bundler, and exports individual gems from the bundle, as well as the entire bundle, available as a <code>ruby_library</code> that can be depended upon from other targets.</p>
+</div>
+<div dir="auto">
+<div dir="auto">
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="ruby_bundle(
+    name,
+    gemfile,
+    gemfile_lock,
+    bundler_version = &quot;2.1.4&quot;,
+    includes = {},
+    excludes = {},
+    srcs = [],
+    vendor_cache = False,
+    ruby_sdk = &quot;@org_ruby_lang_ruby_toolchain&quot;,
+    ruby_interpreter = &quot;@org_ruby_lang_ruby_toolchain//:ruby&quot;,
+)"><pre><span class="pl-en">ruby_bundle</span>(
+    <span class="pl-s1">name</span>,
+    <span class="pl-s1">gemfile</span>,
+    <span class="pl-s1">gemfile_lock</span>,
+    <span class="pl-s1">bundler_version</span> <span class="pl-c1">=</span> <span class="pl-s">"2.1.4"</span>,
+    <span class="pl-s1">includes</span> <span class="pl-c1">=</span> {},
+    <span class="pl-s1">excludes</span> <span class="pl-c1">=</span> {},
+    <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> [],
+    <span class="pl-s1">vendor_cache</span> <span class="pl-c1">=</span> <span class="pl-c1">False</span>,
+    <span class="pl-s1">ruby_sdk</span> <span class="pl-c1">=</span> <span class="pl-s">"@org_ruby_lang_ruby_toolchain"</span>,
+    <span class="pl-s1">ruby_interpreter</span> <span class="pl-c1">=</span> <span class="pl-s">"@org_ruby_lang_ruby_toolchain//:ruby"</span>,
+)</pre></div>
+</div>
+</div>
+<table>
+
+
+
+
+<thead>
+<tr>
+<th>Attributes</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><p dir="auto"><code>name</code></p></td>
+<td><div dir="auto"><div dir="auto">
+<p dir="auto"><code>Name, required</code></p>
+</div>
+<div dir="auto">
+<p dir="auto">A unique name for this rule.</p>
+</div></div></td>
+</tr>
+<tr>
+<td><p dir="auto"><code>gemfile</code></p></td>
+<td><div dir="auto"><div dir="auto">
+<p dir="auto"><code>Label, required</code></p>
+</div>
+<div dir="auto">
+<p dir="auto">The <code>Gemfile</code> which Bundler runs with.</p>
+</div></div></td>
+</tr>
+<tr>
+<td><p dir="auto"><code>gemfile_lock</code></p></td>
+<td><div dir="auto"><div dir="auto">
+<p dir="auto"><code>Label, optional</code></p>
+</div>
+<div dir="auto">
+<p dir="auto">The <code>Gemfile.lock</code> which Bundler runs with.</p>
+</div>
+<div dir="auto">
+<table>
+<tbody><tr>
+<td>
+<div dir="auto">Note</div>
+</td>
+<td>
+This rule never updates the <code>Gemfile.lock</code>. It is your responsibility to generate/update <code>Gemfile.lock</code>
+</td>
+</tr>
+</tbody></table>
+</div></div></td>
+</tr>
+<tr>
+<td><p dir="auto"><code>srcs</code></p></td>
+<td><div dir="auto"><div dir="auto">
+<p dir="auto"><code>List of Labels, optional</code></p>
+</div>
+<div dir="auto">
+<p dir="auto">List of additional files required for Bundler to install gems. This could usually include <code>*.gemspec</code> files.</p>
+</div></div></td>
+</tr>
+<tr>
+<td><p dir="auto"><code>vendor_cache</code></p></td>
+<td><div dir="auto"><div dir="auto">
+<p dir="auto"><code>Bool, optional</code></p>
+</div>
+<div dir="auto">
+<p dir="auto">Symlink the vendor directory into the Bazel build space, this allows Bundler to access vendored Gems</p>
+</div></div></td>
+</tr>
+<tr>
+<td><p dir="auto"><code>bundler_version</code></p></td>
+<td><div dir="auto"><div dir="auto">
+<p dir="auto"><code>String, optional</code></p>
+</div>
+<div dir="auto">
+<p dir="auto">The Version of Bundler to use. Defaults to 2.1.4.</p>
+</div>
+<div dir="auto">
+<table>
+<tbody><tr>
+<td>
+<div dir="auto">Note</div>
+</td>
+<td>
+This rule never updates the <code>Gemfile.lock</code>. It is your responsibility to generate/update <code>Gemfile.lock</code>
+</td>
+</tr>
+</tbody></table>
+</div></div></td>
+</tr>
+<tr>
+<td><p dir="auto"><code>includes</code></p></td>
+<td><div dir="auto"><div dir="auto">
+<p dir="auto"><code>Dictionary of key-value-pairs (key: string, value: list of strings), optional</code></p>
+</div>
+<div dir="auto">
+<p dir="auto">List of glob patterns per gem to be additionally loaded from the library. Keys are the names of the gems which require some file/directory paths not listed in the <code>require_paths</code> attribute of the gemspecs to be also added to <code>$LOAD_PATH</code> at runtime. Values are lists of blob path patterns, which are relative to the root directories of the gems.</p>
+</div></div></td>
+</tr>
+<tr>
+<td><p dir="auto"><code>excludes</code></p></td>
+<td><div dir="auto"><div dir="auto">
+<p dir="auto"><code>Dictionary of key-value-pairs (key: string, value: list of strings), optional</code></p>
+</div>
+<div dir="auto">
+<p dir="auto">List of glob patterns per gem to be excluded from the library. Keys are the names of the gems. Values are lists of blob path patterns, which are relative to the root directories of the gems. The default value is <code>["<strong>/* <strong>.</strong>", "</strong>/* <strong>/</strong>"]</code></p>
+</div></div></td>
+</tr>
+<tr>
+<td colspan="2"><p dir="auto">And other <a href="https://docs.bazel.build/versions/master/be/common-definitions.html#common-attributes" rel="nofollow">common attributes</a>.</p></td>
+</tr>
+</tbody>
+</table>
+<div dir="auto">
+<h4 id="user-content-conventions" dir="auto"><a id="user-content-641-conventions" class="anchor" aria-hidden="true" href="#641-conventions"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>6.4.1. Conventions</h4>
+<div dir="auto">
+<p dir="auto"><code>ruby_bundle</code> creates several targets that can be used downstream. In the examples below we assume that your <code>ruby_bundle</code> has a name <code>app_bundle</code>:</p>
+</div>
+<div dir="auto">
+<ul dir="auto">
+<li>
+<p dir="auto"><code>@app_bundle//:bundler</code> — references just the Bundler from the bundle.</p>
+</li>
+<li>
+<p dir="auto"><code>@app_bundle//:gems</code> — references <em>all</em> gems in the bundle (i.e. "the entire bundle").</p>
+</li>
+<li>
+<p dir="auto"><code>@app_bundle//:gem-name</code> — references <em>just the specified</em> gem in the bundle, eg. <code>@app_bundle//:awesome_print</code>.</p>
+</li>
+<li>
+<p dir="auto"><code>@app_bundle//:bin</code> — references to all installed executables from this bundle, with individual executables accessible via eg. <code>@app_bundle//:bin/rubocop</code></p>
+</li>
+</ul>
+</div>
+</div>
+<div dir="auto">
+<h4 id="user-content-workspace" dir="auto"><a id="user-content-642-workspace" class="anchor" aria-hidden="true" href="#642-workspace"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>6.4.2. <code>WORKSPACE</code>:</h4>
+<div dir="auto">
+<div dir="auto">
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@bazelruby_rules_ruby//ruby:defs.bzl&quot;, &quot;ruby_bundle&quot;)
+
+ruby_bundle(
+    name = &quot;gems&quot;,
+    bundler_version = '2.1.4',
+    gemfile = &quot;//:Gemfile&quot;,
+    gemfile_lock = &quot;//:Gemfile.lock&quot;,
+)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@bazelruby_rules_ruby//ruby:defs.bzl"</span>, <span class="pl-s">"ruby_bundle"</span>)
+
+<span class="pl-en">ruby_bundle</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"gems"</span>,
+    <span class="pl-s1">bundler_version</span> <span class="pl-c1">=</span> <span class="pl-s">'2.1.4'</span>,
+    <span class="pl-s1">gemfile</span> <span class="pl-c1">=</span> <span class="pl-s">"//:Gemfile"</span>,
+    <span class="pl-s1">gemfile_lock</span> <span class="pl-c1">=</span> <span class="pl-s">"//:Gemfile.lock"</span>,
+)</pre></div>
+</div>
+</div>
+<div dir="auto">
+<h5 id="user-content-vendor-directory-handling" dir="auto"><a id="user-content-vendor-directory-handling" class="anchor" aria-hidden="true" href="#vendor-directory-handling"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Vendor directory handling</h5>
+<div dir="auto">
+<p dir="auto">To use the vendor cache, you have to declare a <code>managed_directory</code> in
+your workspace. The name should match the name of the bundle.</p>
+</div>
+<div dir="auto">
+<div dir="auto">
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@bazelruby_rules_ruby//ruby:defs.bzl&quot;, &quot;ruby_bundle&quot;)
+
+workspace(
+    name = &quot;my_wksp&quot;,
+    managed_directories = {&quot;@bundle&quot;: [&quot;vendor&quot;]},
+)
+
+ruby_bundle(
+    name = &quot;bundle&quot;,
+    bundler_version = &quot;2.1.2&quot;,
+    vendor_cache = True,
+    gemfile = &quot;//:Gemfile&quot;,
+    gemfile_lock = &quot;//:Gemfile.lock&quot;,
+)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@bazelruby_rules_ruby//ruby:defs.bzl"</span>, <span class="pl-s">"ruby_bundle"</span>)
+
+<span class="pl-en">workspace</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"my_wksp"</span>,
+    <span class="pl-s1">managed_directories</span> <span class="pl-c1">=</span> {<span class="pl-s">"@bundle"</span>: [<span class="pl-s">"vendor"</span>]},
+)
+
+<span class="pl-en">ruby_bundle</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"bundle"</span>,
+    <span class="pl-s1">bundler_version</span> <span class="pl-c1">=</span> <span class="pl-s">"2.1.2"</span>,
+    <span class="pl-s1">vendor_cache</span> <span class="pl-c1">=</span> <span class="pl-c1">True</span>,
+    <span class="pl-s1">gemfile</span> <span class="pl-c1">=</span> <span class="pl-s">"//:Gemfile"</span>,
+    <span class="pl-s1">gemfile_lock</span> <span class="pl-c1">=</span> <span class="pl-s">"//:Gemfile.lock"</span>,
+)</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div dir="auto">
+<h4 id="user-content-build-bazel" dir="auto"><a id="user-content-643-buildbazel" class="anchor" aria-hidden="true" href="#643-buildbazel"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>6.4.3. <code>BUILD.bazel</code>:</h4>
+<div dir="auto">
+<div dir="auto">
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="# Reference the entire bundle with :gems
+
+ruby_library(
+    name = &quot;foo&quot;,
+    srcs = [&quot;foo.rb&quot;],
+    deps = [&quot;@gems//:gems&quot;],
+)
+
+# Or, reference specific gems from the bundle like so:
+
+ruby_binary(
+    name = &quot;rubocop&quot;,
+    srcs = [&quot;:foo&quot;, &quot;.rubocop.yml&quot;],
+    args = [&quot;-P&quot;, &quot;-D&quot;, &quot;-c&quot; &quot;.rubocop.yml&quot;],
+    main = &quot;@gems//:bin/rubocop&quot;,
+    deps = [&quot;@gems//:rubocop&quot;],
+)"><pre><span class="pl-c"># Reference the entire bundle with :gems</span>
+
+<span class="pl-en">ruby_library</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"foo"</span>,
+    <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> [<span class="pl-s">"foo.rb"</span>],
+    <span class="pl-s1">deps</span> <span class="pl-c1">=</span> [<span class="pl-s">"@gems//:gems"</span>],
+)
+
+<span class="pl-c"># Or, reference specific gems from the bundle like so:</span>
+
+<span class="pl-en">ruby_binary</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"rubocop"</span>,
+    <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> [<span class="pl-s">":foo"</span>, <span class="pl-s">".rubocop.yml"</span>],
+    <span class="pl-s1">args</span> <span class="pl-c1">=</span> [<span class="pl-s">"-P"</span>, <span class="pl-s">"-D"</span>, <span class="pl-s">"-c"</span> <span class="pl-s">".rubocop.yml"</span>],
+    <span class="pl-s1">main</span> <span class="pl-c1">=</span> <span class="pl-s">"@gems//:bin/rubocop"</span>,
+    <span class="pl-s1">deps</span> <span class="pl-c1">=</span> [<span class="pl-s">"@gems//:rubocop"</span>],
+)</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div dir="auto">
+<h3 id="user-content-ruby_rspec" dir="auto"><a id="user-content-65-ruby_rspec" class="anchor" aria-hidden="true" href="#65-ruby_rspec"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>6.5. <code>ruby_rspec</code></h3>
+<div dir="auto">
+<div dir="auto">
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="ruby_rspec(
+    name,
+    deps,
+    srcs,
+    data,
+    main,
+    rspec_args,
+    bundle,
+    compatible_with,
+    deprecation,
+    distribs,
+    features,
+    licenses,
+    restricted_to,
+    tags,
+    testonly,
+    toolchains,
+    visibility,
+    args,
+    size,
+    timeout,
+    flaky,
+    local,
+    shard_count
+)"><pre><span class="pl-en">ruby_rspec</span>(
+    <span class="pl-s1">name</span>,
+    <span class="pl-s1">deps</span>,
+    <span class="pl-s1">srcs</span>,
+    <span class="pl-s1">data</span>,
+    <span class="pl-s1">main</span>,
+    <span class="pl-s1">rspec_args</span>,
+    <span class="pl-s1">bundle</span>,
+    <span class="pl-s1">compatible_with</span>,
+    <span class="pl-s1">deprecation</span>,
+    <span class="pl-s1">distribs</span>,
+    <span class="pl-s1">features</span>,
+    <span class="pl-s1">licenses</span>,
+    <span class="pl-s1">restricted_to</span>,
+    <span class="pl-s1">tags</span>,
+    <span class="pl-s1">testonly</span>,
+    <span class="pl-s1">toolchains</span>,
+    <span class="pl-s1">visibility</span>,
+    <span class="pl-s1">args</span>,
+    <span class="pl-s1">size</span>,
+    <span class="pl-s1">timeout</span>,
+    <span class="pl-s1">flaky</span>,
+    <span class="pl-s1">local</span>,
+    <span class="pl-s1">shard_count</span>
+)</pre></div>
+</div>
+</div>
+<table>
+
+
+
+
+<thead>
+<tr>
+<th>Attributes</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><p dir="auto"><code>name</code></p></td>
+<td><div dir="auto"><div dir="auto">
+<p dir="auto"><code>Name, required</code></p>
+</div>
+<div dir="auto">
+<p dir="auto">A unique name for this rule.</p>
+</div></div></td>
+</tr>
+<tr>
+<td><p dir="auto"><code>srcs</code></p></td>
+<td><div dir="auto"><div dir="auto">
+<p dir="auto"><code>List of Labels, required</code></p>
+</div>
+<div dir="auto">
+<p dir="auto">List of <code>.rb</code> files.</p>
+</div></div></td>
+</tr>
+<tr>
+<td><p dir="auto"><code>deps</code></p></td>
+<td><div dir="auto"><div dir="auto">
+<p dir="auto"><code>List of labels, optional</code></p>
+</div>
+<div dir="auto">
+<p dir="auto">List of targets that are required by the <code>srcs</code> Ruby files.</p>
+</div></div></td>
+</tr>
+<tr>
+<td><p dir="auto"><code>main</code></p></td>
+<td><div dir="auto"><div dir="auto">
+<p dir="auto"><code>Label, optional</code></p>
+</div>
+<div dir="auto">
+<p dir="auto">The entrypoint file. It must be also in <code>srcs</code>.</p>
+</div>
+<div dir="auto">
+<p dir="auto">If not specified, <code>$(NAME).rb</code> where <code>$(NAME)</code> is the <code>name</code> of this rule.</p>
+</div></div></td>
+</tr>
+<tr>
+<td><p dir="auto"><code>rspec_args</code></p></td>
+<td><div dir="auto"><div dir="auto">
+<p dir="auto"><code>List of strings, optional</code></p>
+</div>
+<div dir="auto">
+<p dir="auto">Command line arguments to the <code>rspec</code> binary, eg <code>["--progress", "-p2", "-b"]</code></p>
+</div>
+<div dir="auto">
+<p dir="auto">If not specified, the default arguments defined in <code>constants.bzl</code> are used: <code>--format=documentation --force-color</code>.</p>
+</div></div></td>
+</tr>
+<tr>
+<td><p dir="auto"><code>includes</code></p></td>
+<td><div dir="auto"><div dir="auto">
+<p dir="auto"><code>List of strings, optional</code></p>
+</div>
+<div dir="auto">
+<p dir="auto">List of paths to be added to <code>$LOAD_PATH</code> at runtime. The paths must be relative to the the workspace which this rule belongs to.</p>
+</div></div></td>
+</tr>
+<tr>
+<td><p dir="auto"><code>rubyopt</code></p></td>
+<td><div dir="auto"><div dir="auto">
+<p dir="auto"><code>List of strings, optional</code></p>
+</div>
+<div dir="auto">
+<p dir="auto">List of options to be passed to the Ruby interpreter at runtime.</p>
+</div>
+<div dir="auto">
+<table>
+<tbody><tr>
+<td>
+<div dir="auto">Note</div>
+</td>
+<td>
+<code>-I</code> option should usually go to <code>includes</code> attribute.
+</td>
+</tr>
+</tbody></table>
+</div></div></td>
+</tr>
+<tr>
+<td colspan="2"><p dir="auto">And other <a href="https://docs.bazel.build/versions/master/be/common-definitions.html#common-attributes" rel="nofollow">common attributes</a>.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div dir="auto">
+<h3 id="user-content-ruby_gem" dir="auto"><a id="user-content-66-ruby_gem" class="anchor" aria-hidden="true" href="#66-ruby_gem"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>6.6. <code>ruby_gem</code></h3>
+<div dir="auto">
+<p dir="auto">Used to generate a zipped gem containing its srcs, dependencies and a gemspec.</p>
+</div>
+<div dir="auto">
+<div dir="auto">
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="ruby_gem(
+    name,
+    gem_name,
+    gem_version,
+    gem_summary,
+    gem_description,
+    gem_homepage,
+    gem_authors,
+    gem_author_emails,
+    gem_runtime_dependencies,
+    gem_development_dependencies,
+    require_paths = [&quot;lib&quot;],
+    srcs = srcs,
+    deps = deps,
+    data = data
+)"><pre><span class="pl-en">ruby_gem</span>(
+    <span class="pl-s1">name</span>,
+    <span class="pl-s1">gem_name</span>,
+    <span class="pl-s1">gem_version</span>,
+    <span class="pl-s1">gem_summary</span>,
+    <span class="pl-s1">gem_description</span>,
+    <span class="pl-s1">gem_homepage</span>,
+    <span class="pl-s1">gem_authors</span>,
+    <span class="pl-s1">gem_author_emails</span>,
+    <span class="pl-s1">gem_runtime_dependencies</span>,
+    <span class="pl-s1">gem_development_dependencies</span>,
+    <span class="pl-s1">require_paths</span> <span class="pl-c1">=</span> [<span class="pl-s">"lib"</span>],
+    <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> <span class="pl-s1">srcs</span>,
+    <span class="pl-s1">deps</span> <span class="pl-c1">=</span> <span class="pl-s1">deps</span>,
+    <span class="pl-s1">data</span> <span class="pl-c1">=</span> <span class="pl-s1">data</span>
+)</pre></div>
+</div>
+</div>
+<table>
+
+
+
+
+<thead>
+<tr>
+<th>Attributes</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><p dir="auto"><code>name</code></p></td>
+<td><div dir="auto"><div dir="auto">
+<p dir="auto"><code>Name, required</code></p>
+</div>
+<div dir="auto">
+<p dir="auto">A unique name for this build target.</p>
+</div></div></td>
+</tr>
+<tr>
+<td><p dir="auto"><code>gem_name</code></p></td>
+<td><div dir="auto"><div dir="auto">
+<p dir="auto"><code>Name of the gem, required</code></p>
+</div>
+<div dir="auto">
+<p dir="auto">The name of the gem to be generated.</p>
+</div></div></td>
+</tr>
+<tr>
+<td><p dir="auto"><code>gem_version</code></p></td>
+<td><div dir="auto"><div dir="auto">
+<p dir="auto"><code>String, optional</code></p>
+</div>
+<div dir="auto">
+<p dir="auto">The version of the gem. Is used to name the output file, which becomes <code>name-version.zip</code>, and also included in the Gemspec.</p>
+</div></div></td>
+</tr>
+<tr>
+<td><p dir="auto"><code>gem_summary</code></p></td>
+<td><div dir="auto"><div dir="auto">
+<p dir="auto"><code>String, optional</code></p>
+</div>
+<div dir="auto">
+<p dir="auto">One line summary of the gem purpose.</p>
+</div></div></td>
+</tr>
+<tr>
+<td><p dir="auto"><code>gem_description</code></p></td>
+<td><div dir="auto"><div dir="auto">
+<p dir="auto"><code>String, required</code></p>
+</div>
+<div dir="auto">
+<p dir="auto">Single-line, paragraph-sized description text for the gem.</p>
+</div></div></td>
+</tr>
+<tr>
+<td><p dir="auto"><code>gem_homepage</code></p></td>
+<td><div dir="auto"><div dir="auto">
+<p dir="auto"><code>String, optional</code></p>
+</div>
+<div dir="auto">
+<p dir="auto">Homepage URL of the gem.</p>
+</div></div></td>
+</tr>
+<tr>
+<td><p dir="auto"><code>gem_authors</code></p></td>
+<td><div dir="auto"><div dir="auto">
+<p dir="auto"><code>List of Strings, required</code></p>
+</div>
+<div dir="auto">
+<p dir="auto">List of human readable names of the gem authors. Required to generate a valid gemspec.</p>
+</div></div></td>
+</tr>
+<tr>
+<td><p dir="auto"><code>gem_author_emails</code></p></td>
+<td><div dir="auto"><div dir="auto">
+<p dir="auto"><code>List of Strings, optional</code></p>
+</div>
+<div dir="auto">
+<p dir="auto">List of email addresses of the authors.</p>
+</div></div></td>
+</tr>
+<tr>
+<td><p dir="auto"><code>srcs</code></p></td>
+<td><div dir="auto"><div dir="auto">
+<p dir="auto"><code>List of Labels, optional</code></p>
+</div>
+<div dir="auto">
+<p dir="auto">List of <code>.rb</code> files.</p>
+</div>
+<div dir="auto">
+<p dir="auto">At least <code>srcs</code> or <code>deps</code> must be present</p>
+</div></div></td>
+</tr>
+<tr>
+<td><p dir="auto"><code>deps</code></p></td>
+<td><div dir="auto"><div dir="auto">
+<p dir="auto"><code>List of labels, optional</code></p>
+</div>
+<div dir="auto">
+<p dir="auto">List of targets that are required by the <code>srcs</code> Ruby files.</p>
+</div>
+<div dir="auto">
+<p dir="auto">At least <code>srcs</code> or <code>deps</code> must be present</p>
+</div></div></td>
+</tr>
+<tr>
+<td><p dir="auto"><code>require_paths</code></p></td>
+<td><div dir="auto"><div dir="auto">
+<p dir="auto"><code>List of Strings, optional</code></p>
+</div>
+<div dir="auto">
+<p dir="auto">List of paths to be added to the Ruby LOAD_PATH when using this gem. Typically this value is just <code>lib</code> (which is also the default).</p>
+</div></div></td>
+</tr>
+<tr>
+<td><p dir="auto"><code>gem_runtime_dependencies</code></p></td>
+<td><div dir="auto"><div dir="auto">
+<p dir="auto"><code>String Dictionary, optional</code></p>
+</div>
+<div dir="auto">
+<p dir="auto">This is a dictionary where keys are gem names, and values are either an empty string or a <a href="https://www.devalot.com/articles/2012/04/gem-versions.html" rel="nofollow">gem version specification</a>. For instance, the pessimistic version specifier <code>~&gt; 3.0</code> means that all versions up to <code>4.0</code> are accepted.</p>
+</div></div></td>
+</tr>
+<tr>
+<td><p dir="auto"><code>gem_development_dependencies</code></p></td>
+<td><div dir="auto"><div dir="auto">
+<p dir="auto"><code>String Dictionary, optional</code></p>
+</div>
+<div dir="auto">
+<p dir="auto">Similar to the above, this specifies gems necessary for the development of the above gem, such as testing gems, linters, code coverage and more.</p>
+</div></div></td>
+</tr>
+<tr>
+<td colspan="2"><p dir="auto">And other <a href="https://docs.bazel.build/versions/master/be/common-definitions.html#common-attributes" rel="nofollow">common attributes</a>.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div dir="auto">
+<h2 id="user-content-potential-future-features" dir="auto"><a id="user-content-7-potential-future-features" class="anchor" aria-hidden="true" href="#7-potential-future-features"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>7. Potential Future Features</h2>
+<div dir="auto">
+<div dir="auto">
+<div dir="auto">
+<div dir="auto">
+<p dir="auto"><span>[check square]</span> Using various versions of Ruby installed locally</p>
+</div>
+<div dir="auto">
+<p dir="auto"><span>[square]</span> Building native extensions in gems with Bazel</p>
+</div>
+<div dir="auto">
+<p dir="auto"><span>[square]</span> Releasing your gems with Bazel (<a href="https://github.com/coinbase/rules_ruby">Coinbase fork</a> might have this feature, worth checking)</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div dir="auto">
+<h2 id="user-content-contributing" dir="auto"><a id="user-content-8-contributing" class="anchor" aria-hidden="true" href="#8-contributing"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>8. Contributing</h2>
+<div dir="auto">
+<div dir="auto">
+<p dir="auto">We welcome contributions to RulesRuby. Please make yourself familiar with the <a href="CODE_OF_CONDUCT.adoc">code of conduct</a>, which basically says — don’t be an a-hole.</p>
+</div>
+<div dir="auto">
+<p dir="auto">You may notice that there is more than one Bazel WORKSPACE inside this repo. There is one in <code>examples/simple_script</code> for instance, because
+we use this example to validate and test the rules. So be mindful whether your current directory contains <code>WORKSPACE</code> file or not.</p>
+</div>
+<div dir="auto">
+<h3 id="user-content-setup" dir="auto"><a id="user-content-81-setup" class="anchor" aria-hidden="true" href="#81-setup"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>8.1. Setup</h3>
+<div dir="auto">
+<h4 id="user-content-using-the-script" dir="auto"><a id="user-content-811-using-the-script" class="anchor" aria-hidden="true" href="#811-using-the-script"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>8.1.1. Using the Script</h4>
+<div dir="auto">
+<p dir="auto">You will need Homebrew installed prior to running the script.</p>
+</div>
+<div dir="auto">
+<p dir="auto">After that, cd into the top level folder and run the setup script in your Terminal:</p>
+</div>
+<div dir="auto">
+<div dir="auto">
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="❯ bin/setup"><pre>❯ bin/setup</pre></div>
+</div>
+</div>
+<div dir="auto">
+<p dir="auto">This runs a complete setup, shouldn’t take too long. You can explore various script options with the <code>help</code> command:</p>
+</div>
+<div dir="auto">
+<div dir="auto">
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="❯ bin/setup -h
+
+USAGE
+  # without any arguments runs a complete setup.
+  bin/setup
+
+  # alternatively, a sub-setup function name can be passed:
+  bin/setup [ gems | git-hook | help | main | os-specific | rbenv | remove-git-hook ]
+
+DESCRIPTION:
+  Runs full setup without any arguments.
+
+  Accepts one optional argument — one of the actions that typically run
+  as part of setup, with one exception — remove-git-hook.
+  This action removes the git commit hook installed by the setup.
+
+EXAMPLES:
+    bin/setup
+
+  Or, to run only one of the sub-functions (actions), pass
+  it as an argument:
+
+    bin/setup help
+    bin/setup remove-git-hook"><pre>❯ bin/setup -h
+
+USAGE
+  <span class="pl-c"><span class="pl-c">#</span> without any arguments runs a complete setup.</span>
+  bin/setup
+
+  <span class="pl-c"><span class="pl-c">#</span> alternatively, a sub-setup function name can be passed:</span>
+  bin/setup [ gems <span class="pl-k">|</span> git-hook <span class="pl-k">|</span> <span class="pl-c1">help</span> <span class="pl-k">|</span> main <span class="pl-k">|</span> os-specific <span class="pl-k">|</span> rbenv <span class="pl-k">|</span> remove-git-hook ]
+
+DESCRIPTION:
+  Runs full setup without any arguments.
+
+  Accepts one optional argument — one of the actions that typically run
+  as part of setup, with one exception — remove-git-hook.
+  This action removes the git commit hook installed by the setup.
+
+EXAMPLES:
+    bin/setup
+
+  Or, to run only one of the sub-functions (actions), pass
+  it as an argument:
+
+    bin/setup <span class="pl-c1">help</span>
+    bin/setup remove-git-hook</pre></div>
+</div>
+</div>
+</div>
+<div dir="auto">
+<h4 id="user-content-os-specific-setup" dir="auto"><a id="user-content-812-os-specific-setup" class="anchor" aria-hidden="true" href="#812-os-specific-setup"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>8.1.2. OS-Specific Setup</h4>
+<div dir="auto">
+<p dir="auto">Note that the setup contains <code>os-specific</code> section. This is because there are two extension scripts:</p>
+</div>
+<div dir="auto">
+<ul dir="auto">
+<li>
+<p dir="auto"><code>bin/setup-linux</code></p>
+</li>
+<li>
+<p dir="auto"><code>bin/setup-darwin</code></p>
+</li>
+</ul>
+</div>
+<div dir="auto">
+<p dir="auto">Those will install Bazel and everything else you need on either platform. In fact, we use the linux version on CI.</p>
+</div>
+</div>
+</div>
+<div dir="auto">
+<h3 id="user-content-verifying-your-environment" dir="auto"><a id="user-content-82-verifying-your-environment" class="anchor" aria-hidden="true" href="#82-verifying-your-environment"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>8.2. Verifying Your Environment</h3>
+<div dir="auto">
+<p dir="auto">We provided a handy script <code>bin/show-env</code> to display where your dependencies are coming from. Here is an example of running it on a Mac OS-X system:</p>
+</div>
+<div dir="auto">
+<div dir="auto">
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="❯ bin/show-env"><pre>❯ bin/show-env</pre></div>
+</div>
+</div>
+<div dir="auto">
+<div dir="auto">
+<a target="_blank" rel="noopener noreferrer" href="docs/img/env.png"><img src="docs/img/env.png" alt="bin/show-env" style="max-width: 100%;"></a>
+</div>
+</div>
+<div dir="auto">
+<h4 id="user-content-issues-during-setup" dir="auto"><a id="user-content-821-issues-during-setup" class="anchor" aria-hidden="true" href="#821-issues-during-setup"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>8.2.1. Issues During Setup</h4>
+<div dir="auto">
+<blockquote>
+<div dir="auto">
+<p dir="auto"><strong>Please report any errors to <code>bin/setup</code> as Issues on Github. You can assign them to @kigster.</strong> If I am not responding fast enough, and you are in a hurry, please email kigster AT gmail directly.</p>
+</div>
+</blockquote>
+</div>
+</div>
+</div>
+<div dir="auto">
+<h3 id="user-content-developing-rules" dir="auto"><a id="user-content-83-developing-rules" class="anchor" aria-hidden="true" href="#83-developing-rules"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>8.3. Developing Rules</h3>
+<div dir="auto">
+<p dir="auto">Besides making yourself familiar with the existing code, and <a href="https://docs.bazel.build/versions/master/skylark/concepts.html" rel="nofollow">Bazel documentation on writing rules</a>, you might want to follow this order:</p>
+</div>
+<div dir="auto">
+<ol dir="auto">
+<li>
+<p dir="auto">Setup dev tools as described in the <a href="#setup">setup</a> section.</p>
+</li>
+<li>
+<p dir="auto">hack, hack, hack…​</p>
+</li>
+<li>
+<p dir="auto">Make sure all tests pass — you can run a single command for that (but see more on it <a href="#test-script">below</a>.</p>
+</li>
+</ol>
+</div>
+<div dir="auto">
+<div dir="auto">
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bin/test-suite"><pre>bin/test-suite</pre></div>
+</div>
+</div>
+<div dir="auto">
+<p dir="auto">OR, you can run individual Bazel test commands from the inside.</p>
+</div>
+<div dir="auto">
+<ul dir="auto">
+<li>
+<p dir="auto"><code>bazel test //…​</code></p>
+</li>
+<li>
+<p dir="auto"><code>cd examples/simple_script &amp;&amp; bazel test //…​</code></p>
+<div dir="auto">
+<ol dir="auto">
+<li>
+<p dir="auto">Open a pull request in Github, and please be as verbose as possible in your description.</p>
+</li>
+</ol>
+</div>
+</li>
+</ul>
+</div>
+<div dir="auto">
+<p dir="auto">In general, it’s always a good idea to ask questions first — you can do so by creating an issue.</p>
+</div>
+</div>
+<div dir="auto">
+<h3 id="user-content-running-tests" dir="auto"><a id="user-content-84-running-tests" class="anchor" aria-hidden="true" href="#84-running-tests"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>8.4. Running Tests</h3>
+<div dir="auto">
+<p dir="auto">After running setup, and since this is a bazel repo you can use Bazel commands:</p>
+</div>
+<div dir="auto">
+<div dir="auto">
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel build //...:all
+bazel query //...:all
+bazel test  //...:all"><pre><span class="pl-s1">bazel</span> <span class="pl-s1">build</span> <span class="pl-c1">//</span>...:<span class="pl-s1">all</span>
+<span class="pl-s1">bazel</span> <span class="pl-s1">query</span> <span class="pl-c1">//</span>...:<span class="pl-s1">all</span>
+<span class="pl-s1">bazel</span> <span class="pl-s1">test</span>  <span class="pl-c1">//</span>...:<span class="pl-s1">all</span></pre></div>
+</div>
+</div>
+<div dir="auto">
+<p dir="auto">But to run tests inside each sub-WORKSPACE, you will need to repeat that in each sub-folder. Luckily, there is a better way.</p>
+</div>
+<div dir="auto">
+<h4 id="user-content-test-script" dir="auto"><a id="user-content-841-test-script" class="anchor" aria-hidden="true" href="#841-test-script"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>8.4.1. Test Script</h4>
+<div dir="auto">
+<p dir="auto">This script runs all tests (including sub-workspaces) when ran without arguments:</p>
+</div>
+<div dir="auto">
+<div dir="auto">
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bin/test-suite"><pre>bin/test-suite</pre></div>
+</div>
+</div>
+<div dir="auto">
+<p dir="auto">Run it with <code>help</code> command to see other options, and to see what parts you can run individually. At the moment they are:</p>
+</div>
+<div dir="auto">
+<div dir="auto">
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="# alternatively, a partial test name can be passed:
+bin/test-suite [ all | bazel-info | buildifier | help | rspec | rubocop | simple-script |  workspace ]"><pre><span class="pl-c"><span class="pl-c">#</span> alternatively, a partial test name can be passed:</span>
+bin/test-suite [ all <span class="pl-k">|</span> bazel-info <span class="pl-k">|</span> buildifier <span class="pl-k">|</span> <span class="pl-c1">help</span> <span class="pl-k">|</span> rspec <span class="pl-k">|</span> rubocop <span class="pl-k">|</span> simple-script <span class="pl-k">|</span>  workspace ]</pre></div>
+</div>
+</div>
+<div dir="auto">
+<p dir="auto">On a MacBook Pro it takes about 3 minutes to run.</p>
+</div>
+</div>
+</div>
+<div dir="auto">
+<h3 id="user-content-linter" dir="auto"><a id="user-content-85-linter" class="anchor" aria-hidden="true" href="#85-linter"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>8.5. Linter</h3>
+<div dir="auto">
+<p dir="auto">We are using RuboCop for ruby and Buildifier for Bazel. Both are represented by a single script <code>bin/linter</code>, which just like the scripts above runs ALL linters when ran without arguments, accepts <code>help</code> commnd, and can be run on a subset of linting strategies:</p>
+</div>
+<div dir="auto">
+<div dir="auto">
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bin/linter"><pre>bin/linter</pre></div>
+</div>
+</div>
+<div dir="auto">
+<p dir="auto">The following are the partial linting functions you can run:</p>
+</div>
+<div dir="auto">
+<div dir="auto">
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="# alternatively, a partial linter name can be passed:
+bin/linter [ all | buildifier | help | rubocop ]"><pre><span class="pl-c"><span class="pl-c">#</span> alternatively, a partial linter name can be passed:</span>
+bin/linter [ all <span class="pl-k">|</span> buildifier <span class="pl-k">|</span> <span class="pl-c1">help</span> <span class="pl-k">|</span> rubocop ]</pre></div>
+</div>
+</div>
+</div>
+<div dir="auto">
+<h3 id="user-content-regenerating-readme-pdf-changelog" dir="auto"><a id="user-content-86-regenerating-readmepdf--changelog" class="anchor" aria-hidden="true" href="#86-regenerating-readmepdf--changelog"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>8.6. Regenerating README.pdf &amp; Changelog</h3>
+<div dir="auto">
+<p dir="auto">To regenerate, first you may need to grab an <a href="https://github.com/settings/tokens">API token</a> and export the <code>GITHUB_TOKEN</code> variable:</p>
+</div>
+<div dir="auto">
+<div dir="auto">
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="export GITHUB_TOKEN=...."><pre><span class="pl-k">export</span> GITHUB_TOKEN=....</pre></div>
+</div>
+</div>
+<div dir="auto">
+<p dir="auto">Then use the <code>make</code> target:</p>
+</div>
+<div dir="auto">
+<div dir="auto">
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="make update"><pre>make update</pre></div>
+</div>
+</div>
+<div dir="auto">
+<p dir="auto">Or, manually:</p>
+</div>
+<div dir="auto">
+<div dir="auto">
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="gem install github_changelog_generator
+github_changelog_generator -u bazelruby -p rules_ruby -t your-github-token"><pre>gem install github_changelog_generator
+github_changelog_generator -u bazelruby -p rules_ruby -t your-github-token</pre></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div dir="auto">
+<h2 id="user-content-copyright" dir="auto"><a id="user-content-9-copyright" class="anchor" aria-hidden="true" href="#9-copyright"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>9. Copyright</h2>
+<div dir="auto">
+<div dir="auto">
+<p dir="auto">© 2018-2021 BazelRuby Contributors.</p>
+</div>
+<div dir="auto">
+<p dir="auto">Core Team:</p>
+</div>
+<div dir="auto">
+<ul dir="auto">
+<li>
+<p dir="auto"><a href="https://github.com/yugui/">Yuki Yugui Sonoda</a></p>
+</li>
+<li>
+<p dir="auto"><a href="https://kig.re/" rel="nofollow">Konstantin Gredeskoul</a></p>
+</li>
+</ul>
+</div>
+<div dir="auto">
+<p dir="auto">Core Team (Emeritus):</p>
+</div>
+<div dir="auto">
+<ul dir="auto">
+<li>
+<p dir="auto"><a href="https://github.com/grahamjenson">Graham Jenson</a></p>
+</li>
+</ul>
+</div>
+<div dir="auto">
+<p dir="auto">Licensed under the <a href="http://www.apache.org/licenses/LICENSE-2.0" rel="nofollow">Apache License, Version 2.0 (the "License")</a>.</p>
+</div>
+<div dir="auto">
+<p dir="auto">Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.</p>
+</div>
+</div>
+</div></article></div>

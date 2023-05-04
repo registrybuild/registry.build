@@ -1,1 +1,291 @@
-{"message":"API rate limit exceeded for installation ID 36708394.","documentation_url":"https://docs.github.com/rest/overview/resources-in-the-rest-api#rate-limiting"}
+<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><h1 dir="auto"><a id="user-content-prometheus-bazel-rules" class="anchor" aria-hidden="true" href="#prometheus-bazel-rules"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Prometheus bazel rules</h1>
+<p dir="auto">Prometheus/Alertmanager rules for Bazel</p>
+<ul dir="auto">
+<li><a href="#initial-project-setup">Initial project setup</a></li>
+<li><a href="#rules">Rules</a>
+<ul dir="auto">
+<li><a href="#promtool_config_test">promtool_config_test</a></li>
+<li><a href="#promtool_rules_test">promtool_rules_test</a></li>
+<li><a href="#promtool_unit_test">promtool_unit_test</a></li>
+<li><a href="#prometheus">prometheus</a></li>
+<li><a href="#promtool">promtool</a></li>
+</ul>
+</li>
+<li><a href="#examples">Examples</a></li>
+</ul>
+<p dir="auto">TODO</p>
+<ul dir="auto">
+<li>integrate alertmanager and amtool into rules and workspace binaries (todo with sergey)</li>
+<li>implement local backfiller (todo with alexander)</li>
+<li>start alertmanager with input configs</li>
+<li>unit test rules and toolchains</li>
+<li>add linux toolchain</li>
+<li>run some binary tests macros against prometheus server and alertmanager for smoke/integration/load testing</li>
+<li>make toolchains work in containers</li>
+</ul>
+<h1 dir="auto"><a id="user-content-initial-project-setup" class="anchor" aria-hidden="true" href="#initial-project-setup"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Initial project setup</h1>
+<p dir="auto">You will need recent <a href="https://bazel.build" rel="nofollow">Bazel</a> release, otherwise rules will download and discover dependent required tools</p>
+<p dir="auto">otherwise, refer to <a href="https://github.com/5h4d0w4rt/rules_prometheus/releases/">release page</a></p>
+<h1 dir="auto"><a id="user-content-rules" class="anchor" aria-hidden="true" href="#rules"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Rules</h1>
+
+<p dir="auto"><a name="user-content-#promtool_config_test"></a></p>
+<h2 dir="auto"><a id="user-content-promtool_config_test" class="anchor" aria-hidden="true" href="#promtool_config_test"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>promtool_config_test</h2>
+<pre>promtool_config_test(<a href="#promtool_config_test-name">name</a>, <a href="#promtool_config_test-srcs">srcs</a>)
+</pre>
+<p dir="auto">Run "promtool check config" against config targets</p>
+<p dir="auto">Example:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="//examples:test_config_yml
+
+load(&quot;//prometheus:defs.bzl&quot;, &quot;promtool_config_test&quot;)
+promtool_config_test(
+    name = &quot;test_config_yml&quot;,
+    srcs = [&quot;prometheus.yml&quot;],
+)"><pre class="notranslate"><code>//examples:test_config_yml
+
+load("//prometheus:defs.bzl", "promtool_config_test")
+promtool_config_test(
+    name = "test_config_yml",
+    srcs = ["prometheus.yml"],
+)
+</code></pre></div>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel test //examples:test_config_yml
+
+//examples:test_config_yml                                      PASSED in 0.1s"><pre>bazel <span class="pl-c1">test</span> //examples:test_config_yml
+
+//examples:test_config_yml                                      PASSED <span class="pl-k">in</span> 0.1s</pre></div>
+<p dir="auto"><strong>ATTRIBUTES</strong></p>
+<table>
+<thead>
+<tr>
+<th align="center">Name</th>
+<th align="center">Description</th>
+<th align="center">Type</th>
+<th align="center">Mandatory</th>
+<th align="center">Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center">name</td>
+<td align="center">A unique name for this target.</td>
+<td align="center"><a href="https://bazel.build/docs/build-ref.html#name" rel="nofollow">Name</a></td>
+<td align="center">required</td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="center">srcs</td>
+<td align="center">List of prometheus configuration targets</td>
+<td align="center"><a href="https://bazel.build/docs/build-ref.html#labels" rel="nofollow">List of labels</a></td>
+<td align="center">required</td>
+<td align="center"></td>
+</tr>
+</tbody>
+</table>
+<p dir="auto"><a name="user-content-#promtool_rules_test"></a></p>
+<h2 dir="auto"><a id="user-content-promtool_rules_test" class="anchor" aria-hidden="true" href="#promtool_rules_test"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>promtool_rules_test</h2>
+<pre>promtool_rules_test(<a href="#promtool_rules_test-name">name</a>, <a href="#promtool_rules_test-srcs">srcs</a>)
+</pre>
+<p dir="auto">Run "promtool check rules" against rules targets</p>
+<p dir="auto">Example:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="//examples:test_rules_yml
+promtool_rules_test(
+    name = &quot;test_rules_yml&quot;,
+    srcs = [&quot;rules.yml&quot;],
+)"><pre class="notranslate"><code>//examples:test_rules_yml
+promtool_rules_test(
+    name = "test_rules_yml",
+    srcs = ["rules.yml"],
+)
+</code></pre></div>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel test //examples:test_rules_yml
+
+//examples:unit_test_rules_yml                                           PASSED in 0.3s"><pre>bazel <span class="pl-c1">test</span> //examples:test_rules_yml
+
+//examples:unit_test_rules_yml                                           PASSED <span class="pl-k">in</span> 0.3s</pre></div>
+<p dir="auto"><strong>ATTRIBUTES</strong></p>
+<table>
+<thead>
+<tr>
+<th align="center">Name</th>
+<th align="center">Description</th>
+<th align="center">Type</th>
+<th align="center">Mandatory</th>
+<th align="center">Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center">name</td>
+<td align="center">A unique name for this target.</td>
+<td align="center"><a href="https://bazel.build/docs/build-ref.html#name" rel="nofollow">Name</a></td>
+<td align="center">required</td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="center">srcs</td>
+<td align="center">List of Prometheus rules file targets</td>
+<td align="center"><a href="https://bazel.build/docs/build-ref.html#labels" rel="nofollow">List of labels</a></td>
+<td align="center">required</td>
+<td align="center"></td>
+</tr>
+</tbody>
+</table>
+<p dir="auto"><a name="user-content-#promtool_unit_test"></a></p>
+<h2 dir="auto"><a id="user-content-promtool_unit_test" class="anchor" aria-hidden="true" href="#promtool_unit_test"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>promtool_unit_test</h2>
+<pre>promtool_unit_test(<a href="#promtool_unit_test-name">name</a>, <a href="#promtool_unit_test-rules">rules</a>, <a href="#promtool_unit_test-srcs">srcs</a>)
+</pre>
+<p dir="auto">Run "promtool test rules" against test targets and rules files</p>
+<p dir="auto">Example:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="//examples:unit_test_rules_yml
+
+load(&quot;//prometheus:defs.bzl&quot;, &quot;promtool_unit_test&quot;)
+promtool_unit_test(
+name = &quot;unit_test_rules_yml&quot;,
+srcs = [
+&quot;tests.yml&quot;,
+],
+rules = [&quot;rules.yml&quot;],
+)"><pre class="notranslate"><code>//examples:unit_test_rules_yml
+
+load("//prometheus:defs.bzl", "promtool_unit_test")
+promtool_unit_test(
+name = "unit_test_rules_yml",
+srcs = [
+"tests.yml",
+],
+rules = ["rules.yml"],
+)
+</code></pre></div>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel test //examples:unit_test_rules_yml
+
+//examples:unit_test_rules_yml                                                PASSED in 0.1s"><pre>bazel <span class="pl-c1">test</span> //examples:unit_test_rules_yml
+
+//examples:unit_test_rules_yml                                                PASSED <span class="pl-k">in</span> 0.1s</pre></div>
+<p dir="auto"><strong>ATTRIBUTES</strong></p>
+<table>
+<thead>
+<tr>
+<th align="center">Name</th>
+<th align="center">Description</th>
+<th align="center">Type</th>
+<th align="center">Mandatory</th>
+<th align="center">Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center">name</td>
+<td align="center">A unique name for this target.</td>
+<td align="center"><a href="https://bazel.build/docs/build-ref.html#name" rel="nofollow">Name</a></td>
+<td align="center">required</td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="center">rules</td>
+<td align="center">List of Rules-under-Test file targets</td>
+<td align="center"><a href="https://bazel.build/docs/build-ref.html#labels" rel="nofollow">List of labels</a></td>
+<td align="center">required</td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="center">srcs</td>
+<td align="center">List of Prometheus Unit Test file targets</td>
+<td align="center"><a href="https://bazel.build/docs/build-ref.html#labels" rel="nofollow">List of labels</a></td>
+<td align="center">required</td>
+<td align="center"></td>
+</tr>
+</tbody>
+</table>
+<p dir="auto"><a name="user-content-#prometheus"></a></p>
+<h2 dir="auto"><a id="user-content-prometheus" class="anchor" aria-hidden="true" href="#prometheus"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>prometheus</h2>
+<pre>prometheus(<a href="#prometheus-name">name</a>, <a href="#prometheus-kwargs">kwargs</a>)
+</pre>
+<p dir="auto">Prometheus runner which will launch prometheus server</p>
+<p dir="auto">This will emit runnable sh_binary target which will invoke prometheus server with all arguments passed along.
+Tool will have access to workspace. It is intended for convenient in-workspace usage by human and not to be invoked programmatically.</p>
+<p dir="auto">Example:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(&quot;//prometheus:defs.bzl&quot;, &quot;prometheus&quot;)
+
+package(default_visibility = [&quot;//visibility:public&quot;])
+
+prometheus(
+    name = &quot;prometheus&quot;,
+)"><pre class="notranslate"><code>load("//prometheus:defs.bzl", "prometheus")
+
+package(default_visibility = ["//visibility:public"])
+
+prometheus(
+    name = "prometheus",
+)
+</code></pre></div>
+<p dir="auto"><strong>PARAMETERS</strong></p>
+<table>
+<thead>
+<tr>
+<th align="center">Name</th>
+<th align="center">Description</th>
+<th align="center">Default Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center">name</td>
+<td align="center">A unique name for this target.</td>
+<td align="center">none</td>
+</tr>
+<tr>
+<td align="center">kwargs</td>
+<td align="center">Attributes to be passed along</td>
+<td align="center">none</td>
+</tr>
+</tbody>
+</table>
+<p dir="auto"><a name="user-content-#promtool"></a></p>
+<h2 dir="auto"><a id="user-content-promtool" class="anchor" aria-hidden="true" href="#promtool"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>promtool</h2>
+<pre>promtool(<a href="#promtool-name">name</a>, <a href="#promtool-kwargs">kwargs</a>)
+</pre>
+<p dir="auto">Promtool runner which will launch promtool</p>
+<p dir="auto">This rule will emit runnable sh_binary target which will invoke promtool binary and all passed arguments along.
+Tool will have access to workspace. It is intended for convenient in-workspace usage by human and not to be invoked programmatically.</p>
+<p dir="auto">Example:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="//:promtool
+load(&quot;//prometheus:defs.bzl&quot;, &quot;promtool&quot;)
+
+package(default_visibility = [&quot;//visibility:public&quot;])
+
+promtool(
+    name = &quot;promtool&quot;,
+)"><pre class="notranslate"><code>//:promtool
+load("//prometheus:defs.bzl", "promtool")
+
+package(default_visibility = ["//visibility:public"])
+
+promtool(
+    name = "promtool",
+)
+</code></pre></div>
+<p dir="auto"><strong>PARAMETERS</strong></p>
+<table>
+<thead>
+<tr>
+<th align="center">Name</th>
+<th align="center">Description</th>
+<th align="center">Default Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center">name</td>
+<td align="center">A unique name for this target.</td>
+<td align="center">none</td>
+</tr>
+<tr>
+<td align="center">kwargs</td>
+<td align="center">Attributes to be passed along</td>
+<td align="center">none</td>
+</tr>
+</tbody>
+</table>
+<h1 dir="auto"><a id="user-content-examples" class="anchor" aria-hidden="true" href="#examples"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Examples</h1>
+<p dir="auto"><a href="https://github.com/5h4d0w4rt/rules_prometheus/tree/main/examples/BUILD">Here</a></p>
+</article></div>

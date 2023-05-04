@@ -1,1 +1,521 @@
-{"message":"API rate limit exceeded for installation ID 36708394.","documentation_url":"https://docs.github.com/rest/overview/resources-in-the-rest-api#rate-limiting"}
+<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text">
+<h1 dir="auto"><a id="user-content-python-pex-rules-for-bazel" class="anchor" aria-hidden="true" href="#python-pex-rules-for-bazel"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Python pex rules for Bazel</h1>
+
+  <h2 dir="auto"><a id="user-content-overview" class="anchor" aria-hidden="true" href="#overview"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a><a href="#overview">Overview</a></h2>
+  <h2 dir="auto"><a id="user-content-rules" class="anchor" aria-hidden="true" href="#rules"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Rules</h2>
+  <ul dir="auto">
+    <li><a href="#pex_binary">pex_binary</a></li>
+    <li><a href="#pex_library">pex_library</a></li>
+    <li><a href="#pex_test">pex_test</a></li>
+  </ul>
+  <h2 dir="auto"><a id="user-content-macros" class="anchor" aria-hidden="true" href="#macros"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Macros</h2>
+  <ul dir="auto">
+    <li><a href="#pex_pytest">pex_pytest</a></li>
+    <li><a href="#pex_repositories">pex_repositories</a></li>
+  </ul>
+
+<hr>
+<p dir="auto"><a name="user-content-overview"></a></p>
+<h2 dir="auto"><a id="user-content-overview-1" class="anchor" aria-hidden="true" href="#overview-1"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Overview</h2>
+<p dir="auto"><a href="https://travis-ci.org/benley/bazel_rules_pex" rel="nofollow"><img src="https://camo.githubusercontent.com/b9894147771ec13ed9a1c35c815c2eab2209dfd6917ccd90cd758c2f33a6ba7d/68747470733a2f2f7472617669732d63692e6f72672f62656e6c65792f62617a656c5f72756c65735f7065782e7376673f6272616e63683d6d6173746572" alt="Build Status" data-canonical-src="https://travis-ci.org/benley/bazel_rules_pex.svg?branch=master" style="max-width: 100%;"></a></p>
+<h3 dir="auto"><a id="user-content-setup" class="anchor" aria-hidden="true" href="#setup"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Setup</h3>
+<p dir="auto">Add something like this to your WORKSPACE file:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="git_repository(
+    name = &quot;io_bazel_rules_pex&quot;,
+    remote = &quot;https://github.com/benley/bazel_rules_pex.git&quot;,
+    tag = &quot;0.3.0&quot;,
+)
+load(&quot;@io_bazel_rules_pex//pex:pex_rules.bzl&quot;, &quot;pex_repositories&quot;)
+pex_repositories()"><pre class="notranslate"><code>git_repository(
+    name = "io_bazel_rules_pex",
+    remote = "https://github.com/benley/bazel_rules_pex.git",
+    tag = "0.3.0",
+)
+load("@io_bazel_rules_pex//pex:pex_rules.bzl", "pex_repositories")
+pex_repositories()
+</code></pre></div>
+<p dir="auto">In a BUILD file where you want to use these rules, or in your
+<code>tools/build_rules/prelude_bazel</code> file if you want them present repo-wide, add:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(
+    &quot;@io_bazel_rules_pex//pex:pex_rules.bzl&quot;,
+    &quot;pex_binary&quot;,
+    &quot;pex_library&quot;,
+    &quot;pex_test&quot;,
+    &quot;pex_pytest&quot;,
+)"><pre class="notranslate"><code>load(
+    "@io_bazel_rules_pex//pex:pex_rules.bzl",
+    "pex_binary",
+    "pex_library",
+    "pex_test",
+    "pex_pytest",
+)
+</code></pre></div>
+<p dir="auto">Lastly, make sure that <code>tools/build_rules/BUILD</code> exists, even if it is empty,
+so that Bazel can find your <code>prelude_bazel</code> file.</p>
+<p dir="auto"><a name="user-content-pex_pytest"></a></p>
+<h2 dir="auto"><a id="user-content-pex_pytest" class="anchor" aria-hidden="true" href="#pex_pytest"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>pex_pytest</h2>
+<pre>pex_pytest(<a href="#pex_pytest.name">name</a>, <a href="#pex_pytest.srcs">srcs</a>, <a href="#pex_pytest.deps">deps</a>, <a href="#pex_pytest.eggs">eggs</a>, <a href="#pex_pytest.data">data</a>, <a href="#pex_pytest.args">args</a>, <a href="#pex_pytest.flaky">flaky</a>, <a href="#pex_pytest.local">local</a>, <a href="#pex_pytest.size">size</a>, <a href="#pex_pytest.timeout">timeout</a>, <a href="#pex_pytest.tags">tags</a>)
+</pre>
+<p dir="auto">A variant of pex_test that uses py.test to run one or more sets of tests.</p>
+<p dir="auto">This produces two things:</p>
+<ol dir="auto">
+<li>A pex_binary (<code>&lt;name&gt;_runner</code>) containing all your code and its
+dependencies, plus py.test, and the entrypoint set to the py.test
+runner.</li>
+<li>A small shell script to launch the <code>&lt;name&gt;_runner</code> executable with each
+of the <code>srcs</code> enumerated as commandline arguments.  This is the actual
+test entrypoint for bazel.</li>
+</ol>
+<p dir="auto">Almost all of the attributes that can be used with pex_test work identically
+here, including those not specifically mentioned in this docstring.
+Exceptions are <code>main</code> and <code>entrypoint</code>, which cannot be used with this macro.</p>
+<p dir="auto"><a name="user-content-pex_pytest_args"></a></p>
+<h3 dir="auto"><a id="user-content-attributes" class="anchor" aria-hidden="true" href="#attributes"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Attributes</h3>
+<table>
+  
+    
+    
+  
+  <tbody>
+    <tr id="user-content-pex_pytest.name">
+      <td><code>name</code></td>
+      <td>
+        <p dir="auto"><code><a href="https://bazel.build/docs/build-ref.html#name" rel="nofollow">Name</a>; Required</code></p>
+        <p dir="auto">A unique name for this rule.</p>
+      </td>
+    </tr>
+    <tr id="user-content-pex_pytest.srcs">
+      <td><code>srcs</code></td>
+      <td>
+        <p dir="auto"><code>Unknown; Required</code></p>
+        <p dir="auto">List of files containing tests that should be run.</p>
+      </td>
+    </tr>
+    <tr id="user-content-pex_pytest.deps">
+      <td><code>deps</code></td>
+      <td>
+        <p dir="auto"><code>List of strings; Optional</code></p>
+      </td>
+    </tr>
+    <tr id="user-content-pex_pytest.eggs">
+      <td><code>eggs</code></td>
+      <td>
+        <p dir="auto"><code>List of strings; Optional</code></p>
+      </td>
+    </tr>
+    <tr id="user-content-pex_pytest.data">
+      <td><code>data</code></td>
+      <td>
+        <p dir="auto"><code>List of strings; Optional</code></p>
+      </td>
+    </tr>
+    <tr id="user-content-pex_pytest.args">
+      <td><code>args</code></td>
+      <td>
+        <p dir="auto"><code>List of strings; Optional</code></p>
+      </td>
+    </tr>
+    <tr id="user-content-pex_pytest.flaky">
+      <td><code>flaky</code></td>
+      <td>
+        <p dir="auto"><code>Unknown; Optional</code></p>
+      </td>
+    </tr>
+    <tr id="user-content-pex_pytest.local">
+      <td><code>local</code></td>
+      <td>
+        <p dir="auto"><code>Unknown; Optional</code></p>
+      </td>
+    </tr>
+    <tr id="user-content-pex_pytest.size">
+      <td><code>size</code></td>
+      <td>
+        <p dir="auto"><code>Unknown; Optional</code></p>
+      </td>
+    </tr>
+    <tr id="user-content-pex_pytest.timeout">
+      <td><code>timeout</code></td>
+      <td>
+        <p dir="auto"><code>Unknown; Optional</code></p>
+      </td>
+    </tr>
+    <tr id="user-content-pex_pytest.tags">
+      <td><code>tags</code></td>
+      <td>
+        <p dir="auto"><code>List of strings; Optional</code></p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<a name="user-content-pex_repositories"></a>
+## pex_repositories
+<pre>pex_repositories()
+</pre>
+<p dir="auto">Rules to be invoked from WORKSPACE for remote dependencies.</p>
+<p dir="auto"><a name="user-content-pex_binary"></a></p>
+<h2 dir="auto"><a id="user-content-pex_binary" class="anchor" aria-hidden="true" href="#pex_binary"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>pex_binary</h2>
+<pre>pex_binary(<a href="#pex_binary.name">name</a>, <a href="#pex_binary.deps">deps</a>, <a href="#pex_binary.data">data</a>, <a href="#pex_binary.srcs">srcs</a>, <a href="#pex_binary.disable_cache">disable_cache</a>, <a href="#pex_binary.eggs">eggs</a>, <a href="#pex_binary.entrypoint">entrypoint</a>, <a href="#pex_binary.interpreter">interpreter</a>, <a href="#pex_binary.main">main</a>, <a href="#pex_binary.no_index">no_index</a>, <a href="#pex_binary.pex_use_wheels">pex_use_wheels</a>, <a href="#pex_binary.pex_verbosity">pex_verbosity</a>, <a href="#pex_binary.repos">repos</a>, <a href="#pex_binary.req_files">req_files</a>, <a href="#pex_binary.reqs">reqs</a>, <a href="#pex_binary.zip_safe">zip_safe</a>)
+</pre>
+<p dir="auto">Build a deployable pex executable.</p>
+<p dir="auto"><a name="user-content-pex_binary_args"></a></p>
+<h3 dir="auto"><a id="user-content-attributes-1" class="anchor" aria-hidden="true" href="#attributes-1"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Attributes</h3>
+<table>
+  
+    
+    
+  
+  <tbody>
+    <tr id="user-content-pex_binary.name">
+      <td><code>name</code></td>
+      <td>
+        <p dir="auto"><code><a href="https://bazel.build/docs/build-ref.html#name" rel="nofollow">Name</a>; Required</code></p>
+        <p dir="auto">A unique name for this rule.</p>
+      </td>
+    </tr>
+    <tr id="user-content-pex_binary.deps">
+      <td><code>deps</code></td>
+      <td>
+        <p dir="auto"><code>List of <a href="https://bazel.build/docs/build-ref.html#labels" rel="nofollow">labels</a>; Optional; Default is []</code></p>
+        <p dir="auto">Python module dependencies.</p>
+<p dir="auto"><code>pex_library</code> and <code>py_library</code> rules should work here.</p>
+      </td>
+    </tr>
+    <tr id="user-content-pex_binary.data">
+      <td><code>data</code></td>
+      <td>
+        <p dir="auto"><code>List of <a href="https://bazel.build/docs/build-ref.html#labels" rel="nofollow">labels</a>; Optional; Default is []</code></p>
+        <p dir="auto">Files to include as resources in the final pex binary.</p>
+<p dir="auto">Putting other rules here will cause the <em>outputs</em> of those rules to be
+embedded in this one. Files will be included as-is. Paths in the archive
+will be relative to the workspace root.</p>
+      </td>
+    </tr>
+    <tr id="user-content-pex_binary.srcs">
+      <td><code>srcs</code></td>
+      <td>
+        <p dir="auto"><code>List of <a href="https://bazel.build/docs/build-ref.html#labels" rel="nofollow">labels</a>; Optional; Default is []</code></p>
+      </td>
+    </tr>
+    <tr id="user-content-pex_binary.disable_cache">
+      <td><code>disable_cache</code></td>
+      <td>
+        <p dir="auto"><code>Boolean; Optional; Default is False</code></p>
+        <p dir="auto">Disable caching in the pex tool entirely. Default: False</p>
+      </td>
+    </tr>
+    <tr id="user-content-pex_binary.eggs">
+      <td><code>eggs</code></td>
+      <td>
+        <p dir="auto"><code>List of <a href="https://bazel.build/docs/build-ref.html#labels" rel="nofollow">labels</a>; Optional; Default is []</code></p>
+        <p dir="auto"><code>.egg</code> and <code>.whl</code> files to include as python packages.</p>
+      </td>
+    </tr>
+    <tr id="user-content-pex_binary.entrypoint">
+      <td><code>entrypoint</code></td>
+      <td>
+        <p dir="auto"><code>String; Optional; Default is ''</code></p>
+        <p dir="auto">Name of a python module to use as the entrypoint.</p>
+<p dir="auto">e.g. <code>your.project.main</code></p>
+<p dir="auto">If unspecified, the <code>main</code> attribute will be used.
+It is an error to specify both main and entrypoint.</p>
+      </td>
+    </tr>
+    <tr id="user-content-pex_binary.interpreter">
+      <td><code>interpreter</code></td>
+      <td>
+        <p dir="auto"><code>String; Optional; Default is ''</code></p>
+        <p dir="auto">Path to the python interpreter the pex should to use in its shebang line.</p>
+      </td>
+    </tr>
+    <tr id="user-content-pex_binary.main">
+      <td><code>main</code></td>
+      <td>
+        <p dir="auto"><code><a href="https://bazel.build/docs/build-ref.html#labels" rel="nofollow">Label</a>; Optional</code></p>
+        <p dir="auto">File to use as the entrypoint.</p>
+<p dir="auto">If unspecified, the first file from the <code>srcs</code> attribute will be used.</p>
+      </td>
+    </tr>
+    <tr id="user-content-pex_binary.no_index">
+      <td><code>no_index</code></td>
+      <td>
+        <p dir="auto"><code>Boolean; Optional; Default is False</code></p>
+        <p dir="auto">If True, don't use pypi to resolve dependencies for <code>reqs</code> and <code>req_files</code>; Default: False</p>
+      </td>
+    </tr>
+    <tr id="user-content-pex_binary.pex_use_wheels">
+      <td><code>pex_use_wheels</code></td>
+      <td>
+        <p dir="auto"><code>Boolean; Optional; Default is True</code></p>
+      </td>
+    </tr>
+    <tr id="user-content-pex_binary.pex_verbosity">
+      <td><code>pex_verbosity</code></td>
+      <td>
+        <p dir="auto"><code>Integer; Optional; Default is 0</code></p>
+      </td>
+    </tr>
+    <tr id="user-content-pex_binary.repos">
+      <td><code>repos</code></td>
+      <td>
+        <p dir="auto"><code>List of <a href="https://bazel.build/docs/build-ref.html#labels" rel="nofollow">labels</a>; Optional; Default is []</code></p>
+        <p dir="auto">Additional repository labels (filegroups of wheel/egg files) to look for requirements.</p>
+      </td>
+    </tr>
+    <tr id="user-content-pex_binary.req_files">
+      <td><code>req_files</code></td>
+      <td>
+        <p dir="auto"><code>List of <a href="https://bazel.build/docs/build-ref.html#labels" rel="nofollow">labels</a>; Optional; Default is []</code></p>
+        <p dir="auto">Add requirements from the given requirements files. Must be provided as labels.</p>
+<p dir="auto">This feature will reduce build determinism!  It tells pex to resolve all
+the transitive python dependencies and fetch them from pypi.</p>
+<p dir="auto">It is recommended that you use <code>eggs</code> or specify <code>no_index</code> instead where possible.</p>
+      </td>
+    </tr>
+    <tr id="user-content-pex_binary.reqs">
+      <td><code>reqs</code></td>
+      <td>
+        <p dir="auto"><code>List of strings; Optional; Default is []</code></p>
+        <p dir="auto">External requirements to retrieve from pypi, in <code>requirements.txt</code> format.</p>
+<p dir="auto">This feature will reduce build determinism!  It tells pex to resolve all
+the transitive python dependencies and fetch them from pypi.</p>
+<p dir="auto">It is recommended that you use <code>eggs</code> instead where possible.</p>
+      </td>
+    </tr>
+    <tr id="user-content-pex_binary.zip_safe">
+      <td><code>zip_safe</code></td>
+      <td>
+        <p dir="auto"><code>Boolean; Optional; Default is True</code></p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<a name="user-content-pex_library"></a>
+## pex_library
+<pre>pex_library(<a href="#pex_library.name">name</a>, <a href="#pex_library.deps">deps</a>, <a href="#pex_library.data">data</a>, <a href="#pex_library.srcs">srcs</a>, <a href="#pex_library.disable_cache">disable_cache</a>, <a href="#pex_library.eggs">eggs</a>, <a href="#pex_library.no_index">no_index</a>, <a href="#pex_library.repos">repos</a>, <a href="#pex_library.req_files">req_files</a>, <a href="#pex_library.reqs">reqs</a>)
+</pre>
+<p dir="auto"><a name="user-content-pex_library_args"></a></p>
+<h3 dir="auto"><a id="user-content-attributes-2" class="anchor" aria-hidden="true" href="#attributes-2"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Attributes</h3>
+<table>
+  
+    
+    
+  
+  <tbody>
+    <tr id="user-content-pex_library.name">
+      <td><code>name</code></td>
+      <td>
+        <p dir="auto"><code><a href="https://bazel.build/docs/build-ref.html#name" rel="nofollow">Name</a>; Required</code></p>
+        <p dir="auto">A unique name for this rule.</p>
+      </td>
+    </tr>
+    <tr id="user-content-pex_library.deps">
+      <td><code>deps</code></td>
+      <td>
+        <p dir="auto"><code>List of <a href="https://bazel.build/docs/build-ref.html#labels" rel="nofollow">labels</a>; Optional; Default is []</code></p>
+        <p dir="auto">Python module dependencies.</p>
+<p dir="auto"><code>pex_library</code> and <code>py_library</code> rules should work here.</p>
+      </td>
+    </tr>
+    <tr id="user-content-pex_library.data">
+      <td><code>data</code></td>
+      <td>
+        <p dir="auto"><code>List of <a href="https://bazel.build/docs/build-ref.html#labels" rel="nofollow">labels</a>; Optional; Default is []</code></p>
+        <p dir="auto">Files to include as resources in the final pex binary.</p>
+<p dir="auto">Putting other rules here will cause the <em>outputs</em> of those rules to be
+embedded in this one. Files will be included as-is. Paths in the archive
+will be relative to the workspace root.</p>
+      </td>
+    </tr>
+    <tr id="user-content-pex_library.srcs">
+      <td><code>srcs</code></td>
+      <td>
+        <p dir="auto"><code>List of <a href="https://bazel.build/docs/build-ref.html#labels" rel="nofollow">labels</a>; Optional; Default is []</code></p>
+      </td>
+    </tr>
+    <tr id="user-content-pex_library.disable_cache">
+      <td><code>disable_cache</code></td>
+      <td>
+        <p dir="auto"><code>Boolean; Optional; Default is False</code></p>
+        <p dir="auto">Disable caching in the pex tool entirely. Default: False</p>
+      </td>
+    </tr>
+    <tr id="user-content-pex_library.eggs">
+      <td><code>eggs</code></td>
+      <td>
+        <p dir="auto"><code>List of <a href="https://bazel.build/docs/build-ref.html#labels" rel="nofollow">labels</a>; Optional; Default is []</code></p>
+        <p dir="auto"><code>.egg</code> and <code>.whl</code> files to include as python packages.</p>
+      </td>
+    </tr>
+    <tr id="user-content-pex_library.no_index">
+      <td><code>no_index</code></td>
+      <td>
+        <p dir="auto"><code>Boolean; Optional; Default is False</code></p>
+        <p dir="auto">If True, don't use pypi to resolve dependencies for <code>reqs</code> and <code>req_files</code>; Default: False</p>
+      </td>
+    </tr>
+    <tr id="user-content-pex_library.repos">
+      <td><code>repos</code></td>
+      <td>
+        <p dir="auto"><code>List of <a href="https://bazel.build/docs/build-ref.html#labels" rel="nofollow">labels</a>; Optional; Default is []</code></p>
+        <p dir="auto">Additional repository labels (filegroups of wheel/egg files) to look for requirements.</p>
+      </td>
+    </tr>
+    <tr id="user-content-pex_library.req_files">
+      <td><code>req_files</code></td>
+      <td>
+        <p dir="auto"><code>List of <a href="https://bazel.build/docs/build-ref.html#labels" rel="nofollow">labels</a>; Optional; Default is []</code></p>
+        <p dir="auto">Add requirements from the given requirements files. Must be provided as labels.</p>
+<p dir="auto">This feature will reduce build determinism!  It tells pex to resolve all
+the transitive python dependencies and fetch them from pypi.</p>
+<p dir="auto">It is recommended that you use <code>eggs</code> or specify <code>no_index</code> instead where possible.</p>
+      </td>
+    </tr>
+    <tr id="user-content-pex_library.reqs">
+      <td><code>reqs</code></td>
+      <td>
+        <p dir="auto"><code>List of strings; Optional; Default is []</code></p>
+        <p dir="auto">External requirements to retrieve from pypi, in <code>requirements.txt</code> format.</p>
+<p dir="auto">This feature will reduce build determinism!  It tells pex to resolve all
+the transitive python dependencies and fetch them from pypi.</p>
+<p dir="auto">It is recommended that you use <code>eggs</code> instead where possible.</p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<a name="user-content-pex_test"></a>
+## pex_test
+<pre>pex_test(<a href="#pex_test.name">name</a>, <a href="#pex_test.deps">deps</a>, <a href="#pex_test.data">data</a>, <a href="#pex_test.srcs">srcs</a>, <a href="#pex_test.disable_cache">disable_cache</a>, <a href="#pex_test.eggs">eggs</a>, <a href="#pex_test.entrypoint">entrypoint</a>, <a href="#pex_test.interpreter">interpreter</a>, <a href="#pex_test.main">main</a>, <a href="#pex_test.no_index">no_index</a>, <a href="#pex_test.pex_use_wheels">pex_use_wheels</a>, <a href="#pex_test.pex_verbosity">pex_verbosity</a>, <a href="#pex_test.repos">repos</a>, <a href="#pex_test.req_files">req_files</a>, <a href="#pex_test.reqs">reqs</a>, <a href="#pex_test.zip_safe">zip_safe</a>)
+</pre>
+<p dir="auto"><a name="user-content-pex_test_args"></a></p>
+<h3 dir="auto"><a id="user-content-attributes-3" class="anchor" aria-hidden="true" href="#attributes-3"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Attributes</h3>
+<table>
+  
+    
+    
+  
+  <tbody>
+    <tr id="user-content-pex_test.name">
+      <td><code>name</code></td>
+      <td>
+        <p dir="auto"><code><a href="https://bazel.build/docs/build-ref.html#name" rel="nofollow">Name</a>; Required</code></p>
+        <p dir="auto">A unique name for this rule.</p>
+      </td>
+    </tr>
+    <tr id="user-content-pex_test.deps">
+      <td><code>deps</code></td>
+      <td>
+        <p dir="auto"><code>List of <a href="https://bazel.build/docs/build-ref.html#labels" rel="nofollow">labels</a>; Optional; Default is []</code></p>
+        <p dir="auto">Python module dependencies.</p>
+<p dir="auto"><code>pex_library</code> and <code>py_library</code> rules should work here.</p>
+      </td>
+    </tr>
+    <tr id="user-content-pex_test.data">
+      <td><code>data</code></td>
+      <td>
+        <p dir="auto"><code>List of <a href="https://bazel.build/docs/build-ref.html#labels" rel="nofollow">labels</a>; Optional; Default is []</code></p>
+        <p dir="auto">Files to include as resources in the final pex binary.</p>
+<p dir="auto">Putting other rules here will cause the <em>outputs</em> of those rules to be
+embedded in this one. Files will be included as-is. Paths in the archive
+will be relative to the workspace root.</p>
+      </td>
+    </tr>
+    <tr id="user-content-pex_test.srcs">
+      <td><code>srcs</code></td>
+      <td>
+        <p dir="auto"><code>List of <a href="https://bazel.build/docs/build-ref.html#labels" rel="nofollow">labels</a>; Optional; Default is []</code></p>
+      </td>
+    </tr>
+    <tr id="user-content-pex_test.disable_cache">
+      <td><code>disable_cache</code></td>
+      <td>
+        <p dir="auto"><code>Boolean; Optional; Default is False</code></p>
+        <p dir="auto">Disable caching in the pex tool entirely. Default: False</p>
+      </td>
+    </tr>
+    <tr id="user-content-pex_test.eggs">
+      <td><code>eggs</code></td>
+      <td>
+        <p dir="auto"><code>List of <a href="https://bazel.build/docs/build-ref.html#labels" rel="nofollow">labels</a>; Optional; Default is []</code></p>
+        <p dir="auto"><code>.egg</code> and <code>.whl</code> files to include as python packages.</p>
+      </td>
+    </tr>
+    <tr id="user-content-pex_test.entrypoint">
+      <td><code>entrypoint</code></td>
+      <td>
+        <p dir="auto"><code>String; Optional; Default is ''</code></p>
+        <p dir="auto">Name of a python module to use as the entrypoint.</p>
+<p dir="auto">e.g. <code>your.project.main</code></p>
+<p dir="auto">If unspecified, the <code>main</code> attribute will be used.
+It is an error to specify both main and entrypoint.</p>
+      </td>
+    </tr>
+    <tr id="user-content-pex_test.interpreter">
+      <td><code>interpreter</code></td>
+      <td>
+        <p dir="auto"><code>String; Optional; Default is ''</code></p>
+        <p dir="auto">Path to the python interpreter the pex should to use in its shebang line.</p>
+      </td>
+    </tr>
+    <tr id="user-content-pex_test.main">
+      <td><code>main</code></td>
+      <td>
+        <p dir="auto"><code><a href="https://bazel.build/docs/build-ref.html#labels" rel="nofollow">Label</a>; Optional</code></p>
+        <p dir="auto">File to use as the entrypoint.</p>
+<p dir="auto">If unspecified, the first file from the <code>srcs</code> attribute will be used.</p>
+      </td>
+    </tr>
+    <tr id="user-content-pex_test.no_index">
+      <td><code>no_index</code></td>
+      <td>
+        <p dir="auto"><code>Boolean; Optional; Default is False</code></p>
+        <p dir="auto">If True, don't use pypi to resolve dependencies for <code>reqs</code> and <code>req_files</code>; Default: False</p>
+      </td>
+    </tr>
+    <tr id="user-content-pex_test.pex_use_wheels">
+      <td><code>pex_use_wheels</code></td>
+      <td>
+        <p dir="auto"><code>Boolean; Optional; Default is True</code></p>
+      </td>
+    </tr>
+    <tr id="user-content-pex_test.pex_verbosity">
+      <td><code>pex_verbosity</code></td>
+      <td>
+        <p dir="auto"><code>Integer; Optional; Default is 0</code></p>
+      </td>
+    </tr>
+    <tr id="user-content-pex_test.repos">
+      <td><code>repos</code></td>
+      <td>
+        <p dir="auto"><code>List of <a href="https://bazel.build/docs/build-ref.html#labels" rel="nofollow">labels</a>; Optional; Default is []</code></p>
+        <p dir="auto">Additional repository labels (filegroups of wheel/egg files) to look for requirements.</p>
+      </td>
+    </tr>
+    <tr id="user-content-pex_test.req_files">
+      <td><code>req_files</code></td>
+      <td>
+        <p dir="auto"><code>List of <a href="https://bazel.build/docs/build-ref.html#labels" rel="nofollow">labels</a>; Optional; Default is []</code></p>
+        <p dir="auto">Add requirements from the given requirements files. Must be provided as labels.</p>
+<p dir="auto">This feature will reduce build determinism!  It tells pex to resolve all
+the transitive python dependencies and fetch them from pypi.</p>
+<p dir="auto">It is recommended that you use <code>eggs</code> or specify <code>no_index</code> instead where possible.</p>
+      </td>
+    </tr>
+    <tr id="user-content-pex_test.reqs">
+      <td><code>reqs</code></td>
+      <td>
+        <p dir="auto"><code>List of strings; Optional; Default is []</code></p>
+        <p dir="auto">External requirements to retrieve from pypi, in <code>requirements.txt</code> format.</p>
+<p dir="auto">This feature will reduce build determinism!  It tells pex to resolve all
+the transitive python dependencies and fetch them from pypi.</p>
+<p dir="auto">It is recommended that you use <code>eggs</code> instead where possible.</p>
+      </td>
+    </tr>
+    <tr id="user-content-pex_test.zip_safe">
+      <td><code>zip_safe</code></td>
+      <td>
+        <p dir="auto"><code>Boolean; Optional; Default is True</code></p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</article></div>

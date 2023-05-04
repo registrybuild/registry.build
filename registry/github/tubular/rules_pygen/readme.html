@@ -1,1 +1,146 @@
-{"message":"API rate limit exceeded for installation ID 36708394.","documentation_url":"https://docs.github.com/rest/overview/resources-in-the-rest-api#rate-limiting"}
+<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><h1 dir="auto"><a id="user-content-rules_pygen" class="anchor" aria-hidden="true" href="#rules_pygen"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>rules_pygen</h1>
+<p dir="auto">Rules for generating native Bazel Python libraries from a requirements.txt file.</p>
+<p dir="auto">Currently, using pip and a requirements.txt file is the standard for installing dependencies
+in a Python project. Unfortunately, Bazel doesn't understand requirements.txt files and only
+understands the concept of a <code>py_library</code>; which is one or more Python source files. This library
+aims to bridge that gap. The rules_pygen generator takes a requirements.txt file as an input and
+generates a dependency graph of <code>py_library</code> rules based on the dependencies and subdependencies
+that pip would install given that requirements.txt file. In cases where a dependency is
+platform-specific, this tool generates two variants, one for MacOS and another for Linux.</p>
+<p dir="auto">The most common way to use this script is in a monorepo where one requirements.txt defines all the
+Python dependencies in your project, though you could potentially have more than one requirements
+file and run the script multiple times. Each time you change your requirements.txt (to add/modify
+a dependency) you re-run this script manually to generate the requirements.bzl variant which Bazel
+understands.</p>
+<h2 dir="auto"><a id="user-content-limitations" class="anchor" aria-hidden="true" href="#limitations"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Limitations</h2>
+<ul dir="auto">
+<li>The script itself runs on Python3.5+</li>
+<li>Only works with wheels right now</li>
+<li>Does not work on Windows</li>
+<li>Config settings for linux / macos are assumed to live at //tool_bazel</li>
+</ul>
+<h2 dir="auto"><a id="user-content-usage--set-up" class="anchor" aria-hidden="true" href="#usage--set-up"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Usage &amp; Set up</h2>
+<ol dir="auto">
+<li>Add a <code>git_repository</code> rule to your WORKSPACE file to import the generator and rules_python for py_* rules:</li>
+</ol>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="git_repository(
+    name = &quot;rules_python&quot;,
+    remote = &quot;https://github.com/bazelbuild/rules_python.git&quot;,
+    commit = &quot;4b84ad270387a7c439ebdccfd530e2339601ef27&quot;,  # (2019-08-02 or later)
+)
+
+git_repository(
+    name = &quot;rules_pygen&quot;,
+    remote = &quot;https://github.com/tubular/rules_pygen.git&quot;,
+    commit = &quot;28835b7d278744916890f1ab3d974e7f5d75836c&quot;,
+)"><pre class="notranslate"><code>git_repository(
+    name = "rules_python",
+    remote = "https://github.com/bazelbuild/rules_python.git",
+    commit = "4b84ad270387a7c439ebdccfd530e2339601ef27",  # (2019-08-02 or later)
+)
+
+git_repository(
+    name = "rules_pygen",
+    remote = "https://github.com/tubular/rules_pygen.git",
+    commit = "28835b7d278744916890f1ab3d974e7f5d75836c",
+)
+</code></pre></div>
+<ol start="2" dir="auto">
+<li>Use the generator with local inputs:</li>
+</ol>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="bazel run @rules_pygen//:generator -- $(pwd)/path/to/python/requirements.txt $(pwd)/path/to/python/requirements.bzl //3rdparty/python --python=37"><pre class="notranslate"><code>bazel run @rules_pygen//:generator -- $(pwd)/path/to/python/requirements.txt $(pwd)/path/to/python/requirements.bzl //3rdparty/python --python=37
+</code></pre></div>
+<ol start="3" dir="auto">
+<li>Add to your WORKSPACE:</li>
+</ol>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(&quot;@//path/to:requirements.bzl&quot;, pypi_deps = &quot;pypi_archives&quot;)
+pypi_deps()"><pre class="notranslate"><code>load("@//path/to:requirements.bzl", pypi_deps = "pypi_archives")
+pypi_deps()
+</code></pre></div>
+<ol start="4" dir="auto">
+<li>Add two config_setting rules to differentiate linux and macos wheels (hardcoded at //tool_bazel for now)</li>
+</ol>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="config_setting(
+    name = &quot;linux&quot;,
+    constraint_values = [&quot;@bazel_tools//platforms:linux&quot;],
+    visibility=[&quot;//visibility:public&quot;],
+)
+
+config_setting(
+    name = &quot;macos&quot;,
+    constraint_values = [&quot;@bazel_tools//platforms:osx&quot;],
+    visibility=[&quot;//visibility:public&quot;],
+)"><pre class="notranslate"><code>config_setting(
+    name = "linux",
+    constraint_values = ["@bazel_tools//platforms:linux"],
+    visibility=["//visibility:public"],
+)
+
+config_setting(
+    name = "macos",
+    constraint_values = ["@bazel_tools//platforms:osx"],
+    visibility=["//visibility:public"],
+)
+</code></pre></div>
+<ol start="5" dir="auto">
+<li>Use in a BUILD file:</li>
+</ol>
+<p dir="auto"><strong>alternative 1</strong></p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="py_library(
+    name = &quot;foo&quot;,
+    srcs = glob([
+        &quot;src/foo/**/*.py&quot;,
+    ]),
+    deps = [
+        &quot;//3rdparty/python:pytest&quot;,
+    ],
+)"><pre class="notranslate"><code>py_library(
+    name = "foo",
+    srcs = glob([
+        "src/foo/**/*.py",
+    ]),
+    deps = [
+        "//3rdparty/python:pytest",
+    ],
+)
+</code></pre></div>
+<p dir="auto"><strong>alternative 2</strong></p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(&quot;@//3rdparty/python:requirements.bzl&quot;, requirement = &quot;requirement&quot;)
+py_library(
+    name = &quot;baz&quot;,
+    srcs = glob([
+        &quot;src/baz/**/*.py&quot;,
+    ]),
+    deps = [
+        requirement(&quot;pytest&quot;),
+    ],
+)"><pre class="notranslate"><code>load("@//3rdparty/python:requirements.bzl", requirement = "requirement")
+py_library(
+    name = "baz",
+    srcs = glob([
+        "src/baz/**/*.py",
+    ]),
+    deps = [
+        requirement("pytest"),
+    ],
+)
+</code></pre></div>
+<h2 dir="auto"><a id="user-content-development" class="anchor" aria-hidden="true" href="#development"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Development</h2>
+<h3 dir="auto"><a id="user-content-design-choices" class="anchor" aria-hidden="true" href="#design-choices"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Design choices</h3>
+<ul dir="auto">
+<li>Generated build files should follow Skylark style guide (<a href="https://docs.bazel.build/versions/master/skylark/bzl-style.html" rel="nofollow">https://docs.bazel.build/versions/master/skylark/bzl-style.html</a>) as much as possible</li>
+<li>Code should be Python3.5+ compatible</li>
+<li>No external dependencies; this is a library for generating imports -- we don't to make it hard to use by having it have imports of its own</li>
+</ul>
+<h3 dir="auto"><a id="user-content-running-tests" class="anchor" aria-hidden="true" href="#running-tests"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Running tests</h3>
+<h4 dir="auto"><a id="user-content-unit" class="anchor" aria-hidden="true" href="#unit"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Unit</h4>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="bazel run :generator_tests"><pre class="notranslate"><code>bazel run :generator_tests
+</code></pre></div>
+<h4 dir="auto"><a id="user-content-integration-run-example-project" class="anchor" aria-hidden="true" href="#integration-run-example-project"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Integration (run example project)</h4>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="bazel run :generator -- $(pwd)/_examples/monorepo_foo/3rdparty/python/requirements.txt $(pwd)/_examples/monorepo_foo/3rdparty/python/requirements.bzl //3rdparty/python --python=37
+cd _examples/monorepo_foo/
+bazel run //component_a:greet"><pre class="notranslate"><code>bazel run :generator -- $(pwd)/_examples/monorepo_foo/3rdparty/python/requirements.txt $(pwd)/_examples/monorepo_foo/3rdparty/python/requirements.bzl //3rdparty/python --python=37
+cd _examples/monorepo_foo/
+bazel run //component_a:greet
+</code></pre></div>
+</article></div>

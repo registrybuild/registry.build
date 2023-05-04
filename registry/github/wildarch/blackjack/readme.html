@@ -1,1 +1,95 @@
-{"message":"API rate limit exceeded for installation ID 36708394.","documentation_url":"https://docs.github.com/rest/overview/resources-in-the-rest-api#rate-limiting"}
+<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><h1 dir="auto"><a id="user-content-blackjack---build-cargo-dependencies-with-bazel" class="anchor" aria-hidden="true" href="#blackjack---build-cargo-dependencies-with-bazel"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Blackjack - build cargo dependencies with Bazel</h1>
+<p dir="auto">Generate bazel targets for crates.io dependencies in your <code>Cargo.toml</code>.</p>
+<p dir="auto">Blackjack reads standard <code>Cargo.toml</code>, so the same project can build with both <code>cargo</code> and Bazel.
+Adding Bazel support to an existing cargo project is as simple as adding a <code>WORKSPACE</code> and <code>BUILD</code> file.</p>
+<p dir="auto"><code>WORKSPACE</code>:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@bazel_tools//tools/build_defs/repo:http.bzl&quot;, &quot;http_archive&quot;)
+
+# Configure a Rust toolchain.
+# See https://github.com/bazelbuild/rules_rust for more details.
+http_archive(
+    name = &quot;rules_rust&quot;,
+    sha256 = &quot;cf2e82c56c73c3213bc2d94303aee88d7e44634ad1e1fe183befa85b17b5021d&quot;,
+    strip_prefix = &quot;rules_rust-0e3593fc5d839e4a74523f07e885b761ee19e662&quot;,
+    urls = [
+        # Master branch as of 2021-12-19
+        &quot;https://github.com/bazelbuild/rules_rust/archive/0e3593fc5d839e4a74523f07e885b761ee19e662.tar.gz&quot;,
+    ],
+)
+load(&quot;@rules_rust//rust:repositories.bzl&quot;, &quot;rust_repositories&quot;)
+rust_repositories()
+
+# Set up blackjack
+http_archive(
+    name = &quot;blackjack&quot;,
+    url = &quot;https://github.com/wildarch/blackjack/archive/909b66db4782cf963791aa4a24793244dffdba17.zip&quot;,
+    strip_prefix = &quot;blackjack-909b66db4782cf963791aa4a24793244dffdba17&quot;,
+)
+load(&quot;@blackjack//:workspace.bzl&quot;, &quot;blackjack_cargo&quot;)
+blackjack_cargo()"><pre><span class="pl-en">load</span>(<span class="pl-s">"@bazel_tools//tools/build_defs/repo:http.bzl"</span>, <span class="pl-s">"http_archive"</span>)
+
+<span class="pl-c"># Configure a Rust toolchain.</span>
+<span class="pl-c"># See https://github.com/bazelbuild/rules_rust for more details.</span>
+<span class="pl-en">http_archive</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_rust"</span>,
+    <span class="pl-s1">sha256</span> <span class="pl-c1">=</span> <span class="pl-s">"cf2e82c56c73c3213bc2d94303aee88d7e44634ad1e1fe183befa85b17b5021d"</span>,
+    <span class="pl-s1">strip_prefix</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_rust-0e3593fc5d839e4a74523f07e885b761ee19e662"</span>,
+    <span class="pl-s1">urls</span> <span class="pl-c1">=</span> [
+        <span class="pl-c"># Master branch as of 2021-12-19</span>
+        <span class="pl-s">"https://github.com/bazelbuild/rules_rust/archive/0e3593fc5d839e4a74523f07e885b761ee19e662.tar.gz"</span>,
+    ],
+)
+<span class="pl-en">load</span>(<span class="pl-s">"@rules_rust//rust:repositories.bzl"</span>, <span class="pl-s">"rust_repositories"</span>)
+<span class="pl-en">rust_repositories</span>()
+
+<span class="pl-c"># Set up blackjack</span>
+<span class="pl-en">http_archive</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"blackjack"</span>,
+    <span class="pl-s1">url</span> <span class="pl-c1">=</span> <span class="pl-s">"https://github.com/wildarch/blackjack/archive/909b66db4782cf963791aa4a24793244dffdba17.zip"</span>,
+    <span class="pl-s1">strip_prefix</span> <span class="pl-c1">=</span> <span class="pl-s">"blackjack-909b66db4782cf963791aa4a24793244dffdba17"</span>,
+)
+<span class="pl-en">load</span>(<span class="pl-s">"@blackjack//:workspace.bzl"</span>, <span class="pl-s">"blackjack_cargo"</span>)
+<span class="pl-en">blackjack_cargo</span>()</pre></div>
+<p dir="auto"><code>BUILD</code> file in the same directory as <code>Cargo.toml</code>:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@blackjack//:blackjack.bzl&quot;, &quot;blackjack&quot;)
+
+blackjack(name = &quot;blackjack&quot;)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@blackjack//:blackjack.bzl"</span>, <span class="pl-s">"blackjack"</span>)
+
+<span class="pl-en">blackjack</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"blackjack"</span>)</pre></div>
+<p dir="auto">Now run <code>bazel run //:blackjack</code>. You'll find a newly created <code>cargo_dependencies.bzl</code> file next to your <code>Cargo.toml</code>.</p>
+<p dir="auto"><strong>Note:</strong> Blackjack pulls in its own <code>cargo</code> executable, so you do not need to have it installed.</p>
+<p dir="auto">Import the generated dependencies into your <code>WORKSPACE</code>:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;//:cargo_dependencies.bzl&quot;, &quot;cargo_dependencies&quot;)
+cargo_dependencies()"><pre><span class="pl-en">load</span>(<span class="pl-s">"//:cargo_dependencies.bzl"</span>, <span class="pl-s">"cargo_dependencies"</span>)
+<span class="pl-en">cargo_dependencies</span>()</pre></div>
+<p dir="auto">Dependencies from <code>Cargo.toml</code> are now available as <code>rust_library</code> rules under the label <code>@crates_io_{name}//:{name}</code>.</p>
+<p dir="auto">For an example, see <a href="https://github.com/wildarch/blackjack/tree/master/tests/popular_crates">here</a>.</p>
+<h1 dir="auto"><a id="user-content-updates" class="anchor" aria-hidden="true" href="#updates"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Updates</h1>
+<p dir="auto">If you make any changes to the dependency graph, simply re-run <code>bazel run //:blackjack</code> to build an updated <code>cargo_dependencies.bzl</code> file.</p>
+<h1 dir="auto"><a id="user-content-configuration" class="anchor" aria-hidden="true" href="#configuration"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Configuration</h1>
+<p dir="auto">Many crates will build out of the box. For more exotic crates (linking to C libraries, build scripts etc.), there are a few configuration options. This configuration is embedded in the <code>Cargo.toml</code> in the metadata section.</p>
+<p dir="auto">To pass extra flags to rustc when compiling a particular crate, add the following to the end of <code>Cargo.toml</code>:</p>
+<div class="highlight highlight-source-toml notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="[package.metadata.blackjack.proc-macro2]
+rustc_flags = [&quot;--cfg=use_proc_macro&quot;]"><pre>[<span class="pl-en">package</span>.<span class="pl-en">metadata</span>.<span class="pl-en">blackjack</span>.<span class="pl-en">proc-macro2</span>]
+<span class="pl-smi">rustc_flags</span> = [<span class="pl-s"><span class="pl-pds">"</span>--cfg=use_proc_macro<span class="pl-pds">"</span></span>]</pre></div>
+<p dir="auto"><strong>Note</strong>: Blackjack provides default settings for a few common crates such as <code>proc-macro2</code>, so you don't always need to add them yourself.
+Please send PRs for default settings for other common crates!</p>
+<p dir="auto">If a dependency needs a build script, but does not otherwise do anything complicated, try adding something like:</p>
+<div class="highlight highlight-source-toml notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="[package.metadata.blackjack.proc-macro-nested]
+build_script = true"><pre>[<span class="pl-en">package</span>.<span class="pl-en">metadata</span>.<span class="pl-en">blackjack</span>.<span class="pl-en">proc-macro-nested</span>]
+<span class="pl-smi">build_script</span> = <span class="pl-c1">true</span></pre></div>
+<p dir="auto">If all else fails, you can replace the dependency with a custom <code>rust_library</code> target:</p>
+<div class="highlight highlight-source-toml notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="[package.metadata.blackjack.libz-sys]
+replace = &quot;@custom_libz_sys&quot;"><pre>[<span class="pl-en">package</span>.<span class="pl-en">metadata</span>.<span class="pl-en">blackjack</span>.<span class="pl-en">libz-sys</span>]
+<span class="pl-smi">replace</span> = <span class="pl-s"><span class="pl-pds">"</span>@custom_libz_sys<span class="pl-pds">"</span></span></pre></div>
+<p dir="auto">For a simple example of replacing a dependency and linking to a C library, see <a href="https://github.com/wildarch/blackjack/tree/master/tests/linkc">here</a>.</p>
+<p dir="auto">If you want to change the default <code>crates_io_</code> prefix for generated dependency targets, that is possible too:</p>
+<div class="highlight highlight-source-toml notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="[package.metadata.blackjack]
+prefix = &quot;blackjack_crates_io&quot;"><pre>[<span class="pl-en">package</span>.<span class="pl-en">metadata</span>.<span class="pl-en">blackjack</span>]
+<span class="pl-smi">prefix</span> = <span class="pl-s"><span class="pl-pds">"</span>blackjack_crates_io<span class="pl-pds">"</span></span></pre></div>
+<p dir="auto">Now instead of <code>@crates_io_serde//:serde</code>, use <code>blackjack_crates_io_serde//:serde</code>.</p>
+<h1 dir="auto"><a id="user-content-things-that-dont-work-yet-but-would-gladly-accept-a-pr-for" class="anchor" aria-hidden="true" href="#things-that-dont-work-yet-but-would-gladly-accept-a-pr-for"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Things that don't work yet (but would gladly accept a PR for)</h1>
+<ul dir="auto">
+<li>Support for Windows. All that is really needed here is to add it to the list of supported platforms, and fix the platform specific workspace test.</li>
+</ul>
+</article></div>

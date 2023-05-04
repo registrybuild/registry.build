@@ -1,0 +1,191 @@
+<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><h1 dir="auto"><a id="user-content-bazel-sonarqube-integration" class="anchor" aria-hidden="true" href="#bazel-sonarqube-integration"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Bazel-SonarQube integration</h1>
+<p dir="auto">Utilities to help analyse Bazel projects with SonarQube.</p>
+<p dir="auto"><a href="./docs/bazel_sonarqube.md">Generated stardoc rule documentation</a></p>
+<p dir="auto"><a href="./examples">Example projects</a></p>
+<h2 dir="auto"><a id="user-content-version-compatibility" class="anchor" aria-hidden="true" href="#version-compatibility"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Version compatibility</h2>
+<p dir="auto">The SonarQubeCoverageGenerator utility is a direct copy of the equivalent lcov
+generator from Bazel upstream, and runs with Bazel's embedded
+<code>"@remote_coverage_tools//:all_lcov_merger_lib"</code> as a dependency. If using this
+to collect coverage info in SQ-compatible format, the version of this repository
+must be matched to the Bazel version being used.</p>
+<p dir="auto">The list below includes the last compatible commit of this repository for
+specific Bazel versions, otherwise the latest should work with the latest Bazel.</p>
+<ul dir="auto">
+<li>Bazel &lt; 6.0 - 37261de24f80b661bbc4726e3382ef43e9d66a6e</li>
+</ul>
+<h2 dir="auto"><a id="user-content-setup" class="anchor" aria-hidden="true" href="#setup"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Setup</h2>
+<p dir="auto">The included rules require some dependencies. In your WORKSPACE:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@bazel_sonarqube//:repositories.bzl&quot;, &quot;bazel_sonarqube_repositories&quot;)
+
+bazel_sonarqube_repositories()"><pre><span class="pl-en">load</span>(<span class="pl-s">"@bazel_sonarqube//:repositories.bzl"</span>, <span class="pl-s">"bazel_sonarqube_repositories"</span>)
+
+<span class="pl-en">bazel_sonarqube_repositories</span>()</pre></div>
+<h2 dir="auto"><a id="user-content-coverage" class="anchor" aria-hidden="true" href="#coverage"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Coverage</h2>
+<p dir="auto">To aggregate and convert Bazel coverage into SQ's generic coverage XML format:</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel test &lt;targets&gt; --collect_code_coverage \
+  --combined_report=lcov \
+  --coverage_report_generator=@bazel_sonarqube//:sonarqube_coverage_generator"><pre>bazel <span class="pl-c1">test</span> <span class="pl-k">&lt;</span>targets<span class="pl-k">&gt;</span> --collect_code_coverage \
+  --combined_report=lcov \
+  --coverage_report_generator=@bazel_sonarqube//:sonarqube_coverage_generator</pre></div>
+<p dir="auto">The output file (<code>bazel-out/_coverage/_coverage_report.dat</code>) may be given as
+the value to the analysis property <code>sonar.coverageReportPaths</code>, or added as a
+Bazel target to use in the analysis rules.</p>
+<h2 dir="auto"><a id="user-content-test-reports" class="anchor" aria-hidden="true" href="#test-reports"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Test reports</h2>
+<p dir="auto">Bazel already emits test reports in the required JUnit XML format, however the
+filenames expected by SonarQube differ slightly. These rules will copy the
+reports for any configured test targets into supported filenames.</p>
+<p dir="auto">See below for an example. Note that all three <code>sq_project</code> attributes must be
+set for successful test reporting: <code>test_srcs</code>, <code>test_reports</code>, <code>test_targets</code>.</p>
+<h2 dir="auto"><a id="user-content-executing-analysis" class="anchor" aria-hidden="true" href="#executing-analysis"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Executing analysis</h2>
+<p dir="auto">To execute a SonarQube analysis of a Bazel project, two rules are provided:
+<code>sonarqube</code> and <code>sq_project</code>.</p>
+<p dir="auto">The <code>sonarqube</code> rule creates an executable target which will generate SonarQube
+sonar-project.properties configuration files, and execute the CLI scanner.</p>
+<p dir="auto">The <code>sq_project</code> rule provides the generation of sonar-project.properties
+configuration, and can be used to create sub-module configurations to be
+included in a <code>sonarqube</code> target.</p>
+<p dir="auto">The <code>sonarqube</code> rule can then be instantiated:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="filegroup(
+    name = &quot;git&quot;,
+    srcs = glob(
+        [&quot;.git/**&quot;],
+        exclude = [&quot;.git/**/*[*&quot;],  # gitk creates temp files with []
+    ),
+    tags = [&quot;manual&quot;],
+)
+
+filegroup(
+    name = &quot;coverage_report&quot;,
+    srcs = [&quot;bazel-out/_coverage/_coverage_report.dat&quot;], # Created manually
+    tags = [&quot;manual&quot;],
+    visibility = [&quot;//visibility:public&quot;],
+)
+
+filegroup(
+    name = &quot;test_reports&quot;,
+    srcs = glob([&quot;bazel-testlogs/**/test.xml&quot;]), # Created manually
+    tags = [&quot;manual&quot;],
+    visibility = [&quot;//visibility:public&quot;],
+)
+
+load(&quot;@bazel_sonarqube//:defs.bzl&quot;, &quot;sonarqube&quot;)
+
+sonarqube(
+    name = &quot;sq&quot;,
+    project_key = &quot;com.example.project:project&quot;,
+    project_name = &quot;My Project&quot;,
+    srcs = [
+        &quot;//path/to/package:java_srcs&quot;,
+        &quot;//path/to/another/package:py_srcs&quot;,
+        &quot;//path/to/yet/another/package:js_srcs&quot;,
+    ],
+    targets = [
+        &quot;//path/to/package:package&quot;,
+    ],
+    modules = {
+        &quot;//path/to/component:sq_mycomponent&quot;: &quot;path/to/component&quot;,
+    },
+    coverage_report = &quot;:coverage_report&quot;,
+    scm_info = [&quot;:git&quot;],
+    tags = [&quot;manual&quot;],
+)"><pre><span class="pl-en">filegroup</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"git"</span>,
+    <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> <span class="pl-en">glob</span>(
+        [<span class="pl-s">".git/**"</span>],
+        <span class="pl-s1">exclude</span> <span class="pl-c1">=</span> [<span class="pl-s">".git/**/*[*"</span>],  <span class="pl-c"># gitk creates temp files with []</span>
+    ),
+    <span class="pl-s1">tags</span> <span class="pl-c1">=</span> [<span class="pl-s">"manual"</span>],
+)
+
+<span class="pl-en">filegroup</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"coverage_report"</span>,
+    <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> [<span class="pl-s">"bazel-out/_coverage/_coverage_report.dat"</span>], <span class="pl-c"># Created manually</span>
+    <span class="pl-s1">tags</span> <span class="pl-c1">=</span> [<span class="pl-s">"manual"</span>],
+    <span class="pl-s1">visibility</span> <span class="pl-c1">=</span> [<span class="pl-s">"//visibility:public"</span>],
+)
+
+<span class="pl-en">filegroup</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"test_reports"</span>,
+    <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> <span class="pl-en">glob</span>([<span class="pl-s">"bazel-testlogs/**/test.xml"</span>]), <span class="pl-c"># Created manually</span>
+    <span class="pl-s1">tags</span> <span class="pl-c1">=</span> [<span class="pl-s">"manual"</span>],
+    <span class="pl-s1">visibility</span> <span class="pl-c1">=</span> [<span class="pl-s">"//visibility:public"</span>],
+)
+
+<span class="pl-en">load</span>(<span class="pl-s">"@bazel_sonarqube//:defs.bzl"</span>, <span class="pl-s">"sonarqube"</span>)
+
+<span class="pl-en">sonarqube</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"sq"</span>,
+    <span class="pl-s1">project_key</span> <span class="pl-c1">=</span> <span class="pl-s">"com.example.project:project"</span>,
+    <span class="pl-s1">project_name</span> <span class="pl-c1">=</span> <span class="pl-s">"My Project"</span>,
+    <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> [
+        <span class="pl-s">"//path/to/package:java_srcs"</span>,
+        <span class="pl-s">"//path/to/another/package:py_srcs"</span>,
+        <span class="pl-s">"//path/to/yet/another/package:js_srcs"</span>,
+    ],
+    <span class="pl-s1">targets</span> <span class="pl-c1">=</span> [
+        <span class="pl-s">"//path/to/package:package"</span>,
+    ],
+    <span class="pl-s1">modules</span> <span class="pl-c1">=</span> {
+        <span class="pl-s">"//path/to/component:sq_mycomponent"</span>: <span class="pl-s">"path/to/component"</span>,
+    },
+    <span class="pl-s1">coverage_report</span> <span class="pl-c1">=</span> <span class="pl-s">":coverage_report"</span>,
+    <span class="pl-s1">scm_info</span> <span class="pl-c1">=</span> [<span class="pl-s">":git"</span>],
+    <span class="pl-s1">tags</span> <span class="pl-c1">=</span> [<span class="pl-s">"manual"</span>],
+)</pre></div>
+<p dir="auto">The <code>srcs</code> and <code>test_srcs</code> attributes may refer to individual files or
+<code>filegroup</code> targets.</p>
+<p dir="auto">The <code>targets</code> attribute allows Bazel to utilise JavaInfo (from appropriate
+targets) to add project and dependency jars to the analysis classpath.</p>
+<p dir="auto">The <code>modules</code> attribute should reference (with relative paths) any <code>sq_project</code>
+targets which should be added as project modules in SonarQube.</p>
+<p dir="auto">The <code>sq_project</code> rule instantiation is very similar, here including the
+required attributes for test reporting (note that we share a single <code>filegroup</code>
+in the root <code>BUILD</code> file to export all test reports, but it is filtered by
+<code>sq_project</code> for only those reports matching <code>test_targets</code>):</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@bazel_sonarqube//:defs.bzl&quot;, &quot;sq_project&quot;)
+
+sq_project(
+    name = &quot;sq_mycomponent&quot;,
+    project_key = &quot;com.example.project:component&quot;,
+    project_name = &quot;My Project :: Component&quot;,
+    srcs = [
+        &quot;//path/to/component:java_srcs&quot;,
+    ],
+    targets = [
+        &quot;//path/to/component:component&quot;,
+    ],
+    test_srcs = [&quot;//path/to/component:java_test_srcs&quot;],
+    test_targets = [
+        &quot;//path/to/component:FirstComponentTest&quot;,
+        &quot;//path/to/component:SecondComponentTest&quot;,
+    ],
+    test_reports = [&quot;//:test_reports&quot;],
+    tags = [&quot;manual&quot;],
+    visibility = [&quot;//visibility:public&quot;],
+)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@bazel_sonarqube//:defs.bzl"</span>, <span class="pl-s">"sq_project"</span>)
+
+<span class="pl-en">sq_project</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"sq_mycomponent"</span>,
+    <span class="pl-s1">project_key</span> <span class="pl-c1">=</span> <span class="pl-s">"com.example.project:component"</span>,
+    <span class="pl-s1">project_name</span> <span class="pl-c1">=</span> <span class="pl-s">"My Project :: Component"</span>,
+    <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> [
+        <span class="pl-s">"//path/to/component:java_srcs"</span>,
+    ],
+    <span class="pl-s1">targets</span> <span class="pl-c1">=</span> [
+        <span class="pl-s">"//path/to/component:component"</span>,
+    ],
+    <span class="pl-s1">test_srcs</span> <span class="pl-c1">=</span> [<span class="pl-s">"//path/to/component:java_test_srcs"</span>],
+    <span class="pl-s1">test_targets</span> <span class="pl-c1">=</span> [
+        <span class="pl-s">"//path/to/component:FirstComponentTest"</span>,
+        <span class="pl-s">"//path/to/component:SecondComponentTest"</span>,
+    ],
+    <span class="pl-s1">test_reports</span> <span class="pl-c1">=</span> [<span class="pl-s">"//:test_reports"</span>],
+    <span class="pl-s1">tags</span> <span class="pl-c1">=</span> [<span class="pl-s">"manual"</span>],
+    <span class="pl-s1">visibility</span> <span class="pl-c1">=</span> [<span class="pl-s">"//visibility:public"</span>],
+)</pre></div>
+<p dir="auto">Analysis can then be executed:</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel run //:sq -- -Dsonar.host.url=${SONAR_HOST_URL} -Dsonar.login=${SONAR_AUTH_TOKEN}"><pre>bazel run //:sq -- -Dsonar.host.url=<span class="pl-smi">${SONAR_HOST_URL}</span> -Dsonar.login=<span class="pl-smi">${SONAR_AUTH_TOKEN}</span></pre></div>
+<p dir="auto">Note that during analysis, the <code>sonarqube</code> executable target will dereference
+its runfiles symlinks. This is necessary so the SCM info correctly resolves,
+allowing SonarQube to track new code and line ownership data.</p>
+</article></div>

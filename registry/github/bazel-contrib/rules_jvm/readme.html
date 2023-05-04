@@ -1,0 +1,971 @@
+<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><h1 dir="auto"><a id="user-content-contrib_rules_jvm" class="anchor" aria-hidden="true" href="#contrib_rules_jvm"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>contrib_rules_jvm</h1>
+<p dir="auto">Handy rules for working with JVM-based projects in Bazel.</p>
+<p dir="auto">In order to use these in your own projects, in your <code>WORKSPACE</code> once
+you've used an <code>http_archive</code>, you can load all the necessary
+dependencies by:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@contrib_rules_jvm//:repositories.bzl&quot;, &quot;contrib_rules_jvm_deps&quot;)
+
+contrib_rules_jvm_deps()
+
+load(&quot;@contrib_rules_jvm//:setup.bzl&quot;, &quot;contrib_rules_jvm_setup&quot;)
+
+contrib_rules_jvm_setup()"><pre><span class="pl-en">load</span>(<span class="pl-s">"@contrib_rules_jvm//:repositories.bzl"</span>, <span class="pl-s">"contrib_rules_jvm_deps"</span>)
+
+<span class="pl-en">contrib_rules_jvm_deps</span>()
+
+<span class="pl-en">load</span>(<span class="pl-s">"@contrib_rules_jvm//:setup.bzl"</span>, <span class="pl-s">"contrib_rules_jvm_setup"</span>)
+
+<span class="pl-en">contrib_rules_jvm_setup</span>()</pre></div>
+<p dir="auto">If you're looking to get started quickly, then take a look at <a href="#java_test_suite">java_test_suite</a> (a macro for generating a test suite from a <code>glob</code> of java test sources) and <a href="#java_junit5_test">java_junit5_test</a> (a drop-in replacement for <code>java_test</code> that can run <a href="https://junit.org/junit5/" rel="nofollow">JUnit5</a> tests)</p>
+<h2 dir="auto"><a id="user-content-linting" class="anchor" aria-hidden="true" href="#linting"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Linting</h2>
+<p dir="auto">Many of the features in this repo are designed to be exposed via <a href="https://github.com/apple/apple_rules_lint">apple_rules_lint</a>, which provides a framework for integrating linting checks into your builds. To take advantage of this perform the following steps:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="# In your WORKSPACE, after loading `apple_rules_lint`
+
+load(&quot;@apple_rules_lint//lint:setup.bzl&quot;, &quot;lint_setup&quot;)
+
+lint_setup({
+  # Note: this is an example config!
+  &quot;java-checkstyle&quot;: &quot;@contrib_rules_jvm//java:checkstyle-default-config&quot;,
+  &quot;java-pmd&quot;: &quot;@contrib_rules_jvm//java:pmd-config&quot;,
+  &quot;java-spotbugs&quot;: &quot;@contrib_rules_jvm//java:spotbugs-default-config&quot;,
+})"><pre><span class="pl-c"># In your WORKSPACE, after loading `apple_rules_lint`</span>
+
+<span class="pl-en">load</span>(<span class="pl-s">"@apple_rules_lint//lint:setup.bzl"</span>, <span class="pl-s">"lint_setup"</span>)
+
+<span class="pl-en">lint_setup</span>({
+  <span class="pl-c"># Note: this is an example config!</span>
+  <span class="pl-s">"java-checkstyle"</span>: <span class="pl-s">"@contrib_rules_jvm//java:checkstyle-default-config"</span>,
+  <span class="pl-s">"java-pmd"</span>: <span class="pl-s">"@contrib_rules_jvm//java:pmd-config"</span>,
+  <span class="pl-s">"java-spotbugs"</span>: <span class="pl-s">"@contrib_rules_jvm//java:spotbugs-default-config"</span>,
+})</pre></div>
+<p dir="auto">You are welcome to include all (or none!) of these rules, and linting
+is "opt-in": if there's no <code>lint_setup</code> call in your repo's
+<code>WORKSPACE</code> then everything will continue working just fine and no
+additional lint tests will be generated.</p>
+<p dir="auto">The linters are configured using specific rules. The mappings are:</p>
+<table>
+<thead>
+<tr>
+<th>Well known name</th>
+<th>Lint config rule</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>java-checkstyle</td>
+<td><a href="#checkstyle_config">checkstyle_config</a></td>
+</tr>
+<tr>
+<td>java-pmd</td>
+<td><a href="#pmd_ruleset">pmd_ruleset</a></td>
+</tr>
+<tr>
+<td>java-spotbugs</td>
+<td><a href="#spotbugs_config">spotbugs_config</a></td>
+</tr>
+</tbody>
+</table>
+<h2 dir="auto"><a id="user-content-requirements" class="anchor" aria-hidden="true" href="#requirements"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Requirements</h2>
+<p dir="auto">These rules require Java 11 or above.</p>
+<p dir="auto">The gazelle plugin requires Go 1.18 or above.</p>
+<h2 dir="auto"><a id="user-content-java-rules" class="anchor" aria-hidden="true" href="#java-rules"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Java Rules</h2>
+
+<p dir="auto"><a id="user-content-checkstyle_config"></a></p>
+<h2 dir="auto"><a id="user-content-checkstyle_config" class="anchor" aria-hidden="true" href="#checkstyle_config"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>checkstyle_config</h2>
+<pre>checkstyle_config(<a href="#checkstyle_config-name">name</a>, <a href="#checkstyle_config-checkstyle_binary">checkstyle_binary</a>, <a href="#checkstyle_config-config_file">config_file</a>, <a href="#checkstyle_config-data">data</a>, <a href="#checkstyle_config-output_format">output_format</a>)
+</pre>
+<p dir="auto">Rule allowing checkstyle to be configured. This is typically
+used with the linting rules from <code>@apple_rules_lint</code> to configure how
+checkstyle should run.</p>
+<p dir="auto"><strong>ATTRIBUTES</strong></p>
+<table>
+<thead>
+<tr>
+<th align="left">Name</th>
+<th align="left">Description</th>
+<th align="left">Type</th>
+<th align="left">Mandatory</th>
+<th align="left">Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left"><a id="user-content-checkstyle_config-name"></a>name</td>
+<td align="left">A unique name for this target.</td>
+<td align="left"><a href="https://bazel.build/concepts/labels#target-names" rel="nofollow">Name</a></td>
+<td align="left">required</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-checkstyle_config-checkstyle_binary"></a>checkstyle_binary</td>
+<td align="left">Checkstyle binary to use.</td>
+<td align="left"><a href="https://bazel.build/concepts/labels" rel="nofollow">Label</a></td>
+<td align="left">optional</td>
+<td align="left"><code>@contrib_rules_jvm//java:checkstyle_cli</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-checkstyle_config-config_file"></a>config_file</td>
+<td align="left">The config file to use for all checkstyle tests</td>
+<td align="left"><a href="https://bazel.build/concepts/labels" rel="nofollow">Label</a></td>
+<td align="left">required</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-checkstyle_config-data"></a>data</td>
+<td align="left">Additional files to make available to Checkstyle such as any included XML files</td>
+<td align="left"><a href="https://bazel.build/concepts/labels" rel="nofollow">List of labels</a></td>
+<td align="left">optional</td>
+<td align="left"><code>[]</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-checkstyle_config-output_format"></a>output_format</td>
+<td align="left">Output format to use. Defaults to plain</td>
+<td align="left">String</td>
+<td align="left">optional</td>
+<td align="left"><code>"plain"</code></td>
+</tr>
+</tbody>
+</table>
+<p dir="auto"><a id="user-content-pmd_ruleset"></a></p>
+<h2 dir="auto"><a id="user-content-pmd_ruleset" class="anchor" aria-hidden="true" href="#pmd_ruleset"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>pmd_ruleset</h2>
+<pre>pmd_ruleset(<a href="#pmd_ruleset-name">name</a>, <a href="#pmd_ruleset-format">format</a>, <a href="#pmd_ruleset-pmd_binary">pmd_binary</a>, <a href="#pmd_ruleset-rulesets">rulesets</a>, <a href="#pmd_ruleset-shallow">shallow</a>)
+</pre>
+<p dir="auto">Select a rule set for PMD tests.</p>
+<p dir="auto"><strong>ATTRIBUTES</strong></p>
+<table>
+<thead>
+<tr>
+<th align="left">Name</th>
+<th align="left">Description</th>
+<th align="left">Type</th>
+<th align="left">Mandatory</th>
+<th align="left">Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left"><a id="user-content-pmd_ruleset-name"></a>name</td>
+<td align="left">A unique name for this target.</td>
+<td align="left"><a href="https://bazel.build/concepts/labels#target-names" rel="nofollow">Name</a></td>
+<td align="left">required</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-pmd_ruleset-format"></a>format</td>
+<td align="left">Generate report in the given format. One of html, text, or xml (default is xml)</td>
+<td align="left">String</td>
+<td align="left">optional</td>
+<td align="left"><code>"xml"</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-pmd_ruleset-pmd_binary"></a>pmd_binary</td>
+<td align="left">PMD binary to use.</td>
+<td align="left"><a href="https://bazel.build/concepts/labels" rel="nofollow">Label</a></td>
+<td align="left">optional</td>
+<td align="left"><code>//java:pmd</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-pmd_ruleset-rulesets"></a>rulesets</td>
+<td align="left">Use these rulesets.</td>
+<td align="left"><a href="https://bazel.build/concepts/labels" rel="nofollow">List of labels</a></td>
+<td align="left">optional</td>
+<td align="left"><code>[]</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-pmd_ruleset-shallow"></a>shallow</td>
+<td align="left">Use the targetted output to increase PMD's depth of processing</td>
+<td align="left">Boolean</td>
+<td align="left">optional</td>
+<td align="left"><code>True</code></td>
+</tr>
+</tbody>
+</table>
+<p dir="auto"><a id="user-content-pmd_test"></a></p>
+<h2 dir="auto"><a id="user-content-pmd_test" class="anchor" aria-hidden="true" href="#pmd_test"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>pmd_test</h2>
+<pre>pmd_test(<a href="#pmd_test-name">name</a>, <a href="#pmd_test-ruleset">ruleset</a>, <a href="#pmd_test-srcs">srcs</a>, <a href="#pmd_test-target">target</a>)
+</pre>
+<p dir="auto">Use PMD to lint the <code>srcs</code>.</p>
+<p dir="auto"><strong>ATTRIBUTES</strong></p>
+<table>
+<thead>
+<tr>
+<th align="left">Name</th>
+<th align="left">Description</th>
+<th align="left">Type</th>
+<th align="left">Mandatory</th>
+<th align="left">Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left"><a id="user-content-pmd_test-name"></a>name</td>
+<td align="left">A unique name for this target.</td>
+<td align="left"><a href="https://bazel.build/concepts/labels#target-names" rel="nofollow">Name</a></td>
+<td align="left">required</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-pmd_test-ruleset"></a>ruleset</td>
+<td align="left">-</td>
+<td align="left"><a href="https://bazel.build/concepts/labels" rel="nofollow">Label</a></td>
+<td align="left">required</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-pmd_test-srcs"></a>srcs</td>
+<td align="left">-</td>
+<td align="left"><a href="https://bazel.build/concepts/labels" rel="nofollow">List of labels</a></td>
+<td align="left">optional</td>
+<td align="left"><code>[]</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-pmd_test-target"></a>target</td>
+<td align="left">-</td>
+<td align="left"><a href="https://bazel.build/concepts/labels" rel="nofollow">Label</a></td>
+<td align="left">optional</td>
+<td align="left"><code>None</code></td>
+</tr>
+</tbody>
+</table>
+<p dir="auto"><a id="user-content-spotbugs_config"></a></p>
+<h2 dir="auto"><a id="user-content-spotbugs_config" class="anchor" aria-hidden="true" href="#spotbugs_config"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>spotbugs_config</h2>
+<pre>spotbugs_config(<a href="#spotbugs_config-name">name</a>, <a href="#spotbugs_config-effort">effort</a>, <a href="#spotbugs_config-exclude_filter">exclude_filter</a>, <a href="#spotbugs_config-fail_on_warning">fail_on_warning</a>, <a href="#spotbugs_config-spotbugs_binary">spotbugs_binary</a>)
+</pre>
+<p dir="auto">Configuration used for spotbugs, typically by the <code>//lint</code> rules.</p>
+<p dir="auto"><strong>ATTRIBUTES</strong></p>
+<table>
+<thead>
+<tr>
+<th align="left">Name</th>
+<th align="left">Description</th>
+<th align="left">Type</th>
+<th align="left">Mandatory</th>
+<th align="left">Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left"><a id="user-content-spotbugs_config-name"></a>name</td>
+<td align="left">A unique name for this target.</td>
+<td align="left"><a href="https://bazel.build/concepts/labels#target-names" rel="nofollow">Name</a></td>
+<td align="left">required</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-spotbugs_config-effort"></a>effort</td>
+<td align="left">Effort can be min, less, default, more or max. Defaults to default</td>
+<td align="left">String</td>
+<td align="left">optional</td>
+<td align="left"><code>"default"</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-spotbugs_config-exclude_filter"></a>exclude_filter</td>
+<td align="left">Report all bug instances except those matching the filter specified by this filter file</td>
+<td align="left"><a href="https://bazel.build/concepts/labels" rel="nofollow">Label</a></td>
+<td align="left">optional</td>
+<td align="left"><code>None</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-spotbugs_config-fail_on_warning"></a>fail_on_warning</td>
+<td align="left">Whether to fail on warning, or just create a report. Defaults to True</td>
+<td align="left">Boolean</td>
+<td align="left">optional</td>
+<td align="left"><code>True</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-spotbugs_config-spotbugs_binary"></a>spotbugs_binary</td>
+<td align="left">The spotbugs binary to run.</td>
+<td align="left"><a href="https://bazel.build/concepts/labels" rel="nofollow">Label</a></td>
+<td align="left">optional</td>
+<td align="left"><code>@contrib_rules_jvm//java:spotbugs_cli</code></td>
+</tr>
+</tbody>
+</table>
+<p dir="auto"><a id="user-content-spotbugs_test"></a></p>
+<h2 dir="auto"><a id="user-content-spotbugs_test" class="anchor" aria-hidden="true" href="#spotbugs_test"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>spotbugs_test</h2>
+<pre>spotbugs_test(<a href="#spotbugs_test-name">name</a>, <a href="#spotbugs_test-config">config</a>, <a href="#spotbugs_test-deps">deps</a>, <a href="#spotbugs_test-only_output_jars">only_output_jars</a>)
+</pre>
+<p dir="auto">Use spotbugs to lint the <code>srcs</code>.</p>
+<p dir="auto"><strong>ATTRIBUTES</strong></p>
+<table>
+<thead>
+<tr>
+<th align="left">Name</th>
+<th align="left">Description</th>
+<th align="left">Type</th>
+<th align="left">Mandatory</th>
+<th align="left">Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left"><a id="user-content-spotbugs_test-name"></a>name</td>
+<td align="left">A unique name for this target.</td>
+<td align="left"><a href="https://bazel.build/concepts/labels#target-names" rel="nofollow">Name</a></td>
+<td align="left">required</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-spotbugs_test-config"></a>config</td>
+<td align="left">-</td>
+<td align="left"><a href="https://bazel.build/concepts/labels" rel="nofollow">Label</a></td>
+<td align="left">optional</td>
+<td align="left"><code>//java:spotbugs-default-config</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-spotbugs_test-deps"></a>deps</td>
+<td align="left">-</td>
+<td align="left"><a href="https://bazel.build/concepts/labels" rel="nofollow">List of labels</a></td>
+<td align="left">required</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-spotbugs_test-only_output_jars"></a>only_output_jars</td>
+<td align="left">If set to true, only the output jar of the target will be analyzed. Otherwise all transitive runtime dependencies will be analyzed</td>
+<td align="left">Boolean</td>
+<td align="left">optional</td>
+<td align="left"><code>True</code></td>
+</tr>
+</tbody>
+</table>
+<p dir="auto"><a id="user-content-checkstyle_binary"></a></p>
+<h2 dir="auto"><a id="user-content-checkstyle_binary" class="anchor" aria-hidden="true" href="#checkstyle_binary"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>checkstyle_binary</h2>
+<pre>checkstyle_binary(<a href="#checkstyle_binary-name">name</a>, <a href="#checkstyle_binary-main_class">main_class</a>, <a href="#checkstyle_binary-deps">deps</a>, <a href="#checkstyle_binary-runtime_deps">runtime_deps</a>, <a href="#checkstyle_binary-srcs">srcs</a>, <a href="#checkstyle_binary-visibility">visibility</a>, <a href="#checkstyle_binary-kwargs">kwargs</a>)
+</pre>
+<p dir="auto">Macro for quickly generating a <code>java_binary</code> target for use with <code>checkstyle_config</code>.</p>
+<p dir="auto">By default, this will set the <code>main_class</code> to point to the default one used by checkstyle
+but it's ultimately a drop-replacement for straight <code>java_binary</code> target.</p>
+<p dir="auto">At least one of <code>runtime_deps</code>, <code>deps</code>, and <code>srcs</code> must be specified so that the
+<code>java_binary</code> target will be valid.</p>
+<p dir="auto">An example would be:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="checkstyle_binary(
+    name = &quot;checkstyle_cli&quot;,
+    runtime_deps = [
+        artifact(&quot;com.puppycrawl.tools:checkstyle&quot;),
+    ]
+)"><pre><span class="pl-en">checkstyle_binary</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"checkstyle_cli"</span>,
+    <span class="pl-s1">runtime_deps</span> <span class="pl-c1">=</span> [
+        <span class="pl-en">artifact</span>(<span class="pl-s">"com.puppycrawl.tools:checkstyle"</span>),
+    ]
+)</pre></div>
+<p dir="auto"><strong>PARAMETERS</strong></p>
+<table>
+<thead>
+<tr>
+<th align="left">Name</th>
+<th align="left">Description</th>
+<th align="left">Default Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left"><a id="user-content-checkstyle_binary-name"></a>name</td>
+<td align="left">The name of the target</td>
+<td align="left">none</td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-checkstyle_binary-main_class"></a>main_class</td>
+<td align="left">The main class to use for checkstyle.</td>
+<td align="left"><code>"com.puppycrawl.tools.checkstyle.Main"</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-checkstyle_binary-deps"></a>deps</td>
+<td align="left">The deps required for compiling this binary. May be omitted.</td>
+<td align="left"><code>None</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-checkstyle_binary-runtime_deps"></a>runtime_deps</td>
+<td align="left">The deps required by checkstyle at runtime. May be omitted.</td>
+<td align="left"><code>None</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-checkstyle_binary-srcs"></a>srcs</td>
+<td align="left">If you're compiling your own <code>checkstyle</code> binary, the sources to use.</td>
+<td align="left"><code>None</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-checkstyle_binary-visibility"></a>visibility</td>
+<td align="left"><p align="center" dir="auto"> - </p></td>
+<td align="left"><code>["//visibility:public"]</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-checkstyle_binary-kwargs"></a>kwargs</td>
+<td align="left"><p align="center" dir="auto"> - </p></td>
+<td align="left">none</td>
+</tr>
+</tbody>
+</table>
+<p dir="auto"><a id="user-content-checkstyle_test"></a></p>
+<h2 dir="auto"><a id="user-content-checkstyle_test" class="anchor" aria-hidden="true" href="#checkstyle_test"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>checkstyle_test</h2>
+<pre>checkstyle_test(<a href="#checkstyle_test-name">name</a>, <a href="#checkstyle_test-size">size</a>, <a href="#checkstyle_test-timeout">timeout</a>, <a href="#checkstyle_test-kwargs">kwargs</a>)
+</pre>
+<p dir="auto"><strong>PARAMETERS</strong></p>
+<table>
+<thead>
+<tr>
+<th align="left">Name</th>
+<th align="left">Description</th>
+<th align="left">Default Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left"><a id="user-content-checkstyle_test-name"></a>name</td>
+<td align="left"><p align="center" dir="auto"> - </p></td>
+<td align="left">none</td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-checkstyle_test-size"></a>size</td>
+<td align="left"><p align="center" dir="auto"> - </p></td>
+<td align="left"><code>"medium"</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-checkstyle_test-timeout"></a>timeout</td>
+<td align="left"><p align="center" dir="auto"> - </p></td>
+<td align="left"><code>"short"</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-checkstyle_test-kwargs"></a>kwargs</td>
+<td align="left"><p align="center" dir="auto"> - </p></td>
+<td align="left">none</td>
+</tr>
+</tbody>
+</table>
+<p dir="auto"><a id="user-content-java_binary"></a></p>
+<h2 dir="auto"><a id="user-content-java_binary" class="anchor" aria-hidden="true" href="#java_binary"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>java_binary</h2>
+<pre>java_binary(<a href="#java_binary-name">name</a>, <a href="#java_binary-kwargs">kwargs</a>)
+</pre>
+<p dir="auto">Adds linting tests to Bazel's own <code>java_binary</code></p>
+<p dir="auto"><strong>PARAMETERS</strong></p>
+<table>
+<thead>
+<tr>
+<th align="left">Name</th>
+<th align="left">Description</th>
+<th align="left">Default Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left"><a id="user-content-java_binary-name"></a>name</td>
+<td align="left"><p align="center" dir="auto"> - </p></td>
+<td align="left">none</td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-java_binary-kwargs"></a>kwargs</td>
+<td align="left"><p align="center" dir="auto"> - </p></td>
+<td align="left">none</td>
+</tr>
+</tbody>
+</table>
+<p dir="auto"><a id="user-content-java_export"></a></p>
+<h2 dir="auto"><a id="user-content-java_export" class="anchor" aria-hidden="true" href="#java_export"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>java_export</h2>
+<pre>java_export(<a href="#java_export-name">name</a>, <a href="#java_export-maven_coordinates">maven_coordinates</a>, <a href="#java_export-pom_template">pom_template</a>, <a href="#java_export-deploy_env">deploy_env</a>, <a href="#java_export-visibility">visibility</a>, <a href="#java_export-kwargs">kwargs</a>)
+</pre>
+<p dir="auto">Adds linting tests to <code>rules_jvm_external</code>'s <code>java_export</code></p>
+<p dir="auto"><strong>PARAMETERS</strong></p>
+<table>
+<thead>
+<tr>
+<th align="left">Name</th>
+<th align="left">Description</th>
+<th align="left">Default Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left"><a id="user-content-java_export-name"></a>name</td>
+<td align="left"><p align="center" dir="auto"> - </p></td>
+<td align="left">none</td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-java_export-maven_coordinates"></a>maven_coordinates</td>
+<td align="left"><p align="center" dir="auto"> - </p></td>
+<td align="left">none</td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-java_export-pom_template"></a>pom_template</td>
+<td align="left"><p align="center" dir="auto"> - </p></td>
+<td align="left"><code>None</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-java_export-deploy_env"></a>deploy_env</td>
+<td align="left"><p align="center" dir="auto"> - </p></td>
+<td align="left"><code>None</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-java_export-visibility"></a>visibility</td>
+<td align="left"><p align="center" dir="auto"> - </p></td>
+<td align="left"><code>None</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-java_export-kwargs"></a>kwargs</td>
+<td align="left"><p align="center" dir="auto"> - </p></td>
+<td align="left">none</td>
+</tr>
+</tbody>
+</table>
+<p dir="auto"><a id="user-content-java_junit5_test"></a></p>
+<h2 dir="auto"><a id="user-content-java_junit5_test" class="anchor" aria-hidden="true" href="#java_junit5_test"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>java_junit5_test</h2>
+<pre>java_junit5_test(<a href="#java_junit5_test-name">name</a>, <a href="#java_junit5_test-test_class">test_class</a>, <a href="#java_junit5_test-runtime_deps">runtime_deps</a>, <a href="#java_junit5_test-package_prefixes">package_prefixes</a>, <a href="#java_junit5_test-jvm_flags">jvm_flags</a>, <a href="#java_junit5_test-include_tags">include_tags</a>,
+                 <a href="#java_junit5_test-exclude_tags">exclude_tags</a>, <a href="#java_junit5_test-include_engines">include_engines</a>, <a href="#java_junit5_test-exclude_engines">exclude_engines</a>, <a href="#java_junit5_test-kwargs">kwargs</a>)
+</pre>
+<p dir="auto">Run junit5 tests using Bazel.</p>
+<p dir="auto">This is designed to be a drop-in replacement for <code>java_test</code>, but
+rather than using a JUnit4 runner it provides support for using
+JUnit5 directly. The arguments are the same as used by <code>java_test</code>.</p>
+<p dir="auto">By default Bazel, and by extension this rule, assumes you want to
+always run all of the tests in a class file.  The <code>include_tags</code>
+and <code>exclude_tags</code> allows for selectively running specific tests
+within a single class file based on your use of the <code>@Tag</code> Junit5
+annotations. Please see <a href="https://junit.org/junit5/docs/current/user-guide/#running-tests-tags" rel="nofollow">the JUnit 5
+docs</a>
+for more information about using JUnit5 tag annotation to control
+test execution.</p>
+<p dir="auto">The generated target does not include any JUnit5 dependencies. If
+you are using the standard <code>@maven</code> namespace for your
+<code>maven_install</code> you can add these to your <code>deps</code> using
+<code>JUNIT5_DEPS</code> or <code>JUNIT5_VINTAGE_DEPS</code> loaded from
+<code>//java:defs.bzl</code></p>
+<p dir="auto"><strong>Note</strong>: The junit5 runner prevents <code>System.exit</code> being called
+using a <code>SecurityManager</code>, which means that one test can't
+prematurely cause an entire test run to finish unexpectedly.</p>
+<p dir="auto">While the <code>SecurityManager</code> has been deprecated in recent Java
+releases, there's no replacement yet. JEP 411 has this as one of
+its goals, but this is not complete or available yet.</p>
+<p dir="auto"><strong>PARAMETERS</strong></p>
+<table>
+<thead>
+<tr>
+<th align="left">Name</th>
+<th align="left">Description</th>
+<th align="left">Default Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left"><a id="user-content-java_junit5_test-name"></a>name</td>
+<td align="left">The name of the test.</td>
+<td align="left">none</td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-java_junit5_test-test_class"></a>test_class</td>
+<td align="left">The Java class to be loaded by the test runner. If not specified, the class name will be inferred from a combination of the current bazel package and the <code>name</code> attribute.</td>
+<td align="left"><code>None</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-java_junit5_test-runtime_deps"></a>runtime_deps</td>
+<td align="left"><p align="center" dir="auto"> - </p></td>
+<td align="left"><code>[]</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-java_junit5_test-package_prefixes"></a>package_prefixes</td>
+<td align="left"><p align="center" dir="auto"> - </p></td>
+<td align="left"><code>[]</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-java_junit5_test-jvm_flags"></a>jvm_flags</td>
+<td align="left"><p align="center" dir="auto"> - </p></td>
+<td align="left"><code>[]</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-java_junit5_test-include_tags"></a>include_tags</td>
+<td align="left">Junit5 tag expressions to include execution of tagged tests.</td>
+<td align="left"><code>[]</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-java_junit5_test-exclude_tags"></a>exclude_tags</td>
+<td align="left">Junit tag expressions to exclude execution of tagged tests.</td>
+<td align="left"><code>[]</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-java_junit5_test-include_engines"></a>include_engines</td>
+<td align="left">A list of JUnit Platform test engine IDs to include.</td>
+<td align="left"><code>[]</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-java_junit5_test-exclude_engines"></a>exclude_engines</td>
+<td align="left">A list of JUnit Platform test engine IDs to exclude.</td>
+<td align="left"><code>[]</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-java_junit5_test-kwargs"></a>kwargs</td>
+<td align="left"><p align="center" dir="auto"> - </p></td>
+<td align="left">none</td>
+</tr>
+</tbody>
+</table>
+<p dir="auto"><a id="user-content-java_library"></a></p>
+<h2 dir="auto"><a id="user-content-java_library" class="anchor" aria-hidden="true" href="#java_library"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>java_library</h2>
+<pre>java_library(<a href="#java_library-name">name</a>, <a href="#java_library-kwargs">kwargs</a>)
+</pre>
+<p dir="auto">Adds linting tests to Bazel's own <code>java_library</code></p>
+<p dir="auto"><strong>PARAMETERS</strong></p>
+<table>
+<thead>
+<tr>
+<th align="left">Name</th>
+<th align="left">Description</th>
+<th align="left">Default Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left"><a id="user-content-java_library-name"></a>name</td>
+<td align="left"><p align="center" dir="auto"> - </p></td>
+<td align="left">none</td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-java_library-kwargs"></a>kwargs</td>
+<td align="left"><p align="center" dir="auto"> - </p></td>
+<td align="left">none</td>
+</tr>
+</tbody>
+</table>
+<p dir="auto"><a id="user-content-java_test"></a></p>
+<h2 dir="auto"><a id="user-content-java_test" class="anchor" aria-hidden="true" href="#java_test"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>java_test</h2>
+<pre>java_test(<a href="#java_test-name">name</a>, <a href="#java_test-kwargs">kwargs</a>)
+</pre>
+<p dir="auto">Adds linting tests to Bazel's own <code>java_test</code></p>
+<p dir="auto"><strong>PARAMETERS</strong></p>
+<table>
+<thead>
+<tr>
+<th align="left">Name</th>
+<th align="left">Description</th>
+<th align="left">Default Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left"><a id="user-content-java_test-name"></a>name</td>
+<td align="left"><p align="center" dir="auto"> - </p></td>
+<td align="left">none</td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-java_test-kwargs"></a>kwargs</td>
+<td align="left"><p align="center" dir="auto"> - </p></td>
+<td align="left">none</td>
+</tr>
+</tbody>
+</table>
+<p dir="auto"><a id="user-content-java_test_suite"></a></p>
+<h2 dir="auto"><a id="user-content-java_test_suite" class="anchor" aria-hidden="true" href="#java_test_suite"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>java_test_suite</h2>
+<pre>java_test_suite(<a href="#java_test_suite-name">name</a>, <a href="#java_test_suite-srcs">srcs</a>, <a href="#java_test_suite-runner">runner</a>, <a href="#java_test_suite-test_suffixes">test_suffixes</a>, <a href="#java_test_suite-package">package</a>, <a href="#java_test_suite-deps">deps</a>, <a href="#java_test_suite-runtime_deps">runtime_deps</a>, <a href="#java_test_suite-size">size</a>, <a href="#java_test_suite-kwargs">kwargs</a>)
+</pre>
+<p dir="auto">Create a suite of java tests from <code>*Test.java</code> files.</p>
+<p dir="auto">This rule will create a <code>java_test</code> for each file which matches
+any of the <code>test_suffixes</code> that are passed to this rule as
+<code>srcs</code>. If any non-test sources are added these will first of all
+be compiled into a <code>java_library</code> which will be added as a
+dependency for each test target, allowing common utility functions
+to be shared between tests.</p>
+<p dir="auto">The generated <code>java_test</code> targets will be named after the test file:
+<code>FooTest.java</code> will create a <code>:FooTest</code> target.</p>
+<p dir="auto">In addition, a <code>test_suite</code> will be created, named using the <code>name</code>
+attribute to allow all the tests to be run in one go.</p>
+<p dir="auto"><strong>PARAMETERS</strong></p>
+<table>
+<thead>
+<tr>
+<th align="left">Name</th>
+<th align="left">Description</th>
+<th align="left">Default Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left"><a id="user-content-java_test_suite-name"></a>name</td>
+<td align="left">A unique name for this rule. Will be used to generate a <code>test_suite</code></td>
+<td align="left">none</td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-java_test_suite-srcs"></a>srcs</td>
+<td align="left">Source files to create test rules for.</td>
+<td align="left">none</td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-java_test_suite-runner"></a>runner</td>
+<td align="left">One of <code>junit4</code> or <code>junit5</code>.</td>
+<td align="left"><code>"junit4"</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-java_test_suite-test_suffixes"></a>test_suffixes</td>
+<td align="left">The file name suffix used to identify if a file contains a test class.</td>
+<td align="left"><code>["Test.java"]</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-java_test_suite-package"></a>package</td>
+<td align="left">The package name used by the tests. If not set, this is inferred from the current bazel package name.</td>
+<td align="left"><code>None</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-java_test_suite-deps"></a>deps</td>
+<td align="left">A list of <code>java_*</code> dependencies.</td>
+<td align="left"><code>None</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-java_test_suite-runtime_deps"></a>runtime_deps</td>
+<td align="left">A list of <code>java_*</code> dependencies needed at runtime.</td>
+<td align="left"><code>[]</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-java_test_suite-size"></a>size</td>
+<td align="left">The size of the test, passed to <code>java_test</code></td>
+<td align="left"><code>None</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-java_test_suite-kwargs"></a>kwargs</td>
+<td align="left"><p align="center" dir="auto"> - </p></td>
+<td align="left">none</td>
+</tr>
+</tbody>
+</table>
+<p dir="auto"><a id="user-content-pmd_binary"></a></p>
+<h2 dir="auto"><a id="user-content-pmd_binary" class="anchor" aria-hidden="true" href="#pmd_binary"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>pmd_binary</h2>
+<pre>pmd_binary(<a href="#pmd_binary-name">name</a>, <a href="#pmd_binary-main_class">main_class</a>, <a href="#pmd_binary-deps">deps</a>, <a href="#pmd_binary-runtime_deps">runtime_deps</a>, <a href="#pmd_binary-srcs">srcs</a>, <a href="#pmd_binary-visibility">visibility</a>, <a href="#pmd_binary-kwargs">kwargs</a>)
+</pre>
+<p dir="auto">Macro for quickly generating a <code>java_binary</code> target for use with <code>pmd_ruleset</code>.</p>
+<p dir="auto">By default, this will set the <code>main_class</code> to point to the default one used by PMD
+but it's ultimately a drop-replacement for a regular <code>java_binary</code> target.</p>
+<p dir="auto">At least one of <code>runtime_deps</code>, <code>deps</code>, and <code>srcs</code> must be specified so that the
+<code>java_binary</code> target will be valid.</p>
+<p dir="auto">An example would be:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="pmd_binary(
+    name = &quot;pmd&quot;,
+    runtime_deps = [
+        artifact(&quot;net.sourceforge.pmd:pmd-dist&quot;),
+    ],
+)"><pre><span class="pl-en">pmd_binary</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"pmd"</span>,
+    <span class="pl-s1">runtime_deps</span> <span class="pl-c1">=</span> [
+        <span class="pl-en">artifact</span>(<span class="pl-s">"net.sourceforge.pmd:pmd-dist"</span>),
+    ],
+)</pre></div>
+<p dir="auto"><strong>PARAMETERS</strong></p>
+<table>
+<thead>
+<tr>
+<th align="left">Name</th>
+<th align="left">Description</th>
+<th align="left">Default Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left"><a id="user-content-pmd_binary-name"></a>name</td>
+<td align="left">The name of the target</td>
+<td align="left">none</td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-pmd_binary-main_class"></a>main_class</td>
+<td align="left">The main class to use for PMD.</td>
+<td align="left"><code>"net.sourceforge.pmd.PMD"</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-pmd_binary-deps"></a>deps</td>
+<td align="left">The deps required for compiling this binary. May be omitted.</td>
+<td align="left"><code>None</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-pmd_binary-runtime_deps"></a>runtime_deps</td>
+<td align="left">The deps required by PMD at runtime. May be omitted.</td>
+<td align="left"><code>None</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-pmd_binary-srcs"></a>srcs</td>
+<td align="left">If you're compiling your own PMD binary, the sources to use.</td>
+<td align="left"><code>None</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-pmd_binary-visibility"></a>visibility</td>
+<td align="left"><p align="center" dir="auto"> - </p></td>
+<td align="left"><code>["//visibility:public"]</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-pmd_binary-kwargs"></a>kwargs</td>
+<td align="left"><p align="center" dir="auto"> - </p></td>
+<td align="left">none</td>
+</tr>
+</tbody>
+</table>
+<p dir="auto"><a id="user-content-spotbugs_binary"></a></p>
+<h2 dir="auto"><a id="user-content-spotbugs_binary" class="anchor" aria-hidden="true" href="#spotbugs_binary"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>spotbugs_binary</h2>
+<pre>spotbugs_binary(<a href="#spotbugs_binary-name">name</a>, <a href="#spotbugs_binary-main_class">main_class</a>, <a href="#spotbugs_binary-deps">deps</a>, <a href="#spotbugs_binary-runtime_deps">runtime_deps</a>, <a href="#spotbugs_binary-srcs">srcs</a>, <a href="#spotbugs_binary-visibility">visibility</a>, <a href="#spotbugs_binary-kwargs">kwargs</a>)
+</pre>
+<p dir="auto">Macro for quickly generating a <code>java_binary</code> target for use with <code>spotbugs_config</code>.</p>
+<p dir="auto">By default, this will set the <code>main_class</code> to point to the default one used by spotbugs
+but it's ultimately a drop-replacement for a regular <code>java_binary</code> target.</p>
+<p dir="auto">At least one of <code>runtime_deps</code>, <code>deps</code>, and <code>srcs</code> must be specified so that the
+<code>java_binary</code> target will be valid.</p>
+<p dir="auto">An example would be:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="spotbugs_binary(
+    name = &quot;spotbugs_cli&quot;,
+    runtime_deps = [
+        artifact(&quot;com.github.spotbugs:spotbugs&quot;),
+        artifact(&quot;org.slf4j:slf4j-jdk14&quot;),
+    ],
+)"><pre><span class="pl-en">spotbugs_binary</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"spotbugs_cli"</span>,
+    <span class="pl-s1">runtime_deps</span> <span class="pl-c1">=</span> [
+        <span class="pl-en">artifact</span>(<span class="pl-s">"com.github.spotbugs:spotbugs"</span>),
+        <span class="pl-en">artifact</span>(<span class="pl-s">"org.slf4j:slf4j-jdk14"</span>),
+    ],
+)</pre></div>
+<p dir="auto"><strong>PARAMETERS</strong></p>
+<table>
+<thead>
+<tr>
+<th align="left">Name</th>
+<th align="left">Description</th>
+<th align="left">Default Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left"><a id="user-content-spotbugs_binary-name"></a>name</td>
+<td align="left">The name of the target</td>
+<td align="left">none</td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-spotbugs_binary-main_class"></a>main_class</td>
+<td align="left">The main class to use for spotbugs.</td>
+<td align="left"><code>"edu.umd.cs.findbugs.LaunchAppropriateUI"</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-spotbugs_binary-deps"></a>deps</td>
+<td align="left">The deps required for compiling this binary. May be omitted.</td>
+<td align="left"><code>None</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-spotbugs_binary-runtime_deps"></a>runtime_deps</td>
+<td align="left">The deps required by spotbugs at runtime. May be omitted.</td>
+<td align="left"><code>None</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-spotbugs_binary-srcs"></a>srcs</td>
+<td align="left">If you're compiling your own <code>spotbugs</code> binary, the sources to use.</td>
+<td align="left"><code>None</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-spotbugs_binary-visibility"></a>visibility</td>
+<td align="left"><p align="center" dir="auto"> - </p></td>
+<td align="left"><code>["//visibility:public"]</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-spotbugs_binary-kwargs"></a>kwargs</td>
+<td align="left"><p align="center" dir="auto"> - </p></td>
+<td align="left">none</td>
+</tr>
+</tbody>
+</table>
+<h2 dir="auto"><a id="user-content-freezing-dependencies" class="anchor" aria-hidden="true" href="#freezing-dependencies"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Freezing Dependencies</h2>
+<p dir="auto">At runtime, a handful of dependencies are required by helper classes
+in this project. Rather than pollute the default <code>@maven</code> workspace,
+these are loaded into a <code>@contrib_rules_jvm_deps</code> workspace. These
+dependencies are loaded using a call to <code>maven_install</code>, but we don't
+want to force users to remember to load our own dependencies for
+us. Instead, to add a new dependency to the project:</p>
+<ol dir="auto">
+<li>Update <code>frozen_deps</code> in the <code>WORKSPACE</code> file</li>
+<li>Run <code>./tools/update-dependencies.sh</code></li>
+<li>Commit the updated files.</li>
+</ol>
+<h3 dir="auto"><a id="user-content-freezing-your-dependencies" class="anchor" aria-hidden="true" href="#freezing-your-dependencies"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Freezing your dependencies</h3>
+<p dir="auto">As noted above, if you are building Bazel rules which require Java
+parts, and hence Java dependencies, it can be useful to freeze these
+dependencies. This process captures the list of dependencies into a
+zip file.  This zip file is distributed with your Bazel rules. This
+makes your rule more hermetic, your rule no longer relies on the user
+to supply the correct dependencies, because they get resolved under
+their own repository namespace rather than being intermingled with the
+user's, and your dependencies no longer conflict with the users
+selections. If you would like to create your dependencies as a frozen
+file you need to do the following:</p>
+<ol dir="auto">
+<li>Create a maven install rule with your dependencies and with a
+unique name, this should be in or referenced by your WORKSPACE
+file.
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="maven_install(
+     name = &quot;frozen_deps&quot;,
+     artifacts = [...],
+     fail_if_repin_required = True,
+     fetch_sources = True,
+     maven_install_json = &quot;@workspace//:frozen_deps_install.json&quot;,
+)
+
+load(&quot;@frozen_deps//:defs.bzl&quot;, &quot;pinned_maven_install&quot;)
+
+pinned_maven_install()"><pre><span class="pl-en">maven_install</span>(
+     <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"frozen_deps"</span>,
+     <span class="pl-s1">artifacts</span> <span class="pl-c1">=</span> [...],
+     <span class="pl-s1">fail_if_repin_required</span> <span class="pl-c1">=</span> <span class="pl-c1">True</span>,
+     <span class="pl-s1">fetch_sources</span> <span class="pl-c1">=</span> <span class="pl-c1">True</span>,
+     <span class="pl-s1">maven_install_json</span> <span class="pl-c1">=</span> <span class="pl-s">"@workspace//:frozen_deps_install.json"</span>,
+)
+
+<span class="pl-en">load</span>(<span class="pl-s">"@frozen_deps//:defs.bzl"</span>, <span class="pl-s">"pinned_maven_install"</span>)
+
+<span class="pl-en">pinned_maven_install</span>()</pre></div>
+</li>
+<li>Run <code>bazel run //tools:freeze-deps -- --repo &lt;repo name&gt; --zip &lt;path/to/dependency.zip&gt;</code>. The <code>&lt;repo name&gt;</code> matches the name used
+for the <code>maven_install()</code> rule above. This will pin the
+dependencies then collect them into the zip file.</li>
+<li>Commit the zip file into your repo.</li>
+<li>Add a <code>zip_repository()</code> rule to your WORKSPACE to configure the
+frozen dependencies:
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="maybe(
+    zip_repository,
+    name = &quot;workspace_deps&quot;,
+    path = &quot;@workspace//path/to:dependency.zip&quot;,
+)"><pre><span class="pl-en">maybe</span>(
+    <span class="pl-s1">zip_repository</span>,
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"workspace_deps"</span>,
+    <span class="pl-s1">path</span> <span class="pl-c1">=</span> <span class="pl-s">"@workspace//path/to:dependency.zip"</span>,
+)</pre></div>
+</li>
+<li>Make sure to pin the maven install from the repostitory:
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@workspace_deps//:defs.bzl&quot;, &quot;pinned_maven_install&quot;)
+
+pinned_maven_install()"><pre><span class="pl-en">load</span>(<span class="pl-s">"@workspace_deps//:defs.bzl"</span>, <span class="pl-s">"pinned_maven_install"</span>)
+
+<span class="pl-en">pinned_maven_install</span>()</pre></div>
+</li>
+<li>Use the dependencies for your <code>java_library</code> rules from the frozen
+deps:
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="java_library(
+     name = &quot;my_library&quot;,
+     srcs = glob([&quot;*.java&quot;]),
+     deps = [
+          &quot;@workspace_deps//:my_frozen_dep&quot;,
+     ],
+)"><pre><span class="pl-en">java_library</span>(
+     <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"my_library"</span>,
+     <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> <span class="pl-en">glob</span>([<span class="pl-s">"*.java"</span>]),
+     <span class="pl-s1">deps</span> <span class="pl-c1">=</span> [
+          <span class="pl-s">"@workspace_deps//:my_frozen_dep"</span>,
+     ],
+)</pre></div>
+</li>
+</ol>
+<p dir="auto">NOTE: If you need to generate the compat_repositories for the
+dependencies, usually because your rule depends on another rule which
+is still using the older compat repositories, you need to make the
+following changes and abide by the following restrictions.</p>
+<ol dir="auto">
+<li>Add the <code>generate_compat_repositories = True,</code> attribute to the
+original <code>maven_install()</code> rule.</li>
+<li>In step 2, add the parameter <code>--zip-repo workspace_deps</code> to match
+the name used in the <code>zip_repository()</code> rule (step 4). If you don't
+supply this, it uses the base name of the zip file, which may not
+be what you want.</li>
+<li>In step 5, add the call to generate the compat_repositories:
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@workspace_deps//:compat.bzl&quot;, &quot;compat_repositories&quot;)
+
+compat_repositories()"><pre><span class="pl-en">load</span>(<span class="pl-s">"@workspace_deps//:compat.bzl"</span>, <span class="pl-s">"compat_repositories"</span>)
+
+<span class="pl-en">compat_repositories</span>()</pre></div>
+</li>
+</ol>
+</article></div>

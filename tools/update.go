@@ -32,9 +32,11 @@ var md = goldmark.New(
 )
 
 func main() {
+	flag.Parse()
+
 	err := clone("bazelbuild/bazel-central-registry", false)
 	if err != nil {
-		log.Printf("Error cloning %s", err)
+		log.Printf("Error cloning bazelbuild/bazel-central-registry %s", err)
 	}
 
 	modules, err := walk()
@@ -207,7 +209,7 @@ func main() {
 				log.Printf("%+v", r)
 				err = getReadme(r)
 				if err != nil {
-					log.Printf("Error getting readme %s", err)
+					log.Printf("Error getting readme for %s", err)
 				}
 				err = getMetadata(r)
 				if err != nil {
@@ -239,13 +241,13 @@ func main() {
 
 				f, err := os.ReadFile(*dir + "/" + r + "/releases.json")
 				if err != nil {
-					log.Printf("Error reading releases.json: %s", err)
+					log.Printf("Error reading releases.json for %s: %s", r, err)
 				}
 
 				var releases []Release
 				err = json.Unmarshal(f, &releases)
 				if err != nil {
-					log.Printf("Error parsing releases.json: %s", err)
+					log.Printf("Error parsing releases.json for %s: %s", r, err)
 				}
 				for i, r := range releases {
 					var converted bytes.Buffer
@@ -258,13 +260,13 @@ func main() {
 
 				f, err = os.ReadFile(*dir + "/" + r + "/metadata.json")
 				if err != nil {
-					log.Printf("Error reading metadata.json: %s", err)
+					log.Printf("Error reading metadata.json for %s: %s", r, err)
 				}
 
 				var metadata Repo
 				err = json.Unmarshal(f, &metadata)
 				if err != nil {
-					log.Printf("Error parsing metadata.json: %s", err)
+					log.Printf("Error parsing metadata.json for %s: %s", r, err)
 				}
 				d.Repo = metadata
 
@@ -295,6 +297,7 @@ func main() {
 
 	b = append([]byte("let data = "), b...)
 	b = append(b, []byte("; module.exports=data;")...)
+	err = os.MkdirAll("data", 0777)
 	err = ioutil.WriteFile("data/data.js", b, 0777)
 	if err != nil {
 		log.Printf("error writing data.js: %s", err)
@@ -435,11 +438,15 @@ func getMetadata(repo string) error {
 }
 
 func clone(repo string, sparse bool) error {
-	err := os.MkdirAll("repos", 0777)
+	if *fetch {
+		os.RemoveAll(*dir + "/" + repo + "/clone")
+	}
+
+	err := os.MkdirAll(*dir, 0777)
 	if err != nil {
 		return err
 	}
-	if _, err := os.Stat("repos/" + repo); !*fetch && !os.IsNotExist(err) {
+	if _, err := os.Stat(*dir + "/" + repo + "/clone"); !*fetch && !os.IsNotExist(err) {
 		log.Printf("Already cloned %s; skipping", repo)
 		return nil
 	}
@@ -450,11 +457,11 @@ func clone(repo string, sparse bool) error {
 		opts = append(opts, "--sparse")
 	}
 	opts = append(opts, "https://github.com/"+repo+".git")
-	opts = append(opts, "repos/"+repo)
+	opts = append(opts, *dir+"/"+repo+"/clone")
 
 	out, err := exec.Command("git", opts...).CombinedOutput()
 	if err != nil {
-		os.RemoveAll("repos/" + repo)
+		os.RemoveAll(*dir + "/" + repo + "/clone")
 		log.Printf(string(out))
 		return err
 	}
@@ -463,12 +470,12 @@ func clone(repo string, sparse bool) error {
 
 func walk() ([]Module, error) {
 	modules := map[string]Module{}
-	err := filepath.Walk("repos/bazelbuild/bazel-central-registry",
+	err := filepath.Walk(*dir+"/bazelbuild/bazel-central-registry/clone",
 		func(path string, info os.FileInfo, err error) error {
 			if err != nil {
 				return err
 			}
-			// Example path: repos/bazelbuild/bazel-central-registry/modules/rules_java/metadata.json
+			// Example path: registry/bazelbuild/bazel-central-registry/modules/rules_java/metadata.json
 			parts := strings.Split(path, "/")
 
 			if len(parts) < 5 || parts[3] != "modules" {

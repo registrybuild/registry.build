@@ -1,0 +1,660 @@
+<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><h1 dir="auto"><a id="user-content-bazel-rules" class="anchor" aria-hidden="true" href="#bazel-rules"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>bazel rules</h1>
+<p dir="auto"><a target="_blank" rel="noopener noreferrer" href="https://github.com/masmovil/bazel-rules/actions/workflows/integration-tests.yaml/badge.svg"><img src="https://github.com/masmovil/bazel-rules/actions/workflows/integration-tests.yaml/badge.svg" alt="Build Status" style="max-width: 100%;"></a></p>
+<p dir="auto">This repository contains Bazel rules to install and manipulate Helm charts with Bazel.</p>
+<p dir="auto">This repo implements the following bazel rules:
+<code>helm_chart</code>
+<code>helm_push</code>
+<code>helm_release</code>
+<code>sops_decrypt</code>
+<code>k8s_namespace</code></p>
+<h2 dir="auto"><a id="user-content-documentation" class="anchor" aria-hidden="true" href="#documentation"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Documentation</h2>
+<p dir="auto">These rules generate new helm packages with specific values for each development version of your application and push generated helm packages to a provided <a href="https://chartmuseum.com/" rel="nofollow">helm chart museum</a>.</p>
+<h3 dir="auto"><a id="user-content-important-notes" class="anchor" aria-hidden="true" href="#important-notes"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Important notes</h3>
+<p dir="auto">Helm v3 is now supported.</p>
+<p dir="auto"><code>helm_release</code> rule will check if tiller is installed in your cluster to decide which version of helm to use (v2 or v3).
+If the rule can't find any deployed tiller in your cluster, it will use helm v3 by default.
+To look up for any installed tiller in your cluster, the rule will use <code>tiller_namespace</code> attribute value.</p>
+<p dir="auto">You can force the use of helm v2 or helm v3 using <code>helm_version</code> attribute (set to <code>v2</code>, or <code>v3</code>).</p>
+<h3 dir="auto"><a id="user-content-getting-started" class="anchor" aria-hidden="true" href="#getting-started"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Getting started</h3>
+<p dir="auto">In your Bazel <code>WORKSPACE</code> file, after the <a href="https://github.com/bazelbuild/rules_docker#setup">rules_docker</a>, add this repository as a dependency and invoke repositories helper method:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="git_repository(
+    name = &quot;com_github_masmovil_bazel_rules&quot;,
+    # tag = &quot;0.2.2&quot;,
+    commit = &quot;commit-ref&quot;,
+    remote = &quot;https://github.com/masmovil/bazel-rules.git&quot;,
+)
+
+load(
+    &quot;@com_github_masmovil_bazel_rules//repositories:repositories.bzl&quot;,
+    mm_repositories = &quot;repositories&quot;,
+)
+mm_repositories()"><pre><span class="pl-en">git_repository</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"com_github_masmovil_bazel_rules"</span>,
+    <span class="pl-c"># tag = "0.2.2",</span>
+    <span class="pl-s1">commit</span> <span class="pl-c1">=</span> <span class="pl-s">"commit-ref"</span>,
+    <span class="pl-s1">remote</span> <span class="pl-c1">=</span> <span class="pl-s">"https://github.com/masmovil/bazel-rules.git"</span>,
+)
+
+<span class="pl-en">load</span>(
+    <span class="pl-s">"@com_github_masmovil_bazel_rules//repositories:repositories.bzl"</span>,
+    <span class="pl-s1">mm_repositories</span> <span class="pl-c1">=</span> <span class="pl-s">"repositories"</span>,
+)
+<span class="pl-en">mm_repositories</span>()</pre></div>
+<p dir="auto">After the intial setup, you can use the rules including them in your BUILD files:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@com_github_masmovil_bazel_rules//helm:helm.bzl&quot;, &quot;helm_chart&quot;, &quot;helm_push&quot;, &quot;helm_release&quot;)
+
+helm_chart(
+    name = &quot;my_chart&quot;,
+    srcs = glob([&quot;**&quot;]),
+    ...
+)
+
+helm_push(
+    name = &quot;my_chart_push&quot;,
+    srcs = glob([&quot;**&quot;]),
+    ...
+)
+
+helm_release(
+    name = &quot;my_chart_push&quot;,
+    ...
+)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@com_github_masmovil_bazel_rules//helm:helm.bzl"</span>, <span class="pl-s">"helm_chart"</span>, <span class="pl-s">"helm_push"</span>, <span class="pl-s">"helm_release"</span>)
+
+<span class="pl-en">helm_chart</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"my_chart"</span>,
+    <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> <span class="pl-en">glob</span>([<span class="pl-s">"**"</span>]),
+    ...
+)
+
+<span class="pl-en">helm_push</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"my_chart_push"</span>,
+    <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> <span class="pl-en">glob</span>([<span class="pl-s">"**"</span>]),
+    ...
+)
+
+<span class="pl-en">helm_release</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"my_chart_push"</span>,
+    ...
+)</pre></div>
+<p dir="auto">These rules use <a href="https://yq.readthedocs.io/en/latest/" rel="nofollow">yq library</a> to perform substitions in helm YAML templates. The binaries are preloaded by this rule using bazel toolchains, so you don't need have yq available in your path.</p>
+<h2 dir="auto"><a id="user-content-helm-rules" class="anchor" aria-hidden="true" href="#helm-rules"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Helm rules</h2>
+<h3 dir="auto"><a id="user-content-helm_chart" class="anchor" aria-hidden="true" href="#helm_chart"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>helm_chart</h3>
+<p dir="auto">You can use <code>helm_chart</code> rule to create a new helm package. Before creating the helm package, the rule can replace some specific values of your app: the image tag value, the image repository and the helm package version of the application. The image can be provided either by <code>image_tag</code> attribute as string/make variable or by a <code>image</code> label attribute. The <code>image</code> attribute has to be a label that specify a <a href="https://github.com/bazelbuild/rules_docker">docker image bazel rule</a>. This rule will extract the digest (sha256) automatically from that image, and reference that sha256 as the image tag of the helm package.
+The rule creates a tar.gz file in the bazel output directory. The name of the generated tar.gz will be the package_name.</p>
+<p dir="auto">Example of use:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="helm_chart(
+  name = &quot;flex_package&quot;,
+  srcs = glob([&quot;**&quot;]),
+  image  = &quot;//docker/flex:flex&quot;, // Reference to the docker image rule to extract the digest sha256 from
+  package_name = &quot;flex&quot;, // name of the helm package. This will be the name of the generated tar.gz helm package
+  values_tag_yaml_path = &quot;base.k8s.deployment.image.tag&quot;, // yaml Path of the image tag in the values.yaml files
+  helm_chart_version = &quot;0.1.1&quot;
+)"><pre><span class="pl-en">helm_chart</span>(
+  <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"flex_package"</span>,
+  <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> <span class="pl-en">glob</span>([<span class="pl-s">"**"</span>]),
+  <span class="pl-s1">image</span>  <span class="pl-c1">=</span> <span class="pl-s">"//docker/flex:flex"</span>, <span class="pl-c1">//</span> <span class="pl-v">Reference</span> <span class="pl-s1">to</span> <span class="pl-s1">the</span> <span class="pl-s1">docker</span> <span class="pl-s1">image</span> <span class="pl-s1">rule</span> <span class="pl-s1">to</span> <span class="pl-s1">extract</span> <span class="pl-s1">the</span> <span class="pl-s1">digest</span> <span class="pl-s1">sha256</span> <span class="pl-s1">from</span>
+  <span class="pl-s1">package_name</span> <span class="pl-c1">=</span> <span class="pl-s">"flex"</span>, <span class="pl-c1">//</span> <span class="pl-s1">name</span> <span class="pl-s1">of</span> <span class="pl-s1">the</span> <span class="pl-s1">helm</span> <span class="pl-s1">package</span>. <span class="pl-v">This</span> <span class="pl-s1">will</span> <span class="pl-s1">be</span> <span class="pl-s1">the</span> <span class="pl-s1">name</span> <span class="pl-s1">of</span> <span class="pl-s1">the</span> <span class="pl-s1">generated</span> <span class="pl-s1">tar</span>.<span class="pl-s1">gz</span> <span class="pl-s1">helm</span> <span class="pl-s1">package</span>
+  <span class="pl-s1">values_tag_yaml_path</span> <span class="pl-c1">=</span> <span class="pl-s">"base.k8s.deployment.image.tag"</span>, <span class="pl-c1">//</span> <span class="pl-s1">yaml</span> <span class="pl-v">Path</span> <span class="pl-s1">of</span> <span class="pl-s1">the</span> <span class="pl-s1">image</span> <span class="pl-s1">tag</span> <span class="pl-c1">in</span> <span class="pl-s1">the</span> <span class="pl-s1">values</span>.<span class="pl-s1">yaml</span> <span class="pl-s1">files</span>
+  <span class="pl-s1">helm_chart_version</span> <span class="pl-c1">=</span> <span class="pl-s">"0.1.1"</span>
+)</pre></div>
+<p dir="auto">You can reference other helm packages defined with <code>helm_chart</code> rules as helm dependencies of this package. The output of <code>helm_chart</code> dependencies will be added to the generated output tar into the charts directory.</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="helm_chart(
+  ....,
+  chart_deps = [
+    &quot;//other-charts/chart-dep1:some_package1&quot;,
+    &quot;//other-charts/chart-dep2:some_package2&quot;
+  ]
+  ....
+)"><pre><span class="pl-en">helm_chart</span>(
+  ....,
+  <span class="pl-s1">chart_deps</span> <span class="pl-c1">=</span> [
+    <span class="pl-s">"//other-charts/chart-dep1:some_package1"</span>,
+    <span class="pl-s">"//other-charts/chart-dep2:some_package2"</span>
+  ]
+  ....
+)</pre></div>
+<p dir="auto">The following attributes are accepted by the rule (some of them are mandatory).</p>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Mandatory</th>
+<th>Default</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>srcs</td>
+<td>yes</td>
+<td>-</td>
+<td>Chart source files. Must be a list of <strong>bazel labels</strong> (or a glob pattern) containing the path where the helm chart files and values are placed. Just one helm package should placed under <code>srcs</code> files.</td>
+</tr>
+<tr>
+<td>image</td>
+<td>no</td>
+<td>-</td>
+<td>Label referencing another bazel rule that implements <a href="https://github.com/bazelbuild/rules_docker#container_image-1">docker container image rule</a>. This attr is used to obtain the digest of the built docker image and use it as the docker image tag of the application.</td>
+</tr>
+<tr>
+<td>image_tag</td>
+<td>no</td>
+<td>-</td>
+<td>Fixed image tag value that will be used in the deployment. It can contain a string (e.g <code>master</code>), or the key of a make variable if is included in curly braces (e.g {GIT_COMMIT}). If a make variable format is used, the variable has to be provided through the <code>--define</code> method. Note: This attribute is an alternative to the <code>image</code> attribute if you want to provide a "fixed" image tag of your application instead of using a bazel rule to generate the docker image of your app. If you specify both, <code>image</code> attribute has preferenece.</td>
+</tr>
+<tr>
+<td>package_name</td>
+<td>yes</td>
+<td>-</td>
+<td>The name of the helm package. It must be the same name that was defined in the Chart.yaml</td>
+</tr>
+<tr>
+<td>helm_chart_version</td>
+<td>no</td>
+<td><code>1.0.0</code></td>
+<td>Used to replace the Chart.yaml version of the helm package. It has to be defined following the <a href="https://semver.org/" rel="nofollow">semver</a> nomenclature. Support make variables if the attribute is placed inside curly braces (e.g {HELM_VERSION}) and stamped variables using the following nomenclature: ${HELM_VERSION}</td>
+</tr>
+<tr>
+<td>app_version</td>
+<td>no</td>
+<td>helm_chart_version</td>
+<td>Used to replace the Chart.yaml appVersion of the helm package, defaulting to traditional behavior of equaling the helm_chart_version if not given.  A freeform value should be fine, but following the <a href="https://semver.org/" rel="nofollow">semver</a> nomenclature is recommended. Support make variables if the attribute is placed inside curly braces (e.g {APP_VERSION} but not {APP_VERSION}-some-suffix) and stamped variables using the following nomenclature: ${APP_VERSION}</td>
+</tr>
+<tr>
+<td>image_repository</td>
+<td>no</td>
+<td>-</td>
+<td>The url of the docker registry where the docker image is stored. This is usually where the <code>image.repository</code> points to in the values.yaml file</td>
+</tr>
+<tr>
+<td>values_repo_yaml_path</td>
+<td>no</td>
+<td><code>image.repository</code></td>
+<td>The yaml path (expressed in dot notation) of values.yaml where the key of the image repository is defined in the values.yaml.</td>
+</tr>
+<tr>
+<td>values_tag_yaml_path</td>
+<td>no</td>
+<td><code>image.tag</code></td>
+<td>The yaml path (expressed in dot notation) of values.yaml where the key of the image tag is defined in the values.yaml</td>
+</tr>
+<tr>
+<td>chart_deps</td>
+<td>no</td>
+<td>-</td>
+<td>Helm chart dependencies of this rules. Defined as a list of dependencies of other helm_chart rules (bazel targets).</td>
+</tr>
+<tr>
+<td>additional_templates</td>
+<td>no</td>
+<td>[]</td>
+<td>List of labels or files to be added to the <code>templates/</code> folder of the chart. Useful for centralizing common templates and pass them around different charts.</td>
+</tr>
+</tbody>
+</table>
+<h4 dir="auto"><a id="user-content-use-of-make_variables" class="anchor" aria-hidden="true" href="#use-of-make_variables"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Use of make_variables</h4>
+<p dir="auto"><code>image_tag</code> and <code>helm_chart_version</code> attributes support make variables. Make variables are provided to bazel through the <code>--define</code> argument.
+To enable make variables, string values have to be inside curly braces <code>image_tag="{GIT_SHA}"</code>.</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel build //... --define GIT_SHA=&quot;ab2cxc4z9&quot;
+
+
+helm_chart(
+  ...
+  image_tag  = &quot;{GIT_SHA}&quot;,
+  ...
+)"><pre><span class="pl-s1">bazel</span> <span class="pl-s1">build</span> <span class="pl-c1">//</span>... <span class="pl-c1">-</span><span class="pl-c1">-</span><span class="pl-s1">define</span> <span class="pl-v">GIT_SHA</span><span class="pl-c1">=</span><span class="pl-s">"ab2cxc4z9"</span>
+
+
+<span class="pl-en">helm_chart</span>(
+  ...
+  <span class="pl-s1">image_tag</span>  <span class="pl-c1">=</span> <span class="pl-s">"{GIT_SHA}"</span>,
+  ...
+)</pre></div>
+<h4 dir="auto"><a id="user-content-use-of-stamp-variables" class="anchor" aria-hidden="true" href="#use-of-stamp-variables"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Use of stamp variables</h4>
+<p dir="auto">You can specify volatile variables in any attribute using the following sintaxis: <code>${}</code> e.g:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="
+helm_chart(
+  ...
+  helm_chart_version = &quot;${VERSION}&quot;,
+  ...
+)"><pre><span class="pl-en">helm_chart</span>(
+  ...
+  <span class="pl-s1">helm_chart_version</span> <span class="pl-c1">=</span> <span class="pl-s">"${VERSION}"</span>,
+  ...
+)</pre></div>
+<p dir="auto">These variables have to be "exported" by the <code>status.sh</code> file defined in your project root dir.</p>
+<h3 dir="auto"><a id="user-content-helm_push" class="anchor" aria-hidden="true" href="#helm_push"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>helm_push</h3>
+<p dir="auto"><code>helm_push</code> is used to publish new helm packages to a predefined <a href="https://chartmuseum.com/" rel="nofollow">chart museum</a> repository. The rule will take a helm package (targz) and make a POST request to the defined chart museum, publishing the package to a helm registry.</p>
+<p dir="auto">This rule is an executable. It needs <code>run</code> instead of <code>build</code> to be invoked.</p>
+<p dir="auto">It authenticates against chart museum api using basic auth, so valid username and password have to be provided.</p>
+<p dir="auto">Example of use:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="helm_push(
+  name = &quot;flex_push&quot;,
+  chart  = &quot;:flex_package&quot;,
+  repository_name = &quot;masmovil&quot;,
+  repository_url = &quot;https://chartsapiurl.com/&quot;,
+  repository_username = &quot;{HELM_REPO_US}&quot;,
+  repository_password = &quot;{HELM_REPO_PASS}&quot;,
+)"><pre><span class="pl-en">helm_push</span>(
+  <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"flex_push"</span>,
+  <span class="pl-s1">chart</span>  <span class="pl-c1">=</span> <span class="pl-s">":flex_package"</span>,
+  <span class="pl-s1">repository_name</span> <span class="pl-c1">=</span> <span class="pl-s">"masmovil"</span>,
+  <span class="pl-s1">repository_url</span> <span class="pl-c1">=</span> <span class="pl-s">"https://chartsapiurl.com/"</span>,
+  <span class="pl-s1">repository_username</span> <span class="pl-c1">=</span> <span class="pl-s">"{HELM_REPO_US}"</span>,
+  <span class="pl-s1">repository_password</span> <span class="pl-c1">=</span> <span class="pl-s">"{HELM_REPO_PASS}"</span>,
+)</pre></div>
+<p dir="auto">The following attributes are accepted by the rule (some of them are mandatory).</p>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Mandatory</th>
+<th>Default</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>chart</td>
+<td>yes</td>
+<td>-</td>
+<td>Chart package (targz). Must be a label that specifies where the helm package file (Chart.yaml) is. It accepts the path of the targz file (that bazel will resolve to the file) or the label to a target rule that generates a helm package as output (<code>helm_chart</code> rule).</td>
+</tr>
+<tr>
+<td>repository_name</td>
+<td>true</td>
+<td>-</td>
+<td>The name of the chart museum repository</td>
+</tr>
+<tr>
+<td>repository_url</td>
+<td>true</td>
+<td>-</td>
+<td>The url of the the chart museum repository. <strong>IMPORTANT: The url must end with slash /</strong></td>
+</tr>
+<tr>
+<td>repository_username</td>
+<td>true</td>
+<td>-</td>
+<td>The username to login in to the chart museum registry using basic auth. It supports the use of <code>make_variables</code></td>
+</tr>
+<tr>
+<td>repository_password</td>
+<td>true</td>
+<td>-</td>
+<td>The password to login in to the chart museum registry using basic auth. It supports the use of <code>make_variables</code></td>
+</tr>
+</tbody>
+</table>
+<h3 dir="auto"><a id="user-content-helm_release" class="anchor" aria-hidden="true" href="#helm_release"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>helm_release</h3>
+<p dir="auto"><code>helm_release</code> is used to create and deploy a new release in a Kubernetes Cluster.</p>
+<p dir="auto"><code>Helm 3</code> and <code>Helm 2</code> are supported.</p>
+<p dir="auto">This rule is an executable. It needs <code>run</code> instead of <code>build</code> to be invoked.</p>
+<p dir="auto">It relies in existing local kubernetes config (<code>~/.kube/config</code>).</p>
+<p dir="auto">Example of use:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="helm_release(
+    name = &quot;chart_install&quot;,
+    chart = &quot;:chart&quot;,
+    namespace_name = &quot;myapp&quot;,
+    tiller_namespace = &quot;tiller-system&quot;,
+    release_name = &quot;release-name&quot;,
+    values_yaml = glob([&quot;charts/myapp/values.yaml&quot;]),
+    kubernetes_context = &quot;mm-k8s-context&quot;,
+)"><pre><span class="pl-en">helm_release</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"chart_install"</span>,
+    <span class="pl-s1">chart</span> <span class="pl-c1">=</span> <span class="pl-s">":chart"</span>,
+    <span class="pl-s1">namespace_name</span> <span class="pl-c1">=</span> <span class="pl-s">"myapp"</span>,
+    <span class="pl-s1">tiller_namespace</span> <span class="pl-c1">=</span> <span class="pl-s">"tiller-system"</span>,
+    <span class="pl-s1">release_name</span> <span class="pl-c1">=</span> <span class="pl-s">"release-name"</span>,
+    <span class="pl-s1">values_yaml</span> <span class="pl-c1">=</span> <span class="pl-en">glob</span>([<span class="pl-s">"charts/myapp/values.yaml"</span>]),
+    <span class="pl-s1">kubernetes_context</span> <span class="pl-c1">=</span> <span class="pl-s">"mm-k8s-context"</span>,
+)</pre></div>
+<p dir="auto">Example of use with k8s_namespace:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="k8s_namespace(
+  name = &quot;test-namespace&quot;,
+  namespace_name = &quot;test-namespace&quot;,
+  kubernetes_sa = &quot;test-kubernetes-sa&quot;,
+  kubernetes_context = &quot;mm-k8s-context&quot;,
+)
+helm_release(
+    name = &quot;chart_install&quot;,
+    chart = &quot;:chart&quot;,
+    namespace_dep = &quot;:test-namespace&quot;,
+    tiller_namespace = &quot;tiller-system&quot;,
+    release_name = &quot;release-name&quot;,
+    values_yaml = glob([&quot;charts/myapp/values.yaml&quot;]),
+    kubernetes_context = &quot;mm-k8s-context&quot;,
+)"><pre><span class="pl-en">k8s_namespace</span>(
+  <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"test-namespace"</span>,
+  <span class="pl-s1">namespace_name</span> <span class="pl-c1">=</span> <span class="pl-s">"test-namespace"</span>,
+  <span class="pl-s1">kubernetes_sa</span> <span class="pl-c1">=</span> <span class="pl-s">"test-kubernetes-sa"</span>,
+  <span class="pl-s1">kubernetes_context</span> <span class="pl-c1">=</span> <span class="pl-s">"mm-k8s-context"</span>,
+)
+<span class="pl-en">helm_release</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"chart_install"</span>,
+    <span class="pl-s1">chart</span> <span class="pl-c1">=</span> <span class="pl-s">":chart"</span>,
+    <span class="pl-s1">namespace_dep</span> <span class="pl-c1">=</span> <span class="pl-s">":test-namespace"</span>,
+    <span class="pl-s1">tiller_namespace</span> <span class="pl-c1">=</span> <span class="pl-s">"tiller-system"</span>,
+    <span class="pl-s1">release_name</span> <span class="pl-c1">=</span> <span class="pl-s">"release-name"</span>,
+    <span class="pl-s1">values_yaml</span> <span class="pl-c1">=</span> <span class="pl-en">glob</span>([<span class="pl-s">"charts/myapp/values.yaml"</span>]),
+    <span class="pl-s1">kubernetes_context</span> <span class="pl-c1">=</span> <span class="pl-s">"mm-k8s-context"</span>,
+)</pre></div>
+<p dir="auto">The following attributes are accepted by the rule (some of them are mandatory).</p>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Mandatory</th>
+<th>Default</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>chart</td>
+<td>yes</td>
+<td>-</td>
+<td>Chart package (targz). Must be a label that specifies where the helm package file (Chart.yaml) is. It accepts the path of the targz file (that bazel will resolve to the file) or the label to a target rule that generates a helm package as output (<code>helm_chart</code> rule).</td>
+</tr>
+<tr>
+<td>namespace</td>
+<td>false</td>
+<td>default</td>
+<td>Namespace name literal where this release is installed to. It supports the use of <code>stamp_variables</code>.</td>
+</tr>
+<tr>
+<td>namespace_dep</td>
+<td>false</td>
+<td>-</td>
+<td>Namespace where this release is installed to. Must be a label to a k8s_namespace rule. It takes precedence over namespace</td>
+</tr>
+<tr>
+<td>tiller_namespace</td>
+<td>false</td>
+<td>kube-system</td>
+<td>Namespace where Tiller lives in the Kubernetes Cluste. It supports the use of <code>stamp_variables</code>. Unnecessary using helm v3</td>
+</tr>
+<tr>
+<td>release_name</td>
+<td>yes</td>
+<td>-</td>
+<td>Name of the Helm release. It supports the use of <code>stamp_variables</code></td>
+</tr>
+<tr>
+<td>values_yaml</td>
+<td>no</td>
+<td>-</td>
+<td>Several values files can be passed when installing release</td>
+</tr>
+<tr>
+<td>helm_version</td>
+<td>no</td>
+<td>""</td>
+<td>Force the use of helm v2 or v3 to deploy the release. The attribute can be set to <strong>v2</strong> or <strong>v3</strong></td>
+</tr>
+<tr>
+<td>kubernetes_context</td>
+<td>no</td>
+<td>""</td>
+<td>Context of kubernetes cluster</td>
+</tr>
+</tbody>
+</table>
+<h2 dir="auto"><a id="user-content-sops-rules" class="anchor" aria-hidden="true" href="#sops-rules"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Sops rules</h2>
+<p dir="auto">Decrypting secrets using <a href="https://github.com/mozilla/sops">sops</a> is now supported.</p>
+<p dir="auto">To install <code>sops_decrypt</code> rule, import in your <code>BUILD.bazel</code></p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@com_github_masmovil_bazel_rules//sops:sops.bzl&quot;, &quot;sops_decrypt&quot;)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@com_github_masmovil_bazel_rules//sops:sops.bzl"</span>, <span class="pl-s">"sops_decrypt"</span>)</pre></div>
+<h3 dir="auto"><a id="user-content-sops_decrypt" class="anchor" aria-hidden="true" href="#sops_decrypt"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>sops_decrypt</h3>
+<p dir="auto">You can decrypt as many secrets as you want using <code>sops_decrypt</code> rule. Use the rule attribute <code>src</code> to provide the encrypted secrets that you want to decrypt.
+The rule also needs the sops config file with the keyring id in order to decrypt files (<code>.sops.yaml</code>). You can provide it using the <code>sops_yaml</code> rule attribute.</p>
+<p dir="auto">Example of use:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="sops_decrypt(
+    name = &quot;decrypt_secret_files&quot;,
+    srcs = [&quot;:secrets.yaml&quot;]
+    sops_yaml = &quot;:.sops.yaml&quot;
+)"><pre><span class="pl-en">sops_decrypt</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"decrypt_secret_files"</span>,
+    <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> [<span class="pl-s">":secrets.yaml"</span>]
+    <span class="pl-s1">sops_yaml</span> <span class="pl-c1">=</span> <span class="pl-s">":.sops.yaml"</span>
+)</pre></div>
+<p dir="auto">You can specify which provider integration you want to use (gcp KMS, azure key vault etc.) through the <code>provider</code> attribute.</p>
+<ul dir="auto">
+<li>For the moment only gcp KMS is supported</li>
+</ul>
+<p dir="auto">The following attributes are accepted by the rule (some of them are mandatory).</p>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Mandatory</th>
+<th>Default</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>src</td>
+<td>yes</td>
+<td>-</td>
+<td>One or more labels pointing to the secret files to decrypt. It accepts a glob pattern.</td>
+</tr>
+<tr>
+<td>sops_yaml</td>
+<td>yes</td>
+<td>-</td>
+<td>One label referencing the <code>.sops.yaml</code> yaml with the sops config. </td>
+</tr>
+<tr>
+<td>provider</td>
+<td>false</td>
+<td>"gcp_kms"</td>
+<td>The provider integration used to decrypt/encrypt the secrets.</td>
+</tr>
+</tbody>
+</table>
+<p dir="auto">The output of the rule are the decrypted secrets that you can pass to <code>helm_release</code>.</p>
+<p dir="auto">Example of use:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="sops_decrypt(
+    name = &quot;decrypt_secret_files&quot;,
+    srcs = [&quot;:secrets.yaml&quot;]
+    sops_yaml = &quot;:.sops.yaml&quot;
+)
+
+helm_release(
+    name = &quot;chart_install&quot;,
+    chart = &quot;:chart&quot;,
+    namespace = &quot;myapp&quot;,
+    tiller_namespace = &quot;tiller-system&quot;,
+    release_name = &quot;release-name&quot;,
+    values_yaml = glob([&quot;charts/myapp/values.yaml&quot;]) + [&quot;:decrypt_secret_files&quot;],
+    kubernetes_context = &quot;mm-k8s-context&quot;,
+)"><pre><span class="pl-en">sops_decrypt</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"decrypt_secret_files"</span>,
+    <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> [<span class="pl-s">":secrets.yaml"</span>]
+    <span class="pl-s1">sops_yaml</span> <span class="pl-c1">=</span> <span class="pl-s">":.sops.yaml"</span>
+)
+
+<span class="pl-en">helm_release</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"chart_install"</span>,
+    <span class="pl-s1">chart</span> <span class="pl-c1">=</span> <span class="pl-s">":chart"</span>,
+    <span class="pl-s1">namespace</span> <span class="pl-c1">=</span> <span class="pl-s">"myapp"</span>,
+    <span class="pl-s1">tiller_namespace</span> <span class="pl-c1">=</span> <span class="pl-s">"tiller-system"</span>,
+    <span class="pl-s1">release_name</span> <span class="pl-c1">=</span> <span class="pl-s">"release-name"</span>,
+    <span class="pl-s1">values_yaml</span> <span class="pl-c1">=</span> <span class="pl-en">glob</span>([<span class="pl-s">"charts/myapp/values.yaml"</span>]) <span class="pl-c1">+</span> [<span class="pl-s">":decrypt_secret_files"</span>],
+    <span class="pl-s1">kubernetes_context</span> <span class="pl-c1">=</span> <span class="pl-s">"mm-k8s-context"</span>,
+)</pre></div>
+<p dir="auto">Env variables are supported by using --action_env flag running <code>sops_decrypt</code> rules. This is usefull in scenarios where you need to provide default credentials for cloud services (gcp kms, aws kms).</p>
+<p dir="auto">E.g:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="# GOOGLE_APPLICATION_CREDENTIALS env variable needs to be predefined
+bazel build :decrypt_secret_files --action_env=GOOGLE_APPLICATION_CREDENTIALS
+
+or
+
+bazel build :decrypt_secret_files --action_env=GOOGLE_APPLICATION_CREDENTIALS=${HOME}/.config/gcloud/application_default_credentials.json"><pre><span class="pl-c"># GOOGLE_APPLICATION_CREDENTIALS env variable needs to be predefined</span>
+<span class="pl-s1">bazel</span> <span class="pl-s1">build</span> :<span class="pl-s1">decrypt_secret_files</span> <span class="pl-c1">-</span><span class="pl-c1">-</span><span class="pl-s1">action_env</span><span class="pl-c1">=</span><span class="pl-v">GOOGLE_APPLICATION_CREDENTIALS</span>
+
+<span class="pl-s1">or</span>
+
+<span class="pl-s1">bazel</span> <span class="pl-s1">build</span> :<span class="pl-s1">decrypt_secret_files</span> <span class="pl-c1">-</span><span class="pl-c1">-</span><span class="pl-s1">action_env</span><span class="pl-c1">=</span><span class="pl-v">GOOGLE_APPLICATION_CREDENTIALS</span><span class="pl-c1">=</span>${<span class="pl-v">HOME</span>}<span class="pl-c1">/</span>.<span class="pl-s1">config</span><span class="pl-c1">/</span><span class="pl-s1">gcloud</span><span class="pl-c1">/</span><span class="pl-s1">application_default_credentials</span>.<span class="pl-s1">json</span></pre></div>
+<h2 dir="auto"><a id="user-content-k8s-rules" class="anchor" aria-hidden="true" href="#k8s-rules"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>K8s rules</h2>
+<p dir="auto">Import in your <code>BUILD.bazel</code></p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@com_github_masmovil_bazel_rules//k8s:k8s.bzl&quot;, &quot;k8s_namespace&quot;)
+"><pre><span class="pl-en">load</span>(<span class="pl-s">"@com_github_masmovil_bazel_rules//k8s:k8s.bzl"</span>, <span class="pl-s">"k8s_namespace"</span>)</pre></div>
+<h3 dir="auto"><a id="user-content-k8s_namespace" class="anchor" aria-hidden="true" href="#k8s_namespace"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>k8s_namespace</h3>
+<p dir="auto"><code>k8s_namespace</code> is used to create a new namespace.
+You can also configure GKE Workload Identity with it.</p>
+<p dir="auto">Example of use:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="k8s_namespace(
+    name = &quot;namespace&quot;,
+    namespace_name = &quot;ft-sesame-${DEPLOY_BRANCH}&quot;,
+    kubernetes_sa = &quot;default&quot;,
+    gcp_sa_project = &quot;mm-odissey-dev&quot;,
+    gcp_sa = &quot;odissey-dev@mm-odissey-dev.iam.gserviceaccount.com&quot;,
+    gcp_gke_project = &quot;mm-k8s-dev-01&quot;,
+    workload_identity_namespace = &quot;mm-k8s-dev-01.svc.id.goog&quot;,
+    kubernetes_context = &quot;mm-k8s-context&quot;,
+)"><pre><span class="pl-en">k8s_namespace</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"namespace"</span>,
+    <span class="pl-s1">namespace_name</span> <span class="pl-c1">=</span> <span class="pl-s">"ft-sesame-${DEPLOY_BRANCH}"</span>,
+    <span class="pl-s1">kubernetes_sa</span> <span class="pl-c1">=</span> <span class="pl-s">"default"</span>,
+    <span class="pl-s1">gcp_sa_project</span> <span class="pl-c1">=</span> <span class="pl-s">"mm-odissey-dev"</span>,
+    <span class="pl-s1">gcp_sa</span> <span class="pl-c1">=</span> <span class="pl-s">"odissey-dev@mm-odissey-dev.iam.gserviceaccount.com"</span>,
+    <span class="pl-s1">gcp_gke_project</span> <span class="pl-c1">=</span> <span class="pl-s">"mm-k8s-dev-01"</span>,
+    <span class="pl-s1">workload_identity_namespace</span> <span class="pl-c1">=</span> <span class="pl-s">"mm-k8s-dev-01.svc.id.goog"</span>,
+    <span class="pl-s1">kubernetes_context</span> <span class="pl-c1">=</span> <span class="pl-s">"mm-k8s-context"</span>,
+)</pre></div>
+<p dir="auto">You can use <code>k8s_namespace</code> in combination with <code>helm_release</code> trough <code>napesmace_dep</code> attribute.</p>
+<p dir="auto">Example of use with helm_release:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="k8s_namespace(
+  name = &quot;test-namespace&quot;,
+  namespace_name = &quot;test-namespace&quot;,
+  kubernetes_sa = &quot;test-kubernetes-sa&quot;,
+  kubernetes_context = &quot;mm-k8s-context&quot;,
+)
+helm_release(
+    name = &quot;chart_install&quot;,
+    chart = &quot;:chart&quot;,
+    namespace_dep = &quot;:test-namespace&quot;,
+    tiller_namespace = &quot;tiller-system&quot;,
+    release_name = &quot;release-name&quot;,
+    values_yaml = glob([&quot;charts/myapp/values.yaml&quot;]),
+    kubernetes_context = &quot;mm-k8s-context&quot;,
+)"><pre><span class="pl-en">k8s_namespace</span>(
+  <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"test-namespace"</span>,
+  <span class="pl-s1">namespace_name</span> <span class="pl-c1">=</span> <span class="pl-s">"test-namespace"</span>,
+  <span class="pl-s1">kubernetes_sa</span> <span class="pl-c1">=</span> <span class="pl-s">"test-kubernetes-sa"</span>,
+  <span class="pl-s1">kubernetes_context</span> <span class="pl-c1">=</span> <span class="pl-s">"mm-k8s-context"</span>,
+)
+<span class="pl-en">helm_release</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"chart_install"</span>,
+    <span class="pl-s1">chart</span> <span class="pl-c1">=</span> <span class="pl-s">":chart"</span>,
+    <span class="pl-s1">namespace_dep</span> <span class="pl-c1">=</span> <span class="pl-s">":test-namespace"</span>,
+    <span class="pl-s1">tiller_namespace</span> <span class="pl-c1">=</span> <span class="pl-s">"tiller-system"</span>,
+    <span class="pl-s1">release_name</span> <span class="pl-c1">=</span> <span class="pl-s">"release-name"</span>,
+    <span class="pl-s1">values_yaml</span> <span class="pl-c1">=</span> <span class="pl-en">glob</span>([<span class="pl-s">"charts/myapp/values.yaml"</span>]),
+    <span class="pl-s1">kubernetes_context</span> <span class="pl-c1">=</span> <span class="pl-s">"mm-k8s-context"</span>,
+)</pre></div>
+<p dir="auto">The following attributes are accepted by the rule (some of them are mandatory).</p>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Mandatory</th>
+<th>Default</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>namespace_name</td>
+<td>yes</td>
+<td>-</td>
+<td>Name of the namespace to create</td>
+</tr>
+<tr>
+<td>kubernetes_sa</td>
+<td>no</td>
+<td>-</td>
+<td>Kubernetes Service Account to associate with Workload Identity. I.E. default It supports the use of <code>stamp_variables</code>.</td>
+</tr>
+<tr>
+<td>kubernetes_sa</td>
+<td>no</td>
+<td>kube-system</td>
+<td>Namespace where Tiller lives in the Kubernetes Cluster. It supports the use of <code>stamp_variables</code>.</td>
+</tr>
+<tr>
+<td>gcp_sa_project</td>
+<td>no</td>
+<td>-</td>
+<td>GCP project name where Service Account lives. I.E. <code>my-project</code></td>
+</tr>
+<tr>
+<td>gcp_sa</td>
+<td>no</td>
+<td>-</td>
+<td>GCP Service Account. I.E.  <code>my-account@my-project.iam.gserviceaccount.com</code></td>
+</tr>
+<tr>
+<td>gcp_gke_project</td>
+<td>no</td>
+<td>-</td>
+<td>GKE Project</td>
+</tr>
+<tr>
+<td>workload_identity_namespace</td>
+<td>no</td>
+<td>-</td>
+<td>Workload Identity Namespace. I.E. <code>mm-k8s-dev-01.svc.id.goog</code></td>
+</tr>
+<tr>
+<td>kubernetes_context</td>
+<td>no</td>
+<td>""</td>
+<td>Context of kubernetes cluster</td>
+</tr>
+</tbody>
+</table>
+<h2 dir="auto"><a id="user-content-gcs-rules" class="anchor" aria-hidden="true" href="#gcs-rules"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>GCS rules</h2>
+<p dir="auto">Import in your <code>BUILD.bazel</code></p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@com_github_masmovil_bazel_rules//gcs:gcs.bzl&quot;, &quot;gcs_upload&quot;)
+"><pre><span class="pl-en">load</span>(<span class="pl-s">"@com_github_masmovil_bazel_rules//gcs:gcs.bzl"</span>, <span class="pl-s">"gcs_upload"</span>)</pre></div>
+<p dir="auto"><strong>Gcloud SDK</strong> is required in the system PATH.</p>
+<h3 dir="auto"><a id="user-content-gcs_upload" class="anchor" aria-hidden="true" href="#gcs_upload"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>gcs_upload</h3>
+<p dir="auto"><code>gcs_upload</code> is used to upload a single file to a Google Cloud Storage bucket</p>
+<p dir="auto">Example of use:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="gcs_upload(
+    name = &quot;push&quot;,
+    src = &quot;:file&quot;,
+    destination = &quot;gs://my-bucket/file.zip&quot;
+)"><pre><span class="pl-en">gcs_upload</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"push"</span>,
+    <span class="pl-s1">src</span> <span class="pl-c1">=</span> <span class="pl-s">":file"</span>,
+    <span class="pl-s1">destination</span> <span class="pl-c1">=</span> <span class="pl-s">"gs://my-bucket/file.zip"</span>
+)</pre></div>
+<p dir="auto">The following attributes are accepted by the rule (some of them are mandatory).</p>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Mandatory</th>
+<th>Default</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>src</td>
+<td>yes</td>
+<td>-</td>
+<td>Source file label</td>
+</tr>
+<tr>
+<td>destination</td>
+<td>yes</td>
+<td>-</td>
+<td>Destination path in GCS (in form of<code>gs://mybucket/file</code>) It supports the use of <code>stamp_variables</code>.</td>
+</tr>
+</tbody>
+</table>
+</article></div>

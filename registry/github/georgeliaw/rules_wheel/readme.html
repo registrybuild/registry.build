@@ -1,1 +1,44 @@
-{"message":"API rate limit exceeded for installation ID 36708394.","documentation_url":"https://docs.github.com/rest/overview/resources-in-the-rest-api#rate-limiting"}
+<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><h1 dir="auto"><a id="user-content-rules_wheel" class="anchor" aria-hidden="true" href="#rules_wheel"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>rules_wheel</h1>
+<p dir="auto">Bazel rule for building a python wheel.</p>
+<p dir="auto">This aims to simplify the wheel-building process by taking over the need to write and maintain extra <code>setup.py</code> files and then building via <code>genrule</code>.
+Instead, you can use this rule to wrap that whole process for you.</p>
+<p dir="auto">You can check out the Skydoc-generated wheel docs <a href="docs/wheel.md">here</a>.</p>
+<p dir="auto">Unfortunately Skydoc doesn't currently support the newer <code>doc</code> label parameter,
+so check out the Skylark source in <a href="wheel/wheel.bzl">wheel.bzl</a> for more info.</p>
+<h1 dir="auto"><a id="user-content-installing-and-usage" class="anchor" aria-hidden="true" href="#installing-and-usage"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Installing and Usage</h1>
+<p dir="auto">Currently requires having <code>setuptools</code> and <code>wheel</code> installed locally (will work on bringing that into the rule itself).</p>
+<p dir="auto">To use the wheel rule, you will need to add the following into your <code>WORKSPACE</code> file:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="http_archive(
+    name = &quot;io_bazel_rules_wheel&quot;,
+    strip_prefix = &quot;rules_wheel-&lt;version&gt;&quot;,
+    urls = [&quot;https://github.com/georgeliaw/rules_wheel/archive/&lt;version&gt;.tar.gz&quot;],
+    sha256 = &quot;&lt;checksum&gt;&quot;
+)"><pre class="notranslate"><code>http_archive(
+    name = "io_bazel_rules_wheel",
+    strip_prefix = "rules_wheel-&lt;version&gt;",
+    urls = ["https://github.com/georgeliaw/rules_wheel/archive/&lt;version&gt;.tar.gz"],
+    sha256 = "&lt;checksum&gt;"
+)
+</code></pre></div>
+<p dir="auto">To load the rules, either do so in your <code>BUILD</code> files or simply add to <code>tools/build_rules/prelude_bazel</code>:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(&quot;@io_bazel_rules_wheel//wheel:wheel.bzl&quot;, &quot;bdist_wheel&quot;)"><pre class="notranslate"><code>load("@io_bazel_rules_wheel//wheel:wheel.bzl", "bdist_wheel")
+</code></pre></div>
+<p dir="auto">NOTE: using <code>prelude_bazel</code> requires an empty <code>tools/build_rules/BUILD</code> file.</p>
+<p dir="auto">You can now create wheels by doing something similar to the below:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="bdist_wheel(
+    name = &quot;sample_wheel&quot;,
+    srcs = glob(
+        [&quot;**&quot;],
+        exclude = [&quot;**/*.pyc&quot;],
+    ),
+    include_package_data = True
+)"><pre class="notranslate"><code>bdist_wheel(
+    name = "sample_wheel",
+    srcs = glob(
+        ["**"],
+        exclude = ["**/*.pyc"],
+    ),
+    include_package_data = True
+)
+</code></pre></div>
+</article></div>

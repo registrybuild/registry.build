@@ -1,1 +1,160 @@
-{"message":"API rate limit exceeded for installation ID 36708394.","documentation_url":"https://docs.github.com/rest/overview/resources-in-the-rest-api#rate-limiting"}
+<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><p dir="auto">Container images built using Bazel. Benefits include reproducibility, rebuild speed, composability.</p>
+<h3 dir="auto"><a id="user-content-to-use-as-a-base" class="anchor" aria-hidden="true" href="#to-use-as-a-base"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>To use as a base</h3>
+<p dir="auto">Choose a commit and add the below to your WORKSPACE file:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="git_repository(
+  name = &quot;containers_by_bazel&quot;,
+  remote = &quot;https://github.com/guymers/containers_by_bazel.git&quot;,
+  commit = &quot;&lt;commit-id&gt;&quot;,
+)
+
+load(&quot;//scripts:repositories.bzl&quot;, &quot;dependency_repositories&quot;)
+dependency_repositories()
+
+load(&quot;@bazel_rules_container_test//container:repositories.bzl&quot;, container_test_repositories = &quot;repositories&quot;)
+container_test_repositories()
+
+load(&quot;@io_bazel_rules_docker//repositories:repositories.bzl&quot;, docker_rules_repositories = &quot;repositories&quot;)
+docker_rules_repositories()
+
+load(&quot;@io_bazel_rules_docker//repositories:deps.bzl&quot;, docker_rules_deps = &quot;deps&quot;)
+docker_rules_deps()"><pre class="notranslate"><code>git_repository(
+  name = "containers_by_bazel",
+  remote = "https://github.com/guymers/containers_by_bazel.git",
+  commit = "&lt;commit-id&gt;",
+)
+
+load("//scripts:repositories.bzl", "dependency_repositories")
+dependency_repositories()
+
+load("@bazel_rules_container_test//container:repositories.bzl", container_test_repositories = "repositories")
+container_test_repositories()
+
+load("@io_bazel_rules_docker//repositories:repositories.bzl", docker_rules_repositories = "repositories")
+docker_rules_repositories()
+
+load("@io_bazel_rules_docker//repositories:deps.bzl", docker_rules_deps = "deps")
+docker_rules_deps()
+</code></pre></div>
+<h4 dir="auto"><a id="user-content-using-containers" class="anchor" aria-hidden="true" href="#using-containers"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Using containers</h4>
+<p dir="auto">Create a BUILD file and use the name of the git repository prefixed with a @.</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="container_image(
+  name = &quot;jenkins_with_plugins&quot;,
+  base = &quot;@containers_by_bazel//jenkins&quot;,
+  ...
+)"><pre class="notranslate"><code>container_image(
+  name = "jenkins_with_plugins",
+  base = "@containers_by_bazel//jenkins",
+  ...
+)
+</code></pre></div>
+<h4 dir="auto"><a id="user-content-custom-debian-dependencies" class="anchor" aria-hidden="true" href="#custom-debian-dependencies"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Custom Debian dependencies</h4>
+<p dir="auto">Create a BUILD file with the contents:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(&quot;@containers_by_bazel//scripts/debian:dependencies.bzl&quot;, &quot;dependencies&quot;)
+
+dependencies(
+  name = &quot;&quot;,
+  dependencies = glob([&quot;dependencies/*&quot;]),
+  target_prefix = &quot;@containers_by_bazel&quot;
+)"><pre class="notranslate"><code>load("@containers_by_bazel//scripts/debian:dependencies.bzl", "dependencies")
+
+dependencies(
+  name = "",
+  dependencies = glob(["dependencies/*"]),
+  target_prefix = "@containers_by_bazel"
+)
+</code></pre></div>
+<p dir="auto">Where the dependencies folder contains files in the format of the ones in <code>scripts/debian/dependencies/</code></p>
+<p dir="auto">Then you'll need to pretty much copy <code>scripts/update_dependencies.sh</code></p>
+<h3 dir="auto"><a id="user-content-to-use-as-is" class="anchor" aria-hidden="true" href="#to-use-as-is"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>To use as is</h3>
+<h4 dir="auto"><a id="user-content-to-create-containers" class="anchor" aria-hidden="true" href="#to-create-containers"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>To create containers</h4>
+<p dir="auto">You can use the ./build_container script. It ensures that you cannot override the same tag with a different image.</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="bazel build //scripts/versions
+source ./bazel-bin/scripts/versions/versions.sh
+./scripts/build_container.sh //cassandra cassandra ${CASSANDRA_VERSION}
+./scripts/build_container.sh //dnsmasq dnsmasq ${DNSMASQ_VERSION}
+./scripts/build_container.sh //gerrit gerrit ${GERRIT_VERSION}
+./scripts/build_container.sh //grafana grafana ${GRAFANA_VERSION}
+./scripts/build_container.sh //java:zulu zulu ${JAVA_VERSION}
+./scripts/build_container.sh //jenkins jenkins ${JENKINS_VERSION}
+./scripts/build_container.sh //jenkins:agent jenkins-agent ${JENKINS_SWARM_VERSION}
+./scripts/build_container.sh //kafka kafka ${KAFKA_VERSION}
+./scripts/build_container.sh //nginx nginx ${NGINX_VERSION}
+./scripts/build_container.sh //nodejs nodejs ${NODEJS_VERSION}
+./scripts/build_container.sh //php php ${PHP_VERSION}
+./scripts/build_container.sh //postgresql postgresql ${POSTGRESQL_VERSION}
+./scripts/build_container.sh //postgresql:postgis postgis ${POSTGRESQL_VERSION}-${POSTGIS_VERSION}
+./scripts/build_container.sh //prometheus prometheus ${PROMETHEUS_VERSION}
+./scripts/build_container.sh //rabbitmq rabbitmq ${RABBITMQ_VERSION}
+./scripts/build_container.sh //redis redis ${REDIS_VERSION}
+./scripts/build_container.sh //sbt sbt ${SBT_VERSION}
+./scripts/build_container.sh //zipkin zipkin ${ZIPKIN_VERSION}
+./scripts/build_container.sh //zookeeper zookeeper ${ZOOKEEPER_VERSION}"><pre class="notranslate"><code>bazel build //scripts/versions
+source ./bazel-bin/scripts/versions/versions.sh
+./scripts/build_container.sh //cassandra cassandra ${CASSANDRA_VERSION}
+./scripts/build_container.sh //dnsmasq dnsmasq ${DNSMASQ_VERSION}
+./scripts/build_container.sh //gerrit gerrit ${GERRIT_VERSION}
+./scripts/build_container.sh //grafana grafana ${GRAFANA_VERSION}
+./scripts/build_container.sh //java:zulu zulu ${JAVA_VERSION}
+./scripts/build_container.sh //jenkins jenkins ${JENKINS_VERSION}
+./scripts/build_container.sh //jenkins:agent jenkins-agent ${JENKINS_SWARM_VERSION}
+./scripts/build_container.sh //kafka kafka ${KAFKA_VERSION}
+./scripts/build_container.sh //nginx nginx ${NGINX_VERSION}
+./scripts/build_container.sh //nodejs nodejs ${NODEJS_VERSION}
+./scripts/build_container.sh //php php ${PHP_VERSION}
+./scripts/build_container.sh //postgresql postgresql ${POSTGRESQL_VERSION}
+./scripts/build_container.sh //postgresql:postgis postgis ${POSTGRESQL_VERSION}-${POSTGIS_VERSION}
+./scripts/build_container.sh //prometheus prometheus ${PROMETHEUS_VERSION}
+./scripts/build_container.sh //rabbitmq rabbitmq ${RABBITMQ_VERSION}
+./scripts/build_container.sh //redis redis ${REDIS_VERSION}
+./scripts/build_container.sh //sbt sbt ${SBT_VERSION}
+./scripts/build_container.sh //zipkin zipkin ${ZIPKIN_VERSION}
+./scripts/build_container.sh //zookeeper zookeeper ${ZOOKEEPER_VERSION}
+</code></pre></div>
+<p dir="auto">To test:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="bazel test //test/..."><pre class="notranslate"><code>bazel test //test/...
+</code></pre></div>
+<h4 dir="auto"><a id="user-content-to-update-dependencies" class="anchor" aria-hidden="true" href="#to-update-dependencies"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>To update dependencies</h4>
+<p dir="auto">Create the docker containers to pull dependency versions from:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="DOCKER_NO_CACHE=true ./scripts/docker/create.sh"><pre class="notranslate"><code>DOCKER_NO_CACHE=true ./scripts/docker/create.sh
+</code></pre></div>
+<p dir="auto">Update dependencies in files:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="./scripts/update_dependencies.sh"><pre class="notranslate"><code>./scripts/update_dependencies.sh
+</code></pre></div>
+<h3 dir="auto"><a id="user-content-users" class="anchor" aria-hidden="true" href="#users"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Users</h3>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="911 nexus
+912 jenkins
+913 tomcat
+915 zipkin
+916 cassandra
+917 elasticsearch
+918 kafka
+919 zookeeper
+921 prometheus
+922 grafana
+923 kibana
+929 envoy
+930 nginx
+931 redis
+938 ejabberd
+939 rabbitmq
+941 postgres
+951 gerrit"><pre class="notranslate"><code>911 nexus
+912 jenkins
+913 tomcat
+915 zipkin
+916 cassandra
+917 elasticsearch
+918 kafka
+919 zookeeper
+921 prometheus
+922 grafana
+923 kibana
+929 envoy
+930 nginx
+931 redis
+938 ejabberd
+939 rabbitmq
+941 postgres
+951 gerrit
+</code></pre></div>
+</article></div>

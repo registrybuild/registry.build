@@ -1,1 +1,235 @@
-{"message":"API rate limit exceeded for installation ID 36708394.","documentation_url":"https://docs.github.com/rest/overview/resources-in-the-rest-api#rate-limiting"}
+<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><h1 dir="auto"><a id="user-content-web-rules-for-bazel-" class="anchor" aria-hidden="true" href="#web-rules-for-bazel-"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Web Rules for Bazel <a href="https://travis-ci.org/quittle/rules_web" rel="nofollow"><img src="https://camo.githubusercontent.com/98588d368f168ec0608d850ad5dff0498f78f4ef046a2c22e5a562f56f78ff39/68747470733a2f2f6170692e7472617669732d63692e6f72672f71756974746c652f72756c65735f7765622e7376673f6272616e63683d6d6173746572" alt="Build Status" data-canonical-src="https://api.travis-ci.org/quittle/rules_web.svg?branch=master" style="max-width: 100%;"></a></h1>
+<h2 dir="auto"><a id="user-content-how-to-use" class="anchor" aria-hidden="true" href="#how-to-use"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>How to use</h2>
+<ol dir="auto">
+<li>Install <a href="https://bazel.build/versions/master/docs/install.html" rel="nofollow">Bazel</a> and set up a workspace</li>
+<li>Add <code>rules_web</code> as a <code>git_repository</code> to the <code>WORKSPACE</code> file</li>
+</ol>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="  git_repository(
+      name = &quot;rules_web&quot;,
+      remote = &quot;https://github.com/quittle/rules_web.git&quot;,
+  )"><pre class="notranslate"><code>  git_repository(
+      name = "rules_web",
+      remote = "https://github.com/quittle/rules_web.git",
+  )
+</code></pre></div>
+<ol start="3" dir="auto">
+<li>Load the 3 sets of dependencies in order in your <code>WORKSPACE</code> file. It is multi-stage due to
+the way Bazel handles repository rule loading.</li>
+</ol>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="  load(&quot;@rules_web//:rules_web_deps_1.bzl&quot;, &quot;rules_web_dependencies&quot;)
+  rules_web_dependencies()
+  load(&quot;@rules_web//:rules_web_deps_2.bzl&quot;, &quot;rules_web_dependencies&quot;)
+  rules_web_dependencies()
+  load(&quot;@rules_web//:rules_web_deps_3.bzl&quot;, &quot;rules_web_dependencies&quot;)
+  rules_web_dependencies()"><pre class="notranslate"><code>  load("@rules_web//:rules_web_deps_1.bzl", "rules_web_dependencies")
+  rules_web_dependencies()
+  load("@rules_web//:rules_web_deps_2.bzl", "rules_web_dependencies")
+  rules_web_dependencies()
+  load("@rules_web//:rules_web_deps_3.bzl", "rules_web_dependencies")
+  rules_web_dependencies()
+</code></pre></div>
+<ol start="4" dir="auto">
+<li>Load rule files from non-<code>internal.bzl</code> Bazel files.</li>
+</ol>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="  load(&quot;@rules_web//html:html.bzl&quot;, &quot;html_page&quot;)
+  load(&quot;@rules_web//fonts:fonts.bzl&quot;, &quot;font_generator&quot;, &quot;minify_ttf&quot;)"><pre class="notranslate"><code>  load("@rules_web//html:html.bzl", "html_page")
+  load("@rules_web//fonts:fonts.bzl", "font_generator", "minify_ttf")
+</code></pre></div>
+<h2 dir="auto"><a id="user-content-rules" class="anchor" aria-hidden="true" href="#rules"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Rules</h2>
+<p dir="auto"><code>//css:css.bzl</code></p>
+<ul dir="auto">
+<li><code>minify_css</code> Minified a bunch of CSS files into one
+<ul dir="auto">
+<li><code>srcs</code> A label list of sources to merge and minify</li>
+</ul>
+</li>
+</ul>
+<p dir="auto"><code>//fonts:fonts.bzl</code></p>
+<ul dir="auto">
+<li><code>font_generator</code> Generates a CSS file with the <code>font-family</code> representing this group of font files.
+<ul dir="auto">
+<li><code>font_name</code> The name of the font that it will be referenced by</li>
+<li><code>eot</code> An optional EOT font file to use</li>
+<li><code>ttf</code> An optional TTF font file to use</li>
+<li><code>woff</code> An optional WOFF font file to use</li>
+<li><code>woff2</code> An optional WOFF2 font file to use</li>
+<li><code>svg</code> An optional SVG font file to use</li>
+<li><code>weight</code> The weight of these fonts. Defaults to <code>normal</code></li>
+<li><code>style</code> The style of these fonts. Defaults to <code>normal</code></li>
+</ul>
+</li>
+<li><code>minify_ttf</code> Generates a smaller version of a TTF font file by renaming glyphs and removing unnessary tables.
+<ul dir="auto">
+<li><code>ttf</code> The TTF file to shrink</li>
+</ul>
+</li>
+<li><code>ttf_to_eot</code> Convertes a TTF font file to an EOT font file
+<ul dir="auto">
+<li><code>ttf</code> The TTF file to convert</li>
+</ul>
+</li>
+<li><code>ttf_to_woff</code> Converts a TTF font file to a WOFF font file
+<ul dir="auto">
+<li><code>ttf</code> The TTF file to convert</li>
+</ul>
+</li>
+<li><code>ttf_to_woff2</code> Converts a TTF font file to a WOFF2 font file
+<ul dir="auto">
+<li><code>ttf</code> The TTF file to convert</li>
+</ul>
+</li>
+</ul>
+<p dir="auto"><code>//generate:generate.bzl</code></p>
+<ul dir="auto">
+<li><code>generate_variables</code> Generates constants for various languages
+<ul dir="auto">
+<li><code>config</code> A JSON file containing the variables</li>
+<li><code>out_css</code> An optional CSS file to write the mapping of the variables to</li>
+<li><code>out_js</code> An optional Javascript file to write the mapping of the variables to</li>
+<li><code>out_scss</code> An optional SCSS file to write the mapping of the variables to</li>
+</ul>
+</li>
+</ul>
+<p dir="auto"><code>//html:html.bzl</code></p>
+<ul dir="auto">
+<li><code>minify_html</code> Minifies an HTML file
+<ul dir="auto">
+<li><code>src</code> The HTML file to minify</li>
+</ul>
+</li>
+<li><code>html_page</code> Builds an HTML file including or referencing the provided sources
+<ul dir="auto">
+<li><code>template</code> An optional Jinja2 template for the HTML page that overrides the default.</li>
+<li><code>config</code> A JSON file that contains basic meta-data about the page</li>
+<li><code>body</code> An HTML file containing the <code>&lt;body&gt;</code> of the page including the body open and closing tags.</li>
+<li><code>deferred_js_files</code> Javascript files that should be downloaded and run only after the <code>window</code>'s <code>load</code> event has fired.</li>
+<li><code>js_files</code> Javascript files that should be downloaded and run before the body is loaded.</li>
+<li><code>css_files</code> CSS files that should be downloaded and evaluated asynchronously.</li>
+<li><code>favicon_images</code> A list of favicon images at various sizes. This must be the same length as <code>favicon_sizes</code></li>
+<li><code>favicon_sizes</code> A list of ints that represent the square-size of the images in <code>favicon_images</code>. Must be the same length as <code>favicon_images</code>.</li>
+<li><code>deps</code> Other files that may be referrenced by resources in the page.</li>
+</ul>
+</li>
+<li><code>inject_html</code> Inject an HTML fragment inside another HTML fragment.
+<ul dir="auto">
+<li><code>outer_html</code> The outer HTML fragment to be inject into.</li>
+<li><code>inner_html</code> The inner HTML fragment to inject in.</li>
+<li><code>query_selector</code> The CSS selector query to find the element in <code>outer_html</code> in which to inject.</li>
+<li><code>insertion_mode</code> The method by which <code>inner_html</code> will be injected into <code>outer_html</code>.</li>
+</ul>
+</li>
+<li><code>validate_html</code> Uses the W3C validator to check an HTML file
+<ul dir="auto">
+<li><code>src</code> The HTML file to validate</li>
+<li><code>fail_on_warning</code> Optional flag (defaults to True) to fail the target on warnings as well as errors.</li>
+</ul>
+</li>
+</ul>
+<p dir="auto"><code>//images/images.bzl</code></p>
+<ul dir="auto">
+<li><code>favicon_image_generator</code> Generates favicons of various sizes
+<ul dir="auto">
+<li><code>image</code> The source image</li>
+<li><code>output_files</code> The files to generate. Must be the same length as <code>output_sizes</code></li>
+<li><code>output_sizes</code> A list of ints representing the square-size of the images generated. Must be the same length as <code>output_files</code>.</li>
+<li><code>allow_upsizing</code> An optional boolean of whether the build should not fail if the image needs to be stretched larger to generate any of the images. Defaults to <code>False</code></li>
+<li><code>allow_stretching</code> An optional boolean of whether the build should not fail if the image needs to be distorted to a different aspect-ratio. Defaults to <code>False</code>.</li>
+</ul>
+</li>
+<li><code>minify_png</code> Minimizes the size of a PNG image
+<ul dir="auto">
+<li><code>png</code> The PNG the shrink.</li>
+</ul>
+</li>
+<li><code>resize_image</code> Resizes an image
+<ul dir="auto">
+<li><code>image</code> The image to resize</li>
+<li><code>width</code> Optionally the width of the image to output. If set without height, height will scale proportional to width.</li>
+<li><code>height</code> Optionally the height of the image to output. If set without width, width will scale proportional to height.</li>
+<li><code>scale</code> Optionally the scaling ratio of the image as a string. If set, width and height must not be set.</li>
+</ul>
+</li>
+</ul>
+<p dir="auto"><code>//js/js.bzl</code></p>
+<ul dir="auto">
+<li><code>resource_map</code> Generates a Javascript file mapping resources to a deeply nested dictionary representing the file system structure. For example if <code>["src/path/file.txt", "src/other-path/image.png"]</code> were mapped, it would generate <code>{ "src": { "path": "file.txt", "other-path": "image.png" } }</code>.
+<ul dir="auto">
+<li><code>constant_name</code> The contant name that holds the dictionary. E.g. <code>"RESOURCE_MAP"</code> would map to <code>window.RESOURCE_MAP</code>.</li>
+<li><code>deps</code> The labels to put in the dictionary.</li>
+</ul>
+</li>
+<li><code>minify_js</code> Minifies a Javascript files together into one, smaller file.
+<ul dir="auto">
+<li><code>srcs</code> The source files to minify and combine.</li>
+</ul>
+</li>
+<li><code>closure_compile</code> Compiles Javascript files together with the Closure Compiler.
+<ul dir="auto">
+<li><code>srcs</code> The Javascript files to merge and compile.</li>
+<li><code>externs</code> The external Javascript files whose contents should not be minified in the generated file.</li>
+<li><code>compilation_level</code> The compilation level to compile with.</li>
+<li><code>warning_level</code> The warning level to compile with.</li>
+<li><code>extra_args</code> A list of extra arguments to pass to the compiler</li>
+</ul>
+</li>
+</ul>
+<p dir="auto"><code>//site_zip:site_zip.bzl</code></p>
+<ul dir="auto">
+<li><code>zip_site</code> Zips all the sources for a website into one file
+<ul dir="auto">
+<li><code>root_files</code> The root files of the website that will be requested by the user directly. This should be your base html pages, robots.txt and other resources like that.</li>
+<li><code>resouces</code> All the possible resources that <code>root_files</code> might reference to be included in the zip.</li>
+<li><code>out_zip</code> The zip file to generate.</li>
+</ul>
+</li>
+<li><code>minify_site_zip</code> Minifies a zip file by minifying file names and references in the zip.
+<ul dir="auto">
+<li><code>site_zip</code> The site zip to minify.</li>
+<li><code>root_files</code> The root files that will be directly accessed by customers and should not be renamed.</li>
+<li><code>minified_zip</code> The minified zip file to generate.</li>
+</ul>
+</li>
+<li><code>rename_zip_paths</code> Renames entries in the zip. This is useful as all generated files will have a path in the bazel-out directory
+<ul dir="auto">
+<li><code>source_zip</code> The source zip to renmae entries of.</li>
+<li><code>path_map_labels_in</code> A list of labels for the entries in <code>source_zip</code> to rename.</li>
+<li><code>path_map_labels_out</code> A list of new names for the entries specified by <code>path_map_labels_in</code>. The entries in this list map directly to the entries in <code>path_map_labels_in</code> with the same index.</li>
+<li><code>out_zip</code> The zip file to generate.</li>
+</ul>
+</li>
+<li><code>zip_server</code> Runs a localhost server that serves a zip file. This is not a secure implementation and should only be used for testing.
+<ul dir="auto">
+<li><code>zip</code> The zip file to server.</li>
+<li><code>port</code> The port to listen on. Defaults to <code>80</code>.</li>
+</ul>
+</li>
+</ul>
+<h3 dir="auto"><a id="user-content-currently-broken" class="anchor" aria-hidden="true" href="#currently-broken"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Currently broken</h3>
+<p dir="auto"><code>//deploy:deploy.bzl</code></p>
+<ul dir="auto">
+<li><code>deploy_site_zip_s3_script</code>
+<ul dir="auto">
+<li><code>aws_access_key</code> The AWS access key string to use</li>
+<li><code>aws_secret_key</code> The AWS secret access key string to use</li>
+<li><code>bucket</code> The AWS bucket to upload to</li>
+<li><code>zip_file</code> A zip file whose contents should be uploaded</li>
+</ul>
+</li>
+</ul>
+<p dir="auto"><code>//images:images.bzl</code></p>
+<ul dir="auto">
+<li><code>generate_ico</code> Generates an ICO image file by resizing a source to multiple sizes
+<ul dir="auto">
+<li><code>source</code> The source image to resize</li>
+<li><code>sizes</code> A list of sizes to resize the <code>source</code> image to</li>
+<li><code>allow_upsizing</code> An optional boolean of whether the build should not fail if one of the generated sizes is larger than the source image. Defaults to <code>False</code>.</li>
+</ul>
+</li>
+</ul>
+<h2 dir="auto"><a id="user-content-troubleshooting" class="anchor" aria-hidden="true" href="#troubleshooting"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Troubleshooting</h2>
+<p dir="auto">If you get an error similar to</p>
+<blockquote>
+<p dir="auto">ImportError: cannot import name 'sysconfig' from 'distutils'</p>
+</blockquote>
+<p dir="auto">you will need to <code>apt install python3-distutils</code></p>
+</article></div>

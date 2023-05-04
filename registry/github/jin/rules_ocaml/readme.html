@@ -1,1 +1,169 @@
-{"message":"API rate limit exceeded for installation ID 36708394.","documentation_url":"https://docs.github.com/rest/overview/resources-in-the-rest-api#rate-limiting"}
+<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><h1 dir="auto"><a id="user-content-ocaml-rules-for-bazel" class="anchor" aria-hidden="true" href="#ocaml-rules-for-bazel"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>OCaml rules for Bazel</h1>
+<h2 dir="auto"><a id="user-content-rules" class="anchor" aria-hidden="true" href="#rules"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Rules</h2>
+<ul dir="auto">
+<li><a href="#ocaml_native_binary/ocaml_bytecode_binary">ocaml_native_binary</a></li>
+<li><a href="#ocaml_native_binary/ocaml_bytecode_binary">ocaml_bytecode_binary</a></li>
+<li><a href="#ocaml_interface">ocaml_interface</a></li>
+</ul>
+<h2 dir="auto"><a id="user-content-overview" class="anchor" aria-hidden="true" href="#overview"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Overview</h2>
+<p dir="auto">Build OCaml with Bazel. Very experimental.</p>
+<h2 dir="auto"><a id="user-content-setup" class="anchor" aria-hidden="true" href="#setup"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Setup</h2>
+<p dir="auto">Add the following to your <code>WORKSPACE</code> file.</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="git_repository(
+    name = &quot;io_bazel_rules_ocaml&quot;,
+    remote = &quot;https://github.com/jin/rules_ocaml.git&quot;,
+    commit = &quot;7a0a6e5226af5f09eb6e3379b901d8f2ffdb8bbf&quot;,
+)
+
+load(&quot;@io_bazel_rules_ocaml//ocaml:repo.bzl&quot;, &quot;ocaml_repositories&quot;)
+ocaml_repositories(
+    opam_packages = {
+        # Put your OPAM dependencies here
+        &quot;lwt&quot;: &quot;3.1.0&quot;,
+        &quot;yojson&quot;: &quot;1.4.0&quot;,
+    },
+)"><pre><span class="pl-en">git_repository</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"io_bazel_rules_ocaml"</span>,
+    <span class="pl-s1">remote</span> <span class="pl-c1">=</span> <span class="pl-s">"https://github.com/jin/rules_ocaml.git"</span>,
+    <span class="pl-s1">commit</span> <span class="pl-c1">=</span> <span class="pl-s">"7a0a6e5226af5f09eb6e3379b901d8f2ffdb8bbf"</span>,
+)
+
+<span class="pl-en">load</span>(<span class="pl-s">"@io_bazel_rules_ocaml//ocaml:repo.bzl"</span>, <span class="pl-s">"ocaml_repositories"</span>)
+<span class="pl-en">ocaml_repositories</span>(
+    <span class="pl-s1">opam_packages</span> <span class="pl-c1">=</span> {
+        <span class="pl-c"># Put your OPAM dependencies here</span>
+        <span class="pl-s">"lwt"</span>: <span class="pl-s">"3.1.0"</span>,
+        <span class="pl-s">"yojson"</span>: <span class="pl-s">"1.4.0"</span>,
+    },
+)</pre></div>
+<p dir="auto">and this to your BUILD files.</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@io_bazel_rules_ocaml//ocaml:ocaml.bzl&quot;, &quot;ocaml_native_binary&quot;, &quot;ocaml_bytecode_binary&quot;, &quot;ocaml_interface&quot;)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@io_bazel_rules_ocaml//ocaml:ocaml.bzl"</span>, <span class="pl-s">"ocaml_native_binary"</span>, <span class="pl-s">"ocaml_bytecode_binary"</span>, <span class="pl-s">"ocaml_interface"</span>)</pre></div>
+<p dir="auto"><code>ocaml_repositories()</code> will download and compile the OCaml toolchain, including <code>ocamlbuild</code>, <code>ocamlfind</code> and <code>OPAM</code> itself, as the <a href="https://caml.inria.fr/download.en.html" rel="nofollow">official source</a> doesn't release binaries directly and requires the use of OPAM for installations.</p>
+<p dir="auto">The initial load time of toolchain compilation will take a few minutes and will not happen again for the same project.</p>
+<h2 dir="auto"><a id="user-content-rules-1" class="anchor" aria-hidden="true" href="#rules-1"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Rules</h2>
+<h3 dir="auto"><a id="user-content-ocaml_native_binaryocaml_bytecode_binary" class="anchor" aria-hidden="true" href="#ocaml_native_binaryocaml_bytecode_binary"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>ocaml_native_binary/ocaml_bytecode_binary</h3>
+<p dir="auto">Generates a native binary using <code>ocamlopt</code> or bytecode binary using <code>ocamlc</code>.</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="ocaml_native_library(name, srcs, src_root, opam_packages)
+ocaml_bytecode_library(name, srcs, src_root, opam_packages)"><pre><span class="pl-en">ocaml_native_library</span>(<span class="pl-s1">name</span>, <span class="pl-s1">srcs</span>, <span class="pl-s1">src_root</span>, <span class="pl-s1">opam_packages</span>)
+<span class="pl-en">ocaml_bytecode_library</span>(<span class="pl-s1">name</span>, <span class="pl-s1">srcs</span>, <span class="pl-s1">src_root</span>, <span class="pl-s1">opam_packages</span>)</pre></div>
+<h4 dir="auto"><a id="user-content-example" class="anchor" aria-hidden="true" href="#example"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Example</h4>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="ocaml_native_binary(
+    name = &quot;hello_world&quot;,
+    srcs = glob([&quot;examples/*.ml&quot;]),
+    src_root = &quot;examples/hello_world.ml&quot;,
+    opam_packages = [&quot;yojson&quot;, &quot;lwt&quot;],
+)
+
+ocaml_bytecode_binary(
+    name = &quot;other_binary&quot;,
+    srcs = [
+      &quot;examples/foo.ml&quot;,
+      &quot;examples/bar.ml&quot;,
+      &quot;examples/entry.ml&quot;,
+    ],
+    src_root = &quot;examples/entry.ml&quot;,
+    opam_packages = [&quot;pkg_foo&quot;, &quot;pkg_bar&quot;],
+)"><pre><span class="pl-en">ocaml_native_binary</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"hello_world"</span>,
+    <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> <span class="pl-en">glob</span>([<span class="pl-s">"examples/*.ml"</span>]),
+    <span class="pl-s1">src_root</span> <span class="pl-c1">=</span> <span class="pl-s">"examples/hello_world.ml"</span>,
+    <span class="pl-s1">opam_packages</span> <span class="pl-c1">=</span> [<span class="pl-s">"yojson"</span>, <span class="pl-s">"lwt"</span>],
+)
+
+<span class="pl-en">ocaml_bytecode_binary</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"other_binary"</span>,
+    <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> [
+      <span class="pl-s">"examples/foo.ml"</span>,
+      <span class="pl-s">"examples/bar.ml"</span>,
+      <span class="pl-s">"examples/entry.ml"</span>,
+    ],
+    <span class="pl-s1">src_root</span> <span class="pl-c1">=</span> <span class="pl-s">"examples/entry.ml"</span>,
+    <span class="pl-s1">opam_packages</span> <span class="pl-c1">=</span> [<span class="pl-s">"pkg_foo"</span>, <span class="pl-s">"pkg_bar"</span>],
+)</pre></div>
+<table>
+  
+    
+    
+  
+  <thead>
+    <tr>
+      <th colspan="2">Attributes</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>name</code></td>
+      <td>
+        <p dir="auto"><code>Name, required</code></p>
+        <p dir="auto">A unique name for this target</p>
+      </td>
+    </tr>
+    <tr>
+      <td><code>srcs</code></td>
+      <td>
+        <p dir="auto"><code>List of labels, required</code></p>
+        <p dir="auto">List of OCaml <code>.ml</code> source files used to build the
+        library</p>
+      </td>
+    </tr>
+    <tr>
+      <td><code>src_root</code></td>
+      <td>
+        <p dir="auto"><code>Label, optional</code></p>
+        <p dir="auto">The OCaml <code>.ml</code> source file used for the binary's entry point.</p><p dir="auto">
+        </p><p dir="auto">Defaults to <code>main.ml</code> if not specified.
+      </p></td>
+    </tr>
+    <tr>
+      <td><code>opam_packages</code></td>
+      <td>
+        <p dir="auto"><code>List of strings, optional</code></p>
+        <p dir="auto">The name of the OPAM package dependencies required by this binary.</p>
+        <p dir="auto">The packages (and their versions) must already be defined in your WORKSPACE file's <code>ocaml_repositories()</code>.
+      </p></td>
+    </tr>
+  </tbody>
+</table>
+<h3 dir="auto"><a id="user-content-ocaml_interface" class="anchor" aria-hidden="true" href="#ocaml_interface"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>ocaml_interface</h3>
+<p dir="auto">Generates a <code>.mli</code> file of the source file.</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="ocaml_interface(name, src)"><pre><span class="pl-en">ocaml_interface</span>(<span class="pl-s1">name</span>, <span class="pl-s1">src</span>)</pre></div>
+<table>
+  
+    
+    
+  
+  <thead>
+    <tr>
+      <th colspan="2">Attributes</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>name</code></td>
+      <td>
+        <p dir="auto"><code>Name, required</code></p>
+        <p dir="auto">A unique name for this target</p>
+      </td>
+    </tr>
+    <tr>
+      <td><code>src</code></td>
+      <td>
+        <p dir="auto"><code>Label</code></p>
+        <p dir="auto">The OCaml <code>.ml</code> source file used for generating the interface file</p><p dir="auto">
+      </p></td>
+    </tr>
+  </tbody>
+</table>
+<h4 dir="auto"><a id="user-content-example-1" class="anchor" aria-hidden="true" href="#example-1"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Example</h4>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="ocaml_interface(
+    name = &quot;hello_world_interface&quot;,
+    src = &quot;examples/hello_world.ml&quot;,
+)"><pre><span class="pl-en">ocaml_interface</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"hello_world_interface"</span>,
+    <span class="pl-s1">src</span> <span class="pl-c1">=</span> <span class="pl-s">"examples/hello_world.ml"</span>,
+)</pre></div>
+<h2 dir="auto"><a id="user-content-projects-using-rules_ocaml" class="anchor" aria-hidden="true" href="#projects-using-rules_ocaml"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Projects using rules_ocaml</h2>
+<ul dir="auto">
+<li><a href="https://github.com/jin/scheme.ml">https://github.com/jin/scheme.ml</a></li>
+</ul>
+</article></div>

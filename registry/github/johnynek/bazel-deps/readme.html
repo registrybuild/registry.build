@@ -1,0 +1,324 @@
+<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><h1 dir="auto"><a id="user-content-bazel-deps" class="anchor" aria-hidden="true" href="#bazel-deps"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>bazel-deps</h1>
+<p dir="auto">Generate <a href="https://bazel.build/" rel="nofollow">bazel</a> dependencies transitively for maven artifacts, with scala
+support.</p>
+<h2 dir="auto"><a id="user-content-quickstart" class="anchor" aria-hidden="true" href="#quickstart"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Quickstart</h2>
+<p dir="auto">This repo can be cloned and built locally, or you can download pre-build binaries for MacOS and Linux in the releases page. Automatic releases are generated for every commit against master.
+We also include a bash script in the releases which will let you easily download/run on mac/linux a default configuration for running bazel-deps.</p>
+<p dir="auto">A flow like:</p>
+<ol dir="auto">
+<li>Download the bash script paired with the release, it has the expected per platform sha256's embedded in it</li>
+<li>Place in your repo and <code>chmod +x update_dependencies.sh</code>, maybe in a scripts folder if you wish.</li>
+<li>Copy the <code>dependencies.yaml</code> from this repo, or write your own</li>
+<li>Run the script, it should produce some files in <code>3rdparty</code></li>
+<li>Add to your workspace:</li>
+</ol>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;//3rdparty:workspace.bzl&quot;, &quot;maven_dependencies&quot;)
+maven_dependencies()
+load(&quot;//3rdparty:target_file.bzl&quot;, &quot;build_external_workspace&quot;)
+build_external_workspace(name = &quot;third_party&quot;)"><pre><span class="pl-en">load</span>(<span class="pl-s">"//3rdparty:workspace.bzl"</span>, <span class="pl-s">"maven_dependencies"</span>)
+<span class="pl-en">maven_dependencies</span>()
+<span class="pl-en">load</span>(<span class="pl-s">"//3rdparty:target_file.bzl"</span>, <span class="pl-s">"build_external_workspace"</span>)
+<span class="pl-en">build_external_workspace</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"third_party"</span>)</pre></div>
+<ol start="6" dir="auto">
+<li>You can now add dependencies to your <code>BUILD</code> files as described <a href="#alternate-outputs-external-repo">below</a>.
+eg <code>deps = ["@third_party//3rdparty/jvm/org/scalaj:scala_http"]</code>.</li>
+</ol>
+<h2 dir="auto"><a id="user-content-usage" class="anchor" aria-hidden="true" href="#usage"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Usage</h2>
+<p dir="auto">First, list all of your maven artifact dependencies in a <a href="#dependencies">Dependencies</a> file.</p>
+<p dir="auto">Next, run parseproject on your project yaml file. This will create a tree of BUILD files that
+match the maven group id, and the artifact id will be a label in a BUILD file. You should not
+edit these by hand, and instead have a separate directory for any exceptions that you manage
+along with <a href="#replacements">Replacements</a>. For instance, this project is setup with:</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel run //:parse -- generate -r `pwd` -s 3rdparty/workspace.bzl -d dependencies.yaml"><pre>bazel run //:parse -- generate -r <span class="pl-s"><span class="pl-pds">`</span>pwd<span class="pl-pds">`</span></span> -s 3rdparty/workspace.bzl -d dependencies.yaml</pre></div>
+<p dir="auto">We give three arguments: the path to the file we will include in our workspace. The path to the root
+of our bazel repo. The path to the dependencies file. You can also run with <code>--help</code>.</p>
+<p dir="auto">Then you should add</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(&quot;//3rdparty:workspace.bzl&quot;, &quot;maven_dependencies&quot;)
+
+maven_dependencies()"><pre class="notranslate"><code>load("//3rdparty:workspace.bzl", "maven_dependencies")
+
+maven_dependencies()
+</code></pre></div>
+<p dir="auto">to your workspace to load the maven dependencies.</p>
+<p dir="auto">For example, if your project is located at <code>MY_PROJ_DIR</code>, your dependencies file is at
+<code>MY_PROJ_DIR/dependencies.yaml</code>, and your checkout of bazel-deps is at <code>BAZEL_DEPS</code>, to generate the
+dependencies you need to do the following:</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="cd $BAZEL_DEPS
+bazel run //:parse generate -- --repo-root &quot;$MY_PROJ_DIR&quot; --sha-file 3rdparty/workspace.bzl --deps dependencies.yaml"><pre><span class="pl-c1">cd</span> <span class="pl-smi">$BAZEL_DEPS</span>
+bazel run //:parse generate -- --repo-root <span class="pl-s"><span class="pl-pds">"</span><span class="pl-smi">$MY_PROJ_DIR</span><span class="pl-pds">"</span></span> --sha-file 3rdparty/workspace.bzl --deps dependencies.yaml</pre></div>
+<p dir="auto">The final result in <code>MY_PROJ_DIR</code> will look like this</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="MY_PROJ_DIR
+├── 3rdparty             &lt;-- everything under here is generated by running gen_maven_deps.sh
+│   ├── workspace.bzl        &lt;-- load() this from main WORKSPACE
+│   └── jvm/                 &lt;-- generated BUILD files in this directory.
+├── BUILD
+├── WORKSPACE
+└── dependencies.yaml    &lt;-- your project's dependencies are declared in here."><pre class="notranslate"><code>MY_PROJ_DIR
+├── 3rdparty             &lt;-- everything under here is generated by running gen_maven_deps.sh
+│   ├── workspace.bzl        &lt;-- load() this from main WORKSPACE
+│   └── jvm/                 &lt;-- generated BUILD files in this directory.
+├── BUILD
+├── WORKSPACE
+└── dependencies.yaml    &lt;-- your project's dependencies are declared in here.
+</code></pre></div>
+<p dir="auto">Whenever you update the dependencies declared in dependencies.yaml you will need to regenerate the
+contents of the <code>3rdparty</code> directory by re-running <code>$BAZEL_DEPS/gen_maven_deps.sh generate</code>.</p>
+<h3 dir="auto"><a id="user-content-alternate-outputs-external-repo" class="anchor" aria-hidden="true" href="#alternate-outputs-external-repo"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Alternate outputs, external repo</h3>
+<p dir="auto">Bazel-deps can also prepare the outputs, not as a file tree but an external repo. With this one would refer to targets as
+<code>@third_party//foo:bar</code> rather than <code>//3rdparty/jvm/foo/bar</code>. This is useful if you do not want to check in generated code to your
+repo. Also if multiple repos are depending upon one another and using bazel deps this can avoid broken transitive dependencies.
+That is if there are two repos <code>A</code> and <code>B</code> where <code>B</code> depends on <code>A</code>:
+where A has <code>Foo 1.0 dependson Jackson27</code>
+and B has <code>Foo 2.0 depends on circe</code>
+with the checked in version both will compile from source against the local copy of Foo, but transitively on the classpath
+in the repo <code>B</code> <code>Jackson27</code> will be on the classpath rather than <code>circe</code>.</p>
+<p dir="auto">To use this option you would execute bazel-deps like:</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="cd $BAZEL_DEPS
+bazel run //:parse generate -- --repo-root &quot;$MY_PROJ_DIR&quot; --sha-file 3rdparty/workspace.bzl --deps dependencies.yaml --target-file 3rdparty/target_file.bzl --disable-3rdparty-in-repo"><pre><span class="pl-c1">cd</span> <span class="pl-smi">$BAZEL_DEPS</span>
+bazel run //:parse generate -- --repo-root <span class="pl-s"><span class="pl-pds">"</span><span class="pl-smi">$MY_PROJ_DIR</span><span class="pl-pds">"</span></span> --sha-file 3rdparty/workspace.bzl --deps dependencies.yaml --target-file 3rdparty/target_file.bzl --disable-3rdparty-in-repo</pre></div>
+<p dir="auto">In your <code>dependencies.yaml</code> file you will likely want:
+<code>thirdPartyDirectory: ""</code>
+to avoid prefixing the remote repo path with <code>3rdparty/jvm</code>.</p>
+<p dir="auto">And finally to load it from your <code>WORKSPACE</code> you would use:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(&quot;//3rdparty:target_file.bzl&quot;, &quot;build_external_workspace&quot;)
+
+build_external_workspace(name = &quot;third_party&quot;)"><pre class="notranslate"><code>load("//3rdparty:target_file.bzl", "build_external_workspace")
+
+build_external_workspace(name = "third_party")
+</code></pre></div>
+<h2 dir="auto"><a id="user-content-assumptions-and-usage" class="anchor" aria-hidden="true" href="#assumptions-and-usage"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Assumptions and usage</h2>
+<p dir="auto">This tool will generate one canonical version for every jar in the transitive dependencies of
+the root dependencies declared. You have three conflict resolution modes currently (which currently
+apply globally):</p>
+<ul dir="auto">
+<li>fail: if more than one version is found transitively, fail.</li>
+<li>fixed: for all artifacts explicitly added, use that version, otherwise fail if any other artifact has multiple versions.</li>
+<li>highest: for all artifacts explicitly added, use that version, otherwise take the highest version.</li>
+</ul>
+<p dir="auto">In any case, we add a comment for any duplicates found in the workspace loading file.</p>
+<p dir="auto">To declare dependencies, add items to the <code>dependencies</code> key in your yaml file. The format
+should be yaml or json. It should have <a href="#dependencies"><code>dependencies</code></a> and it may have <a href="#replacements"><code>replacements</code></a>
+and <a href="#options"><code>options</code></a>. Important: only dependencies explicitly named have public visibility,
+transitive dependencies not listed in the dependencies file have visibility limited to the third
+party directory.</p>
+<h3 dir="auto"><a id="user-content-dependencies" class="anchor" aria-hidden="true" href="#dependencies"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a><a name="user-content-dependencies">Dependencies</a></h3>
+<p dir="auto">Dependencies are a map from maven group id to artifact id, with some metadata, such as:</p>
+<div class="highlight highlight-source-yaml notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="dependencies:
+  com.google.guava:
+    guava:
+      version: &quot;18.0&quot;
+      lang: java"><pre><span class="pl-ent">dependencies</span>:
+  <span class="pl-ent">com.google.guava</span>:
+    <span class="pl-ent">guava</span>:
+      <span class="pl-ent">version</span>: <span class="pl-s"><span class="pl-pds">"</span>18.0<span class="pl-pds">"</span></span>
+      <span class="pl-ent">lang</span>: <span class="pl-s">java</span></pre></div>
+<p dir="auto">Language is always required and may be one of <code>java, scala, scala/unmangled</code>. To control the scala
+version, see the <a href="#options">Options section</a>. A common case are projects with many modules. For instance in
+the <a href="https://github.com/twitter/scalding">scalding project</a> there are many modules: <code>-core, -date, -args, -db, -avro</code> to name a few. To reduce duplication you can do:</p>
+<div class="highlight highlight-source-yaml notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="dependencies:
+  com.twitter:
+    scalding:
+      version: 0.16.0
+      lang: scala
+      modules: [core, date, args, db, arvo]"><pre><span class="pl-ent">dependencies</span>:
+  <span class="pl-ent">com.twitter</span>:
+    <span class="pl-ent">scalding</span>:
+      <span class="pl-ent">version</span>: <span class="pl-s">0.16.0</span>
+      <span class="pl-ent">lang</span>: <span class="pl-s">scala</span>
+      <span class="pl-ent">modules</span>: <span class="pl-s">[core, date, args, db, arvo]</span></pre></div>
+<p dir="auto">The <code>version</code> field is optional. If it is absent, it means this jar is expected to be found by
+transitive dependencies, and it is available to be used outside of the thirdparty directory, but the
+exact version used can be selected according to the version resolution rules. It is an error to have
+an unversioned dependency that is not a transitive dependency of another versioned dependency.</p>
+<p dir="auto">A target may optionally add <code>exports</code> and <code>exclude</code> lists to a dependency. <code>exports</code> should be just the group and
+artifact (such as: <code>com.twitter:scalding-core</code> in the above), and they should be listed in the dependencies. <code>exclude</code>
+list should also be only the group and artifact.</p>
+<p dir="auto">It's possible to add <code>generateNeverlink</code> option to a dependency, which will make the generator to generate this dependency twice:</p>
+<ol dir="auto">
+<li>With the normalized name as usual.</li>
+<li>With the name <code>${normalized}_neverlink</code> and neverlink is set as true.
+This option should be used only for java dependencies, it will be ignored in any other lang.</li>
+</ol>
+<p dir="auto">Each group id can only appear once, so you should collocate dependencies by group. WARNING the parsing library
+we are using does not fail on duplicate keys, it just takes the last one, so watch out. It would be good
+to fix that, but writing a new yaml parser is out of scope.</p>
+<h4 dir="auto"><a id="user-content-packaging-and-classifiers" class="anchor" aria-hidden="true" href="#packaging-and-classifiers"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a><a name="user-content-packaging-classifiers">Packaging and Classifiers</a></h4>
+<p dir="auto">Depending on artifacts with classifiers is straightforward: just add the packaging and classifier as part of the
+artifact id:</p>
+<div class="highlight highlight-source-yaml notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="dependencies:
+  net.sf.json-lib:
+    json-lib:jar:jdk15: # artifact:packaging:classifier
+      lang: java
+      version: &quot;2.4&quot;"><pre><span class="pl-ent">dependencies</span>:
+  <span class="pl-ent">net.sf.json-lib</span>:
+    <span class="pl-ent">json-lib:jar:jdk15</span>: <span class="pl-c"><span class="pl-c">#</span> artifact:packaging:classifier</span>
+      <span class="pl-ent">lang</span>: <span class="pl-s">java</span>
+      <span class="pl-ent">version</span>: <span class="pl-s"><span class="pl-pds">"</span>2.4<span class="pl-pds">"</span></span></pre></div>
+<p dir="auto"><strong>Note</strong>: Currently, only <code>jar</code> packaging is supported for dependencies. More work is needed on the <code>bazel-deps</code> backend
+to ensure that non-jar dependencies are written as <code>data</code> attributes, instead of regular jar dependencies.</p>
+<p dir="auto">Excluding artifacts with packaging or classifiers is similar to including dependencies. Non-jar packaging <em>is</em> supported
+for <code>exclude</code>.</p>
+<div class="highlight highlight-source-yaml notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="  com.amazonaws:
+    DynamoDBLocal:
+      lang: java
+      version: &quot;1.11.86&quot;
+      exclude:
+        - &quot;com.almworks.sqlite4java:sqlite4java-win32-x86:dll&quot;
+        - &quot;com.almworks.sqlite4java:sqlite4java-win32-x64:dll&quot;
+        - &quot;com.almworks.sqlite4java:libsqlite4java-osx:dylib&quot;
+        - &quot;com.almworks.sqlite4java:libsqlite4java-linux-i386:so&quot;
+        - &quot;com.almworks.sqlite4java:libsqlite4java-linux-amd64:so&quot;"><pre>  <span class="pl-ent">com.amazonaws</span>:
+    <span class="pl-ent">DynamoDBLocal</span>:
+      <span class="pl-ent">lang</span>: <span class="pl-s">java</span>
+      <span class="pl-ent">version</span>: <span class="pl-s"><span class="pl-pds">"</span>1.11.86<span class="pl-pds">"</span></span>
+      <span class="pl-ent">exclude</span>:
+        - <span class="pl-s"><span class="pl-pds">"</span>com.almworks.sqlite4java:sqlite4java-win32-x86:dll<span class="pl-pds">"</span></span>
+        - <span class="pl-s"><span class="pl-pds">"</span>com.almworks.sqlite4java:sqlite4java-win32-x64:dll<span class="pl-pds">"</span></span>
+        - <span class="pl-s"><span class="pl-pds">"</span>com.almworks.sqlite4java:libsqlite4java-osx:dylib<span class="pl-pds">"</span></span>
+        - <span class="pl-s"><span class="pl-pds">"</span>com.almworks.sqlite4java:libsqlite4java-linux-i386:so<span class="pl-pds">"</span></span>
+        - <span class="pl-s"><span class="pl-pds">"</span>com.almworks.sqlite4java:libsqlite4java-linux-amd64:so<span class="pl-pds">"</span></span></pre></div>
+<h4 dir="auto"><a id="user-content-annotation-processors-processorclasses" class="anchor" aria-hidden="true" href="#annotation-processors-processorclasses"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a><a name="user-content-annotation-processors">Annotation Processors (<code>processorClasses</code>)</a></h4>
+<p dir="auto">A target may also optionally add <code>processorClasses</code> to a dependency. This is for <a href="https://docs.oracle.com/javase/8/docs/api/javax/annotation/processing/Processor.html" rel="nofollow">annotation processors</a>.
+<code>bazel-deps</code> will generate a <code>java_library</code> and a <code>java_plugin</code> for each annotation processor defined. For example, we can define Google's auto-value annotation processor via:</p>
+<div class="highlight highlight-source-yaml notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="dependencies:
+  com.google.auto.value:
+    auto-value:
+      version: &quot;1.5&quot;
+      lang: java
+      processorClasses: [&quot;com.google.auto.value.processor.AutoValueProcessor&quot;]"><pre><span class="pl-ent">dependencies</span>:
+  <span class="pl-ent">com.google.auto.value</span>:
+    <span class="pl-ent">auto-value</span>:
+      <span class="pl-ent">version</span>: <span class="pl-s"><span class="pl-pds">"</span>1.5<span class="pl-pds">"</span></span>
+      <span class="pl-ent">lang</span>: <span class="pl-s">java</span>
+      <span class="pl-ent">processorClasses</span>: <span class="pl-s">["com.google.auto.value.processor.AutoValueProcessor"]</span></pre></div>
+<p dir="auto">This will yield the following:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="java_library(
+    name = &quot;auto_value&quot;,
+    exported_plugins = [
+        &quot;:auto_value_plugin&quot;,
+    ],
+    visibility = [
+        &quot;//visibility:public&quot;,
+    ],
+    exports = [
+        &quot;//external:jar/com/google/auto/value/auto_value&quot;,
+    ],
+)
+
+java_plugin(
+    name = &quot;auto_value_plugin&quot;,
+    processor_class = &quot;com.google.auto.value.processor.AutoValueProcessor&quot;,
+    deps = [
+        &quot;//external:jar/com/google/auto/value/auto_value&quot;,
+    ],
+)"><pre><span class="pl-en">java_library</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"auto_value"</span>,
+    <span class="pl-s1">exported_plugins</span> <span class="pl-c1">=</span> [
+        <span class="pl-s">":auto_value_plugin"</span>,
+    ],
+    <span class="pl-s1">visibility</span> <span class="pl-c1">=</span> [
+        <span class="pl-s">"//visibility:public"</span>,
+    ],
+    <span class="pl-s1">exports</span> <span class="pl-c1">=</span> [
+        <span class="pl-s">"//external:jar/com/google/auto/value/auto_value"</span>,
+    ],
+)
+
+<span class="pl-en">java_plugin</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"auto_value_plugin"</span>,
+    <span class="pl-s1">processor_class</span> <span class="pl-c1">=</span> <span class="pl-s">"com.google.auto.value.processor.AutoValueProcessor"</span>,
+    <span class="pl-s1">deps</span> <span class="pl-c1">=</span> [
+        <span class="pl-s">"//external:jar/com/google/auto/value/auto_value"</span>,
+    ],
+)</pre></div>
+<p dir="auto">If there is only a single <code>processorClasses</code> defined, the <code>java_plugin</code> rule is named <code>&lt;java_library_name&gt;_plugin</code>. If there are multiple
+<code>processorClasses</code> defined, each one is named <code>&lt;java_library_name&gt;_plugin_&lt;processor_class_to_snake_case&gt;</code>.</p>
+<h3 dir="auto"><a id="user-content-options" class="anchor" aria-hidden="true" href="#options"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a><a name="user-content-options">Options</a></h3>
+<p dir="auto">There are a number of ways to customize the generated build files. These are controlled
+by the <code>options</code> dictionary at the root-level of the dependencies file. This is a list of
+all of the supported options.</p>
+<ul dir="auto">
+<li>buildHeader: usually you will want to configure your scala support here:</li>
+</ul>
+<div class="highlight highlight-source-yaml notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="  buildHeader:
+    - load(&quot;@io_bazel_rules_scala//scala:scala_import.bzl&quot;, &quot;scala_import&quot;)"><pre>  <span class="pl-ent">buildHeader</span>:
+    - <span class="pl-s">load("@io_bazel_rules_scala//scala:scala_import.bzl", "scala_import")</span></pre></div>
+<ul dir="auto">
+<li>languages: an array of languages to be supported either Java or a specific version of Scala, e.g. <code>[ "java", "scala:2.12.8" ]</code>.</li>
+<li>thirdPartyDirectory: path to where we write the BUILD files for thirdparty. The default is <code>3rdparty/jvm</code>. If you choose the Google default of <code>third_party</code> you will need to configure the <code>licenses</code> option as well.</li>
+<li>versionConflictPolicy: <code>fixed</code>, <code>fail</code> or <code>highest</code></li>
+<li>transitivity: <code>runtime_deps</code> or <code>exports</code></li>
+<li>resolvers: the maven servers to use. Each resolver is defined by three keys, an "id", a "type", and a "url".</li>
+</ul>
+<div class="highlight highlight-source-yaml notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="  resolvers:
+    - id: &quot;mavencentral&quot;
+      type: &quot;default&quot;
+      url: https://repo.maven.apache.org/maven2/
+    - id: &quot;myserver&quot;
+      type: &quot;default&quot;
+      url: https://my.private.maven.server.com/mvn/"><pre>  <span class="pl-ent">resolvers</span>:
+    - <span class="pl-ent">id</span>: <span class="pl-s"><span class="pl-pds">"</span>mavencentral<span class="pl-pds">"</span></span>
+      <span class="pl-ent">type</span>: <span class="pl-s"><span class="pl-pds">"</span>default<span class="pl-pds">"</span></span>
+      <span class="pl-ent">url</span>: <span class="pl-s">https://repo.maven.apache.org/maven2/</span>
+    - <span class="pl-ent">id</span>: <span class="pl-s"><span class="pl-pds">"</span>myserver<span class="pl-pds">"</span></span>
+      <span class="pl-ent">type</span>: <span class="pl-s"><span class="pl-pds">"</span>default<span class="pl-pds">"</span></span>
+      <span class="pl-ent">url</span>: <span class="pl-s">https://my.private.maven.server.com/mvn/</span></pre></div>
+<ul dir="auto">
+<li>resolverCache: (with <code>resolverType: aether</code>) where bazel-deps should cache resolved packages.  <code>local</code> (<code>target/local-repo</code> in the repository root)
+or <code>bazel_output_base</code> (<code>bazel-deps/local-repo</code> inside the repository's Bazel output base -- from <code>bazel info output_base</code>).  Coursier ignores this option and uses <code>~/.cache/coursier</code>.</li>
+<li>namePrefix: a string added to the generated workspace names, to avoid conflicts.  The external repository names and
+binding targets of each dependency are prefixed.</li>
+<li>strictVisibility: this is enabled by default, when enabled a target must be explicitly declared in the
+<code>dependencies.yaml</code> file or it will not be visible to the rest of the workspace. If it is set to <code>false</code> all targets
+will be generated with <code>public</code> visibility.</li>
+<li>licenses: a set of strings added a licenses rule to each generated bazel target.  Required by
+bazel if your build targets are under <code>third_party/</code>. See the <a href="https://docs.bazel.build/versions/master/be/functions.html#licenses" rel="nofollow">licenses</a> function in Bazel.</li>
+<li>resolverType: <code>aether</code> or <code>coursier</code>. Note that <code>aether</code> is slower and seems to silently miss some dependencies for
+reasons we don't yet understand.</li>
+<li>buildFileName: filename of the generated build files</li>
+</ul>
+<p dir="auto">In the default case, with no options given, we use:</p>
+<ul dir="auto">
+<li>allow java and scala <code>2.11</code></li>
+<li><code>3rdparty/jvm</code> as the <code>thirdPartyDirectory</code>.</li>
+<li><code>highest</code> versionConflictPolicy</li>
+<li><code>exports</code> transitivity</li>
+<li>use maven central as the resolver</li>
+<li><code>local</code> resolverCache</li>
+<li>empty namePrefix (<code>""</code>)</li>
+<li><code>coursier</code> resolverType</li>
+<li><code>BUILD</code> as build file name</li>
+</ul>
+<h3 dir="auto"><a id="user-content-replacements" class="anchor" aria-hidden="true" href="#replacements"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a><a name="user-content-replacements">Replacements</a></h3>
+<p dir="auto">Some maven jars should not be used and instead are replaced by internal targets. Here are
+some examples of this:</p>
+<ol dir="auto">
+<li>A subproject in the repo is published as a maven artifact (<code>A</code>). Others (<code>B</code>) depend on this artifact (<code>B -&gt; A</code>) and in turn we depend on those (we have added <code>B</code> to our dependencies file). We don't want to pull <code>A</code> from a maven repo, since we build it internally, so we replace that artifact with an internal target.</li>
+<li>We get some scala artifacts directly from the sdk. So, if a jar says it needs <code>org.scala-lang:scala-library</code> we already have that (and a few other jars) declared, and we don't want to risk having two potentially incompatible versions.</li>
+<li>A small external project has both a bazel build and a maven publishing. We prefer to use the bazel build so we can easily pull more recent versions by bumping up a gitsha rather than waiting for jar to be published.</li>
+</ol>
+<p dir="auto">The replacements work on the level of artifacts. An artifact is replaced one-for-one with a local
+bazel target. For instance:</p>
+<div class="highlight highlight-source-yaml notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="replacements:
+  org.scala-lang:
+    scala-library:
+      lang: scala/unmangled # scala-library is not mangled like sbt does with other jars
+      target: &quot;@io_bazel_rules_scala_scala_library&quot;
+    scala-reflect:
+      lang: scala/unmangled
+      target: &quot;@io_bazel_rules_scala_scala_reflect&quot;"><pre><span class="pl-ent">replacements</span>:
+  <span class="pl-ent">org.scala-lang</span>:
+    <span class="pl-ent">scala-library</span>:
+      <span class="pl-ent">lang</span>: <span class="pl-s">scala/unmangled </span><span class="pl-c"><span class="pl-c">#</span> scala-library is not mangled like sbt does with other jars</span>
+      <span class="pl-ent">target</span>: <span class="pl-s"><span class="pl-pds">"</span>@io_bazel_rules_scala_scala_library<span class="pl-pds">"</span></span>
+    <span class="pl-ent">scala-reflect</span>:
+      <span class="pl-ent">lang</span>: <span class="pl-s">scala/unmangled</span>
+      <span class="pl-ent">target</span>: <span class="pl-s"><span class="pl-pds">"</span>@io_bazel_rules_scala_scala_reflect<span class="pl-pds">"</span></span></pre></div>
+<p dir="auto">In this way, we redirect maven deps to those providers.</p>
+<p dir="auto">Note, we stop walking the graph when we see a replaced node, so the replacement target is now
+responsible for building correctly, and correctly exporting any dependencies that need to be
+on the compile classpath.</p>
+<h2 dir="auto"><a id="user-content-code" class="anchor" aria-hidden="true" href="#code"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Code</h2>
+<p dir="auto">This code was originally forked from <a href="https://github.com/pgr0ss/bazel-deps">pgr0ss/bazel-deps</a></p>
+<p dir="auto">This code was inspired by the <a href="https://github.com/eclipse/aether-demo/blob/322fa556494335faaf3ad3b7dbe8f89aaaf6222d/aether-demo-snippets/src/main/java/org/eclipse/aether/examples/GetDependencyTree.java">aether examples</a> for walking maven dependencies.</p>
+</article></div>
