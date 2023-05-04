@@ -60,7 +60,7 @@ const Page = (props) => {
             <button
               onClick={() => {
                 history.push(
-                  `/${
+                  `/github/${
                     matches[Math.min(selected, matches.length - 1)].repo
                       .full_name
                   }`

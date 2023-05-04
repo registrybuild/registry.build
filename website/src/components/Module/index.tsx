@@ -37,7 +37,6 @@ const Module = (props) => {
     module &&
     module.yanked_versions &&
     module.yanked_versions[release.tag_name.replace("v", "")];
-  let tab = getTab(location);
   console.log(props.data);
   return (
     <div className="package-page">
@@ -262,7 +261,25 @@ const Module = (props) => {
         <div className="package">
           <div
             className="package-rendered"
-            dangerouslySetInnerHTML={{ __html: props.data.root.readme }}
+            dangerouslySetInnerHTML={{
+              __html: props.data.root.readme
+                .replaceAll(
+                  `href="`,
+                  `href="https://github.com/${props.data.repo.full_name}/blob/${props.data.repo.default_branch}/`
+                )
+                .replaceAll(
+                  `href="https://github.com/${props.data.repo.full_name}/blob/${props.data.repo.default_branch}/#`,
+                  `href="#user-content-`
+                )
+                .replaceAll(
+                  `href="https://github.com/${props.data.repo.full_name}/blob/${props.data.repo.default_branch}/https://`,
+                  `href="https://`
+                )
+                .replaceAll(
+                  `href="https://github.com/${props.data.repo.full_name}/blob/${props.data.repo.default_branch}/http://`,
+                  `href="http://`
+                ),
+            }}
           />
         </div>
       }
