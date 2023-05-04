@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"bytes"
 	"encoding/json"
 	"io/ioutil"
@@ -10,14 +9,11 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"regexp"
 	"strings"
 
 	"github.com/yuin/goldmark"
 	"github.com/yuin/goldmark/extension"
 	"github.com/yuin/goldmark/parser"
-
-	rst "github.com/hhatto/gorst"
 )
 
 var md = goldmark.New(
@@ -205,9 +201,9 @@ func main() {
 			if strings.HasPrefix(repo, "github:") {
 				r := strings.TrimPrefix(repo, "github:")
 				log.Printf("%+v", r)
-				err := clone(r, true)
+				err = getReadme(r)
 				if err != nil {
-					log.Printf("Error with repo %s", err)
+					log.Printf("Error getting readme %s", err)
 				}
 				err = getMetadata(r)
 				if err != nil {
@@ -230,7 +226,6 @@ func main() {
 			d := Data{
 				Modules: []Module{},
 			}
-			// todo capture module name here
 			if strings.HasPrefix(repo, "github:") {
 				r := strings.TrimPrefix(repo, "github:")
 
@@ -269,37 +264,11 @@ func main() {
 				}
 				d.Repo = metadata
 
-				f, err = os.ReadFile("repos/" + r + "/README.md")
+				f, err = os.ReadFile("metadata/" + r + "/readme.html")
 				if err == nil {
-					var converted bytes.Buffer
-					if err := md.Convert(f, &converted); err != nil {
-						panic(err)
-					}
-					d.Root.Readme = string(converted.Bytes())
+					d.Root.Readme = string(f)
 				}
 
-				fr, err := os.Open("repos/" + r + "/README.rst")
-				// todo rules_go is so annoying
-				if err == nil {
-					p := rst.NewParser(nil)
-					var converted bytes.Buffer
-					w := bufio.NewWriter(&converted)
-					p.ReStructuredText(fr, rst.ToHTML(w))
-					readme := string(converted.Bytes())
-					re := regexp.MustCompile(`(?s)<p[^>]*?>\.\.(.*?)</p>`)
-					readme = re.ReplaceAllString(readme, "")
-					d.Root.Readme = readme
-				}
-
-				f, err = os.ReadFile("repos/" + r + "/LICENSE")
-				if err == nil {
-					d.Root.License = string(f)
-				}
-
-				f, err = os.ReadFile("repos/" + r + "/MODULE.bazel")
-				if err == nil {
-					d.Root.Module = string(f)
-				}
 				if existingData, ok := data[r]; ok {
 					if module.Name != "" {
 						existingData.Modules = append(existingData.Modules, module)
@@ -333,13 +302,6 @@ func main() {
 
 	// todo render all of this data in a nice way
 	// - our custom metadata
-	// - releases info
-	// - BCR info
-	// - sparse checkouts (license, readme, etc)
-
-	// todo support refreshing this data regularly
-
-	// todo make sure we don't hit rate limits
 }
 
 func getReleases(repo string) error {
@@ -380,6 +342,48 @@ func getReleases(repo string) error {
 
 	os.WriteFile("metadata/"+repo+"/releases.json", body, 0777)
 	log.Printf("Fetched releases for %s", repo)
+
+	return nil
+}
+
+func getReadme(repo string) error {
+	err := os.MkdirAll("metadata", 0777)
+
+	if _, err := os.Stat("metadata/" + repo + "/readme.html"); !os.IsNotExist(err) {
+		log.Printf("Already got readme for %s; skipping", repo)
+		return nil
+	}
+
+	url := "https://api.github.com/repos/" + repo + "/readme"
+
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return err
+	}
+
+	req.Header.Set("Accept", "application/vnd.github.html")
+	req.Header.Set("Authorization", "Bearer "+os.Getenv("GITHUB_TOKEN"))
+	req.Header.Set("X-GitHub-Api-Version", "2022-11-28")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+
+	err = os.MkdirAll("metadata/"+repo, 0777)
+	if err != nil {
+		return err
+	}
+
+	os.WriteFile("metadata/"+repo+"/readme.html", body, 0777)
+	log.Printf("Fetched readme for %s", repo)
 
 	return nil
 }
@@ -435,13 +439,8 @@ func clone(repo string, sparse bool) error {
 		log.Printf("Already cloned %s; skipping", repo)
 		return nil
 	}
-	// err = os.MkdirAll("repos/"+repo, 0777)
-	// if err != nil {
-	// 	return err
-	// }
-	log.Printf("Cloning " + repo)
-	// out, err := exec.Command("git", "clone", "https://github.com/"+repo, "repos/"+repo).CombinedOutput()
 
+	log.Printf("Cloning " + repo)
 	opts := []string{"clone", "--depth=1"}
 	if sparse {
 		opts = append(opts, "--sparse")
@@ -459,28 +458,94 @@ func clone(repo string, sparse bool) error {
 }
 
 func walk() ([]Module, error) {
-	modules := []Module{}
+	modules := map[string]Module{}
 	err := filepath.Walk("repos/bazelbuild/bazel-central-registry",
 		func(path string, info os.FileInfo, err error) error {
 			if err != nil {
 				return err
 			}
-			if strings.HasSuffix(path, "metadata.json") {
+			// Example path: repos/bazelbuild/bazel-central-registry/modules/rules_java/metadata.json
+			parts := strings.Split(path, "/")
+
+			if len(parts) < 5 || parts[3] != "modules" {
+				return nil
+			}
+			moduleName := parts[4]
+			if len(parts) == 5 {
+				modules[moduleName] = Module{
+					Name:        moduleName,
+					VersionData: map[string]Version{},
+				}
+				return nil
+			}
+			if len(parts) < 6 {
+				return nil
+			}
+			if parts[5] == "metadata.json" {
 				f, err := ioutil.ReadFile(path)
 				if err != nil {
 					return err
 				}
+				m := Module{}
+				err = json.Unmarshal(f, &m)
+				m.Name = modules[moduleName].Name
+				m.VersionData = modules[moduleName].VersionData
+				modules[moduleName] = m
+				return err
+			}
 
-				var module Module
-				err = json.Unmarshal(f, &module)
+			versionName := parts[5]
+			if len(parts) == 6 {
+				modules[moduleName].VersionData[versionName] = Version{
+					Patches: map[string]string{},
+					Source:  Source{},
+				}
+				return nil
+			}
+			if len(parts) < 7 {
+				return nil
+			}
+			fileName := parts[6]
+			if fileName == "source.json" {
+				f, err := ioutil.ReadFile(path)
 				if err != nil {
 					return err
 				}
-
-				parts := strings.Split(path, "/")
-				module.Name = parts[4]
-
-				modules = append(modules, module)
+				source := Source{}
+				err = json.Unmarshal(f, &source)
+				version := modules[moduleName].VersionData[versionName]
+				version.Source = source
+				modules[moduleName].VersionData[versionName] = version
+				return err
+			}
+			if fileName == "presubmit.yml" {
+				f, err := ioutil.ReadFile(path)
+				if err != nil {
+					return err
+				}
+				version := modules[moduleName].VersionData[versionName]
+				version.Presubmit = string(f)
+				modules[moduleName].VersionData[versionName] = version
+				return nil
+			}
+			if fileName == "MODULE.bazel" {
+				f, err := ioutil.ReadFile(path)
+				if err != nil {
+					return err
+				}
+				version := modules[moduleName].VersionData[versionName]
+				version.Module = string(f)
+				modules[moduleName].VersionData[versionName] = version
+				return nil
+			}
+			if fileName == "patches" && len(parts) == 8 {
+				f, err := ioutil.ReadFile(path)
+				if err != nil {
+					return err
+				}
+				patchName := parts[7]
+				modules[moduleName].VersionData[versionName].Patches[patchName] = string(f)
+				return nil
 			}
 			return nil
 		})
@@ -488,7 +553,12 @@ func walk() ([]Module, error) {
 		return nil, err
 	}
 
-	return modules, nil
+	m := []Module{}
+	for _, v := range modules {
+		m = append(m, v)
+	}
+
+	return m, nil
 }
 
 type Maintainer struct {
@@ -504,6 +574,7 @@ type Module struct {
 	Repository     []string               `json:"repository"`
 	Versions       []string               `json:"versions"`
 	YankedVersions map[string]interface{} `json:"yanked_versions"`
+	VersionData    map[string]Version     `json:"version_data"`
 }
 
 type Data struct {
@@ -618,4 +689,18 @@ type Owner struct {
 	AvatarURL string `json:"avatar_url"`
 	URL       string `json:"url"`
 	Type      string `json:"type"`
+}
+
+type Source struct {
+	Integrity   string            `json:"integrity"`
+	StripPrefix string            `json:"strip_prefix"`
+	URL         string            `json:"url"`
+	Patches     map[string]string `json:"patches"`
+	PatchStrip  int               `json:"patch_strip"`
+}
+type Version struct {
+	Source    Source            `json:"source"`
+	Presubmit string            `json:"presubmit"`
+	Module    string            `json:"module"`
+	Patches   map[string]string `json:"patches"`
 }
