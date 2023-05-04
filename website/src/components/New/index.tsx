@@ -190,13 +190,22 @@ build --bes_backend=grpcs://remote.buildbuddy.io\n\n`;
     }
 
     if (this.state.tools.includes("remote cache")) {
-      bazelRC += `# Enable use of a remote cache
-build --remote_cache=grpcs://remote.buildbuddy.io\n\n`;
+      bazelRC += `# Enable use of a remote cache when --config=cache is set
+build:cache --remote_cache=grpcs://remote.buildbuddy.io\n\n`;
     }
 
     if (this.state.tools.includes("remote execution")) {
-      bazelRC += `# Enable remote execution
-build --remote_executor=grpcs://remote.buildbuddy.io\n\n`;
+      bazelRC += `# Enable remote execution when --config=remote is set
+build:remote --remote_executor=grpcs://remote.buildbuddy.io\n\n`;
+    }
+
+    if (
+      this.state.tools.includes("results UI") ||
+      this.state.tools.includes("remote cache") ||
+      this.state.tools.includes("remote execution")
+    ) {
+      bazelRC += `# Grab an API key from https://app.buildbuddy.io/
+# common --remote_header=x-buildbuddy-api-key=YOUR_API_KEY_GOES_HERE\n\n`;
     }
 
     files[".bazelrc"] = fflate.strToU8(bazelRC.trim());
