@@ -48,6 +48,7 @@ module.exports = async function modules(context, options) {
             owner: { avatar_url: r.repo.owner.avatar_url },
             stargazers_count: r.repo.stargazers_count,
           },
+          registry: r.registry,
           releases:
             r.releases.length > 0
               ? [
@@ -68,6 +69,15 @@ module.exports = async function modules(context, options) {
       actions.addRoute({
         path: `/`,
         component: "@site/src/components/Page",
+        modules: {
+          data: jsonPath,
+        },
+        exact: true,
+      });
+
+      actions.addRoute({
+        path: `/new`,
+        component: "@site/src/components/New",
         modules: {
           data: jsonPath,
         },

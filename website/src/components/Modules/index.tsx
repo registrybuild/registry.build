@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Link from "@docusaurus/Link";
-import { since } from "../../utils/time";
+import { since } from "../../utils/format";
 import { CheckCircle2, GitCommit, Github, History, Star } from "lucide-react";
 
 const Module = (props) => (

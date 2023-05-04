@@ -1,5 +1,5 @@
-import React, { version } from "react";
-import { since } from "../../utils/time";
+import React from "react";
+import { since, size } from "../../utils/format";
 import {
   AlertOctagon,
   ArrowUpDown,
@@ -291,10 +291,6 @@ function getVersion(location) {
   return location.hash.substring(1);
 }
 
-function getTab(location) {
-  return location.hash.substring(1).split("@")[0];
-}
-
 function getReleaseForTag(releases, tag) {
   for (let release of releases) {
     if (release.tag_name == tag) {
@@ -302,15 +298,6 @@ function getReleaseForTag(releases, tag) {
     }
   }
   return releases[0];
-}
-
-function size(bytes) {
-  if (bytes < 1000) return `${bytes.toLocaleString()} bytes`;
-  if (bytes < 1000000) return `${Math.floor(bytes / 1000).toLocaleString()} KB`;
-  if (bytes < 1000000000)
-    return `${Math.floor(bytes / 1000000).toLocaleString()} MB`;
-  if (bytes < 1000000000000)
-    return `${Math.floor(bytes / 1000000000).toLocaleString()} GB`;
 }
 
 export default Module;

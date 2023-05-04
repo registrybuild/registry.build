@@ -15,3 +15,12 @@ export function subtractDates(date: string) {
   if (diff < 31536000) return [Math.floor(diff / 2592000), "month"];
   return [Math.floor(diff / 31536000), "year"];
 }
+
+export function size(bytes) {
+  if (bytes < 1000) return `${bytes.toLocaleString()} bytes`;
+  if (bytes < 1000000) return `${Math.floor(bytes / 1000).toLocaleString()} KB`;
+  if (bytes < 1000000000)
+    return `${Math.floor(bytes / 1000000).toLocaleString()} MB`;
+  if (bytes < 1000000000000)
+    return `${Math.floor(bytes / 1000000000).toLocaleString()} GB`;
+}

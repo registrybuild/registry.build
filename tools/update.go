@@ -193,7 +193,8 @@ func main() {
 		"quittle/rules_web",
 		"lucidsoftware/rules_twirl",
 		"vaticle/bazel-distribution",
-		// todo plugins & toolchains
+		"bazelbuild/bazel-gazelle",
+		// todo plugins & tools & toolchains
 	}
 
 	for _, r := range additionalRepos {
@@ -269,6 +270,16 @@ func main() {
 					log.Printf("Error parsing metadata.json for %s: %s", r, err)
 				}
 				d.Repo = metadata
+
+				f, err = os.ReadFile(*dir + "/" + r + "/registry.json")
+				if err == nil {
+					var registry Registry
+					err = json.Unmarshal(f, &registry)
+					if err != nil {
+						log.Printf("Error parsing registry.json for %s: %s", r, err)
+					}
+					d.Registry = registry
+				}
 
 				f, err = os.ReadFile(*dir + "/" + r + "/readme.html")
 				if err == nil {
@@ -595,6 +606,13 @@ type Data struct {
 	Releases []Release `json:"releases"`
 	Root     Root      `json:"root"`
 	Repo     Repo      `json:"repo"`
+	Registry Registry  `json:"registry"`
+}
+
+type Registry struct {
+	Language   string   `json:"language"`
+	Extensions []string `json:"extensions"`
+	DepFiles   []string `json:"dep_files"`
 }
 
 type Root struct {

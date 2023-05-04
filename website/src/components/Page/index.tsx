@@ -1,5 +1,6 @@
 import Link from "@docusaurus/Link";
 import { useLocation, useHistory } from "@docusaurus/router";
+import { popularity } from "@site/src/utils/sort";
 import React, { useState } from "react";
 import Module from "../Module";
 import Modules from "../Modules";
@@ -92,13 +93,7 @@ function getMatches(data, query) {
   return data.name
     ? []
     : Object.values(data)
-        .sort((a, b) => {
-          let aScore = a.repo.stargazers_count;
-          let bScore = b.repo.stargazers_count;
-          if (a.name.includes("rules_")) aScore = aScore * 100;
-          if (b.name.includes("rules_")) bScore = bScore * 100;
-          return bScore - aScore;
-        })
+        .sort(popularity)
         .filter(
           (p) => p.name.includes(query) || p.repo.full_name.includes(query)
         );
