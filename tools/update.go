@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"flag"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -15,6 +16,9 @@ import (
 	"github.com/yuin/goldmark/extension"
 	"github.com/yuin/goldmark/parser"
 )
+
+var fetch = flag.Bool("fetch", false, "if true, force fetching of fresh data")
+var dir = flag.String("dir", "registry/github", "the directory to store data in")
 
 var md = goldmark.New(
 	goldmark.WithExtensions(extension.GFM),
@@ -233,7 +237,7 @@ func main() {
 				d.Owner = parts[0]
 				d.Name = parts[1]
 
-				f, err := os.ReadFile("metadata/" + r + "/releases.json")
+				f, err := os.ReadFile(*dir + "/" + r + "/releases.json")
 				if err != nil {
 					log.Printf("Error reading releases.json: %s", err)
 				}
@@ -252,7 +256,7 @@ func main() {
 				}
 				d.Releases = releases
 
-				f, err = os.ReadFile("metadata/" + r + "/metadata.json")
+				f, err = os.ReadFile(*dir + "/" + r + "/metadata.json")
 				if err != nil {
 					log.Printf("Error reading metadata.json: %s", err)
 				}
@@ -264,7 +268,7 @@ func main() {
 				}
 				d.Repo = metadata
 
-				f, err = os.ReadFile("metadata/" + r + "/readme.html")
+				f, err = os.ReadFile(*dir + "/" + r + "/readme.html")
 				if err == nil {
 					d.Root.Readme = string(f)
 				}
@@ -305,9 +309,9 @@ func main() {
 }
 
 func getReleases(repo string) error {
-	err := os.MkdirAll("metadata", 0777)
+	err := os.MkdirAll(*dir, 0777)
 
-	if _, err := os.Stat("metadata/" + repo + "/releases.json"); !os.IsNotExist(err) {
+	if _, err := os.Stat(*dir + "/" + repo + "/releases.json"); !*fetch && !os.IsNotExist(err) {
 		log.Printf("Already got releases for %s; skipping", repo)
 		return nil
 	}
@@ -335,21 +339,21 @@ func getReleases(repo string) error {
 		return err
 	}
 
-	err = os.MkdirAll("metadata/"+repo, 0777)
+	err = os.MkdirAll(*dir+"/"+repo, 0777)
 	if err != nil {
 		return err
 	}
 
-	os.WriteFile("metadata/"+repo+"/releases.json", body, 0777)
+	os.WriteFile(*dir+"/"+repo+"/releases.json", body, 0777)
 	log.Printf("Fetched releases for %s", repo)
 
 	return nil
 }
 
 func getReadme(repo string) error {
-	err := os.MkdirAll("metadata", 0777)
+	err := os.MkdirAll(*dir, 0777)
 
-	if _, err := os.Stat("metadata/" + repo + "/readme.html"); !os.IsNotExist(err) {
+	if _, err := os.Stat(*dir + "/" + repo + "/readme.html"); !*fetch && !os.IsNotExist(err) {
 		log.Printf("Already got readme for %s; skipping", repo)
 		return nil
 	}
@@ -377,21 +381,21 @@ func getReadme(repo string) error {
 		return err
 	}
 
-	err = os.MkdirAll("metadata/"+repo, 0777)
+	err = os.MkdirAll(*dir+"/"+repo, 0777)
 	if err != nil {
 		return err
 	}
 
-	os.WriteFile("metadata/"+repo+"/readme.html", body, 0777)
+	os.WriteFile(*dir+"/"+repo+"/readme.html", body, 0777)
 	log.Printf("Fetched readme for %s", repo)
 
 	return nil
 }
 
 func getMetadata(repo string) error {
-	err := os.MkdirAll("metadata", 0777)
+	err := os.MkdirAll(*dir, 0777)
 
-	if _, err := os.Stat("metadata/" + repo + "/metadata.json"); !os.IsNotExist(err) {
+	if _, err := os.Stat(*dir + "/" + repo + "/metadata.json"); !*fetch && !os.IsNotExist(err) {
 		log.Printf("Already got metadata for %s; skipping", repo)
 		return nil
 	}
@@ -419,12 +423,12 @@ func getMetadata(repo string) error {
 		return err
 	}
 
-	err = os.MkdirAll("metadata/"+repo, 0777)
+	err = os.MkdirAll(*dir+"/"+repo, 0777)
 	if err != nil {
 		return err
 	}
 
-	os.WriteFile("metadata/"+repo+"/metadata.json", body, 0777)
+	os.WriteFile(*dir+"/"+repo+"/metadata.json", body, 0777)
 	log.Printf("Fetched metadata for %s", repo)
 
 	return nil
@@ -435,7 +439,7 @@ func clone(repo string, sparse bool) error {
 	if err != nil {
 		return err
 	}
-	if _, err := os.Stat("repos/" + repo); !os.IsNotExist(err) {
+	if _, err := os.Stat("repos/" + repo); !*fetch && !os.IsNotExist(err) {
 		log.Printf("Already cloned %s; skipping", repo)
 		return nil
 	}
