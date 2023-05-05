@@ -137,7 +137,9 @@ const Module = (props) => {
                   ...versionData.module.matchAll(
                     /compatibility_level.*?([0-9]+).*?/g
                   ),
-                ].map((m) => m[1])}
+                ]
+                  .map((m) => m[1])
+                  .find(() => true) || "unknown"}
               </div>
             )}
             {yanked && (

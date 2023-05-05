@@ -487,24 +487,24 @@ func walk() ([]Module, error) {
 			if err != nil {
 				return err
 			}
-			// Example path: registry/bazelbuild/bazel-central-registry/modules/rules_java/metadata.json
+			// New: registry/github/bazelbuild/bazel-central-registry/clone/modules/rules_java/metadata.json
 			parts := strings.Split(path, "/")
 
-			if len(parts) < 5 || parts[3] != "modules" {
+			if len(parts) < 7 || parts[5] != "modules" {
 				return nil
 			}
-			moduleName := parts[4]
-			if len(parts) == 5 {
+			moduleName := parts[6]
+			if len(parts) == 7 {
 				modules[moduleName] = Module{
 					Name:        moduleName,
 					VersionData: map[string]Version{},
 				}
 				return nil
 			}
-			if len(parts) < 6 {
+			if len(parts) < 8 {
 				return nil
 			}
-			if parts[5] == "metadata.json" {
+			if parts[7] == "metadata.json" {
 				f, err := ioutil.ReadFile(path)
 				if err != nil {
 					return err
@@ -517,18 +517,18 @@ func walk() ([]Module, error) {
 				return err
 			}
 
-			versionName := parts[5]
-			if len(parts) == 6 {
+			versionName := parts[7]
+			if len(parts) == 8 {
 				modules[moduleName].VersionData[versionName] = Version{
 					Patches: map[string]string{},
 					Source:  Source{},
 				}
 				return nil
 			}
-			if len(parts) < 7 {
+			if len(parts) < 9 {
 				return nil
 			}
-			fileName := parts[6]
+			fileName := parts[8]
 			if fileName == "source.json" {
 				f, err := ioutil.ReadFile(path)
 				if err != nil {
@@ -561,12 +561,12 @@ func walk() ([]Module, error) {
 				modules[moduleName].VersionData[versionName] = version
 				return nil
 			}
-			if fileName == "patches" && len(parts) == 8 {
+			if fileName == "patches" && len(parts) == 10 {
 				f, err := ioutil.ReadFile(path)
 				if err != nil {
 					return err
 				}
-				patchName := parts[7]
+				patchName := parts[9]
 				modules[moduleName].VersionData[versionName].Patches[patchName] = string(f)
 				return nil
 			}
