@@ -121,7 +121,7 @@ export default class NewComponent extends React.Component<Props, State> {
           break;
         case 13: // Meta + Return
           if (!e.metaKey) break;
-          this.handleDownloadZip(this.state.name, this.getFiles()[0]);
+          this.handleDownloadZip(this.state.name, this.getFiles().files);
           e.preventDefault();
           break;
         case 32: // Ctrl + Space

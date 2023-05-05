@@ -18,6 +18,7 @@ import (
 )
 
 var fetch = flag.Bool("fetch", false, "if true, force fetching of fresh data")
+var cloneBCR = flag.Bool("clone", false, "if true, a new BCR will be fetched")
 var dir = flag.String("dir", "registry/github", "the directory to store data in")
 
 var md = goldmark.New(
@@ -449,7 +450,7 @@ func getMetadata(repo string) error {
 }
 
 func clone(repo string, sparse bool) error {
-	if *fetch {
+	if *cloneBCR {
 		os.RemoveAll(*dir + "/" + repo + "/clone")
 	}
 
