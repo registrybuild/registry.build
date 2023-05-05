@@ -37,7 +37,7 @@ module.exports = async function modules(context, options) {
           exact: true,
         });
 
-        index.push({
+        let module = {
           name: r.name,
           modules: r.modules.map((m) => {
             name: m.name;
@@ -58,7 +58,26 @@ module.exports = async function modules(context, options) {
                   },
                 ]
               : [],
-        });
+        };
+
+        for (let release of r.releases) {
+          let matches = [
+            ...release.body.matchAll(/<code[^>]*?>(.*?)<\/code>/gms),
+          ];
+          for (let match of matches) {
+            if (
+              !module.workspaceSnippet &&
+              match[1].includes("http_archive(")
+            ) {
+              module.workspaceSnippet = match[1].replaceAll("&quot;", `"`);
+            }
+            if (!module.workspaceSnippet && match[1].includes("bazel_dep(")) {
+              module.moduleSnippet = match[1].replaceAll("&quot;", `"`);
+            }
+          }
+        }
+
+        index.push(module);
       }
 
       const jsonPath = await actions.createData(

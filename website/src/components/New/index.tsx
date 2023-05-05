@@ -140,15 +140,19 @@ export default class NewComponent extends React.Component<Props, State> {
     if (this.state.type == "WORKSPACE") {
       metadata = `workspace(name = "${this.state.name}")`;
       snippets = this.state.dependencies
-        .filter((d) => Boolean(d.snippet))
-        .map((d) => d.snippet);
-      missing = this.state.dependencies.filter((d) => !Boolean(d.snippet));
+        .filter((d) => Boolean(d.workspaceSnippet))
+        .map((d) => d.workspaceSnippet);
+      missing = this.state.dependencies.filter(
+        (d) => !Boolean(d.workspaceSnippet)
+      );
     } else {
       metadata = `module(name = "${this.state.name}", version = "1.0")`;
       snippets = this.state.dependencies
-        .filter((d) => Boolean(d.module))
-        .map((d) => d.module);
-      missing = this.state.dependencies.filter((d) => !Boolean(d.module));
+        .filter((d) => Boolean(d.moduleSnippet))
+        .map((d) => d.moduleSnippet);
+      missing = this.state.dependencies.filter(
+        (d) => !Boolean(d.moduleSnippet)
+      );
     }
 
     let snippetString = snippets.join("\n\n");
@@ -165,7 +169,7 @@ export default class NewComponent extends React.Component<Props, State> {
 
     files[this.state.type] = fflate.strToU8(
       `${metadata}\n${
-        snippetString.includes("http_archive")
+        false && snippetString.includes("http_archive")
           ? `\nload("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")\n`
           : ""
       }\n${snippetString}`.trim()
@@ -583,7 +587,7 @@ build:remote --remote_executor=grpcs://remote.buildbuddy.io\n\n`;
                   >
                     <div className="new-builder-files">
                       {Object.keys(files).map((f) => (
-                        <div className="new-builder-section">
+                        <div className="new-builder-section" key={f}>
                           <div className="new-builder-title">{f}</div>
                           <code style={{ whiteSpace: "pre" }}>
                             {fflate.strFromU8(files[f])}
