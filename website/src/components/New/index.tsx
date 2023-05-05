@@ -108,18 +108,25 @@ export default class NewComponent extends React.Component<Props, State> {
 
   componentDidMount() {
     document.onkeydown = (e) => {
-      if (this.state.showModal) {
-        switch (e.keyCode) {
-          case 27: // esc
-            this.setState({ showModal: false });
-            break;
-        }
-      }
       switch (e.keyCode) {
-        case 66: // L
+        case 27: // Esc
+          this.setState({ showModal: false, showFiles: false });
+          break;
+        case 66: // Meta + B
+          if (!e.metaKey) break;
           this.setState({ showModal: true }, () => {
             document.getElementById("dep-input").focus();
           });
+          e.preventDefault();
+          break;
+        case 13: // Meta + Return
+          if (!e.metaKey) break;
+          this.handleDownloadZip(this.state.name, this.getFiles()[0]);
+          e.preventDefault();
+          break;
+        case 32: // Ctrl + Space
+          if (!e.ctrlKey) break;
+          this.setState({ showFiles: true });
           e.preventDefault();
           break;
       }
@@ -134,29 +141,6 @@ export default class NewComponent extends React.Component<Props, State> {
   }
 
   render() {
-    let snippets = [];
-    let missing = [];
-    let metadata = "";
-    if (this.state.type == "WORKSPACE") {
-      metadata = `workspace(name = "${this.state.name}")`;
-      snippets = this.state.dependencies
-        .filter((d) => Boolean(d.workspaceSnippet))
-        .map((d) => d.workspaceSnippet);
-      missing = this.state.dependencies.filter(
-        (d) => !Boolean(d.workspaceSnippet)
-      );
-    } else {
-      metadata = `module(name = "${this.state.name}", version = "1.0")`;
-      snippets = this.state.dependencies
-        .filter((d) => Boolean(d.moduleSnippet))
-        .map((d) => d.moduleSnippet);
-      missing = this.state.dependencies.filter(
-        (d) => !Boolean(d.moduleSnippet)
-      );
-    }
-
-    let snippetString = snippets.join("\n\n");
-
     let filteredDeps = this.props.data
       .filter((d) => d.name.includes(this.state.query))
       .sort(popularity)
@@ -165,80 +149,7 @@ export default class NewComponent extends React.Component<Props, State> {
       this.setState({ selectIndex: 0 });
     }
 
-    let files = {} as any;
-
-    files[this.state.type] = fflate.strToU8(
-      `${metadata}\n${
-        false && snippetString.includes("http_archive")
-          ? `\nload("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")\n`
-          : ""
-      }\n${snippetString}`.trim()
-    );
-
-    let bazelRC = "";
-
-    if (this.state.settings.includes("strict environment")) {
-      bazelRC += `# Use a static PATH variable to prevent unnecessary rebuilds of dependencies like protobuf. 
-build --incompatible_strict_action_env\n\n`;
-    }
-
-    if (this.state.settings.includes("build without bytes")) {
-      bazelRC += `# Don't download intermediate outputs from the remote cache
-build --remote_download_minimal\n\n`;
-    }
-
-    if (this.state.tools.includes("results UI")) {
-      bazelRC += `# Adds BES backend for results UI
-build --bes_results_url=https://app.buildbuddy.io/invocation/
-build --bes_backend=grpcs://remote.buildbuddy.io\n\n`;
-    }
-
-    if (this.state.tools.includes("remote cache")) {
-      bazelRC += `# Enable use of a remote cache when --config=cache is set
-build:cache --remote_cache=grpcs://remote.buildbuddy.io\n\n`;
-    }
-
-    if (this.state.tools.includes("remote execution")) {
-      bazelRC += `# Enable remote execution when --config=remote is set
-build:remote --remote_executor=grpcs://remote.buildbuddy.io\n\n`;
-    }
-
-    if (
-      this.state.tools.includes("results UI") ||
-      this.state.tools.includes("remote cache") ||
-      this.state.tools.includes("remote execution")
-    ) {
-      bazelRC += `# Grab an API key from https://app.buildbuddy.io/
-# common --remote_header=x-buildbuddy-api-key=YOUR_API_KEY_GOES_HERE\n\n`;
-    }
-
-    files[".bazelrc"] = fflate.strToU8(bazelRC.trim());
-
-    let bazelVersion = this.state.bazelVersion;
-
-    if (this.state.tools.includes("BB CLI")) {
-      bazelVersion = `buildbuddy-io/5.0.7\n${bazelVersion}`;
-    }
-
-    files[".bazelversion"] = fflate.strToU8(`${bazelVersion}`.trim());
-
-    if (this.state.tools.includes("workflows")) {
-      files["buildbuddy.yaml"] = fflate.strToU8(
-        `actions:
-  - name: "Test all targets"
-    triggers:
-      push:
-        branches:
-          - "main" # <-- replace "main" with your main branch name
-      pull_request:
-        branches:
-          - "*"
-    bazel_commands:
-      - "test //..."`.trim()
-      );
-    }
-
-    files["BUILD"] = fflate.strToU8(``.trim());
+    let { files, missing } = this.getFiles();
 
     console.log(this.props.data);
 
@@ -424,7 +335,7 @@ build:remote --remote_executor=grpcs://remote.buildbuddy.io\n\n`;
                       });
                     }}
                   >
-                    ADD <span className="hint">[⌘ + B]</span>
+                    ADD <span className="hint">⌘ + B</span>
                   </button>
                 </div>
                 {this.state.showModal && (
@@ -560,13 +471,13 @@ build:remote --remote_executor=grpcs://remote.buildbuddy.io\n\n`;
                     this.setState({ showFiles: !this.state.showFiles })
                   }
                 >
-                  EXPLORE <span className="hint">[⌘ + E]</span>
+                  EXPLORE <span className="hint">CTRL + SPACE</span>
                 </button>
                 <button
                   className="primary"
                   onClick={() => this.handleDownloadZip(this.state.name, files)}
                 >
-                  GENERATE <span className="hint">[⌘ + G]</span>
+                  GENERATE <span className="hint">⌘ + ↵</span>
                 </button>
               </div>
 
@@ -597,6 +508,108 @@ build:remote --remote_executor=grpcs://remote.buildbuddy.io\n\n`;
         </div>
       </div>
     );
+  }
+
+  getFiles() {
+    let files = {} as any;
+
+    let snippets = [];
+    let missing = [];
+    let metadata = "";
+    if (this.state.type == "WORKSPACE") {
+      metadata = `workspace(name = "${this.state.name}")`;
+      snippets = this.state.dependencies
+        .filter((d) => Boolean(d.workspaceSnippet))
+        .map((d) => d.workspaceSnippet);
+      missing = this.state.dependencies.filter(
+        (d) => !Boolean(d.workspaceSnippet)
+      );
+    } else {
+      metadata = `module(name = "${this.state.name}", version = "1.0")`;
+      snippets = this.state.dependencies
+        .filter((d) => Boolean(d.moduleSnippet))
+        .map((d) => d.moduleSnippet);
+      missing = this.state.dependencies.filter(
+        (d) => !Boolean(d.moduleSnippet)
+      );
+    }
+
+    let snippetString = snippets.join("\n\n");
+
+    files[this.state.type] = fflate.strToU8(
+      `${metadata}\n${
+        false && snippetString.includes("http_archive")
+          ? `\nload("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")\n`
+          : ""
+      }\n${snippetString}`.trim()
+    );
+
+    let bazelRC = "";
+
+    if (this.state.settings.includes("strict environment")) {
+      bazelRC += `# Use a static PATH variable to prevent unnecessary rebuilds of dependencies like protobuf. 
+build --incompatible_strict_action_env\n\n`;
+    }
+
+    if (this.state.settings.includes("build without bytes")) {
+      bazelRC += `# Don't download intermediate outputs from the remote cache
+build --remote_download_minimal\n\n`;
+    }
+
+    if (this.state.tools.includes("results UI")) {
+      bazelRC += `# Adds BES backend for results UI
+build --bes_results_url=https://app.buildbuddy.io/invocation/
+build --bes_backend=grpcs://remote.buildbuddy.io\n\n`;
+    }
+
+    if (this.state.tools.includes("remote cache")) {
+      bazelRC += `# Enable use of a remote cache when --config=cache is set
+build:cache --remote_cache=grpcs://remote.buildbuddy.io\n\n`;
+    }
+
+    if (this.state.tools.includes("remote execution")) {
+      bazelRC += `# Enable remote execution when --config=remote is set
+build:remote --remote_executor=grpcs://remote.buildbuddy.io\n\n`;
+    }
+
+    if (
+      this.state.tools.includes("results UI") ||
+      this.state.tools.includes("remote cache") ||
+      this.state.tools.includes("remote execution")
+    ) {
+      bazelRC += `# Grab an API key from https://app.buildbuddy.io/
+# common --remote_header=x-buildbuddy-api-key=YOUR_API_KEY_GOES_HERE\n\n`;
+    }
+
+    files[".bazelrc"] = fflate.strToU8(bazelRC.trim());
+
+    let bazelVersion = this.state.bazelVersion;
+
+    if (this.state.tools.includes("BB CLI")) {
+      bazelVersion = `buildbuddy-io/5.0.7\n${bazelVersion}`;
+    }
+
+    files[".bazelversion"] = fflate.strToU8(`${bazelVersion}`.trim());
+
+    if (this.state.tools.includes("workflows")) {
+      files["buildbuddy.yaml"] = fflate.strToU8(
+        `actions:
+  - name: "Test all targets"
+    triggers:
+      push:
+        branches:
+          - "main" # <-- replace "main" with your main branch name
+      pull_request:
+        branches:
+          - "*"
+    bazel_commands:
+      - "test //..."`.trim()
+      );
+    }
+
+    files["BUILD"] = fflate.strToU8(``.trim());
+
+    return { files, missing };
   }
 
   async handleDownloadZip(name: string, files: any) {
