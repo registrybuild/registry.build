@@ -267,7 +267,6 @@ export default class NewComponent extends React.Component<Props, State> {
                   <div className="new-builder-title">Tools</div>
                   <div className="new-builder-config checkboxes">
                     {[
-                      "gazelle",
                       "results UI",
                       "remote cache",
                       "remote execution",
