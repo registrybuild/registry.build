@@ -1,4 +1,4 @@
-import React from "react";
+import React, { DOMElement, useState } from "react";
 import { since, size } from "../../utils/format";
 import {
   AlertOctagon,
@@ -6,6 +6,7 @@ import {
   BookOpen,
   Box,
   CheckCircle2,
+  Copy,
   Download,
   Eye,
   GitCommit,
@@ -25,6 +26,9 @@ const Module = (props) => {
   let history = useHistory();
   let location = useLocation();
   let release = getReleaseForTag(props.data.releases, getVersion(location));
+
+  let [workspaceCopied, setWorkspaceCopied] = useState(false);
+  let [moduleCopied, setModuleCopied] = useState(false);
 
   let module = props.data.modules[0];
   let versionData =
@@ -180,13 +184,25 @@ const Module = (props) => {
           {(props.data.workspaceSnippet || props.data.moduleSnippet) && (
             <div className="package-buttons">
               {props.data.workspaceSnippet && (
-                <button onClick={() => copy(props.data.workspaceSnippet)}>
-                  Copy Workspace Snippet
+                <button
+                  className={workspaceCopied && "copied"}
+                  onClick={(e) => {
+                    copy(props.data.workspaceSnippet);
+                    setWorkspaceCopied(!workspaceCopied);
+                  }}
+                >
+                  <Copy /> {workspaceCopied ? <>Copied!</> : <>Workspace</>}
                 </button>
               )}
               {props.data.moduleSnippet && (
-                <button onClick={() => copy(props.data.moduleSnippet)}>
-                  Copy Module Snippet
+                <button
+                  className={moduleCopied && "copied"}
+                  onClick={(e) => {
+                    copy(props.data.moduleSnippet);
+                    setModuleCopied(!moduleCopied);
+                  }}
+                >
+                  <Copy /> {moduleCopied ? <>Copied!</> : <>Module</>}
                 </button>
               )}
             </div>

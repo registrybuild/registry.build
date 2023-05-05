@@ -24,6 +24,9 @@ module.exports = async function modules(context, options) {
               r.moduleSnippet = match[1].replaceAll("&quot;", `"`);
             }
           }
+          if (!r.moduleSnippet && r.modules.length > 0) {
+            r.moduleSnippet = `bazel_dep(name = "${r.modules[0].name}", version = "${r.modules[0].versions[0]}")`;
+          }
         }
 
         const jsonPath = await actions.createData(
