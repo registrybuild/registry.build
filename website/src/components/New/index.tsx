@@ -175,7 +175,7 @@ export default class NewComponent extends React.Component<Props, State> {
             </div>
             <div className="github">
               <a
-                href="http://github.com/registrybuild/registry.build"
+                href="https://github.com/registrybuild/registry.build"
                 target="_blank"
               >
                 <Github />

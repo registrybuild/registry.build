@@ -1,7 +1,7 @@
 import Link from "@docusaurus/Link";
 import { useLocation, useHistory } from "@docusaurus/router";
 import { popularity } from "@site/src/utils/sort";
-import { Github, PlusCircle } from "lucide-react";
+import { Github, HelpCircle, PlusCircle } from "lucide-react";
 import React, { useState } from "react";
 import Module from "../Module";
 import Modules from "../Modules";
@@ -91,7 +91,13 @@ const Page = (props) => {
           <PlusCircle />
         </Link>
         <a
-          href="https://github.com/registrybuild/registry.build/"
+          href="https://github.com/registrybuild/registry.build/issues/new"
+          target="_blank"
+        >
+          <HelpCircle />
+        </a>
+        <a
+          href="https://github.com/registrybuild/registry.build"
           target="_blank"
         >
           <Github />
