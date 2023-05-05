@@ -97,7 +97,8 @@ const Module = (props) => {
           {release && release.assets.length > 0 && (
             <div className="package-assets">
               <Download className="package-icon" />
-              {release.assets
+              {props.data.releases
+                .flatMap((r) => r.assets)
                 .map((a) => a.download_count)
                 .reduce((a, b) => a + b)
                 .toLocaleString()}{" "}
@@ -170,7 +171,25 @@ const Module = (props) => {
             </div>
           </div>
         )}
-        <div className="package-description">{props.data.repo.description}</div>
+        <div className="package-footer">
+          <div className="package-description">
+            {props.data.repo.description}
+          </div>
+          {(props.data.workspaceSnippet || props.data.moduleSnippet) && (
+            <div className="package-buttons">
+              {props.data.workspaceSnippet && (
+                <button onClick={() => copy(props.data.workspaceSnippet)}>
+                  Copy Workspace Snippet
+                </button>
+              )}
+              {props.data.moduleSnippet && (
+                <button onClick={() => copy(props.data.moduleSnippet)}>
+                  Copy Module Snippet
+                </button>
+              )}
+            </div>
+          )}
+        </div>
       </div>
       {release &&
         [release].map((release) => (
@@ -286,6 +305,15 @@ const Module = (props) => {
     </div>
   );
 };
+
+function copy(snippet) {
+  var input = document.createElement("textarea");
+  input.value = snippet;
+  document.body.appendChild(input);
+  input.select();
+  document.execCommand("copy");
+  document.body.removeChild(input);
+}
 
 function getVersion(location) {
   return location.hash.substring(1);

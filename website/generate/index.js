@@ -12,6 +12,20 @@ module.exports = async function modules(context, options) {
       let index = [];
 
       for (let r of repos) {
+        for (let release of r.releases) {
+          let matches = [
+            ...release.body.matchAll(/<code[^>]*?>(.*?)<\/code>/gms),
+          ];
+          for (let match of matches) {
+            if (!r.workspaceSnippet && match[1].includes("http_archive(")) {
+              r.workspaceSnippet = match[1].replaceAll("&quot;", `"`);
+            }
+            if (!r.moduleSnippet && match[1].includes("bazel_dep(")) {
+              r.moduleSnippet = match[1].replaceAll("&quot;", `"`);
+            }
+          }
+        }
+
         const jsonPath = await actions.createData(
           `${r.owner}/${r.name}.json`,
           JSON.stringify(r)
@@ -58,24 +72,9 @@ module.exports = async function modules(context, options) {
                   },
                 ]
               : [],
+          workspaceSnippet: r.workspaceSnippet,
+          moduleSnippet: r.moduleSnippet,
         };
-
-        for (let release of r.releases) {
-          let matches = [
-            ...release.body.matchAll(/<code[^>]*?>(.*?)<\/code>/gms),
-          ];
-          for (let match of matches) {
-            if (
-              !module.workspaceSnippet &&
-              match[1].includes("http_archive(")
-            ) {
-              module.workspaceSnippet = match[1].replaceAll("&quot;", `"`);
-            }
-            if (!module.workspaceSnippet && match[1].includes("bazel_dep(")) {
-              module.moduleSnippet = match[1].replaceAll("&quot;", `"`);
-            }
-          }
-        }
 
         index.push(module);
       }
