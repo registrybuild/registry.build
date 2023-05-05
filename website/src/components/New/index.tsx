@@ -415,132 +415,126 @@ build:remote --remote_executor=grpcs://remote.buildbuddy.io\n\n`;
                 </div>
               </div>
               <div className="new-builder-half">
-                <div className="new-builder-section">
-                  <div className="new-builder-dependency-section">
-                    <div className="new-builder-title">Dependencies</div>
-                    <button
-                      onClick={() => {
-                        this.setState({ showModal: true }, () => {
-                          document.getElementById("dep-input").focus();
-                        });
-                      }}
+                <div className="new-builder-dependency-section">
+                  <div className="new-builder-title">Dependencies</div>
+                  <button
+                    onClick={() => {
+                      this.setState({ showModal: true }, () => {
+                        document.getElementById("dep-input").focus();
+                      });
+                    }}
+                  >
+                    ADD <span className="hint">[⌘ + B]</span>
+                  </button>
+                </div>
+                {this.state.showModal && (
+                  <div
+                    className="new-builder-modal-container"
+                    onClick={() => this.setState({ showModal: false })}
+                  >
+                    <div
+                      className="new-builder-modal"
+                      onClick={(e) => e.stopPropagation()}
                     >
-                      ADD <span className="hint">[⌘ + B]</span>
-                    </button>
-                  </div>
-                  <div>
-                    {this.state.showModal && (
-                      <div
-                        className="new-builder-modal-container"
-                        onClick={() => this.setState({ showModal: false })}
-                      >
-                        <div
-                          className="new-builder-modal"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <input
-                            id="dep-input"
-                            value={this.state.query}
-                            onChange={(e) =>
-                              this.setState({ query: e.target.value })
-                            }
-                            onKeyDown={(e) => {
-                              switch (e.keyCode) {
-                                case 13: //enter
-                                  if (filteredDeps.length == 0) break;
-                                  this.state.dependencies.push(
-                                    filteredDeps[this.state.selectIndex]
-                                  );
-                                  this.setState({
-                                    dependencies: this.state.dependencies,
-                                    query: "",
-                                    showModal: false,
-                                  });
-                                  break;
-                                case 38: //up
-                                  let prev = Math.max(
-                                    this.state.selectIndex - 1,
-                                    0
-                                  );
-                                  this.setState({
-                                    selectIndex: prev,
-                                  });
-                                  document
-                                    .getElementById(`option-${prev}`)
-                                    .scrollIntoView({ block: "nearest" });
-                                  break;
-                                case 40: //down
-                                  let next = Math.min(
-                                    this.state.selectIndex + 1,
-                                    filteredDeps.length - 1
-                                  );
-                                  this.setState({
-                                    selectIndex: next,
-                                  });
-                                  document
-                                    .getElementById(`option-${next}`)
-                                    .scrollIntoView({ block: "nearest" });
-                                  break;
+                      <input
+                        id="dep-input"
+                        value={this.state.query}
+                        onChange={(e) =>
+                          this.setState({ query: e.target.value })
+                        }
+                        onKeyDown={(e) => {
+                          switch (e.keyCode) {
+                            case 13: //enter
+                              if (filteredDeps.length == 0) break;
+                              this.state.dependencies.push(
+                                filteredDeps[this.state.selectIndex]
+                              );
+                              this.setState({
+                                dependencies: this.state.dependencies,
+                                query: "",
+                                showModal: false,
+                              });
+                              break;
+                            case 38: //up
+                              let prev = Math.max(
+                                this.state.selectIndex - 1,
+                                0
+                              );
+                              this.setState({
+                                selectIndex: prev,
+                              });
+                              document
+                                .getElementById(`option-${prev}`)
+                                .scrollIntoView({ block: "nearest" });
+                              break;
+                            case 40: //down
+                              let next = Math.min(
+                                this.state.selectIndex + 1,
+                                filteredDeps.length - 1
+                              );
+                              this.setState({
+                                selectIndex: next,
+                              });
+                              document
+                                .getElementById(`option-${next}`)
+                                .scrollIntoView({ block: "nearest" });
+                              break;
+                          }
+                        }}
+                      />
+                      <div className="dep-input-options">
+                        {filteredDeps.sort(popularity).map((d, index) => (
+                          <div
+                            id={`option-${index}`}
+                            key={d.repo.full_name}
+                            className={`dep-input-option ${
+                              index == this.state.selectIndex ? "selected" : ""
+                            }`}
+                            style={{ cursor: "pointer" }}
+                            onClick={() => {
+                              if (this.state.dependencies.includes(d)) {
+                                this.state.dependencies.splice(
+                                  this.state.dependencies.indexOf(d),
+                                  1
+                                );
+                              } else {
+                                this.state.dependencies.push(d);
                               }
+                              this.setState({
+                                dependencies: this.state.dependencies,
+                              });
                             }}
-                          />
-                          <div className="dep-input-options">
-                            {filteredDeps.sort(popularity).map((d, index) => (
-                              <div
-                                id={`option-${index}`}
-                                key={d.repo.full_name}
-                                className={`dep-input-option ${
-                                  index == this.state.selectIndex
-                                    ? "selected"
-                                    : ""
-                                }`}
-                                style={{ cursor: "pointer" }}
-                                onClick={() => {
-                                  if (this.state.dependencies.includes(d)) {
-                                    this.state.dependencies.splice(
-                                      this.state.dependencies.indexOf(d),
-                                      1
-                                    );
-                                  } else {
-                                    this.state.dependencies.push(d);
-                                  }
-                                  this.setState({
-                                    dependencies: this.state.dependencies,
-                                  });
-                                }}
-                              >
-                                <Module
-                                  onRemove={() => this.remove(d)}
-                                  selected={this.state.dependencies.includes(d)}
-                                  data={d}
-                                />
-                              </div>
-                            ))}
+                          >
+                            <Module
+                              onRemove={() => this.remove(d)}
+                              selected={this.state.dependencies.includes(d)}
+                              data={d}
+                            />
                           </div>
-                        </div>
+                        ))}
                       </div>
-                    )}
-                    <div className="dependency-list">
-                      {this.state.dependencies.length == 0 && (
-                        <div>
-                          No dependencies added yet, click <b>ADD</b> above to
-                          add some!
-                        </div>
-                      )}
-                      {this.state.dependencies.map((d) => (
-                        <Module
-                          onRemove={() => {
-                            this.remove(d);
-                          }}
-                          selected={true}
-                          key={d.repo.full_name}
-                          data={d}
-                          missing={missing.includes(d)}
-                          type={this.state.type}
-                        />
-                      ))}
                     </div>
                   </div>
+                )}
+                <div className="dependency-list">
+                  {this.state.dependencies.length == 0 && (
+                    <div>
+                      No dependencies added yet, click <b>ADD</b> above to add
+                      some!
+                    </div>
+                  )}
+                  {this.state.dependencies.map((d) => (
+                    <Module
+                      onRemove={() => {
+                        this.remove(d);
+                      }}
+                      selected={true}
+                      key={d.repo.full_name}
+                      data={d}
+                      missing={missing.includes(d)}
+                      type={this.state.type}
+                    />
+                  ))}
                 </div>
 
                 {/* {missing.length > 0 && (
