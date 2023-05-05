@@ -1,6 +1,7 @@
 import Link from "@docusaurus/Link";
 import { useLocation, useHistory } from "@docusaurus/router";
 import { popularity } from "@site/src/utils/sort";
+import { Github, PlusCircle } from "lucide-react";
 import React, { useState } from "react";
 import Module from "../Module";
 import Modules from "../Modules";
@@ -84,6 +85,17 @@ const Page = (props) => {
             <Module data={props.data} />
           )}
         </div>
+      </div>
+      <div className="floating">
+        <Link to="/new">
+          <PlusCircle />
+        </Link>
+        <a
+          href="https://github.com/registrybuild/registry.build/"
+          target="_blank"
+        >
+          <Github />
+        </a>
       </div>
     </div>
   );

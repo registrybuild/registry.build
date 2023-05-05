@@ -156,11 +156,32 @@ export default class NewComponent extends React.Component<Props, State> {
     return (
       <div className="new-container new">
         <div className="header">
-          <Link to="/" className="logo">
-            <div className="logo-new">NEW</div>
-            <div className="logo-mono">MONO</div>
-            <div className="logo-repo">REPO</div>
-          </Link>
+          <div className="header-container">
+            <div className="tbr">
+              <Link to="/">
+                THE
+                <br />
+                BUILD
+                <br />
+                REGISTRY
+              </Link>
+            </div>
+            <div>
+              <Link to="/new" className="logo">
+                <div className="logo-new">NEW</div>
+                <div className="logo-mono">MONO</div>
+                <div className="logo-repo">REPO</div>
+              </Link>
+            </div>
+            <div className="github">
+              <a
+                href="http://github.com/registrybuild/registry.build"
+                target="_blank"
+              >
+                <Github />
+              </a>
+            </div>
+          </div>
         </div>
         <div className="content">
           <div className="main new-builder-container">
