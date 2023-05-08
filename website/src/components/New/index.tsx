@@ -576,6 +576,11 @@ build --incompatible_strict_action_env\n\n`;
 build --remote_download_minimal\n\n`;
     }
 
+    if (this.state.settings.includes("compression")) {
+      bazelRC += `# Enables compressed remote cache reads/writes
+build --experimental_remote_cache_compression\n\n`;
+    }
+
     if (this.state.tools.includes("results UI")) {
       bazelRC += `# Adds BES backend for results UI
 build --bes_results_url=https://app.buildbuddy.io/invocation/
