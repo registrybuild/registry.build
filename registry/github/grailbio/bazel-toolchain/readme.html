@@ -34,7 +34,7 @@ load(&quot;@com_grail_bazel_toolchain//toolchain:rules.bzl&quot;, &quot;llvm_too
 
 llvm_toolchain(
     name = &quot;llvm_toolchain&quot;,
-    llvm_version = &quot;15.0.6&quot;,
+    llvm_version = &quot;16.0.0&quot;,
 )
 
 load(&quot;@llvm_toolchain//:toolchains.bzl&quot;, &quot;llvm_register_toolchains&quot;)
@@ -60,7 +60,7 @@ llvm_register_toolchains()"><pre><span class="pl-en">load</span>(<span class="pl
 
 <span class="pl-en">llvm_toolchain</span>(
     <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"llvm_toolchain"</span>,
-    <span class="pl-s1">llvm_version</span> <span class="pl-c1">=</span> <span class="pl-s">"15.0.6"</span>,
+    <span class="pl-s1">llvm_version</span> <span class="pl-c1">=</span> <span class="pl-s">"16.0.0"</span>,
 )
 
 <span class="pl-en">load</span>(<span class="pl-s">"@llvm_toolchain//:toolchains.bzl"</span>, <span class="pl-s">"llvm_register_toolchains"</span>)
@@ -77,6 +77,32 @@ below for more options.</p>
 <p dir="auto">See in-code documentation in <a href="toolchain/rules.bzl">rules.bzl</a> for available
 attributes to <code>llvm_toolchain</code>.</p>
 <h2 dir="auto"><a id="user-content-advanced-usage" class="anchor" aria-hidden="true" href="#advanced-usage"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Advanced Usage</h2>
+<h4 dir="auto"><a id="user-content-per-host-architecture-llvm-version" class="anchor" aria-hidden="true" href="#per-host-architecture-llvm-version"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Per host architecture LLVM version</h4>
+<p dir="auto">LLVM does not come with distributions for all host architectures in each
+version. In particular patch versions often come with few prebuilt packages.
+This means that a single version probably is not enough to address all hosts
+one wants to support.</p>
+<p dir="auto">This can be solved by providing a target/version map with a default version.
+The example below selects <code>15.0.6</code> as the default version for all targets not
+specified explicitly. This is like providing <code>llvm_version = "15.0.6"</code>, just
+like in the example on the top. However, here we provide two more entries that
+map their respective target to a distinct version:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="llvm_toolchain(
+    name = &quot;llvm_toolchain&quot;,
+    llvm_versions = {
+        &quot;&quot;: &quot;15.0.6&quot;,
+        &quot;darwin-aarch64&quot;: &quot;15.0.7&quot;,
+        &quot;darwin-x86_64&quot;: &quot;15.0.7&quot;,
+    },
+)"><pre class="notranslate"><code>llvm_toolchain(
+    name = "llvm_toolchain",
+    llvm_versions = {
+        "": "15.0.6",
+        "darwin-aarch64": "15.0.7",
+        "darwin-x86_64": "15.0.7",
+    },
+)
+</code></pre></div>
 <h4 dir="auto"><a id="user-content-customizations" class="anchor" aria-hidden="true" href="#customizations"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Customizations</h4>
 <p dir="auto">We currently offer limited customizability through attributes of the
 <a href="toolchain/rules.bzl">llvm_toolchain_* rules</a>. You can send us a PR to add
@@ -135,11 +161,12 @@ and instead rely on the <code>--incompatible_enable_cc_toolchain_resolution</cod
 <p dir="auto">The following mechanisms are available for using an LLVM toolchain:</p>
 <ol dir="auto">
 <li>Host OS information is used to find the right pre-built binary distribution
-from llvm.org, given the <code>llvm_version</code> attribute. The LLVM toolchain
-archive is downloaded and extracted as a separate repository with the suffix
-<code>_llvm</code>. The detection is not perfect, so you may have to use other options
-for some host OS type and versions. We expect the detection logic to grow
-through community contributions. We welcome PRs.</li>
+from llvm.org, given the <code>llvm_version</code> or <code>llvm_versions</code> attribute. The
+LLVM toolchain archive is downloaded and extracted as a separate repository
+with the suffix <code>_llvm</code>. The detection logic for <code>llvm_version</code> is not
+perfect, so you may have to use <code>llvm_versions</code> for some host OS type and
+versions. We expect the detection logic to grow through community
+contributions. We welcome PRs.</li>
 <li>You can use the <code>urls</code> attribute to specify your own URLs for each OS type,
 version and architecture. For example, you can specify a different URL for
 Arch Linux and a different one for Ubuntu. Just as with the option above,
