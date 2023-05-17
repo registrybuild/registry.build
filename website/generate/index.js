@@ -3,6 +3,7 @@ let path = require("path");
 let fs = require("fs-extra");
 
 let dataMap = {};
+let disambiguation = {};
 
 module.exports = async function modules(context, options) {
   return {
@@ -58,6 +59,11 @@ module.exports = async function modules(context, options) {
         for (let module of r.modules) {
           let path = `/bazel/${module.name}`;
           dataMap[`${path}/data.json`] = r;
+          addDisambiguation(
+            module.name,
+            { path: path, stars: r.repo.stargazers_count },
+            r.repo.full_name
+          );
           actions.addRoute({
             path: path,
             component: "@site/src/components/Page",
@@ -70,6 +76,11 @@ module.exports = async function modules(context, options) {
 
         let path = `/github/${r.repo.full_name}`;
         dataMap[`${path}/data.json`] = r;
+        addDisambiguation(
+          r.repo.name,
+          { path: path, stars: r.repo.stargazers_count },
+          r.repo.full_name
+        );
         actions.addRoute({
           path: `/github/${r.repo.full_name}`,
           component: "@site/src/components/Page",
@@ -146,6 +157,24 @@ module.exports = async function modules(context, options) {
           throw err;
         }
       }
+
+      for (let k in disambiguation) {
+        const p = path.join(outDir, k, "/data.json");
+        try {
+          let contents = { disambiguation: Object.values(disambiguation[k]) };
+          await fs.outputFile(p, JSON.stringify(contents));
+        } catch (err) {
+          console.log(`Writing ${p} failed.`);
+          throw err;
+        }
+      }
     },
   };
 };
+
+function addDisambiguation(key, value, hash) {
+  if (!disambiguation[key]) {
+    disambiguation[key] = {};
+  }
+  disambiguation[key][hash] = value;
+}
