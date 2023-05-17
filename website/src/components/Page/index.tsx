@@ -113,7 +113,10 @@ function getMatches(data, query) {
     : Object.values(data)
         .sort(popularity)
         .filter(
-          (p) => p.name.includes(query) || p.repo.full_name.includes(query)
+          (p) =>
+            p.name.includes(query) ||
+            p.repo.full_name.includes(query) ||
+            p.modules.find((m) => m?.name.includes(query))
         );
 }
 

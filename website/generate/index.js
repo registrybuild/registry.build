@@ -82,7 +82,7 @@ module.exports = async function modules(context, options) {
         let module = {
           name: r.name,
           modules: r.modules.map((m) => {
-            name: m.name;
+            return { name: m.name };
           }),
           repo: {
             full_name: r.repo.full_name,
