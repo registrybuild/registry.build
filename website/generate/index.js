@@ -58,7 +58,7 @@ module.exports = async function modules(context, options) {
           dataMap[`${path}/data.json`] = r;
           addDisambiguation(
             module.name,
-            { path: path, stars: r.repo.stargazers_count },
+            { path: path.substr(1), stars: r.repo.stargazers_count },
             r.repo.full_name
           );
           actions.addRoute({
@@ -77,14 +77,14 @@ module.exports = async function modules(context, options) {
         if (r.registry && r.registry.language) {
           addDisambiguation(
             r.registry.language,
-            { path: path, stars: r.repo.stargazers_count },
+            { path: path.substr(1), stars: r.repo.stargazers_count },
             r.repo.full_name
           );
         }
 
         addDisambiguation(
           r.repo.name,
-          { path: path, stars: r.repo.stargazers_count },
+          { path: path.substr(1), stars: r.repo.stargazers_count },
           r.repo.full_name
         );
         actions.addRoute({
