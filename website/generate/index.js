@@ -21,15 +21,32 @@ module.exports = async function modules(context, options) {
             ...release.body.matchAll(/<code[^>]*?>(.*?)<\/code>/gms),
           ];
           for (let match of matches) {
-            if (!r.workspaceSnippet && match[1].includes("http_archive(")) {
-              r.workspaceSnippet = match[1].replaceAll("&quot;", `"`);
+            if (
+              !release.workspaceSnippet &&
+              match[1].includes("http_archive(")
+            ) {
+              release.workspaceSnippet = match[1].replaceAll("&quot;", `"`);
             }
-            if (!r.moduleSnippet && match[1].includes("bazel_dep(")) {
-              r.moduleSnippet = match[1].replaceAll("&quot;", `"`);
+            if (!release.moduleSnippet && match[1].includes("bazel_dep(")) {
+              release.moduleSnippet = match[1].replaceAll("&quot;", `"`);
             }
           }
-          if (!r.moduleSnippet && r.modules.length > 0) {
-            r.moduleSnippet = `bazel_dep(name = "${r.modules[0].name}", version = "${r.modules[0].versions[0]}")`;
+          let moduleVersion = release.tag_name.replace("v", "");
+          if (
+            !release.moduleSnippet &&
+            r.modules.length > 0 &&
+            r.modules[0].version_data[moduleVersion]
+          ) {
+            release.moduleSnippet = `bazel_dep(name = "${r.modules[0].name}", version = "${moduleVersion}")`;
+          }
+
+          if (!r.workspaceSnippet && release.workspaceSnippet) {
+            r.workspaceSnippet = release.workspaceSnippet;
+            r.latestReleaseWithWorkspaceSnippet = release.tag_name;
+          }
+          if (!r.moduleSnippet && release.moduleSnippet) {
+            r.moduleSnippet = release.moduleSnippet;
+            r.latestReleaseWithModuleSnippet = release.tag_name;
           }
         }
 
