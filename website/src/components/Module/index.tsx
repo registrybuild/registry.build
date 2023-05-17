@@ -181,24 +181,24 @@ const Module = (props) => {
           <div className="package-description">
             {props.data.repo.description}
           </div>
-          {(props.data.workspaceSnippet || props.data.moduleSnippet) && (
+          {(props.data.workspace_snippet || props.data.module_snippet) && (
             <div className="package-buttons">
-              {props.data.workspaceSnippet && (
+              {props.data.workspace_snippet && (
                 <button
                   className={workspaceCopied ? "copied" : ""}
                   onClick={(e) => {
-                    copy(props.data.workspaceSnippet);
+                    copy(props.data.workspace_snippet);
                     setWorkspaceCopied(!workspaceCopied);
                   }}
                 >
                   <Copy /> {workspaceCopied ? <>Copied!</> : <>Workspace</>}
                 </button>
               )}
-              {props.data.moduleSnippet && (
+              {props.data.module_snippet && (
                 <button
                   className={moduleCopied ? "copied" : ""}
                   onClick={(e) => {
-                    copy(props.data.moduleSnippet);
+                    copy(props.data.module_snippet);
                     setModuleCopied(!moduleCopied);
                   }}
                 >

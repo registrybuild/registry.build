@@ -22,31 +22,31 @@ module.exports = async function modules(context, options) {
           ];
           for (let match of matches) {
             if (
-              !release.workspaceSnippet &&
+              !release.workspace_snippet &&
               match[1].includes("http_archive(")
             ) {
-              release.workspaceSnippet = match[1].replaceAll("&quot;", `"`);
+              release.workspace_snippet = match[1].replaceAll("&quot;", `"`);
             }
-            if (!release.moduleSnippet && match[1].includes("bazel_dep(")) {
-              release.moduleSnippet = match[1].replaceAll("&quot;", `"`);
+            if (!release.module_snippet && match[1].includes("bazel_dep(")) {
+              release.module_snippet = match[1].replaceAll("&quot;", `"`);
             }
           }
           let moduleVersion = release.tag_name.replace("v", "");
           if (
-            !release.moduleSnippet &&
+            !release.module_snippet &&
             r.modules.length > 0 &&
             r.modules[0].version_data[moduleVersion]
           ) {
-            release.moduleSnippet = `bazel_dep(name = "${r.modules[0].name}", version = "${moduleVersion}")`;
+            release.module_snippet = `bazel_dep(name = "${r.modules[0].name}", version = "${moduleVersion}")`;
           }
 
-          if (!r.workspaceSnippet && release.workspaceSnippet) {
-            r.workspaceSnippet = release.workspaceSnippet;
-            r.latestReleaseWithWorkspaceSnippet = release.tag_name;
+          if (!r.workspace_snippet && release.workspace_snippet) {
+            r.workspace_snippet = release.workspace_snippet;
+            r.latest_release_with_workspace_snippet = release.tag_name;
           }
-          if (!r.moduleSnippet && release.moduleSnippet) {
-            r.moduleSnippet = release.moduleSnippet;
-            r.latestReleaseWithModuleSnippet = release.tag_name;
+          if (!r.module_snippet && release.module_snippet) {
+            r.module_snippet = release.module_snippet;
+            r.latest_release_with_module_snippet = release.tag_name;
           }
         }
 
@@ -100,8 +100,8 @@ module.exports = async function modules(context, options) {
                   },
                 ]
               : [],
-          workspaceSnippet: r.workspaceSnippet,
-          moduleSnippet: r.moduleSnippet,
+          workspace_snippet: r.workspace_snippet,
+          module_snippet: r.module_snippet,
         };
 
         index.push(module);
