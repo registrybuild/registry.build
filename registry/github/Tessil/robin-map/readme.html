@@ -1,0 +1,770 @@
+<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><p dir="auto"><a href="https://github.com/Tessil/robin-map/actions/workflows/ci.yml"><img src="https://github.com/Tessil/robin-map/actions/workflows/ci.yml/badge.svg?branch=master" alt="CI" style="max-width: 100%;"></a></p>
+<h2 dir="auto"><a id="user-content-a-c-implementation-of-a-fast-hash-map-and-hash-set-using-robin-hood-hashing" class="anchor" aria-hidden="true" href="#a-c-implementation-of-a-fast-hash-map-and-hash-set-using-robin-hood-hashing"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>A C++ implementation of a fast hash map and hash set using robin hood hashing</h2>
+<p dir="auto">The robin-map library is a C++ implementation of a fast hash map and hash set using open-addressing and linear robin hood hashing with backward shift deletion to resolve collisions.</p>
+<p dir="auto">Four classes are provided: <code>tsl::robin_map</code>, <code>tsl::robin_set</code>, <code>tsl::robin_pg_map</code> and <code>tsl::robin_pg_set</code>. The first two are faster and use a power of two growth policy, the last two use a prime growth policy instead and are able to cope better with a poor hash function. Use the prime version if there is a chance of repeating patterns in the lower bits of your hash (e.g. you are storing pointers with an identity hash function). See <a href="#growth-policy">GrowthPolicy</a> for details.</p>
+<p dir="auto">A <strong>benchmark</strong> of <code>tsl::robin_map</code> against other hash maps may be found <a href="https://tessil.github.io/2016/08/29/benchmark-hopscotch-map.html" rel="nofollow">here</a>. This page also gives some advices on which hash table structure you should try for your use case (useful if you are a bit lost with the multiple hash tables implementations in the <code>tsl</code> namespace).</p>
+<h3 dir="auto"><a id="user-content-key-features" class="anchor" aria-hidden="true" href="#key-features"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Key features</h3>
+<ul dir="auto">
+<li>Header-only library, just add the <a href="include/">include</a> directory to your include path and you are ready to go. If you use CMake, you can also use the <code>tsl::robin_map</code> exported target from the <a href="CMakeLists.txt">CMakeLists.txt</a>.</li>
+<li>Fast hash table, check the <a href="https://tessil.github.io/2016/08/29/benchmark-hopscotch-map.html" rel="nofollow">benchmark</a> for some numbers.</li>
+<li>Support for move-only and non-default constructible key/value.</li>
+<li>Support for heterogeneous lookups allowing the usage of <code>find</code> with a type different than <code>Key</code> (e.g. if you have a map that uses <code>std::unique_ptr&lt;foo&gt;</code> as key, you can use a <code>foo*</code> or a <code>std::uintptr_t</code> as key parameter to <code>find</code> without constructing a <code>std::unique_ptr&lt;foo&gt;</code>, see <a href="#heterogeneous-lookups">example</a>).</li>
+<li>No need to reserve any sentinel value from the keys.</li>
+<li>Possibility to store the hash value alongside the stored key-value for faster rehash and lookup if the hash or the key equal functions are expensive to compute. Note that hash may be stored even if not asked explicitly when the library can detect that it will have no impact on the size of the structure in memory due to alignment. See the <a href="https://tessil.github.io/robin-map/classtsl_1_1robin__map.html#details" rel="nofollow">StoreHash</a> template parameter for details.</li>
+<li>If the hash is known before a lookup, it is possible to pass it as parameter to speed-up the lookup (see <code>precalculated_hash</code> parameter in <a href="https://tessil.github.io/robin-map/classtsl_1_1robin__map.html#a35021b11aabb61820236692a54b3a0f8" rel="nofollow">API</a>).</li>
+<li>Support for efficient serialization and deserialization (see <a href="#serialization">example</a> and the <code>serialize/deserialize</code> methods in the <a href="https://tessil.github.io/robin-map/classtsl_1_1robin__map.html" rel="nofollow">API</a> for details).</li>
+<li>The library can be used with exceptions disabled (through <code>-fno-exceptions</code> option on Clang and GCC, without an <code>/EH</code> option on MSVC or simply by defining <code>TSL_NO_EXCEPTIONS</code>). <code>std::terminate</code> is used in replacement of the <code>throw</code> instruction when exceptions are disabled.</li>
+<li>API closely similar to <code>std::unordered_map</code> and <code>std::unordered_set</code>.</li>
+</ul>
+<h3 dir="auto"><a id="user-content-differences-compared-to-stdunordered_map" class="anchor" aria-hidden="true" href="#differences-compared-to-stdunordered_map"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Differences compared to <code>std::unordered_map</code></h3>
+<p dir="auto"><code>tsl::robin_map</code> tries to have an interface similar to <code>std::unordered_map</code>, but some differences exist.</p>
+<ul dir="auto">
+<li>The <strong>strong exception guarantee only holds</strong> if the following statement is true <code>std::is_nothrow_swappable&lt;value_type&gt;::value &amp;&amp; std::is_nothrow_move_constructible&lt;value_type&gt;::value</code> (where <code>value_type</code> is <code>Key</code> for <code>tsl::robin_set</code> and <code>std::pair&lt;Key, T&gt;</code> for <code>tsl::robin_map</code>). Otherwise if an exception is thrown during the swap or the move, the structure may end up in a undefined state. Note that per the standard, a <code>value_type</code> with a noexcept copy constructor and no move constructor also satisfies this condition and will thus guarantee the strong exception guarantee for the structure (see <a href="https://tessil.github.io/robin-map/classtsl_1_1robin__map.html#details" rel="nofollow">API</a> for details).</li>
+<li>The type <code>Key</code>, and also <code>T</code> in case of map, must be swappable. They must also be copy and/or move constructible.</li>
+<li>Iterator invalidation doesn't behave in the same way, any operation modifying the hash table invalidate them (see <a href="https://tessil.github.io/robin-map/classtsl_1_1robin__map.html#details" rel="nofollow">API</a> for details).</li>
+<li>References and pointers to keys or values in the map are invalidated in the same way as iterators to these keys-values.</li>
+<li>For iterators of <code>tsl::robin_map</code>, <code>operator*()</code> and <code>operator-&gt;()</code> return a reference and a pointer to <code>const std::pair&lt;Key, T&gt;</code> instead of <code>std::pair&lt;const Key, T&gt;</code> making the value <code>T</code> not modifiable. To modify the value you have to call the <code>value()</code> method of the iterator to get a mutable reference. Example:</li>
+</ul>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="tsl::robin_map&lt;int, int&gt; map = {{1, 1}, {2, 1}, {3, 1}};
+for(auto it = map.begin(); it != map.end(); ++it) {
+    //it-&gt;second = 2; // Illegal
+    it.value() = 2; // Ok
+}"><pre>tsl::robin_map&lt;<span class="pl-k">int</span>, <span class="pl-k">int</span>&gt; map = {{<span class="pl-c1">1</span>, <span class="pl-c1">1</span>}, {<span class="pl-c1">2</span>, <span class="pl-c1">1</span>}, {<span class="pl-c1">3</span>, <span class="pl-c1">1</span>}};
+<span class="pl-k">for</span>(<span class="pl-k">auto</span> it = map.begin(); it != map.end(); ++it) {
+    <span class="pl-c"><span class="pl-c">//</span>it-&gt;second = 2; // Illegal</span>
+    it.<span class="pl-c1">value</span>() = <span class="pl-c1">2</span>; <span class="pl-c"><span class="pl-c">//</span> Ok</span>
+}</pre></div>
+<ul dir="auto">
+<li>No support for some buckets related methods (like <code>bucket_size</code>, <code>bucket</code>, ...).</li>
+</ul>
+<p dir="auto">These differences also apply between <code>std::unordered_set</code> and <code>tsl::robin_set</code>.</p>
+<p dir="auto">Thread-safety guarantees are the same as <code>std::unordered_map/set</code> (i.e. possible to have multiple readers with no writer).</p>
+<h3 dir="auto"><a id="user-content-growth-policy" class="anchor" aria-hidden="true" href="#growth-policy"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Growth policy</h3>
+<p dir="auto">The library supports multiple growth policies through the <code>GrowthPolicy</code> template parameter. Three policies are provided by the library but you can easily implement your own if needed.</p>
+<ul dir="auto">
+<li><strong><a href="https://tessil.github.io/robin-map/classtsl_1_1rh_1_1power__of__two__growth__policy.html" rel="nofollow">tsl::rh::power_of_two_growth_policy.</a></strong> Default policy used by <code>tsl::robin_map/set</code>. This policy keeps the size of the bucket array of the hash table to a power of two. This constraint allows the policy to avoid the usage of the slow modulo operation to map a hash to a bucket, instead of <code>hash % 2<sup>n</sup></code>, it uses <code>hash &amp; (2<sup>n</sup> - 1)</code> (see <a href="https://en.wikipedia.org/wiki/Modulo_operation#Performance_issues" rel="nofollow">fast modulo</a>). Fast but this may cause a lot of collisions with a poor hash function as the modulo with a power of two only masks the most significant bits in the end.</li>
+<li><strong><a href="https://tessil.github.io/robin-map/classtsl_1_1rh_1_1prime__growth__policy.html" rel="nofollow">tsl::rh::prime_growth_policy.</a></strong> Default policy used by <code>tsl::robin_pg_map/set</code>. The policy keeps the size of the bucket array of the hash table to a prime number. When mapping a hash to a bucket, using a prime number as modulo will result in a better distribution of the hash across the buckets even with a poor hash function. To allow the compiler to optimize the modulo operation, the policy use a lookup table with constant primes modulos (see <a href="https://tessil.github.io/robin-map/classtsl_1_1rh_1_1prime__growth__policy.html#details" rel="nofollow">API</a> for details). Slower than <code>tsl::rh::power_of_two_growth_policy</code> but more secure.</li>
+<li><strong><a href="https://tessil.github.io/robin-map/classtsl_1_1rh_1_1mod__growth__policy.html" rel="nofollow">tsl::rh::mod_growth_policy.</a></strong> The policy grows the map by a customizable growth factor passed in parameter. It then just use the modulo operator to map a hash to a bucket. Slower but more flexible.</li>
+</ul>
+<p dir="auto">To implement your own policy, you have to implement the following interface.</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="struct custom_policy {
+    // Called on hash table construction and rehash, min_bucket_count_in_out is the minimum buckets
+    // that the hash table needs. The policy can change it to a higher number of buckets if needed 
+    // and the hash table will use this value as bucket count. If 0 bucket is asked, then the value
+    // must stay at 0.
+    explicit custom_policy(std::size_t&amp; min_bucket_count_in_out);
+    
+    // Return the bucket [0, bucket_count()) to which the hash belongs. 
+    // If bucket_count() is 0, it must always return 0.
+    std::size_t bucket_for_hash(std::size_t hash) const noexcept;
+    
+    // Return the number of buckets that should be used on next growth
+    std::size_t next_bucket_count() const;
+    
+    // Maximum number of buckets supported by the policy
+    std::size_t max_bucket_count() const;
+    
+    // Reset the growth policy as if the policy was created with a bucket count of 0.
+    // After a clear, the policy must always return 0 when bucket_for_hash() is called.
+    void clear() noexcept;
+}"><pre><span class="pl-k">struct</span> <span class="pl-en">custom_policy</span> {
+    <span class="pl-c"><span class="pl-c">//</span> Called on hash table construction and rehash, min_bucket_count_in_out is the minimum buckets</span>
+    <span class="pl-c"><span class="pl-c">//</span> that the hash table needs. The policy can change it to a higher number of buckets if needed </span>
+    <span class="pl-c"><span class="pl-c">//</span> and the hash table will use this value as bucket count. If 0 bucket is asked, then the value</span>
+    <span class="pl-c"><span class="pl-c">//</span> must stay at 0.</span>
+    <span class="pl-k">explicit</span> <span class="pl-en">custom_policy</span>(std::<span class="pl-c1">size_t</span>&amp; min_bucket_count_in_out);
+    
+    <span class="pl-c"><span class="pl-c">//</span> Return the bucket [0, bucket_count()) to which the hash belongs. </span>
+    <span class="pl-c"><span class="pl-c">//</span> If bucket_count() is 0, it must always return 0.</span>
+    std::<span class="pl-c1">size_t</span> <span class="pl-en">bucket_for_hash</span>(std::<span class="pl-c1">size_t</span> hash) <span class="pl-k">const</span> <span class="pl-k">noexcept</span>;
+    
+    <span class="pl-c"><span class="pl-c">//</span> Return the number of buckets that should be used on next growth</span>
+    std::<span class="pl-c1">size_t</span> <span class="pl-en">next_bucket_count</span>() <span class="pl-k">const</span>;
+    
+    <span class="pl-c"><span class="pl-c">//</span> Maximum number of buckets supported by the policy</span>
+    std::<span class="pl-c1">size_t</span> <span class="pl-en">max_bucket_count</span>() <span class="pl-k">const</span>;
+    
+    <span class="pl-c"><span class="pl-c">//</span> Reset the growth policy as if the policy was created with a bucket count of 0.</span>
+    <span class="pl-c"><span class="pl-c">//</span> After a clear, the policy must always return 0 when bucket_for_hash() is called.</span>
+    <span class="pl-k">void</span> <span class="pl-en">clear</span>() <span class="pl-k">noexcept</span>;
+}<span class="pl-ii"></span></pre></div>
+<h3 dir="auto"><a id="user-content-installation" class="anchor" aria-hidden="true" href="#installation"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Installation</h3>
+<p dir="auto">To use robin-map, just add the <a href="include/">include</a> directory to your include path. It is a <strong>header-only</strong> library.</p>
+<p dir="auto">If you use CMake, you can also use the <code>tsl::robin_map</code> exported target from the <a href="CMakeLists.txt">CMakeLists.txt</a> with <code>target_link_libraries</code>.</p>
+<div class="highlight highlight-source-cmake notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="# Example where the robin-map project is stored in a third-party directory
+add_subdirectory(third-party/robin-map)
+target_link_libraries(your_target PRIVATE tsl::robin_map)  "><pre><span class="pl-c"><span class="pl-c">#</span> Example where the robin-map project is stored in a third-party directory</span>
+<span class="pl-c1">add_subdirectory</span>(third-party/robin-map)
+<span class="pl-c1">target_link_libraries</span>(your_target <span class="pl-k">PRIVATE</span> tsl::robin_map)  </pre></div>
+<p dir="auto">If the project has been installed through <code>make install</code>, you can also use <code>find_package(tsl-robin-map REQUIRED)</code> instead of <code>add_subdirectory</code>.</p>
+<p dir="auto">The library is available in <a href="https://github.com/Microsoft/vcpkg/tree/master/ports/robin-map">vcpkg</a> and <a href="https://conan.io/center/tsl-robin-map" rel="nofollow">conan</a>. It's also present in <a href="https://packages.debian.org/buster/robin-map-dev" rel="nofollow">Debian</a>, <a href="https://packages.ubuntu.com/disco/robin-map-dev" rel="nofollow">Ubuntu</a> and <a href="https://apps.fedoraproject.org/packages/robin-map-devel" rel="nofollow">Fedora</a> package repositories.</p>
+<p dir="auto">The code should work with any C++11 standard-compliant compiler and has been tested with GCC 4.8.4, Clang 3.5.0 and Visual Studio 2015.</p>
+<p dir="auto">To run the tests you will need the Boost Test library and CMake.</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="git clone https://github.com/Tessil/robin-map.git
+cd robin-map/tests
+mkdir build
+cd build
+cmake ..
+cmake --build .
+./tsl_robin_map_tests"><pre>git clone https://github.com/Tessil/robin-map.git
+<span class="pl-c1">cd</span> robin-map/tests
+mkdir build
+<span class="pl-c1">cd</span> build
+cmake ..
+cmake --build <span class="pl-c1">.</span>
+./tsl_robin_map_tests</pre></div>
+<h3 dir="auto"><a id="user-content-usage" class="anchor" aria-hidden="true" href="#usage"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Usage</h3>
+<p dir="auto">The API can be found <a href="https://tessil.github.io/robin-map/" rel="nofollow">here</a>.</p>
+<p dir="auto">All methods are not documented yet, but they replicate the behavior of the ones in <code>std::unordered_map</code> and <code>std::unordered_set</code>, except if specified otherwise.</p>
+<h3 dir="auto"><a id="user-content-example" class="anchor" aria-hidden="true" href="#example"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Example</h3>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="#include &lt;cstdint&gt;
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;tsl/robin_map.h&gt;
+#include &lt;tsl/robin_set.h&gt;
+
+int main() {
+    tsl::robin_map&lt;std::string, int&gt; map = {{&quot;a&quot;, 1}, {&quot;b&quot;, 2}};
+    map[&quot;c&quot;] = 3;
+    map[&quot;d&quot;] = 4;
+    
+    map.insert({&quot;e&quot;, 5});
+    map.erase(&quot;b&quot;);
+    
+    for(auto it = map.begin(); it != map.end(); ++it) {
+        //it-&gt;second += 2; // Not valid.
+        it.value() += 2;
+    }
+    
+    // {d, 6} {a, 3} {e, 7} {c, 5}
+    for(const auto&amp; key_value : map) {
+        std::cout &lt;&lt; &quot;{&quot; &lt;&lt; key_value.first &lt;&lt; &quot;, &quot; &lt;&lt; key_value.second &lt;&lt; &quot;}&quot; &lt;&lt; std::endl;
+    }
+    
+        
+    if(map.find(&quot;a&quot;) != map.end()) {
+        std::cout &lt;&lt; &quot;Found \&quot;a\&quot;.&quot; &lt;&lt; std::endl;
+    }
+    
+    const std::size_t precalculated_hash = std::hash&lt;std::string&gt;()(&quot;a&quot;);
+    // If we already know the hash beforehand, we can pass it in parameter to speed-up lookups.
+    if(map.find(&quot;a&quot;, precalculated_hash) != map.end()) {
+        std::cout &lt;&lt; &quot;Found \&quot;a\&quot; with hash &quot; &lt;&lt; precalculated_hash &lt;&lt; &quot;.&quot; &lt;&lt; std::endl;
+    }
+    
+    
+    /*
+     * Calculating the hash and comparing two std::string may be slow. 
+     * We can store the hash of each std::string in the hash map to make 
+     * the inserts and lookups faster by setting StoreHash to true.
+     */ 
+    tsl::robin_map&lt;std::string, int, std::hash&lt;std::string&gt;, 
+                   std::equal_to&lt;std::string&gt;,
+                   std::allocator&lt;std::pair&lt;std::string, int&gt;&gt;,
+                   true&gt; map2;
+                       
+    map2[&quot;a&quot;] = 1;
+    map2[&quot;b&quot;] = 2;
+    
+    // {a, 1} {b, 2}
+    for(const auto&amp; key_value : map2) {
+        std::cout &lt;&lt; &quot;{&quot; &lt;&lt; key_value.first &lt;&lt; &quot;, &quot; &lt;&lt; key_value.second &lt;&lt; &quot;}&quot; &lt;&lt; std::endl;
+    }
+    
+    
+    
+    
+    tsl::robin_set&lt;int&gt; set;
+    set.insert({1, 9, 0});
+    set.insert({2, -1, 9});
+    
+    // {0} {1} {2} {9} {-1}
+    for(const auto&amp; key : set) {
+        std::cout &lt;&lt; &quot;{&quot; &lt;&lt; key &lt;&lt; &quot;}&quot; &lt;&lt; std::endl;
+    }
+}  "><pre>#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>cstdint<span class="pl-pds">&gt;</span></span>
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>iostream<span class="pl-pds">&gt;</span></span>
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>string<span class="pl-pds">&gt;</span></span>
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>tsl/robin_map.h<span class="pl-pds">&gt;</span></span>
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>tsl/robin_set.h<span class="pl-pds">&gt;</span></span>
+
+<span class="pl-k">int</span> <span class="pl-en">main</span>() {
+    tsl::robin_map&lt;std::string, <span class="pl-k">int</span>&gt; map = {{<span class="pl-s"><span class="pl-pds">"</span>a<span class="pl-pds">"</span></span>, <span class="pl-c1">1</span>}, {<span class="pl-s"><span class="pl-pds">"</span>b<span class="pl-pds">"</span></span>, <span class="pl-c1">2</span>}};
+    map[<span class="pl-s"><span class="pl-pds">"</span>c<span class="pl-pds">"</span></span>] = <span class="pl-c1">3</span>;
+    map[<span class="pl-s"><span class="pl-pds">"</span>d<span class="pl-pds">"</span></span>] = <span class="pl-c1">4</span>;
+    
+    map.<span class="pl-c1">insert</span>({<span class="pl-s"><span class="pl-pds">"</span>e<span class="pl-pds">"</span></span>, <span class="pl-c1">5</span>});
+    map.<span class="pl-c1">erase</span>(<span class="pl-s"><span class="pl-pds">"</span>b<span class="pl-pds">"</span></span>);
+    
+    <span class="pl-k">for</span>(<span class="pl-k">auto</span> it = map.<span class="pl-c1">begin</span>(); it != map.<span class="pl-c1">end</span>(); ++it) {
+        <span class="pl-c"><span class="pl-c">//</span>it-&gt;second += 2; // Not valid.</span>
+        it.<span class="pl-c1">value</span>() += <span class="pl-c1">2</span>;
+    }
+    
+    <span class="pl-c"><span class="pl-c">//</span> {d, 6} {a, 3} {e, 7} {c, 5}</span>
+    <span class="pl-k">for</span>(<span class="pl-k">const</span> <span class="pl-k">auto</span>&amp; key_value : map) {
+        std::cout &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>{<span class="pl-pds">"</span></span> &lt;&lt; key_value.<span class="pl-smi">first</span> &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>, <span class="pl-pds">"</span></span> &lt;&lt; key_value.<span class="pl-smi">second</span> &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>}<span class="pl-pds">"</span></span> &lt;&lt; std::endl;
+    }
+    
+        
+    <span class="pl-k">if</span>(map.<span class="pl-c1">find</span>(<span class="pl-s"><span class="pl-pds">"</span>a<span class="pl-pds">"</span></span>) != map.<span class="pl-c1">end</span>()) {
+        std::cout &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>Found <span class="pl-cce">\"</span>a<span class="pl-cce">\"</span>.<span class="pl-pds">"</span></span> &lt;&lt; std::endl;
+    }
+    
+    <span class="pl-k">const</span> std::<span class="pl-c1">size_t</span> precalculated_hash = std::hash&lt;std::string&gt;()(<span class="pl-s"><span class="pl-pds">"</span>a<span class="pl-pds">"</span></span>);
+    <span class="pl-c"><span class="pl-c">//</span> If we already know the hash beforehand, we can pass it in parameter to speed-up lookups.</span>
+    <span class="pl-k">if</span>(map.<span class="pl-c1">find</span>(<span class="pl-s"><span class="pl-pds">"</span>a<span class="pl-pds">"</span></span>, precalculated_hash) != map.<span class="pl-c1">end</span>()) {
+        std::cout &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>Found <span class="pl-cce">\"</span>a<span class="pl-cce">\"</span> with hash <span class="pl-pds">"</span></span> &lt;&lt; precalculated_hash &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>.<span class="pl-pds">"</span></span> &lt;&lt; std::endl;
+    }
+    
+    
+    <span class="pl-c"><span class="pl-c">/*</span></span>
+<span class="pl-c">     * Calculating the hash and comparing two std::string may be slow. </span>
+<span class="pl-c">     * We can store the hash of each std::string in the hash map to make </span>
+<span class="pl-c">     * the inserts and lookups faster by setting StoreHash to true.</span>
+<span class="pl-c">     <span class="pl-c">*/</span></span> 
+    tsl::robin_map&lt;std::string, <span class="pl-k">int</span>, std::hash&lt;std::string&gt;, 
+                   std::equal_to&lt;std::string&gt;,
+                   std::allocator&lt;std::pair&lt;std::string, <span class="pl-k">int</span>&gt;&gt;,
+                   <span class="pl-c1">true</span>&gt; map2;
+                       
+    map2[<span class="pl-s"><span class="pl-pds">"</span>a<span class="pl-pds">"</span></span>] = <span class="pl-c1">1</span>;
+    map2[<span class="pl-s"><span class="pl-pds">"</span>b<span class="pl-pds">"</span></span>] = <span class="pl-c1">2</span>;
+    
+    <span class="pl-c"><span class="pl-c">//</span> {a, 1} {b, 2}</span>
+    <span class="pl-k">for</span>(<span class="pl-k">const</span> <span class="pl-k">auto</span>&amp; key_value : map2) {
+        std::cout &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>{<span class="pl-pds">"</span></span> &lt;&lt; key_value.<span class="pl-smi">first</span> &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>, <span class="pl-pds">"</span></span> &lt;&lt; key_value.<span class="pl-smi">second</span> &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>}<span class="pl-pds">"</span></span> &lt;&lt; std::endl;
+    }
+    
+    
+    
+    
+    tsl::robin_set&lt;<span class="pl-k">int</span>&gt; set;
+    set.<span class="pl-c1">insert</span>({<span class="pl-c1">1</span>, <span class="pl-c1">9</span>, <span class="pl-c1">0</span>});
+    set.<span class="pl-c1">insert</span>({<span class="pl-c1">2</span>, -<span class="pl-c1">1</span>, <span class="pl-c1">9</span>});
+    
+    <span class="pl-c"><span class="pl-c">//</span> {0} {1} {2} {9} {-1}</span>
+    <span class="pl-k">for</span>(<span class="pl-k">const</span> <span class="pl-k">auto</span>&amp; key : set) {
+        std::cout &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>{<span class="pl-pds">"</span></span> &lt;&lt; key &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>}<span class="pl-pds">"</span></span> &lt;&lt; std::endl;
+    }
+}  </pre></div>
+<h4 dir="auto"><a id="user-content-heterogeneous-lookups" class="anchor" aria-hidden="true" href="#heterogeneous-lookups"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Heterogeneous lookups</h4>
+<p dir="auto">Heterogeneous overloads allow the usage of other types than <code>Key</code> for lookup and erase operations as long as the used types are hashable and comparable to <code>Key</code>.</p>
+<p dir="auto">To activate the heterogeneous overloads in <code>tsl::robin_map/set</code>, the qualified-id <code>KeyEqual::is_transparent</code> must be valid. It works the same way as for <a href="http://en.cppreference.com/w/cpp/container/map/find" rel="nofollow"><code>std::map::find</code></a>. You can either use <a href="http://en.cppreference.com/w/cpp/utility/functional/equal_to_void" rel="nofollow"><code>std::equal_to&lt;&gt;</code></a> or define your own function object.</p>
+<p dir="auto">Both <code>KeyEqual</code> and <code>Hash</code> will need to be able to deal with the different types.</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="#include &lt;functional&gt;
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;tsl/robin_map.h&gt;
+
+
+struct employee {
+    employee(int id, std::string name) : m_id(id), m_name(std::move(name)) {
+    }
+    
+    // Either we include the comparators in the class and we use `std::equal_to&lt;&gt;`...
+    friend bool operator==(const employee&amp; empl, int empl_id) {
+        return empl.m_id == empl_id;
+    }
+    
+    friend bool operator==(int empl_id, const employee&amp; empl) {
+        return empl_id == empl.m_id;
+    }
+    
+    friend bool operator==(const employee&amp; empl1, const employee&amp; empl2) {
+        return empl1.m_id == empl2.m_id;
+    }
+    
+    
+    int m_id;
+    std::string m_name;
+};
+
+// ... or we implement a separate class to compare employees.
+struct equal_employee {
+    using is_transparent = void;
+    
+    bool operator()(const employee&amp; empl, int empl_id) const {
+        return empl.m_id == empl_id;
+    }
+    
+    bool operator()(int empl_id, const employee&amp; empl) const {
+        return empl_id == empl.m_id;
+    }
+    
+    bool operator()(const employee&amp; empl1, const employee&amp; empl2) const {
+        return empl1.m_id == empl2.m_id;
+    }
+};
+
+struct hash_employee {
+    std::size_t operator()(const employee&amp; empl) const {
+        return std::hash&lt;int&gt;()(empl.m_id);
+    }
+    
+    std::size_t operator()(int id) const {
+        return std::hash&lt;int&gt;()(id);
+    }
+};
+
+
+int main() {
+    // Use std::equal_to&lt;&gt; which will automatically deduce and forward the parameters
+    tsl::robin_map&lt;employee, int, hash_employee, std::equal_to&lt;&gt;&gt; map; 
+    map.insert({employee(1, &quot;John Doe&quot;), 2001});
+    map.insert({employee(2, &quot;Jane Doe&quot;), 2002});
+    map.insert({employee(3, &quot;John Smith&quot;), 2003});
+
+    // John Smith 2003
+    auto it = map.find(3);
+    if(it != map.end()) {
+        std::cout &lt;&lt; it-&gt;first.m_name &lt;&lt; &quot; &quot; &lt;&lt; it-&gt;second &lt;&lt; std::endl;
+    }
+
+    map.erase(1);
+
+
+
+    // Use a custom KeyEqual which has an is_transparent member type
+    tsl::robin_map&lt;employee, int, hash_employee, equal_employee&gt; map2;
+    map2.insert({employee(4, &quot;Johnny Doe&quot;), 2004});
+
+    // 2004
+    std::cout &lt;&lt; map2.at(4) &lt;&lt; std::endl;
+}  "><pre>#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>functional<span class="pl-pds">&gt;</span></span>
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>iostream<span class="pl-pds">&gt;</span></span>
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>string<span class="pl-pds">&gt;</span></span>
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>tsl/robin_map.h<span class="pl-pds">&gt;</span></span>
+
+
+<span class="pl-k">struct</span> <span class="pl-en">employee</span> {
+    <span class="pl-en">employee</span>(<span class="pl-k">int</span> id, std::string name) : m_id(id), m_name(std::move(name)) {
+    }
+    
+    <span class="pl-c"><span class="pl-c">//</span> Either we include the comparators in the class and we use `std::equal_to&lt;&gt;`...</span>
+    <span class="pl-k">friend</span> <span class="pl-k">bool</span> <span class="pl-k">operator</span>==(<span class="pl-k">const</span> employee&amp; empl, <span class="pl-k">int</span> empl_id) {
+        <span class="pl-k">return</span> empl.<span class="pl-smi">m_id</span> == empl_id;
+    }
+    
+    <span class="pl-k">friend</span> <span class="pl-k">bool</span> <span class="pl-k">operator</span>==(<span class="pl-k">int</span> empl_id, <span class="pl-k">const</span> employee&amp; empl) {
+        <span class="pl-k">return</span> empl_id == empl.<span class="pl-smi">m_id</span>;
+    }
+    
+    <span class="pl-k">friend</span> <span class="pl-k">bool</span> <span class="pl-k">operator</span>==(<span class="pl-k">const</span> employee&amp; empl1, <span class="pl-k">const</span> employee&amp; empl2) {
+        <span class="pl-k">return</span> empl1.<span class="pl-smi">m_id</span> == empl2.<span class="pl-smi">m_id</span>;
+    }
+    
+    
+    <span class="pl-k">int</span> m_id;
+    std::string m_name;
+};
+
+<span class="pl-c"><span class="pl-c">//</span> ... or we implement a separate class to compare employees.</span>
+<span class="pl-k">struct</span> <span class="pl-en">equal_employee</span> {
+    <span class="pl-k">using</span> is_transparent = <span class="pl-k">void</span>;
+    
+    <span class="pl-k">bool</span> <span class="pl-en">operator</span>()(<span class="pl-k">const</span> employee&amp; empl, <span class="pl-k">int</span> empl_id) <span class="pl-k">const</span> {
+        <span class="pl-k">return</span> empl.<span class="pl-smi">m_id</span> == empl_id;
+    }
+    
+    <span class="pl-k">bool</span> <span class="pl-en">operator</span>()(<span class="pl-k">int</span> empl_id, <span class="pl-k">const</span> employee&amp; empl) <span class="pl-k">const</span> {
+        <span class="pl-k">return</span> empl_id == empl.<span class="pl-smi">m_id</span>;
+    }
+    
+    <span class="pl-k">bool</span> <span class="pl-en">operator</span>()(<span class="pl-k">const</span> employee&amp; empl1, <span class="pl-k">const</span> employee&amp; empl2) <span class="pl-k">const</span> {
+        <span class="pl-k">return</span> empl1.<span class="pl-smi">m_id</span> == empl2.<span class="pl-smi">m_id</span>;
+    }
+};
+
+<span class="pl-k">struct</span> <span class="pl-en">hash_employee</span> {
+    std::<span class="pl-c1">size_t</span> <span class="pl-en">operator</span>()(<span class="pl-k">const</span> employee&amp; empl) <span class="pl-k">const</span> {
+        <span class="pl-k">return</span> std::hash&lt;<span class="pl-k">int</span>&gt;()(empl.<span class="pl-smi">m_id</span>);
+    }
+    
+    std::<span class="pl-c1">size_t</span> <span class="pl-en">operator</span>()(<span class="pl-k">int</span> id) <span class="pl-k">const</span> {
+        <span class="pl-k">return</span> std::hash&lt;<span class="pl-k">int</span>&gt;()(id);
+    }
+};
+
+
+<span class="pl-k">int</span> <span class="pl-en">main</span>() {
+    <span class="pl-c"><span class="pl-c">//</span> Use std::equal_to&lt;&gt; which will automatically deduce and forward the parameters</span>
+    tsl::robin_map&lt;employee, <span class="pl-k">int</span>, hash_employee, std::equal_to&lt;&gt;&gt; map; 
+    map.<span class="pl-c1">insert</span>({<span class="pl-c1">employee</span>(<span class="pl-c1">1</span>, <span class="pl-s"><span class="pl-pds">"</span>John Doe<span class="pl-pds">"</span></span>), <span class="pl-c1">2001</span>});
+    map.<span class="pl-c1">insert</span>({<span class="pl-c1">employee</span>(<span class="pl-c1">2</span>, <span class="pl-s"><span class="pl-pds">"</span>Jane Doe<span class="pl-pds">"</span></span>), <span class="pl-c1">2002</span>});
+    map.<span class="pl-c1">insert</span>({<span class="pl-c1">employee</span>(<span class="pl-c1">3</span>, <span class="pl-s"><span class="pl-pds">"</span>John Smith<span class="pl-pds">"</span></span>), <span class="pl-c1">2003</span>});
+
+    <span class="pl-c"><span class="pl-c">//</span> John Smith 2003</span>
+    <span class="pl-k">auto</span> it = map.<span class="pl-c1">find</span>(<span class="pl-c1">3</span>);
+    <span class="pl-k">if</span>(it != map.<span class="pl-c1">end</span>()) {
+        std::cout &lt;&lt; it-&gt;<span class="pl-smi">first</span>.<span class="pl-smi">m_name</span> &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span> <span class="pl-pds">"</span></span> &lt;&lt; it-&gt;<span class="pl-smi">second</span> &lt;&lt; std::endl;
+    }
+
+    map.<span class="pl-c1">erase</span>(<span class="pl-c1">1</span>);
+
+
+
+    <span class="pl-c"><span class="pl-c">//</span> Use a custom KeyEqual which has an is_transparent member type</span>
+    tsl::robin_map&lt;employee, <span class="pl-k">int</span>, hash_employee, equal_employee&gt; map2;
+    map2.<span class="pl-c1">insert</span>({<span class="pl-c1">employee</span>(<span class="pl-c1">4</span>, <span class="pl-s"><span class="pl-pds">"</span>Johnny Doe<span class="pl-pds">"</span></span>), <span class="pl-c1">2004</span>});
+
+    <span class="pl-c"><span class="pl-c">//</span> 2004</span>
+    std::cout &lt;&lt; map2.<span class="pl-c1">at</span>(<span class="pl-c1">4</span>) &lt;&lt; std::endl;
+}  </pre></div>
+<h4 dir="auto"><a id="user-content-serialization" class="anchor" aria-hidden="true" href="#serialization"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Serialization</h4>
+<p dir="auto">The library provides an efficient way to serialize and deserialize a map or a set so that it can be saved to a file or send through the network.
+To do so, it requires the user to provide a function object for both serialization and deserialization.</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="struct serializer {
+    // Must support the following types for U: std::int16_t, std::uint32_t, 
+    // std::uint64_t, float and std::pair&lt;Key, T&gt; if a map is used or Key for 
+    // a set.
+    template&lt;typename U&gt;
+    void operator()(const U&amp; value);
+};"><pre><span class="pl-k">struct</span> <span class="pl-en">serializer</span> {
+    <span class="pl-c"><span class="pl-c">//</span> Must support the following types for U: std::int16_t, std::uint32_t, </span>
+    <span class="pl-c"><span class="pl-c">//</span> std::uint64_t, float and std::pair&lt;Key, T&gt; if a map is used or Key for </span>
+    <span class="pl-c"><span class="pl-c">//</span> a set.</span>
+    <span class="pl-k">template</span>&lt;<span class="pl-k">typename</span> U&gt;
+    <span class="pl-k">void</span> <span class="pl-en">operator</span>()(<span class="pl-k">const</span> U&amp; value);
+};</pre></div>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="struct deserializer {
+    // Must support the following types for U: std::int16_t, std::uint32_t, 
+    // std::uint64_t, float and std::pair&lt;Key, T&gt; if a map is used or Key for 
+    // a set.
+    template&lt;typename U&gt;
+    U operator()();
+};"><pre><span class="pl-k">struct</span> <span class="pl-en">deserializer</span> {
+    <span class="pl-c"><span class="pl-c">//</span> Must support the following types for U: std::int16_t, std::uint32_t, </span>
+    <span class="pl-c"><span class="pl-c">//</span> std::uint64_t, float and std::pair&lt;Key, T&gt; if a map is used or Key for </span>
+    <span class="pl-c"><span class="pl-c">//</span> a set.</span>
+    <span class="pl-k">template</span>&lt;<span class="pl-k">typename</span> U&gt;
+    U <span class="pl-en">operator</span>()();
+};</pre></div>
+<p dir="auto">Note that the implementation leaves binary compatibility (endianness, float binary representation, size of int, ...) of the types it serializes/deserializes in the hands of the provided function objects if compatibility is required.</p>
+<p dir="auto">More details regarding the <code>serialize</code> and <code>deserialize</code> methods can be found in the <a href="https://tessil.github.io/robin-map/classtsl_1_1robin__map.html" rel="nofollow">API</a>.</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="#include &lt;cassert&gt;
+#include &lt;cstdint&gt;
+#include &lt;fstream&gt;
+#include &lt;type_traits&gt;
+#include &lt;tsl/robin_map.h&gt;
+
+
+class serializer {
+public:
+    serializer(const char* file_name) {
+        m_ostream.exceptions(m_ostream.badbit | m_ostream.failbit);
+        m_ostream.open(file_name, std::ios::binary);
+    }
+    
+    template&lt;class T,
+             typename std::enable_if&lt;std::is_arithmetic&lt;T&gt;::value&gt;::type* = nullptr&gt;
+    void operator()(const T&amp; value) {
+        m_ostream.write(reinterpret_cast&lt;const char*&gt;(&amp;value), sizeof(T));
+    }
+    
+    void operator()(const std::pair&lt;std::int64_t, std::int64_t&gt;&amp; value) {
+        (*this)(value.first);
+        (*this)(value.second);
+    }
+
+private:
+    std::ofstream m_ostream;
+};
+
+class deserializer {
+public:
+    deserializer(const char* file_name) {
+        m_istream.exceptions(m_istream.badbit | m_istream.failbit | m_istream.eofbit);
+        m_istream.open(file_name, std::ios::binary);
+    }
+    
+    template&lt;class T&gt;
+    T operator()() {
+        T value;
+        deserialize(value);
+        
+        return value;
+    }
+    
+private:
+    template&lt;class T,
+             typename std::enable_if&lt;std::is_arithmetic&lt;T&gt;::value&gt;::type* = nullptr&gt;
+    void deserialize(T&amp; value) {
+        m_istream.read(reinterpret_cast&lt;char*&gt;(&amp;value), sizeof(T));
+    }
+    
+    void deserialize(std::pair&lt;std::int64_t, std::int64_t&gt;&amp; value) {
+        deserialize(value.first);
+        deserialize(value.second);
+    }
+
+private:
+    std::ifstream m_istream;
+};
+
+
+int main() {
+    const tsl::robin_map&lt;std::int64_t, std::int64_t&gt; map = {{1, -1}, {2, -2}, {3, -3}, {4, -4}};
+    
+    
+    const char* file_name = &quot;robin_map.data&quot;;
+    {
+        serializer serial(file_name);
+        map.serialize(serial);
+    }
+    
+    {
+        deserializer dserial(file_name);
+        auto map_deserialized = tsl::robin_map&lt;std::int64_t, std::int64_t&gt;::deserialize(dserial);
+        
+        assert(map == map_deserialized);
+    }
+    
+    {
+        deserializer dserial(file_name);
+        
+        /**
+         * If the serialized and deserialized map are hash compatibles (see conditions in API), 
+         * setting the argument to true speed-up the deserialization process as we don't have 
+         * to recalculate the hash of each key. We also know how much space each bucket needs.
+         */
+        const bool hash_compatible = true;
+        auto map_deserialized = 
+            tsl::robin_map&lt;std::int64_t, std::int64_t&gt;::deserialize(dserial, hash_compatible);
+        
+        assert(map == map_deserialized);
+    }
+} "><pre>#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>cassert<span class="pl-pds">&gt;</span></span>
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>cstdint<span class="pl-pds">&gt;</span></span>
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>fstream<span class="pl-pds">&gt;</span></span>
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>type_traits<span class="pl-pds">&gt;</span></span>
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>tsl/robin_map.h<span class="pl-pds">&gt;</span></span>
+
+
+<span class="pl-k">class</span> <span class="pl-en">serializer</span> {
+<span class="pl-k">public:</span>
+    <span class="pl-en">serializer</span>(<span class="pl-k">const</span> <span class="pl-k">char</span>* file_name) {
+        m_ostream.<span class="pl-c1">exceptions</span>(m_ostream.<span class="pl-smi">badbit</span> | m_ostream.<span class="pl-smi">failbit</span>);
+        m_ostream.<span class="pl-c1">open</span>(file_name, std::ios::binary);
+    }
+    
+    <span class="pl-k">template</span>&lt;<span class="pl-k">class</span> <span class="pl-en">T</span>,
+             <span class="pl-k">typename</span> std::enable_if&lt;std::is_arithmetic&lt;T&gt;::value&gt;::type* = <span class="pl-c1">nullptr</span>&gt;
+    <span class="pl-k">void</span> <span class="pl-en">operator</span>()(<span class="pl-k">const</span> T&amp; value) {
+        m_ostream.<span class="pl-c1">write</span>(<span class="pl-k">reinterpret_cast</span>&lt;<span class="pl-k">const</span> <span class="pl-k">char</span>*&gt;(&amp;value), <span class="pl-k">sizeof</span>(T));
+    }
+    
+    <span class="pl-k">void</span> <span class="pl-en">operator</span>()(<span class="pl-k">const</span> std::pair&lt;std::<span class="pl-c1">int64_t</span>, std::<span class="pl-c1">int64_t</span>&gt;&amp; value) {
+        (*<span class="pl-c1">this</span>)(value.<span class="pl-smi">first</span>);
+        (*<span class="pl-c1">this</span>)(value.<span class="pl-smi">second</span>);
+    }
+
+<span class="pl-k">private:</span>
+    std::ofstream m_ostream;
+};
+
+<span class="pl-k">class</span> <span class="pl-en">deserializer</span> {
+<span class="pl-k">public:</span>
+    <span class="pl-en">deserializer</span>(<span class="pl-k">const</span> <span class="pl-k">char</span>* file_name) {
+        m_istream.<span class="pl-c1">exceptions</span>(m_istream.<span class="pl-smi">badbit</span> | m_istream.<span class="pl-smi">failbit</span> | m_istream.<span class="pl-smi">eofbit</span>);
+        m_istream.<span class="pl-c1">open</span>(file_name, std::ios::binary);
+    }
+    
+    <span class="pl-k">template</span>&lt;<span class="pl-k">class</span> <span class="pl-en">T</span>&gt;
+    T <span class="pl-en">operator</span>()() {
+        T value;
+        <span class="pl-c1">deserialize</span>(value);
+        
+        <span class="pl-k">return</span> value;
+    }
+    
+<span class="pl-k">private:</span>
+    <span class="pl-k">template</span>&lt;<span class="pl-k">class</span> <span class="pl-en">T</span>,
+             <span class="pl-k">typename</span> std::enable_if&lt;std::is_arithmetic&lt;T&gt;::value&gt;::type* = <span class="pl-c1">nullptr</span>&gt;
+    <span class="pl-k">void</span> <span class="pl-en">deserialize</span>(T&amp; value) {
+        m_istream.<span class="pl-c1">read</span>(<span class="pl-k">reinterpret_cast</span>&lt;<span class="pl-k">char</span>*&gt;(&amp;value), <span class="pl-k">sizeof</span>(T));
+    }
+    
+    <span class="pl-k">void</span> <span class="pl-en">deserialize</span>(std::pair&lt;std::<span class="pl-c1">int64_t</span>, std::<span class="pl-c1">int64_t</span>&gt;&amp; value) {
+        <span class="pl-c1">deserialize</span>(value.<span class="pl-smi">first</span>);
+        <span class="pl-c1">deserialize</span>(value.<span class="pl-smi">second</span>);
+    }
+
+<span class="pl-k">private:</span>
+    std::ifstream m_istream;
+};
+
+
+<span class="pl-k">int</span> <span class="pl-en">main</span>() {
+    <span class="pl-k">const</span> tsl::robin_map&lt;std::<span class="pl-c1">int64_t</span>, std::<span class="pl-c1">int64_t</span>&gt; map = {{<span class="pl-c1">1</span>, -<span class="pl-c1">1</span>}, {<span class="pl-c1">2</span>, -<span class="pl-c1">2</span>}, {<span class="pl-c1">3</span>, -<span class="pl-c1">3</span>}, {<span class="pl-c1">4</span>, -<span class="pl-c1">4</span>}};
+    
+    
+    <span class="pl-k">const</span> <span class="pl-k">char</span>* file_name = <span class="pl-s"><span class="pl-pds">"</span>robin_map.data<span class="pl-pds">"</span></span>;
+    {
+        serializer <span class="pl-smi">serial</span>(file_name);
+        map.<span class="pl-c1">serialize</span>(serial);
+    }
+    
+    {
+        deserializer <span class="pl-smi">dserial</span>(file_name);
+        <span class="pl-k">auto</span> map_deserialized = tsl::robin_map&lt;std::<span class="pl-c1">int64_t</span>, std::<span class="pl-c1">int64_t</span>&gt;::<span class="pl-c1">deserialize</span>(dserial);
+        
+        <span class="pl-c1">assert</span>(map == map_deserialized);
+    }
+    
+    {
+        deserializer <span class="pl-smi">dserial</span>(file_name);
+        
+        <span class="pl-c"><span class="pl-c">/*</span>*</span>
+<span class="pl-c">         * If the serialized and deserialized map are hash compatibles (see conditions in API), </span>
+<span class="pl-c">         * setting the argument to true speed-up the deserialization process as we don't have </span>
+<span class="pl-c">         * to recalculate the hash of each key. We also know how much space each bucket needs.</span>
+<span class="pl-c">         <span class="pl-c">*/</span></span>
+        <span class="pl-k">const</span> <span class="pl-k">bool</span> hash_compatible = <span class="pl-c1">true</span>;
+        <span class="pl-k">auto</span> map_deserialized = 
+            tsl::robin_map&lt;std::<span class="pl-c1">int64_t</span>, std::<span class="pl-c1">int64_t</span>&gt;::<span class="pl-c1">deserialize</span>(dserial, hash_compatible);
+        
+        <span class="pl-c1">assert</span>(map == map_deserialized);
+    }
+} </pre></div>
+<h5 dir="auto"><a id="user-content-serialization-with-boost-serialization-and-compression-with-zlib" class="anchor" aria-hidden="true" href="#serialization-with-boost-serialization-and-compression-with-zlib"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Serialization with Boost Serialization and compression with zlib</h5>
+<p dir="auto">It is possible to use a serialization library to avoid the boilerplate.</p>
+<p dir="auto">The following example uses Boost Serialization with the Boost zlib compression stream to reduce the size of the resulting serialized file. The example requires C++20 due to the usage of the template parameter list syntax in lambdas, but it can be adapted to less recent versions.</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="#include &lt;boost/archive/binary_iarchive.hpp&gt;
+#include &lt;boost/archive/binary_oarchive.hpp&gt;
+#include &lt;boost/iostreams/filter/zlib.hpp&gt;
+#include &lt;boost/iostreams/filtering_stream.hpp&gt;
+#include &lt;boost/serialization/split_free.hpp&gt;
+#include &lt;boost/serialization/utility.hpp&gt;
+#include &lt;cassert&gt;
+#include &lt;cstdint&gt;
+#include &lt;fstream&gt;
+#include &lt;tsl/robin_map.h&gt;
+
+
+namespace boost { namespace serialization {
+    template&lt;class Archive, class Key, class T&gt;
+    void serialize(Archive &amp; ar, tsl::robin_map&lt;Key, T&gt;&amp; map, const unsigned int version) {
+        split_free(ar, map, version); 
+    }
+
+    template&lt;class Archive, class Key, class T&gt;
+    void save(Archive &amp; ar, const tsl::robin_map&lt;Key, T&gt;&amp; map, const unsigned int /*version*/) {
+        auto serializer = [&amp;ar](const auto&amp; v) { ar &amp; v; };
+        map.serialize(serializer);
+    }
+
+    template&lt;class Archive, class Key, class T&gt;
+    void load(Archive &amp; ar, tsl::robin_map&lt;Key, T&gt;&amp; map, const unsigned int /*version*/) {
+        auto deserializer = [&amp;ar]&lt;typename U&gt;() { U u; ar &amp; u; return u; };
+        map = tsl::robin_map&lt;Key, T&gt;::deserialize(deserializer);
+    }
+}}
+
+
+int main() {
+    tsl::robin_map&lt;std::int64_t, std::int64_t&gt; map = {{1, -1}, {2, -2}, {3, -3}, {4, -4}};
+    
+    
+    const char* file_name = &quot;robin_map.data&quot;;
+    {
+        std::ofstream ofs;
+        ofs.exceptions(ofs.badbit | ofs.failbit);
+        ofs.open(file_name, std::ios::binary);
+        
+        boost::iostreams::filtering_ostream fo;
+        fo.push(boost::iostreams::zlib_compressor());
+        fo.push(ofs);
+        
+        boost::archive::binary_oarchive oa(fo);
+        
+        oa &lt;&lt; map;
+    }
+    
+    {
+        std::ifstream ifs;
+        ifs.exceptions(ifs.badbit | ifs.failbit | ifs.eofbit);
+        ifs.open(file_name, std::ios::binary);
+        
+        boost::iostreams::filtering_istream fi;
+        fi.push(boost::iostreams::zlib_decompressor());
+        fi.push(ifs);
+        
+        boost::archive::binary_iarchive ia(fi);
+     
+        tsl::robin_map&lt;std::int64_t, std::int64_t&gt; map_deserialized;   
+        ia &gt;&gt; map_deserialized;
+        
+        assert(map == map_deserialized);
+    }
+}"><pre>#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>boost/archive/binary_iarchive.hpp<span class="pl-pds">&gt;</span></span>
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>boost/archive/binary_oarchive.hpp<span class="pl-pds">&gt;</span></span>
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>boost/iostreams/filter/zlib.hpp<span class="pl-pds">&gt;</span></span>
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>boost/iostreams/filtering_stream.hpp<span class="pl-pds">&gt;</span></span>
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>boost/serialization/split_free.hpp<span class="pl-pds">&gt;</span></span>
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>boost/serialization/utility.hpp<span class="pl-pds">&gt;</span></span>
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>cassert<span class="pl-pds">&gt;</span></span>
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>cstdint<span class="pl-pds">&gt;</span></span>
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>fstream<span class="pl-pds">&gt;</span></span>
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>tsl/robin_map.h<span class="pl-pds">&gt;</span></span>
+
+
+<span class="pl-k">namespace</span> <span class="pl-en">boost</span> { <span class="pl-k">namespace</span> <span class="pl-en">serialization</span> {
+    <span class="pl-k">template</span>&lt;<span class="pl-k">class</span> <span class="pl-en">Archive</span>, <span class="pl-k">class</span> <span class="pl-en">Key</span>, <span class="pl-k">class</span> <span class="pl-en">T</span>&gt;
+    <span class="pl-k">void</span> <span class="pl-en">serialize</span>(Archive &amp; ar, tsl::robin_map&lt;Key, T&gt;&amp; map, <span class="pl-k">const</span> <span class="pl-k">unsigned</span> <span class="pl-k">int</span> version) {
+        <span class="pl-c1">split_free</span>(ar, map, version); 
+    }
+
+    <span class="pl-k">template</span>&lt;<span class="pl-k">class</span> <span class="pl-en">Archive</span>, <span class="pl-k">class</span> <span class="pl-en">Key</span>, <span class="pl-k">class</span> <span class="pl-en">T</span>&gt;
+    <span class="pl-k">void</span> <span class="pl-en">save</span>(Archive &amp; ar, <span class="pl-k">const</span> tsl::robin_map&lt;Key, T&gt;&amp; map, <span class="pl-k">const</span> <span class="pl-k">unsigned</span> <span class="pl-k">int</span> <span class="pl-c"><span class="pl-c">/*</span>version<span class="pl-c">*/</span></span>) {
+        <span class="pl-k">auto</span> serializer = [&amp;ar](<span class="pl-k">const</span> <span class="pl-k">auto</span>&amp; v) { ar &amp; v; };
+        map.<span class="pl-c1">serialize</span>(serializer);
+    }
+
+    <span class="pl-k">template</span>&lt;<span class="pl-k">class</span> <span class="pl-en">Archive</span>, <span class="pl-k">class</span> <span class="pl-en">Key</span>, <span class="pl-k">class</span> <span class="pl-en">T</span>&gt;
+    <span class="pl-k">void</span> <span class="pl-en">load</span>(Archive &amp; ar, tsl::robin_map&lt;Key, T&gt;&amp; map, <span class="pl-k">const</span> <span class="pl-k">unsigned</span> <span class="pl-k">int</span> <span class="pl-c"><span class="pl-c">/*</span>version<span class="pl-c">*/</span></span>) {
+        <span class="pl-k">auto</span> deserializer = [&amp;ar]&lt;<span class="pl-k">typename</span> U&gt;() { U u; ar &amp; u; <span class="pl-k">return</span> u; };
+        map = tsl::robin_map&lt;Key, T&gt;::<span class="pl-c1">deserialize</span>(deserializer);
+    }
+}}
+
+
+<span class="pl-k">int</span> <span class="pl-en">main</span>() {
+    tsl::robin_map&lt;std::<span class="pl-c1">int64_t</span>, std::<span class="pl-c1">int64_t</span>&gt; map = {{<span class="pl-c1">1</span>, -<span class="pl-c1">1</span>}, {<span class="pl-c1">2</span>, -<span class="pl-c1">2</span>}, {<span class="pl-c1">3</span>, -<span class="pl-c1">3</span>}, {<span class="pl-c1">4</span>, -<span class="pl-c1">4</span>}};
+    
+    
+    <span class="pl-k">const</span> <span class="pl-k">char</span>* file_name = <span class="pl-s"><span class="pl-pds">"</span>robin_map.data<span class="pl-pds">"</span></span>;
+    {
+        std::ofstream ofs;
+        ofs.<span class="pl-c1">exceptions</span>(ofs.<span class="pl-smi">badbit</span> | ofs.<span class="pl-smi">failbit</span>);
+        ofs.<span class="pl-c1">open</span>(file_name, std::ios::binary);
+        
+        boost::iostreams::filtering_ostream fo;
+        fo.<span class="pl-c1">push</span>(<span class="pl-c1">boost::iostreams::zlib_compressor</span>());
+        fo.<span class="pl-c1">push</span>(ofs);
+        
+        boost::archive::binary_oarchive <span class="pl-smi">oa</span>(fo);
+        
+        oa &lt;&lt; map;
+    }
+    
+    {
+        std::ifstream ifs;
+        ifs.<span class="pl-c1">exceptions</span>(ifs.<span class="pl-smi">badbit</span> | ifs.<span class="pl-smi">failbit</span> | ifs.<span class="pl-smi">eofbit</span>);
+        ifs.<span class="pl-c1">open</span>(file_name, std::ios::binary);
+        
+        boost::iostreams::filtering_istream fi;
+        fi.<span class="pl-c1">push</span>(<span class="pl-c1">boost::iostreams::zlib_decompressor</span>());
+        fi.<span class="pl-c1">push</span>(ifs);
+        
+        boost::archive::binary_iarchive <span class="pl-smi">ia</span>(fi);
+     
+        tsl::robin_map&lt;std::<span class="pl-c1">int64_t</span>, std::<span class="pl-c1">int64_t</span>&gt; map_deserialized;   
+        ia &gt;&gt; map_deserialized;
+        
+        <span class="pl-c1">assert</span>(map == map_deserialized);
+    }
+}</pre></div>
+<h3 dir="auto"><a id="user-content-license" class="anchor" aria-hidden="true" href="#license"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>License</h3>
+<p dir="auto">The code is licensed under the MIT license, see the <a href="LICENSE">LICENSE file</a> for details.</p>
+</article></div>
