@@ -1,4 +1,8 @@
 let data = require("../../data/data");
+let path = require("path");
+let fs = require("fs-extra");
+
+let dataMap = {};
 
 module.exports = async function modules(context, options) {
   return {
@@ -35,8 +39,10 @@ module.exports = async function modules(context, options) {
         );
 
         for (let module of r.modules) {
+          let path = `/bazel/${module.name}`;
+          dataMap[`${path}/data.json`] = r;
           actions.addRoute({
-            path: `/bazel/${module.name}`,
+            path: path,
             component: "@site/src/components/Page",
             modules: {
               data: jsonPath,
@@ -45,6 +51,8 @@ module.exports = async function modules(context, options) {
           });
         }
 
+        let path = `/github/${r.repo.full_name}`;
+        dataMap[`${path}/data.json`] = r;
         actions.addRoute({
           path: `/github/${r.repo.full_name}`,
           component: "@site/src/components/Page",
@@ -104,6 +112,23 @@ module.exports = async function modules(context, options) {
         },
         exact: true,
       });
+    },
+
+    async postBuild({ siteConfig, routesPaths, outDir, head }) {
+      for (let k in dataMap) {
+        const p = path.join(outDir, k);
+        try {
+          let contents = dataMap[k];
+          for (let r in contents.releases) {
+            contents.releases[r].body = "";
+          }
+          contents.root.readme = "";
+          await fs.outputFile(p, JSON.stringify(contents));
+        } catch (err) {
+          console.log(`Writing ${p} failed.`);
+          throw err;
+        }
+      }
     },
   };
 };
