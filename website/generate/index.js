@@ -76,6 +76,15 @@ module.exports = async function modules(context, options) {
 
         let path = `/github/${r.repo.full_name}`;
         dataMap[`${path}/data.json`] = r;
+
+        if (r.registry && r.registry.language) {
+          addDisambiguation(
+            r.registry.language,
+            { path: path, stars: r.repo.stargazers_count },
+            r.repo.full_name
+          );
+        }
+
         addDisambiguation(
           r.repo.name,
           { path: path, stars: r.repo.stargazers_count },
