@@ -1,73 +1,129 @@
 <div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><h1 dir="auto"><a id="user-content-bazel-build-rules-for-flex" class="anchor" aria-hidden="true" href="#bazel-build-rules-for-flex"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Bazel build rules for Flex</h1>
-<h2 dir="auto"><a id="user-content-overview" class="anchor" aria-hidden="true" href="#overview"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Overview</h2>
+<p dir="auto">This Bazel ruleset allows <a href="https://github.com/westes/flex">Flex</a> to be integrated into a Bazel build. It can
+be used to generate lexical analyzers ("lexers") in C or C++.</p>
+<p dir="auto">API reference: <a href="docs/rules_flex.md">docs/rules_flex.md</a></p>
+<h2 dir="auto"><a id="user-content-setup-workspace" class="anchor" aria-hidden="true" href="#setup-workspace"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Setup (workspace)</h2>
+<h3 dir="auto"><a id="user-content-as-a-module-dependency-bzlmod" class="anchor" aria-hidden="true" href="#as-a-module-dependency-bzlmod"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>As a module dependency (bzlmod)</h3>
+<p dir="auto">Add the following to your <code>MODULE.bazel</code>:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel_dep(name = &quot;rules_flex&quot;, version = &quot;0.2.1&quot;)"><pre><span class="pl-en">bazel_dep</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_flex"</span>, <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"0.2.1"</span>)</pre></div>
+<p dir="auto">To specify a version or build with additional C compiler options, use the
+<code>flex_repository_ext</code> module extension:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="flex = use_extension(
+    &quot;@rules_flex//flex/extensions:flex_repository_ext.bzl&quot;,
+    &quot;flex_repository_ext&quot;,
+)
+flex.repository(
+    name = &quot;flex&quot;,
+    version = &quot;2.6.4&quot;,
+    extra_copts = [&quot;-O3&quot;],
+)
+use_repo(flex, &quot;flex&quot;)
+register_toolchains(&quot;@flex//:toolchain&quot;)"><pre><span class="pl-s1">flex</span> <span class="pl-c1">=</span> <span class="pl-en">use_extension</span>(
+    <span class="pl-s">"@rules_flex//flex/extensions:flex_repository_ext.bzl"</span>,
+    <span class="pl-s">"flex_repository_ext"</span>,
+)
+<span class="pl-s1">flex</span>.<span class="pl-en">repository</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"flex"</span>,
+    <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"2.6.4"</span>,
+    <span class="pl-s1">extra_copts</span> <span class="pl-c1">=</span> [<span class="pl-s">"-O3"</span>],
+)
+<span class="pl-en">use_repo</span>(<span class="pl-s1">flex</span>, <span class="pl-s">"flex"</span>)
+<span class="pl-en">register_toolchains</span>(<span class="pl-s">"@flex//:toolchain"</span>)</pre></div>
+<p dir="auto">Note that repository names registered with a given bzlmod module extension must
+be unique within the scope of that extension. See the <a href="https://bazel.build/external/extension" rel="nofollow">Bazel module extensions</a>
+documentation for more details.</p>
+<h3 dir="auto"><a id="user-content-as-a-workspace-dependency" class="anchor" aria-hidden="true" href="#as-a-workspace-dependency"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>As a workspace dependency</h3>
 <div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@bazel_tools//tools/build_defs/repo:http.bzl&quot;, &quot;http_archive&quot;)
 
 http_archive(
     name = &quot;rules_m4&quot;,
-    urls = [&quot;https://github.com/jmillikin/rules_m4/releases/download/v0.2/rules_m4-v0.2.tar.xz&quot;],
-    sha256 = &quot;c67fa9891bb19e9e6c1050003ba648d35383b8cb3c9572f397ad24040fb7f0eb&quot;,
+    sha256 = &quot;10ce41f150ccfbfddc9d2394ee680eb984dc8a3dfea613afd013cfb22ea7445c&quot;,
+    urls = [&quot;https://github.com/jmillikin/rules_m4/releases/download/v0.2.3/rules_m4-v0.2.3.tar.xz&quot;],
 )
+
 load(&quot;@rules_m4//m4:m4.bzl&quot;, &quot;m4_register_toolchains&quot;)
-m4_register_toolchains()
+
+m4_register_toolchains(version = &quot;1.4.18&quot;)
 
 http_archive(
     name = &quot;rules_flex&quot;,
-    urls = [&quot;https://github.com/jmillikin/rules_flex/releases/download/v0.2/rules_flex-v0.2.tar.xz&quot;],
-    sha256 = &quot;f1685512937c2e33a7ebc4d5c6cf38ed282c2ce3b7a9c7c0b542db7e5db59d52&quot;,
+    # Obtain the package checksum from the release page:
+    # https://github.com/jmillikin/rules_flex/releases/tag/v0.2.1
+    sha256 = &quot;&quot;,
+    urls = [&quot;https://github.com/jmillikin/rules_flex/releases/download/v0.2.1/rules_flex-v0.2.1.tar.xz&quot;],
 )
+
 load(&quot;@rules_flex//flex:flex.bzl&quot;, &quot;flex_register_toolchains&quot;)
-flex_register_toolchains()"><pre><span class="pl-en">load</span>(<span class="pl-s">"@bazel_tools//tools/build_defs/repo:http.bzl"</span>, <span class="pl-s">"http_archive"</span>)
+
+flex_register_toolchains(version = &quot;2.6.4)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@bazel_tools//tools/build_defs/repo:http.bzl"</span>, <span class="pl-s">"http_archive"</span>)
 
 <span class="pl-en">http_archive</span>(
     <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_m4"</span>,
-    <span class="pl-s1">urls</span> <span class="pl-c1">=</span> [<span class="pl-s">"https://github.com/jmillikin/rules_m4/releases/download/v0.2/rules_m4-v0.2.tar.xz"</span>],
-    <span class="pl-s1">sha256</span> <span class="pl-c1">=</span> <span class="pl-s">"c67fa9891bb19e9e6c1050003ba648d35383b8cb3c9572f397ad24040fb7f0eb"</span>,
+    <span class="pl-s1">sha256</span> <span class="pl-c1">=</span> <span class="pl-s">"10ce41f150ccfbfddc9d2394ee680eb984dc8a3dfea613afd013cfb22ea7445c"</span>,
+    <span class="pl-s1">urls</span> <span class="pl-c1">=</span> [<span class="pl-s">"https://github.com/jmillikin/rules_m4/releases/download/v0.2.3/rules_m4-v0.2.3.tar.xz"</span>],
 )
+
 <span class="pl-en">load</span>(<span class="pl-s">"@rules_m4//m4:m4.bzl"</span>, <span class="pl-s">"m4_register_toolchains"</span>)
-<span class="pl-en">m4_register_toolchains</span>()
+
+<span class="pl-en">m4_register_toolchains</span>(<span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"1.4.18"</span>)
 
 <span class="pl-en">http_archive</span>(
     <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_flex"</span>,
-    <span class="pl-s1">urls</span> <span class="pl-c1">=</span> [<span class="pl-s">"https://github.com/jmillikin/rules_flex/releases/download/v0.2/rules_flex-v0.2.tar.xz"</span>],
-    <span class="pl-s1">sha256</span> <span class="pl-c1">=</span> <span class="pl-s">"f1685512937c2e33a7ebc4d5c6cf38ed282c2ce3b7a9c7c0b542db7e5db59d52"</span>,
+    <span class="pl-c"># Obtain the package checksum from the release page:</span>
+    <span class="pl-c"># https://github.com/jmillikin/rules_flex/releases/tag/v0.2.1</span>
+    <span class="pl-s1">sha256</span> <span class="pl-c1">=</span> <span class="pl-s">""</span>,
+    <span class="pl-s1">urls</span> <span class="pl-c1">=</span> [<span class="pl-s">"https://github.com/jmillikin/rules_flex/releases/download/v0.2.1/rules_flex-v0.2.1.tar.xz"</span>],
 )
+
 <span class="pl-en">load</span>(<span class="pl-s">"@rules_flex//flex:flex.bzl"</span>, <span class="pl-s">"flex_register_toolchains"</span>)
-<span class="pl-en">flex_register_toolchains</span>()</pre></div>
+
+<span class="pl-en">flex_register_toolchains</span>(<span class="pl-s1">version</span> <span class="pl-c1">=</span> "<span class="pl-c1">2.6</span><span class="pl-c1">.4</span>)</pre></div>
+<h2 dir="auto"><a id="user-content-examples" class="anchor" aria-hidden="true" href="#examples"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Examples</h2>
+<p dir="auto">Integrating Flex into a C/C++ dependency graph:</p>
 <div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@rules_flex//flex:flex.bzl&quot;, &quot;flex_cc_library&quot;)
+
 flex_cc_library(
     name = &quot;hello&quot;,
     src = &quot;hello.l&quot;,
 )
+
 cc_binary(
     name = &quot;hello_bin&quot;,
     deps = [&quot;:hello&quot;],
 )"><pre><span class="pl-en">load</span>(<span class="pl-s">"@rules_flex//flex:flex.bzl"</span>, <span class="pl-s">"flex_cc_library"</span>)
+
 <span class="pl-en">flex_cc_library</span>(
     <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"hello"</span>,
     <span class="pl-s1">src</span> <span class="pl-c1">=</span> <span class="pl-s">"hello.l"</span>,
 )
+
 <span class="pl-en">cc_binary</span>(
     <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"hello_bin"</span>,
     <span class="pl-s1">deps</span> <span class="pl-c1">=</span> [<span class="pl-s">":hello"</span>],
 )</pre></div>
-<h2 dir="auto"><a id="user-content-other-rules" class="anchor" aria-hidden="true" href="#other-rules"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Other Rules</h2>
+<p dir="auto">Generating <code>.c</code> / <code>.h</code> / <code>.cc</code> source files (not as a <code>CcInfo</code>):</p>
 <div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@rules_flex//flex:flex.bzl&quot;, &quot;flex&quot;)
+
 flex(
     name = &quot;hello_bin_srcs&quot;,
     src = &quot;hello.l&quot;,
 )
+
 cc_binary(
     name = &quot;hello_bin&quot;,
     srcs = [&quot;:hello_bin_srcs&quot;],
 )"><pre><span class="pl-en">load</span>(<span class="pl-s">"@rules_flex//flex:flex.bzl"</span>, <span class="pl-s">"flex"</span>)
+
 <span class="pl-en">flex</span>(
     <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"hello_bin_srcs"</span>,
     <span class="pl-s1">src</span> <span class="pl-c1">=</span> <span class="pl-s">"hello.l"</span>,
 )
+
 <span class="pl-en">cc_binary</span>(
     <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"hello_bin"</span>,
     <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> [<span class="pl-s">":hello_bin_srcs"</span>],
 )</pre></div>
+<p dir="auto">Running Flex in a <code>genrule</code>:</p>
 <div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="genrule(
     name = &quot;hello_gen&quot;,
     srcs = [&quot;hello.l&quot;],
@@ -87,7 +143,7 @@ cc_binary(
         <span class="pl-s">"@rules_m4//m4:current_m4_toolchain"</span>,
     ],
 )</pre></div>
-<h2 dir="auto"><a id="user-content-toolchains" class="anchor" aria-hidden="true" href="#toolchains"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Toolchains</h2>
+<p dir="auto">Writing a custom rule that depends on Flex as a toolchain:</p>
 <div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@rules_flex//flex:flex.bzl&quot;, &quot;FLEX_TOOLCHAIN_TYPE&quot;, &quot;flex_toolchain&quot;)
 load(&quot;@rules_m4//m4:m4.bzl&quot;, &quot;M4_TOOLCHAIN_TYPE&quot;)
 
@@ -100,7 +156,7 @@ def _my_rule(ctx):
     )
 
 my_rule = rule(
-    _my_rule,
+    implementation = _my_rule,
     toolchains = [
         FLEX_TOOLCHAIN_TYPE,
         M4_TOOLCHAIN_TYPE,
@@ -117,7 +173,7 @@ my_rule = rule(
     )
 
 <span class="pl-s1">my_rule</span> <span class="pl-c1">=</span> <span class="pl-en">rule</span>(
-    <span class="pl-s1">_my_rule</span>,
+    <span class="pl-s1">implementation</span> <span class="pl-c1">=</span> <span class="pl-s1">_my_rule</span>,
     <span class="pl-s1">toolchains</span> <span class="pl-c1">=</span> [
         <span class="pl-v">FLEX_TOOLCHAIN_TYPE</span>,
         <span class="pl-v">M4_TOOLCHAIN_TYPE</span>,
