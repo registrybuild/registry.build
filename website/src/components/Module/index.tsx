@@ -127,7 +127,7 @@ const Module = (props) => {
                 <CheckCircle2 className="package-icon" />
                 <a
                   target="_blank"
-                  href={`https://registry.bazel.build/modules/${props.data.name}`}
+                  href={`https://registry.bazel.build/modules/${module.name}`}
                 >
                   Bazel central registry
                 </a>

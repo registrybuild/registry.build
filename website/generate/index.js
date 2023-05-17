@@ -8,9 +8,6 @@ let disambiguation = {};
 module.exports = async function modules(context, options) {
   return {
     name: "modules",
-    async loadContent() {
-      /* ... */
-    },
     async contentLoaded({ content, actions }) {
       let repos = Object.values(data);
 
