@@ -226,9 +226,9 @@ const Module = (props) => {
                   className="package-release-dropdown"
                   onChange={(e) =>
                     history.push(
-                      `${
-                        location.pathname.split("@")[0]
-                      }@${e.target.value.replace("v", "")}`
+                      `${location.pathname
+                        .split("@")[0]
+                        .replace(/\/$/, "")}@${e.target.value.replace("v", "")}`
                     )
                   }
                   value={getVersion(location)}
