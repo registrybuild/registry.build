@@ -47,7 +47,7 @@ func main() {
 			newReleases = append(newReleases, Release{
 				Owner:   m[1],
 				Repo:    m[2],
-				Version: strings.Replace(m[3], "v", "", 1),
+				Version: strings.TrimPrefix(m[3], "v"),
 			})
 			fmt.Printf("owner: %s, repo: %s, version %s\n", m[1], m[2], m[3])
 		}

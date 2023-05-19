@@ -151,7 +151,7 @@ export default class NewComponent extends React.Component<Props, State> {
 
     let { files, missing } = this.getFiles();
 
-    console.log(this.props.data);
+    // console.log(this.props.data);
 
     return (
       <div className="new-container new">
@@ -539,18 +539,18 @@ export default class NewComponent extends React.Component<Props, State> {
     if (this.state.type == "WORKSPACE") {
       metadata = `workspace(name = "${this.state.name}")`;
       snippets = this.state.dependencies
-        .filter((d) => Boolean(d.workspaceSnippet))
-        .map((d) => d.workspaceSnippet);
+        .filter((d) => Boolean(d.workspace_snippet))
+        .map((d) => d.workspace_snippet);
       missing = this.state.dependencies.filter(
-        (d) => !Boolean(d.workspaceSnippet)
+        (d) => !Boolean(d.workspace_snippet)
       );
     } else {
       metadata = `module(name = "${this.state.name}", version = "1.0")`;
       snippets = this.state.dependencies
-        .filter((d) => Boolean(d.moduleSnippet))
-        .map((d) => d.moduleSnippet);
+        .filter((d) => Boolean(d.module_snippet))
+        .map((d) => d.module_snippet);
       missing = this.state.dependencies.filter(
-        (d) => !Boolean(d.moduleSnippet)
+        (d) => !Boolean(d.module_snippet)
       );
     }
 

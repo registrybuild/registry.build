@@ -1,16 +1,17 @@
 let data = require("../../data/data");
 let path = require("path");
 let fs = require("fs-extra");
+let puppeteer = require("puppeteer");
+const { readFileSync } = require("fs");
 
 let dataMap = {};
 let disambiguation = {};
+let repos = Object.values(data);
 
 module.exports = async function modules(context, options) {
   return {
     name: "modules",
     async contentLoaded({ content, actions }) {
-      let repos = Object.values(data);
-
       let index = [];
 
       for (let r of repos) {
@@ -29,7 +30,7 @@ module.exports = async function modules(context, options) {
               release.module_snippet = match[1].replaceAll("&quot;", `"`);
             }
           }
-          let moduleVersion = release.tag_name.replace("v", "");
+          let moduleVersion = release.tag_name.replace(/^v/, "");
           if (
             !release.module_snippet &&
             r.modules.length > 0 &&
@@ -97,7 +98,7 @@ module.exports = async function modules(context, options) {
         });
 
         for (let release of r.releases) {
-          let v = release.tag_name.replace("v", "");
+          let v = release.tag_name.replace(/^v/, "");
           actions.addRoute({
             path: `/github/${r.repo.full_name}@${v}`,
             component: "@site/src/components/Page",
@@ -186,6 +187,84 @@ module.exports = async function modules(context, options) {
           throw err;
         }
       }
+
+      const browser = await puppeteer.launch({ headless: true });
+      const page = await browser.newPage();
+      await page.setViewport({
+        width: 1920,
+        height: 1080,
+        deviceScaleFactor: 1,
+      });
+
+      let tempate = readFileSync("generate/template.html", "utf8");
+      for (let r of repos) {
+        let first = true;
+        for (let release of r.releases) {
+          let rendered = tempate
+            .replaceAll("{{REPO_NAME}}", r.repo.name)
+            .replaceAll("{{IMG_SRC}}", r.repo.owner.avatar_url)
+            .replaceAll("{{VERSION}}", release.tag_name)
+            .replaceAll("{{FORKS}}", r.repo.forks_count.toLocaleString())
+            .replaceAll("{{STARS}}", r.repo.stargazers_count.toLocaleString())
+            .replaceAll(
+              "{{WATCHERS}}",
+              r.repo.subscribers_count.toLocaleString()
+            )
+            .replaceAll("{{FULL_NAME}}", r.repo.full_name)
+            .replaceAll("{{LICENSE}}", r.repo.license.name)
+            .replaceAll("{{ASSETS}}", release.assets.length.toLocaleString())
+            .replaceAll(
+              "{{DOWNLOADS}}",
+              r.releases
+                .flatMap((r) => r.assets)
+                .map((a) => a.download_count)
+                .reduce((a, b) => a + b, 0)
+                .toLocaleString()
+            )
+            .replaceAll(
+              "{{SIZE}}",
+              size(
+                release.assets
+                  .map((a) => a.size)
+                  .reduce((a, b) => Math.max(a, b), 0)
+              )
+            )
+            .replaceAll("{{DESCRIPTION}}", r.repo.description)
+            .replaceAll(
+              "{{TIME}}",
+              new Date(release.published_at).toLocaleDateString("en-us", {
+                month: "long",
+                day: "numeric",
+                year: "numeric",
+              })
+            );
+          await page.setContent(rendered);
+
+          const p = path.join(
+            outDir,
+            "github",
+            r.repo.full_name + "@" + release.tag_name.replace(/^v/, ""),
+            "/image.png"
+          );
+          await page.screenshot({
+            path: p,
+          });
+          console.log(`Generated screenshot for ${p}`);
+
+          if (first) {
+            const p = path.join(
+              outDir,
+              "github",
+              r.repo.full_name,
+              "/image.png"
+            );
+            await page.screenshot({
+              path: p,
+            });
+            first = false;
+          }
+        }
+      }
     },
   };
 };
@@ -195,4 +274,13 @@ function addDisambiguation(key, value, hash) {
     disambiguation[key] = {};
   }
   disambiguation[key][hash] = value;
+}
+
+function size(bytes) {
+  if (bytes < 1000) return `${bytes.toLocaleString()} bytes`;
+  if (bytes < 1000000) return `${Math.floor(bytes / 1000).toLocaleString()} KB`;
+  if (bytes < 1000000000)
+    return `${Math.floor(bytes / 1000000).toLocaleString()} MB`;
+  if (bytes < 1000000000000)
+    return `${Math.floor(bytes / 1000000000).toLocaleString()} GB`;
 }

@@ -21,11 +21,13 @@ import {
 } from "lucide-react";
 import { useHistory, useLocation } from "@docusaurus/router";
 import Link from "@docusaurus/Link";
+import Head from "@docusaurus/Head";
 
 const Module = (props) => {
   let history = useHistory();
   let location = useLocation();
-  let release = getReleaseForTag(props.data.releases, getVersion(location));
+  let version = getVersion(location);
+  let release = getReleaseForTag(props.data.releases, version);
 
   let [workspaceCopied, setWorkspaceCopied] = useState(false);
   let [moduleCopied, setModuleCopied] = useState(false);
@@ -35,15 +37,30 @@ const Module = (props) => {
     release &&
     module &&
     module.version_data &&
-    module.version_data[release.tag_name.replace("v", "")];
+    module.version_data[release.tag_name.replace(/^v/, "")];
   let yanked =
     release &&
     module &&
     module.yanked_versions &&
-    module.yanked_versions[release.tag_name.replace("v", "")];
-  console.log(props.data);
+    module.yanked_versions[release.tag_name.replace(/^v/, "")];
+  // console.log(props.data);
   return (
     <div className="package-page">
+      <Head>
+        <meta
+          property="og:title"
+          content={`Bazel ${
+            props.data.name + (version ? version : "")
+          } - The Build Registry`}
+        />
+        <meta property="og:description" content={props.data.repo.description} />
+        <meta
+          property="og:image"
+          content={`/github/${
+            props.data.repo.full_name + (version ? `@${version}` : "")
+          }/image.png`}
+        />
+      </Head>
       <div className="package">
         <div className="package-header">
           <div className="package-name">{props.data.name}</div>
@@ -228,7 +245,10 @@ const Module = (props) => {
                     history.push(
                       `${location.pathname
                         .split("@")[0]
-                        .replace(/\/$/, "")}@${e.target.value.replace("v", "")}`
+                        .replace(/\/$/, "")}@${e.target.value.replace(
+                        /^v/,
+                        ""
+                      )}`
                     )
                   }
                   value={getVersion(location)}
@@ -236,9 +256,9 @@ const Module = (props) => {
                   {props.data.releases.map((r) => (
                     <option
                       key={r.tag_name}
-                      value={r.tag_name.replace("v", "")}
+                      value={r.tag_name.replace(/^v/, "")}
                     >
-                      {r.tag_name.replace("v", "")}
+                      {r.tag_name.replace(/^v/, "")}
                     </option>
                   ))}
                 </select>
@@ -352,7 +372,7 @@ function getVersion(location) {
 
 function getReleaseForTag(releases, tag) {
   for (let release of releases) {
-    if (release.tag_name.replace("v", "") == tag) {
+    if (release.tag_name.replace(/^v/, "") == tag) {
       return release;
     }
   }
