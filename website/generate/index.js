@@ -96,6 +96,18 @@ module.exports = async function modules(context, options) {
           exact: true,
         });
 
+        for (let release of r.releases) {
+          let v = release.tag_name.replace("v", "");
+          actions.addRoute({
+            path: `/github/${r.repo.full_name}@${v}`,
+            component: "@site/src/components/Page",
+            modules: {
+              data: jsonPath,
+            },
+            exact: true,
+          });
+        }
+
         let module = {
           name: r.name,
           modules: r.modules.map((m) => {

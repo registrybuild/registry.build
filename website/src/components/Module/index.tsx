@@ -213,7 +213,7 @@ const Module = (props) => {
         [release].map((release) => (
           <div className="package package-release" key={release.tag_name}>
             <div className="release-header">
-              <div className="release-name">{release.tag_name} </div>
+              <div className="release-name">{release.tag_name}</div>
               <div className="release-date">
                 {new Date(release.published_at).toLocaleDateString("en-us", {
                   month: "long",
@@ -224,12 +224,21 @@ const Module = (props) => {
               <div className="package-release-dropdown-container">
                 <select
                   className="package-release-dropdown"
-                  onChange={(e) => history.push("#" + e.target.value)}
+                  onChange={(e) =>
+                    history.push(
+                      `${
+                        location.pathname.split("@")[0]
+                      }@${e.target.value.replace("v", "")}`
+                    )
+                  }
                   value={getVersion(location)}
                 >
                   {props.data.releases.map((r) => (
-                    <option key={r.tag_name} value={r.tag_name}>
-                      {r.tag_name}
+                    <option
+                      key={r.tag_name}
+                      value={r.tag_name.replace("v", "")}
+                    >
+                      {r.tag_name.replace("v", "")}
                     </option>
                   ))}
                 </select>
@@ -334,12 +343,16 @@ function copy(snippet) {
 }
 
 function getVersion(location) {
-  return location.hash.substring(1);
+  let parts = location.pathname.split("@");
+  if (parts.length <= 1) {
+    return "";
+  }
+  return parts[1];
 }
 
 function getReleaseForTag(releases, tag) {
   for (let release of releases) {
-    if (release.tag_name == tag) {
+    if (release.tag_name.replace("v", "") == tag) {
       return release;
     }
   }
