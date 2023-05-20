@@ -56,7 +56,7 @@ const Module = (props) => {
         <meta property="og:description" content={props.data.repo.description} />
         <meta
           property="og:image"
-          content={`/github/${
+          content={`https://registry.build/github/${
             props.data.repo.full_name + (version ? `@${version}` : "")
           }/image.png`}
         />
