@@ -208,7 +208,9 @@ const Module = (props) => {
                 <button
                   className={workspaceCopied ? "copied" : ""}
                   onClick={(e) => {
-                    copy(props.data.workspace_snippet);
+                    copy(
+                      release.workspace_snippet || props.data.workspace_snippet
+                    );
                     setWorkspaceCopied(!workspaceCopied);
                   }}
                 >
@@ -219,7 +221,7 @@ const Module = (props) => {
                 <button
                   className={moduleCopied ? "copied" : ""}
                   onClick={(e) => {
-                    copy(props.data.module_snippet);
+                    copy(release.module_snippet || props.data.module_snippet);
                     setModuleCopied(!moduleCopied);
                   }}
                 >
