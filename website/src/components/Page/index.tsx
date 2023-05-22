@@ -56,7 +56,7 @@ const Page = (props) => {
                 }
                 setTimeout(() => document.getElementById("search").focus(), 0);
               }}
-              placeholder="Search the registry"
+              placeholder="Search..."
               key={"search-input"}
             />
             <button

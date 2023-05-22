@@ -155,7 +155,7 @@ const Module = (props) => {
               </div>
             )}
             {versionData && (
-              <div className="package-sha">
+              <div className="package-compatability">
                 <Milestone className="package-icon" />
                 Compatability level{" "}
                 {[
@@ -168,7 +168,7 @@ const Module = (props) => {
               </div>
             )}
             {yanked && (
-              <div className="package-sha">
+              <div className="package-yanked">
                 <AlertOctagon className="package-icon" />
                 Yanked because of {yanked}
               </div>
