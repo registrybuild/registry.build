@@ -2,16 +2,18 @@ package main
 
 import (
 	"bufio"
+	"context"
 	"flag"
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"regexp"
 	"strings"
 	"time"
 
-	"github.com/dghubble/go-twitter/twitter"
 	"github.com/dghubble/oauth1"
+	twitter "github.com/g8rswimmer/go-twitter/v2"
 )
 
 var (
@@ -64,20 +66,34 @@ func main() {
 	}
 }
 
+type authorize struct {
+}
+
+func (a authorize) Add(req *http.Request) {
+}
+
 func sendTweet(tweet string) {
 	config := oauth1.NewConfig(*consumerKey, *consumerSecret)
 	token := oauth1.NewToken(*accessToken, *accessTokenSecret)
 
 	httpClient := config.Client(oauth1.NoContext, token)
 
-	client := twitter.NewClient(httpClient)
+	client := &twitter.Client{
+		Authorizer: &authorize{},
+		Client:     httpClient,
+		Host:       "https://api.twitter.com",
+	}
 
-	_, _, err := client.Statuses.Update(tweet, nil)
+	req := twitter.CreateTweetRequest{
+		Text: tweet,
+	}
+
+	tweetResponse, err := client.CreateTweet(context.Background(), req)
 	if err != nil {
 		log.Fatal("Error sending tweet:", err)
 	}
 
-	fmt.Println("Tweet sent:", tweet)
+	fmt.Printf("Tweet sent: %+v response: %+v", tweet, tweetResponse)
 }
 
 type Release struct {
