@@ -38,7 +38,6 @@ const config = {
   themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
-      image: "img/social.png",
       prism: {
         theme: lightCodeTheme,
         darkTheme: darkCodeTheme,
