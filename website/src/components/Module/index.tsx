@@ -43,23 +43,27 @@ const Module = (props) => {
     module &&
     module.yanked_versions &&
     module.yanked_versions[release.tag_name.replace(/^v/, "")];
+  let image = `https://registry.build/github/${
+    props.data.repo.full_name + (version ? `@${version}` : "")
+  }/image.png`;
+  let title = `Bazel ${
+    props.data.name + (version ? version : "")
+  } - The Build Registry`;
   // console.log(props.data);
   return (
     <div className="package-page">
       <Head>
+        <meta name="og:title" content={title} />
+        <meta name="twitter:title" content={title} />
+        <meta name="og:description" content={props.data.repo.description} />
         <meta
-          property="og:title"
-          content={`Bazel ${
-            props.data.name + (version ? version : "")
-          } - The Build Registry`}
+          name="twitter:description"
+          content={props.data.repo.description}
         />
-        <meta property="og:description" content={props.data.repo.description} />
-        <meta
-          property="og:image"
-          content={`https://registry.build/github/${
-            props.data.repo.full_name + (version ? `@${version}` : "")
-          }/image.png`}
-        />
+        <meta name="og:image" content={image} />
+        <meta name="twitter:image" content={image} />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:site" content="@BuildRegistry" />
       </Head>
       <div className="package">
         <div className="package-header">
