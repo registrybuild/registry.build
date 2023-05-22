@@ -20,7 +20,15 @@ const config = {
     locales: ["en"],
   },
 
-  plugins: ["./generate"],
+  plugins: [
+    "./generate",
+    [
+      "@docusaurus/plugin-google-gtag",
+      {
+        trackingID: "G-1JBED1PWGV",
+      },
+    ],
+  ],
   presets: [
     [
       "classic",
