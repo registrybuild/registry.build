@@ -7,26 +7,22 @@ import {
   CheckCircle2,
   GitCommit,
   Github,
-  History,
+  History as HistoryIcon,
   Star,
   Trash2,
 } from "lucide-react";
 import { since } from "@site/src/utils/format";
-
+import { History, Location } from "history";
+import { withRouter, RouteComponentProps } from "react-router-dom";
 interface Props {
   data: any;
+  location: Location;
+  history: History;
 }
 interface State {
   query: string;
-  name: string;
-  dependencies: any[];
-  tools: any[];
-  settings: any[];
   showModal: boolean;
-  type: string;
   selectIndex: number;
-  bazelVersion: string;
-  useBBCLI: boolean;
   showFiles: boolean;
 }
 
@@ -60,7 +56,7 @@ const Module = (props) => (
           "unknown"}
       </div>
       <div className="package-age">
-        <History className="package-icon" />
+        <HistoryIcon className="package-icon" />
         {(props.data.releases[0] &&
           since(props.data.releases[0].published_at)) ||
           "unknown"}
@@ -90,19 +86,12 @@ const Module = (props) => (
   </div>
 );
 
-export default class NewComponent extends React.Component<Props, State> {
-  props: Props;
+class NewComponent extends React.Component<RouteComponentProps & Props, State> {
+  props: RouteComponentProps & Props;
   state: State = {
     query: "",
-    name: "myworkspace",
-    dependencies: [],
-    tools: [],
-    settings: [],
     showModal: false,
-    type: "WORKSPACE",
     selectIndex: 0,
-    bazelVersion: "6.1.1",
-    useBBCLI: false,
     showFiles: false,
   };
 
@@ -121,7 +110,7 @@ export default class NewComponent extends React.Component<Props, State> {
           break;
         case 13: // Meta + Return
           if (!e.metaKey) break;
-          this.handleDownloadZip(this.state.name, this.getFiles().files);
+          this.handleDownloadZip(this.getFiles(this.getExpensiveDeps()).files);
           e.preventDefault();
           break;
         case 32: // Ctrl + Space
@@ -133,14 +122,97 @@ export default class NewComponent extends React.Component<Props, State> {
     };
   }
 
+  getExpensiveDeps() {
+    let selectedDepNames = this.getDepNames();
+    return this.props.data.filter((d) =>
+      selectedDepNames.some((s) => s == d.repo.full_name)
+    );
+  }
+
+  getDepNames() {
+    return (
+      new URLSearchParams(this.props.location.search).get("deps")?.split(",") ||
+      []
+    );
+  }
+
   remove(d) {
-    this.state.dependencies.splice(this.state.dependencies.indexOf(d), 1);
-    this.setState({
-      dependencies: this.state.dependencies,
-    });
+    let depNames = this.getDepNames();
+    depNames.splice(depNames.indexOf(d.repo.full_name), 1);
+    let params = new URLSearchParams(this.props.location.search);
+    params.set("deps", depNames.join(","));
+    this.props.history.push(`${location.pathname}?${params}`);
+  }
+
+  add(d) {
+    let newDeps = this.getDepNames().concat([d.repo.full_name]);
+    let params = new URLSearchParams(location.search);
+    params.set("deps", newDeps.join(","));
+    this.props.history.push(`${location.pathname}?${params}`);
+  }
+
+  getWorkspaceName() {
+    return (
+      new URLSearchParams(this.props.location.search).get("name") ??
+      "myworkspace"
+    );
+  }
+
+  setWorkspaceName(newName: string) {
+    let params = new URLSearchParams(location.search);
+    params.set("name", newName);
+    this.props.history.push(`${location.pathname}?${params}`);
+  }
+
+  getBazelVersion() {
+    return (
+      new URLSearchParams(this.props.location.search).get("version") ?? "6.1.1"
+    );
+  }
+
+  setBazelVersion(newName: string) {
+    let params = new URLSearchParams(location.search);
+    params.set("version", newName);
+    this.props.history.push(`${location.pathname}?${params}`);
+  }
+
+  getType() {
+    return (
+      new URLSearchParams(this.props.location.search).get("type") ?? "WORKSPACE"
+    );
+  }
+
+  setType(newName: string) {
+    let params = new URLSearchParams(location.search);
+    params.set("type", newName);
+    this.props.history.push(`${location.pathname}?${params}`);
+  }
+
+  getSettings() {
+    return (
+      new URLSearchParams(this.props.location.search)
+        .get("settings")
+        ?.split(",") || []
+    );
+  }
+
+  addSetting(s) {
+    let newSettings = this.getSettings().concat([s]);
+    let params = new URLSearchParams(location.search);
+    params.set("settings", newSettings.join(","));
+    this.props.history.push(`${location.pathname}?${params}`);
+  }
+
+  removeSetting(s: string) {
+    let settings = this.getSettings();
+    settings.splice(settings.indexOf(s), 1);
+    let params = new URLSearchParams(this.props.location.search);
+    params.set("settings", settings.join(","));
+    this.props.history.push(`${location.pathname}?${params}`);
   }
 
   render() {
+    let selectedDeps = this.getExpensiveDeps();
     let filteredDeps = this.props.data
       .filter((d) => d.name.includes(this.state.query))
       .sort(popularity)
@@ -149,7 +221,7 @@ export default class NewComponent extends React.Component<Props, State> {
       this.setState({ selectIndex: 0 });
     }
 
-    let { files, missing } = this.getFiles();
+    let { files, missing } = this.getFiles(selectedDeps);
 
     // console.log(this.props.data);
 
@@ -207,17 +279,15 @@ export default class NewComponent extends React.Component<Props, State> {
                     <input
                       className="new-builder-project-name"
                       type="text"
-                      value={this.state.name}
-                      onChange={(e) => this.setState({ name: e.target.value })}
+                      value={this.getWorkspaceName()}
+                      onChange={(e) => this.setWorkspaceName(e.target.value)}
                     />
                   </div>
                   <div className="new-builder-config">
                     Bazel version:{" "}
                     <select
-                      value={this.state.bazelVersion}
-                      onChange={(e) =>
-                        this.setState({ bazelVersion: e.target.value })
-                      }
+                      value={this.getBazelVersion()}
+                      onChange={(e) => this.setBazelVersion(e.target.value)}
                     >
                       <option>6.1.1</option>
                       <option>6.1.0</option>
@@ -234,10 +304,8 @@ export default class NewComponent extends React.Component<Props, State> {
                     <label>
                       <input
                         type="radio"
-                        checked={this.state.type == "WORKSPACE"}
-                        onChange={(e) =>
-                          this.setState({ type: e.target.value })
-                        }
+                        checked={this.getType() == "WORKSPACE"}
+                        onChange={(e) => this.setType(e.target.value)}
                         value="WORKSPACE"
                         name="type"
                       />{" "}
@@ -246,10 +314,8 @@ export default class NewComponent extends React.Component<Props, State> {
                     <label>
                       <input
                         type="radio"
-                        checked={this.state.type == "MODULE"}
-                        onChange={(e) =>
-                          this.setState({ type: e.target.value })
-                        }
+                        checked={this.getType() == "MODULE"}
+                        onChange={(e) => this.setType(e.target.value)}
                         value="MODULE"
                         name="type"
                       />{" "}
@@ -267,13 +333,12 @@ export default class NewComponent extends React.Component<Props, State> {
                         <label key={d.registry.language}>
                           <input
                             type="checkbox"
-                            checked={this.state.dependencies.includes(d)}
+                            checked={selectedDeps.includes(d)}
                             onChange={(e) => {
-                              if (this.state.dependencies.includes(d)) {
+                              if (selectedDeps.includes(d)) {
                                 this.remove(d);
                               } else {
-                                this.state.dependencies.push(d);
-                                this.forceUpdate();
+                                this.add(d);
                               }
                             }}
                             value="WORKSPACE"
@@ -285,7 +350,7 @@ export default class NewComponent extends React.Component<Props, State> {
                   </div>
                 </div>
                 <div className="new-builder-section">
-                  <div className="new-builder-title">Tools</div>
+                  <div className="new-builder-title">Settings</div>
                   <div className="new-builder-config checkboxes">
                     {[
                       "results UI",
@@ -293,32 +358,6 @@ export default class NewComponent extends React.Component<Props, State> {
                       "remote execution",
                       "BB CLI",
                       "workflows",
-                    ].map((l) => (
-                      <label key={l}>
-                        <input
-                          type="checkbox"
-                          checked={this.state.tools.includes(l)}
-                          onChange={(e) => {
-                            if (this.state.tools.includes(l)) {
-                              this.state.tools.splice(
-                                this.state.tools.indexOf(l),
-                                1
-                              );
-                            } else {
-                              this.state.tools.push(l);
-                            }
-                            this.forceUpdate();
-                          }}
-                        />{" "}
-                        {l}
-                      </label>
-                    ))}
-                  </div>
-                </div>
-                <div className="new-builder-section">
-                  <div className="new-builder-title">Settings</div>
-                  <div className="new-builder-config checkboxes">
-                    {[
                       "strict environment",
                       "build without bytes",
                       "compression",
@@ -326,17 +365,13 @@ export default class NewComponent extends React.Component<Props, State> {
                       <label key={l}>
                         <input
                           type="checkbox"
-                          checked={this.state.settings.includes(l)}
+                          checked={this.getSettings().includes(l)}
                           onChange={(e) => {
-                            if (this.state.settings.includes(l)) {
-                              this.state.settings.splice(
-                                this.state.settings.indexOf(l),
-                                1
-                              );
+                            if (this.getSettings().includes(l)) {
+                              this.removeSetting(l);
                             } else {
-                              this.state.settings.push(l);
+                              this.addSetting(l);
                             }
-                            this.forceUpdate();
                           }}
                         />{" "}
                         {l}
@@ -377,11 +412,8 @@ export default class NewComponent extends React.Component<Props, State> {
                           switch (e.keyCode) {
                             case 13: //enter
                               if (filteredDeps.length == 0) break;
-                              this.state.dependencies.push(
-                                filteredDeps[this.state.selectIndex]
-                              );
+                              this.add(filteredDeps[this.state.selectIndex]);
                               this.setState({
-                                dependencies: this.state.dependencies,
                                 query: "",
                                 showModal: false,
                               });
@@ -423,22 +455,16 @@ export default class NewComponent extends React.Component<Props, State> {
                             }`}
                             style={{ cursor: "pointer" }}
                             onClick={() => {
-                              if (this.state.dependencies.includes(d)) {
-                                this.state.dependencies.splice(
-                                  this.state.dependencies.indexOf(d),
-                                  1
-                                );
+                              if (selectedDeps.includes(d)) {
+                                this.remove(d);
                               } else {
-                                this.state.dependencies.push(d);
+                                this.add(d);
                               }
-                              this.setState({
-                                dependencies: this.state.dependencies,
-                              });
                             }}
                           >
                             <Module
                               onRemove={() => this.remove(d)}
-                              selected={this.state.dependencies.includes(d)}
+                              selected={selectedDeps.includes(d)}
                               data={d}
                             />
                           </div>
@@ -448,13 +474,13 @@ export default class NewComponent extends React.Component<Props, State> {
                   </div>
                 )}
                 <div className="dependency-list">
-                  {this.state.dependencies.length == 0 && (
+                  {selectedDeps.length == 0 && (
                     <div>
                       No dependencies added yet, click <b>ADD</b> above to add
                       some!
                     </div>
                   )}
-                  {this.state.dependencies.map((d) => (
+                  {selectedDeps.map((d) => (
                     <Module
                       onRemove={() => {
                         this.remove(d);
@@ -463,7 +489,7 @@ export default class NewComponent extends React.Component<Props, State> {
                       key={d.repo.full_name}
                       data={d}
                       missing={missing.includes(d)}
-                      type={this.state.type}
+                      type={this.getType()}
                     />
                   ))}
                 </div>
@@ -495,7 +521,7 @@ export default class NewComponent extends React.Component<Props, State> {
                 </button>
                 <button
                   className="primary"
-                  onClick={() => this.handleDownloadZip(this.state.name, files)}
+                  onClick={() => this.handleDownloadZip(files)}
                 >
                   GENERATE <span className="hint">⌘ + ↵</span>
                 </button>
@@ -530,33 +556,29 @@ export default class NewComponent extends React.Component<Props, State> {
     );
   }
 
-  getFiles() {
+  getFiles(deps) {
     let files = {} as any;
 
     let snippets = [];
     let missing = [];
     let metadata = "";
-    if (this.state.type == "WORKSPACE") {
-      metadata = `workspace(name = "${this.state.name}")`;
-      snippets = this.state.dependencies
+    if (this.getType() == "WORKSPACE") {
+      metadata = `workspace(name = "${this.getWorkspaceName()}")`;
+      snippets = deps
         .filter((d) => Boolean(d.workspace_snippet))
         .map((d) => d.workspace_snippet);
-      missing = this.state.dependencies.filter(
-        (d) => !Boolean(d.workspace_snippet)
-      );
+      missing = deps.filter((d) => !Boolean(d.workspace_snippet));
     } else {
-      metadata = `module(name = "${this.state.name}", version = "1.0")`;
-      snippets = this.state.dependencies
+      metadata = `module(name = "${this.getWorkspaceName()}", version = "1.0")`;
+      snippets = deps
         .filter((d) => Boolean(d.module_snippet))
         .map((d) => d.module_snippet);
-      missing = this.state.dependencies.filter(
-        (d) => !Boolean(d.module_snippet)
-      );
+      missing = deps.filter((d) => !Boolean(d.module_snippet));
     }
 
     let snippetString = snippets.join("\n\n");
 
-    files[this.state.type] = fflate.strToU8(
+    files[this.getType()] = fflate.strToU8(
       `${metadata}\n${
         false && snippetString.includes("http_archive")
           ? `\nload("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")\n`
@@ -566,41 +588,42 @@ export default class NewComponent extends React.Component<Props, State> {
 
     let bazelRC = "";
 
-    if (this.state.settings.includes("strict environment")) {
+    let settings = this.getSettings();
+    if (settings.includes("strict environment")) {
       bazelRC += `# Use a static PATH variable to prevent unnecessary rebuilds of dependencies like protobuf. 
 build --incompatible_strict_action_env\n\n`;
     }
 
-    if (this.state.settings.includes("build without bytes")) {
+    if (settings.includes("build without bytes")) {
       bazelRC += `# Don't download intermediate outputs from the remote cache
 build --remote_download_minimal\n\n`;
     }
 
-    if (this.state.settings.includes("compression")) {
+    if (settings.includes("compression")) {
       bazelRC += `# Enables compressed remote cache reads/writes
 build --experimental_remote_cache_compression\n\n`;
     }
 
-    if (this.state.tools.includes("results UI")) {
+    if (settings.includes("results UI")) {
       bazelRC += `# Adds BES backend for results UI
 build --bes_results_url=https://app.buildbuddy.io/invocation/
 build --bes_backend=grpcs://remote.buildbuddy.io\n\n`;
     }
 
-    if (this.state.tools.includes("remote cache")) {
+    if (settings.includes("remote cache")) {
       bazelRC += `# Enable use of a remote cache when --config=cache is set
 build:cache --remote_cache=grpcs://remote.buildbuddy.io\n\n`;
     }
 
-    if (this.state.tools.includes("remote execution")) {
+    if (settings.includes("remote execution")) {
       bazelRC += `# Enable remote execution when --config=remote is set
 build:remote --remote_executor=grpcs://remote.buildbuddy.io\n\n`;
     }
 
     if (
-      this.state.tools.includes("results UI") ||
-      this.state.tools.includes("remote cache") ||
-      this.state.tools.includes("remote execution")
+      settings.includes("results UI") ||
+      settings.includes("remote cache") ||
+      settings.includes("remote execution")
     ) {
       bazelRC += `# Grab an API key from https://app.buildbuddy.io/
 # common --remote_header=x-buildbuddy-api-key=YOUR_API_KEY_GOES_HERE\n\n`;
@@ -608,15 +631,15 @@ build:remote --remote_executor=grpcs://remote.buildbuddy.io\n\n`;
 
     files[".bazelrc"] = fflate.strToU8(bazelRC.trim());
 
-    let bazelVersion = this.state.bazelVersion;
+    let bazelVersion = this.getBazelVersion();
 
-    if (this.state.tools.includes("BB CLI")) {
+    if (settings.includes("BB CLI")) {
       bazelVersion = `buildbuddy-io/5.0.7\n${bazelVersion}`;
     }
 
     files[".bazelversion"] = fflate.strToU8(`${bazelVersion}`.trim());
 
-    if (this.state.tools.includes("workflows")) {
+    if (settings.includes("workflows")) {
       files["buildbuddy.yaml"] = fflate.strToU8(
         `actions:
   - name: "Test all targets"
@@ -637,7 +660,8 @@ build:remote --remote_executor=grpcs://remote.buildbuddy.io\n\n`;
     return { files, missing };
   }
 
-  async handleDownloadZip(name: string, files: any) {
+  async handleDownloadZip(files: any) {
+    let name = this.getWorkspaceName();
     const zipped = new Blob([
       fflate.zipSync(
         { [name]: files },
@@ -655,3 +679,5 @@ build:remote --remote_executor=grpcs://remote.buildbuddy.io\n\n`;
     link.remove();
   }
 }
+
+export default withRouter(NewComponent);
