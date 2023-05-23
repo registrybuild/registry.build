@@ -43,7 +43,6 @@ module.exports = async function modules(context, options) {
             let path = `/github/${r.repo.full_name}`;
             let match = r.workspace_snippet.match(/name = "(.+?)"/);
             if (match) {
-              console.log(match[1]);
               addDisambiguation(
                 match[1],
                 { path: path.substr(1), stars: r.repo.stargazers_count },
