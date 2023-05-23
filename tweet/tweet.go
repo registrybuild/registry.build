@@ -24,6 +24,8 @@ var (
 )
 
 func main() {
+	flag.Parse()
+
 	file, err := os.Open("data/diff.txt")
 	if err != nil {
 		fmt.Println("Error opening file:", err)
