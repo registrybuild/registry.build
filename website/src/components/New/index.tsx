@@ -223,8 +223,6 @@ class NewComponent extends React.Component<RouteComponentProps & Props, State> {
 
     let { files, missing } = this.getFiles(selectedDeps);
 
-    // console.log(this.props.data);
-
     return (
       <div className="new-container new">
         <div className="header">
@@ -475,23 +473,25 @@ class NewComponent extends React.Component<RouteComponentProps & Props, State> {
                 )}
                 <div className="dependency-list">
                   {selectedDeps.length == 0 && (
-                    <div>
+                    <div key="empty-state">
                       No dependencies added yet, click <b>ADD</b> above to add
                       some!
                     </div>
                   )}
-                  {selectedDeps.map((d) => (
-                    <Module
-                      onRemove={() => {
-                        this.remove(d);
-                      }}
-                      selected={true}
-                      key={d.repo.full_name}
-                      data={d}
-                      missing={missing.includes(d)}
-                      type={this.getType()}
-                    />
-                  ))}
+                  <div>
+                    {selectedDeps.map((d) => (
+                      <Module
+                        onRemove={() => {
+                          this.remove(d);
+                        }}
+                        selected={true}
+                        key={`${d.repo.full_name}@selected`}
+                        data={d}
+                        missing={missing.includes(d)}
+                        type={this.getType()}
+                      />
+                    ))}
+                  </div>
                 </div>
 
                 {/* {missing.length > 0 && (
