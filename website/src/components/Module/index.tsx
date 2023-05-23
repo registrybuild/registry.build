@@ -373,7 +373,7 @@ function getVersion(location) {
   if (parts.length <= 1) {
     return "";
   }
-  return parts[1];
+  return parts[1].replaceAll("/", "");
 }
 
 function getReleaseForTag(releases, tag) {
