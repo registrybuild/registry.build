@@ -39,6 +39,19 @@ module.exports = async function modules(context, options) {
             release.module_snippet = `bazel_dep(name = "${r.modules[0].name}", version = "${moduleVersion}")`;
           }
 
+          if (r.workspace_snippet) {
+            let path = `/github/${r.repo.full_name}`;
+            let match = r.workspace_snippet.match(/name = "(.+?)"/);
+            if (match) {
+              console.log(match[1]);
+              addDisambiguation(
+                match[1],
+                { path: path.substr(1), stars: r.repo.stargazers_count },
+                r.repo.full_name
+              );
+            }
+          }
+
           if (!r.workspace_snippet && release.workspace_snippet) {
             r.workspace_snippet = release.workspace_snippet;
             r.latest_release_with_workspace_snippet = release.tag_name;
@@ -76,6 +89,16 @@ module.exports = async function modules(context, options) {
         dataMap[`${path}/data.json`] = r;
 
         if (r.registry && r.registry.language) {
+          addDisambiguation(
+            r.repo.full_name.replaceAll("/", "_"),
+            { path: path.substr(1), stars: r.repo.stargazers_count },
+            r.repo.full_name
+          );
+          addDisambiguation(
+            `com_github_${r.repo.full_name.replaceAll("/", "_")}`,
+            { path: path.substr(1), stars: r.repo.stargazers_count },
+            r.repo.full_name
+          );
           addDisambiguation(
             r.registry.language,
             { path: path.substr(1), stars: r.repo.stargazers_count },
