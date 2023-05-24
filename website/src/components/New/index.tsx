@@ -14,6 +14,7 @@ import {
 import { since } from "@site/src/utils/format";
 import { History, Location } from "history";
 import { withRouter, RouteComponentProps } from "react-router-dom";
+import BrowserOnly from "@docusaurus/BrowserOnly";
 interface Props {
   data: any;
   location: Location;
@@ -254,247 +255,255 @@ class NewComponent extends React.Component<RouteComponentProps & Props, State> {
           </div>
         </div>
         <div className="content">
-          <div className="main new-builder-container">
-            <div className="new-builder">
-              <div className="new-builder-half">
-                <div className="new-builder-section">
-                  <div className="new-builder-title">Tool</div>
-                  <div className="new-builder-config checkboxes">
-                    <label>
-                      <input type="radio" checked={true} readOnly={true} />{" "}
-                      Bazel
-                    </label>
-                    <label>
-                      <input type="radio" disabled={true} readOnly={true} />{" "}
-                      Buck2 [coming soon]
-                    </label>
-                  </div>
-                </div>
-                <div className="new-builder-section">
-                  <div className="new-builder-title">Configuration</div>
-                  <div className="new-builder-config">
-                    Project name:{" "}
-                    <input
-                      className="new-builder-project-name"
-                      type="text"
-                      value={this.getWorkspaceName()}
-                      onChange={(e) => this.setWorkspaceName(e.target.value)}
-                    />
-                  </div>
-                  <div className="new-builder-config">
-                    Bazel version:{" "}
-                    <select
-                      value={this.getBazelVersion()}
-                      onChange={(e) => this.setBazelVersion(e.target.value)}
-                    >
-                      <option>6.1.1</option>
-                      <option>6.1.0</option>
-                      <option>6.0.0</option>
-                      <option>5.0.0</option>
-                      <option>4.0.0</option>
-                      <option>3.0.0</option>
-                      <option>2.0.0</option>
-                      <option>1.0.0</option>
-                    </select>
-                  </div>
-                  <div className="new-builder-config checkboxes">
-                    Style:
-                    <label>
-                      <input
-                        type="radio"
-                        checked={this.getType() == "WORKSPACE"}
-                        onChange={(e) => this.setType(e.target.value)}
-                        value="WORKSPACE"
-                        name="type"
-                      />{" "}
-                      Workspace
-                    </label>
-                    <label>
-                      <input
-                        type="radio"
-                        checked={this.getType() == "MODULE"}
-                        onChange={(e) => this.setType(e.target.value)}
-                        value="MODULE"
-                        name="type"
-                      />{" "}
-                      Module
-                    </label>
-                  </div>
-                </div>
-                <div className="new-builder-section">
-                  <div className="new-builder-title">Languages</div>
-                  <div className="new-builder-config checkboxes">
-                    {this.props.data
-                      .filter((d) => d.registry && d.registry.language)
-                      .sort(popularity)
-                      .map((d) => (
-                        <label key={d.registry.language}>
+          <BrowserOnly fallback={<div>Loading...</div>}>
+            {() => (
+              <div className="main new-builder-container">
+                <div className="new-builder">
+                  <div className="new-builder-half">
+                    <div className="new-builder-section">
+                      <div className="new-builder-title">Tool</div>
+                      <div className="new-builder-config checkboxes">
+                        <label>
+                          <input type="radio" checked={true} readOnly={true} />{" "}
+                          Bazel
+                        </label>
+                        <label>
+                          <input type="radio" disabled={true} readOnly={true} />{" "}
+                          Buck2 [coming soon]
+                        </label>
+                      </div>
+                    </div>
+                    <div className="new-builder-section">
+                      <div className="new-builder-title">Configuration</div>
+                      <div className="new-builder-config">
+                        Project name:{" "}
+                        <input
+                          className="new-builder-project-name"
+                          type="text"
+                          value={this.getWorkspaceName()}
+                          onChange={(e) =>
+                            this.setWorkspaceName(e.target.value)
+                          }
+                        />
+                      </div>
+                      <div className="new-builder-config">
+                        Bazel version:{" "}
+                        <select
+                          value={this.getBazelVersion()}
+                          onChange={(e) => this.setBazelVersion(e.target.value)}
+                        >
+                          <option>6.1.1</option>
+                          <option>6.1.0</option>
+                          <option>6.0.0</option>
+                          <option>5.0.0</option>
+                          <option>4.0.0</option>
+                          <option>3.0.0</option>
+                          <option>2.0.0</option>
+                          <option>1.0.0</option>
+                        </select>
+                      </div>
+                      <div className="new-builder-config checkboxes">
+                        Style:
+                        <label>
                           <input
-                            type="checkbox"
-                            checked={selectedDeps.includes(d)}
-                            onChange={(e) => {
-                              if (selectedDeps.includes(d)) {
-                                this.remove(d);
-                              } else {
-                                this.add(d);
-                              }
-                            }}
+                            type="radio"
+                            checked={this.getType() == "WORKSPACE"}
+                            onChange={(e) => this.setType(e.target.value)}
                             value="WORKSPACE"
                             name="type"
                           />{" "}
-                          {d.registry.language}
+                          Workspace
                         </label>
-                      ))}
-                  </div>
-                </div>
-                <div className="new-builder-section">
-                  <div className="new-builder-title">Settings</div>
-                  <div className="new-builder-config checkboxes">
-                    {[
-                      "results UI",
-                      "remote cache",
-                      "remote execution",
-                      "BB CLI",
-                      "workflows",
-                      "strict environment",
-                      "build without bytes",
-                      "compression",
-                    ].map((l) => (
-                      <label key={l}>
-                        <input
-                          type="checkbox"
-                          checked={this.getSettings().includes(l)}
-                          onChange={(e) => {
-                            if (this.getSettings().includes(l)) {
-                              this.removeSetting(l);
-                            } else {
-                              this.addSetting(l);
-                            }
-                          }}
-                        />{" "}
-                        {l}
-                      </label>
-                    ))}
-                  </div>
-                </div>
-              </div>
-              <div className="new-builder-half">
-                <div className="new-builder-dependency-section">
-                  <div className="new-builder-title">Dependencies</div>
-                  <button
-                    onClick={() => {
-                      this.setState({ showModal: true }, () => {
-                        document.getElementById("dep-input").focus();
-                      });
-                    }}
-                  >
-                    ADD <span className="hint">⌘ + B</span>
-                  </button>
-                </div>
-                {this.state.showModal && (
-                  <div
-                    className="new-builder-modal-container"
-                    onClick={() => this.setState({ showModal: false })}
-                  >
-                    <div
-                      className="new-builder-modal"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <input
-                        id="dep-input"
-                        value={this.state.query}
-                        onChange={(e) =>
-                          this.setState({ query: e.target.value })
-                        }
-                        onKeyDown={(e) => {
-                          switch (e.keyCode) {
-                            case 13: //enter
-                              if (filteredDeps.length == 0) break;
-                              this.add(filteredDeps[this.state.selectIndex]);
-                              this.setState({
-                                query: "",
-                                showModal: false,
-                              });
-                              break;
-                            case 38: //up
-                              let prev = Math.max(
-                                this.state.selectIndex - 1,
-                                0
-                              );
-                              this.setState({
-                                selectIndex: prev,
-                              });
-                              document
-                                .getElementById(`option-${prev}`)
-                                .scrollIntoView({ block: "nearest" });
-                              break;
-                            case 40: //down
-                              let next = Math.min(
-                                this.state.selectIndex + 1,
-                                filteredDeps.length - 1
-                              );
-                              this.setState({
-                                selectIndex: next,
-                              });
-                              document
-                                .getElementById(`option-${next}`)
-                                .scrollIntoView({ block: "nearest" });
-                              break;
-                          }
-                        }}
-                      />
-                      <div className="dep-input-options">
-                        {filteredDeps.sort(popularity).map((d, index) => (
-                          <div
-                            id={`option-${index}`}
-                            key={d.repo.full_name}
-                            className={`dep-input-option ${
-                              index == this.state.selectIndex ? "selected" : ""
-                            }`}
-                            style={{ cursor: "pointer" }}
-                            onClick={() => {
-                              if (selectedDeps.includes(d)) {
-                                this.remove(d);
-                              } else {
-                                this.add(d);
-                              }
-                            }}
-                          >
-                            <Module
-                              onRemove={() => this.remove(d)}
-                              selected={selectedDeps.includes(d)}
-                              data={d}
-                            />
-                          </div>
+                        <label>
+                          <input
+                            type="radio"
+                            checked={this.getType() == "MODULE"}
+                            onChange={(e) => this.setType(e.target.value)}
+                            value="MODULE"
+                            name="type"
+                          />{" "}
+                          Module
+                        </label>
+                      </div>
+                    </div>
+                    <div className="new-builder-section">
+                      <div className="new-builder-title">Languages</div>
+                      <div className="new-builder-config checkboxes">
+                        {this.props.data
+                          .filter((d) => d.registry && d.registry.language)
+                          .sort(popularity)
+                          .map((d) => (
+                            <label key={d.registry.language}>
+                              <input
+                                type="checkbox"
+                                checked={selectedDeps.includes(d)}
+                                onChange={(e) => {
+                                  if (selectedDeps.includes(d)) {
+                                    this.remove(d);
+                                  } else {
+                                    this.add(d);
+                                  }
+                                }}
+                                value="WORKSPACE"
+                                name="type"
+                              />{" "}
+                              {d.registry.language}
+                            </label>
+                          ))}
+                      </div>
+                    </div>
+                    <div className="new-builder-section">
+                      <div className="new-builder-title">Settings</div>
+                      <div className="new-builder-config checkboxes">
+                        {[
+                          "results UI",
+                          "remote cache",
+                          "remote execution",
+                          "BB CLI",
+                          "workflows",
+                          "strict environment",
+                          "build without bytes",
+                          "compression",
+                        ].map((l) => (
+                          <label key={l}>
+                            <input
+                              type="checkbox"
+                              checked={this.getSettings().includes(l)}
+                              onChange={(e) => {
+                                if (this.getSettings().includes(l)) {
+                                  this.removeSetting(l);
+                                } else {
+                                  this.addSetting(l);
+                                }
+                              }}
+                            />{" "}
+                            {l}
+                          </label>
                         ))}
                       </div>
                     </div>
                   </div>
-                )}
-                <div className="dependency-list">
-                  {selectedDeps.length == 0 && (
-                    <div key="empty-state">
-                      No dependencies added yet, click <b>ADD</b> above to add
-                      some!
-                    </div>
-                  )}
-                  <div>
-                    {selectedDeps.map((d) => (
-                      <Module
-                        onRemove={() => {
-                          this.remove(d);
+                  <div className="new-builder-half">
+                    <div className="new-builder-dependency-section">
+                      <div className="new-builder-title">Dependencies</div>
+                      <button
+                        onClick={() => {
+                          this.setState({ showModal: true }, () => {
+                            document.getElementById("dep-input").focus();
+                          });
                         }}
-                        selected={true}
-                        key={`${d.repo.full_name}@selected`}
-                        data={d}
-                        missing={missing.includes(d)}
-                        type={this.getType()}
-                      />
-                    ))}
-                  </div>
-                </div>
+                      >
+                        ADD <span className="hint">⌘ + B</span>
+                      </button>
+                    </div>
+                    {this.state.showModal && (
+                      <div
+                        className="new-builder-modal-container"
+                        onClick={() => this.setState({ showModal: false })}
+                      >
+                        <div
+                          className="new-builder-modal"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <input
+                            id="dep-input"
+                            value={this.state.query}
+                            onChange={(e) =>
+                              this.setState({ query: e.target.value })
+                            }
+                            onKeyDown={(e) => {
+                              switch (e.keyCode) {
+                                case 13: //enter
+                                  if (filteredDeps.length == 0) break;
+                                  this.add(
+                                    filteredDeps[this.state.selectIndex]
+                                  );
+                                  this.setState({
+                                    query: "",
+                                    showModal: false,
+                                  });
+                                  break;
+                                case 38: //up
+                                  let prev = Math.max(
+                                    this.state.selectIndex - 1,
+                                    0
+                                  );
+                                  this.setState({
+                                    selectIndex: prev,
+                                  });
+                                  document
+                                    .getElementById(`option-${prev}`)
+                                    .scrollIntoView({ block: "nearest" });
+                                  break;
+                                case 40: //down
+                                  let next = Math.min(
+                                    this.state.selectIndex + 1,
+                                    filteredDeps.length - 1
+                                  );
+                                  this.setState({
+                                    selectIndex: next,
+                                  });
+                                  document
+                                    .getElementById(`option-${next}`)
+                                    .scrollIntoView({ block: "nearest" });
+                                  break;
+                              }
+                            }}
+                          />
+                          <div className="dep-input-options">
+                            {filteredDeps.sort(popularity).map((d, index) => (
+                              <div
+                                id={`option-${index}`}
+                                key={d.repo.full_name}
+                                className={`dep-input-option ${
+                                  index == this.state.selectIndex
+                                    ? "selected"
+                                    : ""
+                                }`}
+                                style={{ cursor: "pointer" }}
+                                onClick={() => {
+                                  if (selectedDeps.includes(d)) {
+                                    this.remove(d);
+                                  } else {
+                                    this.add(d);
+                                  }
+                                }}
+                              >
+                                <Module
+                                  onRemove={() => this.remove(d)}
+                                  selected={selectedDeps.includes(d)}
+                                  data={d}
+                                />
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    <div className="dependency-list">
+                      {selectedDeps.length == 0 && (
+                        <div key="empty-state">
+                          No dependencies added yet, click <b>ADD</b> above to
+                          add some!
+                        </div>
+                      )}
+                      <div>
+                        {selectedDeps.map((d) => (
+                          <Module
+                            onRemove={() => {
+                              this.remove(d);
+                            }}
+                            selected={true}
+                            key={`${d.repo.full_name}@selected`}
+                            data={d}
+                            missing={missing.includes(d)}
+                            type={this.getType()}
+                          />
+                        ))}
+                      </div>
+                    </div>
 
-                {/* {missing.length > 0 && (
+                    {/* {missing.length > 0 && (
                   <div className="new-builder-section">
                     <div className="new-builder-title">WARNING</div>
                     These dependencies don't yet support the {
@@ -503,54 +512,56 @@ class NewComponent extends React.Component<RouteComponentProps & Props, State> {
                     import method: {missing.map((d) => d.name).join(", ")}
                   </div>
                 )} */}
-              </div>
-            </div>
-            <div className="new-builder-footer">
-              <div className="new-builder-footer-container">
-                {/* <button
+                  </div>
+                </div>
+                <div className="new-builder-footer">
+                  <div className="new-builder-footer-container">
+                    {/* <button
                   onClick={() => this.handleDownloadZip(this.state.name, files)}
                 >
                   Create Github repo
                 </button> */}
-                <button
-                  onClick={() =>
-                    this.setState({ showFiles: !this.state.showFiles })
-                  }
-                >
-                  EXPLORE <span className="hint">CTRL + SPACE</span>
-                </button>
-                <button
-                  className="primary"
-                  onClick={() => this.handleDownloadZip(files)}
-                >
-                  GENERATE <span className="hint">⌘ + ↵</span>
-                </button>
-              </div>
-
-              {this.state.showFiles && (
-                <div
-                  className="new-builder-modal-container"
-                  onClick={() => this.setState({ showFiles: false })}
-                >
-                  <div
-                    className="new-builder-modal"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <div className="new-builder-files">
-                      {Object.keys(files).map((f) => (
-                        <div className="new-builder-section" key={f}>
-                          <div className="new-builder-title">{f}</div>
-                          <code style={{ whiteSpace: "pre" }}>
-                            {fflate.strFromU8(files[f])}
-                          </code>
-                        </div>
-                      ))}
-                    </div>
+                    <button
+                      onClick={() =>
+                        this.setState({ showFiles: !this.state.showFiles })
+                      }
+                    >
+                      EXPLORE <span className="hint">CTRL + SPACE</span>
+                    </button>
+                    <button
+                      className="primary"
+                      onClick={() => this.handleDownloadZip(files)}
+                    >
+                      GENERATE <span className="hint">⌘ + ↵</span>
+                    </button>
                   </div>
+
+                  {this.state.showFiles && (
+                    <div
+                      className="new-builder-modal-container"
+                      onClick={() => this.setState({ showFiles: false })}
+                    >
+                      <div
+                        className="new-builder-modal"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <div className="new-builder-files">
+                          {Object.keys(files).map((f) => (
+                            <div className="new-builder-section" key={f}>
+                              <div className="new-builder-title">{f}</div>
+                              <code style={{ whiteSpace: "pre" }}>
+                                {fflate.strFromU8(files[f])}
+                              </code>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
-          </div>
+              </div>
+            )}
+          </BrowserOnly>
         </div>
       </div>
     );
