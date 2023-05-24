@@ -46,6 +46,7 @@ func main() {
 	}
 
 	additionalRepos := []string{
+		"bazelbuild/bazel",
 		"evertz/ev_rules_aws",
 		"bazelbuild/rules_android",
 		"bazelbuild/rules_android_ndk",
@@ -251,14 +252,20 @@ func main() {
 				if err != nil {
 					log.Printf("Error parsing releases.json for %s: %s", r, err)
 				}
-				for i, r := range releases {
+				modifiedReleases := []Release{}
+				for _, r := range releases {
+					// Skip pre-releases
+					if r.Prerelease || r.Draft {
+						continue
+					}
 					var converted bytes.Buffer
 					if err := md.Convert([]byte(r.Body), &converted); err != nil {
 						panic(err)
 					}
-					releases[i].Body = string(converted.Bytes())
+					r.Body = string(converted.Bytes())
+					modifiedReleases = append(modifiedReleases, r)
 				}
-				d.Releases = releases
+				d.Releases = modifiedReleases
 
 				f, err = os.ReadFile(*dir + "/" + r + "/metadata.json")
 				if err != nil {
