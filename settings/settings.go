@@ -30,6 +30,58 @@ func main() {
 	var releases []Release
 	json.Unmarshal(b, &releases)
 
+	oldVersions := []string{
+		"5.4.1",
+		"5.4.0",
+		"5.3.1",
+		"5.3.0",
+		"5.2.0",
+		"5.1.1",
+		"5.1.0",
+		"5.0.0",
+		"4.2.4",
+		"4.2.3",
+		"4.2.2",
+		"4.2.1",
+		"4.2.0",
+		"4.1.0",
+		"4.0.0",
+		"3.7.0",
+		"3.6.0",
+		"3.5.1",
+		"3.4.0",
+		"3.3.0",
+		"3.2.0",
+		"3.1.0",
+		"3.0.0",
+		"2.2.0",
+		"2.1.0",
+		"2.0.0",
+		"1.2.0",
+		"1.1.0",
+		"1.0.0",
+		"0.29.1",
+		"0.29.0",
+		"0.28.0",
+		"0.27.0",
+		"0.26.0",
+		"0.25.0",
+		"0.24.0",
+		"0.23.0",
+		"0.22.0",
+		"0.21.0",
+		"0.20.0",
+		"0.19.2",
+		"0.19.1",
+		"0.18.1",
+		"0.17.2",
+		"0.17.1",
+	}
+
+	for _, v := range oldVersions {
+		extractFlagsForVersion(v)
+	}
+
 	for _, r := range releases {
 		if r.Prerelease || r.Draft {
 			continue
@@ -46,11 +98,6 @@ func extractFlagsForVersion(bazelVersion string) {
 	}
 	log.Printf("Extracting flags for Bazel version %s", bazelVersion)
 	err := os.MkdirAll(filepath.Join(*outputPath, bazelVersion), 0777)
-	if err != nil {
-		panic(err)
-	}
-
-	err = os.WriteFile(filepath.Join(*outputPath, bazelVersion, ".bazelversion"), []byte(bazelVersion), 0777)
 	if err != nil {
 		panic(err)
 	}
@@ -142,9 +189,11 @@ func runBazeliskCommand(bazelVersion, command string) string {
 	log.Printf("Running command %+v on Bazel version %s", args, bazelVersion)
 
 	cmd := exec.Command("bazelisk", args...)
+	cmd.Env = append(os.Environ(), "USE_BAZEL_VERSION="+bazelVersion, "BAZELISK_BASE_URL=https://github.com/bazelbuild/bazel/releases/download")
 	cmd.Dir = filepath.Join(*outputPath, bazelVersion)
 	var outbytes bytes.Buffer
 	cmd.Stdout = &outbytes
+	cmd.Stderr = os.Stderr
 
 	err := cmd.Run()
 	if err != nil {
