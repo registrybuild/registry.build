@@ -172,7 +172,7 @@ const Page = (props) => {
                     {f.tags
                       .filter((t) => !!t)
                       .map((t, i) => (
-                        <div key={`${f.name}-${i}`}>{t}</div>
+                        <div key={`${f.name}-${i}`}>{t.replace("_", " ")}</div>
                       ))}
                     {f.sources.length == 21 && (
                       <div className="flag-source" key="all">
