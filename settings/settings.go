@@ -15,7 +15,8 @@ import (
 var (
 	outputPath   = flag.String("path", "data/settings", "output path")
 	commandRegex = regexp.MustCompile(`(?m)^\s\s([^\s]+?)\s+(.+)$`)
-	flagRegex    = regexp.MustCompile(`(?m)^\s*--([^\s]+)\s+\((.+?); (.+?)\)\s*((?:^\s\s\s\s[^\s].*?\n)+)((?:^\s\s\s\s\s\s[^\s].*?\n)+)?`)
+	flagRegex    = regexp.MustCompile(`(?m)^\s*--([^\s]+)(?:\s\[-(.)\])?\s+(?:\((.+?); (.+?)\))?\s*((?:^\s\s\s\s.*?\n)+)`)
+	tagsRegex    = regexp.MustCompile(`(?m)(^\s\s\s\s\s\sTags:(?:.*\n?)*)`)
 )
 
 func main() {
@@ -33,12 +34,16 @@ func main() {
 		if r.Prerelease || r.Draft {
 			continue
 		}
-		// todo check if directory exists first
 		extractFlagsForVersion(r.TagName)
 	}
 }
 
 func extractFlagsForVersion(bazelVersion string) {
+	path := filepath.Join("flag/bazel", bazelVersion)
+	if _, err := os.Stat(path); !os.IsNotExist(err) {
+		log.Printf("Skipping bazel version %s, directory already exists", bazelVersion)
+		return
+	}
 	log.Printf("Extracting flags for Bazel version %s", bazelVersion)
 	err := os.MkdirAll(filepath.Join(*outputPath, bazelVersion), 0777)
 	if err != nil {
@@ -75,7 +80,6 @@ func extractFlagsForVersion(bazelVersion string) {
 			Extra:       false,
 		})
 	}
-	path := filepath.Join("flag/bazel", bazelVersion)
 	err = os.MkdirAll(path, 0777)
 	if err != nil {
 		panic(err)
@@ -96,6 +100,11 @@ func extractFlagsForVersion(bazelVersion string) {
 		flags := extractFlagsFromOutput(output)
 
 		for _, f := range flags {
+			if existingFlag, ok := flagMap[f.Name]; ok {
+				f.Sources = append(existingFlag.Sources, c.Name)
+			} else {
+				f.Sources = append(f.Sources, c.Name)
+			}
 			flagMap[f.Name] = f
 		}
 
@@ -144,7 +153,12 @@ func runBazeliskCommand(bazelVersion, command string) string {
 
 	outString := outbytes.String()
 
-	outfile, err := os.Create(filepath.Join(*outputPath, bazelVersion, strings.Join(args, "-")))
+	filename := command
+	if filename == "" {
+		filename = "help"
+	}
+
+	outfile, err := os.Create(filepath.Join(*outputPath, bazelVersion, filename))
 	if err != nil {
 		panic(err)
 	}
@@ -161,13 +175,23 @@ func extractFlagsFromOutput(output string) []Flag {
 	matches := flagRegex.FindAllStringSubmatch(output, -1)
 	flags := []Flag{}
 	for _, m := range matches {
-		flags = append(flags, Flag{
+		f := Flag{
 			Name:        strings.TrimPrefix(m[1], "[no]"),
-			Type:        strings.TrimPrefix(strings.TrimPrefix(m[2], "an "), "a "),
-			Default:     strings.Trim(strings.TrimPrefix(m[3], "default: "), `"`),
-			Description: strings.ReplaceAll(strings.TrimSpace(m[4]), "\n    ", ""),
-			Tags:        strings.Split(strings.TrimPrefix(strings.TrimSpace(m[5]), "Tags: "), ", "),
-		})
+			Short:       m[2],
+			Type:        strings.TrimPrefix(strings.TrimPrefix(m[3], "an "), "a "),
+			Default:     m[4],
+			Description: strings.ReplaceAll(strings.TrimSpace(m[5]), "\n    ", ""),
+			Tags:        []string{},
+			Sources:     []string{},
+		}
+
+		t := tagsRegex.FindStringSubmatch(m[5])
+		if len(t) > 0 {
+			f.Tags = strings.Split(strings.TrimPrefix(strings.TrimSpace(t[1]), "Tags: "), ", ")
+			f.Description = tagsRegex.ReplaceAllString(m[5], "")
+		}
+
+		flags = append(flags, f)
 	}
 	return flags
 }
@@ -180,10 +204,12 @@ type Release struct {
 
 type Flag struct {
 	Name        string   `json:"name"`
+	Short       string   `json:"short"`
 	Type        string   `json:"type"`
 	Default     string   `json:"default"`
 	Description string   `json:"description"`
 	Tags        []string `json:"tags"`
+	Sources     []string `json:"sources"`
 }
 
 type Command struct {

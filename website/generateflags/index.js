@@ -1,7 +1,4 @@
-let data = require("../../data/data");
-let path = require("path");
 let fs = require("fs-extra");
-let puppeteer = require("puppeteer");
 const { readFileSync } = require("fs");
 
 module.exports = async function modules(context, options) {

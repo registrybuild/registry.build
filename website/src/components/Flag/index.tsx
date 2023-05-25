@@ -1,10 +1,14 @@
 import Link from "@docusaurus/Link";
 import { useLocation, useHistory } from "@docusaurus/router";
-import { popularity } from "@site/src/utils/sort";
-import { Flag, Github, HelpCircle, PlusCircle } from "lucide-react";
-import React, { useState } from "react";
-import Module from "../Module";
-import Modules from "../Modules";
+import {
+  ChevronRight,
+  Flag,
+  Github,
+  HelpCircle,
+  LinkIcon,
+  PlusCircle,
+} from "lucide-react";
+import React from "react";
 
 const Page = (props) => {
   let history = useHistory();
@@ -15,6 +19,12 @@ const Page = (props) => {
   let onAllPage = !props.data.commands.some((c) =>
     location.pathname.endsWith(`/${c.name}`)
   );
+
+  let importantCommands = ["build", "test", "run", "query", "startup_options"];
+
+  let onOtherPage =
+    !onAllPage &&
+    !importantCommands.some((c) => location.pathname.endsWith(`/${c}`));
 
   return (
     <div className="container" key={"container"}>
@@ -40,7 +50,13 @@ const Page = (props) => {
               placeholder="Filter flags..."
               key={"search-input"}
             />
+            <button>Go</button>
+          </div>
+        </div>
+        <div className="main">
+          <div className="flag-commands">
             <select
+              className="selected"
               value={getSelectedVersion(location)}
               onChange={(e) => {
                 history.push(
@@ -51,32 +67,60 @@ const Page = (props) => {
               }}
             >
               {props.data.versions.reverse().map((v) => (
-                <option>{v}</option>
+                <option key={v} value={v}>
+                  bazel {v}
+                </option>
               ))}
             </select>
-          </div>
-        </div>
-        <div className="main">
-          <div className="flag-commands">
+            <div className="chevron">
+              <ChevronRight />
+            </div>
             <a
               className={onAllPage ? "selected" : ""}
               href={`/flag/bazel${versionOrNothing(location)}`}
             >
               all
             </a>
-            {props.data.commands
-              .filter((c) => c.name != "info-keys" && c.name != "target-syntax")
-              .map((c) => (
-                <a
-                  key={c.name}
-                  className={
-                    location.pathname.endsWith(`/${c.name}`) ? "selected" : ""
-                  }
-                  href={`/flag/bazel${versionOrNothing(location)}/${c.name}`}
-                >
-                  {c.name}
-                </a>
-              ))}
+            {importantCommands.map((c) => (
+              <a
+                key={c}
+                className={
+                  location.pathname.endsWith(`/${c}`) ? "selected" : ""
+                }
+                href={`/flag/bazel${versionOrNothing(location)}/${c}`}
+              >
+                {c.replace("_", " ")}
+              </a>
+            ))}
+            <select
+              className={onOtherPage ? "selected" : ""}
+              value={onOtherPage ? location.pathname.split("/").pop() : ""}
+              style={{
+                width: onOtherPage
+                  ? 50 + location.pathname.split("/").pop().length * 8
+                  : 80,
+              }}
+              onChange={(e) => {
+                history.push(
+                  `/flag/bazel${versionOrNothing(location)}/${e.target.value}`
+                );
+              }}
+            >
+              <option value="" disabled>
+                other
+              </option>
+              {props.data.commands
+                .filter(
+                  (c) =>
+                    c.name != "info-keys" &&
+                    c.name != "target-syntax" &&
+                    !importantCommands.includes(c.name)
+                )
+
+                .map((c) => (
+                  <option key={c.name}>{c.name}</option>
+                ))}
+            </select>
           </div>
           <div>
             {props.data.flags
@@ -95,27 +139,58 @@ const Page = (props) => {
               .map((f) => (
                 <div className="flag" key={f.name}>
                   <div className="flag-header">
-                    {f.type == "boolean" && (
-                      <a href={`?flag=${f.name}`} className="flag-name">
-                        --{f.name}=
-                        <span className="flag-type">{`<true or false>`}</span>
-                      </a>
-                    )}
-                    {f.type != "boolean" && (
-                      <a href={`?flag=${f.name}`} className="flag-name">
-                        --{f.name}=
-                        <span className="flag-type">{`<${f.type}>`}</span>
-                      </a>
-                    )}
-                    {f.default && (
-                      <div className="flag-default">{f.default}</div>
-                    )}
+                    <span
+                      className="flag-name"
+                      onClick={() => copyToClipboard(`--${f.name}=`)}
+                    >
+                      <span className="hover-links">
+                        <a href={`?flag=${f.name}`}>
+                          <LinkIcon />
+                        </a>
+                      </span>
+                      --{f.name}
+                      {f.type && (
+                        <span>
+                          =
+                          <span className="flag-type">{`<${
+                            f.type == "boolean" ? "true or false" : f.type
+                          }>`}</span>
+                        </span>
+                      )}
+                    </span>
                   </div>
                   <div className="flag-description">{f.description}</div>
                   <div className="flag-tags">
-                    {f.tags.map((t, i) => (
-                      <div key={`${f.name}-${i}`}>{t}</div>
-                    ))}
+                    {f.default && (
+                      <div className="flag-default" key={`default`}>
+                        {f.default}
+                      </div>
+                    )}
+                    {f.tags
+                      .filter((t) => !!t)
+                      .map((t, i) => (
+                        <div key={`${f.name}-${i}`}>{t}</div>
+                      ))}
+                    {f.sources.length == 21 && (
+                      <div className="flag-source" key="all">
+                        applies to all commands
+                      </div>
+                    )}
+                    {f.sources.length < 21 &&
+                      f.sources
+                        .filter((t) => !!t)
+                        .map((t, i) => (
+                          <a
+                            key={t}
+                            href={`/flag/bazel${versionOrNothing(
+                              location
+                            )}/${t}`}
+                          >
+                            <div className="flag-source">
+                              {t.replace("startup_options", "startup option")}
+                            </div>
+                          </a>
+                        ))}
                   </div>
                 </div>
               ))}
@@ -145,6 +220,35 @@ const Page = (props) => {
     </div>
   );
 };
+
+function copyToClipboard(text: string) {
+  const textArea = document.createElement("textarea");
+  textArea.value = text;
+  Object.assign(textArea.style, {
+    top: "0",
+    left: "0",
+    position: "fixed",
+    opacity: "0",
+    pointerEvents: "none",
+  });
+  document.body.appendChild(textArea);
+  textArea.focus();
+  textArea.select();
+
+  const success = document.execCommand("copy");
+  textArea.remove();
+  if (!success) {
+    throw new Error("Failed to copy to clipboard.");
+  }
+
+  const butterBar = document.createElement("div");
+  butterBar.className = "copy-success";
+  document.body.appendChild(butterBar);
+  butterBar.innerText = "Copied!";
+  setTimeout(() => {
+    butterBar.remove();
+  }, 2000);
+}
 
 function versionOrNothing(location) {
   let v = getSelectedVersion(location);
