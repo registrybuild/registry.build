@@ -323,11 +323,6 @@ func main() {
 	}
 
 	// todo get docs
-
-	// todo support repos that aren't in bcr (a nice way for us to provide additional data)
-
-	// todo render all of this data in a nice way
-	// - our custom metadata
 }
 
 func getReleases(repo string) error {

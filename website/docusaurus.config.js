@@ -21,7 +21,8 @@ const config = {
   },
 
   plugins: [
-    "./generate",
+    "./generatemodules",
+    "./generateflags",
     [
       "@docusaurus/plugin-google-gtag",
       {

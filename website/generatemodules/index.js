@@ -218,7 +218,7 @@ module.exports = async function modules(context, options) {
         deviceScaleFactor: 1,
       });
 
-      let tempate = readFileSync("generate/template.html", "utf8");
+      let tempate = readFileSync("generatemodules/template.html", "utf8");
       for (let r of repos) {
         let first = true;
         for (let release of r.releases) {

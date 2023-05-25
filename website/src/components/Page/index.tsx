@@ -1,7 +1,7 @@
 import Link from "@docusaurus/Link";
 import { useLocation, useHistory } from "@docusaurus/router";
 import { popularity } from "@site/src/utils/sort";
-import { Github, HelpCircle, PlusCircle } from "lucide-react";
+import { Flag, Github, HelpCircle, PlusCircle } from "lucide-react";
 import React, { useState } from "react";
 import Module from "../Module";
 import Modules from "../Modules";
@@ -56,7 +56,7 @@ const Page = (props) => {
                 }
                 setTimeout(() => document.getElementById("search").focus(), 0);
               }}
-              placeholder="Search..."
+              placeholder="Search the registry"
               key={"search-input"}
             />
             <button
@@ -89,6 +89,9 @@ const Page = (props) => {
       <div className="floating">
         <Link to="/new">
           <PlusCircle />
+        </Link>
+        <Link to="/flag/bazel">
+          <Flag />
         </Link>
         <a
           href="https://github.com/registrybuild/registry.build/issues/new"
