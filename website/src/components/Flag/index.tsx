@@ -66,11 +66,14 @@ const Page = (props) => {
                 );
               }}
             >
-              {props.data.versions.reverse().map((v) => (
-                <option key={v} value={v}>
-                  bazel {v}
-                </option>
-              ))}
+              {props.data.versions
+                .sort()
+                .reverse()
+                .map((v) => (
+                  <option key={v} value={v}>
+                    bazel {v}
+                  </option>
+                ))}
             </select>
             <div className="chevron">
               <ChevronRight />
