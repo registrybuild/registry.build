@@ -307,6 +307,52 @@ kt_jvm_library(
 <li><code>bazel build --define=kt_timings=1</code></li>
 </ul>
 <p dir="auto"><code>kt_trace=1</code> will allow you to inspect the full kotlinc commandline invocation, while <code>kt_timings=1</code> will report the high level time taken for each step.</p>
+<h1 dir="auto"><a id="user-content-ksp-kotlin-symbol-processing" class="anchor" aria-hidden="true" href="#ksp-kotlin-symbol-processing"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>KSP (Kotlin Symbol Processing)</h1>
+<p dir="auto">KSP is officially supported as of <code>rules_kotlin</code> 1.8 and can be declared using the new
+<code>kt_ksp_plugin</code> rule.</p>
+<p dir="auto">A few things to note:</p>
+<ul dir="auto">
+<li>As of now <code>rules_kotlin</code> only supports KSP plugins that generate Kotlin code.</li>
+<li>KSP is <a href="https://github.com/google/ksp/issues/1385" data-hovercard-type="issue" data-hovercard-url="/google/ksp/issues/1385/hovercard">not yet thread safe</a> and will likely fail if you are using it in a build that has multiplex workers enabled. To work around this add the following flag to your Bazelrc:
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="build --experimental_worker_max_multiplex_instances=KotlinKsp=1"><pre class="notranslate"><code>build --experimental_worker_max_multiplex_instances=KotlinKsp=1
+</code></pre></div>
+</li>
+</ul>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@io_bazel_rules_kotlin//kotlin:core.bzl&quot;, &quot;kt_ksp_plugin&quot;)
+load(&quot;@io_bazel_rules_kotlin//kotlin:jvm.bzl&quot;, &quot;kt_jvm_library&quot;)
+
+kt_ksp_plugin(
+    name = &quot;moshi-kotlin-codegen&quot;,
+    processor_class = &quot;com.squareup.moshi.kotlin.codegen.ksp.JsonClassSymbolProcessorProvider&quot;,
+    deps = [
+        &quot;@maven//:com_squareup_moshi_moshi&quot;,
+        &quot;@maven//:com_squareup_moshi_moshi_kotlin&quot;,
+        &quot;@maven//:com_squareup_moshi_moshi_kotlin_codegen&quot;,
+    ],
+)
+
+kt_jvm_library(
+    name = &quot;lib&quot;,
+    srcs = glob([&quot;*.kt&quot;]),
+    plugins = [&quot;//:moshi-kotlin-codegen&quot;],
+)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@io_bazel_rules_kotlin//kotlin:core.bzl"</span>, <span class="pl-s">"kt_ksp_plugin"</span>)
+<span class="pl-en">load</span>(<span class="pl-s">"@io_bazel_rules_kotlin//kotlin:jvm.bzl"</span>, <span class="pl-s">"kt_jvm_library"</span>)
+
+<span class="pl-en">kt_ksp_plugin</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"moshi-kotlin-codegen"</span>,
+    <span class="pl-s1">processor_class</span> <span class="pl-c1">=</span> <span class="pl-s">"com.squareup.moshi.kotlin.codegen.ksp.JsonClassSymbolProcessorProvider"</span>,
+    <span class="pl-s1">deps</span> <span class="pl-c1">=</span> [
+        <span class="pl-s">"@maven//:com_squareup_moshi_moshi"</span>,
+        <span class="pl-s">"@maven//:com_squareup_moshi_moshi_kotlin"</span>,
+        <span class="pl-s">"@maven//:com_squareup_moshi_moshi_kotlin_codegen"</span>,
+    ],
+)
+
+<span class="pl-en">kt_jvm_library</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"lib"</span>,
+    <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> <span class="pl-en">glob</span>([<span class="pl-s">"*.kt"</span>]),
+    <span class="pl-s1">plugins</span> <span class="pl-c1">=</span> [<span class="pl-s">"//:moshi-kotlin-codegen"</span>],
+)</pre></div>
 <h1 dir="auto"><a id="user-content-kotlin-compiler-plugins" class="anchor" aria-hidden="true" href="#kotlin-compiler-plugins"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Kotlin compiler plugins</h1>
 <p dir="auto">The <code>kt_compiler_plugin</code> rule allows running Kotlin compiler plugins, such as no-arg, sam-with-receiver and allopen.</p>
 <p dir="auto">For example, you can add allopen to your project like this:</p>
