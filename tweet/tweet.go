@@ -83,7 +83,20 @@ func main() {
 			log.Printf("Release %s of %s is not the latest release (which is %s), skipping", release.Version, release.Owner+"/"+release.Repo, latestRelease.TagName)
 			continue
 		}
-		sendTweet("Version " + release.Version + " of " + release.Repo + " is now live on The Build Registry. https://registry.build/github/" + release.Owner + "/" + release.Repo + "/")
+
+		date, err := time.Parse(time.RFC3339, latestRelease.CreatedAt)
+		if err != nil {
+			fmt.Println("Failed to parse the date:", err)
+			continue
+		}
+		now := time.Now().Local()
+		isToday := date.Year() == now.Year() && date.Month() == now.Month() && date.Day() == now.Day()
+		if !isToday {
+			log.Printf("Release %s of %s was not today (it was %s), skipping", release.Version, release.Owner+"/"+release.Repo, latestRelease.CreatedAt)
+			continue
+		}
+
+		sendTweet("Version " + release.Version + " of Bazel " + release.Repo + " is now live on The Build Registry. https://registry.build/github/" + release.Owner + "/" + release.Repo + "/")
 		time.Sleep(5 * time.Second)
 	}
 }
@@ -129,4 +142,5 @@ type ReleaseJSON struct {
 	TagName    string `json:"tag_name"`
 	Draft      bool   `json:"draft"`
 	Prerelease bool   `json:"prerelease"`
+	CreatedAt  string `json:"created_at"`
 }
