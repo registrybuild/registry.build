@@ -42,49 +42,60 @@ the older way of configuring bazel with a <code>WORKSPACE</code> file.</p>
 <p dir="auto">To register a hermetic Python toolchain rather than rely on a system-installed interpreter for runtime execution, you can add to the <code>MODULE.bazel</code> file:</p>
 <div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="# Find the latest version number here: https://github.com/bazelbuild/rules_python/releases
 # and change the version number if needed in the line below.
-bazel_dep(name = &quot;rules_python&quot;, version = &quot;0.20.0&quot;)
+bazel_dep(name = &quot;rules_python&quot;, version = &quot;0.21.0&quot;)
 
-# You do not have to use pip for the toolchain, but most people
-# will use it for the dependency management.
-pip = use_extension(&quot;@rules_python//python:extensions.bzl&quot;, &quot;pip&quot;)
+python = use_extension(&quot;@rules_python//python/extensions:python.bzl&quot;, &quot;python&quot;)
+python.toolchain(
+    name = &quot;python&quot;,
+    configure_coverage_tool = True,
+    is_default = True,
+    python_version = &quot;3.9&quot;,
+)
 
+interpreter = use_extension(&quot;@rules_python//python/extensions:interpreter.bzl&quot;, &quot;interpreter&quot;)
+interpreter.install(
+    name = &quot;interpreter&quot;,
+    python_name = &quot;python&quot;,
+)
+use_repo(interpreter, &quot;interpreter&quot;)
+
+pip = use_extension(&quot;@rules_python//python/extensions:pip.bzl&quot;, &quot;pip&quot;)
 pip.parse(
     name = &quot;pip&quot;,
+    incompatible_generate_aliases = True,
+    python_interpreter_target = &quot;@interpreter//:python&quot;,
     requirements_lock = &quot;//:requirements_lock.txt&quot;,
+    requirements_windows = &quot;//:requirements_windows.txt&quot;,
+)
+use_repo(pip, &quot;pip&quot;)"><pre><span class="pl-c"># Find the latest version number here: https://github.com/bazelbuild/rules_python/releases</span>
+<span class="pl-c"># and change the version number if needed in the line below.</span>
+<span class="pl-en">bazel_dep</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_python"</span>, <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"0.21.0"</span>)
+
+<span class="pl-s1">python</span> <span class="pl-c1">=</span> <span class="pl-en">use_extension</span>(<span class="pl-s">"@rules_python//python/extensions:python.bzl"</span>, <span class="pl-s">"python"</span>)
+<span class="pl-s1">python</span>.<span class="pl-en">toolchain</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"python"</span>,
+    <span class="pl-s1">configure_coverage_tool</span> <span class="pl-c1">=</span> <span class="pl-c1">True</span>,
+    <span class="pl-s1">is_default</span> <span class="pl-c1">=</span> <span class="pl-c1">True</span>,
+    <span class="pl-s1">python_version</span> <span class="pl-c1">=</span> <span class="pl-s">"3.9"</span>,
 )
 
-use_repo(pip, &quot;pip&quot;)
+<span class="pl-s1">interpreter</span> <span class="pl-c1">=</span> <span class="pl-en">use_extension</span>(<span class="pl-s">"@rules_python//python/extensions:interpreter.bzl"</span>, <span class="pl-s">"interpreter"</span>)
+<span class="pl-s1">interpreter</span>.<span class="pl-en">install</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"interpreter"</span>,
+    <span class="pl-s1">python_name</span> <span class="pl-c1">=</span> <span class="pl-s">"python"</span>,
+)
+<span class="pl-en">use_repo</span>(<span class="pl-s1">interpreter</span>, <span class="pl-s">"interpreter"</span>)
 
-# Register a specific python toolchain instead of using the host version
-python = use_extension(&quot;@rules_python//python:extensions.bzl&quot;, &quot;python&quot;)
-
-use_repo(python, &quot;python3_10_toolchains&quot;)
-
-register_toolchains(
-    &quot;@python3_10_toolchains//:all&quot;,
-)"><pre><span class="pl-c"># Find the latest version number here: https://github.com/bazelbuild/rules_python/releases</span>
-<span class="pl-c"># and change the version number if needed in the line below.</span>
-<span class="pl-en">bazel_dep</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_python"</span>, <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"0.20.0"</span>)
-
-<span class="pl-c"># You do not have to use pip for the toolchain, but most people</span>
-<span class="pl-c"># will use it for the dependency management.</span>
-<span class="pl-s1">pip</span> <span class="pl-c1">=</span> <span class="pl-en">use_extension</span>(<span class="pl-s">"@rules_python//python:extensions.bzl"</span>, <span class="pl-s">"pip"</span>)
-
+<span class="pl-s1">pip</span> <span class="pl-c1">=</span> <span class="pl-en">use_extension</span>(<span class="pl-s">"@rules_python//python/extensions:pip.bzl"</span>, <span class="pl-s">"pip"</span>)
 <span class="pl-s1">pip</span>.<span class="pl-en">parse</span>(
     <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"pip"</span>,
+    <span class="pl-s1">incompatible_generate_aliases</span> <span class="pl-c1">=</span> <span class="pl-c1">True</span>,
+    <span class="pl-s1">python_interpreter_target</span> <span class="pl-c1">=</span> <span class="pl-s">"@interpreter//:python"</span>,
     <span class="pl-s1">requirements_lock</span> <span class="pl-c1">=</span> <span class="pl-s">"//:requirements_lock.txt"</span>,
+    <span class="pl-s1">requirements_windows</span> <span class="pl-c1">=</span> <span class="pl-s">"//:requirements_windows.txt"</span>,
 )
-
-<span class="pl-en">use_repo</span>(<span class="pl-s1">pip</span>, <span class="pl-s">"pip"</span>)
-
-<span class="pl-c"># Register a specific python toolchain instead of using the host version</span>
-<span class="pl-s1">python</span> <span class="pl-c1">=</span> <span class="pl-en">use_extension</span>(<span class="pl-s">"@rules_python//python:extensions.bzl"</span>, <span class="pl-s">"python"</span>)
-
-<span class="pl-en">use_repo</span>(<span class="pl-s1">python</span>, <span class="pl-s">"python3_10_toolchains"</span>)
-
-<span class="pl-en">register_toolchains</span>(
-    <span class="pl-s">"@python3_10_toolchains//:all"</span>,
-)</pre></div>
+<span class="pl-en">use_repo</span>(<span class="pl-s1">pip</span>, <span class="pl-s">"pip"</span>)</pre></div>
+<p dir="auto">For more documentation see the bzlmod examples under the <a href="examples">examples</a> folder.</p>
 <h3 dir="auto"><a id="user-content-using-a-workspace-file" class="anchor" aria-hidden="true" href="#using-a-workspace-file"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Using a WORKSPACE file</h3>
 <p dir="auto">To import rules_python in your project, you first need to add it to your
 <code>WORKSPACE</code> file, using the snippet provided in the
