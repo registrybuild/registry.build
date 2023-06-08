@@ -3,7 +3,7 @@
 without generating a compile commands database,
 and take advantage of Bazels powerful cache mechanism.</p>
 <p dir="auto">Usage:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="# //:WORKSPACE
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="# //:WORKSPACE
 load(
     &quot;@bazel_tools//tools/build_defs/repo:git.bzl&quot;,
     &quot;git_repository&quot;,
@@ -13,17 +13,18 @@ git_repository(
        name = &quot;bazel_clang_tidy&quot;,
        commit = &quot;69aa13e6d7cf102df70921c66be15d4592251e56&quot;,
        remote = &quot;https://github.com/erenon/bazel_clang_tidy.git&quot;,
-)"><pre><span class="pl-c"># //:WORKSPACE</span>
-<span class="pl-en">load</span>(
-    <span class="pl-s">"@bazel_tools//tools/build_defs/repo:git.bzl"</span>,
-    <span class="pl-s">"git_repository"</span>,
+)"><pre lang="py" class="notranslate"><code># //:WORKSPACE
+load(
+    "@bazel_tools//tools/build_defs/repo:git.bzl",
+    "git_repository",
 )
 
-<span class="pl-en">git_repository</span>(
-       <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"bazel_clang_tidy"</span>,
-       <span class="pl-s1">commit</span> <span class="pl-c1">=</span> <span class="pl-s">"69aa13e6d7cf102df70921c66be15d4592251e56"</span>,
-       <span class="pl-s1">remote</span> <span class="pl-c1">=</span> <span class="pl-s">"https://github.com/erenon/bazel_clang_tidy.git"</span>,
-)</pre></div>
+git_repository(
+       name = "bazel_clang_tidy",
+       commit = "69aa13e6d7cf102df70921c66be15d4592251e56",
+       remote = "https://github.com/erenon/bazel_clang_tidy.git",
+)
+</code></pre></div>
 <p dir="auto">You can now compile using the default clang tidy configuration provided using
 the following command;</p>
 <div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="bazel build //... \
@@ -36,26 +37,28 @@ the following command;</p>
 reconfigure the default target from the command line. To do this you must first
 make a filegroup target that has the .clang-tidy config file as a data
 dependency.</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="# //:BUILD
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="# //:BUILD
 filegroup(
        name = &quot;clang_tidy_config&quot;,
        srcs = [&quot;.clang-tidy&quot;],
        visibility = [&quot;//visibility:public&quot;],
-)"><pre><span class="pl-c"># //:BUILD</span>
-<span class="pl-en">filegroup</span>(
-       <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"clang_tidy_config"</span>,
-       <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> [<span class="pl-s">".clang-tidy"</span>],
-       <span class="pl-s1">visibility</span> <span class="pl-c1">=</span> [<span class="pl-s">"//visibility:public"</span>],
-)</pre></div>
+)"><pre lang="py" class="notranslate"><code># //:BUILD
+filegroup(
+       name = "clang_tidy_config",
+       srcs = [".clang-tidy"],
+       visibility = ["//visibility:public"],
+)
+</code></pre></div>
 <p dir="auto">Now you can override the default config file in this repository using
 a command line flag;</p>
-<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel build //... \
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="bazel build //... \
   --aspects @bazel_clang_tidy//clang_tidy:clang_tidy.bzl%clang_tidy_aspect \
   --output_groups=report \
-  --@bazel_clang_tidy//:clang_tidy_config=//:clang_tidy_config"><pre>bazel build //... \
+  --@bazel_clang_tidy//:clang_tidy_config=//:clang_tidy_config"><pre lang="sh" class="notranslate"><code>bazel build //... \
   --aspects @bazel_clang_tidy//clang_tidy:clang_tidy.bzl%clang_tidy_aspect \
   --output_groups=report \
-  --@bazel_clang_tidy//:clang_tidy_config=//:clang_tidy_config</pre></div>
+  --@bazel_clang_tidy//:clang_tidy_config=//:clang_tidy_config
+</code></pre></div>
 <p dir="auto"><g-emoji class="g-emoji" alias="exclamation" fallback-src="https://github.githubassets.com/images/icons/emoji/unicode/2757.png">❗</g-emoji> the config-file will not be forced by adding it to the clang-tidy command line. Therefore it must be in one of the parents of all source files. It is recommended to put it in the root directly besides the WORKSPACE file.</p>
 <p dir="auto">Now if you don't want to type this out every time, it is recommended that you
 add a config in your .bazelrc that matches this command line;</p>
@@ -72,7 +75,8 @@ build:clang-tidy --output_groups=report
 build:clang-tidy --@bazel_clang_tidy//:clang_tidy_config=//:clang_tidy_config
 </code></pre></div>
 <p dir="auto">Now from the command line this is a lot nicer to use;</p>
-<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel build //... --config clang-tidy"><pre>bazel build //... --config clang-tidy</pre></div>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="bazel build //... --config clang-tidy"><pre lang="sh" class="notranslate"><code>bazel build //... --config clang-tidy
+</code></pre></div>
 <h3 dir="auto"><a id="user-content-use-a-non-system-clang-tidy" class="anchor" aria-hidden="true" href="#use-a-non-system-clang-tidy"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>use a non-system clang-tidy</h3>
 <p dir="auto">by default, bazel_clang_tidy uses the system provided clang-tidy.
 If you have a hermetic build, you can use your own clang-tidy target like this:</p>
