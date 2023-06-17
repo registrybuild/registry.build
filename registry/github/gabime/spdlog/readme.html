@@ -48,7 +48,7 @@ $ <span class="pl-s1">cmake .. <span class="pl-k">&amp;&amp;</span> make -j</spa
 <li>syslog.</li>
 <li>Windows event log.</li>
 <li>Windows debugger (<code>OutputDebugString(..)</code>).</li>
-<li>Log to Qt widgets</li>
+<li>Log to Qt widgets (<a href="#log-to-qt-with-nice-colors">example</a>).</li>
 <li>Easily <a href="https://github.com/gabime/spdlog/wiki/4.-Sinks#implementing-your-own-sink">extendable</a> with custom log targets.</li>
 </ul>
 </li>
@@ -585,6 +585,29 @@ void file_events_example()
     <span class="pl-k">auto</span> new_logger = <span class="pl-c1">spdlog::basic_logger_mt</span>(<span class="pl-s"><span class="pl-pds">"</span>new_default_logger<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>logs/new-default-log.txt<span class="pl-pds">"</span></span>, <span class="pl-c1">true</span>);
     <span class="pl-c1">spdlog::set_default_logger</span>(new_logger);
     <span class="pl-c1">spdlog::info</span>(<span class="pl-s"><span class="pl-pds">"</span>new logger log message<span class="pl-pds">"</span></span>);
+}</pre></div>
+<hr>
+<h4 dir="auto"><a id="user-content-log-to-qt-with-nice-colors" class="anchor" aria-hidden="true" href="#log-to-qt-with-nice-colors"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Log to Qt with nice colors</h4>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="#include &quot;spdlog/spdlog.h&quot;
+#include &quot;spdlog/sinks/qt_sinks.h&quot;
+MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
+{
+    setMinimumSize(640, 480);
+    auto log_widget = new QTextEdit(this);
+    setCentralWidget(log_widget);
+    int max_lines = 500; // keep the text widget to max 500 lines. remove old lines if needed.
+    auto logger = spdlog::qt_color_logger_mt(&quot;qt_logger&quot;, log_widget, max_lines);
+    logger-&gt;info(&quot;Some info message&quot;);
+}"><pre>#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">"</span>spdlog/spdlog.h<span class="pl-pds">"</span></span>
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">"</span>spdlog/sinks/qt_sinks.h<span class="pl-pds">"</span></span>
+<span class="pl-en">MainWindow::MainWindow</span>(QWidget *parent) : QMainWindow(parent)
+{
+    <span class="pl-c1">setMinimumSize</span>(<span class="pl-c1">640</span>, <span class="pl-c1">480</span>);
+    <span class="pl-k">auto</span> log_widget = <span class="pl-k">new</span> <span class="pl-c1">QTextEdit</span>(<span class="pl-c1">this</span>);
+    <span class="pl-c1">setCentralWidget</span>(log_widget);
+    <span class="pl-k">int</span> max_lines = <span class="pl-c1">500</span>; <span class="pl-c"><span class="pl-c">//</span> keep the text widget to max 500 lines. remove old lines if needed.</span>
+    <span class="pl-k">auto</span> logger = <span class="pl-c1">spdlog::qt_color_logger_mt</span>(<span class="pl-s"><span class="pl-pds">"</span>qt_logger<span class="pl-pds">"</span></span>, log_widget, max_lines);
+    logger-&gt;<span class="pl-c1">info</span>(<span class="pl-s"><span class="pl-pds">"</span>Some info message<span class="pl-pds">"</span></span>);
 }</pre></div>
 <hr>
 <h2 dir="auto"><a id="user-content-benchmarks" class="anchor" aria-hidden="true" href="#benchmarks"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Benchmarks</h2>
