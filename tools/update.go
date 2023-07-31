@@ -231,6 +231,9 @@ func main() {
 
 	data := map[string]Data{}
 	for _, module := range modules {
+		if module.Name == "libpfm" && len(module.Repository) == 0 {
+			module.Repository = append(module.Repository, "wcohen/libpfm4")
+		}
 		for _, repo := range module.Repository {
 			d := Data{
 				Modules: []Module{},
