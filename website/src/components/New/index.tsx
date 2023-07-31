@@ -292,14 +292,13 @@ class NewComponent extends React.Component<RouteComponentProps & Props, State> {
                           value={this.getBazelVersion()}
                           onChange={(e) => this.setBazelVersion(e.target.value)}
                         >
+                          <option>6.3.0</option>
+                          <option>6.2.1</option>
+                          <option>6.2.0</option>
+                          <option>6.1.2</option>
                           <option>6.1.1</option>
                           <option>6.1.0</option>
-                          <option>6.0.0</option>
-                          <option>5.0.0</option>
-                          <option>4.0.0</option>
-                          <option>3.0.0</option>
-                          <option>2.0.0</option>
-                          <option>1.0.0</option>
+                          <option>5.4.1</option>
                         </select>
                       </div>
                       <div className="new-builder-config checkboxes">
