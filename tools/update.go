@@ -204,11 +204,12 @@ func main() {
 			Repository: []string{"github:" + r},
 		})
 	}
+	modules = append(modules, Module{
+		Repository: []string{"github:wcohen/libpfm4"},
+		Name:       "libpfm",
+	})
 
 	for _, module := range modules {
-		if module.Name == "libpfm" && len(module.Repository) == 0 {
-			module.Repository = append(module.Repository, "github:wcohen/libpfm4")
-		}
 		for _, repo := range module.Repository {
 			if strings.HasPrefix(repo, "github:") {
 				r := strings.TrimPrefix(repo, "github:")
