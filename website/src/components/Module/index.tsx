@@ -182,7 +182,7 @@ const Module = (props) => {
           </div>
         )}
         {/* todo render repos with multiple modules nicely  */}
-        {module && module.maintainers.length > 0 && (
+        {module && module.maintainers?.length > 0 && (
           <div className="package-stats">
             <div className="package-maintainers">
               <User className="package-icon" />
