@@ -1,0 +1,183 @@
+<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><h1 dir="auto"><a id="user-content-overview" class="anchor" aria-hidden="true" href="#overview"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Overview</h1>
+<p dir="auto">libdeflate is a library for fast, whole-buffer DEFLATE-based compression and
+decompression.</p>
+<p dir="auto">The supported formats are:</p>
+<ul dir="auto">
+<li>DEFLATE (raw)</li>
+<li>zlib (a.k.a. DEFLATE with a zlib wrapper)</li>
+<li>gzip (a.k.a. DEFLATE with a gzip wrapper)</li>
+</ul>
+<p dir="auto">libdeflate is heavily optimized.  It is significantly faster than the zlib
+library, both for compression and decompression, and especially on x86
+processors.  In addition, libdeflate provides optional high compression modes
+that provide a better compression ratio than the zlib's "level 9".</p>
+<p dir="auto">libdeflate itself is a library.  The following command-line programs which use
+this library are also included:</p>
+<ul dir="auto">
+<li>
+<p dir="auto"><code>libdeflate-gzip</code>, a program which can be a drop-in replacement for standard
+<code>gzip</code> under some circumstances.  Note that <code>libdeflate-gzip</code> has some
+limitations; it is provided for convenience and is <strong>not</strong> meant to be the
+main use case of libdeflate.  It needs a lot of memory to process large files,
+and it omits support for some infrequently-used options of GNU gzip.</p>
+</li>
+<li>
+<p dir="auto"><code>benchmark</code>, a test program that does round-trip compression and decompression
+of the provided data, and measures the compression and decompression speed.
+It can use libdeflate, zlib, or a combination of the two.</p>
+</li>
+<li>
+<p dir="auto"><code>checksum</code>, a test program that checksums the provided data with Adler-32 or
+CRC-32, and optionally measures the speed.  It can use libdeflate or zlib.</p>
+</li>
+</ul>
+<p dir="auto">For the release notes, see the <a href="NEWS.md">NEWS file</a>.</p>
+<h2 dir="auto"><a id="user-content-table-of-contents" class="anchor" aria-hidden="true" href="#table-of-contents"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Table of Contents</h2>
+<ul dir="auto">
+<li><a href="#building">Building</a>
+<ul dir="auto">
+<li><a href="#using-cmake">Using CMake</a></li>
+<li><a href="#directly-integrating-the-library-sources">Directly integrating the library sources</a></li>
+</ul>
+</li>
+<li><a href="#api">API</a></li>
+<li><a href="#bindings-for-other-programming-languages">Bindings for other programming languages</a></li>
+<li><a href="#deflate-vs-zlib-vs-gzip">DEFLATE vs. zlib vs. gzip</a></li>
+<li><a href="#compression-levels">Compression levels</a></li>
+<li><a href="#motivation">Motivation</a></li>
+<li><a href="#license">License</a></li>
+</ul>
+<h1 dir="auto"><a id="user-content-building" class="anchor" aria-hidden="true" href="#building"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Building</h1>
+<h2 dir="auto"><a id="user-content-using-cmake" class="anchor" aria-hidden="true" href="#using-cmake"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Using CMake</h2>
+<p dir="auto">libdeflate uses <a href="https://cmake.org/" rel="nofollow">CMake</a>.  It can be built just like any
+other CMake project, e.g. with:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="cmake -B build &amp;&amp; cmake --build build"><pre class="notranslate"><code>cmake -B build &amp;&amp; cmake --build build
+</code></pre></div>
+<p dir="auto">By default the following targets are built:</p>
+<ul dir="auto">
+<li>The static library (normally called <code>libdeflate.a</code>)</li>
+<li>The shared library (normally called <code>libdeflate.so</code>)</li>
+<li>The <code>libdeflate-gzip</code> program, including its alias <code>libdeflate-gunzip</code></li>
+</ul>
+<p dir="auto">Besides the standard CMake build and installation options, there are some
+libdeflate-specific build options.  See <code>CMakeLists.txt</code> for the list of these
+options.  To set an option, add <code>-DOPTION=VALUE</code> to the <code>cmake</code> command.</p>
+<p dir="auto">Prebuilt Windows binaries can be downloaded from
+<a href="https://github.com/ebiggers/libdeflate/releases">https://github.com/ebiggers/libdeflate/releases</a>.</p>
+<h2 dir="auto"><a id="user-content-directly-integrating-the-library-sources" class="anchor" aria-hidden="true" href="#directly-integrating-the-library-sources"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Directly integrating the library sources</h2>
+<p dir="auto">Although the official build system is CMake, care has been taken to keep the
+library source files compilable directly, without a prerequisite configuration
+step.  Therefore, it is also fine to just add the library source files directly
+to your application, without using CMake.</p>
+<p dir="auto">You should compile both <code>lib/*.c</code> and <code>lib/*/*.c</code>.  You don't need to worry
+about excluding irrelevant architecture-specific code, as this is already
+handled in the source files themselves using <code>#ifdef</code>s.</p>
+<p dir="auto">It is strongly recommended to use either gcc or clang, and to use <code>-O2</code>.</p>
+<p dir="auto">If you are doing a freestanding build with <code>-ffreestanding</code>, you must add
+<code>-DFREESTANDING</code> as well (matching what the <code>CMakeLists.txt</code> does).</p>
+<h1 dir="auto"><a id="user-content-api" class="anchor" aria-hidden="true" href="#api"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>API</h1>
+<p dir="auto">libdeflate has a simple API that is not zlib-compatible.  You can create
+compressors and decompressors and use them to compress or decompress buffers.
+See libdeflate.h for details.</p>
+<p dir="auto">There is currently no support for streaming.  This has been considered, but it
+always significantly increases complexity and slows down fast paths.
+Unfortunately, at this point it remains a future TODO.  So: if your application
+compresses data in "chunks", say, less than 1 MB in size, then libdeflate is a
+great choice for you; that's what it's designed to do.  This is perfect for
+certain use cases such as transparent filesystem compression.  But if your
+application compresses large files as a single compressed stream, similarly to
+the <code>gzip</code> program, then libdeflate isn't for you.</p>
+<p dir="auto">Note that with chunk-based compression, you generally should have the
+uncompressed size of each chunk stored outside of the compressed data itself.
+This enables you to allocate an output buffer of the correct size without
+guessing.  However, libdeflate's decompression routines do optionally provide
+the actual number of output bytes in case you need it.</p>
+<p dir="auto">Windows developers: note that the calling convention of libdeflate.dll is
+"cdecl".  (libdeflate v1.4 through v1.12 used "stdcall" instead.)</p>
+<h1 dir="auto"><a id="user-content-bindings-for-other-programming-languages" class="anchor" aria-hidden="true" href="#bindings-for-other-programming-languages"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Bindings for other programming languages</h1>
+<p dir="auto">The libdeflate project itself only provides a C library.  If you need to use
+libdeflate from a programming language other than C or C++, consider using the
+following bindings:</p>
+<ul dir="auto">
+<li>C#: <a href="https://github.com/jzebedee/LibDeflate.NET">LibDeflate.NET</a></li>
+<li>Go: <a href="https://github.com/4kills/go-libdeflate">go-libdeflate</a></li>
+<li>Java: <a href="https://github.com/astei/libdeflate-java">libdeflate-java</a></li>
+<li>Julia: <a href="https://github.com/jakobnissen/LibDeflate.jl">LibDeflate.jl</a></li>
+<li>Nim: <a href="https://github.com/gemesa/libdeflate-nim">libdeflate-nim</a></li>
+<li>Perl: <a href="https://github.com/benkasminbullock/gzip-libdeflate">Gzip::Libdeflate</a></li>
+<li>PHP: <a href="https://github.com/pmmp/ext-libdeflate">ext-libdeflate</a></li>
+<li>Python: <a href="https://github.com/dcwatson/deflate">deflate</a></li>
+<li>Ruby: <a href="https://github.com/kaorimatz/libdeflate-ruby">libdeflate-ruby</a></li>
+<li>Rust: <a href="https://github.com/adamkewley/libdeflater">libdeflater</a></li>
+</ul>
+<p dir="auto">Note: these are third-party projects which haven't necessarily been vetted by
+the authors of libdeflate.  Please direct all questions, bugs, and improvements
+for these bindings to their authors.</p>
+<p dir="auto">Also, unfortunately many of these bindings bundle or pin an old version of
+libdeflate.  To avoid known issues in old versions and to improve performance,
+before using any of these bindings please ensure that the bundled or pinned
+version of libdeflate has been upgraded to the latest release.</p>
+<h1 dir="auto"><a id="user-content-deflate-vs-zlib-vs-gzip" class="anchor" aria-hidden="true" href="#deflate-vs-zlib-vs-gzip"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>DEFLATE vs. zlib vs. gzip</h1>
+<p dir="auto">The DEFLATE format (<a href="https://www.ietf.org/rfc/rfc1951.txt" rel="nofollow">rfc1951</a>), the zlib
+format (<a href="https://www.ietf.org/rfc/rfc1950.txt" rel="nofollow">rfc1950</a>), and the gzip format
+(<a href="https://www.ietf.org/rfc/rfc1952.txt" rel="nofollow">rfc1952</a>) are commonly confused with
+each other as well as with the <a href="http://zlib.net" rel="nofollow">zlib software library</a>, which
+actually supports all three formats.  libdeflate (this library) also supports
+all three formats.</p>
+<p dir="auto">Briefly, DEFLATE is a raw compressed stream, whereas zlib and gzip are different
+wrappers for this stream.  Both zlib and gzip include checksums, but gzip can
+include extra information such as the original filename.  Generally, you should
+choose a format as follows:</p>
+<ul dir="auto">
+<li>If you are compressing whole files with no subdivisions, similar to the <code>gzip</code>
+program, you probably should use the gzip format.</li>
+<li>Otherwise, if you don't need the features of the gzip header and footer but do
+still want a checksum for corruption detection, you probably should use the
+zlib format.</li>
+<li>Otherwise, you probably should use raw DEFLATE.  This is ideal if you don't
+need checksums, e.g. because they're simply not needed for your use case or
+because you already compute your own checksums that are stored separately from
+the compressed stream.</li>
+</ul>
+<p dir="auto">Note that gzip and zlib streams can be distinguished from each other based on
+their starting bytes, but this is not necessarily true of raw DEFLATE streams.</p>
+<h1 dir="auto"><a id="user-content-compression-levels" class="anchor" aria-hidden="true" href="#compression-levels"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Compression levels</h1>
+<p dir="auto">An often-underappreciated fact of compression formats such as DEFLATE is that
+there are an enormous number of different ways that a given input could be
+compressed.  Different algorithms and different amounts of computation time will
+result in different compression ratios, while remaining equally compatible with
+the decompressor.</p>
+<p dir="auto">For this reason, the commonly used zlib library provides nine compression
+levels.  Level 1 is the fastest but provides the worst compression; level 9
+provides the best compression but is the slowest.  It defaults to level 6.
+libdeflate uses this same design but is designed to improve on both zlib's
+performance <em>and</em> compression ratio at every compression level.  In addition,
+libdeflate's levels go <a href="https://xkcd.com/670/" rel="nofollow">up to 12</a> to make room for a
+minimum-cost-path based algorithm (sometimes called "optimal parsing") that can
+significantly improve on zlib's compression ratio.</p>
+<p dir="auto">If you are using DEFLATE (or zlib, or gzip) in your application, you should test
+different levels to see which works best for your application.</p>
+<h1 dir="auto"><a id="user-content-motivation" class="anchor" aria-hidden="true" href="#motivation"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Motivation</h1>
+<p dir="auto">Despite DEFLATE's widespread use mainly through the zlib library, in the
+compression community this format from the early 1990s is often considered
+obsolete.  And in a few significant ways, it is.</p>
+<p dir="auto">So why implement DEFLATE at all, instead of focusing entirely on
+bzip2/LZMA/xz/LZ4/LZX/ZSTD/Brotli/LZHAM/LZFSE/[insert cool new format here]?</p>
+<p dir="auto">To do something better, you need to understand what came before.  And it turns
+out that most ideas from DEFLATE are still relevant.  Many of the newer formats
+share a similar structure as DEFLATE, with different tweaks.  The effects of
+trivial but very useful tweaks, such as increasing the sliding window size, are
+often confused with the effects of nontrivial but less useful tweaks.  And
+actually, many of these formats are similar enough that common algorithms and
+optimizations (e.g. those dealing with LZ77 matchfinding) can be reused.</p>
+<p dir="auto">In addition, comparing compressors fairly is difficult because the performance
+of a compressor depends heavily on optimizations which are not intrinsic to the
+compression format itself.  In this respect, the zlib library sometimes compares
+poorly to certain newer code because zlib is not well optimized for modern
+processors.  libdeflate addresses this by providing an optimized DEFLATE
+implementation which can be used for benchmarking purposes.  And, of course,
+real applications can use it as well.</p>
+<h1 dir="auto"><a id="user-content-license" class="anchor" aria-hidden="true" href="#license"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>License</h1>
+<p dir="auto">libdeflate is <a href="COPYING">MIT-licensed</a>.</p>
+<p dir="auto">I am not aware of any patents or patent applications relevant to libdeflate.</p>
+</article></div>
