@@ -11,8 +11,30 @@ implementation, please let me know and I can redirect people there.</p>
 <p dir="auto">– @siddharthab</p>
 <hr>
 <h2 dir="auto"><a id="user-content-quickstart" class="anchor" aria-hidden="true" tabindex="-1" href="#quickstart"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Quickstart</h2>
-<p dir="auto">Minimum bazel version: <strong>6.0.0</strong></p>
-<p dir="auto">To use this toolchain, include this section in your WORKSPACE:</p>
+<p dir="auto">Minimum bazel version: <strong>6.0.0</strong> (6.1.0 if using blzmod)</p>
+<p dir="auto">If you're using <code>bzlmod</code>, add the following to <code>MODULE.bazel</code>:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel_dep(name = &quot;llvm_toolchain&quot;, version = &quot;0.8.2&quot;)
+
+llvm = use_extension(&quot;@llvm_toolchain//toolchain/extensions:llvm.bzl&quot;, &quot;llvm&quot;)
+llvm.toolchain(
+   llvm_version = &quot;15.0.6&quot;,
+)
+
+use_repo(llvm, &quot;llvm_toolchain&quot;)
+# use_repo(llvm, &quot;llvm_toolchain_llvm&quot;) # if you depend on specific tools in scripts
+
+register_toolchains(&quot;@llvm_toolchain//:all&quot;)"><pre><span class="pl-en">bazel_dep</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"llvm_toolchain"</span>, <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"0.8.2"</span>)
+
+<span class="pl-s1">llvm</span> <span class="pl-c1">=</span> <span class="pl-en">use_extension</span>(<span class="pl-s">"@llvm_toolchain//toolchain/extensions:llvm.bzl"</span>, <span class="pl-s">"llvm"</span>)
+<span class="pl-s1">llvm</span>.<span class="pl-en">toolchain</span>(
+   <span class="pl-s1">llvm_version</span> <span class="pl-c1">=</span> <span class="pl-s">"15.0.6"</span>,
+)
+
+<span class="pl-en">use_repo</span>(<span class="pl-s1">llvm</span>, <span class="pl-s">"llvm_toolchain"</span>)
+<span class="pl-c"># use_repo(llvm, "llvm_toolchain_llvm") # if you depend on specific tools in scripts</span>
+
+<span class="pl-en">register_toolchains</span>(<span class="pl-s">"@llvm_toolchain//:all"</span>)</pre></div>
+<p dir="auto">To use this toolchain, include this section in your <code>WORKSPACE</code>:</p>
 <div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@bazel_tools//tools/build_defs/repo:http.bzl&quot;, &quot;http_archive&quot;)
 
 BAZEL_TOOLCHAIN_TAG = &quot;0.8.2&quot;
