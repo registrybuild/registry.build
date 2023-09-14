@@ -11,95 +11,9 @@ implementation, please let me know and I can redirect people there.</p>
 <p dir="auto">– @siddharthab</p>
 <hr>
 <h2 dir="auto"><a id="user-content-quickstart" class="anchor" aria-hidden="true" tabindex="-1" href="#quickstart"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Quickstart</h2>
-<p dir="auto">Minimum bazel version: <strong>6.0.0</strong> (6.1.0 if using blzmod)</p>
-<p dir="auto">If you're using <code>bzlmod</code>, add the following to <code>MODULE.bazel</code>:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel_dep(name = &quot;llvm_toolchain&quot;, version = &quot;0.8.2&quot;)
+<p dir="auto">See notes on the <a href="https://github.com/grailbio/bazel-toolchain/releases">release</a>
+for how to get started.</p>
 
-llvm = use_extension(&quot;@llvm_toolchain//toolchain/extensions:llvm.bzl&quot;, &quot;llvm&quot;)
-llvm.toolchain(
-   llvm_version = &quot;15.0.6&quot;,
-)
-
-use_repo(llvm, &quot;llvm_toolchain&quot;)
-# use_repo(llvm, &quot;llvm_toolchain_llvm&quot;) # if you depend on specific tools in scripts
-
-register_toolchains(&quot;@llvm_toolchain//:all&quot;)"><pre><span class="pl-en">bazel_dep</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"llvm_toolchain"</span>, <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"0.8.2"</span>)
-
-<span class="pl-s1">llvm</span> <span class="pl-c1">=</span> <span class="pl-en">use_extension</span>(<span class="pl-s">"@llvm_toolchain//toolchain/extensions:llvm.bzl"</span>, <span class="pl-s">"llvm"</span>)
-<span class="pl-s1">llvm</span>.<span class="pl-en">toolchain</span>(
-   <span class="pl-s1">llvm_version</span> <span class="pl-c1">=</span> <span class="pl-s">"15.0.6"</span>,
-)
-
-<span class="pl-en">use_repo</span>(<span class="pl-s1">llvm</span>, <span class="pl-s">"llvm_toolchain"</span>)
-<span class="pl-c"># use_repo(llvm, "llvm_toolchain_llvm") # if you depend on specific tools in scripts</span>
-
-<span class="pl-en">register_toolchains</span>(<span class="pl-s">"@llvm_toolchain//:all"</span>)</pre></div>
-<p dir="auto">To use this toolchain, include this section in your <code>WORKSPACE</code>:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@bazel_tools//tools/build_defs/repo:http.bzl&quot;, &quot;http_archive&quot;)
-
-BAZEL_TOOLCHAIN_TAG = &quot;0.8.2&quot;
-BAZEL_TOOLCHAIN_SHA = &quot;0fc3a2b0c9c929920f4bed8f2b446a8274cad41f5ee823fd3faa0d7641f20db0&quot;
-
-http_archive(
-    name = &quot;com_grail_bazel_toolchain&quot;,
-    sha256 = BAZEL_TOOLCHAIN_SHA,
-    strip_prefix = &quot;bazel-toolchain-{tag}&quot;.format(tag = BAZEL_TOOLCHAIN_TAG),
-    canonical_id = BAZEL_TOOLCHAIN_TAG,
-    url = &quot;https://github.com/grailbio/bazel-toolchain/archive/refs/tags/{tag}.tar.gz&quot;.format(tag = BAZEL_TOOLCHAIN_TAG),
-)
-
-load(&quot;@com_grail_bazel_toolchain//toolchain:deps.bzl&quot;, &quot;bazel_toolchain_dependencies&quot;)
-
-bazel_toolchain_dependencies()
-
-load(&quot;@com_grail_bazel_toolchain//toolchain:rules.bzl&quot;, &quot;llvm_toolchain&quot;)
-
-llvm_toolchain(
-    name = &quot;llvm_toolchain&quot;,
-    llvm_version = &quot;16.0.0&quot;,
-)
-
-load(&quot;@llvm_toolchain//:toolchains.bzl&quot;, &quot;llvm_register_toolchains&quot;)
-
-llvm_register_toolchains()"><pre><span class="pl-en">load</span>(<span class="pl-s">"@bazel_tools//tools/build_defs/repo:http.bzl"</span>, <span class="pl-s">"http_archive"</span>)
-
-<span class="pl-v">BAZEL_TOOLCHAIN_TAG</span> <span class="pl-c1">=</span> <span class="pl-s">"0.8.2"</span>
-<span class="pl-v">BAZEL_TOOLCHAIN_SHA</span> <span class="pl-c1">=</span> <span class="pl-s">"0fc3a2b0c9c929920f4bed8f2b446a8274cad41f5ee823fd3faa0d7641f20db0"</span>
-
-<span class="pl-en">http_archive</span>(
-    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"com_grail_bazel_toolchain"</span>,
-    <span class="pl-s1">sha256</span> <span class="pl-c1">=</span> <span class="pl-v">BAZEL_TOOLCHAIN_SHA</span>,
-    <span class="pl-s1">strip_prefix</span> <span class="pl-c1">=</span> <span class="pl-s">"bazel-toolchain-{tag}"</span>.<span class="pl-en">format</span>(<span class="pl-s1">tag</span> <span class="pl-c1">=</span> <span class="pl-v">BAZEL_TOOLCHAIN_TAG</span>),
-    <span class="pl-s1">canonical_id</span> <span class="pl-c1">=</span> <span class="pl-v">BAZEL_TOOLCHAIN_TAG</span>,
-    <span class="pl-s1">url</span> <span class="pl-c1">=</span> <span class="pl-s">"https://github.com/grailbio/bazel-toolchain/archive/refs/tags/{tag}.tar.gz"</span>.<span class="pl-en">format</span>(<span class="pl-s1">tag</span> <span class="pl-c1">=</span> <span class="pl-v">BAZEL_TOOLCHAIN_TAG</span>),
-)
-
-<span class="pl-en">load</span>(<span class="pl-s">"@com_grail_bazel_toolchain//toolchain:deps.bzl"</span>, <span class="pl-s">"bazel_toolchain_dependencies"</span>)
-
-<span class="pl-en">bazel_toolchain_dependencies</span>()
-
-<span class="pl-en">load</span>(<span class="pl-s">"@com_grail_bazel_toolchain//toolchain:rules.bzl"</span>, <span class="pl-s">"llvm_toolchain"</span>)
-
-<span class="pl-en">llvm_toolchain</span>(
-    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"llvm_toolchain"</span>,
-    <span class="pl-s1">llvm_version</span> <span class="pl-c1">=</span> <span class="pl-s">"16.0.0"</span>,
-)
-
-<span class="pl-en">load</span>(<span class="pl-s">"@llvm_toolchain//:toolchains.bzl"</span>, <span class="pl-s">"llvm_register_toolchains"</span>)
-
-<span class="pl-en">llvm_register_toolchains</span>()</pre></div>
-<p dir="auto">And add the following section to your .bazelrc file:</p>
-<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="# Not needed after https://github.com/bazelbuild/bazel/issues/7260 is closed
-build --incompatible_enable_cc_toolchain_resolution
-
-# Tell Bazel to pass the right flags for llvm-ar, not libtool. Only needed if you are building on darwin.
-# See https://github.com/bazelbuild/bazel/blob/5c75d0acec21459bbb13520817e3806e1507e907/tools/cpp/unix_cc_toolchain_config.bzl#L1000-L1024
-build --features=-libtool"><pre><span class="pl-c"><span class="pl-c">#</span> Not needed after https://github.com/bazelbuild/bazel/issues/7260 is closed</span>
-build --incompatible_enable_cc_toolchain_resolution
-
-<span class="pl-c"><span class="pl-c">#</span> Tell Bazel to pass the right flags for llvm-ar, not libtool. Only needed if you are building on darwin.</span>
-<span class="pl-c"><span class="pl-c">#</span> See https://github.com/bazelbuild/bazel/blob/5c75d0acec21459bbb13520817e3806e1507e907/tools/cpp/unix_cc_toolchain_config.bzl#L1000-L1024</span>
-build --features=-libtool</pre></div>
 <h2 dir="auto"><a id="user-content-basic-usage" class="anchor" aria-hidden="true" tabindex="-1" href="#basic-usage"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Basic Usage</h2>
 <p dir="auto">The toolchain can automatically detect your OS and arch type, and use the right
 pre-built binary LLVM distribution. See the section on "Bring Your Own LLVM"
@@ -205,7 +119,7 @@ that the keys here are different and less granular than the keys in the <code>ur
 attribute. When using a bazel package path, each of the values is typically
 a package in the user's workspace or configured through <code>local_repository</code> or
 <code>http_archive</code>; the BUILD file of the package should be similar to
-<code>@com_grail_bazel_toolchain//toolchain:BUILD.llvm_repo</code>. If using only
+<code>@toolchains_llvm//toolchain:BUILD.llvm_repo</code>. If using only
 <code>http_archive</code>, maybe consider using the <code>urls</code> attribute instead to get more
 flexibility if you need.</li>
 <li>All the above options rely on host OS information, and are not suited for
@@ -239,10 +153,10 @@ Then, when cross-compiling, explicitly specify the toolchain with the sysroot
 and the target platform. For example, see the <a href="tests/WORKSPACE">WORKSPACE</a> file and
 the <a href="tests/scripts/run_xcompile_tests.sh">test script</a> for cross-compilation.</p>
 <div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel build \
-  --platforms=@com_grail_bazel_toolchain//platforms:linux-x86_64 \
+  --platforms=@toolchains_llvm//platforms:linux-x86_64 \
   --extra_toolchains=@llvm_toolchain_with_sysroot//:cc-toolchain-x86_64-linux \
   //..."><pre>bazel build \
-  --platforms=@com_grail_bazel_toolchain//platforms:linux-x86_64 \
+  --platforms=@toolchains_llvm//platforms:linux-x86_64 \
   --extra_toolchains=@llvm_toolchain_with_sysroot//:cc-toolchain-x86_64-linux \
   //...</pre></div>
 <h3 dir="auto"><a id="user-content-supporting-new-target-platforms" class="anchor" aria-hidden="true" tabindex="-1" href="#supporting-new-target-platforms"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Supporting New Target Platforms</h3>
