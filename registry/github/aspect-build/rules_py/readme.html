@@ -2,7 +2,7 @@
 <p dir="auto"><code>aspect_rules_py</code> is a layer on top of <code>rules_python</code>, the standard Python ruleset hosted at
 <a href="https://github.com/bazelbuild/rules_python">https://github.com/bazelbuild/rules_python</a>.
 It is currently in pre-release, but we are committed to more development towards a 1.0 stable release.</p>
-<p dir="auto">Some parts of <code>rules_python</code> are reused:</p>
+<p dir="auto">The lower layer of <code>rules_python</code> is currently reused, dealing with the toolchain and dependencies:</p>
 <ul dir="auto">
 <li>Same toolchain for fetching a hermetic python interpreter.</li>
 <li><code>pip_parse</code> rule for translating a requirements-lock.txt file into Bazel repository fetching rules
@@ -10,20 +10,12 @@ and installing those packages into external repositories.</li>
 <li>The Gazelle extension for generating BUILD.bazel files works the same.</li>
 </ul>
 <p dir="auto">However, this ruleset introduces a new implementation of <code>py_library</code>, <code>py_binary</code>, and <code>py_test</code>.
-The starlark implementations allow us to innovate, while the existing ones are embedded in Bazel's
-Java sources in the bazelbuild/bazel repo and therefore very difficult to get changes made.</p>
-<blockquote>
-<p dir="auto">We understand that there is also an effort at Google to "starlarkify" the Python rules,
-but there is no committed roadmap or dates.
-Given the history of other projects coming from Google, we've chosen not to wait.</p>
-</blockquote>
-<p dir="auto">Our philosophy is to behave more like idiomatic python ecosystem tools.
-Having a starlark implementation allows us to do things like
-attach Bazel transitions, mypy typechecking actions, etc.</p>
-<p dir="auto">Things that are improved in rules_py:</p>
+Our philosophy is to behave more like idiomatic python ecosystem tools, where rules_python is closely
+tied to the way Google does Python development in their internal monorepo, google3.</p>
+<p dir="auto">Things you'll love about rules_py:</p>
 <ul dir="auto">
-<li>We don't mess with the Python <code>sys.path</code>/<code>$PYTHONPATH</code>. Instead we use the standard <code>site-packages</code> folder layout produced by <code>pip_install</code>. This avoids problems like package naming collisions with built-ins (e.g. <code>collections</code>) or where <code>argparse</code> comes from a transitive dependency instead. (Maybe helps with diamond dependencies too).</li>
-<li>We run python in isolated mode so we don't accidentally break out of Bazel's action sandbox, fixing:
+<li>We don't mess with the Python <code>sys.path</code>/<code>$PYTHONPATH</code>. Instead we use the standard <code>site-packages</code> folder layout produced by <code>pip_install</code>. This avoids problems like package naming collisions with built-ins (e.g. <code>collections</code>) or where <code>argparse</code> comes from a transitive dependency instead.</li>
+<li>We run python in isolated mode so we don't accidentally break out of Bazel's action sandbox, fixing bugs like:
 <ul dir="auto">
 <li><a href="https://github.com/bazelbuild/rules_python/issues/27" data-hovercard-type="issue" data-hovercard-url="/bazelbuild/rules_python/issues/27/hovercard">pypi libraries installed to system python are implicitly available to builds</a></li>
 <li><a href="https://github.com/bazelbuild/rules_python/issues/382" data-hovercard-type="issue" data-hovercard-url="/bazelbuild/rules_python/issues/382/hovercard">sys.path[0] breaks out of runfile tree.</a></li>
@@ -31,14 +23,7 @@ attach Bazel transitions, mypy typechecking actions, etc.</p>
 </li>
 <li>We create a python-idiomatic virtualenv to run actions, which means better compatibility with userland implementations of <a href="https://docs.python.org/3/library/importlib.html" rel="nofollow">importlib</a>.</li>
 <li>Thanks to the virtualenv, you can open the project in an editor like PyCharm and have working auto-complete, jump-to-definition, etc.</li>
-<li>The launcher uses the Bash toolchain rather than Python, so we have no dependency on a system interpreter - fixes MacOS no longer shipping with python.</li>
-</ul>
-<p dir="auto">Improvements planned:</p>
-<ul dir="auto">
-<li>Build wheels in actions, so it's possible to have native packages built for the target platform,
-e.g. for a rules_docker py3_image.</li>
-<li>Support <code>--only_binary=:all:</code> by always building wheels from source using a hermetic Bazel cc toolchain.</li>
-<li><code>dep</code> on wheels directly, rather than on a <code>py_library</code> that wraps it. Then we don't have to append to the <code>.pth</code> file to locate them.</li>
+<li>The launcher uses the Bash toolchain rather than Python, so we have no dependency on a system interpreter.</li>
 </ul>
 <p dir="auto"><em>Need help?</em> This ruleset has support provided by <a href="https://aspect.dev" rel="nofollow">https://aspect.dev</a>.</p>
 <h2 dir="auto"><a id="user-content-installation" class="anchor" aria-hidden="true" tabindex="-1" href="#installation"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Installation</h2>
