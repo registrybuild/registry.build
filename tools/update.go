@@ -208,6 +208,10 @@ func main() {
 		Repository: []string{"github:wcohen/libpfm4"},
 		Name:       "libpfm",
 	})
+	modules = append(modules, Module{
+		Repository: []string{"github:bazelbuild/rules_cc"},
+		Name:       "rules_cc",
+	})
 
 	for _, module := range modules {
 		for _, repo := range module.Repository {

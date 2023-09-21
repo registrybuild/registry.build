@@ -34,6 +34,7 @@ module.exports = async function modules(context, options) {
           if (
             !release.module_snippet &&
             r.modules.length > 0 &&
+            r.modules[0].version_data &&
             r.modules[0].version_data[moduleVersion]
           ) {
             release.module_snippet = `bazel_dep(name = "${r.modules[0].name}", version = "${moduleVersion}")`;
