@@ -1,31 +1,75 @@
-<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><h1 id="user-content-aspects-bazel-rules-for-python" dir="auto"><a class="heading-link" href="#aspects-bazel-rules-for-python">Aspect's Bazel rules for python<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h1>
+<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><h1 id="user-content-aspects-bazel-rules-for-python" dir="auto"><a class="heading-link" href="#aspects-bazel-rules-for-python">Aspect's Bazel rules for Python<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h1>
 <p dir="auto"><code>aspect_rules_py</code> is a layer on top of <code>rules_python</code>, the standard Python ruleset hosted at
 <a href="https://github.com/bazelbuild/rules_python">https://github.com/bazelbuild/rules_python</a>.
-It is currently in pre-release, but we are committed to more development towards a 1.0 stable release.</p>
-<p dir="auto">The lower layer of <code>rules_python</code> is currently reused, dealing with the toolchain and dependencies:</p>
-<ul dir="auto">
-<li>Same toolchain for fetching a hermetic python interpreter.</li>
-<li><code>pip_parse</code> rule for translating a requirements-lock.txt file into Bazel repository fetching rules
-and installing those packages into external repositories.</li>
-<li>The Gazelle extension for generating BUILD.bazel files works the same.</li>
-</ul>
+The lower layer of <code>rules_python</code> is currently reused, dealing with the toolchain and dependencies.</p>
 <p dir="auto">However, this ruleset introduces a new implementation of <code>py_library</code>, <code>py_binary</code>, and <code>py_test</code>.
 Our philosophy is to behave more like idiomatic python ecosystem tools, where rules_python is closely
 tied to the way Google does Python development in their internal monorepo, google3.</p>
-<p dir="auto">Things you'll love about rules_py:</p>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Legacy</th>
+<th>Recommended</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>rules: BUILD file UI</td>
+<td>rules_python</td>
+<td><strong>rules_py</strong></td>
+</tr>
+<tr>
+<td>gazelle: generate BUILD files</td>
+<td>rules_python</td>
+<td>rules_python [1]</td>
+</tr>
+<tr>
+<td>pip_parse: fetch and install deps from pypi</td>
+<td>rules_python</td>
+<td>rules_python</td>
+</tr>
+<tr>
+<td>toolchain: fetch hermetic interpreter</td>
+<td>rules_python</td>
+<td>rules_python</td>
+</tr>
+</tbody>
+</table>
+<p dir="auto"><em>Need help?</em> This ruleset has support provided by <a href="https://aspect.dev" rel="nofollow">https://aspect.dev</a>.</p>
+<p dir="auto">[1] we will likely fork the extension for performance, using TreeSitter to parse Python code rather than a Python program.</p>
+<h2 id="user-content-differences" dir="auto"><a class="heading-link" href="#differences">Differences<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h2>
+<p dir="auto">We think you'll love rules_py because:</p>
 <ul dir="auto">
-<li>We don't mess with the Python <code>sys.path</code>/<code>$PYTHONPATH</code>. Instead we use the standard <code>site-packages</code> folder layout produced by <code>pip_install</code>. This avoids problems like package naming collisions with built-ins (e.g. <code>collections</code>) or where <code>argparse</code> comes from a transitive dependency instead.</li>
-<li>We run python in isolated mode so we don't accidentally break out of Bazel's action sandbox, fixing bugs like:
+<li>The launcher uses the Bash toolchain rather than Python, so we have no dependency on a system interpreter. Fixes:
+<ul dir="auto">
+<li><a href="https://github.com/bazelbuild/rules_python/issues/691" data-hovercard-type="issue" data-hovercard-url="/bazelbuild/rules_python/issues/691/hovercard">py_binary with hermetic toolchain requires a system interpreter</a></li>
+</ul>
+</li>
+<li>We don't mess with the Python <code>sys.path</code>/<code>$PYTHONPATH</code>. Instead we use the standard <code>site-packages</code> folder layout produced by <code>pip_install</code>. This avoids problems like package naming collisions with built-ins (e.g. <code>collections</code>) or where <code>argparse</code> comes from a transitive dependency instead. Fixes:
+<ul dir="auto">
+<li><a href="https://github.com/bazelbuild/rules_python/issues/1221" data-hovercard-type="issue" data-hovercard-url="/bazelbuild/rules_python/issues/1221/hovercard">Issues with PYTHONPATH resolution in recent python/rules_python versions</a></li>
+</ul>
+</li>
+<li>We run python in isolated mode so we don't accidentally break out of Bazel's action sandbox. Fixes:
 <ul dir="auto">
 <li><a href="https://github.com/bazelbuild/rules_python/issues/27" data-hovercard-type="issue" data-hovercard-url="/bazelbuild/rules_python/issues/27/hovercard">pypi libraries installed to system python are implicitly available to builds</a></li>
 <li><a href="https://github.com/bazelbuild/rules_python/issues/382" data-hovercard-type="issue" data-hovercard-url="/bazelbuild/rules_python/issues/382/hovercard">sys.path[0] breaks out of runfile tree.</a></li>
+<li><a href="https://github.com/bazelbuild/rules_python/issues/1059" data-hovercard-type="issue" data-hovercard-url="/bazelbuild/rules_python/issues/1059/hovercard">User site-packages directory should be ignored</a></li>
 </ul>
 </li>
 <li>We create a python-idiomatic virtualenv to run actions, which means better compatibility with userland implementations of <a href="https://docs.python.org/3/library/importlib.html" rel="nofollow">importlib</a>.</li>
-<li>Thanks to the virtualenv, you can open the project in an editor like PyCharm and have working auto-complete, jump-to-definition, etc.</li>
-<li>The launcher uses the Bash toolchain rather than Python, so we have no dependency on a system interpreter.</li>
+<li>Thanks to the virtualenv, you can open the project in an editor like PyCharm and have working auto-complete, jump-to-definition, etc. Fixes:
+<ul dir="auto">
+<li><a href="https://github.com/bazelbuild/rules_python/issues/1401" data-hovercard-type="issue" data-hovercard-url="/bazelbuild/rules_python/issues/1401/hovercard">Smooth IDE support for python_rules</a></li>
 </ul>
-<p dir="auto"><em>Need help?</em> This ruleset has support provided by <a href="https://aspect.dev" rel="nofollow">https://aspect.dev</a>.</p>
+</li>
+</ul>
+<div class="markdown-alert markdown-alert-note" dir="auto"><p dir="auto"><span class="color-fg-accent text-semibold d-inline-flex flex-items-center mb-1"><svg class="octicon octicon-info mr-2" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</span><br>
+What about the "starlarkification" effort in rules_python?</p><p dir="auto">We think this is only useful within Google, because the semantics of the rules will remain identical.
+Even though the code will live in bazelbuild/rules_python rather than
+bazelbuild/bazel, it still cannot change without breaking Google-internal usage, and has all the ergonomic bugs
+above due to the way the runtime is stubbed.</p></div>
 <h2 id="user-content-installation" dir="auto"><a class="heading-link" href="#installation">Installation<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h2>
 <p dir="auto">Follow instructions from the release you wish to use:
 <a href="https://github.com/aspect-build/rules_py/releases">https://github.com/aspect-build/rules_py/releases</a></p>
