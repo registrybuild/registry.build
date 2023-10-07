@@ -4,7 +4,7 @@ parallel with a single <code>bazel run</code> invocation. This is especially use
 for running multiple linters or formatters with a single command.</p>
 <h2 id="user-content-usage" dir="auto"><a class="heading-link" href="#usage">Usage<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h2>
 <p dir="auto">Setup the tools you want to run:</p>
-<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(&quot;@rules_multirun//:defs.bzl&quot;, &quot;command&quot;, &quot;multirun&quot;)
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@rules_multirun//:defs.bzl&quot;, &quot;command&quot;, &quot;multirun&quot;)
 
 sh_binary(
     name = &quot;some_linter&quot;,
@@ -36,47 +36,45 @@ multirun(
         &quot;lint-something-else&quot;,
     ],
     jobs = 0, # Set to 0 to run in parallel, defaults to sequential
-)"><pre lang="bzl" class="notranslate"><code>load("@rules_multirun//:defs.bzl", "command", "multirun")
+)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@rules_multirun//:defs.bzl"</span>, <span class="pl-s">"command"</span>, <span class="pl-s">"multirun"</span>)
 
-sh_binary(
-    name = "some_linter",
+<span class="pl-en">sh_binary</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"some_linter"</span>,
     ...
 )
 
-py_binary(
-    name = "some_other_linter",
+<span class="pl-en">py_binary</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"some_other_linter"</span>,
     ...
 )
 
-command(
-    name = "lint-something",
-    command = ":some_linter",
-    arguments = ["check"], # Optional arguments passed directly to the tool
+<span class="pl-en">command</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"lint-something"</span>,
+    <span class="pl-s1">command</span> <span class="pl-c1">=</span> <span class="pl-s">":some_linter"</span>,
+    <span class="pl-s1">arguments</span> <span class="pl-c1">=</span> [<span class="pl-s">"check"</span>], <span class="pl-c"># Optional arguments passed directly to the tool</span>
 )
 
-command(
-    name = "lint-something-else",
-    command = ":some_other_linter",
-    environment = {"CHECK": "true"}, # Optional environment variables set when invoking the command
-    data = ["..."] # Optional runtime data dependencies
+<span class="pl-en">command</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"lint-something-else"</span>,
+    <span class="pl-s1">command</span> <span class="pl-c1">=</span> <span class="pl-s">":some_other_linter"</span>,
+    <span class="pl-s1">environment</span> <span class="pl-c1">=</span> {<span class="pl-s">"CHECK"</span>: <span class="pl-s">"true"</span>}, <span class="pl-c"># Optional environment variables set when invoking the command</span>
+    <span class="pl-s1">data</span> <span class="pl-c1">=</span> [<span class="pl-s">"..."</span>] <span class="pl-c"># Optional runtime data dependencies</span>
 )
 
-multirun(
-    name = "lint",
-    commands = [
-        "lint-something",
-        "lint-something-else",
+<span class="pl-en">multirun</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"lint"</span>,
+    <span class="pl-s1">commands</span> <span class="pl-c1">=</span> [
+        <span class="pl-s">"lint-something"</span>,
+        <span class="pl-s">"lint-something-else"</span>,
     ],
-    jobs = 0, # Set to 0 to run in parallel, defaults to sequential
-)
-</code></pre></div>
+    <span class="pl-s1">jobs</span> <span class="pl-c1">=</span> <span class="pl-c1">0</span>, <span class="pl-c"># Set to 0 to run in parallel, defaults to sequential</span>
+)</pre></div>
 <p dir="auto">Run the <code>multirun</code> target with bazel:</p>
-<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="$ bazel run //:lint"><pre lang="sh" class="notranslate"><code>$ bazel run //:lint
-</code></pre></div>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="$ bazel run //:lint"><pre>$ bazel run //:lint</pre></div>
 <h2 id="user-content-usage-with-platform-transitions" dir="auto"><a class="heading-link" href="#usage-with-platform-transitions">Usage with platform transitions<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h2>
 <p dir="auto">In case if the <code>multirun</code> rule requires a transition to other configuration than <code>target</code> then
 a new <code>multirun</code>-like rule can be defined as in the following example</p>
-<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(&quot;@rules_multirun//:defs.bzl&quot;, &quot;multirun_with_transition&quot;)
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@rules_multirun//:defs.bzl&quot;, &quot;multirun_with_transition&quot;)
 
 def _aws_deploy_platforms_impl(settings, attr):
     return {&quot;//command_line_option:platforms&quot;: [&quot;:aws_lambda&quot;]}
@@ -90,35 +88,33 @@ aws_deploy_transition = transition(
 aws_deploy = multirun_with_transition(
     aws_deploy_transition,
     &quot;@bazel_tools//tools/allowlists/function_transition_allowlist&quot;
-)"><pre lang="bzl" class="notranslate"><code>load("@rules_multirun//:defs.bzl", "multirun_with_transition")
+)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@rules_multirun//:defs.bzl"</span>, <span class="pl-s">"multirun_with_transition"</span>)
 
-def _aws_deploy_platforms_impl(settings, attr):
-    return {"//command_line_option:platforms": [":aws_lambda"]}
+<span class="pl-k">def</span> <span class="pl-en">_aws_deploy_platforms_impl</span>(<span class="pl-s1">settings</span>, <span class="pl-s1">attr</span>):
+    <span class="pl-k">return</span> {<span class="pl-s">"//command_line_option:platforms"</span>: [<span class="pl-s">":aws_lambda"</span>]}
 
-aws_deploy_transition = transition(
-    implementation = _aws_deploy_platforms_impl,
-    inputs = [],
-    outputs = ["//command_line_option:platforms"],
+<span class="pl-s1">aws_deploy_transition</span> <span class="pl-c1">=</span> <span class="pl-en">transition</span>(
+    <span class="pl-s1">implementation</span> <span class="pl-c1">=</span> <span class="pl-s1">_aws_deploy_platforms_impl</span>,
+    <span class="pl-s1">inputs</span> <span class="pl-c1">=</span> [],
+    <span class="pl-s1">outputs</span> <span class="pl-c1">=</span> [<span class="pl-s">"//command_line_option:platforms"</span>],
 )
 
-aws_deploy = multirun_with_transition(
-    aws_deploy_transition,
-    "@bazel_tools//tools/allowlists/function_transition_allowlist"
-)
-</code></pre></div>
+<span class="pl-s1">aws_deploy</span> <span class="pl-c1">=</span> <span class="pl-en">multirun_with_transition</span>(
+    <span class="pl-s1">aws_deploy_transition</span>,
+    <span class="pl-s">"@bazel_tools//tools/allowlists/function_transition_allowlist"</span>
+)</pre></div>
 <p dir="auto">and used in a <code>BUILD</code> file</p>
-<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="aws_deploy(
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="aws_deploy(
     name = &quot;staging&quot;,
     commands = [
        ...
     ]
-)"><pre lang="bzl" class="notranslate"><code>aws_deploy(
-    name = "staging",
-    commands = [
+)"><pre><span class="pl-en">aws_deploy</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"staging"</span>,
+    <span class="pl-s1">commands</span> <span class="pl-c1">=</span> [
        ...
     ]
-)
-</code></pre></div>
+)</pre></div>
 <h2 id="user-content-installation" dir="auto"><a class="heading-link" href="#installation">Installation<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h2>
 <p dir="auto">Go to the <a href="https://github.com/keith/rules_multirun/releases">releases
 page</a> to grab the
