@@ -9,6 +9,7 @@ import {
   Home,
   PlusCircle,
 } from "lucide-react";
+import { useHistory, useLocation } from "@docusaurus/router";
 
 let host = {
   local: "http://localhost:8080",
@@ -78,7 +79,7 @@ const Template = (props) => (
       templatename: props.data.name,
       image: props.data.image.startsWith("http")
         ? props.data.image
-        : window.origin + props.data.image,
+        : "https://registry.build" + props.data.image,
     })}`}
   >
     <div className="template-metadata">
@@ -113,10 +114,12 @@ const Template = (props) => (
 );
 
 const Templates = (props) => {
+  let location = useLocation();
+  let history = useHistory();
+
   let [count, setCount] = useState(24);
-  let [query, setQuery] = useState(
-    new URLSearchParams(window.location.search).get("query")
-  );
+  let query = new URLSearchParams(location.search).get("search") || "";
+
   return (
     <div className="container" key={"container"}>
       <div className="content" key={"content"}>
@@ -131,12 +134,9 @@ const Templates = (props) => {
               placeholder="Search templates..."
               value={query}
               onChange={(e) => {
-                setQuery(e.target.value);
-                window.history.pushState(
-                  "",
-                  "",
-                  `${window.location.origin}${window.location.pathname}${
-                    e.target.value ? `?query=${e.target.value}` : ""
+                history.push(
+                  `/templates/${
+                    e.target.value ? `?search=${e.target.value}` : ""
                   }`
                 );
               }}
