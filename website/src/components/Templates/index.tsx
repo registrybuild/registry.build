@@ -1,6 +1,14 @@
 import React, { useState } from "react";
 import Link from "@docusaurus/Link";
-import { BookCopy, Folders, Github } from "lucide-react";
+import {
+  BookCopy,
+  Flag,
+  Folders,
+  Github,
+  HelpCircle,
+  Home,
+  PlusCircle,
+} from "lucide-react";
 
 let host = {
   local: "http://localhost:8080",
@@ -63,10 +71,14 @@ let templates = [
 const Template = (props) => (
   <Link
     className={"template"}
-    to={`${host.dev}/repo/?${new URLSearchParams({
+    to={`${host.local}/repo/?${new URLSearchParams({
       template: props.data.url,
       dir: props.data.dir,
       secret: props.data.secret,
+      templatename: props.data.name,
+      image: props.data.image.startsWith("http")
+        ? props.data.image
+        : window.origin + props.data.image,
     })}`}
   >
     <div className="template-metadata">
@@ -102,12 +114,45 @@ const Template = (props) => (
 
 const Templates = (props) => {
   let [count, setCount] = useState(24);
+  let [query, setQuery] = useState(
+    new URLSearchParams(window.location.search).get("query")
+  );
   return (
-    <>
+    <div className="container" key={"container"}>
+      <div className="content" key={"content"}>
+        <div className="header" key={"header"}>
+          <Link to="/" className="logo">
+            <div className="logo-the">THE</div>
+            <div className="logo-build">BUILD</div>
+            <div className="logo-registry">REGISTRY</div>
+          </Link>
+          <div className="search">
+            <input
+              placeholder="Search templates..."
+              value={query}
+              onChange={(e) => {
+                setQuery(e.target.value);
+                window.history.pushState(
+                  "",
+                  "",
+                  `${window.location.origin}${window.location.pathname}${
+                    e.target.value ? `?query=${e.target.value}` : ""
+                  }`
+                );
+              }}
+            />
+          </div>
+        </div>
+      </div>
       <div className={`templates`}>
-        {templates.map((t) => (
-          <Template data={t} />
-        ))}
+        {templates
+          .filter(
+            (t) =>
+              !query || t.name?.toLowerCase().includes(query?.toLowerCase())
+          )
+          .map((t) => (
+            <Template data={t} />
+          ))}
       </div>
       {count < templates.length && (
         <button
@@ -117,7 +162,33 @@ const Templates = (props) => {
           Load more
         </button>
       )}
-    </>
+      <div className="floating">
+        <Link to="/">
+          <Home />
+        </Link>{" "}
+        <Link to="/new">
+          <PlusCircle />
+        </Link>
+        <Link to="/flag/bazel">
+          <Flag />
+        </Link>
+        <Link to="/templates">
+          <BookCopy />
+        </Link>
+        <a
+          href="https://github.com/registrybuild/registry.build/issues/new"
+          target="_blank"
+        >
+          <HelpCircle />
+        </a>
+        <a
+          href="https://github.com/registrybuild/registry.build"
+          target="_blank"
+        >
+          <Github />
+        </a>
+      </div>
+    </div>
   );
 };
 

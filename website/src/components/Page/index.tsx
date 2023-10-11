@@ -1,7 +1,7 @@
 import Link from "@docusaurus/Link";
 import { useLocation, useHistory } from "@docusaurus/router";
 import { popularity } from "@site/src/utils/sort";
-import { Flag, Github, HelpCircle, PlusCircle } from "lucide-react";
+import { BookCopy, Flag, Github, HelpCircle, PlusCircle } from "lucide-react";
 import React, { useState } from "react";
 import Module from "../Module";
 import Modules from "../Modules";
@@ -92,6 +92,9 @@ const Page = (props) => {
         </Link>
         <Link to="/flag/bazel">
           <Flag />
+        </Link>
+        <Link to="/templates">
+          <BookCopy />
         </Link>
         <a
           href="https://github.com/registrybuild/registry.build/issues/new"
