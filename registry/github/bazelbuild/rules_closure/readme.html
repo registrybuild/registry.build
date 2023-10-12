@@ -88,7 +88,7 @@ notes.</p>
 <h2 id="user-content-setup" dir="auto"><a class="heading-link" href="#setup">Setup<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h2>
 <p dir="auto">First you must <a href="https://docs.bazel.build/versions/master/install.html" rel="nofollow">install Bazel</a>. Then you add the following to your <code>WORKSPACE</code>
 file:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@bazel_tools//tools/build_defs/repo:http.bzl&quot;, &quot;http_archive&quot;)
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(&quot;@bazel_tools//tools/build_defs/repo:http.bzl&quot;, &quot;http_archive&quot;)
 
 http_archive(
     name = &quot;io_bazel_rules_closure&quot;,
@@ -108,27 +108,28 @@ rules_closure_toolchains()
 load(&quot;@io_bazel_rules_closure//closure:defs.bzl&quot;, &quot;setup_web_test_repositories&quot;)
 setup_web_test_repositories(
     chromium = True,
-)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@bazel_tools//tools/build_defs/repo:http.bzl"</span>, <span class="pl-s">"http_archive"</span>)
+)"><pre lang="starlark" class="notranslate"><code>load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
-<span class="pl-en">http_archive</span>(
-    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"io_bazel_rules_closure"</span>,
-    <span class="pl-s1">sha256</span> <span class="pl-c1">=</span> <span class="pl-s">"9498e57368efb82b985db1ed426a767cbf1ba0398fd7aed632fc3908654e1b1e"</span>,
-    <span class="pl-s1">strip_prefix</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_closure-0.12.0"</span>,
-    <span class="pl-s1">urls</span> <span class="pl-c1">=</span> [
-        <span class="pl-s">"https://mirror.bazel.build/github.com/bazelbuild/rules_closure/archive/0.12.0.tar.gz"</span>,
-        <span class="pl-s">"https://github.com/bazelbuild/rules_closure/archive/0.12.0.tar.gz"</span>,
+http_archive(
+    name = "io_bazel_rules_closure",
+    sha256 = "9498e57368efb82b985db1ed426a767cbf1ba0398fd7aed632fc3908654e1b1e",
+    strip_prefix = "rules_closure-0.12.0",
+    urls = [
+        "https://mirror.bazel.build/github.com/bazelbuild/rules_closure/archive/0.12.0.tar.gz",
+        "https://github.com/bazelbuild/rules_closure/archive/0.12.0.tar.gz",
     ],
 )
 
-<span class="pl-en">load</span>(<span class="pl-s">"@io_bazel_rules_closure//closure:repositories.bzl"</span>, <span class="pl-s">"rules_closure_dependencies"</span>, <span class="pl-s">"rules_closure_toolchains"</span>)
-<span class="pl-en">rules_closure_dependencies</span>()
-<span class="pl-en">rules_closure_toolchains</span>()
+load("@io_bazel_rules_closure//closure:repositories.bzl", "rules_closure_dependencies", "rules_closure_toolchains")
+rules_closure_dependencies()
+rules_closure_toolchains()
 
-<span class="pl-c"># Only needed if you want to run your tests on headless Chrome</span>
-<span class="pl-en">load</span>(<span class="pl-s">"@io_bazel_rules_closure//closure:defs.bzl"</span>, <span class="pl-s">"setup_web_test_repositories"</span>)
-<span class="pl-en">setup_web_test_repositories</span>(
-    <span class="pl-s1">chromium</span> <span class="pl-c1">=</span> <span class="pl-c1">True</span>,
-)</pre></div>
+# Only needed if you want to run your tests on headless Chrome
+load("@io_bazel_rules_closure//closure:defs.bzl", "setup_web_test_repositories")
+setup_web_test_repositories(
+    chromium = True,
+)
+</code></pre></div>
 <p dir="auto">You are not required to install the Closure Tools, PhantomJS, or anything else
 for that matter; they will be fetched automatically by Bazel.</p>
 <h3 id="user-content-overriding-dependency-versions" dir="auto"><a class="heading-link" href="#overriding-dependency-versions">Overriding Dependency Versions<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h3>
@@ -139,7 +140,7 @@ JSR305, etc. You might need to customize this behavior.</p>
 <code>omit_&lt;dependency_name&gt;=True</code> to <code>rules_closure_dependencies()</code>. Next define your
 custom dependency version. A full list of dependencies is available from
 <a href="https://github.com/bazelbuild/rules_closure/tree/master/closure/repositories.bzl">repositories.bzl</a>. For example, to override the version of Guava:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@io_bazel_rules_closure//closure:repositories.bzl&quot;, &quot;rules_closure_dependencies&quot;, &quot;rules_closure_toolchains&quot;)
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(&quot;@io_bazel_rules_closure//closure:repositories.bzl&quot;, &quot;rules_closure_dependencies&quot;, &quot;rules_closure_toolchains&quot;)
 rules_closure_dependencies(
     omit_com_google_guava=True,
 )
@@ -158,26 +159,27 @@ java_import_external(
         &quot;@com_google_code_findbugs_jsr305&quot;,
         &quot;@com_google_errorprone_error_prone_annotations&quot;,
     ],
-)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@io_bazel_rules_closure//closure:repositories.bzl"</span>, <span class="pl-s">"rules_closure_dependencies"</span>, <span class="pl-s">"rules_closure_toolchains"</span>)
-<span class="pl-en">rules_closure_dependencies</span>(
-    <span class="pl-s1">omit_com_google_guava</span><span class="pl-c1">=</span><span class="pl-c1">True</span>,
+)"><pre lang="starlark" class="notranslate"><code>load("@io_bazel_rules_closure//closure:repositories.bzl", "rules_closure_dependencies", "rules_closure_toolchains")
+rules_closure_dependencies(
+    omit_com_google_guava=True,
 )
-<span class="pl-en">rules_closure_toolchains</span>()
+rules_closure_toolchains()
 
-<span class="pl-en">load</span>(<span class="pl-s">"@bazel_tools//tools/build_defs/repo:java.bzl"</span>, <span class="pl-s">"java_import_external"</span>)
-<span class="pl-en">java_import_external</span>(
-    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"com_google_guava"</span>,
-    <span class="pl-s1">licenses</span> <span class="pl-c1">=</span> [<span class="pl-s">"notice"</span>],  <span class="pl-c"># Apache 2.0</span>
-    <span class="pl-s1">jar_urls</span> <span class="pl-c1">=</span> [
-        <span class="pl-s">"https://mirror.bazel.build/repo1.maven.org/maven2/com/google/guava/guava/24.1-jre/guava-24.1-jre.jar"</span>,
-        <span class="pl-s">"https://repo1.maven.org/maven2/com/google/guava/guava/24.1-jre/guava-24.1-jre.jar"</span>,
+load("@bazel_tools//tools/build_defs/repo:java.bzl", "java_import_external")
+java_import_external(
+    name = "com_google_guava",
+    licenses = ["notice"],  # Apache 2.0
+    jar_urls = [
+        "https://mirror.bazel.build/repo1.maven.org/maven2/com/google/guava/guava/24.1-jre/guava-24.1-jre.jar",
+        "https://repo1.maven.org/maven2/com/google/guava/guava/24.1-jre/guava-24.1-jre.jar",
     ],
-    <span class="pl-s1">jar_sha256</span> <span class="pl-c1">=</span> <span class="pl-s">"31bfe27bdf9cba00cb4f3691136d3bc7847dfc87bfe772ca7a9eb68ff31d79f5"</span>,
-    <span class="pl-s1">exports</span> <span class="pl-c1">=</span> [
-        <span class="pl-s">"@com_google_code_findbugs_jsr305"</span>,
-        <span class="pl-s">"@com_google_errorprone_error_prone_annotations"</span>,
+    jar_sha256 = "31bfe27bdf9cba00cb4f3691136d3bc7847dfc87bfe772ca7a9eb68ff31d79f5",
+    exports = [
+        "@com_google_code_findbugs_jsr305",
+        "@com_google_errorprone_error_prone_annotations",
     ],
-)</pre></div>
+)
+</code></pre></div>
 <h2 id="user-content-examples" dir="auto"><a class="heading-link" href="#examples">Examples<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h2>
 <p dir="auto">Please see the test directories within this project for concrete examples of usage:</p>
 <ul dir="auto">
@@ -189,11 +191,12 @@ java_import_external(
 </ul>
 <h1 id="user-content-reference" dir="auto"><a class="heading-link" href="#reference">Reference<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h1>
 <h2 id="user-content-closure_js_library" dir="auto"><a class="heading-link" href="#closure_js_library">closure_js_library<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h2>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@io_bazel_rules_closure//closure:defs.bzl&quot;, &quot;closure_js_library&quot;)
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(&quot;@io_bazel_rules_closure//closure:defs.bzl&quot;, &quot;closure_js_library&quot;)
 closure_js_library(name, srcs, data, deps, exports, suppress, convention,
-                   no_closure_library)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@io_bazel_rules_closure//closure:defs.bzl"</span>, <span class="pl-s">"closure_js_library"</span>)
-<span class="pl-en">closure_js_library</span>(<span class="pl-s1">name</span>, <span class="pl-s1">srcs</span>, <span class="pl-s1">data</span>, <span class="pl-s1">deps</span>, <span class="pl-s1">exports</span>, <span class="pl-s1">suppress</span>, <span class="pl-s1">convention</span>,
-                   <span class="pl-s1">no_closure_library</span>)</pre></div>
+                   no_closure_library)"><pre lang="starlark" class="notranslate"><code>load("@io_bazel_rules_closure//closure:defs.bzl", "closure_js_library")
+closure_js_library(name, srcs, data, deps, exports, suppress, convention,
+                   no_closure_library)
+</code></pre></div>
 <p dir="auto">Defines a set of JavaScript sources.</p>
 <p dir="auto">The purpose of this rule is to define an abstract graph of JavaScript sources.
 It must be used in conjunction with <a href="#closure_js_binary">closure_js_binary</a> to output a minified
@@ -286,13 +289,14 @@ to remove it.</p>
 </li>
 </ul>
 <h2 id="user-content-closure_js_binary" dir="auto"><a class="heading-link" href="#closure_js_binary">closure_js_binary<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h2>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@io_bazel_rules_closure//closure:defs.bzl&quot;, &quot;closure_js_binary&quot;)
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(&quot;@io_bazel_rules_closure//closure:defs.bzl&quot;, &quot;closure_js_binary&quot;)
 closure_js_binary(name, deps, css, debug, language, entry_points,
                   dependency_mode, compilation_level, formatting,
-                  output_wrapper, property_renaming_report, defs)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@io_bazel_rules_closure//closure:defs.bzl"</span>, <span class="pl-s">"closure_js_binary"</span>)
-<span class="pl-en">closure_js_binary</span>(<span class="pl-s1">name</span>, <span class="pl-s1">deps</span>, <span class="pl-s1">css</span>, <span class="pl-s1">debug</span>, <span class="pl-s1">language</span>, <span class="pl-s1">entry_points</span>,
-                  <span class="pl-s1">dependency_mode</span>, <span class="pl-s1">compilation_level</span>, <span class="pl-s1">formatting</span>,
-                  <span class="pl-s1">output_wrapper</span>, <span class="pl-s1">property_renaming_report</span>, <span class="pl-s1">defs</span>)</pre></div>
+                  output_wrapper, property_renaming_report, defs)"><pre lang="starlark" class="notranslate"><code>load("@io_bazel_rules_closure//closure:defs.bzl", "closure_js_binary")
+closure_js_binary(name, deps, css, debug, language, entry_points,
+                  dependency_mode, compilation_level, formatting,
+                  output_wrapper, property_renaming_report, defs)
+</code></pre></div>
 <p dir="auto">Turns JavaScript libraries into a minified optimized blob of code.</p>
 <p dir="auto">This rule must be used in conjunction with <a href="#closure_js_library">closure_js_library</a>.</p>
 <h4 id="user-content-implicit-output-targets" dir="auto"><a class="heading-link" href="#implicit-output-targets">Implicit Output Targets<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h4>
@@ -427,25 +431,27 @@ flags are available, run:
 <p dir="auto">When compiling AngularJS applications, you need to pass custom flags to the
 Closure Compiler. This can be accomplished by adding the following to your
 <a href="#closure_js_binary">closure_js_binary</a> rule:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="closure_js_binary(
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="closure_js_binary(
     # ...
     defs = [
         &quot;--angular_pass&quot;,
         &quot;--export_local_property_definitions&quot;,
     ],
-)"><pre><span class="pl-en">closure_js_binary</span>(
-    <span class="pl-c"># ...</span>
-    <span class="pl-s1">defs</span> <span class="pl-c1">=</span> [
-        <span class="pl-s">"--angular_pass"</span>,
-        <span class="pl-s">"--export_local_property_definitions"</span>,
+)"><pre lang="starlark" class="notranslate"><code>closure_js_binary(
+    # ...
+    defs = [
+        "--angular_pass",
+        "--export_local_property_definitions",
     ],
-)</pre></div>
+)
+</code></pre></div>
 <h2 id="user-content-closure_js_test" dir="auto"><a class="heading-link" href="#closure_js_test">closure_js_test<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h2>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@io_bazel_rules_closure//closure:defs.bzl&quot;, &quot;closure_js_test&quot;)
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(&quot;@io_bazel_rules_closure//closure:defs.bzl&quot;, &quot;closure_js_test&quot;)
 closure_js_test(name, srcs, data, deps, css, html, language, suppress,
-                compilation_level, entry_points, defs)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@io_bazel_rules_closure//closure:defs.bzl"</span>, <span class="pl-s">"closure_js_test"</span>)
-<span class="pl-en">closure_js_test</span>(<span class="pl-s1">name</span>, <span class="pl-s1">srcs</span>, <span class="pl-s1">data</span>, <span class="pl-s1">deps</span>, <span class="pl-s1">css</span>, <span class="pl-s1">html</span>, <span class="pl-s1">language</span>, <span class="pl-s1">suppress</span>,
-                <span class="pl-s1">compilation_level</span>, <span class="pl-s1">entry_points</span>, <span class="pl-s1">defs</span>)</pre></div>
+                compilation_level, entry_points, defs)"><pre lang="starlark" class="notranslate"><code>load("@io_bazel_rules_closure//closure:defs.bzl", "closure_js_test")
+closure_js_test(name, srcs, data, deps, css, html, language, suppress,
+                compilation_level, entry_points, defs)
+</code></pre></div>
 <p dir="auto">Runs JavaScript unit tests inside a headless web browser.</p>
 <p dir="auto">This is a build macro that composes <a href="#closure_js_library">closure_js_library</a>, <a href="#closure_js_binary">closure_js_binary</a>,
 and <a href="#phantomjs_test">phantomjs_test</a>.</p>
@@ -514,9 +520,10 @@ expense of type checking.)</p>
 </li>
 </ul>
 <h2 id="user-content-phantomjs_test" dir="auto"><a class="heading-link" href="#phantomjs_test">phantomjs_test<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h2>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@io_bazel_rules_closure//closure:defs.bzl&quot;, &quot;phantomjs_test&quot;)
-phantomjs_test(name, data, deps, html, harness, runner)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@io_bazel_rules_closure//closure:defs.bzl"</span>, <span class="pl-s">"phantomjs_test"</span>)
-<span class="pl-en">phantomjs_test</span>(<span class="pl-s1">name</span>, <span class="pl-s1">data</span>, <span class="pl-s1">deps</span>, <span class="pl-s1">html</span>, <span class="pl-s1">harness</span>, <span class="pl-s1">runner</span>)</pre></div>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(&quot;@io_bazel_rules_closure//closure:defs.bzl&quot;, &quot;phantomjs_test&quot;)
+phantomjs_test(name, data, deps, html, harness, runner)"><pre lang="starlark" class="notranslate"><code>load("@io_bazel_rules_closure//closure:defs.bzl", "phantomjs_test")
+phantomjs_test(name, data, deps, html, harness, runner)
+</code></pre></div>
 <p dir="auto">Runs PhantomJS (QtWebKit) for unit testing purposes.</p>
 <p dir="auto">This is a low level rule. Please use the <a href="#closure_js_test">closure_js_test</a> macro if possible.</p>
 <h4 id="user-content-rule-polymorphism-3" dir="auto"><a class="heading-link" href="#rule-polymorphism-3">Rule Polymorphism<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h4>
@@ -562,19 +569,20 @@ to report the result to the <code>harness</code>.</p>
 </li>
 </ul>
 <h2 id="user-content-closure_js_template_library" dir="auto"><a class="heading-link" href="#closure_js_template_library">closure_js_template_library<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h2>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@io_bazel_rules_closure//closure:defs.bzl&quot;, &quot;closure_js_template_library&quot;)
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(&quot;@io_bazel_rules_closure//closure:defs.bzl&quot;, &quot;closure_js_template_library&quot;)
 closure_js_template_library(name, srcs, data, deps, globals, plugin_modules,
                             should_generate_js_doc,
                             should_generate_soy_msg_defs,
                             bidi_global_dir,
                             soy_msgs_are_external,
-                            defs)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@io_bazel_rules_closure//closure:defs.bzl"</span>, <span class="pl-s">"closure_js_template_library"</span>)
-<span class="pl-en">closure_js_template_library</span>(<span class="pl-s1">name</span>, <span class="pl-s1">srcs</span>, <span class="pl-s1">data</span>, <span class="pl-s1">deps</span>, <span class="pl-s1">globals</span>, <span class="pl-s1">plugin_modules</span>,
-                            <span class="pl-s1">should_generate_js_doc</span>,
-                            <span class="pl-s1">should_generate_soy_msg_defs</span>,
-                            <span class="pl-s1">bidi_global_dir</span>,
-                            <span class="pl-s1">soy_msgs_are_external</span>,
-                            <span class="pl-s1">defs</span>)</pre></div>
+                            defs)"><pre lang="starlark" class="notranslate"><code>load("@io_bazel_rules_closure//closure:defs.bzl", "closure_js_template_library")
+closure_js_template_library(name, srcs, data, deps, globals, plugin_modules,
+                            should_generate_js_doc,
+                            should_generate_soy_msg_defs,
+                            bidi_global_dir,
+                            soy_msgs_are_external,
+                            defs)
+</code></pre></div>
 <p dir="auto">Compiles Closure templates to JavaScript source files.</p>
 <p dir="auto">This rule is necessary in order to render Closure templates from within
 JavaScript code.</p>
@@ -662,9 +670,10 @@ SoyToJsSrcCompiler above.</p>
 </li>
 </ul>
 <h2 id="user-content-closure_java_template_library" dir="auto"><a class="heading-link" href="#closure_java_template_library">closure_java_template_library<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h2>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@io_bazel_rules_closure//closure:defs.bzl&quot;, &quot;closure_java_template_library&quot;)
-closure_java_template_library(name, srcs, data, deps, java_package)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@io_bazel_rules_closure//closure:defs.bzl"</span>, <span class="pl-s">"closure_java_template_library"</span>)
-<span class="pl-en">closure_java_template_library</span>(<span class="pl-s1">name</span>, <span class="pl-s1">srcs</span>, <span class="pl-s1">data</span>, <span class="pl-s1">deps</span>, <span class="pl-s1">java_package</span>)</pre></div>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(&quot;@io_bazel_rules_closure//closure:defs.bzl&quot;, &quot;closure_java_template_library&quot;)
+closure_java_template_library(name, srcs, data, deps, java_package)"><pre lang="starlark" class="notranslate"><code>load("@io_bazel_rules_closure//closure:defs.bzl", "closure_java_template_library")
+closure_java_template_library(name, srcs, data, deps, java_package)
+</code></pre></div>
 <p dir="auto">Compiles Closure templates to Java source files.</p>
 <p dir="auto">This rule is necessary in order to serve Closure templates from a Java backend.</p>
 <p dir="auto">Unlike <a href="#closure_js_template_library">closure_js_template_library</a>, globals are not specified by this rule.
@@ -722,9 +731,10 @@ that are generated, e.g. <code>"com.foo.soy"</code>.</p>
 <h2 id="user-content-closure_py_template_library" dir="auto"><a class="heading-link" href="#closure_py_template_library">closure_py_template_library<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h2>
 <p dir="auto">TODO</p>
 <h2 id="user-content-closure_css_library" dir="auto"><a class="heading-link" href="#closure_css_library">closure_css_library<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h2>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@io_bazel_rules_closure//closure:defs.bzl&quot;, &quot;closure_css_library&quot;)
-closure_css_library(name, srcs, data, deps)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@io_bazel_rules_closure//closure:defs.bzl"</span>, <span class="pl-s">"closure_css_library"</span>)
-<span class="pl-en">closure_css_library</span>(<span class="pl-s1">name</span>, <span class="pl-s1">srcs</span>, <span class="pl-s1">data</span>, <span class="pl-s1">deps</span>)</pre></div>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(&quot;@io_bazel_rules_closure//closure:defs.bzl&quot;, &quot;closure_css_library&quot;)
+closure_css_library(name, srcs, data, deps)"><pre lang="starlark" class="notranslate"><code>load("@io_bazel_rules_closure//closure:defs.bzl", "closure_css_library")
+closure_css_library(name, srcs, data, deps)
+</code></pre></div>
 <p dir="auto">Defines a set of CSS stylesheets.</p>
 <p dir="auto">This rule does not compile your stylesheets; it is used in conjunction with
 <a href="#closure_css_binary">closure_css_binary</a> which produces the minified CSS file.</p>
@@ -785,9 +795,10 @@ intermediary <a href="#closure_css_binary">closure_css_binary</a> that flips its
 </li>
 </ul>
 <h2 id="user-content-closure_css_binary" dir="auto"><a class="heading-link" href="#closure_css_binary">closure_css_binary<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h2>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@io_bazel_rules_closure//closure:defs.bzl&quot;, &quot;closure_css_binary&quot;)
-closure_css_binary(name, deps, renaming, debug, defs)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@io_bazel_rules_closure//closure:defs.bzl"</span>, <span class="pl-s">"closure_css_binary"</span>)
-<span class="pl-en">closure_css_binary</span>(<span class="pl-s1">name</span>, <span class="pl-s1">deps</span>, <span class="pl-s1">renaming</span>, <span class="pl-s1">debug</span>, <span class="pl-s1">defs</span>)</pre></div>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(&quot;@io_bazel_rules_closure//closure:defs.bzl&quot;, &quot;closure_css_binary&quot;)
+closure_css_binary(name, deps, renaming, debug, defs)"><pre lang="starlark" class="notranslate"><code>load("@io_bazel_rules_closure//closure:defs.bzl", "closure_css_binary")
+closure_css_binary(name, deps, renaming, debug, defs)
+</code></pre></div>
 <p dir="auto">Turns stylesheets defined by <a href="#closure_css_library">closure_css_library</a> rules into a single minified
 CSS file.</p>
 <p dir="auto">Closure-specific syntax such as variables, functions, conditionals, and mixins
@@ -899,11 +910,12 @@ to the Closure Stylesheets compiler. To see what flags are available, run:
 </li>
 </ul>
 <h2 id="user-content-closure_js_proto_library" dir="auto"><a class="heading-link" href="#closure_js_proto_library">closure_js_proto_library<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h2>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@io_bazel_rules_closure//closure:defs.bzl&quot;, &quot;closure_js_proto_library&quot;)
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(&quot;@io_bazel_rules_closure//closure:defs.bzl&quot;, &quot;closure_js_proto_library&quot;)
 closure_js_proto_library(name, srcs, add_require_for_enums, binary,
-                         import_style)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@io_bazel_rules_closure//closure:defs.bzl"</span>, <span class="pl-s">"closure_js_proto_library"</span>)
-<span class="pl-en">closure_js_proto_library</span>(<span class="pl-s1">name</span>, <span class="pl-s1">srcs</span>, <span class="pl-s1">add_require_for_enums</span>, <span class="pl-s1">binary</span>,
-                         <span class="pl-s1">import_style</span>)</pre></div>
+                         import_style)"><pre lang="starlark" class="notranslate"><code>load("@io_bazel_rules_closure//closure:defs.bzl", "closure_js_proto_library")
+closure_js_proto_library(name, srcs, add_require_for_enums, binary,
+                         import_style)
+</code></pre></div>
 <p dir="auto">Defines a set of Protocol Buffer files.</p>
 <h4 id="user-content-documentation" dir="auto"><a class="heading-link" href="#documentation">Documentation<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h4>
 <ul dir="auto">
@@ -964,9 +976,10 @@ the type of imports that should be used. Valid values are:</p>
 </li>
 </ul>
 <h2 id="user-content-closure_proto_library" dir="auto"><a class="heading-link" href="#closure_proto_library">closure_proto_library<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h2>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@io_bazel_rules_closure//closure:defs.bzl&quot;, &quot;closure_proto_library&quot;)
-closure_proto_library(name, deps)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@io_bazel_rules_closure//closure:defs.bzl"</span>, <span class="pl-s">"closure_proto_library"</span>)
-<span class="pl-en">closure_proto_library</span>(<span class="pl-s1">name</span>, <span class="pl-s1">deps</span>)</pre></div>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(&quot;@io_bazel_rules_closure//closure:defs.bzl&quot;, &quot;closure_proto_library&quot;)
+closure_proto_library(name, deps)"><pre lang="starlark" class="notranslate"><code>load("@io_bazel_rules_closure//closure:defs.bzl", "closure_proto_library")
+closure_proto_library(name, deps)
+</code></pre></div>
 <p dir="auto"><code>closure_proto_library</code> generates JS code from <code>.proto</code> files.</p>
 <p dir="auto"><code>deps</code> must point to <a href="https://docs.bazel.build/versions/master/be/protocol-buffer.html#proto_library" rel="nofollow">proto_library</a> rules.</p>
 <h4 id="user-content-rule-polymorphism-9" dir="auto"><a class="heading-link" href="#rule-polymorphism-9">Rule Polymorphism<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h4>
