@@ -91,28 +91,26 @@ on the <a href="https://github.com/BLAKE3-team/BLAKE3/releases">releases page</a
 If you've <a href="https://doc.rust-lang.org/cargo/getting-started/installation.html" rel="nofollow">installed Rust and
 Cargo</a>,
 you can also build <code>b3sum</code> yourself with:</p>
-<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="cargo install b3sum"><pre lang="bash" class="notranslate"><code>cargo install b3sum
-</code></pre></div>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="cargo install b3sum"><pre>cargo install b3sum</pre></div>
 <p dir="auto">If <code>rustup</code> didn't configure your <code>PATH</code> for you, you might need to go
 looking for the installed binary in e.g. <code>~/.cargo/bin</code>. You can test
 out how fast BLAKE3 is on your machine by creating a big file and
 hashing it, for example:</p>
-<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="# Create a 1 GB file.
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="# Create a 1 GB file.
 head -c 1000000000 /dev/zero &gt; /tmp/bigfile
 # Hash it with SHA-256.
 time openssl sha256 /tmp/bigfile
 # Hash it with BLAKE3.
-time b3sum /tmp/bigfile"><pre lang="bash" class="notranslate"><code># Create a 1 GB file.
-head -c 1000000000 /dev/zero &gt; /tmp/bigfile
-# Hash it with SHA-256.
-time openssl sha256 /tmp/bigfile
-# Hash it with BLAKE3.
-time b3sum /tmp/bigfile
-</code></pre></div>
+time b3sum /tmp/bigfile"><pre><span class="pl-c"><span class="pl-c">#</span> Create a 1 GB file.</span>
+head -c 1000000000 /dev/zero <span class="pl-k">&gt;</span> /tmp/bigfile
+<span class="pl-c"><span class="pl-c">#</span> Hash it with SHA-256.</span>
+<span class="pl-k">time</span> openssl sha256 /tmp/bigfile
+<span class="pl-c"><span class="pl-c">#</span> Hash it with BLAKE3.</span>
+<span class="pl-k">time</span> b3sum /tmp/bigfile</pre></div>
 <h3 id="user-content-the-blake3-crate-" dir="auto"><a class="heading-link" href="#the-blake3-crate-">The <code>blake3</code> crate </a><a href="https://docs.rs/blake3" rel="nofollow"><img src="https://camo.githubusercontent.com/163452f89b78ce60037b350fa8449400014f02b9b97ab93e4d0973c5db221a1e/68747470733a2f2f646f63732e72732f626c616b65332f62616467652e737667" alt="docs.rs" data-canonical-src="https://docs.rs/blake3/badge.svg" style="max-width: 100%;"></a><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></h3>
 <p dir="auto">To use BLAKE3 from Rust code, add a dependency on the <code>blake3</code> crate to
 your <code>Cargo.toml</code>. Here's an example of hashing some input bytes:</p>
-<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="// Hash an input all at once.
+<div class="highlight highlight-source-rust notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="// Hash an input all at once.
 let hash1 = blake3::hash(b&quot;foobarbaz&quot;);
 
 // Hash an input incrementally.
@@ -130,29 +128,28 @@ output_reader.fill(&amp;mut output);
 assert_eq!(hash1, output[..32]);
 
 // Print a hash as hex.
-println!(&quot;{}&quot;, hash1);"><pre lang="rust" class="notranslate"><code>// Hash an input all at once.
-let hash1 = blake3::hash(b"foobarbaz");
+println!(&quot;{}&quot;, hash1);"><pre><span class="pl-c">// Hash an input all at once.</span>
+<span class="pl-k">let</span> hash1 = blake3<span class="pl-kos">::</span><span class="pl-en">hash</span><span class="pl-kos">(</span><span class="pl-s">b"foobarbaz"</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
 
-// Hash an input incrementally.
-let mut hasher = blake3::Hasher::new();
-hasher.update(b"foo");
-hasher.update(b"bar");
-hasher.update(b"baz");
-let hash2 = hasher.finalize();
-assert_eq!(hash1, hash2);
+<span class="pl-c">// Hash an input incrementally.</span>
+<span class="pl-k">let</span> <span class="pl-k">mut</span> hasher = blake3<span class="pl-kos">::</span><span class="pl-smi">Hasher</span><span class="pl-kos">::</span><span class="pl-en">new</span><span class="pl-kos">(</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+hasher<span class="pl-kos">.</span><span class="pl-en">update</span><span class="pl-kos">(</span><span class="pl-s">b"foo"</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+hasher<span class="pl-kos">.</span><span class="pl-en">update</span><span class="pl-kos">(</span><span class="pl-s">b"bar"</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+hasher<span class="pl-kos">.</span><span class="pl-en">update</span><span class="pl-kos">(</span><span class="pl-s">b"baz"</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+<span class="pl-k">let</span> hash2 = hasher<span class="pl-kos">.</span><span class="pl-en">finalize</span><span class="pl-kos">(</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+<span class="pl-en">assert_eq</span><span class="pl-en">!</span><span class="pl-kos">(</span>hash1, hash2<span class="pl-kos">)</span><span class="pl-kos">;</span>
 
-// Extended output. OutputReader also implements Read and Seek.
-let mut output = [0; 1000];
-let mut output_reader = hasher.finalize_xof();
-output_reader.fill(&amp;mut output);
-assert_eq!(hash1, output[..32]);
+<span class="pl-c">// Extended output. OutputReader also implements Read and Seek.</span>
+<span class="pl-k">let</span> <span class="pl-k">mut</span> output = <span class="pl-kos">[</span><span class="pl-c1">0</span><span class="pl-kos">;</span> <span class="pl-c1">1000</span><span class="pl-kos">]</span><span class="pl-kos">;</span>
+<span class="pl-k">let</span> <span class="pl-k">mut</span> output_reader = hasher<span class="pl-kos">.</span><span class="pl-en">finalize_xof</span><span class="pl-kos">(</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+output_reader<span class="pl-kos">.</span><span class="pl-en">fill</span><span class="pl-kos">(</span><span class="pl-c1">&amp;</span><span class="pl-k">mut</span> output<span class="pl-kos">)</span><span class="pl-kos">;</span>
+<span class="pl-en">assert_eq</span><span class="pl-en">!</span><span class="pl-kos">(</span>hash1, output<span class="pl-kos">[</span>..<span class="pl-c1">32</span><span class="pl-kos">]</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
 
-// Print a hash as hex.
-println!("{}", hash1);
-</code></pre></div>
+<span class="pl-c">// Print a hash as hex.</span>
+<span class="pl-en">println</span><span class="pl-en">!</span><span class="pl-kos">(</span><span class="pl-s">"{}"</span>, hash1<span class="pl-kos">)</span><span class="pl-kos">;</span></pre></div>
 <p dir="auto">Besides <code>hash</code>, BLAKE3 provides two other modes, <code>keyed_hash</code> and
 <code>derive_key</code>. The <code>keyed_hash</code> mode takes a 256-bit key:</p>
-<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="// MAC an input all at once.
+<div class="highlight highlight-source-rust notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="// MAC an input all at once.
 let example_key = [42u8; 32];
 let mac1 = blake3::keyed_hash(&amp;example_key, b&quot;example input&quot;);
 
@@ -160,34 +157,32 @@ let mac1 = blake3::keyed_hash(&amp;example_key, b&quot;example input&quot;);
 let mut hasher = blake3::Hasher::new_keyed(&amp;example_key);
 hasher.update(b&quot;example input&quot;);
 let mac2 = hasher.finalize();
-assert_eq!(mac1, mac2);"><pre lang="rust" class="notranslate"><code>// MAC an input all at once.
-let example_key = [42u8; 32];
-let mac1 = blake3::keyed_hash(&amp;example_key, b"example input");
+assert_eq!(mac1, mac2);"><pre><span class="pl-c">// MAC an input all at once.</span>
+<span class="pl-k">let</span> example_key = <span class="pl-kos">[</span><span class="pl-c1">42u8</span><span class="pl-kos">;</span> <span class="pl-c1">32</span><span class="pl-kos">]</span><span class="pl-kos">;</span>
+<span class="pl-k">let</span> mac1 = blake3<span class="pl-kos">::</span><span class="pl-en">keyed_hash</span><span class="pl-kos">(</span><span class="pl-c1">&amp;</span>example_key<span class="pl-kos">,</span> <span class="pl-s">b"example input"</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
 
-// MAC incrementally.
-let mut hasher = blake3::Hasher::new_keyed(&amp;example_key);
-hasher.update(b"example input");
-let mac2 = hasher.finalize();
-assert_eq!(mac1, mac2);
-</code></pre></div>
+<span class="pl-c">// MAC incrementally.</span>
+<span class="pl-k">let</span> <span class="pl-k">mut</span> hasher = blake3<span class="pl-kos">::</span><span class="pl-smi">Hasher</span><span class="pl-kos">::</span><span class="pl-en">new_keyed</span><span class="pl-kos">(</span><span class="pl-c1">&amp;</span>example_key<span class="pl-kos">)</span><span class="pl-kos">;</span>
+hasher<span class="pl-kos">.</span><span class="pl-en">update</span><span class="pl-kos">(</span><span class="pl-s">b"example input"</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+<span class="pl-k">let</span> mac2 = hasher<span class="pl-kos">.</span><span class="pl-en">finalize</span><span class="pl-kos">(</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+<span class="pl-en">assert_eq</span><span class="pl-en">!</span><span class="pl-kos">(</span>mac1, mac2<span class="pl-kos">)</span><span class="pl-kos">;</span></pre></div>
 <p dir="auto">The <code>derive_key</code> mode takes a context string and some key material (not a
 password). The context string should be hardcoded, globally unique, and
 application-specific. A good default format for the context string is
 <code>"[application] [commit timestamp] [purpose]"</code>:</p>
-<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="// Derive a couple of subkeys for different purposes.
+<div class="highlight highlight-source-rust notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="// Derive a couple of subkeys for different purposes.
 const EMAIL_CONTEXT: &amp;str = &quot;BLAKE3 example 2020-01-07 17:10:44 email key&quot;;
 const API_CONTEXT: &amp;str = &quot;BLAKE3 example 2020-01-07 17:11:21 API key&quot;;
 let input_key_material = b&quot;usually at least 32 random bytes, not a password&quot;;
 let email_key = blake3::derive_key(EMAIL_CONTEXT, input_key_material);
 let api_key = blake3::derive_key(API_CONTEXT, input_key_material);
-assert_ne!(email_key, api_key);"><pre lang="rust" class="notranslate"><code>// Derive a couple of subkeys for different purposes.
-const EMAIL_CONTEXT: &amp;str = "BLAKE3 example 2020-01-07 17:10:44 email key";
-const API_CONTEXT: &amp;str = "BLAKE3 example 2020-01-07 17:11:21 API key";
-let input_key_material = b"usually at least 32 random bytes, not a password";
-let email_key = blake3::derive_key(EMAIL_CONTEXT, input_key_material);
-let api_key = blake3::derive_key(API_CONTEXT, input_key_material);
-assert_ne!(email_key, api_key);
-</code></pre></div>
+assert_ne!(email_key, api_key);"><pre><span class="pl-c">// Derive a couple of subkeys for different purposes.</span>
+<span class="pl-k">const</span> <span class="pl-v">EMAIL_CONTEXT</span><span class="pl-kos">:</span> <span class="pl-c1">&amp;</span><span class="pl-smi">str</span> = <span class="pl-s">"BLAKE3 example 2020-01-07 17:10:44 email key"</span><span class="pl-kos">;</span>
+<span class="pl-k">const</span> <span class="pl-v">API_CONTEXT</span><span class="pl-kos">:</span> <span class="pl-c1">&amp;</span><span class="pl-smi">str</span> = <span class="pl-s">"BLAKE3 example 2020-01-07 17:11:21 API key"</span><span class="pl-kos">;</span>
+<span class="pl-k">let</span> input_key_material = <span class="pl-s">b"usually at least 32 random bytes, not a password"</span><span class="pl-kos">;</span>
+<span class="pl-k">let</span> email_key = blake3<span class="pl-kos">::</span><span class="pl-en">derive_key</span><span class="pl-kos">(</span><span class="pl-v">EMAIL_CONTEXT</span><span class="pl-kos">,</span> input_key_material<span class="pl-kos">)</span><span class="pl-kos">;</span>
+<span class="pl-k">let</span> api_key = blake3<span class="pl-kos">::</span><span class="pl-en">derive_key</span><span class="pl-kos">(</span><span class="pl-v">API_CONTEXT</span><span class="pl-kos">,</span> input_key_material<span class="pl-kos">)</span><span class="pl-kos">;</span>
+<span class="pl-en">assert_ne</span><span class="pl-en">!</span><span class="pl-kos">(</span>email_key, api_key<span class="pl-kos">)</span><span class="pl-kos">;</span></pre></div>
 <h3 id="user-content-the-c-implementation" dir="auto"><a class="heading-link" href="#the-c-implementation">The C implementation<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h3>
 <p dir="auto">See <a href="c/README.md"><code>c/README.md</code></a>.</p>
 <h3 id="user-content-other-implementations" dir="auto"><a class="heading-link" href="#other-implementations">Other implementations<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h3>
