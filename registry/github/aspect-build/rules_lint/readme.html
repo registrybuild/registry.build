@@ -1,0 +1,227 @@
+<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><h1 id="user-content-run-linters-and-formatters-under-bazel" dir="auto"><a class="heading-link" href="#run-linters-and-formatters-under-bazel">Run linters and formatters under Bazel<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h1>
+<blockquote>
+<p dir="auto">It is currently EXPERIMENTAL and pre-release. No support is promised.
+There may be breaking changes, or we may archive and abandon the repository.</p>
+</blockquote>
+<p dir="auto">This ruleset integrates linting and formatting as first-class concepts under Bazel.</p>
+<p dir="auto">Features:</p>
+<ul dir="auto">
+<li><strong>No changes needed to rulesets</strong>. Works with the Bazel rules you already use.</li>
+<li><strong>No changes needed to BUILD files</strong>. You don't need to add lint wrapper macros, and lint doesn't appear in <code>bazel query</code> output.
+Instead, users can lint their existing <code>*_library</code> targets.</li>
+<li>Lint results can be <strong>presented in various ways</strong>, see <a href="https://github.com/aspect-build/rules_lint/blob/main/docs/linting.md#usage">Usage</a> below.</li>
+<li><strong>Can format files not known to Bazel</strong>. Formatting just runs directly on the file tree.
+No need to create <code>sh_library</code> targets for your shell scripts, for example.</li>
+<li>Honors the same configuration files you use for these tools outside Bazel (e.g. in the editor)</li>
+</ul>
+<p dir="auto">This project is inspired by the design for <a href="https://static.googleusercontent.com/media/research.google.com/en//pubs/archive/43322.pdf" rel="nofollow">Tricorder</a>.
+This is how Googlers get their static analysis results in code review (Critique).
+<a href="https://github.com/google/shipshape">https://github.com/google/shipshape</a> is an old, abandoned attempt to open-source Tricorder.
+It is also inspired by <a href="https://github.com/github/super-linter">https://github.com/github/super-linter</a>.</p>
+<h2 id="user-content-design" dir="auto"><a class="heading-link" href="#design">Design<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h2>
+<p dir="auto">Formatting and Linting work a bit differently.</p>
+<table>
+<thead>
+<tr>
+<th>Formatter</th>
+<th>Linter</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Only one per language, since they could conflict with each other.</td>
+<td>Many per language is fine; results compose.</td>
+</tr>
+<tr>
+<td>Invariant: program's behavior is never changed.</td>
+<td>Suggested fixes may change behavior.</td>
+</tr>
+<tr>
+<td>Developer has no choices. Always blindly accept result.</td>
+<td>Fix may be manual, or select from multiple auto-fixes.</td>
+</tr>
+<tr>
+<td>Changes must be applied.</td>
+<td>Violations can be suppressed.</td>
+</tr>
+<tr>
+<td>Operates on a single file at a time.</td>
+<td>Can require the dependency graph.</td>
+</tr>
+<tr>
+<td>Can always format just changed files / regions</td>
+<td>New violations might be introduced in unchanged files.</td>
+</tr>
+<tr>
+<td>Fast enough to put in a pre-commit workflow.</td>
+<td>Some are slow.</td>
+</tr>
+</tbody>
+</table>
+<p dir="auto">This leads to some minor differences in how they are used in rules_lint.</p>
+<h2 id="user-content-available-tools" dir="auto"><a class="heading-link" href="#available-tools">Available tools<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h2>
+<table>
+<thead>
+<tr>
+<th>Language</th>
+<th>Formatter</th>
+<th>Linter(s)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Python</td>
+<td><a href="https://pypi.org/project/black/" rel="nofollow">Black</a></td>
+<td><a href="https://flake8.pycqa.org/en/latest/index.html" rel="nofollow">flake8</a></td>
+</tr>
+<tr>
+<td>Java</td>
+<td><a href="https://github.com/google/google-java-format">google-java-format</a></td>
+<td><a href="https://docs.pmd-code.org/latest/index.html" rel="nofollow">pmd</a></td>
+</tr>
+<tr>
+<td>Kotlin</td>
+<td><a href="https://github.com/facebook/ktfmt">ktfmt</a></td>
+<td></td>
+</tr>
+<tr>
+<td>JavaScript/TypeScript/TSX</td>
+<td><a href="https://prettier.io" rel="nofollow">Prettier</a></td>
+<td><a href="https://eslint.org/" rel="nofollow">ESLint</a></td>
+</tr>
+<tr>
+<td>CSS/HTML</td>
+<td><a href="https://prettier.io" rel="nofollow">Prettier</a></td>
+<td></td>
+</tr>
+<tr>
+<td>JSON</td>
+<td><a href="https://prettier.io" rel="nofollow">Prettier</a></td>
+<td></td>
+</tr>
+<tr>
+<td>Markdown</td>
+<td><a href="https://prettier.io" rel="nofollow">Prettier</a></td>
+<td></td>
+</tr>
+<tr>
+<td>Bash</td>
+<td><a href="https://github.com/un-ts/prettier">prettier-plugin-sh</a></td>
+<td></td>
+</tr>
+<tr>
+<td>SQL</td>
+<td><a href="https://github.com/un-ts/prettier">prettier-plugin-sql</a></td>
+<td></td>
+</tr>
+<tr>
+<td>Starlark (Bazel)</td>
+<td><a href="https://github.com/keith/buildifier-prebuilt">Buildifier</a></td>
+<td></td>
+</tr>
+<tr>
+<td>Swift</td>
+<td><a href="https://github.com/nicklockwood/SwiftFormat">SwiftFormat</a> (1)</td>
+<td></td>
+</tr>
+<tr>
+<td>Go</td>
+<td><a href="https://pkg.go.dev/cmd/gofmt" rel="nofollow">gofmt</a></td>
+<td></td>
+</tr>
+<tr>
+<td>Protocol Buffers</td>
+<td><a href="https://docs.buf.build/format/usage" rel="nofollow">buf</a></td>
+<td><a href="https://buf.build/docs/lint/overview" rel="nofollow">buf lint</a></td>
+</tr>
+<tr>
+<td>Terraform</td>
+<td><a href="https://github.com/hashicorp/terraform">terraform</a> fmt</td>
+<td></td>
+</tr>
+<tr>
+<td>Jsonnet</td>
+<td><a href="https://github.com/google/go-jsonnet">jsonnetfmt</a></td>
+<td></td>
+</tr>
+<tr>
+<td>Scala</td>
+<td><a href="https://scalameta.org/scalafmt" rel="nofollow">scalafmt</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<ol dir="auto">
+<li>Non-hermetic: requires that a swift toolchain is installed on the machine.
+See <a href="https://github.com/bazelbuild/rules_swift#1-install-swift">https://github.com/bazelbuild/rules_swift#1-install-swift</a></li>
+</ol>
+<p dir="auto">To add a linter, please follow the steps in <a href="./lint/README.md">lint/README.md</a> and then send us a PR.
+Thanks!!</p>
+<blockquote>
+<p dir="auto">We'll add documentation on adding formatters as well.</p>
+</blockquote>
+<h2 id="user-content-installation" dir="auto"><a class="heading-link" href="#installation">Installation<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h2>
+<p dir="auto">rules_lint currently only works with bzlmod under Bazel 6+.
+This is because we accumulate dependencies which are difficult to express
+in a WORKSPACE file.
+We might add support for WORKSPACE in the future.</p>
+<p dir="auto">Follow instructions from the release you wish to use:
+<a href="https://github.com/aspect-build/rules_lint/releases">https://github.com/aspect-build/rules_lint/releases</a></p>
+<h2 id="user-content-usage" dir="auto"><a class="heading-link" href="#usage">Usage<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h2>
+<h3 id="user-content-format" dir="auto"><a class="heading-link" href="#format">Format<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h3>
+<p dir="auto">To format files, run the target you create when you install rules_lint.</p>
+<p dir="auto">We recommend using a Git pre-commit hook to format changed files, by running <code>bazel run //tools:format [changed file ...]</code>.</p>
+<p dir="auto"><a href="https://asciinema.org/a/vGTpzD0obvhILEcSxYAVrlpqT" rel="nofollow"><img src="https://camo.githubusercontent.com/2fe68108376f4fe2d4a00c970d90a39125831d8e4445e0f451045064e47b6d52/68747470733a2f2f61736369696e656d612e6f72672f612f764754707a44306f627668494c45635378594156726c7071542e737667" alt="asciicast" data-canonical-src="https://asciinema.org/a/vGTpzD0obvhILEcSxYAVrlpqT.svg" style="max-width: 100%;"></a></p>
+<p dir="auto">See <a href="./docs/formatting.md">Formatting</a> for more ways to use the formatter, such as a pre-commit hook or a CI check.</p>
+<h3 id="user-content-lint" dir="auto"><a class="heading-link" href="#lint">Lint<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h3>
+<p dir="auto">To lint code, we recommend using the Aspect CLI to get the missing <code>lint</code> command.</p>
+<p dir="auto">For example, running <code>bazel lint //src:all</code> prints lint warnings to the terminal for all targets in the <code>//src</code> package:</p>
+<p dir="auto"><a href="https://asciinema.org/a/xQWU1Wc1JINOubeguDDQbBqcq" rel="nofollow"><img src="https://camo.githubusercontent.com/b49a064415a48301f90d866a17fb64e238e30bfe00635bf2431b812d997e1eff/68747470733a2f2f61736369696e656d612e6f72672f612f78515755315763314a494e4f756265677544445162427163712e737667" alt="asciicast" data-canonical-src="https://asciinema.org/a/xQWU1Wc1JINOubeguDDQbBqcq.svg" style="max-width: 100%;"></a></p>
+<p dir="auto">See <a href="./docs/linting.md">Linting</a> for more ways to use the linter, such as running as a test target, or presenting results as code review comments.</p>
+<h3 id="user-content-ignoring-files" dir="auto"><a class="heading-link" href="#ignoring-files">Ignoring files<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h3>
+<p dir="auto">The linters only visit files that are part of the Bazel dependency graph (listed as <code>srcs</code> to some library target).</p>
+<p dir="auto">The formatter honors the <code>.gitignore</code> file.
+Otherwise use the affordance provided by the tool, for example <code>.prettierignore</code> for files to be ignored by Prettier.</p>
+<p dir="auto">Sometimes engineers want to ignore a file with a certain extension because the content isn't actually valid syntax for the corresponding language.
+For example, you might write a template for YAML and name it <code>my-template.yaml</code> even though it needs to have some interpolated values inserted before it's syntactically valid.
+We recommend instead fixing the file extension. In this example, <code>my.yaml.tmpl</code> or <code>my-template.yaml_</code> might be better.</p>
+<h3 id="user-content-using-with-your-editor" dir="auto"><a class="heading-link" href="#using-with-your-editor">Using with your editor<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h3>
+<p dir="auto">We believe that existing editor plugins should just work as-is. They may download or bundle their own
+copy of the tools, which can lead to some version skew in lint/format rules.</p>
+<p dir="auto">For formatting, we believe it's a waste of time to configure these in the editor, because developers
+should just rely on formatting happening when they commit and not care what the code looks like before that point.
+But we're not trying to stop anyone, either!</p>
+<p dir="auto">You could probably configure the editor to always run the same Bazel command, any time a file is changed.
+Instructions to do this are out-of-scope for this repo, particularly since they have to be formulated and updated for so many editors.</p>
+<h3 id="user-content-using-a-formatter-from-a-build-rule" dir="auto"><a class="heading-link" href="#using-a-formatter-from-a-build-rule">Using a formatter from a BUILD rule<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h3>
+<p dir="auto">Generally, you should just allow code generators to make messy files.
+You can exclude them from formatting by changing the file extension,
+adding a suppression comment at the top (following the formatter's docs)
+or adding to the formatter's ignore file (e.g. <code>.prettierignore</code>).</p>
+<p dir="auto">However there are some valid cases where you really want to run a formatter as a build step.
+You can just reach into the external repository where we've installed them.</p>
+<p dir="auto">For example, to run Prettier:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@aspect_rules_format_npm//:prettier/package_json.bzl&quot;, prettier = &quot;bin&quot;)
+
+prettier.prettier_binary(name = &quot;prettier&quot;)
+
+js_run_binary(
+    name = &quot;fmt&quot;,
+    srcs = [&quot;raw_file.md&quot;],
+    args = [&quot;raw_file.md&quot;],
+    chdir = package_name(),
+    stdout = &quot;formatted_file.md&quot;,
+    tool = &quot;prettier&quot;,
+)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@aspect_rules_format_npm//:prettier/package_json.bzl"</span>, <span class="pl-s1">prettier</span> <span class="pl-c1">=</span> <span class="pl-s">"bin"</span>)
+
+<span class="pl-s1">prettier</span>.<span class="pl-en">prettier_binary</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"prettier"</span>)
+
+<span class="pl-en">js_run_binary</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"fmt"</span>,
+    <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> [<span class="pl-s">"raw_file.md"</span>],
+    <span class="pl-s1">args</span> <span class="pl-c1">=</span> [<span class="pl-s">"raw_file.md"</span>],
+    <span class="pl-s1">chdir</span> <span class="pl-c1">=</span> <span class="pl-en">package_name</span>(),
+    <span class="pl-s1">stdout</span> <span class="pl-c1">=</span> <span class="pl-s">"formatted_file.md"</span>,
+    <span class="pl-s1">tool</span> <span class="pl-c1">=</span> <span class="pl-s">"prettier"</span>,
+)</pre></div>
+</article></div>
