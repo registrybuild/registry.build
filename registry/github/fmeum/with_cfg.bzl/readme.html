@@ -1,0 +1,68 @@
+<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><h1 id="user-content-with_cfgbzl" dir="auto"><a class="heading-link" href="#with_cfgbzl">with_cfg.bzl<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h1>
+<p dir="auto">This Starlark library makes it easy to create new rules that are variants of existing rules with modified <a href="https://bazel.build/reference/command-line-reference" rel="nofollow">Bazel settings</a>, applied to both the rule itself and its (transitive) dependencies via <a href="https://bazel.build/extending/config#user-defined-transitions" rel="nofollow">transitions</a>.</p>
+<h2 id="user-content-setup" dir="auto"><a class="heading-link" href="#setup">Setup<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h2>
+<p dir="auto">Add the following to your <code>MODULE.bazel</code> file, substituting <code>...</code> with the latest release version:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel_dep(name = &quot;with_cfg.bzl&quot;, version = &quot;...&quot;)"><pre><span class="pl-en">bazel_dep</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"with_cfg.bzl"</span>, <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"..."</span>)</pre></div>
+<h2 id="user-content-basic-usage" dir="auto"><a class="heading-link" href="#basic-usage">Basic usage<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h2>
+<p dir="auto">All functionality is provided by the <code>with_cfg</code> function defined in <code>@with_cfg.bzl</code>, which accepts an existing rule (or macro) as an argument and returns a builder for a new rule with modified Bazel settings.</p>
+<p dir="auto">The following example creates an <code>opt_filegroup</code> rule that behaves like a <code>filegroup</code> but builds all its files with <code>--compilation_mode=opt</code>:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="# opt_filegroup.bzl
+load(&quot;@with_cfg.bzl&quot;, &quot;with_cfg&quot;)
+
+opt_filegroup, _opt_filegroup_internal = with_cfg(native.filegroup).set(&quot;compilation_mode&quot;, &quot;opt&quot;).build()"><pre><span class="pl-c"># opt_filegroup.bzl</span>
+<span class="pl-en">load</span>(<span class="pl-s">"@with_cfg.bzl"</span>, <span class="pl-s">"with_cfg"</span>)
+
+<span class="pl-s1">opt_filegroup</span>, <span class="pl-s1">_opt_filegroup_internal</span> <span class="pl-c1">=</span> <span class="pl-en">with_cfg</span>(<span class="pl-s1">native</span>.<span class="pl-s1">filegroup</span>).<span class="pl-en">set</span>(<span class="pl-s">"compilation_mode"</span>, <span class="pl-s">"opt"</span>).<span class="pl-en">build</span>()</pre></div>
+<p dir="auto">Since the <code>filegroup</code> rule is used in a <code>.bzl</code> file, not a <code>BUILD</code> file, it has to be qualified with <code>native.</code>.
+The second return value of <code>build()</code> has to be assigned to a variable, here called <code>_opt_filegroup_internal</code>, due to restrictions on rule definitions enforced by Bazel, but can otherwise be ignored.
+The <code>opt_filegroup</code> rule can now be used just like <code>filegroup</code>.</p>
+<p dir="auto">See <a href="examples/opt_filegroup">examples/opt_filegroup</a> for the complete example.</p>
+<h2 id="user-content-advanced-usage" dir="auto"><a class="heading-link" href="#advanced-usage">Advanced usage<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h2>
+<p dir="auto"><code>with_cfg</code> also supports resetting the modified settings to their original values for specific dependencies or entire attributes, which can help reduce build times by preventing unnecessary rebuilds of dependencies in different configurations.</p>
+<p dir="auto">The following example creates a <code>cc_asan_test</code> rule that behaves like a <code>cc_test</code>, but instruments the test and all its dependencies with <a href="https://clang.llvm.org/docs/AddressSanitizer.html" rel="nofollow">AddressSanitizer</a>.
+It also comes with a "reset" rule <code>cc_asan_test_reset</code> that can be used to disable instrumentation for specific dependencies and also automatically doesn't apply the instrumentation to <code>data</code> dependencies and (generated) source files.</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="# cc_asan_test.bzl
+load(&quot;@with_cfg.bzl&quot;, &quot;with_cfg&quot;)
+
+_builder = with_cfg(native.cc_test)
+_builder.extend(&quot;copt&quot;, [&quot;-fsanitize=address&quot;])
+_builder.extend(&quot;linkopt&quot;, select({
+    # link.exe doesn't require or recognize -fsanitize=address and would emit a warning.
+    &quot;@rules_cc//cc/compiler:msvc-cl&quot;: [],
+    &quot;//conditions:default&quot;: [&quot;-fsanitize=address&quot;],
+}))
+_builder.resettable(Label(&quot;:cc_asan_test_original_settings&quot;))
+_builder.reset_on_attrs(&quot;data&quot;, &quot;srcs&quot;)
+cc_asan_test, cc_asan_test_reset = _builder.build()
+
+# BUILD.bazel
+load(&quot;@with_cfg.bzl&quot;, &quot;original_settings&quot;)
+
+original_settings(
+    name = &quot;cc_asan_test_original_settings&quot;,
+)"><pre><span class="pl-c"># cc_asan_test.bzl</span>
+<span class="pl-en">load</span>(<span class="pl-s">"@with_cfg.bzl"</span>, <span class="pl-s">"with_cfg"</span>)
+
+<span class="pl-s1">_builder</span> <span class="pl-c1">=</span> <span class="pl-en">with_cfg</span>(<span class="pl-s1">native</span>.<span class="pl-s1">cc_test</span>)
+<span class="pl-s1">_builder</span>.<span class="pl-en">extend</span>(<span class="pl-s">"copt"</span>, [<span class="pl-s">"-fsanitize=address"</span>])
+<span class="pl-s1">_builder</span>.<span class="pl-en">extend</span>(<span class="pl-s">"linkopt"</span>, <span class="pl-en">select</span>({
+    <span class="pl-c"># link.exe doesn't require or recognize -fsanitize=address and would emit a warning.</span>
+    <span class="pl-s">"@rules_cc//cc/compiler:msvc-cl"</span>: [],
+    <span class="pl-s">"//conditions:default"</span>: [<span class="pl-s">"-fsanitize=address"</span>],
+}))
+<span class="pl-s1">_builder</span>.<span class="pl-en">resettable</span>(<span class="pl-v">Label</span>(<span class="pl-s">":cc_asan_test_original_settings"</span>))
+<span class="pl-s1">_builder</span>.<span class="pl-en">reset_on_attrs</span>(<span class="pl-s">"data"</span>, <span class="pl-s">"srcs"</span>)
+<span class="pl-s1">cc_asan_test</span>, <span class="pl-s1">cc_asan_test_reset</span> <span class="pl-c1">=</span> <span class="pl-s1">_builder</span>.<span class="pl-en">build</span>()
+
+<span class="pl-c"># BUILD.bazel</span>
+<span class="pl-en">load</span>(<span class="pl-s">"@with_cfg.bzl"</span>, <span class="pl-s">"original_settings"</span>)
+
+<span class="pl-en">original_settings</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"cc_asan_test_original_settings"</span>,
+)</pre></div>
+<p dir="auto">See <a href="examples/cc_asan_test_with_reset">examples/cc_asan_test_with_reset</a> for the complete example.</p>
+<h2 id="user-content-documentation" dir="auto"><a class="heading-link" href="#documentation">Documentation<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h2>
+<p dir="auto">The symbols exported from <code>@with_cfg.bzl</code> are documented <a href="docs/defs.md">here</a>.</p>
+<h2 id="user-content-examples" dir="auto"><a class="heading-link" href="#examples">Examples<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h2>
+<p dir="auto">See <a href="examples">examples</a> for more examples.</p>
+</article></div>
