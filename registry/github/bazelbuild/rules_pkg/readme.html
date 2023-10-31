@@ -16,6 +16,55 @@ Cookbook examples for using the rules.</li>
 <p dir="auto">As of Bazel 4.x, Bazel uses this rule set for packaging its distribution. Bazel
 still contains a limited version of <code>pkg_tar</code> but its feature set is frozen.
 Any new capabilities will be added here.</p>
+<h2 id="user-content-workspace-setup" dir="auto"><a class="heading-link" href="#workspace-setup">WORKSPACE setup<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h2>
+<p dir="auto">Sample, but see <a href="https://github.com/bazelbuild/rules_pkg/releases">releases</a> for the current release.</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(&quot;@bazel_tools//tools/build_defs/repo:http.bzl&quot;, &quot;http_archive&quot;)
+http_archive(
+    name = &quot;rules_pkg&quot;,
+    urls = [
+        &quot;https://mirror.bazel.build/github.com/bazelbuild/rules_pkg/releases/download/0.9.1/rules_pkg-0.9.1.tar.gz&quot;,
+        &quot;https://github.com/bazelbuild/rules_pkg/releases/download/0.9.1/rules_pkg-0.9.1.tar.gz&quot;,
+    ],
+    sha256 = &quot;8f9ee2dc10c1ae514ee599a8b42ed99fa262b757058f65ad3c384289ff70c4b8&quot;,
+)
+load(&quot;@rules_pkg//:deps.bzl&quot;, &quot;rules_pkg_dependencies&quot;)
+rules_pkg_dependencies()"><pre class="notranslate"><code>load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+http_archive(
+    name = "rules_pkg",
+    urls = [
+        "https://mirror.bazel.build/github.com/bazelbuild/rules_pkg/releases/download/0.9.1/rules_pkg-0.9.1.tar.gz",
+        "https://github.com/bazelbuild/rules_pkg/releases/download/0.9.1/rules_pkg-0.9.1.tar.gz",
+    ],
+    sha256 = "8f9ee2dc10c1ae514ee599a8b42ed99fa262b757058f65ad3c384289ff70c4b8",
+)
+load("@rules_pkg//:deps.bzl", "rules_pkg_dependencies")
+rules_pkg_dependencies()
+</code></pre></div>
+<p dir="auto">To use <code>pkg_rpm()</code>, you must provide a copy of <code>rpmbuild</code>. You can use the
+system installed <code>rpmbuild</code> with this stanza.</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(&quot;@rules_pkg//toolchains/rpm:rpmbuild_configure.bzl&quot;, &quot;find_system_rpmbuild&quot;)
+
+find_system_rpmbuild(
+    name = &quot;rules_pkg_rpmbuild&quot;,
+    verbose = False,
+)"><pre class="notranslate"><code>load("@rules_pkg//toolchains/rpm:rpmbuild_configure.bzl", "find_system_rpmbuild")
+
+find_system_rpmbuild(
+    name = "rules_pkg_rpmbuild",
+    verbose = False,
+)
+</code></pre></div>
+<h2 id="user-content-modulebazel-setup" dir="auto"><a class="heading-link" href="#modulebazel-setup">MODULE.bazel setup<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h2>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="bazel_dep(name = &quot;rules_pkg&quot;, version = &quot;0.0.10&quot;)"><pre class="notranslate"><code>bazel_dep(name = "rules_pkg", version = "0.0.10")
+</code></pre></div>
+<p dir="auto">To use <code>pkg_rpm()</code>, you must provide a copy of <code>rpmbuild</code>. You can use the
+system installed <code>rpmbuild</code> with this stanza.</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="find_rpm = use_extension(&quot;//toolchains/rpm:rpmbuild_configure.bzl&quot;, &quot;find_system_rpmbuild_bzlmod&quot;)
+use_repo(find_rpm, &quot;rules_pkg_rpmbuild&quot;)
+register_toolchains(&quot;@rules_pkg_rpmbuild//:all&quot;)"><pre class="notranslate"><code>find_rpm = use_extension("//toolchains/rpm:rpmbuild_configure.bzl", "find_system_rpmbuild_bzlmod")
+use_repo(find_rpm, "rules_pkg_rpmbuild")
+register_toolchains("@rules_pkg_rpmbuild//:all")
+</code></pre></div>
 <h3 id="user-content-for-developers" dir="auto"><a class="heading-link" href="#for-developers">For developers<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h3>
 <ul dir="auto">
 <li><a href="CONTRIBUTING.md">Contributor information</a> (including contributor license agreements)</li>
