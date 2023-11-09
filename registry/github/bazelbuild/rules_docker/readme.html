@@ -89,7 +89,7 @@ need to add a custom <code>env</code> or <code>symlink</code> to a <code>lang_im
 Please see <a href="#go_image-custom-base">go_image (custom base)</a> for an example.</p>
 <h2 id="user-content-setup" dir="auto"><a class="heading-link" href="#setup">Setup<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h2>
 <p dir="auto">Add the following to your <code>WORKSPACE</code> file to add the external repositories:</p>
-<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(&quot;@bazel_tools//tools/build_defs/repo:http.bzl&quot;, &quot;http_archive&quot;)
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@bazel_tools//tools/build_defs/repo:http.bzl&quot;, &quot;http_archive&quot;)
 
 http_archive(
   # Get copy paste instructions for the http_archive attributes from the
@@ -157,76 +157,75 @@ container_pull(
   repository = &quot;distroless/java&quot;,
   # 'tag' is also supported, but digest is encouraged for reproducibility.
   digest = &quot;sha256:deadbeef&quot;,
-)"><pre lang="python" class="notranslate"><code>load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@bazel_tools//tools/build_defs/repo:http.bzl"</span>, <span class="pl-s">"http_archive"</span>)
 
-http_archive(
-  # Get copy paste instructions for the http_archive attributes from the
-  # release notes at https://github.com/bazelbuild/rules_docker/releases
+<span class="pl-en">http_archive</span>(
+  <span class="pl-c"># Get copy paste instructions for the http_archive attributes from the</span>
+  <span class="pl-c"># release notes at https://github.com/bazelbuild/rules_docker/releases</span>
 )
 
-# OPTIONAL: Call this to override the default docker toolchain configuration.
-# This call should be placed BEFORE the call to "container_repositories" below
-# to actually override the default toolchain configuration.
-# Note this is only required if you actually want to call
-# docker_toolchain_configure with a custom attr; please read the toolchains
-# docs in /toolchains/docker/ before blindly adding this to your WORKSPACE.
-# BEGIN OPTIONAL segment:
-load("@io_bazel_rules_docker//toolchains/docker:toolchain.bzl",
-    docker_toolchain_configure="toolchain_configure"
+<span class="pl-c"># OPTIONAL: Call this to override the default docker toolchain configuration.</span>
+<span class="pl-c"># This call should be placed BEFORE the call to "container_repositories" below</span>
+<span class="pl-c"># to actually override the default toolchain configuration.</span>
+<span class="pl-c"># Note this is only required if you actually want to call</span>
+<span class="pl-c"># docker_toolchain_configure with a custom attr; please read the toolchains</span>
+<span class="pl-c"># docs in /toolchains/docker/ before blindly adding this to your WORKSPACE.</span>
+<span class="pl-c"># BEGIN OPTIONAL segment:</span>
+<span class="pl-en">load</span>(<span class="pl-s">"@io_bazel_rules_docker//toolchains/docker:toolchain.bzl"</span>,
+    <span class="pl-s1">docker_toolchain_configure</span><span class="pl-c1">=</span><span class="pl-s">"toolchain_configure"</span>
 )
-docker_toolchain_configure(
-  name = "docker_config",
-  # OPTIONAL: Bazel target for the build_tar tool, must be compatible with build_tar.py
-  build_tar_target="&lt;enter absolute path (i.e., must start with repo name @...//:...) to an executable build_tar target&gt;",
-  # OPTIONAL: Path to a directory which has a custom docker client config.json.
-  # See https://docs.docker.com/engine/reference/commandline/cli/#configuration-files
-  # for more details.
-  client_config="&lt;enter Bazel label to your docker config.json here&gt;",
-  # OPTIONAL: Path to the docker binary.
-  # Should be set explicitly for remote execution.
-  docker_path="&lt;enter absolute path to the docker binary (in the remote exec env) here&gt;",
-  # OPTIONAL: Path to the gzip binary.
-  gzip_path="&lt;enter absolute path to the gzip binary (in the remote exec env) here&gt;",
-  # OPTIONAL: Bazel target for the gzip tool.
-  gzip_target="&lt;enter absolute path (i.e., must start with repo name @...//:...) to an executable gzip target&gt;",
-  # OPTIONAL: Path to the xz binary.
-  # Should be set explicitly for remote execution.
-  xz_path="&lt;enter absolute path to the xz binary (in the remote exec env) here&gt;",
-  # OPTIONAL: Bazel target for the xz tool.
-  # Either xz_path or xz_target should be set explicitly for remote execution.
-  xz_target="&lt;enter absolute path (i.e., must start with repo name @...//:...) to an executable xz target&gt;",
-  # OPTIONAL: List of additional flags to pass to the docker command.
-  docker_flags = [
-    "--tls",
-    "--log-level=info",
+<span class="pl-en">docker_toolchain_configure</span>(
+  <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"docker_config"</span>,
+  <span class="pl-c"># OPTIONAL: Bazel target for the build_tar tool, must be compatible with build_tar.py</span>
+  <span class="pl-s1">build_tar_target</span><span class="pl-c1">=</span><span class="pl-s">"&lt;enter absolute path (i.e., must start with repo name @...//:...) to an executable build_tar target&gt;"</span>,
+  <span class="pl-c"># OPTIONAL: Path to a directory which has a custom docker client config.json.</span>
+  <span class="pl-c"># See https://docs.docker.com/engine/reference/commandline/cli/#configuration-files</span>
+  <span class="pl-c"># for more details.</span>
+  <span class="pl-s1">client_config</span><span class="pl-c1">=</span><span class="pl-s">"&lt;enter Bazel label to your docker config.json here&gt;"</span>,
+  <span class="pl-c"># OPTIONAL: Path to the docker binary.</span>
+  <span class="pl-c"># Should be set explicitly for remote execution.</span>
+  <span class="pl-s1">docker_path</span><span class="pl-c1">=</span><span class="pl-s">"&lt;enter absolute path to the docker binary (in the remote exec env) here&gt;"</span>,
+  <span class="pl-c"># OPTIONAL: Path to the gzip binary.</span>
+  <span class="pl-s1">gzip_path</span><span class="pl-c1">=</span><span class="pl-s">"&lt;enter absolute path to the gzip binary (in the remote exec env) here&gt;"</span>,
+  <span class="pl-c"># OPTIONAL: Bazel target for the gzip tool.</span>
+  <span class="pl-s1">gzip_target</span><span class="pl-c1">=</span><span class="pl-s">"&lt;enter absolute path (i.e., must start with repo name @...//:...) to an executable gzip target&gt;"</span>,
+  <span class="pl-c"># OPTIONAL: Path to the xz binary.</span>
+  <span class="pl-c"># Should be set explicitly for remote execution.</span>
+  <span class="pl-s1">xz_path</span><span class="pl-c1">=</span><span class="pl-s">"&lt;enter absolute path to the xz binary (in the remote exec env) here&gt;"</span>,
+  <span class="pl-c"># OPTIONAL: Bazel target for the xz tool.</span>
+  <span class="pl-c"># Either xz_path or xz_target should be set explicitly for remote execution.</span>
+  <span class="pl-s1">xz_target</span><span class="pl-c1">=</span><span class="pl-s">"&lt;enter absolute path (i.e., must start with repo name @...//:...) to an executable xz target&gt;"</span>,
+  <span class="pl-c"># OPTIONAL: List of additional flags to pass to the docker command.</span>
+  <span class="pl-s1">docker_flags</span> <span class="pl-c1">=</span> [
+    <span class="pl-s">"--tls"</span>,
+    <span class="pl-s">"--log-level=info"</span>,
   ],
 
 )
-# End of OPTIONAL segment.
+<span class="pl-c"># End of OPTIONAL segment.</span>
 
-load(
-    "@io_bazel_rules_docker//repositories:repositories.bzl",
-    container_repositories = "repositories",
+<span class="pl-en">load</span>(
+    <span class="pl-s">"@io_bazel_rules_docker//repositories:repositories.bzl"</span>,
+    <span class="pl-s1">container_repositories</span> <span class="pl-c1">=</span> <span class="pl-s">"repositories"</span>,
 )
-container_repositories()
+<span class="pl-en">container_repositories</span>()
 
-load("@io_bazel_rules_docker//repositories:deps.bzl", container_deps = "deps")
+<span class="pl-en">load</span>(<span class="pl-s">"@io_bazel_rules_docker//repositories:deps.bzl"</span>, <span class="pl-s1">container_deps</span> <span class="pl-c1">=</span> <span class="pl-s">"deps"</span>)
 
-container_deps()
+<span class="pl-en">container_deps</span>()
 
-load(
-    "@io_bazel_rules_docker//container:container.bzl",
-    "container_pull",
+<span class="pl-en">load</span>(
+    <span class="pl-s">"@io_bazel_rules_docker//container:container.bzl"</span>,
+    <span class="pl-s">"container_pull"</span>,
 )
 
-container_pull(
-  name = "java_base",
-  registry = "gcr.io",
-  repository = "distroless/java",
-  # 'tag' is also supported, but digest is encouraged for reproducibility.
-  digest = "sha256:deadbeef",
-)
-</code></pre></div>
+<span class="pl-en">container_pull</span>(
+  <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"java_base"</span>,
+  <span class="pl-s1">registry</span> <span class="pl-c1">=</span> <span class="pl-s">"gcr.io"</span>,
+  <span class="pl-s1">repository</span> <span class="pl-c1">=</span> <span class="pl-s">"distroless/java"</span>,
+  <span class="pl-c"># 'tag' is also supported, but digest is encouraged for reproducibility.</span>
+  <span class="pl-s1">digest</span> <span class="pl-c1">=</span> <span class="pl-s">"sha256:deadbeef"</span>,
+)</pre></div>
 <h3 id="user-content-known-issues" dir="auto"><a class="heading-link" href="#known-issues">Known Issues<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h3>
 <ul dir="auto">
 <li>Bazel does not deal well with diamond dependencies.</li>
@@ -261,21 +260,19 @@ you can disable this behaviour, by adding this to your .bazelrc:</li>
 </code></pre></div>
 <h2 id="user-content-using-with-docker-locally" dir="auto"><a class="heading-link" href="#using-with-docker-locally">Using with Docker locally.<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h2>
 <p dir="auto">Suppose you have a <code>container_image</code> target <code>//my/image:helloworld</code>:</p>
-<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="container_image(
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="container_image(
     name = &quot;helloworld&quot;,
     ...
-)"><pre lang="python" class="notranslate"><code>container_image(
-    name = "helloworld",
+)"><pre><span class="pl-en">container_image</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"helloworld"</span>,
     ...
-)
-</code></pre></div>
+)</pre></div>
 <p dir="auto">You can load this into your local Docker client by running:
 <code>bazel run my/image:helloworld</code>.</p>
 <p dir="auto">For the <code>lang_image</code> targets, this will also <strong>run</strong> the
 container using <code>docker run</code> to maximize compatibility with <code>lang_binary</code> rules.</p>
 <p dir="auto">Arguments to this command are forwarded to docker, meaning the command</p>
-<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="bazel run my/image:helloworld -- -p 8080:80 -- arg0"><pre lang="bash" class="notranslate"><code>bazel run my/image:helloworld -- -p 8080:80 -- arg0
-</code></pre></div>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel run my/image:helloworld -- -p 8080:80 -- arg0"><pre>bazel run my/image:helloworld -- -p 8080:80 -- arg0</pre></div>
 <p dir="auto">performs the following steps:</p>
 <ul dir="auto">
 <li>load the <code>my/image:helloworld</code> target into your local Docker client</li>
@@ -288,14 +285,13 @@ container using <code>docker run</code> to maximize compatibility with <code>lan
 in your <code>bazel-out</code> directory that can be loaded into your local Docker
 client. Building this target can be expensive for large images. You will
 first need to query the ouput file location.</p>
-<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="TARBALL_LOCATION=$(bazel cquery my/image:helloworld.tar \
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="TARBALL_LOCATION=$(bazel cquery my/image:helloworld.tar \
     --output starlark \
     --starlark:expr=&quot;target.files.to_list()[0].path&quot;)
-docker load -i $TARBALL_LOCATION"><pre lang="bash" class="notranslate"><code>TARBALL_LOCATION=$(bazel cquery my/image:helloworld.tar \
-    --output starlark \
-    --starlark:expr="target.files.to_list()[0].path")
-docker load -i $TARBALL_LOCATION
-</code></pre></div>
+docker load -i $TARBALL_LOCATION"><pre>TARBALL_LOCATION=<span class="pl-s"><span class="pl-pds">$(</span>bazel cquery my/image:helloworld.tar \</span>
+<span class="pl-s">    --output starlark \</span>
+<span class="pl-s">    --starlark:expr=<span class="pl-s"><span class="pl-pds">"</span>target.files.to_list()[0].path<span class="pl-pds">"</span></span><span class="pl-pds">)</span></span>
+docker load -i <span class="pl-smi">$TARBALL_LOCATION</span></pre></div>
 <p dir="auto">These work with both <code>container_image</code>, <code>container_bundle</code>, and the
 <code>lang_image</code> rules.  For everything except <code>container_bundle</code>, the image
 name will be <code>bazel/my/image:helloworld</code>. The <code>container_bundle</code> rule will
@@ -324,7 +320,7 @@ Stamping is enabled when bazel is run with <code>--stamp</code>.
 This enables replacements in stamp-aware attributes.
 A python format placeholder (e.g. <code>{BUILD_USER}</code>)
 is replaced by the value of the corresponding workspace-status variable.</p>
-<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="# A common pattern when users want to avoid trampling
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="# A common pattern when users want to avoid trampling
 # on each other's images during development.
 container_push(
   name = &quot;publish&quot;,
@@ -335,19 +331,18 @@ container_push(
   repository = &quot;my-project/my-image&quot;,
   # This will be replaced with the current user when built with --stamp
   tag = &quot;{BUILD_USER}&quot;,
-)"><pre lang="python" class="notranslate"><code># A common pattern when users want to avoid trampling
-# on each other's images during development.
-container_push(
-  name = "publish",
-  format = "Docker",
+)"><pre><span class="pl-c"># A common pattern when users want to avoid trampling</span>
+<span class="pl-c"># on each other's images during development.</span>
+<span class="pl-en">container_push</span>(
+  <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"publish"</span>,
+  <span class="pl-s1">format</span> <span class="pl-c1">=</span> <span class="pl-s">"Docker"</span>,
 
-  # Any of these components may have variables.
-  registry = "gcr.io",
-  repository = "my-project/my-image",
-  # This will be replaced with the current user when built with --stamp
-  tag = "{BUILD_USER}",
-)
-</code></pre></div>
+  <span class="pl-c"># Any of these components may have variables.</span>
+  <span class="pl-s1">registry</span> <span class="pl-c1">=</span> <span class="pl-s">"gcr.io"</span>,
+  <span class="pl-s1">repository</span> <span class="pl-c1">=</span> <span class="pl-s">"my-project/my-image"</span>,
+  <span class="pl-c"># This will be replaced with the current user when built with --stamp</span>
+  <span class="pl-s1">tag</span> <span class="pl-c1">=</span> <span class="pl-s">"{BUILD_USER}"</span>,
+)</pre></div>
 <blockquote>
 <p dir="auto">Rules that are sensitive to stamping can also be forced to stamp or non-stamp mode
 irrespective of the <code>--stamp</code> flag to Bazel. Use the <code>build_context_data</code> rule
@@ -368,25 +363,23 @@ A common example is to provide the current git SHA, with
 <p dir="auto">That flag is typically passed in the <code>.bazelrc</code> file, see for example <a href="https://github.com/kubernetes/kubernetes/blob/81ce94ae1d8f5d04058eeb214e9af498afe78ff2/build/root/.bazelrc#L6"><code>.bazelrc</code> in kubernetes</a>.</p>
 <h3 id="user-content-make-variables" dir="auto"><a class="heading-link" href="#make-variables">Make variables<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h3>
 <p dir="auto">The second option is to employ <code>Makefile</code>-style variables:</p>
-<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="container_bundle(
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="container_bundle(
   name = &quot;bundle&quot;,
 
   images = {
     &quot;gcr.io/$(project)/frontend:latest&quot;: &quot;//frontend:image&quot;,
     &quot;gcr.io/$(project)/backend:latest&quot;: &quot;//backend:image&quot;,
   }
-)"><pre lang="python" class="notranslate"><code>container_bundle(
-  name = "bundle",
+)"><pre><span class="pl-en">container_bundle</span>(
+  <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"bundle"</span>,
 
-  images = {
-    "gcr.io/$(project)/frontend:latest": "//frontend:image",
-    "gcr.io/$(project)/backend:latest": "//backend:image",
+  <span class="pl-s1">images</span> <span class="pl-c1">=</span> {
+    <span class="pl-s">"gcr.io/$(project)/frontend:latest"</span>: <span class="pl-s">"//frontend:image"</span>,
+    <span class="pl-s">"gcr.io/$(project)/backend:latest"</span>: <span class="pl-s">"//backend:image"</span>,
   }
-)
-</code></pre></div>
+)</pre></div>
 <p dir="auto">These variables are specified on the CLI using:</p>
-<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="   bazel build --define project=blah //path/to:bundle"><pre lang="shell" class="notranslate"><code>   bazel build --define project=blah //path/to:bundle
-</code></pre></div>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="   bazel build --define project=blah //path/to:bundle"><pre>   bazel build --define project=blah //path/to:bundle</pre></div>
 <h2 id="user-content-debugging-lang_image-rules" dir="auto"><a class="heading-link" href="#debugging-lang_image-rules">Debugging <code>lang_image</code> rules<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h2>
 <p dir="auto">By default the <code>lang_image</code> rules use the <code>distroless</code> base runtime images,
 which are optimized to be the minimal set of things your application needs
@@ -396,7 +389,7 @@ lack even a basic shell for exploring the filesystem.</p>
 <code>:debug</code>, which are the exact-same images, but with additions such as <code>busybox</code>
 to make debugging easier.</p>
 <p dir="auto">For example (in this repo):</p>
-<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="$ bazel run -c dbg testdata:go_image
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="$ bazel run -c dbg testdata:go_image
 ...
 INFO: Build completed successfully, 5 total actions
 
@@ -406,34 +399,32 @@ Tagging 9c5c2167a1db080a64b5b401b43b3c5cdabb265b26cf7a60aabe04a20da79e24 as baze
 Hello, world!
 
 $ docker run -ti --rm --entrypoint=sh bazel/testdata:go_image -c &quot;echo Hello, busybox.&quot;
-Hello, busybox."><pre lang="shell" class="notranslate"><code>$ bazel run -c dbg testdata:go_image
+Hello, busybox."><pre>$ bazel run -c dbg testdata:go_image
 ...
 INFO: Build completed successfully, 5 total actions
 
-INFO: Running command line: bazel-bin/testdata/go_image
+INFO: Running <span class="pl-c1">command</span> line: bazel-bin/testdata/go_image
 Loaded image ID: sha256:9c5c2167a1db080a64b5b401b43b3c5cdabb265b26cf7a60aabe04a20da79e24
 Tagging 9c5c2167a1db080a64b5b401b43b3c5cdabb265b26cf7a60aabe04a20da79e24 as bazel/testdata:go_image
-Hello, world!
+Hello, world<span class="pl-k">!</span>
 
-$ docker run -ti --rm --entrypoint=sh bazel/testdata:go_image -c "echo Hello, busybox."
-Hello, busybox.
-</code></pre></div>
+$ docker run -ti --rm --entrypoint=sh bazel/testdata:go_image -c <span class="pl-s"><span class="pl-pds">"</span>echo Hello, busybox.<span class="pl-pds">"</span></span>
+Hello, busybox.</pre></div>
 <h2 id="user-content-examples" dir="auto"><a class="heading-link" href="#examples">Examples<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h2>
 <h3 id="user-content-container_image" dir="auto"><a class="heading-link" href="#container_image">container_image<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h3>
-<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="container_image(
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="container_image(
     name = &quot;app&quot;,
     # References container_pull from WORKSPACE (above)
     base = &quot;@java_base//image&quot;,
     files = [&quot;//java/com/example/app:Hello_deploy.jar&quot;],
     cmd = [&quot;Hello_deploy.jar&quot;]
-)"><pre lang="python" class="notranslate"><code>container_image(
-    name = "app",
-    # References container_pull from WORKSPACE (above)
-    base = "@java_base//image",
-    files = ["//java/com/example/app:Hello_deploy.jar"],
-    cmd = ["Hello_deploy.jar"]
-)
-</code></pre></div>
+)"><pre><span class="pl-en">container_image</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"app"</span>,
+    <span class="pl-c"># References container_pull from WORKSPACE (above)</span>
+    <span class="pl-s1">base</span> <span class="pl-c1">=</span> <span class="pl-s">"@java_base//image"</span>,
+    <span class="pl-s1">files</span> <span class="pl-c1">=</span> [<span class="pl-s">"//java/com/example/app:Hello_deploy.jar"</span>],
+    <span class="pl-s1">cmd</span> <span class="pl-c1">=</span> [<span class="pl-s">"Hello_deploy.jar"</span>]
+)</pre></div>
 <p dir="auto">Hint: if you want to put files in specific directories inside the image
 use <a href="https://docs.bazel.build/versions/master/be/pkg.html" rel="nofollow"><code>pkg_tar</code> rule</a>
 to create the desired directory structure and pass that to <code>container_image</code> via
@@ -444,7 +435,7 @@ See <a href="https://github.com/bazelbuild/bazel/issues/2176">Bazel upstream iss
 for more details.</p>
 <h3 id="user-content-cc_image" dir="auto"><a class="heading-link" href="#cc_image">cc_image<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h3>
 <p dir="auto">To use <code>cc_image</code>, add the following to <code>WORKSPACE</code>:</p>
-<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(
     &quot;@io_bazel_rules_docker//repositories:repositories.bzl&quot;,
     container_repositories = &quot;repositories&quot;,
 )
@@ -456,41 +447,39 @@ load(
     _cc_image_repos = &quot;repositories&quot;,
 )
 
-_cc_image_repos()"><pre lang="python" class="notranslate"><code>load(
-    "@io_bazel_rules_docker//repositories:repositories.bzl",
-    container_repositories = "repositories",
+_cc_image_repos()"><pre><span class="pl-en">load</span>(
+    <span class="pl-s">"@io_bazel_rules_docker//repositories:repositories.bzl"</span>,
+    <span class="pl-s1">container_repositories</span> <span class="pl-c1">=</span> <span class="pl-s">"repositories"</span>,
 )
 
-container_repositories()
+<span class="pl-en">container_repositories</span>()
 
-load(
-    "@io_bazel_rules_docker//cc:image.bzl",
-    _cc_image_repos = "repositories",
+<span class="pl-en">load</span>(
+    <span class="pl-s">"@io_bazel_rules_docker//cc:image.bzl"</span>,
+    <span class="pl-s1">_cc_image_repos</span> <span class="pl-c1">=</span> <span class="pl-s">"repositories"</span>,
 )
 
-_cc_image_repos()
-</code></pre></div>
+<span class="pl-en">_cc_image_repos</span>()</pre></div>
 <p dir="auto">Then in your <code>BUILD</code> file, simply rewrite <code>cc_binary</code> to <code>cc_image</code> with the
 following import:</p>
-<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(&quot;@io_bazel_rules_docker//cc:image.bzl&quot;, &quot;cc_image&quot;)
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@io_bazel_rules_docker//cc:image.bzl&quot;, &quot;cc_image&quot;)
 
 cc_image(
     name = &quot;cc_image&quot;,
     srcs = [&quot;cc_image.cc&quot;],
     deps = [&quot;:cc_image_library&quot;],
-)"><pre lang="python" class="notranslate"><code>load("@io_bazel_rules_docker//cc:image.bzl", "cc_image")
+)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@io_bazel_rules_docker//cc:image.bzl"</span>, <span class="pl-s">"cc_image"</span>)
 
-cc_image(
-    name = "cc_image",
-    srcs = ["cc_image.cc"],
-    deps = [":cc_image_library"],
-)
-</code></pre></div>
+<span class="pl-en">cc_image</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"cc_image"</span>,
+    <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> [<span class="pl-s">"cc_image.cc"</span>],
+    <span class="pl-s1">deps</span> <span class="pl-c1">=</span> [<span class="pl-s">":cc_image_library"</span>],
+)</pre></div>
 <h3 id="user-content-cc_image-external-binary" dir="auto"><a class="heading-link" href="#cc_image-external-binary">cc_image (external binary)<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h3>
 <p dir="auto">To use <code>cc_image</code> (or <code>go_image</code>, <code>d_image</code>, <code>rust_image</code>) with an external
 <code>cc_binary</code> (or the like) target, then your <code>BUILD</code> file should instead look
 like:</p>
-<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(&quot;@io_bazel_rules_docker//cc:image.bzl&quot;, &quot;cc_image&quot;)
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@io_bazel_rules_docker//cc:image.bzl&quot;, &quot;cc_image&quot;)
 
 cc_binary(
     name = &quot;cc_binary&quot;,
@@ -501,26 +490,25 @@ cc_binary(
 cc_image(
     name = &quot;cc_image&quot;,
     binary = &quot;:cc_binary&quot;,
-)"><pre lang="python" class="notranslate"><code>load("@io_bazel_rules_docker//cc:image.bzl", "cc_image")
+)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@io_bazel_rules_docker//cc:image.bzl"</span>, <span class="pl-s">"cc_image"</span>)
 
-cc_binary(
-    name = "cc_binary",
-    srcs = ["cc_binary.cc"],
-    deps = [":cc_library"],
+<span class="pl-en">cc_binary</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"cc_binary"</span>,
+    <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> [<span class="pl-s">"cc_binary.cc"</span>],
+    <span class="pl-s1">deps</span> <span class="pl-c1">=</span> [<span class="pl-s">":cc_library"</span>],
 )
 
-cc_image(
-    name = "cc_image",
-    binary = ":cc_binary",
-)
-</code></pre></div>
+<span class="pl-en">cc_image</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"cc_image"</span>,
+    <span class="pl-s1">binary</span> <span class="pl-c1">=</span> <span class="pl-s">":cc_binary"</span>,
+)</pre></div>
 <p dir="auto">If you need to modify somehow the container produced by
 <code>cc_image</code> (e.g., <code>env</code>, <code>symlink</code>), see note above in
 <a href="#overview-1">Language Rules Overview</a> about how to do this
 and see <a href="#go_image-custom-base">go_image (custom base)</a> example below.</p>
 <h3 id="user-content-py_image" dir="auto"><a class="heading-link" href="#py_image">py_image<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h3>
 <p dir="auto">To use <code>py_image</code>, add the following to <code>WORKSPACE</code>:</p>
-<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(
     &quot;@io_bazel_rules_docker//repositories:repositories.bzl&quot;,
     container_repositories = &quot;repositories&quot;,
 )
@@ -532,38 +520,36 @@ load(
     _py_image_repos = &quot;repositories&quot;,
 )
 
-_py_image_repos()"><pre lang="python" class="notranslate"><code>load(
-    "@io_bazel_rules_docker//repositories:repositories.bzl",
-    container_repositories = "repositories",
+_py_image_repos()"><pre><span class="pl-en">load</span>(
+    <span class="pl-s">"@io_bazel_rules_docker//repositories:repositories.bzl"</span>,
+    <span class="pl-s1">container_repositories</span> <span class="pl-c1">=</span> <span class="pl-s">"repositories"</span>,
 )
 
-container_repositories()
+<span class="pl-en">container_repositories</span>()
 
-load(
-    "@io_bazel_rules_docker//python:image.bzl",
-    _py_image_repos = "repositories",
+<span class="pl-en">load</span>(
+    <span class="pl-s">"@io_bazel_rules_docker//python:image.bzl"</span>,
+    <span class="pl-s1">_py_image_repos</span> <span class="pl-c1">=</span> <span class="pl-s">"repositories"</span>,
 )
 
-_py_image_repos()
-</code></pre></div>
+<span class="pl-en">_py_image_repos</span>()</pre></div>
 <p dir="auto">Then in your <code>BUILD</code> file, simply rewrite <code>py_binary</code> to <code>py_image</code> with the
 following import:</p>
-<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(&quot;@io_bazel_rules_docker//python:image.bzl&quot;, &quot;py_image&quot;)
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@io_bazel_rules_docker//python:image.bzl&quot;, &quot;py_image&quot;)
 
 py_image(
     name = &quot;py_image&quot;,
     srcs = [&quot;py_image.py&quot;],
     deps = [&quot;:py_image_library&quot;],
     main = &quot;py_image.py&quot;,
-)"><pre lang="python" class="notranslate"><code>load("@io_bazel_rules_docker//python:image.bzl", "py_image")
+)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@io_bazel_rules_docker//python:image.bzl"</span>, <span class="pl-s">"py_image"</span>)
 
-py_image(
-    name = "py_image",
-    srcs = ["py_image.py"],
-    deps = [":py_image_library"],
-    main = "py_image.py",
-)
-</code></pre></div>
+<span class="pl-en">py_image</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"py_image"</span>,
+    <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> [<span class="pl-s">"py_image.py"</span>],
+    <span class="pl-s1">deps</span> <span class="pl-c1">=</span> [<span class="pl-s">":py_image_library"</span>],
+    <span class="pl-s1">main</span> <span class="pl-c1">=</span> <span class="pl-s">"py_image.py"</span>,
+)</pre></div>
 <p dir="auto">If you need to modify somehow the container produced by
 <code>py_image</code> (e.g., <code>env</code>, <code>symlink</code>), see note above in
 <a href="#overview-1">Language Rules Overview</a> about how to do this
@@ -575,7 +561,7 @@ in a location different to the default base, please see
 <p dir="auto">For Python and Java's <code>lang_image</code> rules, you can factor
 dependencies that don't change into their own layers by overriding the
 <code>layers=[]</code> attribute.  Consider this sample from the <code>rules_k8s</code> repository:</p>
-<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="py_image(
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="py_image(
     name = &quot;server&quot;,
     srcs = [&quot;server.py&quot;],
     # &quot;layers&quot; is just like &quot;deps&quot;, but it also moves the dependencies each into
@@ -588,24 +574,23 @@ dependencies that don't change into their own layers by overriding the
         &quot;//examples/hellogrpc/proto:py&quot;,
     ],
     main = &quot;server.py&quot;,
-)"><pre lang="python" class="notranslate"><code>py_image(
-    name = "server",
-    srcs = ["server.py"],
-    # "layers" is just like "deps", but it also moves the dependencies each into
-    # their own layer, which can dramatically improve developer cycle time. For
-    # example here, the grpcio layer is ~40MB, but the rest of the app is only
-    # ~400KB.  By partitioning things this way, the large grpcio layer remains
-    # unchanging and we can reduce the amount of image data we repush by ~99%!
-    layers = [
-        requirement("grpcio"),
-        "//examples/hellogrpc/proto:py",
+)"><pre><span class="pl-en">py_image</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"server"</span>,
+    <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> [<span class="pl-s">"server.py"</span>],
+    <span class="pl-c"># "layers" is just like "deps", but it also moves the dependencies each into</span>
+    <span class="pl-c"># their own layer, which can dramatically improve developer cycle time. For</span>
+    <span class="pl-c"># example here, the grpcio layer is ~40MB, but the rest of the app is only</span>
+    <span class="pl-c"># ~400KB.  By partitioning things this way, the large grpcio layer remains</span>
+    <span class="pl-c"># unchanging and we can reduce the amount of image data we repush by ~99%!</span>
+    <span class="pl-s1">layers</span> <span class="pl-c1">=</span> [
+        <span class="pl-en">requirement</span>(<span class="pl-s">"grpcio"</span>),
+        <span class="pl-s">"//examples/hellogrpc/proto:py"</span>,
     ],
-    main = "server.py",
-)
-</code></pre></div>
+    <span class="pl-s1">main</span> <span class="pl-c1">=</span> <span class="pl-s">"server.py"</span>,
+)</pre></div>
 <p dir="auto">You can also implement more complex fine layering strategies by using the
 <code>py_layer</code> or <code>java_layer</code> rules and their <code>filter</code> attribute.  For example:</p>
-<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="# Suppose that we are synthesizing an image that depends on a complex set
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="# Suppose that we are synthesizing an image that depends on a complex set
 # of libraries that we want to break into layers.
 LIBS = [
     &quot;//pkg/complex_library&quot;,
@@ -644,47 +629,46 @@ py_image(
         &quot;:external_deps&quot;,
     ],
     # ...
-)"><pre lang="python" class="notranslate"><code># Suppose that we are synthesizing an image that depends on a complex set
-# of libraries that we want to break into layers.
-LIBS = [
-    "//pkg/complex_library",
-    # ...
+)"><pre><span class="pl-c"># Suppose that we are synthesizing an image that depends on a complex set</span>
+<span class="pl-c"># of libraries that we want to break into layers.</span>
+<span class="pl-v">LIBS</span> <span class="pl-c1">=</span> [
+    <span class="pl-s">"//pkg/complex_library"</span>,
+    <span class="pl-c"># ...</span>
 ]
-# First, we extract all transitive dependencies of LIBS that are under //pkg/common.
-py_layer(
-    name = "common_deps",
-    deps = LIBS,
-    filter = "//pkg/common",
+<span class="pl-c"># First, we extract all transitive dependencies of LIBS that are under //pkg/common.</span>
+<span class="pl-en">py_layer</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"common_deps"</span>,
+    <span class="pl-s1">deps</span> <span class="pl-c1">=</span> <span class="pl-v">LIBS</span>,
+    <span class="pl-s1">filter</span> <span class="pl-c1">=</span> <span class="pl-s">"//pkg/common"</span>,
 )
-# Then, we further extract all external dependencies of the deps under //pkg/common.
-py_layer(
-    name = "common_external_deps",
-    deps = [":common_deps"],
-    filter = "@",
+<span class="pl-c"># Then, we further extract all external dependencies of the deps under //pkg/common.</span>
+<span class="pl-en">py_layer</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"common_external_deps"</span>,
+    <span class="pl-s1">deps</span> <span class="pl-c1">=</span> [<span class="pl-s">":common_deps"</span>],
+    <span class="pl-s1">filter</span> <span class="pl-c1">=</span> <span class="pl-s">"@"</span>,
 )
-# We also extract all external dependencies of LIBS, which is a superset of
-# ":common_external_deps".
-py_layer(
-    name = "external_deps",
-    deps = LIBS,
-    filter = "@",
+<span class="pl-c"># We also extract all external dependencies of LIBS, which is a superset of</span>
+<span class="pl-c"># ":common_external_deps".</span>
+<span class="pl-en">py_layer</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"external_deps"</span>,
+    <span class="pl-s1">deps</span> <span class="pl-c1">=</span> <span class="pl-v">LIBS</span>,
+    <span class="pl-s1">filter</span> <span class="pl-c1">=</span> <span class="pl-s">"@"</span>,
 )
-# Finally, we create the image, stacking the above filtered layers on top of one
-# another in the "layers" attribute.  The layers are applied in order, and any
-# dependencies already added to the image will not be added again.  Therefore,
-# ":external_deps" will only add the external dependencies not present in
-# ":common_external_deps".
-py_image(
-    name = "image",
-    deps = LIBS,
-    layers = [
-        ":common_external_deps",
-        ":common_deps",
-        ":external_deps",
+<span class="pl-c"># Finally, we create the image, stacking the above filtered layers on top of one</span>
+<span class="pl-c"># another in the "layers" attribute.  The layers are applied in order, and any</span>
+<span class="pl-c"># dependencies already added to the image will not be added again.  Therefore,</span>
+<span class="pl-c"># ":external_deps" will only add the external dependencies not present in</span>
+<span class="pl-c"># ":common_external_deps".</span>
+<span class="pl-en">py_image</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"image"</span>,
+    <span class="pl-s1">deps</span> <span class="pl-c1">=</span> <span class="pl-v">LIBS</span>,
+    <span class="pl-s1">layers</span> <span class="pl-c1">=</span> [
+        <span class="pl-s">":common_external_deps"</span>,
+        <span class="pl-s">":common_deps"</span>,
+        <span class="pl-s">":external_deps"</span>,
     ],
-    # ...
-)
-</code></pre></div>
+    <span class="pl-c"># ...</span>
+)</pre></div>
 <h3 id="user-content-py3_image" dir="auto"><a class="heading-link" href="#py3_image">py3_image<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h3>
 <p dir="auto">To use a Python 3 runtime instead of the default of Python 2, use <code>py3_image</code>,
 instead of <code>py_image</code>.  The other semantics are identical.</p>
@@ -701,7 +685,7 @@ currently using the <code>gcr.io/distroless/nodejs</code> image for a handful of
 This is a switch we plan to make, when we can manage it.  We are currently
 utilizing the <code>gcr.io/google-appengine/debian9</code> image as our base.</p>
 <p dir="auto">To use <code>nodejs_image</code>, add the following to <code>WORKSPACE</code>:</p>
-<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(&quot;@bazel_tools//tools/build_defs/repo:http.bzl&quot;, &quot;http_archive&quot;)
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@bazel_tools//tools/build_defs/repo:http.bzl&quot;, &quot;http_archive&quot;)
 
 http_archive(
     name = &quot;build_bazel_rules_nodejs&quot;,
@@ -733,46 +717,45 @@ load(
     _nodejs_image_repos = &quot;repositories&quot;,
 )
 
-_nodejs_image_repos()"><pre lang="python" class="notranslate"><code>load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+_nodejs_image_repos()"><pre><span class="pl-en">load</span>(<span class="pl-s">"@bazel_tools//tools/build_defs/repo:http.bzl"</span>, <span class="pl-s">"http_archive"</span>)
 
-http_archive(
-    name = "build_bazel_rules_nodejs",
-    # Replace with a real SHA256 checksum
-    sha256 = "{SHA256}"
-    # Replace with a real release version
-    urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/{VERSION}/rules_nodejs-{VERSION}.tar.gz"],
+<span class="pl-en">http_archive</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"build_bazel_rules_nodejs"</span>,
+    <span class="pl-c"># Replace with a real SHA256 checksum</span>
+    <span class="pl-s1">sha256</span> <span class="pl-c1">=</span> <span class="pl-s">"{SHA256}"</span>
+    <span class="pl-c"># Replace with a real release version</span>
+    <span class="pl-s1">urls</span> <span class="pl-c1">=</span> [<span class="pl-s">"https://github.com/bazelbuild/rules_nodejs/releases/download/{VERSION}/rules_nodejs-{VERSION}.tar.gz"</span>],
 )
 
 
-load("@build_bazel_rules_nodejs//:index.bzl", "npm_install")
+<span class="pl-en">load</span>(<span class="pl-s">"@build_bazel_rules_nodejs//:index.bzl"</span>, <span class="pl-s">"npm_install"</span>)
 
-# Install your declared Node.js dependencies
-npm_install(
-    name = "npm",
-    package_json = "//:package.json",
-    yarn_lock = "//:yarn.lock",
+<span class="pl-c"># Install your declared Node.js dependencies</span>
+<span class="pl-en">npm_install</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"npm"</span>,
+    <span class="pl-s1">package_json</span> <span class="pl-c1">=</span> <span class="pl-s">"//:package.json"</span>,
+    <span class="pl-s1">yarn_lock</span> <span class="pl-c1">=</span> <span class="pl-s">"//:yarn.lock"</span>,
 )
 
-load(
-    "@io_bazel_rules_docker//repositories:repositories.bzl",
-    container_repositories = "repositories",
+<span class="pl-en">load</span>(
+    <span class="pl-s">"@io_bazel_rules_docker//repositories:repositories.bzl"</span>,
+    <span class="pl-s1">container_repositories</span> <span class="pl-c1">=</span> <span class="pl-s">"repositories"</span>,
 )
 
-container_repositories()
+<span class="pl-en">container_repositories</span>()
 
-load(
-    "@io_bazel_rules_docker//nodejs:image.bzl",
-    _nodejs_image_repos = "repositories",
+<span class="pl-en">load</span>(
+    <span class="pl-s">"@io_bazel_rules_docker//nodejs:image.bzl"</span>,
+    <span class="pl-s1">_nodejs_image_repos</span> <span class="pl-c1">=</span> <span class="pl-s">"repositories"</span>,
 )
 
-_nodejs_image_repos()
-</code></pre></div>
+<span class="pl-en">_nodejs_image_repos</span>()</pre></div>
 <p dir="auto">Note: See note about diamond dependencies in <a href="#setup">setup</a>
 if you run into issues related to external repos after adding these
 lines to your <code>WORKSPACE</code>.</p>
 <p dir="auto">Then in your <code>BUILD</code> file, simply rewrite <code>nodejs_binary</code> to <code>nodejs_image</code> with
 the following import:</p>
-<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(&quot;@io_bazel_rules_docker//nodejs:image.bzl&quot;, &quot;nodejs_image&quot;)
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@io_bazel_rules_docker//nodejs:image.bzl&quot;, &quot;nodejs_image&quot;)
 
 nodejs_image(
     name = &quot;nodejs_image&quot;,
@@ -780,16 +763,15 @@ nodejs_image(
     # npm deps will be put into their own layer
     data = [&quot;:file.js&quot;, &quot;@npm//some-npm-dep&quot;],
     ...
-)"><pre lang="python" class="notranslate"><code>load("@io_bazel_rules_docker//nodejs:image.bzl", "nodejs_image")
+)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@io_bazel_rules_docker//nodejs:image.bzl"</span>, <span class="pl-s">"nodejs_image"</span>)
 
-nodejs_image(
-    name = "nodejs_image",
-    entry_point = "@your_workspace//path/to:file.js",
-    # npm deps will be put into their own layer
-    data = [":file.js", "@npm//some-npm-dep"],
+<span class="pl-en">nodejs_image</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"nodejs_image"</span>,
+    <span class="pl-s1">entry_point</span> <span class="pl-c1">=</span> <span class="pl-s">"@your_workspace//path/to:file.js"</span>,
+    <span class="pl-c"># npm deps will be put into their own layer</span>
+    <span class="pl-s1">data</span> <span class="pl-c1">=</span> [<span class="pl-s">":file.js"</span>, <span class="pl-s">"@npm//some-npm-dep"</span>],
     ...
-)
-</code></pre></div>
+)</pre></div>
 <p dir="auto"><code>nodejs_image</code> also supports the <code>launcher</code> and <code>launcher_args</code> attributes which are passed to <code>container_image</code> and used to prefix the image's <code>entry_point</code>.</p>
 <p dir="auto">If you need to modify somehow the container produced by
 <code>nodejs_image</code> (e.g., <code>env</code>, <code>symlink</code>), see note above in
@@ -797,7 +779,7 @@ nodejs_image(
 and see <a href="#go_image-custom-base">go_image (custom base)</a> example below.</p>
 <h3 id="user-content-go_image" dir="auto"><a class="heading-link" href="#go_image">go_image<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h3>
 <p dir="auto">To use <code>go_image</code>, add the following to <code>WORKSPACE</code>:</p>
-<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(&quot;@bazel_tools//tools/build_defs/repo:http.bzl&quot;, &quot;http_archive&quot;)
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@bazel_tools//tools/build_defs/repo:http.bzl&quot;, &quot;http_archive&quot;)
 
 load(
     &quot;@io_bazel_rules_docker//repositories:repositories.bzl&quot;,
@@ -811,41 +793,39 @@ load(
     _go_image_repos = &quot;repositories&quot;,
 )
 
-_go_image_repos()"><pre lang="python" class="notranslate"><code>load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+_go_image_repos()"><pre><span class="pl-en">load</span>(<span class="pl-s">"@bazel_tools//tools/build_defs/repo:http.bzl"</span>, <span class="pl-s">"http_archive"</span>)
 
-load(
-    "@io_bazel_rules_docker//repositories:repositories.bzl",
-    container_repositories = "repositories",
+<span class="pl-en">load</span>(
+    <span class="pl-s">"@io_bazel_rules_docker//repositories:repositories.bzl"</span>,
+    <span class="pl-s1">container_repositories</span> <span class="pl-c1">=</span> <span class="pl-s">"repositories"</span>,
 )
 
-container_repositories()
+<span class="pl-en">container_repositories</span>()
 
-load(
-    "@io_bazel_rules_docker//go:image.bzl",
-    _go_image_repos = "repositories",
+<span class="pl-en">load</span>(
+    <span class="pl-s">"@io_bazel_rules_docker//go:image.bzl"</span>,
+    <span class="pl-s1">_go_image_repos</span> <span class="pl-c1">=</span> <span class="pl-s">"repositories"</span>,
 )
 
-_go_image_repos()
-</code></pre></div>
+<span class="pl-en">_go_image_repos</span>()</pre></div>
 <p dir="auto">Note: See note about diamond dependencies in <a href="#setup">setup</a>
 if you run into issues related to external repos after adding these
 lines to your <code>WORKSPACE</code>.</p>
 <p dir="auto">Then in your <code>BUILD</code> file, simply rewrite <code>go_binary</code> to <code>go_image</code> with the
 following import:</p>
-<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(&quot;@io_bazel_rules_docker//go:image.bzl&quot;, &quot;go_image&quot;)
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@io_bazel_rules_docker//go:image.bzl&quot;, &quot;go_image&quot;)
 
 go_image(
     name = &quot;go_image&quot;,
     srcs = [&quot;main.go&quot;],
     importpath = &quot;github.com/your/path/here&quot;,
-)"><pre lang="python" class="notranslate"><code>load("@io_bazel_rules_docker//go:image.bzl", "go_image")
+)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@io_bazel_rules_docker//go:image.bzl"</span>, <span class="pl-s">"go_image"</span>)
 
-go_image(
-    name = "go_image",
-    srcs = ["main.go"],
-    importpath = "github.com/your/path/here",
-)
-</code></pre></div>
+<span class="pl-en">go_image</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"go_image"</span>,
+    <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> [<span class="pl-s">"main.go"</span>],
+    <span class="pl-s1">importpath</span> <span class="pl-c1">=</span> <span class="pl-s">"github.com/your/path/here"</span>,
+)</pre></div>
 <p dir="auto">Notice that it is important to explicitly build this target with the
 <code>--platforms=@io_bazel_rules_go//go/toolchain:linux_amd64</code> flag
 as the binary should be built for Linux since it will run in a Linux container.</p>
@@ -857,7 +837,7 @@ see example below.</p>
 <p dir="auto">To use a custom base image, with any of the <code>lang_image</code>
 rules, you can override the default <code>base="..."</code> attribute.  Consider this
 modified sample from the <code>distroless</code> repository:</p>
-<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(&quot;@rules_pkg//pkg:tar.bzl&quot;, &quot;pkg_tar&quot;)
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@rules_pkg//pkg:tar.bzl&quot;, &quot;pkg_tar&quot;)
 
 # Create a passwd file with a root and nonroot user and uid.
 passwd_entry(
@@ -904,58 +884,57 @@ go_image(
     srcs = [&quot;user.go&quot;],
     # Override the base image.
     base = &quot;:passwd_image&quot;,
-)"><pre lang="python" class="notranslate"><code>load("@rules_pkg//pkg:tar.bzl", "pkg_tar")
+)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@rules_pkg//pkg:tar.bzl"</span>, <span class="pl-s">"pkg_tar"</span>)
 
-# Create a passwd file with a root and nonroot user and uid.
-passwd_entry(
-    username = "root",
-    uid = 0,
-    gid = 0,
-    name = "root_user",
+<span class="pl-c"># Create a passwd file with a root and nonroot user and uid.</span>
+<span class="pl-en">passwd_entry</span>(
+    <span class="pl-s1">username</span> <span class="pl-c1">=</span> <span class="pl-s">"root"</span>,
+    <span class="pl-s1">uid</span> <span class="pl-c1">=</span> <span class="pl-c1">0</span>,
+    <span class="pl-s1">gid</span> <span class="pl-c1">=</span> <span class="pl-c1">0</span>,
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"root_user"</span>,
 )
 
-passwd_entry(
-    username = "nonroot",
-    info = "nonroot",
-    uid = 1002,
-    name = "nonroot_user",
+<span class="pl-en">passwd_entry</span>(
+    <span class="pl-s1">username</span> <span class="pl-c1">=</span> <span class="pl-s">"nonroot"</span>,
+    <span class="pl-s1">info</span> <span class="pl-c1">=</span> <span class="pl-s">"nonroot"</span>,
+    <span class="pl-s1">uid</span> <span class="pl-c1">=</span> <span class="pl-c1">1002</span>,
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"nonroot_user"</span>,
 )
 
-passwd_file(
-    name = "passwd",
-    entries = [
-        ":root_user",
-        ":nonroot_user",
+<span class="pl-en">passwd_file</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"passwd"</span>,
+    <span class="pl-s1">entries</span> <span class="pl-c1">=</span> [
+        <span class="pl-s">":root_user"</span>,
+        <span class="pl-s">":nonroot_user"</span>,
     ],
 )
 
-# Create a tar file containing the created passwd file
-pkg_tar(
-    name = "passwd_tar",
-    srcs = [":passwd"],
-    mode = "0o644",
-    package_dir = "etc",
+<span class="pl-c"># Create a tar file containing the created passwd file</span>
+<span class="pl-en">pkg_tar</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"passwd_tar"</span>,
+    <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> [<span class="pl-s">":passwd"</span>],
+    <span class="pl-s1">mode</span> <span class="pl-c1">=</span> <span class="pl-s">"0o644"</span>,
+    <span class="pl-s1">package_dir</span> <span class="pl-c1">=</span> <span class="pl-s">"etc"</span>,
 )
 
-# Include it in our base image as a tar.
-container_image(
-    name = "passwd_image",
-    base = "@go_image_base//image",
-    tars = [":passwd_tar"],
-    user = "nonroot",
+<span class="pl-c"># Include it in our base image as a tar.</span>
+<span class="pl-en">container_image</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"passwd_image"</span>,
+    <span class="pl-s1">base</span> <span class="pl-c1">=</span> <span class="pl-s">"@go_image_base//image"</span>,
+    <span class="pl-s1">tars</span> <span class="pl-c1">=</span> [<span class="pl-s">":passwd_tar"</span>],
+    <span class="pl-s1">user</span> <span class="pl-c1">=</span> <span class="pl-s">"nonroot"</span>,
 )
 
-# Simple go program to print out the username and uid.
-go_image(
-    name = "user",
-    srcs = ["user.go"],
-    # Override the base image.
-    base = ":passwd_image",
-)
-</code></pre></div>
+<span class="pl-c"># Simple go program to print out the username and uid.</span>
+<span class="pl-en">go_image</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"user"</span>,
+    <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> [<span class="pl-s">"user.go"</span>],
+    <span class="pl-c"># Override the base image.</span>
+    <span class="pl-s1">base</span> <span class="pl-c1">=</span> <span class="pl-s">":passwd_image"</span>,
+)</pre></div>
 <h3 id="user-content-java_image" dir="auto"><a class="heading-link" href="#java_image">java_image<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h3>
 <p dir="auto">To use <code>java_image</code>, add the following to <code>WORKSPACE</code>:</p>
-<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(
     &quot;@io_bazel_rules_docker//repositories:repositories.bzl&quot;,
     container_repositories = &quot;repositories&quot;,
 )
@@ -967,23 +946,22 @@ load(
     _java_image_repos = &quot;repositories&quot;,
 )
 
-_java_image_repos()"><pre lang="python" class="notranslate"><code>load(
-    "@io_bazel_rules_docker//repositories:repositories.bzl",
-    container_repositories = "repositories",
+_java_image_repos()"><pre><span class="pl-en">load</span>(
+    <span class="pl-s">"@io_bazel_rules_docker//repositories:repositories.bzl"</span>,
+    <span class="pl-s1">container_repositories</span> <span class="pl-c1">=</span> <span class="pl-s">"repositories"</span>,
 )
 
-container_repositories()
+<span class="pl-en">container_repositories</span>()
 
-load(
-    "@io_bazel_rules_docker//java:image.bzl",
-    _java_image_repos = "repositories",
+<span class="pl-en">load</span>(
+    <span class="pl-s">"@io_bazel_rules_docker//java:image.bzl"</span>,
+    <span class="pl-s1">_java_image_repos</span> <span class="pl-c1">=</span> <span class="pl-s">"repositories"</span>,
 )
 
-_java_image_repos()
-</code></pre></div>
+<span class="pl-en">_java_image_repos</span>()</pre></div>
 <p dir="auto">Then in your <code>BUILD</code> file, simply rewrite <code>java_binary</code> to <code>java_image</code> with the
 following import:</p>
-<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(&quot;@io_bazel_rules_docker//java:image.bzl&quot;, &quot;java_image&quot;)
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@io_bazel_rules_docker//java:image.bzl&quot;, &quot;java_image&quot;)
 
 java_image(
     name = &quot;java_image&quot;,
@@ -991,23 +969,22 @@ java_image(
     # Put these runfiles into their own layer.
     layers = [&quot;:java_image_library&quot;],
     main_class = &quot;examples.images.Binary&quot;,
-)"><pre lang="python" class="notranslate"><code>load("@io_bazel_rules_docker//java:image.bzl", "java_image")
+)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@io_bazel_rules_docker//java:image.bzl"</span>, <span class="pl-s">"java_image"</span>)
 
-java_image(
-    name = "java_image",
-    srcs = ["Binary.java"],
-    # Put these runfiles into their own layer.
-    layers = [":java_image_library"],
-    main_class = "examples.images.Binary",
-)
-</code></pre></div>
+<span class="pl-en">java_image</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"java_image"</span>,
+    <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> [<span class="pl-s">"Binary.java"</span>],
+    <span class="pl-c"># Put these runfiles into their own layer.</span>
+    <span class="pl-s1">layers</span> <span class="pl-c1">=</span> [<span class="pl-s">":java_image_library"</span>],
+    <span class="pl-s1">main_class</span> <span class="pl-c1">=</span> <span class="pl-s">"examples.images.Binary"</span>,
+)</pre></div>
 <p dir="auto">If you need to modify somehow the container produced by
 <code>java_image</code> (e.g., <code>env</code>, <code>symlink</code>), see note above in
 <a href="#overview-1">Language Rules Overview</a> about how to do this
 and see <a href="#go_image-custom-base">go_image (custom base)</a> example.</p>
 <h3 id="user-content-war_image" dir="auto"><a class="heading-link" href="#war_image">war_image<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h3>
 <p dir="auto">To use <code>war_image</code>, add the following to <code>WORKSPACE</code>:</p>
-<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(
     &quot;@io_bazel_rules_docker//repositories:repositories.bzl&quot;,
     container_repositories = &quot;repositories&quot;,
 )
@@ -1019,26 +996,25 @@ load(
     _java_image_repos = &quot;repositories&quot;,
 )
 
-_java_image_repos()"><pre lang="python" class="notranslate"><code>load(
-    "@io_bazel_rules_docker//repositories:repositories.bzl",
-    container_repositories = "repositories",
+_java_image_repos()"><pre><span class="pl-en">load</span>(
+    <span class="pl-s">"@io_bazel_rules_docker//repositories:repositories.bzl"</span>,
+    <span class="pl-s1">container_repositories</span> <span class="pl-c1">=</span> <span class="pl-s">"repositories"</span>,
 )
 
-container_repositories()
+<span class="pl-en">container_repositories</span>()
 
-load(
-    "@io_bazel_rules_docker//java:image.bzl",
-    _java_image_repos = "repositories",
+<span class="pl-en">load</span>(
+    <span class="pl-s">"@io_bazel_rules_docker//java:image.bzl"</span>,
+    <span class="pl-s1">_java_image_repos</span> <span class="pl-c1">=</span> <span class="pl-s">"repositories"</span>,
 )
 
-_java_image_repos()
-</code></pre></div>
+<span class="pl-en">_java_image_repos</span>()</pre></div>
 <p dir="auto">Note: See note about diamond dependencies in <a href="#setup">setup</a>
 if you run into issues related to external repos after adding these
 lines to your <code>WORKSPACE</code>.</p>
 <p dir="auto">Then in your <code>BUILD</code> file, simply rewrite <code>java_war</code> to <code>war_image</code> with the
 following import:</p>
-<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(&quot;@io_bazel_rules_docker//java:image.bzl&quot;, &quot;war_image&quot;)
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@io_bazel_rules_docker//java:image.bzl&quot;, &quot;war_image&quot;)
 
 war_image(
     name = &quot;war_image&quot;,
@@ -1048,18 +1024,17 @@ war_image(
         &quot;:java_image_library&quot;,
         &quot;@javax_servlet_api//jar:jar&quot;,
     ],
-)"><pre lang="python" class="notranslate"><code>load("@io_bazel_rules_docker//java:image.bzl", "war_image")
+)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@io_bazel_rules_docker//java:image.bzl"</span>, <span class="pl-s">"war_image"</span>)
 
-war_image(
-    name = "war_image",
-    srcs = ["Servlet.java"],
-    # Put these JARs into their own layers.
-    layers = [
-        ":java_image_library",
-        "@javax_servlet_api//jar:jar",
+<span class="pl-en">war_image</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"war_image"</span>,
+    <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> [<span class="pl-s">"Servlet.java"</span>],
+    <span class="pl-c"># Put these JARs into their own layers.</span>
+    <span class="pl-s1">layers</span> <span class="pl-c1">=</span> [
+        <span class="pl-s">":java_image_library"</span>,
+        <span class="pl-s">"@javax_servlet_api//jar:jar"</span>,
     ],
-)
-</code></pre></div>
+)</pre></div>
 <p dir="auto">The produced image uses Jetty 9.x to serve the web application. Servlets included in the web application need to follow the API specification 3.0. For best compatibility, use a <a href="https://search.maven.org/search?q=g:org.mortbay.jetty%20AND%20a:servlet-api&amp;core=gav" rel="nofollow">Servlet dependency provided by the Jetty project</a>.</p>
 <p dir="auto">A Servlet implementation needs to declare the <code>@WebServlet</code> annotation to be auto-discovered. The use of a <code>web.xml</code> to declare the Servlet URL mapping is not supported.</p>
 <p dir="auto">If you need to modify somehow the container produced by
@@ -1068,7 +1043,7 @@ war_image(
 and see <a href="#go_image-custom-base">go_image (custom base)</a> example.</p>
 <h3 id="user-content-scala_image" dir="auto"><a class="heading-link" href="#scala_image">scala_image<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h3>
 <p dir="auto">To use <code>scala_image</code>, add the following to <code>WORKSPACE</code>:</p>
-<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(&quot;@bazel_tools//tools/build_defs/repo:http.bzl&quot;, &quot;http_archive&quot;)
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@bazel_tools//tools/build_defs/repo:http.bzl&quot;, &quot;http_archive&quot;)
 
 # You *must* import the Scala rules before setting up the scala_image rules.
 http_archive(
@@ -1096,62 +1071,60 @@ load(
     _scala_image_repos = &quot;repositories&quot;,
 )
 
-_scala_image_repos()"><pre lang="python" class="notranslate"><code>load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+_scala_image_repos()"><pre><span class="pl-en">load</span>(<span class="pl-s">"@bazel_tools//tools/build_defs/repo:http.bzl"</span>, <span class="pl-s">"http_archive"</span>)
 
-# You *must* import the Scala rules before setting up the scala_image rules.
-http_archive(
-    name = "io_bazel_rules_scala",
-    # Replace with a real SHA256 checksum
-    sha256 = "{SHA256}"
-    # Replace with a real commit SHA
-    strip_prefix = "rules_scala-{HEAD}",
-    urls = ["https://github.com/bazelbuild/rules_scala/archive/{HEAD}.tar.gz"],
+<span class="pl-c"># You *must* import the Scala rules before setting up the scala_image rules.</span>
+<span class="pl-en">http_archive</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"io_bazel_rules_scala"</span>,
+    <span class="pl-c"># Replace with a real SHA256 checksum</span>
+    <span class="pl-s1">sha256</span> <span class="pl-c1">=</span> <span class="pl-s">"{SHA256}"</span>
+    <span class="pl-c"># Replace with a real commit SHA</span>
+    <span class="pl-s1">strip_prefix</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_scala-{HEAD}"</span>,
+    <span class="pl-s1">urls</span> <span class="pl-c1">=</span> [<span class="pl-s">"https://github.com/bazelbuild/rules_scala/archive/{HEAD}.tar.gz"</span>],
 )
 
-load("@io_bazel_rules_scala//scala:scala.bzl", "scala_repositories")
+<span class="pl-en">load</span>(<span class="pl-s">"@io_bazel_rules_scala//scala:scala.bzl"</span>, <span class="pl-s">"scala_repositories"</span>)
 
-scala_repositories()
+<span class="pl-en">scala_repositories</span>()
 
-load(
-    "@io_bazel_rules_docker//repositories:repositories.bzl",
-    container_repositories = "repositories",
+<span class="pl-en">load</span>(
+    <span class="pl-s">"@io_bazel_rules_docker//repositories:repositories.bzl"</span>,
+    <span class="pl-s1">container_repositories</span> <span class="pl-c1">=</span> <span class="pl-s">"repositories"</span>,
 )
 
-container_repositories()
+<span class="pl-en">container_repositories</span>()
 
-load(
-    "@io_bazel_rules_docker//scala:image.bzl",
-    _scala_image_repos = "repositories",
+<span class="pl-en">load</span>(
+    <span class="pl-s">"@io_bazel_rules_docker//scala:image.bzl"</span>,
+    <span class="pl-s1">_scala_image_repos</span> <span class="pl-c1">=</span> <span class="pl-s">"repositories"</span>,
 )
 
-_scala_image_repos()
-</code></pre></div>
+<span class="pl-en">_scala_image_repos</span>()</pre></div>
 <p dir="auto">Note: See note about diamond dependencies in <a href="#setup">setup</a>
 if you run into issues related to external repos after adding these
 lines to your <code>WORKSPACE</code>.</p>
 <p dir="auto">Then in your <code>BUILD</code> file, simply rewrite <code>scala_binary</code> to <code>scala_image</code> with the
 following import:</p>
-<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(&quot;@io_bazel_rules_docker//scala:image.bzl&quot;, &quot;scala_image&quot;)
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@io_bazel_rules_docker//scala:image.bzl&quot;, &quot;scala_image&quot;)
 
 scala_image(
     name = &quot;scala_image&quot;,
     srcs = [&quot;Binary.scala&quot;],
     main_class = &quot;examples.images.Binary&quot;,
-)"><pre lang="python" class="notranslate"><code>load("@io_bazel_rules_docker//scala:image.bzl", "scala_image")
+)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@io_bazel_rules_docker//scala:image.bzl"</span>, <span class="pl-s">"scala_image"</span>)
 
-scala_image(
-    name = "scala_image",
-    srcs = ["Binary.scala"],
-    main_class = "examples.images.Binary",
-)
-</code></pre></div>
+<span class="pl-en">scala_image</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"scala_image"</span>,
+    <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> [<span class="pl-s">"Binary.scala"</span>],
+    <span class="pl-s1">main_class</span> <span class="pl-c1">=</span> <span class="pl-s">"examples.images.Binary"</span>,
+)</pre></div>
 <p dir="auto">If you need to modify somehow the container produced by
 <code>scala_image</code> (e.g., <code>env</code>, <code>symlink</code>), see note above in
 <a href="#overview-1">Language Rules Overview</a> about how to do this
 and see <a href="#go_image-custom-base">go_image (custom base)</a> example.</p>
 <h3 id="user-content-groovy_image" dir="auto"><a class="heading-link" href="#groovy_image">groovy_image<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h3>
 <p dir="auto">To use <code>groovy_image</code>, add the following to <code>WORKSPACE</code>:</p>
-<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(&quot;@bazel_tools//tools/build_defs/repo:http.bzl&quot;, &quot;http_archive&quot;)
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@bazel_tools//tools/build_defs/repo:http.bzl&quot;, &quot;http_archive&quot;)
 
 # You *must* import the Groovy rules before setting up the groovy_image rules.
 http_archive(
@@ -1179,62 +1152,60 @@ load(
     _groovy_image_repos = &quot;repositories&quot;,
 )
 
-_groovy_image_repos()"><pre lang="python" class="notranslate"><code>load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+_groovy_image_repos()"><pre><span class="pl-en">load</span>(<span class="pl-s">"@bazel_tools//tools/build_defs/repo:http.bzl"</span>, <span class="pl-s">"http_archive"</span>)
 
-# You *must* import the Groovy rules before setting up the groovy_image rules.
-http_archive(
-    name = "io_bazel_rules_groovy",
-    # Replace with a real SHA256 checksum
-    sha256 = "{SHA256}"
-    # Replace with a real commit SHA
-    strip_prefix = "rules_groovy-{HEAD}",
-    urls = ["https://github.com/bazelbuild/rules_groovy/archive/{HEAD}.tar.gz"],
+<span class="pl-c"># You *must* import the Groovy rules before setting up the groovy_image rules.</span>
+<span class="pl-en">http_archive</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"io_bazel_rules_groovy"</span>,
+    <span class="pl-c"># Replace with a real SHA256 checksum</span>
+    <span class="pl-s1">sha256</span> <span class="pl-c1">=</span> <span class="pl-s">"{SHA256}"</span>
+    <span class="pl-c"># Replace with a real commit SHA</span>
+    <span class="pl-s1">strip_prefix</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_groovy-{HEAD}"</span>,
+    <span class="pl-s1">urls</span> <span class="pl-c1">=</span> [<span class="pl-s">"https://github.com/bazelbuild/rules_groovy/archive/{HEAD}.tar.gz"</span>],
 )
 
-load("@io_bazel_rules_groovy//groovy:groovy.bzl", "groovy_repositories")
+<span class="pl-en">load</span>(<span class="pl-s">"@io_bazel_rules_groovy//groovy:groovy.bzl"</span>, <span class="pl-s">"groovy_repositories"</span>)
 
-groovy_repositories()
+<span class="pl-en">groovy_repositories</span>()
 
-load(
-    "@io_bazel_rules_docker//repositories:repositories.bzl",
-    container_repositories = "repositories",
+<span class="pl-en">load</span>(
+    <span class="pl-s">"@io_bazel_rules_docker//repositories:repositories.bzl"</span>,
+    <span class="pl-s1">container_repositories</span> <span class="pl-c1">=</span> <span class="pl-s">"repositories"</span>,
 )
 
-container_repositories()
+<span class="pl-en">container_repositories</span>()
 
-load(
-    "@io_bazel_rules_docker//groovy:image.bzl",
-    _groovy_image_repos = "repositories",
+<span class="pl-en">load</span>(
+    <span class="pl-s">"@io_bazel_rules_docker//groovy:image.bzl"</span>,
+    <span class="pl-s1">_groovy_image_repos</span> <span class="pl-c1">=</span> <span class="pl-s">"repositories"</span>,
 )
 
-_groovy_image_repos()
-</code></pre></div>
+<span class="pl-en">_groovy_image_repos</span>()</pre></div>
 <p dir="auto">Note: See note about diamond dependencies in <a href="#setup">setup</a>
 if you run into issues related to external repos after adding these
 lines to your <code>WORKSPACE</code>.</p>
 <p dir="auto">Then in your <code>BUILD</code> file, simply rewrite <code>groovy_binary</code> to <code>groovy_image</code> with the
 following import:</p>
-<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(&quot;@io_bazel_rules_docker//groovy:image.bzl&quot;, &quot;groovy_image&quot;)
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@io_bazel_rules_docker//groovy:image.bzl&quot;, &quot;groovy_image&quot;)
 
 groovy_image(
     name = &quot;groovy_image&quot;,
     srcs = [&quot;Binary.groovy&quot;],
     main_class = &quot;examples.images.Binary&quot;,
-)"><pre lang="python" class="notranslate"><code>load("@io_bazel_rules_docker//groovy:image.bzl", "groovy_image")
+)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@io_bazel_rules_docker//groovy:image.bzl"</span>, <span class="pl-s">"groovy_image"</span>)
 
-groovy_image(
-    name = "groovy_image",
-    srcs = ["Binary.groovy"],
-    main_class = "examples.images.Binary",
-)
-</code></pre></div>
+<span class="pl-en">groovy_image</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"groovy_image"</span>,
+    <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> [<span class="pl-s">"Binary.groovy"</span>],
+    <span class="pl-s1">main_class</span> <span class="pl-c1">=</span> <span class="pl-s">"examples.images.Binary"</span>,
+)</pre></div>
 <p dir="auto">If you need to modify somehow the container produced by
 <code>groovy_image</code> (e.g., <code>env</code>, <code>symlink</code>), see note above in
 <a href="#overview-1">Language Rules Overview</a> about how to do this
 and see <a href="#go_image-custom-base">go_image (custom base)</a> example.</p>
 <h3 id="user-content-rust_image" dir="auto"><a class="heading-link" href="#rust_image">rust_image<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h3>
 <p dir="auto">To use <code>rust_image</code>, add the following to <code>WORKSPACE</code>:</p>
-<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(&quot;@bazel_tools//tools/build_defs/repo:http.bzl&quot;, &quot;http_archive&quot;)
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@bazel_tools//tools/build_defs/repo:http.bzl&quot;, &quot;http_archive&quot;)
 
 # You *must* import the Rust rules before setting up the rust_image rules.
 http_archive(
@@ -1262,60 +1233,58 @@ load(
     _rust_image_repos = &quot;repositories&quot;,
 )
 
-_rust_image_repos()"><pre lang="python" class="notranslate"><code>load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+_rust_image_repos()"><pre><span class="pl-en">load</span>(<span class="pl-s">"@bazel_tools//tools/build_defs/repo:http.bzl"</span>, <span class="pl-s">"http_archive"</span>)
 
-# You *must* import the Rust rules before setting up the rust_image rules.
-http_archive(
-    name = "rules_rust",
-    # Replace with a real SHA256 checksum
-    sha256 = "{SHA256}"
-    # Replace with a real commit SHA
-    strip_prefix = "rules_rust-{HEAD}",
-    urls = ["https://github.com/bazelbuild/rules_rust/archive/{HEAD}.tar.gz"],
+<span class="pl-c"># You *must* import the Rust rules before setting up the rust_image rules.</span>
+<span class="pl-en">http_archive</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_rust"</span>,
+    <span class="pl-c"># Replace with a real SHA256 checksum</span>
+    <span class="pl-s1">sha256</span> <span class="pl-c1">=</span> <span class="pl-s">"{SHA256}"</span>
+    <span class="pl-c"># Replace with a real commit SHA</span>
+    <span class="pl-s1">strip_prefix</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_rust-{HEAD}"</span>,
+    <span class="pl-s1">urls</span> <span class="pl-c1">=</span> [<span class="pl-s">"https://github.com/bazelbuild/rules_rust/archive/{HEAD}.tar.gz"</span>],
 )
 
-load("@rules_rust//rust:repositories.bzl", "rust_repositories")
+<span class="pl-en">load</span>(<span class="pl-s">"@rules_rust//rust:repositories.bzl"</span>, <span class="pl-s">"rust_repositories"</span>)
 
-rust_repositories()
+<span class="pl-en">rust_repositories</span>()
 
-load(
-    "@io_bazel_rules_docker//repositories:repositories.bzl",
-    container_repositories = "repositories",
+<span class="pl-en">load</span>(
+    <span class="pl-s">"@io_bazel_rules_docker//repositories:repositories.bzl"</span>,
+    <span class="pl-s1">container_repositories</span> <span class="pl-c1">=</span> <span class="pl-s">"repositories"</span>,
 )
 
-container_repositories()
+<span class="pl-en">container_repositories</span>()
 
-load(
-    "@io_bazel_rules_docker//rust:image.bzl",
-    _rust_image_repos = "repositories",
+<span class="pl-en">load</span>(
+    <span class="pl-s">"@io_bazel_rules_docker//rust:image.bzl"</span>,
+    <span class="pl-s1">_rust_image_repos</span> <span class="pl-c1">=</span> <span class="pl-s">"repositories"</span>,
 )
 
-_rust_image_repos()
-</code></pre></div>
+<span class="pl-en">_rust_image_repos</span>()</pre></div>
 <p dir="auto">Note: See note about diamond dependencies in <a href="#setup">setup</a>
 if you run into issues related to external repos after adding these
 lines to your <code>WORKSPACE</code>.</p>
 <p dir="auto">Then in your <code>BUILD</code> file, simply rewrite <code>rust_binary</code> to <code>rust_image</code> with the
 following import:</p>
-<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(&quot;@io_bazel_rules_docker//rust:image.bzl&quot;, &quot;rust_image&quot;)
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@io_bazel_rules_docker//rust:image.bzl&quot;, &quot;rust_image&quot;)
 
 rust_image(
     name = &quot;rust_image&quot;,
     srcs = [&quot;main.rs&quot;],
-)"><pre lang="python" class="notranslate"><code>load("@io_bazel_rules_docker//rust:image.bzl", "rust_image")
+)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@io_bazel_rules_docker//rust:image.bzl"</span>, <span class="pl-s">"rust_image"</span>)
 
-rust_image(
-    name = "rust_image",
-    srcs = ["main.rs"],
-)
-</code></pre></div>
+<span class="pl-en">rust_image</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"rust_image"</span>,
+    <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> [<span class="pl-s">"main.rs"</span>],
+)</pre></div>
 <p dir="auto">If you need to modify somehow the container produced by
 <code>rust_image</code> (e.g., <code>env</code>, <code>symlink</code>), see note above in
 <a href="#overview-1">Language Rules Overview</a> about how to do this
 and see <a href="#go_image-custom-base">go_image (custom base)</a> example.</p>
 <h3 id="user-content-d_image" dir="auto"><a class="heading-link" href="#d_image">d_image<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h3>
 <p dir="auto">To use <code>d_image</code>, add the following to <code>WORKSPACE</code>:</p>
-<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(&quot;@bazel_tools//tools/build_defs/repo:http.bzl&quot;, &quot;http_archive&quot;)
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@bazel_tools//tools/build_defs/repo:http.bzl&quot;, &quot;http_archive&quot;)
 
 # You *must* import the D rules before setting up the d_image rules.
 http_archive(
@@ -1343,53 +1312,51 @@ load(
     _d_image_repos = &quot;repositories&quot;,
 )
 
-_d_image_repos()"><pre lang="python" class="notranslate"><code>load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+_d_image_repos()"><pre><span class="pl-en">load</span>(<span class="pl-s">"@bazel_tools//tools/build_defs/repo:http.bzl"</span>, <span class="pl-s">"http_archive"</span>)
 
-# You *must* import the D rules before setting up the d_image rules.
-http_archive(
-    name = "io_bazel_rules_d",
-    # Replace with a real SHA256 checksum
-    sha256 = "{SHA256}"
-    # Replace with a real commit SHA
-    strip_prefix = "rules_d-{HEAD}",
-    urls = ["https://github.com/bazelbuild/rules_d/archive/{HEAD}.tar.gz"],
+<span class="pl-c"># You *must* import the D rules before setting up the d_image rules.</span>
+<span class="pl-en">http_archive</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"io_bazel_rules_d"</span>,
+    <span class="pl-c"># Replace with a real SHA256 checksum</span>
+    <span class="pl-s1">sha256</span> <span class="pl-c1">=</span> <span class="pl-s">"{SHA256}"</span>
+    <span class="pl-c"># Replace with a real commit SHA</span>
+    <span class="pl-s1">strip_prefix</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_d-{HEAD}"</span>,
+    <span class="pl-s1">urls</span> <span class="pl-c1">=</span> [<span class="pl-s">"https://github.com/bazelbuild/rules_d/archive/{HEAD}.tar.gz"</span>],
 )
 
-load("@io_bazel_rules_d//d:d.bzl", "d_repositories")
+<span class="pl-en">load</span>(<span class="pl-s">"@io_bazel_rules_d//d:d.bzl"</span>, <span class="pl-s">"d_repositories"</span>)
 
-d_repositories()
+<span class="pl-en">d_repositories</span>()
 
-load(
-    "@io_bazel_rules_docker//repositories:repositories.bzl",
-    container_repositories = "repositories",
+<span class="pl-en">load</span>(
+    <span class="pl-s">"@io_bazel_rules_docker//repositories:repositories.bzl"</span>,
+    <span class="pl-s1">container_repositories</span> <span class="pl-c1">=</span> <span class="pl-s">"repositories"</span>,
 )
 
-container_repositories()
+<span class="pl-en">container_repositories</span>()
 
-load(
-    "@io_bazel_rules_docker//d:image.bzl",
-    _d_image_repos = "repositories",
+<span class="pl-en">load</span>(
+    <span class="pl-s">"@io_bazel_rules_docker//d:image.bzl"</span>,
+    <span class="pl-s1">_d_image_repos</span> <span class="pl-c1">=</span> <span class="pl-s">"repositories"</span>,
 )
 
-_d_image_repos()
-</code></pre></div>
+<span class="pl-en">_d_image_repos</span>()</pre></div>
 <p dir="auto">Note: See note about diamond dependencies in <a href="#setup">setup</a>
 if you run into issues related to external repos after adding these
 lines to your <code>WORKSPACE</code>.</p>
 <p dir="auto">Then in your <code>BUILD</code> file, simply rewrite <code>d_binary</code> to <code>d_image</code> with the
 following import:</p>
-<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(&quot;@io_bazel_rules_docker//d:image.bzl&quot;, &quot;d_image&quot;)
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@io_bazel_rules_docker//d:image.bzl&quot;, &quot;d_image&quot;)
 
 d_image(
     name = &quot;d_image&quot;,
     srcs = [&quot;main.d&quot;],
-)"><pre lang="python" class="notranslate"><code>load("@io_bazel_rules_docker//d:image.bzl", "d_image")
+)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@io_bazel_rules_docker//d:image.bzl"</span>, <span class="pl-s">"d_image"</span>)
 
-d_image(
-    name = "d_image",
-    srcs = ["main.d"],
-)
-</code></pre></div>
+<span class="pl-en">d_image</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"d_image"</span>,
+    <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> [<span class="pl-s">"main.d"</span>],
+)</pre></div>
 <p dir="auto">If you need to modify somehow the container produced by
 <code>d_image</code> (e.g., <code>env</code>, <code>symlink</code>), see note above in
 <a href="#overview-1">Language Rules Overview</a> about how to do this
@@ -1400,7 +1367,7 @@ attribute.  If specified, they will be appended directly after the
 container ENTRYPOINT binary name.</p>
 </blockquote>
 <h3 id="user-content-container_bundle" dir="auto"><a class="heading-link" href="#container_bundle">container_bundle<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h3>
-<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="container_bundle(
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="container_bundle(
     name = &quot;bundle&quot;,
     images = {
         # A set of images to bundle up into a single tarball.
@@ -1408,54 +1375,51 @@ container ENTRYPOINT binary name.</p>
         &quot;gcr.io/foo/bar:blah&quot;: &quot;//my:sidecar&quot;,
         &quot;gcr.io/foo/bar:booo&quot;: &quot;@your//random:image&quot;,
     }
-)"><pre lang="python" class="notranslate"><code>container_bundle(
-    name = "bundle",
-    images = {
-        # A set of images to bundle up into a single tarball.
-        "gcr.io/foo/bar:bazz": ":app",
-        "gcr.io/foo/bar:blah": "//my:sidecar",
-        "gcr.io/foo/bar:booo": "@your//random:image",
+)"><pre><span class="pl-en">container_bundle</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"bundle"</span>,
+    <span class="pl-s1">images</span> <span class="pl-c1">=</span> {
+        <span class="pl-c"># A set of images to bundle up into a single tarball.</span>
+        <span class="pl-s">"gcr.io/foo/bar:bazz"</span>: <span class="pl-s">":app"</span>,
+        <span class="pl-s">"gcr.io/foo/bar:blah"</span>: <span class="pl-s">"//my:sidecar"</span>,
+        <span class="pl-s">"gcr.io/foo/bar:booo"</span>: <span class="pl-s">"@your//random:image"</span>,
     }
-)
-</code></pre></div>
+)</pre></div>
 <h3 id="user-content-container_pull" dir="auto"><a class="heading-link" href="#container_pull">container_pull<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h3>
 <p dir="auto">In <code>WORKSPACE</code>:</p>
-<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="container_pull(
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="container_pull(
     name = &quot;base&quot;,
     registry = &quot;gcr.io&quot;,
     repository = &quot;my-project/my-base&quot;,
     # 'tag' is also supported, but digest is encouraged for reproducibility.
     digest = &quot;sha256:deadbeef&quot;,
-)"><pre lang="python" class="notranslate"><code>container_pull(
-    name = "base",
-    registry = "gcr.io",
-    repository = "my-project/my-base",
-    # 'tag' is also supported, but digest is encouraged for reproducibility.
-    digest = "sha256:deadbeef",
-)
-</code></pre></div>
+)"><pre><span class="pl-en">container_pull</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"base"</span>,
+    <span class="pl-s1">registry</span> <span class="pl-c1">=</span> <span class="pl-s">"gcr.io"</span>,
+    <span class="pl-s1">repository</span> <span class="pl-c1">=</span> <span class="pl-s">"my-project/my-base"</span>,
+    <span class="pl-c"># 'tag' is also supported, but digest is encouraged for reproducibility.</span>
+    <span class="pl-s1">digest</span> <span class="pl-c1">=</span> <span class="pl-s">"sha256:deadbeef"</span>,
+)</pre></div>
 <p dir="auto">This can then be referenced in <code>BUILD</code> files as <code>@base//image</code>.</p>
 <p dir="auto">To get the correct digest one can run <code>docker manifest inspect gcr.io/my-project/my-base:tag</code> once <a href="https://docs.docker.com/engine/reference/commandline/manifest_inspect" rel="nofollow">experimental docker cli features are enabled</a>.</p>
 <p dir="auto">See <a href="#container_pull-custom-client-configuration">here</a> for an example of how
 to use container_pull with custom docker authentication credentials.</p>
 <h3 id="user-content-container_push" dir="auto"><a class="heading-link" href="#container_push">container_push<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h3>
 <p dir="auto">This target pushes on <code>bazel run :push_foo</code>:</p>
-<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="container_push(
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="container_push(
    name = &quot;push_foo&quot;,
    image = &quot;:foo&quot;,
    format = &quot;Docker&quot;,
    registry = &quot;gcr.io&quot;,
    repository = &quot;my-project/my-image&quot;,
    tag = &quot;dev&quot;,
-)"><pre lang="python" class="notranslate"><code>container_push(
-   name = "push_foo",
-   image = ":foo",
-   format = "Docker",
-   registry = "gcr.io",
-   repository = "my-project/my-image",
-   tag = "dev",
-)
-</code></pre></div>
+)"><pre><span class="pl-en">container_push</span>(
+   <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"push_foo"</span>,
+   <span class="pl-s1">image</span> <span class="pl-c1">=</span> <span class="pl-s">":foo"</span>,
+   <span class="pl-s1">format</span> <span class="pl-c1">=</span> <span class="pl-s">"Docker"</span>,
+   <span class="pl-s1">registry</span> <span class="pl-c1">=</span> <span class="pl-s">"gcr.io"</span>,
+   <span class="pl-s1">repository</span> <span class="pl-c1">=</span> <span class="pl-s">"my-project/my-image"</span>,
+   <span class="pl-s1">tag</span> <span class="pl-c1">=</span> <span class="pl-s">"dev"</span>,
+)</pre></div>
 <p dir="auto">We also support the <code>docker_push</code> (from <code>docker/docker.bzl</code>) and <code>oci_push</code>
 (from <code>oci/oci.bzl</code>) aliases, which bake in the <code>format = "..."</code> attribute.</p>
 <p dir="auto">See <a href="#container_push-custom-client-configuration">here</a> for an example of how
@@ -1463,7 +1427,7 @@ to use container_push with custom docker authentication credentials.</p>
 <h3 id="user-content-container_push-custom-client-configuration" dir="auto"><a class="heading-link" href="#container_push-custom-client-configuration">container_push (Custom client configuration)<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h3>
 <p dir="auto">If you wish to use container_push using custom docker authentication credentials,
 in <code>WORKSPACE</code>:</p>
-<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="# Download the rules_docker repository
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="# Download the rules_docker repository
 http_archive(
     name = &quot;io_bazel_rules_docker&quot;,
     ...
@@ -1482,29 +1446,28 @@ docker_toolchain_configure(
   # See https://docs.docker.com/engine/reference/commandline/cli/#configuration-files
   # for more details.
   client_config=&quot;@//path/to/docker:config.json&quot;,
-)"><pre lang="python" class="notranslate"><code># Download the rules_docker repository
-http_archive(
-    name = "io_bazel_rules_docker",
+)"><pre><span class="pl-c"># Download the rules_docker repository</span>
+<span class="pl-en">http_archive</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"io_bazel_rules_docker"</span>,
     ...
 )
 
-# Load the macro that allows you to customize the docker toolchain configuration.
-load("@io_bazel_rules_docker//toolchains/docker:toolchain.bzl",
-    docker_toolchain_configure="toolchain_configure"
+<span class="pl-c"># Load the macro that allows you to customize the docker toolchain configuration.</span>
+<span class="pl-en">load</span>(<span class="pl-s">"@io_bazel_rules_docker//toolchains/docker:toolchain.bzl"</span>,
+    <span class="pl-s1">docker_toolchain_configure</span><span class="pl-c1">=</span><span class="pl-s">"toolchain_configure"</span>
 )
 
-docker_toolchain_configure(
-  name = "docker_config",
-  # Replace this with a Bazel label to the config.json file. Note absolute or relative
-  # paths are not supported. Docker allows you to specify custom authentication credentials
-  # in the client configuration JSON file.
-  # See https://docs.docker.com/engine/reference/commandline/cli/#configuration-files
-  # for more details.
-  client_config="@//path/to/docker:config.json",
-)
-</code></pre></div>
+<span class="pl-en">docker_toolchain_configure</span>(
+  <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"docker_config"</span>,
+  <span class="pl-c"># Replace this with a Bazel label to the config.json file. Note absolute or relative</span>
+  <span class="pl-c"># paths are not supported. Docker allows you to specify custom authentication credentials</span>
+  <span class="pl-c"># in the client configuration JSON file.</span>
+  <span class="pl-c"># See https://docs.docker.com/engine/reference/commandline/cli/#configuration-files</span>
+  <span class="pl-c"># for more details.</span>
+  <span class="pl-s1">client_config</span><span class="pl-c1">=</span><span class="pl-s">"@//path/to/docker:config.json"</span>,
+)</pre></div>
 <p dir="auto">In <code>BUILD</code> file:</p>
-<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(&quot;@io_bazel_rules_docker//container:container.bzl&quot;, &quot;container_push&quot;)
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@io_bazel_rules_docker//container:container.bzl&quot;, &quot;container_push&quot;)
 
 container_push(
    name = &quot;push_foo&quot;,
@@ -1513,74 +1476,69 @@ container_push(
    registry = &quot;gcr.io&quot;,
    repository = &quot;my-project/my-image&quot;,
    tag = &quot;dev&quot;,
-)"><pre lang="python" class="notranslate"><code>load("@io_bazel_rules_docker//container:container.bzl", "container_push")
+)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@io_bazel_rules_docker//container:container.bzl"</span>, <span class="pl-s">"container_push"</span>)
 
-container_push(
-   name = "push_foo",
-   image = ":foo",
-   format = "Docker",
-   registry = "gcr.io",
-   repository = "my-project/my-image",
-   tag = "dev",
-)
-</code></pre></div>
+<span class="pl-en">container_push</span>(
+   <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"push_foo"</span>,
+   <span class="pl-s1">image</span> <span class="pl-c1">=</span> <span class="pl-s">":foo"</span>,
+   <span class="pl-s1">format</span> <span class="pl-c1">=</span> <span class="pl-s">"Docker"</span>,
+   <span class="pl-s1">registry</span> <span class="pl-c1">=</span> <span class="pl-s">"gcr.io"</span>,
+   <span class="pl-s1">repository</span> <span class="pl-c1">=</span> <span class="pl-s">"my-project/my-image"</span>,
+   <span class="pl-s1">tag</span> <span class="pl-c1">=</span> <span class="pl-s">"dev"</span>,
+)</pre></div>
 <h3 id="user-content-container_pull-dockerhub" dir="auto"><a class="heading-link" href="#container_pull-dockerhub">container_pull (DockerHub)<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h3>
 <p dir="auto">In <code>WORKSPACE</code>:</p>
-<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="container_pull(
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="container_pull(
     name = &quot;official_ubuntu&quot;,
     registry = &quot;index.docker.io&quot;,
     repository = &quot;library/ubuntu&quot;,
     tag = &quot;14.04&quot;,
-)"><pre lang="python" class="notranslate"><code>container_pull(
-    name = "official_ubuntu",
-    registry = "index.docker.io",
-    repository = "library/ubuntu",
-    tag = "14.04",
-)
-</code></pre></div>
+)"><pre><span class="pl-en">container_pull</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"official_ubuntu"</span>,
+    <span class="pl-s1">registry</span> <span class="pl-c1">=</span> <span class="pl-s">"index.docker.io"</span>,
+    <span class="pl-s1">repository</span> <span class="pl-c1">=</span> <span class="pl-s">"library/ubuntu"</span>,
+    <span class="pl-s1">tag</span> <span class="pl-c1">=</span> <span class="pl-s">"14.04"</span>,
+)</pre></div>
 <p dir="auto">This can then be referenced in <code>BUILD</code> files as <code>@official_ubuntu//image</code>.</p>
 <h3 id="user-content-container_pull-quayio" dir="auto"><a class="heading-link" href="#container_pull-quayio">container_pull (Quay.io)<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h3>
 <p dir="auto">In <code>WORKSPACE</code>:</p>
-<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="container_pull(
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="container_pull(
     name = &quot;etcd&quot;,
     registry = &quot;quay.io&quot;,
     repository = &quot;coreos/etcd&quot;,
     tag = &quot;latest&quot;,
-)"><pre lang="python" class="notranslate"><code>container_pull(
-    name = "etcd",
-    registry = "quay.io",
-    repository = "coreos/etcd",
-    tag = "latest",
-)
-</code></pre></div>
+)"><pre><span class="pl-en">container_pull</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"etcd"</span>,
+    <span class="pl-s1">registry</span> <span class="pl-c1">=</span> <span class="pl-s">"quay.io"</span>,
+    <span class="pl-s1">repository</span> <span class="pl-c1">=</span> <span class="pl-s">"coreos/etcd"</span>,
+    <span class="pl-s1">tag</span> <span class="pl-c1">=</span> <span class="pl-s">"latest"</span>,
+)</pre></div>
 <p dir="auto">This can then be referenced in <code>BUILD</code> files as <code>@etcd//image</code>.</p>
 <h3 id="user-content-container_pull-bintrayio" dir="auto"><a class="heading-link" href="#container_pull-bintrayio">container_pull (Bintray.io)<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h3>
 <p dir="auto">In <code>WORKSPACE</code>:</p>
-<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="container_pull(
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="container_pull(
     name = &quot;artifactory&quot;,
     registry = &quot;docker.bintray.io&quot;,
     repository = &quot;jfrog/artifactory-pro&quot;,
-)"><pre lang="python" class="notranslate"><code>container_pull(
-    name = "artifactory",
-    registry = "docker.bintray.io",
-    repository = "jfrog/artifactory-pro",
-)
-</code></pre></div>
+)"><pre><span class="pl-en">container_pull</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"artifactory"</span>,
+    <span class="pl-s1">registry</span> <span class="pl-c1">=</span> <span class="pl-s">"docker.bintray.io"</span>,
+    <span class="pl-s1">repository</span> <span class="pl-c1">=</span> <span class="pl-s">"jfrog/artifactory-pro"</span>,
+)</pre></div>
 <p dir="auto">This can then be referenced in <code>BUILD</code> files as <code>@artifactory//image</code>.</p>
 <h3 id="user-content-container_pull-gitlab" dir="auto"><a class="heading-link" href="#container_pull-gitlab">container_pull (Gitlab)<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h3>
 <p dir="auto">In <code>WORKSPACE</code>:</p>
-<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="container_pull(
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="container_pull(
     name = &quot;gitlab&quot;,
     registry = &quot;registry.gitlab.com&quot;,
     repository = &quot;username/project/image&quot;,
     tag = &quot;tag&quot;,
-)"><pre lang="python" class="notranslate"><code>container_pull(
-    name = "gitlab",
-    registry = "registry.gitlab.com",
-    repository = "username/project/image",
-    tag = "tag",
-)
-</code></pre></div>
+)"><pre><span class="pl-en">container_pull</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"gitlab"</span>,
+    <span class="pl-s1">registry</span> <span class="pl-c1">=</span> <span class="pl-s">"registry.gitlab.com"</span>,
+    <span class="pl-s1">repository</span> <span class="pl-c1">=</span> <span class="pl-s">"username/project/image"</span>,
+    <span class="pl-s1">tag</span> <span class="pl-c1">=</span> <span class="pl-s">"tag"</span>,
+)</pre></div>
 <p dir="auto">This can then be referenced in <code>BUILD</code> files as <code>@gitlab//image</code>.</p>
 <h3 id="user-content-container_pull-custom-client-configuration" dir="auto"><a class="heading-link" href="#container_pull-custom-client-configuration">container_pull (Custom client configuration)<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h3>
 <p dir="auto">If you specified a docker client directory using the <code>client_config</code> attribute
@@ -1588,7 +1546,7 @@ to the docker toolchain configuration described <a href="#setup">here</a>, you
 can use a container_pull that uses the authentication credentials from the
 specified docker client directory as follows:</p>
 <p dir="auto">In <code>WORKSPACE</code>:</p>
-<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(&quot;@io_bazel_rules_docker//toolchains/docker:toolchain.bzl&quot;,
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@io_bazel_rules_docker//toolchains/docker:toolchain.bzl&quot;,
     docker_toolchain_configure=&quot;toolchain_configure&quot;
 )
 
@@ -1609,29 +1567,28 @@ authenticated_container_pull(
     registry = &quot;registry.gitlab.com&quot;,
     repository = &quot;username/project/image&quot;,
     tag = &quot;tag&quot;,
-)"><pre lang="python" class="notranslate"><code>load("@io_bazel_rules_docker//toolchains/docker:toolchain.bzl",
-    docker_toolchain_configure="toolchain_configure"
+)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@io_bazel_rules_docker//toolchains/docker:toolchain.bzl"</span>,
+    <span class="pl-s1">docker_toolchain_configure</span><span class="pl-c1">=</span><span class="pl-s">"toolchain_configure"</span>
 )
 
-# Configure the docker toolchain.
-docker_toolchain_configure(
-  name = "docker_config",
-  # Bazel label to a custom docker client config.json with
-  # authentication credentials for registry.gitlab.com (used in this example).
-  client_config="@//path/to/docker/client:config.json",
+<span class="pl-c"># Configure the docker toolchain.</span>
+<span class="pl-en">docker_toolchain_configure</span>(
+  <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"docker_config"</span>,
+  <span class="pl-c"># Bazel label to a custom docker client config.json with</span>
+  <span class="pl-c"># authentication credentials for registry.gitlab.com (used in this example).</span>
+  <span class="pl-s1">client_config</span><span class="pl-c1">=</span><span class="pl-s">"@//path/to/docker/client:config.json"</span>,
 )
 
-# Load the custom version of container_pull created by the docker toolchain
-# configuration.
-load("@docker_config//:pull.bzl", authenticated_container_pull="container_pull")
+<span class="pl-c"># Load the custom version of container_pull created by the docker toolchain</span>
+<span class="pl-c"># configuration.</span>
+<span class="pl-en">load</span>(<span class="pl-s">"@docker_config//:pull.bzl"</span>, <span class="pl-s1">authenticated_container_pull</span><span class="pl-c1">=</span><span class="pl-s">"container_pull"</span>)
 
-authenticated_container_pull(
-    name = "gitlab",
-    registry = "registry.gitlab.com",
-    repository = "username/project/image",
-    tag = "tag",
-)
-</code></pre></div>
+<span class="pl-en">authenticated_container_pull</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"gitlab"</span>,
+    <span class="pl-s1">registry</span> <span class="pl-c1">=</span> <span class="pl-s">"registry.gitlab.com"</span>,
+    <span class="pl-s1">repository</span> <span class="pl-c1">=</span> <span class="pl-s">"username/project/image"</span>,
+    <span class="pl-s1">tag</span> <span class="pl-c1">=</span> <span class="pl-s">"tag"</span>,
+)</pre></div>
 <p dir="auto">This can then be referenced in <code>BUILD</code> files as <code>@gitlab//image</code>.</p>
 <p dir="auto"><strong>NOTE:</strong> This should only be used if a custom <code>client_config</code> was set. If you want
 to use the DOCKER_CONFIG env variable or the default home directory
@@ -1666,8 +1623,7 @@ becomes the default.</p>
 to pick up bug fixes and security patches.  To facilitate this, the files
 containing the digest references are generated by <code>tools/update_deps.py</code>.  To
 update all of the dependencies, please run (from the root of the repository):</p>
-<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="./update_deps.sh"><pre lang="shell" class="notranslate"><code>./update_deps.sh
-</code></pre></div>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="./update_deps.sh"><pre>./update_deps.sh</pre></div>
 <p dir="auto">Image references should not be updated individually because these images have
 shared layers and letting them diverge could result in sub-optimal push and pull
 performance.</p>
