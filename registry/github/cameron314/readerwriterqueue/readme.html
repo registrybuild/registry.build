@@ -1,0 +1,213 @@
+<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><h1 id="user-content-a-single-producer-single-consumer-lock-free-queue-for-c" dir="auto"><a class="heading-link" href="#a-single-producer-single-consumer-lock-free-queue-for-c">A single-producer, single-consumer lock-free queue for C++<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h1>
+<p dir="auto">This mini-repository has my very own implementation of a lock-free queue (that I designed from scratch) for C++.</p>
+<p dir="auto">It only supports a two-thread use case (one consuming, and one producing). The threads can't switch roles, though
+you could use this queue completely from a single thread if you wish (but that would sort of defeat the purpose!).</p>
+<p dir="auto">Note: If you need a general-purpose multi-producer, multi-consumer lock free queue, I have <a href="https://github.com/cameron314/concurrentqueue">one of those too</a>.</p>
+<p dir="auto">This repository also includes a <a href="readerwritercircularbuffer.h">circular-buffer SPSC queue</a> which supports blocking on enqueue as well as dequeue.</p>
+<h2 id="user-content-features" dir="auto"><a class="heading-link" href="#features">Features<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h2>
+<ul dir="auto">
+<li><a href="http://moodycamel.com/blog/2013/a-fast-lock-free-queue-for-c++#benchmarks" rel="nofollow">Blazing fast</a></li>
+<li>Compatible with C++11 (supports moving objects instead of making copies)</li>
+<li>Fully generic (templated container of any type) -- just like <code>std::queue</code>, you never need to allocate memory for elements yourself
+(which saves you the hassle of writing a lock-free memory manager to hold the elements you're queueing)</li>
+<li>Allocates memory up front, in contiguous blocks</li>
+<li>Provides a <code>try_enqueue</code> method which is guaranteed never to allocate memory (the queue starts with an initial capacity)</li>
+<li>Also provides an <code>enqueue</code> method which can dynamically grow the size of the queue as needed</li>
+<li>Also provides <code>try_emplace</code>/<code>emplace</code> convenience methods</li>
+<li>Has a blocking version with <code>wait_dequeue</code></li>
+<li>Completely "wait-free" (no compare-and-swap loop). Enqueue and dequeue are always O(1) (not counting memory allocation)</li>
+<li>On x86, the memory barriers compile down to no-ops, meaning enqueue and dequeue are just a simple series of loads and stores (and branches)</li>
+</ul>
+<h2 id="user-content-use" dir="auto"><a class="heading-link" href="#use">Use<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h2>
+<p dir="auto">Simply drop the readerwriterqueue.h (or readerwritercircularbuffer.h) and atomicops.h files into your source code and include them :-)
+A modern compiler is required (MSVC2010+, GCC 4.7+, ICC 13+, or any C++11 compliant compiler should work).</p>
+<p dir="auto">Note: If you're using GCC, you really do need GCC 4.7 or above -- <a href="http://stackoverflow.com/questions/16429669/stdatomic-thread-fence-has-undefined-reference" rel="nofollow">4.6 has a bug</a> that prevents the atomic fence primitives
+from working correctly.</p>
+<p dir="auto">Example:</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="using namespace moodycamel;
+
+ReaderWriterQueue&lt;int&gt; q(100);       // Reserve space for at least 100 elements up front
+
+q.enqueue(17);                       // Will allocate memory if the queue is full
+bool succeeded = q.try_enqueue(18);  // Will only succeed if the queue has an empty slot (never allocates)
+assert(succeeded);
+
+int number;
+succeeded = q.try_dequeue(number);  // Returns false if the queue was empty
+
+assert(succeeded &amp;&amp; number == 17);
+
+// You can also peek at the front item of the queue (consumer only)
+int* front = q.peek();
+assert(*front == 18);
+succeeded = q.try_dequeue(number);
+assert(succeeded &amp;&amp; number == 18);
+front = q.peek(); 
+assert(front == nullptr);           // Returns nullptr if the queue was empty"><pre><span class="pl-k">using</span> <span class="pl-k">namespace</span> <span class="pl-en">moodycamel</span><span class="pl-k">;</span>
+
+ReaderWriterQueue&lt;<span class="pl-k">int</span>&gt; <span class="pl-en">q</span>(<span class="pl-c1">100</span>);       <span class="pl-c"><span class="pl-c">//</span> Reserve space for at least 100 elements up front</span>
+
+q.enqueue(<span class="pl-c1">17</span>);                       <span class="pl-c"><span class="pl-c">//</span> Will allocate memory if the queue is full</span>
+<span class="pl-k">bool</span> succeeded = q.try_enqueue(<span class="pl-c1">18</span>);  <span class="pl-c"><span class="pl-c">//</span> Will only succeed if the queue has an empty slot (never allocates)</span>
+<span class="pl-en">assert</span>(succeeded);
+
+<span class="pl-k">int</span> number;
+succeeded = q.try_dequeue(number);  <span class="pl-c"><span class="pl-c">//</span> Returns false if the queue was empty</span>
+
+<span class="pl-en">assert</span>(succeeded &amp;&amp; number == <span class="pl-c1">17</span>);
+
+<span class="pl-c"><span class="pl-c">//</span> You can also peek at the front item of the queue (consumer only)</span>
+<span class="pl-k">int</span>* front = q.peek();
+<span class="pl-en">assert</span>(*front == <span class="pl-c1">18</span>);
+succeeded = q.try_dequeue(number);
+<span class="pl-en">assert</span>(succeeded &amp;&amp; number == <span class="pl-c1">18</span>);
+front = q.peek(); 
+<span class="pl-en">assert</span>(front == <span class="pl-c1">nullptr</span>);           <span class="pl-c"><span class="pl-c">//</span> Returns nullptr if the queue was empty</span></pre></div>
+<p dir="auto">The blocking version has the exact same API, with the addition of <code>wait_dequeue</code> and
+<code>wait_dequeue_timed</code> methods:</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="BlockingReaderWriterQueue&lt;int&gt; q;
+
+std::thread reader([&amp;]() {
+    int item;
+#if 1
+    for (int i = 0; i != 100; ++i) {
+        // Fully-blocking:
+        q.wait_dequeue(item);
+    }
+#else
+    for (int i = 0; i != 100; ) {
+        // Blocking with timeout
+        if (q.wait_dequeue_timed(item, std::chrono::milliseconds(5)))
+            ++i;
+    }
+#endif
+});
+std::thread writer([&amp;]() {
+    for (int i = 0; i != 100; ++i) {
+        q.enqueue(i);
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+});
+writer.join();
+reader.join();
+
+assert(q.size_approx() == 0);"><pre>BlockingReaderWriterQueue&lt;<span class="pl-k">int</span>&gt; q;
+
+std::thread <span class="pl-en">reader</span>([&amp;]() {
+    <span class="pl-k">int</span> item;
+#<span class="pl-k">if</span> <span class="pl-c1">1</span>
+    <span class="pl-k">for</span> (<span class="pl-k">int</span> i = <span class="pl-c1">0</span>; i != <span class="pl-c1">100</span>; ++i) {
+        <span class="pl-c"><span class="pl-c">//</span> Fully-blocking:</span>
+        q.<span class="pl-c1">wait_dequeue</span>(item);
+    }
+#<span class="pl-k">else</span><span class="pl-c"></span>
+<span class="pl-c">    for (int i = 0; i != 100; ) {</span>
+<span class="pl-c">        // Blocking with timeout</span>
+<span class="pl-c">        if (q.wait_dequeue_timed(item, std::chrono::milliseconds(5)))</span>
+<span class="pl-c">            ++i;</span>
+<span class="pl-c">    }</span>
+<span class="pl-c"></span>#<span class="pl-k">endif</span>
+});
+std::thread <span class="pl-en">writer</span>([&amp;]() {
+    <span class="pl-k">for</span> (<span class="pl-k">int</span> i = <span class="pl-c1">0</span>; i != <span class="pl-c1">100</span>; ++i) {
+        q.<span class="pl-c1">enqueue</span>(i);
+        <span class="pl-c1">std::this_thread::sleep_for</span>(<span class="pl-c1">std::chrono::milliseconds</span>(<span class="pl-c1">10</span>));
+    }
+});
+writer.join();
+reader.join();
+
+<span class="pl-en">assert</span>(q.size_approx() == 0);</pre></div>
+<p dir="auto">Note that <code>wait_dequeue</code> will block indefinitely while the queue is empty; this
+means care must be taken to only call <code>wait_dequeue</code> if you're sure another element
+will come along eventually, or if the queue has a static lifetime. This is because
+destroying the queue while a thread is waiting on it will invoke undefined behaviour.</p>
+<p dir="auto">The blocking circular buffer has a fixed number of slots, but is otherwise quite similar to
+use:</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="BlockingReaderWriterCircularBuffer&lt;int&gt; q(1024);  // pass initial capacity
+
+q.try_enqueue(1);
+int number;
+q.try_dequeue(number);
+assert(number == 1);
+
+q.wait_enqueue(123);
+q.wait_dequeue(number);
+assert(number == 123);
+
+q.wait_dequeue_timed(number, std::chrono::milliseconds(10));"><pre>BlockingReaderWriterCircularBuffer&lt;<span class="pl-k">int</span>&gt; <span class="pl-en">q</span>(<span class="pl-c1">1024</span>);  <span class="pl-c"><span class="pl-c">//</span> pass initial capacity</span>
+
+q.try_enqueue(<span class="pl-c1">1</span>);
+<span class="pl-k">int</span> number;
+q.try_dequeue(number);
+<span class="pl-en">assert</span>(number == <span class="pl-c1">1</span>);
+
+q.wait_enqueue(<span class="pl-c1">123</span>);
+q.wait_dequeue(number);
+<span class="pl-en">assert</span>(number == <span class="pl-c1">123</span>);
+
+q.wait_dequeue_timed(number, std::chrono::milliseconds(<span class="pl-c1">10</span>));</pre></div>
+<h2 id="user-content-cmake" dir="auto"><a class="heading-link" href="#cmake">CMake<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h2>
+<h3 id="user-content-using-targets-in-your-project" dir="auto"><a class="heading-link" href="#using-targets-in-your-project">Using targets in your project<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h3>
+<p dir="auto">Using this project as a part of an existing CMake project is easy.</p>
+<p dir="auto">In your CMakeLists.txt:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="include(FetchContent)
+
+FetchContent_Declare(
+  readerwriterqueue
+  GIT_REPOSITORY    https://github.com/cameron314/readerwriterqueue
+  GIT_TAG           master
+)
+
+FetchContent_MakeAvailable(readerwriterqueue)
+
+add_library(my_target main.cpp)
+target_link_libraries(my_target PUBLIC readerwriterqueue)"><pre class="notranslate"><code>include(FetchContent)
+
+FetchContent_Declare(
+  readerwriterqueue
+  GIT_REPOSITORY    https://github.com/cameron314/readerwriterqueue
+  GIT_TAG           master
+)
+
+FetchContent_MakeAvailable(readerwriterqueue)
+
+add_library(my_target main.cpp)
+target_link_libraries(my_target PUBLIC readerwriterqueue)
+</code></pre></div>
+<p dir="auto">In main.cpp:</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="#include &lt;readerwriterqueue.h&gt;
+
+int main()
+{
+    moodycamel::ReaderWriterQueue&lt;int&gt; q(100);
+}"><pre>#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>readerwriterqueue.h<span class="pl-pds">&gt;</span></span>
+
+<span class="pl-k">int</span> <span class="pl-en">main</span>()
+{
+    moodycamel::ReaderWriterQueue&lt;<span class="pl-k">int</span>&gt; <span class="pl-c1">q</span>(<span class="pl-c1">100</span>);
+}</pre></div>
+<h3 id="user-content-installing-into-system-directories" dir="auto"><a class="heading-link" href="#installing-into-system-directories">Installing into system directories<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h3>
+<p dir="auto">As an alternative to including the source files in your project directly,
+you can use CMake to install the library in your system's include directory:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="mkdir build
+cd build
+cmake ..
+make install"><pre class="notranslate"><code>mkdir build
+cd build
+cmake ..
+make install
+</code></pre></div>
+<p dir="auto">Then, you can include it from your source code:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="#include &lt;readerwriterqueue/readerwriterqueue.h&gt;"><pre class="notranslate"><code>#include &lt;readerwriterqueue/readerwriterqueue.h&gt;
+</code></pre></div>
+<h2 id="user-content-disclaimers" dir="auto"><a class="heading-link" href="#disclaimers">Disclaimers<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h2>
+<p dir="auto">The queue should only be used on platforms where aligned integer and pointer access is atomic; fortunately, that
+includes all modern processors (e.g. x86/x86-64, ARM, and PowerPC). <em>Not</em> for use with a DEC Alpha processor (which has very weak memory ordering) :-)</p>
+<p dir="auto">Note that it's only been tested on x86(-64); if someone has access to other processors I'd love to run some tests on
+anything that's not x86-based.</p>
+<h2 id="user-content-more-info" dir="auto"><a class="heading-link" href="#more-info">More info<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h2>
+<p dir="auto">See the <a href="LICENSE.md">LICENSE.md</a> file for the license (simplified BSD).</p>
+<p dir="auto">My <a href="http://moodycamel.com/blog/2013/a-fast-lock-free-queue-for-c++" rel="nofollow">blog post</a> introduces the context that led to this code, and may be of interest if you're curious
+about lock-free programming.</p>
+</article></div>

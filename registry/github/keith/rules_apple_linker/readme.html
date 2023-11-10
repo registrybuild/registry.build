@@ -13,12 +13,6 @@ of your link times. For example here are some real world benchmarks (see
 <p dir="auto">The default linker for MachO binaries is maintained by Apple and
 generally referred to as <code>ld64</code> (even though the binary is still <code>ld</code>).
 Currently there are 2 primary alternatives:</p>
-<h3 id="user-content-zld" dir="auto"><a class="heading-link" href="#zld">zld<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h3>
-<p dir="auto"><a href="https://github.com/michaeleisel/zld"><code>zld</code></a> is a fork of <code>ld64</code> that optimizes performance. This means
-you likely get output that is very similar to what <code>ld64</code> produces.
-Unfortunately the base of <code>zld</code> naturally lags behind changes in <code>ld64</code>
-because Apple doesn't often push their changes. This means theoretically
-some features could be a bit behind what you get with Xcode's version.</p>
 <h3 id="user-content-lld" dir="auto"><a class="heading-link" href="#lld">lld<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h3>
 <p dir="auto"><a href="https://lld.llvm.org/" rel="nofollow"><code>lld</code></a> is LLVM's linker. It is a completely separate
 implementation of a MachO linker, meaning behavior can differ
@@ -26,10 +20,9 @@ significantly from <code>ld64</code>, but should still be correct. See <a href="
 docs</a> for some known differences. <code>lld</code>'s MachO support is
 evolving quickly and is being used in production to link Chrome today.</p>
 <h1 id="user-content-usage" dir="auto"><a class="heading-link" href="#usage">Usage<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h1>
-<p dir="auto">By default <code>rules_apple_linker</code> provides targets for <code>zld</code>
-(<code>@rules_apple_linker//:zld</code>) and <code>lld</code> (<code>@rules_apple_linker//:lld</code>)
-for you to use. To enable them add one of the rules to the <code>deps</code> of
-your targets:</p>
+<p dir="auto">By default <code>rules_apple_linker</code> provides a target for <code>lld</code>
+(<code>@rules_apple_linker//:lld</code>) for you to use. To enable it add the
+target to the <code>deps</code> of your targets:</p>
 <div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="objc_library(
     name = &quot;main&quot;,
     ...
@@ -45,12 +38,12 @@ dependency trees, you can add it directly to the <code>deps</code> of your
 <a href="https://github.com/bazelbuild/rules_apple"><code>rules_apple</code></a> packaging target. For example in a custom
 macro:</p>
 <div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="def my_custom_ios_unit_test(**kwargs):
-    deps = kwargs.pop(&quot;deps&quot;, []) + [&quot;@rules_apple_linker//:zld&quot;]
+    deps = kwargs.pop(&quot;deps&quot;, []) + [&quot;@rules_apple_linker//:lld&quot;]
     ios_unit_test(
         deps = deps,
         **kwargs
     )"><pre><span class="pl-k">def</span> <span class="pl-en">my_custom_ios_unit_test</span>(<span class="pl-c1">**</span><span class="pl-s1">kwargs</span>):
-    <span class="pl-s1">deps</span> <span class="pl-c1">=</span> <span class="pl-s1">kwargs</span>.<span class="pl-en">pop</span>(<span class="pl-s">"deps"</span>, []) <span class="pl-c1">+</span> [<span class="pl-s">"@rules_apple_linker//:zld"</span>]
+    <span class="pl-s1">deps</span> <span class="pl-c1">=</span> <span class="pl-s1">kwargs</span>.<span class="pl-en">pop</span>(<span class="pl-s">"deps"</span>, []) <span class="pl-c1">+</span> [<span class="pl-s">"@rules_apple_linker//:lld"</span>]
     <span class="pl-en">ios_unit_test</span>(
         <span class="pl-s1">deps</span> <span class="pl-c1">=</span> <span class="pl-s1">deps</span>,
         <span class="pl-c1">**</span><span class="pl-s1">kwargs</span>
@@ -108,19 +101,19 @@ lld_override(
 <p dir="auto">If you'd like to provide your own binary or bazel rule for the linker
 you want to use, you can pass the <code>linker</code> option when creating your own
 target:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@rules_apple_linker//:rules.bzl&quot;, &quot;zld_override&quot;)
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@rules_apple_linker//:rules.bzl&quot;, &quot;lld_override&quot;)
 
-zld_override(
-    name = &quot;zld&quot;,
-    linker = &quot;@zld//:my-newer-zld&quot;,
-)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@rules_apple_linker//:rules.bzl"</span>, <span class="pl-s">"zld_override"</span>)
+lld_override(
+    name = &quot;lld&quot;,
+    linker = &quot;@lld//:my-newer-lld&quot;,
+)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@rules_apple_linker//:rules.bzl"</span>, <span class="pl-s">"lld_override"</span>)
 
-<span class="pl-en">zld_override</span>(
-    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"zld"</span>,
-    <span class="pl-s1">linker</span> <span class="pl-c1">=</span> <span class="pl-s">"@zld//:my-newer-zld"</span>,
+<span class="pl-en">lld_override</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"lld"</span>,
+    <span class="pl-s1">linker</span> <span class="pl-c1">=</span> <span class="pl-s">"@lld//:my-newer-lld"</span>,
 )</pre></div>
-<p dir="auto">You can also use the <code>apple_linker_override</code> rule directly if
-you don't want <code>zld</code> or <code>lld</code> specific parameters.</p>
+<p dir="auto">You can also use the <code>apple_linker_override</code> rule directly if you don't
+the <code>lld</code> specific parameters.</p>
 <div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="
 load(&quot;@rules_apple_linker//:rules.bzl&quot;, &quot;apple_linker_override&quot;)
 

@@ -19,32 +19,17 @@ development inside a Bazel workspace.</p>
 <li><a href="#quickstart">Quickstart</a>
 <ul dir="auto">
 <li><a href="#1-enable-bzlmod">1. Enable bzlmod</a></li>
-<li><a href="#2-configure-your-workspace-to-use-rules_swift_package_manager">2. Configure your workspace to use rules_swift_package_manager.</a>
-<ul dir="auto">
-<li><a href="#bzlmod-configure-your-modulebazel">Bzlmod: Configure your <code>MODULE.bazel</code></a></li>
-<li><a href="#legacy-add-declarations-to-your-workspace-file">Legacy: Add declarations to your <code>WORKSPACE</code> file</a></li>
-</ul>
-</li>
+<li><a href="#2-configure-your-modulebazel-to-use-rules_swift_package_manager">2. Configure your <code>MODULE.bazel</code> to use rules_swift_package_manager.</a></li>
 <li><a href="#3-create-a-minimal-packageswift-file">3. Create a minimal <code>Package.swift</code> file.</a></li>
-<li><a href="#4-add-gazelle-targets-to-buildbazel-at-the-root-of-your-workspace">4. Add Gazelle targets to <code>BUILD.bazel</code> at the root of your workspace.</a>
-<ul dir="auto">
-<li><a href="#legacy-modify-the-swift_update_packages-declaration">Legacy: Modify the <code>swift_update_packages</code> declaration.</a></li>
-</ul>
-</li>
+<li><a href="#4-add-gazelle-targets-to-buildbazel-at-the-root-of-your-workspace">4. Add Gazelle targets to <code>BUILD.bazel</code> at the root of your workspace.</a></li>
 <li><a href="#5-resolve-the-external-dependencies-for-your-project">5. Resolve the external dependencies for your project.</a></li>
 <li><a href="#6-create-or-update-bazel-build-files-for-your-project">6. Create or update Bazel build files for your project.</a></li>
 <li><a href="#7-build-and-test-your-project">7. Build and test your project.</a></li>
-<li><a href="#8-check-in-some-generated-files">8. Check in some generated files.</a>
-<ul dir="auto">
-<li><a href="#bzlmod-check-in-packageresolved-swift_deps_indexjson-and-modulebazel">Bzlmod: Check-in <code>Package.resolved</code>, <code>swift_deps_index.json</code>, and <code>MODULE.bazel</code>.</a></li>
-<li><a href="#legacy-check-in-packageresolved-swift_deps_indexjson-and-swift_depsbzl">Legacy: Check-in <code>Package.resolved</code>, <code>swift_deps_index.json</code>, and <code>swift_deps.bzl</code>.</a></li>
-</ul>
-</li>
+<li><a href="#8-check-in-packageresolved-swift_deps_indexjson-and-modulebazel">8. Check-in <code>Package.resolved</code>, <code>swift_deps_index.json</code>, and <code>MODULE.bazel</code>.</a></li>
 <li><a href="#9-start-coding">9. Start coding</a></li>
 </ul>
 </li>
 <li><a href="#tips-and-tricks">Tips and Tricks</a></li>
-<li><a href="#future-work">Future Work</a></li>
 </ul>
 
 <h2 id="user-content-documentation" dir="auto"><a class="heading-link" href="#documentation">Documentation<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h2>
@@ -73,18 +58,20 @@ EOF"><pre>cat <span class="pl-k">&gt;&gt;</span>local.bazelrc <span class="pl-s"
 actions. See the <a href=".github/workflows/ci.yml">CI GitHub workflow</a> for more details.</p>
 <h2 id="user-content-quickstart" dir="auto"><a class="heading-link" href="#quickstart">Quickstart<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h2>
 <p dir="auto">The following provides a quick introduction on how to set up and use the features in this
-repository. Also, check out the <a href="examples/">examples</a> for more information.</p>
+repository. These instructions assume that you are using <a href="https://bazel.build/external/module" rel="nofollow">Bazel modules</a> to load your external
+dependencies. If you are using Bazel's legacy external dependency management, please review the
+<a href="/docs/legacy_quickstart.md">legacy quickstart</a>, instead.</p>
+<p dir="auto">Also, check out the <a href="examples/">examples</a> for more information.</p>
 <h3 id="user-content-1-enable-bzlmod" dir="auto"><a class="heading-link" href="#1-enable-bzlmod">1. Enable bzlmod<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h3>
 <p dir="auto">This repository supports <a href="https://bazel.build/external/overview#bzlmod" rel="nofollow">bzlmod</a> as well as <a href="https://bazel.build/external/overview#workspace-system" rel="nofollow">legacy <code>WORKSPACE</code> dependencies</a>. If you
 are starting a new project, it is highly recommended to use <a href="https://bazel.build/external/overview#bzlmod" rel="nofollow">bzlmod</a>. To enable bzlmod, add the
 following to your <code>.bazelrc</code>.</p>
 <div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="common --enable_bzlmod"><pre class="notranslate"><code>common --enable_bzlmod
 </code></pre></div>
-<h3 id="user-content-2-configure-your-workspace-to-use-rules_swift_package_manager" dir="auto"><a class="heading-link" href="#2-configure-your-workspace-to-use-rules_swift_package_manager">2. Configure your workspace to use </a><a href="https://github.com/cgrindel/rules_swift_package_manager">rules_swift_package_manager</a>.<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></h3>
-<h4 id="user-content-bzlmod-configure-your-modulebazel" dir="auto"><a class="heading-link" href="#bzlmod-configure-your-modulebazel">Bzlmod: Configure your <code>MODULE.bazel</code><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h4>
+<h3 id="user-content-2-configure-your-modulebazel-to-use-rules_swift_package_manager" dir="auto"><a class="heading-link" href="#2-configure-your-modulebazel-to-use-rules_swift_package_manager">2. Configure your <code>MODULE.bazel</code> to use </a><a href="https://github.com/cgrindel/rules_swift_package_manager">rules_swift_package_manager</a>.<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></h3>
 <p dir="auto">Add a dependency on <code>rules_swift_package_manager</code>.</p>
 
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel_dep(name = &quot;rules_swift_package_manager&quot;, version = &quot;0.16.0&quot;)"><pre><span class="pl-en">bazel_dep</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_swift_package_manager"</span>, <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"0.16.0"</span>)</pre></div>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel_dep(name = &quot;rules_swift_package_manager&quot;, version = &quot;0.20.0&quot;)"><pre><span class="pl-en">bazel_dep</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_swift_package_manager"</span>, <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"0.20.0"</span>)</pre></div>
 
 <p dir="auto">You will also need to add a dependency on Gazelle, <code>rules_swift</code>, and possibly <code>rules_apple</code>. Follow
 the links below to get the latest bzlmod snippets to insert into your <code>MODULE.bazel</code>.</p>
@@ -98,136 +85,6 @@ the links below to get the latest bzlmod snippets to insert into your <code>MODU
 of your Swift package dependencies might require this ruleset. If you just want things to work, add
 <a href="https://github.com/bazelbuild/rules_apple">rules_apple</a> as a dependency. Otherwise, try building without <a href="https://github.com/bazelbuild/rules_apple">rules_apple</a> and be on the lookout
 for missing depdency errors.</p>
-<h4 id="user-content-legacy-add-declarations-to-your-workspace-file" dir="auto"><a class="heading-link" href="#legacy-add-declarations-to-your-workspace-file">Legacy: Add declarations to your <code>WORKSPACE</code> file<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h4>
-<p dir="auto">Update the <code>WORKSPACE</code> file to load the dependencies for <a href="https://github.com/cgrindel/rules_swift_package_manager">rules_swift_package_manager</a>, <a href="https://github.com/bazelbuild/rules_swift">rules_swift</a> and <a href="https://github.com/bazelbuild/bazel-gazelle">Gazelle</a>.</p>
-
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@bazel_tools//tools/build_defs/repo:http.bzl&quot;, &quot;http_archive&quot;)
-
-http_archive(
-    name = &quot;rules_swift_package_manager&quot;,
-    sha256 = &quot;4b1b1dec2d172a688cc0266b3b8b70a8c92f53a5e824bfaadb0f91c3a351b6fc&quot;,
-    urls = [
-        &quot;https://github.com/cgrindel/rules_swift_package_manager/releases/download/v0.16.0/rules_swift_package_manager.v0.16.0.tar.gz&quot;,
-    ],
-)
-
-load(&quot;@rules_swift_package_manager//:deps.bzl&quot;, &quot;swift_bazel_dependencies&quot;)
-
-swift_bazel_dependencies()
-
-load(&quot;@cgrindel_bazel_starlib//:deps.bzl&quot;, &quot;bazel_starlib_dependencies&quot;)
-
-bazel_starlib_dependencies()
-
-# MARK: - Gazelle
-
-# gazelle:repo bazel_gazelle
-
-load(&quot;@bazel_gazelle//:deps.bzl&quot;, &quot;gazelle_dependencies&quot;)
-load(&quot;@rules_swift_package_manager//:go_deps.bzl&quot;, &quot;swift_bazel_go_dependencies&quot;)
-load(&quot;@io_bazel_rules_go//go:deps.bzl&quot;, &quot;go_register_toolchains&quot;, &quot;go_rules_dependencies&quot;)
-
-# Declare Go dependencies before calling go_rules_dependencies.
-swift_bazel_go_dependencies()
-
-go_rules_dependencies()
-
-go_register_toolchains(version = &quot;1.19.1&quot;)
-
-gazelle_dependencies()
-
-# MARK: - Swift Toolchain
-
-http_archive(
-    name = &quot;build_bazel_rules_swift&quot;,
-    # Populate with your preferred release 
-    # https://github.com/bazelbuild/rules_swift/releases
-)
-
-load(
-    &quot;@build_bazel_rules_swift//swift:repositories.bzl&quot;,
-    &quot;swift_rules_dependencies&quot;,
-)
-load(&quot;//:swift_deps.bzl&quot;, &quot;swift_dependencies&quot;)
-
-# gazelle:repository_macro swift_deps.bzl%swift_dependencies
-swift_dependencies()
-
-swift_rules_dependencies()
-
-load(
-    &quot;@build_bazel_rules_swift//swift:extras.bzl&quot;,
-    &quot;swift_rules_extra_dependencies&quot;,
-)
-
-swift_rules_extra_dependencies()"><pre><span class="pl-en">load</span>(<span class="pl-s">"@bazel_tools//tools/build_defs/repo:http.bzl"</span>, <span class="pl-s">"http_archive"</span>)
-
-<span class="pl-en">http_archive</span>(
-    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_swift_package_manager"</span>,
-    <span class="pl-s1">sha256</span> <span class="pl-c1">=</span> <span class="pl-s">"4b1b1dec2d172a688cc0266b3b8b70a8c92f53a5e824bfaadb0f91c3a351b6fc"</span>,
-    <span class="pl-s1">urls</span> <span class="pl-c1">=</span> [
-        <span class="pl-s">"https://github.com/cgrindel/rules_swift_package_manager/releases/download/v0.16.0/rules_swift_package_manager.v0.16.0.tar.gz"</span>,
-    ],
-)
-
-<span class="pl-en">load</span>(<span class="pl-s">"@rules_swift_package_manager//:deps.bzl"</span>, <span class="pl-s">"swift_bazel_dependencies"</span>)
-
-<span class="pl-en">swift_bazel_dependencies</span>()
-
-<span class="pl-en">load</span>(<span class="pl-s">"@cgrindel_bazel_starlib//:deps.bzl"</span>, <span class="pl-s">"bazel_starlib_dependencies"</span>)
-
-<span class="pl-en">bazel_starlib_dependencies</span>()
-
-<span class="pl-c"># MARK: - Gazelle</span>
-
-<span class="pl-c"># gazelle:repo bazel_gazelle</span>
-
-<span class="pl-en">load</span>(<span class="pl-s">"@bazel_gazelle//:deps.bzl"</span>, <span class="pl-s">"gazelle_dependencies"</span>)
-<span class="pl-en">load</span>(<span class="pl-s">"@rules_swift_package_manager//:go_deps.bzl"</span>, <span class="pl-s">"swift_bazel_go_dependencies"</span>)
-<span class="pl-en">load</span>(<span class="pl-s">"@io_bazel_rules_go//go:deps.bzl"</span>, <span class="pl-s">"go_register_toolchains"</span>, <span class="pl-s">"go_rules_dependencies"</span>)
-
-<span class="pl-c"># Declare Go dependencies before calling go_rules_dependencies.</span>
-<span class="pl-en">swift_bazel_go_dependencies</span>()
-
-<span class="pl-en">go_rules_dependencies</span>()
-
-<span class="pl-en">go_register_toolchains</span>(<span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"1.19.1"</span>)
-
-<span class="pl-en">gazelle_dependencies</span>()
-
-<span class="pl-c"># MARK: - Swift Toolchain</span>
-
-<span class="pl-en">http_archive</span>(
-    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"build_bazel_rules_swift"</span>,
-    <span class="pl-c"># Populate with your preferred release </span>
-    <span class="pl-c"># https://github.com/bazelbuild/rules_swift/releases</span>
-)
-
-<span class="pl-en">load</span>(
-    <span class="pl-s">"@build_bazel_rules_swift//swift:repositories.bzl"</span>,
-    <span class="pl-s">"swift_rules_dependencies"</span>,
-)
-<span class="pl-en">load</span>(<span class="pl-s">"//:swift_deps.bzl"</span>, <span class="pl-s">"swift_dependencies"</span>)
-
-<span class="pl-c"># gazelle:repository_macro swift_deps.bzl%swift_dependencies</span>
-<span class="pl-en">swift_dependencies</span>()
-
-<span class="pl-en">swift_rules_dependencies</span>()
-
-<span class="pl-en">load</span>(
-    <span class="pl-s">"@build_bazel_rules_swift//swift:extras.bzl"</span>,
-    <span class="pl-s">"swift_rules_extra_dependencies"</span>,
-)
-
-<span class="pl-en">swift_rules_extra_dependencies</span>()</pre></div>
-
-<p dir="auto">The above <code>WORKSPACE</code> boilerplate loads a file called <code>swift_deps.bzl</code>. The Gazelle plugin will
-populate it, shortly. For now, create the file with the follwing contents:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="# Contents of swift_deps.bzl
-def swift_dependencies():
-    pass"><pre><span class="pl-c"># Contents of swift_deps.bzl</span>
-<span class="pl-k">def</span> <span class="pl-en">swift_dependencies</span>():
-    <span class="pl-k">pass</span></pre></div>
 <h3 id="user-content-3-create-a-minimal-packageswift-file" dir="auto"><a class="heading-link" href="#3-create-a-minimal-packageswift-file">3. Create a minimal <code>Package.swift</code> file.<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h3>
 <p dir="auto">Create a minimal <code>Package.swift</code> file that only contains the external dependencies that are directly
 used by your Bazel workspace.</p>
@@ -264,17 +121,17 @@ time.</p>
 <div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@bazel_gazelle//:def.bzl&quot;, &quot;gazelle&quot;, &quot;gazelle_binary&quot;)
 load(&quot;@rules_swift_package_manager//swiftpkg:defs.bzl&quot;, &quot;swift_update_packages&quot;)
 
-# Ignore the `.build` folder that is created by running Swift package manager 
-# commands. The Swift Gazelle plugin executes some Swift package manager 
-# commands to resolve external dependencies. This results in a `.build` file 
+# Ignore the `.build` folder that is created by running Swift package manager
+# commands. The Swift Gazelle plugin executes some Swift package manager
+# commands to resolve external dependencies. This results in a `.build` file
 # being created.
-# NOTE: Swift package manager is not used to build any of the external packages. 
-# The `.build` directory should be ignored. Be sure to configure your source 
+# NOTE: Swift package manager is not used to build any of the external packages.
+# The `.build` directory should be ignored. Be sure to configure your source
 # control to ignore it (i.e., add it to your `.gitignore`).
 # gazelle:exclude .build
 
-# This declaration builds a Gazelle binary that incorporates all of the Gazelle 
-# plugins for the languages that you use in your workspace. In this example, we 
+# This declaration builds a Gazelle binary that incorporates all of the Gazelle
+# plugins for the languages that you use in your workspace. In this example, we
 # are only listing the Gazelle plugin for Swift from rules_swift_package_manager.
 gazelle_binary(
     name = &quot;gazelle_bin&quot;,
@@ -283,15 +140,15 @@ gazelle_binary(
     ],
 )
 
-# This macro defines two targets: `swift_update_pkgs` and 
-# `swift_update_pkgs_to_latest`. 
+# This macro defines two targets: `swift_update_pkgs` and
+# `swift_update_pkgs_to_latest`.
 #
-# The `swift_update_pkgs` target should be run whenever the list of external 
-# dependencies is updated in the `Package.swift`. Running this target will 
-# populate the `swift_deps.bzl` with `swift_package` declarations for all of 
+# The `swift_update_pkgs` target should be run whenever the list of external
+# dependencies is updated in the `Package.swift`. Running this target will
+# populate the `swift_deps.bzl` with `swift_package` declarations for all of
 # the direct and transitive Swift packages that your project uses.
-# 
-# The `swift_update_pkgs_to_latest` target should be run when you want to 
+#
+# The `swift_update_pkgs_to_latest` target should be run when you want to
 # update your Swift dependencies to their latest eligible version.
 swift_update_packages(
     name = &quot;swift_update_pkgs&quot;,
@@ -300,7 +157,7 @@ swift_update_packages(
     update_bzlmod_stanzas = True,
 )
 
-# This target updates the Bazel build files for your project. Run this target 
+# This target updates the Bazel build files for your project. Run this target
 # whenever you add or remove source files from your project.
 gazelle(
     name = &quot;update_build_files&quot;,
@@ -308,17 +165,17 @@ gazelle(
 )"><pre><span class="pl-en">load</span>(<span class="pl-s">"@bazel_gazelle//:def.bzl"</span>, <span class="pl-s">"gazelle"</span>, <span class="pl-s">"gazelle_binary"</span>)
 <span class="pl-en">load</span>(<span class="pl-s">"@rules_swift_package_manager//swiftpkg:defs.bzl"</span>, <span class="pl-s">"swift_update_packages"</span>)
 
-<span class="pl-c"># Ignore the `.build` folder that is created by running Swift package manager </span>
-<span class="pl-c"># commands. The Swift Gazelle plugin executes some Swift package manager </span>
-<span class="pl-c"># commands to resolve external dependencies. This results in a `.build` file </span>
+<span class="pl-c"># Ignore the `.build` folder that is created by running Swift package manager</span>
+<span class="pl-c"># commands. The Swift Gazelle plugin executes some Swift package manager</span>
+<span class="pl-c"># commands to resolve external dependencies. This results in a `.build` file</span>
 <span class="pl-c"># being created.</span>
-<span class="pl-c"># NOTE: Swift package manager is not used to build any of the external packages. </span>
-<span class="pl-c"># The `.build` directory should be ignored. Be sure to configure your source </span>
+<span class="pl-c"># NOTE: Swift package manager is not used to build any of the external packages.</span>
+<span class="pl-c"># The `.build` directory should be ignored. Be sure to configure your source</span>
 <span class="pl-c"># control to ignore it (i.e., add it to your `.gitignore`).</span>
 <span class="pl-c"># gazelle:exclude .build</span>
 
-<span class="pl-c"># This declaration builds a Gazelle binary that incorporates all of the Gazelle </span>
-<span class="pl-c"># plugins for the languages that you use in your workspace. In this example, we </span>
+<span class="pl-c"># This declaration builds a Gazelle binary that incorporates all of the Gazelle</span>
+<span class="pl-c"># plugins for the languages that you use in your workspace. In this example, we</span>
 <span class="pl-c"># are only listing the Gazelle plugin for Swift from rules_swift_package_manager.</span>
 <span class="pl-en">gazelle_binary</span>(
     <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"gazelle_bin"</span>,
@@ -327,15 +184,15 @@ gazelle(
     ],
 )
 
-<span class="pl-c"># This macro defines two targets: `swift_update_pkgs` and </span>
-<span class="pl-c"># `swift_update_pkgs_to_latest`. </span>
+<span class="pl-c"># This macro defines two targets: `swift_update_pkgs` and</span>
+<span class="pl-c"># `swift_update_pkgs_to_latest`.</span>
 <span class="pl-c">#</span>
-<span class="pl-c"># The `swift_update_pkgs` target should be run whenever the list of external </span>
-<span class="pl-c"># dependencies is updated in the `Package.swift`. Running this target will </span>
-<span class="pl-c"># populate the `swift_deps.bzl` with `swift_package` declarations for all of </span>
+<span class="pl-c"># The `swift_update_pkgs` target should be run whenever the list of external</span>
+<span class="pl-c"># dependencies is updated in the `Package.swift`. Running this target will</span>
+<span class="pl-c"># populate the `swift_deps.bzl` with `swift_package` declarations for all of</span>
 <span class="pl-c"># the direct and transitive Swift packages that your project uses.</span>
-<span class="pl-c"># </span>
-<span class="pl-c"># The `swift_update_pkgs_to_latest` target should be run when you want to </span>
+<span class="pl-c">#</span>
+<span class="pl-c"># The `swift_update_pkgs_to_latest` target should be run when you want to</span>
 <span class="pl-c"># update your Swift dependencies to their latest eligible version.</span>
 <span class="pl-en">swift_update_packages</span>(
     <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"swift_update_pkgs"</span>,
@@ -344,37 +201,22 @@ gazelle(
     <span class="pl-s1">update_bzlmod_stanzas</span> <span class="pl-c1">=</span> <span class="pl-c1">True</span>,
 )
 
-<span class="pl-c"># This target updates the Bazel build files for your project. Run this target </span>
+<span class="pl-c"># This target updates the Bazel build files for your project. Run this target</span>
 <span class="pl-c"># whenever you add or remove source files from your project.</span>
 <span class="pl-en">gazelle</span>(
     <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"update_build_files"</span>,
     <span class="pl-s1">gazelle</span> <span class="pl-c1">=</span> <span class="pl-s">":gazelle_bin"</span>,
 )</pre></div>
-<h4 id="user-content-legacy-modify-the-swift_update_packages-declaration" dir="auto"><a class="heading-link" href="#legacy-modify-the-swift_update_packages-declaration">Legacy: Modify the <code>swift_update_packages</code> declaration.<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h4>
-<p dir="auto">The configuration for the <code>swift_update_packages</code> declaration is a little differnet for the legacy
-<code>WORKSPACE</code> mode.</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="swift_update_packages(
-    name = &quot;swift_update_pkgs&quot;,
-    gazelle = &quot;:gazelle_bin&quot;,
-    generate_swift_deps_for_workspace = True,
-    update_bzlmod_stanzas = False,
-)"><pre><span class="pl-en">swift_update_packages</span>(
-    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"swift_update_pkgs"</span>,
-    <span class="pl-s1">gazelle</span> <span class="pl-c1">=</span> <span class="pl-s">":gazelle_bin"</span>,
-    <span class="pl-s1">generate_swift_deps_for_workspace</span> <span class="pl-c1">=</span> <span class="pl-c1">True</span>,
-    <span class="pl-s1">update_bzlmod_stanzas</span> <span class="pl-c1">=</span> <span class="pl-c1">False</span>,
-)</pre></div>
 <h3 id="user-content-5-resolve-the-external-dependencies-for-your-project" dir="auto"><a class="heading-link" href="#5-resolve-the-external-dependencies-for-your-project">5. Resolve the external dependencies for your project.<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h3>
 <p dir="auto">Resolve the external dependencies for your project by running the following:</p>
-<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="$ bazel run //:swift_update_pkgs"><pre>$ bazel run //:swift_update_pkgs</pre></div>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel run //:swift_update_pkgs"><pre>bazel run //:swift_update_pkgs</pre></div>
 <h3 id="user-content-6-create-or-update-bazel-build-files-for-your-project" dir="auto"><a class="heading-link" href="#6-create-or-update-bazel-build-files-for-your-project">6. Create or update Bazel build files for your project.<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h3>
 <p dir="auto">Generate/update the Bazel build files for your project by running the following:</p>
-<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="$ bazel run //:update_build_files"><pre>$ bazel run //:update_build_files</pre></div>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel run //:update_build_files"><pre>bazel run //:update_build_files</pre></div>
 <h3 id="user-content-7-build-and-test-your-project" dir="auto"><a class="heading-link" href="#7-build-and-test-your-project">7. Build and test your project.<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h3>
 <p dir="auto">Build and test your project.</p>
-<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="$ bazel test //..."><pre>$ bazel <span class="pl-c1">test</span> //...</pre></div>
-<h3 id="user-content-8-check-in-some-generated-files" dir="auto"><a class="heading-link" href="#8-check-in-some-generated-files">8. Check in some generated files.<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h3>
-<h4 id="user-content-bzlmod-check-in-packageresolved-swift_deps_indexjson-and-modulebazel" dir="auto"><a class="heading-link" href="#bzlmod-check-in-packageresolved-swift_deps_indexjson-and-modulebazel">Bzlmod: Check-in <code>Package.resolved</code>, <code>swift_deps_index.json</code>, and <code>MODULE.bazel</code>.<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h4>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel test //..."><pre>bazel <span class="pl-c1">test</span> //...</pre></div>
+<h3 id="user-content-8-check-in-packageresolved-swift_deps_indexjson-and-modulebazel" dir="auto"><a class="heading-link" href="#8-check-in-packageresolved-swift_deps_indexjson-and-modulebazel">8. Check-in <code>Package.resolved</code>, <code>swift_deps_index.json</code>, and <code>MODULE.bazel</code>.<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h3>
 <ul dir="auto">
 <li>The <code>Package.resolved</code> file specifies that exact versions of the dependencies that were
 identified.</li>
@@ -384,10 +226,6 @@ respository rules.</li>
 <code>//:swift_update_pkgs</code> adds declarations to the end of the file related to the Swift packages that
 are used by your workspace.</li>
 </ul>
-<h4 id="user-content-legacy-check-in-packageresolved-swift_deps_indexjson-and-swift_depsbzl" dir="auto"><a class="heading-link" href="#legacy-check-in-packageresolved-swift_deps_indexjson-and-swift_depsbzl">Legacy: Check-in <code>Package.resolved</code>, <code>swift_deps_index.json</code>, and <code>swift_deps.bzl</code>.<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h4>
-<p dir="auto">In the legacy <code>WORKSPACE</code> mode, you will not have a <code>MODULE.bazel</code> file, but you will have a
-<code>swift_deps.bzl</code> file. The <code>swift_deps.bzl</code> file contains the repository rule declarations that are
-required to download and prepare the external Swift packages that are used by your workspace.</p>
 <h3 id="user-content-9-start-coding" dir="auto"><a class="heading-link" href="#9-start-coding">9. Start coding<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h3>
 <p dir="auto">You are ready to start coding.</p>
 <h2 id="user-content-tips-and-tricks" dir="auto"><a class="heading-link" href="#tips-and-tricks">Tips and Tricks<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h2>
@@ -406,18 +244,10 @@ will resolve the changes to your transitive dependencies and regenerate your <co
 </li>
 <li>Do yourself a favor and create a Bazel target (e.g., <code>//:tidy</code>) that runs your repository
 maintenance targets (e.g., <code>//:swift_update_pkgs</code>, <code>//:update_build_files</code>, formatting utilities)
-in the proper order.  If you are looking for an easy way to set this up, check out the
+in the proper order. If you are looking for an easy way to set this up, check out the
 <a href="BUILD.bazel"><code>//:tidy</code> declaration in this repository</a> and the documentation for the <a href="https://github.com/cgrindel/bazel-starlib/blob/main/doc/bzltidy/rules_and_macros_overview.md#tidy">tidy</a> macro.</li>
 <li>Are you trying to use a Swift package and it just won't build under Bazel? If you can figure out
 how to fix it, you can patch the Swift package. Check out <a href="docs/patch_swift_package.md">our document on patching Swift packages</a>.</li>
 </ul>
-<h2 id="user-content-future-work" dir="auto"><a class="heading-link" href="#future-work">Future Work<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h2>
-<ul class="contains-task-list">
-<li class="task-list-item"><input type="checkbox" id="" disabled="" class="task-list-item-checkbox"> Update the Gazelle plugin to generate Bazel build files from a project's Swift package
-manifest (e.g. <code>Package.swift</code>). NOTE: The <code>swift_package</code> repository rule does generate Bazel build
-files from a package's project manifest.</li>
-<li class="task-list-item"><input type="checkbox" id="" disabled="" class="task-list-item-checkbox"> Update the Gazelle plugin to support common Swift project layouts. The Gazelle plugin knows
-how to interpret projects with <code>Sources</code> and <code>Tests</code> directories. We are looking for feedback
-about other common patterns to make the Gazelle plugin more robust.</li>
-</ul>
+
 </article></div>

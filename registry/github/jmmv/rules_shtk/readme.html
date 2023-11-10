@@ -1,0 +1,86 @@
+<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><h1 id="user-content-rules_shtk-bazel-rules-for-shtk" dir="auto"><a class="heading-link" href="#rules_shtk-bazel-rules-for-shtk">rules_shtk: Bazel rules for shtk<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h1>
+<p dir="auto">This directory contains Bazel rules to build shtk scripts and run shtk tests
+from Bazel.</p>
+<p dir="auto">The major selling point of these rules is to leverage shtk to write and run
+end-to-end unit tests for binaries you build with Bazel, especially if those
+binaries are CLI tools.  Shell scripts are uniquely suited to drive the
+execution of tools, and shtk's <code>unittest</code> module provides facilities to define
+test cases and fixtures, and to assert the behavior of command invocations.</p>
+<p dir="auto">For more information about shtk, visit <a href="https://shtk.jmmv.dev/" rel="nofollow">https://shtk.jmmv.dev/</a>.</p>
+<h2 id="user-content-set-up" dir="auto"><a class="heading-link" href="#set-up">Set up<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h2>
+<p dir="auto">To get started, add the following entry to your <code>MODULE.bazel</code>:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel_dep(name = &quot;rules_shtk&quot;, version = &quot;1.7.0&quot;)"><pre><span class="pl-en">bazel_dep</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_shtk"</span>, <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"1.7.0"</span>)</pre></div>
+<p dir="auto">Then, update your <code>WORKSPACE.bazel</code> file to load an shtk toolchain.  You can
+choose between:</p>
+<ul dir="auto">
+<li>
+<p dir="auto"><code>shtk_dist</code>, which downloads the version of shtk corresponding to the
+rules and builds it.  This is typically what you should use, especially if
+all you care about is building and running tests from within Bazel.</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@rules_shtk//:repositories.bzl&quot;, &quot;shtk_dist&quot;)
+
+# Use the shtk release that matches these rules (if these rules are version
+# 1.7.0, then this uses shtk 1.7).
+shtk_dist()"><pre><span class="pl-en">load</span>(<span class="pl-s">"@rules_shtk//:repositories.bzl"</span>, <span class="pl-s">"shtk_dist"</span>)
+
+<span class="pl-c"># Use the shtk release that matches these rules (if these rules are version</span>
+<span class="pl-c"># 1.7.0, then this uses shtk 1.7).</span>
+<span class="pl-en">shtk_dist</span>()</pre></div>
+</li>
+<li>
+<p dir="auto"><code>shtk_system</code>, which discovers an shtk toolchain installed on the system.
+Use this if you need to install the built scripts.  This macro accepts
+optional arguments to configure its auto-discovery process.</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@rules_shtk//:repositories.bzl&quot;, &quot;shtk_system&quot;)
+
+# Auto-discover the system-provided shtk by looking for shtk(1) in the PATH.
+shtk_system()
+
+# Auto-discover the system-provided shtk by looking for shtk(1) in the PATH
+# and ensure that the discovered toolchain provides a minimum shtk version.
+shtk_system(min_version = &quot;1.7&quot;)
+
+# Load a system-provided shtk from the given location.
+shtk_system(shtk_path = &quot;/usr/local/bin/shtk&quot;)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@rules_shtk//:repositories.bzl"</span>, <span class="pl-s">"shtk_system"</span>)
+
+<span class="pl-c"># Auto-discover the system-provided shtk by looking for shtk(1) in the PATH.</span>
+<span class="pl-en">shtk_system</span>()
+
+<span class="pl-c"># Auto-discover the system-provided shtk by looking for shtk(1) in the PATH</span>
+<span class="pl-c"># and ensure that the discovered toolchain provides a minimum shtk version.</span>
+<span class="pl-en">shtk_system</span>(<span class="pl-s1">min_version</span> <span class="pl-c1">=</span> <span class="pl-s">"1.7"</span>)
+
+<span class="pl-c"># Load a system-provided shtk from the given location.</span>
+<span class="pl-en">shtk_system</span>(<span class="pl-s1">shtk_path</span> <span class="pl-c1">=</span> <span class="pl-s">"/usr/local/bin/shtk"</span>)</pre></div>
+</li>
+</ul>
+<h2 id="user-content-usage" dir="auto"><a class="heading-link" href="#usage">Usage<svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></h2>
+<p dir="auto">You can find fully-defined examples under <a href="examples">examples</a>.  This section
+just gives you a quick overview of what you can do.</p>
+<p dir="auto">Define binaries like this:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@rules_shtk//:rules.bzl&quot;, &quot;shtk_binary&quot;)
+
+shtk_binary(
+    name = &quot;hello&quot;,
+    src = &quot;hello.sh&quot;,
+)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@rules_shtk//:rules.bzl"</span>, <span class="pl-s">"shtk_binary"</span>)
+
+<span class="pl-en">shtk_binary</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"hello"</span>,
+    <span class="pl-s1">src</span> <span class="pl-c1">=</span> <span class="pl-s">"hello.sh"</span>,
+)</pre></div>
+<p dir="auto">And tests like this:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@rules_shtk//:rules.bzl&quot;, &quot;shtk_test&quot;)
+
+shtk_test(
+    name = &quot;hello_test&quot;,
+    src = &quot;hello_test.sh&quot;,
+    data = [&quot;:hello&quot;],
+)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@rules_shtk//:rules.bzl"</span>, <span class="pl-s">"shtk_test"</span>)
+
+<span class="pl-en">shtk_test</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"hello_test"</span>,
+    <span class="pl-s1">src</span> <span class="pl-c1">=</span> <span class="pl-s">"hello_test.sh"</span>,
+    <span class="pl-s1">data</span> <span class="pl-c1">=</span> [<span class="pl-s">":hello"</span>],
+)</pre></div>
+</article></div>
