@@ -606,7 +606,7 @@ type Module struct {
 	Maintainers    []Maintainer           `json:"maintainers"`
 	Repository     []string               `json:"repository"`
 	Versions       []string               `json:"versions"`
-	YankedVersions map[string]interface{} `json:"yanked_versions"`
+	// YankedVersions map[string]interface{} `json:"yanked_versions"`
 	VersionData    map[string]Version     `json:"version_data"`
 }
 
