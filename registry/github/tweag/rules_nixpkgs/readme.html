@@ -432,9 +432,17 @@ default is <code>[]</code></p>
 <p dir="auto"><a id="user-content-#nixpkgs_flake_package"></a></p>
 <h3 dir="auto"><a id="user-content-nixpkgs_flake_package" class="anchor" aria-hidden="true" tabindex="-1" href="#nixpkgs_flake_package"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>nixpkgs_flake_package</h3>
 <pre>nixpkgs_flake_package(<a href="#nixpkgs_flake_package-name">name</a>, <a href="#nixpkgs_flake_package-nix_flake_file">nix_flake_file</a>, <a href="#nixpkgs_flake_package-nix_flake_lock_file">nix_flake_lock_file</a>, <a href="#nixpkgs_flake_package-nix_flake_file_deps">nix_flake_file_deps</a>, <a href="#nixpkgs_flake_package-package">package</a>,
-                      <a href="#nixpkgs_flake_package-build_file">build_file</a>, <a href="#nixpkgs_flake_package-build_file_content">build_file_content</a>, <a href="#nixpkgs_flake_package-nixopts">nixopts</a>, <a href="#nixpkgs_flake_package-quiet">quiet</a>, <a href="#nixpkgs_flake_package-fail_not_supported">fail_not_supported</a>, <a href="#nixpkgs_flake_package-kwargs">kwargs</a>)
+                      <a href="#nixpkgs_flake_package-build_file">build_file</a>, <a href="#nixpkgs_flake_package-build_file_content">build_file_content</a>, <a href="#nixpkgs_flake_package-nixopts">nixopts</a>, <a href="#nixpkgs_flake_package-quiet">quiet</a>, <a href="#nixpkgs_flake_package-fail_not_supported">fail_not_supported</a>,
+                      <a href="#nixpkgs_flake_package-legacy_path_syntax">legacy_path_syntax</a>, <a href="#nixpkgs_flake_package-kwargs">kwargs</a>)
 </pre>
 <p dir="auto">Make the content of a local Nix Flake package available in the Bazel workspace.</p>
+<p dir="auto"><strong>IMPORTANT NOTE</strong>: Calling <code>nix build</code> copies the entirety of the Nix Flake
+into the Nix Store.  When using the <code>path:</code> syntax, this means the directory
+containing <code>flake.nix</code> and any subdirectories.  Without specifying <code>path:</code>
+Nix may infer that the flake is the Git repository and copy the entire thing.
+As a consequence, you may want to isolate your flake from the rest of the
+repository to minimize the amount of unnecessary data that gets copied into
+the Nix Store whenever the flake is rebuilt.</p>
 <h4 dir="auto"><a id="user-content-parameters-2" class="anchor" aria-hidden="true" tabindex="-1" href="#parameters-2"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Parameters</h4>
 <table>
 
@@ -539,10 +547,23 @@ default is <code>True</code></p>
 <p dir="auto"></p>
 </td>
 </tr>
+<tr id="user-content-nixpkgs_flake_package-legacy_path_syntax">
+<td><code>legacy_path_syntax</code></td>
+<td>
+<p dir="auto">optional.
+default is <code>False</code></p>
+<p dir="auto">
+</p><p dir="auto">If set to True (not default), the Nix Flake invocation will directly call <code>nix build &lt;path&gt;</code> instead of <code>nix build path:&lt;path&gt;</code> which may involve copying the entirety of the Git repo into the Nix Store instead of just the path and its children.</p>
+<p dir="auto"></p>
+</td>
+</tr>
 <tr id="user-content-nixpkgs_flake_package-kwargs">
 <td><code>kwargs</code></td>
 <td>
 <p dir="auto">optional.</p>
+<p dir="auto">
+</p><p dir="auto">Common rule arguments.</p>
+<p dir="auto"></p>
 </td>
 </tr>
 </tbody>
