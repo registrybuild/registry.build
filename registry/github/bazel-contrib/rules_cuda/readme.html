@@ -1,0 +1,100 @@
+<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><h1 dir="auto"><a id="user-content-cuda-rules-for-bazel" class="anchor" aria-hidden="true" tabindex="-1" href="#cuda-rules-for-bazel"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>CUDA rules for <a href="https://bazel.build" rel="nofollow">Bazel</a></h1>
+<p dir="auto">This repository contains <a href="https://github.com/bazelbuild/starlark">Starlark</a> implementation of CUDA rules in Bazel.</p>
+<p dir="auto">These rules provide some macros and rules that make it easier to build CUDA with Bazel.</p>
+<h2 dir="auto"><a id="user-content-getting-started" class="anchor" aria-hidden="true" tabindex="-1" href="#getting-started"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Getting Started</h2>
+<p dir="auto">Add the following to your <code>WORKSPACE</code> file and replace the placeholders with actual values.</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@bazel_tools//tools/build_defs/repo:http.bzl&quot;, &quot;http_archive&quot;)
+http_archive(
+    name = &quot;rules_cuda&quot;,
+    sha256 = &quot;{sha256_to_replace}&quot;,
+    strip_prefix = &quot;rules_cuda-{git_commit_hash}&quot;,
+    urls = [&quot;https://github.com/bazel-contrib/rules_cuda/archive/{git_commit_hash}.tar.gz&quot;],
+)
+load(&quot;@rules_cuda//cuda:repositories.bzl&quot;, &quot;register_detected_cuda_toolchains&quot;, &quot;rules_cuda_dependencies&quot;)
+rules_cuda_dependencies()
+register_detected_cuda_toolchains()"><pre><span class="pl-en">load</span>(<span class="pl-s">"@bazel_tools//tools/build_defs/repo:http.bzl"</span>, <span class="pl-s">"http_archive"</span>)
+<span class="pl-en">http_archive</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_cuda"</span>,
+    <span class="pl-s1">sha256</span> <span class="pl-c1">=</span> <span class="pl-s">"{sha256_to_replace}"</span>,
+    <span class="pl-s1">strip_prefix</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_cuda-{git_commit_hash}"</span>,
+    <span class="pl-s1">urls</span> <span class="pl-c1">=</span> [<span class="pl-s">"https://github.com/bazel-contrib/rules_cuda/archive/{git_commit_hash}.tar.gz"</span>],
+)
+<span class="pl-en">load</span>(<span class="pl-s">"@rules_cuda//cuda:repositories.bzl"</span>, <span class="pl-s">"register_detected_cuda_toolchains"</span>, <span class="pl-s">"rules_cuda_dependencies"</span>)
+<span class="pl-en">rules_cuda_dependencies</span>()
+<span class="pl-en">register_detected_cuda_toolchains</span>()</pre></div>
+<p dir="auto"><strong>NOTE</strong>: the use of <code>register_detected_cuda_toolchains</code> depends on the environment variable <code>CUDA_PATH</code>. You must also
+ensure the host compiler is available. On windows, this means that you will also need to set the environment variable
+<code>BAZEL_VC</code> properly.</p>
+<p dir="auto"><a href="https://github.com/bazel-contrib/rules_cuda/blob/5633f0c0f7/cuda/private/repositories.bzl#L28-L58"><code>detect_cuda_toolkit</code></a>
+and <a href="https://github.com/bazel-contrib/rules_cuda/blob/5633f0c0f7/cuda/private/repositories.bzl#L143-L166"><code>detect_clang</code></a>
+determains how the toolchains are detected.</p>
+<h3 dir="auto"><a id="user-content-rules" class="anchor" aria-hidden="true" tabindex="-1" href="#rules"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Rules</h3>
+<ul dir="auto">
+<li><code>cuda_library</code>: Can be used to compile and create static library for CUDA kernel code. The resulting targets can be
+consumed by <a href="https://bazel.build/reference/be/c-cpp#rules" rel="nofollow">C/C++ Rules</a>.</li>
+<li><code>cuda_objects</code>: If you don't understand what <em>device link</em> means, you must never use it. This rule produce incomplete
+object files that can only be consumed by <code>cuda_library</code>. It is created for relocatable device code and device link
+time optimization source files.</li>
+</ul>
+<h3 dir="auto"><a id="user-content-flags" class="anchor" aria-hidden="true" tabindex="-1" href="#flags"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Flags</h3>
+<p dir="auto">Some flags are defined in <a href="cuda/BUILD.bazel">cuda/BUILD.bazel</a>. To use them, for example:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="bazel build --@rules_cuda//cuda:archs=compute_61:compute_61,sm_61"><pre class="notranslate"><code>bazel build --@rules_cuda//cuda:archs=compute_61:compute_61,sm_61
+</code></pre></div>
+<p dir="auto">In <code>.bazelrc</code> file, you can define shortcut alias for the flag, for example:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="# Convenient flag shortcuts.
+build --flag_alias=cuda_archs=@rules_cuda//cuda:archs"><pre class="notranslate"><code># Convenient flag shortcuts.
+build --flag_alias=cuda_archs=@rules_cuda//cuda:archs
+</code></pre></div>
+<p dir="auto">and then you can use it as following:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="bazel build --cuda_archs=compute_61:compute_61,sm_61"><pre class="notranslate"><code>bazel build --cuda_archs=compute_61:compute_61,sm_61
+</code></pre></div>
+<h4 dir="auto"><a id="user-content-available-flags" class="anchor" aria-hidden="true" tabindex="-1" href="#available-flags"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Available flags</h4>
+<ul dir="auto">
+<li>
+<p dir="auto"><code>@rules_cuda//cuda:enable</code></p>
+<p dir="auto">Enable or disable all rules_cuda related rules. When disabled, the detected cuda toolchains will also be disabled to avoid potential human error.
+By default, rules_cuda rules are enabled. See <code>examples/if_cuda</code> for how to support both cuda-enabled and cuda-free builds.</p>
+</li>
+<li>
+<p dir="auto"><code>@rules_cuda//cuda:archs</code></p>
+<p dir="auto">Select the cuda archs to support. See <a href="https://github.com/bazel-contrib/rules_cuda/blob/5633f0c0f7/cuda/private/rules/flags.bzl#L14-L44">cuda_archs specification DSL grammar</a>.</p>
+</li>
+<li>
+<p dir="auto"><code>@rules_cuda//cuda:compiler</code></p>
+<p dir="auto">Select the cuda compiler, available options are <code>nvcc</code> or <code>clang</code></p>
+</li>
+<li>
+<p dir="auto"><code>@rules_cuda//cuda:copts</code></p>
+<p dir="auto">Add the copts to all cuda compile actions.</p>
+</li>
+<li>
+<p dir="auto"><code>@rules_cuda//cuda:host_copts</code></p>
+<p dir="auto">Add the copts to the host compiler.</p>
+</li>
+<li>
+<p dir="auto"><code>@rules_cuda//cuda:runtime</code></p>
+<p dir="auto">Set the default cudart to link, for example, <code>--@rules_cuda//cuda:runtime=@local_cuda//:cuda_runtime_static</code> link the static cuda runtime.</p>
+</li>
+<li>
+<p dir="auto"><code>--features=cuda_device_debug</code></p>
+<p dir="auto">Sets nvcc flags to enable debug information in device code.
+Currently ignored for clang, where <code>--compilation_mode=debug</code> applies to both
+host and device code.</p>
+</li>
+</ul>
+<h2 dir="auto"><a id="user-content-examples" class="anchor" aria-hidden="true" tabindex="-1" href="#examples"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Examples</h2>
+<p dir="auto">Checkout the examples to see if it fits your needs.</p>
+<p dir="auto">See <a href="./examples">examples</a> for basic usage.</p>
+<p dir="auto">See <a href="https://github.com/cloudhan/rules_cuda_examples">rules_cuda_examples</a> for extended real world projects.</p>
+<h2 dir="auto"><a id="user-content-known-issue" class="anchor" aria-hidden="true" tabindex="-1" href="#known-issue"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Known issue</h2>
+<p dir="auto">Sometimes the following error occurs:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="cc1plus: fatal error: /tmp/tmpxft_00000002_00000019-2.cpp: No such file or directory"><pre class="notranslate"><code>cc1plus: fatal error: /tmp/tmpxft_00000002_00000019-2.cpp: No such file or directory
+</code></pre></div>
+<p dir="auto">The problem is caused by nvcc use PID to determine temporary file name, and with <code>--spawn_strategy linux-sandbox</code> which is the default strategy on Linux, the PIDs nvcc sees are all very small numbers, say 2~4 due to sandboxing. <code>linux-sandbox</code> is not hermetic because <a href="https://docs.bazel.build/versions/main/command-line-reference.html#flag--experimental_use_hermetic_linux_sandbox" rel="nofollow">it mounts root into the sandbox</a>, thus, <code>/tmp</code> is shared between sandboxes, which is causing name conflict under high parallelism. Similar problem has been reported at <a href="https://forums.developer.nvidia.com/t/avoid-generating-temp-files-in-tmp-while-nvcc-compiling/197657/10" rel="nofollow">nvidia forums</a>.</p>
+<p dir="auto">To avoid it:</p>
+<ul dir="auto">
+<li>Use <code>--spawn_strategy local</code> should eliminate the case because it will let nvcc sees the true PIDs.</li>
+<li>Use <code>--experimental_use_hermetic_linux_sandbox</code> should eliminate the case because it will avoid the sharing of <code>/tmp</code>.</li>
+<li>Add <code>-objtemp</code> option to the command should reduce the case from happening.</li>
+</ul>
+</article></div>
