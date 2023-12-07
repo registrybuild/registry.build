@@ -72,7 +72,7 @@ let templates = [
 const Template = (props) => (
   <Link
     className={"template"}
-    to={`${host.dev}/repo/?${new URLSearchParams({
+    to={`${host.prod}/repo/?${new URLSearchParams({
       template: props.data.url,
       dir: props.data.dir,
       secret: props.data.secret,
