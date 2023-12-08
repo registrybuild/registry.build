@@ -51,7 +51,7 @@ on it, or <a href="https://github.com/MobileNativeFoundation/rules_xcodeproj/iss
 <ul dir="auto">
 <li>Build your Bazel targets with Bazel (a.k.a Build with Bazel or BwB mode)</li>
 <li>Build your Bazel targets with Xcode, <em>not</em> Bazel
-(a.k.a. Build with Xcode or BwX mode)<sup><a href="#user-content-fn-bwx_warning-c13c405e62ef3af2e2b09f3c4a3ec40f" id="user-content-fnref-bwx_warning-c13c405e62ef3af2e2b09f3c4a3ec40f" data-footnote-ref="" aria-describedby="footnote-label">1</a></sup></li>
+(a.k.a. Build with Xcode or BwX mode)<sup><a href="#user-content-fn-bwx_warning-3981878f3b32d1117244c6140b16a413" id="user-content-fnref-bwx_warning-3981878f3b32d1117244c6140b16a413" data-footnote-ref="" aria-describedby="footnote-label">1</a></sup></li>
 </ul>
 </li>
 <li>It “just works”</li>
@@ -133,7 +133,7 @@ If you want to manually build a release archive, you can use this command:
 examples in the <a href="examples/README.md">examples</a> directory.</p>
 <h3 dir="auto"><a id="user-content-simple-ios-example" class="anchor" aria-hidden="true" tabindex="-1" href="#simple-ios-example"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Simple iOS example</h3>
 <p dir="auto">Given a root level <code>BUILD</code> file:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(
   &quot;@build_bazel_rules_apple//apple:ios.bzl&quot;,
   &quot;ios_application&quot;,
   &quot;ios_unit_test&quot;,
@@ -182,58 +182,60 @@ ios_unit_test(
 swift_library(
     name = &quot;TestLib&quot;,
     srcs = glob([&quot;test/*.swift&quot;]),
-)"><pre><span class="pl-en">load</span>(
-  <span class="pl-s">"@build_bazel_rules_apple//apple:ios.bzl"</span>,
-  <span class="pl-s">"ios_application"</span>,
-  <span class="pl-s">"ios_unit_test"</span>,
+)"><pre lang="python" class="notranslate"><code>load(
+  "@build_bazel_rules_apple//apple:ios.bzl",
+  "ios_application",
+  "ios_unit_test",
 )
-<span class="pl-en">load</span>(<span class="pl-s">"@build_bazel_rules_swift//swift:swift.bzl"</span>, <span class="pl-s">"swift_library"</span>)
-<span class="pl-en">load</span>(
-    <span class="pl-s">"@rules_xcodeproj//xcodeproj:defs.bzl"</span>,
-    <span class="pl-s">"top_level_target"</span>,
-    <span class="pl-s">"xcodeproj"</span>,
+load("@build_bazel_rules_swift//swift:swift.bzl", "swift_library")
+load(
+    "@rules_xcodeproj//xcodeproj:defs.bzl",
+    "top_level_target",
+    "xcodeproj",
 )
 
-<span class="pl-en">xcodeproj</span>(
-    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"xcodeproj"</span>,
-    <span class="pl-s1">project_name</span> <span class="pl-c1">=</span> <span class="pl-s">"App"</span>,
-    <span class="pl-s1">tags</span> <span class="pl-c1">=</span> [<span class="pl-s">"manual"</span>],
-    <span class="pl-s1">top_level_targets</span> <span class="pl-c1">=</span> [
-        <span class="pl-en">top_level_target</span>(<span class="pl-s">":App"</span>, <span class="pl-s1">target_environments</span> <span class="pl-c1">=</span> [<span class="pl-s">"device"</span>, <span class="pl-s">"simulator"</span>]),
-        <span class="pl-s">":Tests"</span>,
+xcodeproj(
+    name = "xcodeproj",
+    project_name = "App",
+    tags = ["manual"],
+    top_level_targets = [
+        top_level_target(":App", target_environments = ["device", "simulator"]),
+        ":Tests",
     ],
 )
 
-<span class="pl-en">ios_application</span>(
-    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"App"</span>,
-    <span class="pl-s1">bundle_id</span> <span class="pl-c1">=</span> <span class="pl-s">"com.example.app"</span>,
-    <span class="pl-s1">families</span> <span class="pl-c1">=</span> [<span class="pl-s">"iphone"</span>, <span class="pl-s">"ipad"</span>],
-    <span class="pl-s1">infoplists</span> <span class="pl-c1">=</span> [<span class="pl-s">":Info.plist"</span>],
-    <span class="pl-s1">minimum_os_version</span> <span class="pl-c1">=</span> <span class="pl-s">"15.0"</span>,
-    <span class="pl-s1">visibility</span> <span class="pl-c1">=</span> [<span class="pl-s">"//visibility:public"</span>],
-    <span class="pl-s1">deps</span> <span class="pl-c1">=</span> [<span class="pl-s">":Lib"</span>],
+ios_application(
+    name = "App",
+    bundle_id = "com.example.app",
+    families = ["iphone", "ipad"],
+    infoplists = [":Info.plist"],
+    minimum_os_version = "15.0",
+    visibility = ["//visibility:public"],
+    deps = [":Lib"],
 )
 
-<span class="pl-en">swift_library</span>(
-    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"Lib"</span>,
-    <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> <span class="pl-en">glob</span>([<span class="pl-s">"src/*.swift"</span>]),
+swift_library(
+    name = "Lib",
+    srcs = glob(["src/*.swift"]),
 )
 
-<span class="pl-en">ios_unit_test</span>(
-    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"Tests"</span>,
-    <span class="pl-s1">bundle_id</span> <span class="pl-c1">=</span> <span class="pl-s">"com.example.tests"</span>,
-    <span class="pl-s1">minimum_os_version</span> <span class="pl-c1">=</span> <span class="pl-s">"15.0"</span>,
-    <span class="pl-s1">test_host</span> <span class="pl-c1">=</span> <span class="pl-s">":App"</span>,
-    <span class="pl-s1">visibility</span> <span class="pl-c1">=</span> [<span class="pl-s">"//visibility:public"</span>],
-    <span class="pl-s1">deps</span> <span class="pl-c1">=</span> [<span class="pl-s">":TestLib"</span>],
+ios_unit_test(
+    name = "Tests",
+    bundle_id = "com.example.tests",
+    minimum_os_version = "15.0",
+    test_host = ":App",
+    visibility = ["//visibility:public"],
+    deps = [":TestLib"],
 )
 
-<span class="pl-en">swift_library</span>(
-    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"TestLib"</span>,
-    <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> <span class="pl-en">glob</span>([<span class="pl-s">"test/*.swift"</span>]),
-)</pre></div>
+swift_library(
+    name = "TestLib",
+    srcs = glob(["test/*.swift"]),
+)
+</code></pre></div>
 <p dir="auto">You can then create the Xcode project with:</p>
-<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel run //:xcodeproj"><pre>bazel run //:xcodeproj</pre></div>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="bazel run //:xcodeproj"><pre lang="shell" class="notranslate"><code>bazel run //:xcodeproj
+</code></pre></div>
 <p dir="auto">The generated project will be in the workspace next to the <code>BUILD</code> file at
 <code>App.xcodeproj</code>.</p>
 <h2 dir="auto"><a id="user-content-acknowledgements" class="anchor" aria-hidden="true" tabindex="-1" href="#acknowledgements"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Acknowledgements</h2>
@@ -246,12 +248,12 @@ swift_library(
 </ul>
 <section data-footnotes="" class="footnotes"><h2 id="footnote-label" class="sr-only" dir="auto">Footnotes</h2>
 <ol dir="auto">
-<li id="user-content-fn-bwx_warning-c13c405e62ef3af2e2b09f3c4a3ec40f">
+<li id="user-content-fn-bwx_warning-3981878f3b32d1117244c6140b16a413">
 <p dir="auto">Build with Bazel mode is the build mode with first class
 support. We will try to make Build with Xcode mode work with every project, but
 there are limitations that can
 <a href="https://github.com/MobileNativeFoundation/rules_xcodeproj/blob/main/docs/faq.md#why-do-some-of-my-swift_librarys-compile-twice-in-bwx-mode">make the experience subpar</a>,
-or not work at all. We recommend using BwB mode if possible. <a href="#user-content-fnref-bwx_warning-c13c405e62ef3af2e2b09f3c4a3ec40f" data-footnote-backref="" aria-label="Back to reference 1" class="data-footnote-backref">↩</a></p>
+or not work at all. We recommend using BwB mode if possible. <a href="#user-content-fnref-bwx_warning-3981878f3b32d1117244c6140b16a413" data-footnote-backref="" aria-label="Back to reference 1" class="data-footnote-backref">↩</a></p>
 </li>
 </ol>
 </section>
