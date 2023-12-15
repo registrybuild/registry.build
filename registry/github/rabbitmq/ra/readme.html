@@ -116,7 +116,7 @@ Machine = {simple, fun erlang:'+'/2, 0},
 
 <span class="pl-c"><span class="pl-c">%</span>% These Erlang nodes will host Ra nodes. They are the "seed" and assumed to</span>
 <span class="pl-c"><span class="pl-c">%</span>% be running or come online shortly after Ra cluster formation is started with ra:start_cluster/4.</span>
-<span class="pl-smi">ErlangNodes</span> <span class="pl-k">=</span> [<span class="pl-c1">'ra1@hostname.local'</span>, <span class="pl-c1">'ra2@hostname.local'</span>, <span class="pl-c1">'ra3@hostname.local'</span>],
+E<span class="pl-c1">rlangNodes</span> <span class="pl-k">=</span> [<span class="pl-c1">'ra1@hostname.local'</span>, <span class="pl-c1">'ra2@hostname.local'</span>, <span class="pl-c1">'ra3@hostname.local'</span>],
 
 <span class="pl-c"><span class="pl-c">%</span>% This will check for Erlang distribution connectivity. If Erlang nodes</span>
 <span class="pl-c"><span class="pl-c">%</span>% cannot communicate with each other, Ra nodes would not be able to cluster or communicate</span>
@@ -128,11 +128,11 @@ Machine = {simple, fun erlang:'+'/2, 0},
 
 <span class="pl-c"><span class="pl-c">%</span>% Create some Ra server IDs to pass to the configuration. These IDs will be</span>
 <span class="pl-c"><span class="pl-c">%</span>% used to address Ra nodes in Ra API functions.</span>
-<span class="pl-smi">ServerIds</span> <span class="pl-k">=</span> [{<span class="pl-c1">quick_start</span>, <span class="pl-smi">N</span>} || <span class="pl-smi">N</span> <span class="pl-k">&lt;-</span> <span class="pl-smi">ErlangNodes</span>],
+S<span class="pl-c1">erverIds</span> <span class="pl-k">=</span> [{<span class="pl-c1">quick_start</span>, <span class="pl-smi">N</span>} || <span class="pl-smi">N</span> <span class="pl-k">&lt;-</span> <span class="pl-smi">ErlangNodes</span>],
 
 <span class="pl-smi">ClusterName</span> <span class="pl-k">=</span> <span class="pl-c1">quick_start</span>,
 <span class="pl-c"><span class="pl-c">%</span>% State machine that implements the logic and an initial state</span>
-<span class="pl-smi">Machine</span> <span class="pl-k">=</span> {<span class="pl-c1">simple</span>, <span class="pl-k">fun</span> <span class="pl-c1">erlang</span>:<span class="pl-c1">'+'</span><span class="pl-k">/</span><span class="pl-c1">2</span>, <span class="pl-c1">0</span>},
+M<span class="pl-c1">achine</span> <span class="pl-k">=</span> {<span class="pl-c1">simple</span>, <span class="pl-k">fun</span> <span class="pl-c1">erlang</span>:<span class="pl-c1">'+'</span><span class="pl-k">/</span><span class="pl-c1">2</span>, <span class="pl-c1">0</span>},
 
 <span class="pl-c"><span class="pl-c">%</span>% Start a Ra cluster with an addition state machine that has an initial state of 0.</span>
 <span class="pl-c"><span class="pl-c">%</span>% It's sufficient to invoke this function only on one Erlang node. For example, this</span>
@@ -167,7 +167,7 @@ QueryFun = fun(StateVal) -&gt; StateVal end,
 {ok, {_TermMeta, State}, LeaderId1} = ra:leader_query(LeaderId, QueryFun)."><pre><span class="pl-c"><span class="pl-c">%</span>% find current Raft cluster leader</span>
 {<span class="pl-c1">ok</span>, <span class="pl-smi">_Members</span>, <span class="pl-smi">LeaderId</span>} <span class="pl-k">=</span> <span class="pl-en">ra</span>:<span class="pl-en">members</span>(<span class="pl-c1">quick_start</span>),
 <span class="pl-c"><span class="pl-c">%</span>% perform a leader query on the leader node</span>
-<span class="pl-smi">QueryFun</span> <span class="pl-k">=</span> <span class="pl-k">fun</span>(<span class="pl-smi">StateVal</span>) -&gt; <span class="pl-smi">StateVal</span> <span class="pl-k">end</span>,
+Q<span class="pl-c1">ueryFun</span> <span class="pl-k">=</span> <span class="pl-k">fun</span>(<span class="pl-smi">StateVal</span>) -&gt; <span class="pl-smi">StateVal</span> <span class="pl-k">end</span>,
 {<span class="pl-c1">ok</span>, {<span class="pl-smi">_TermMeta</span>, <span class="pl-smi">State</span>}, <span class="pl-smi">LeaderId1</span>} <span class="pl-k">=</span> <span class="pl-en">ra</span>:<span class="pl-en">leader_query</span>(<span class="pl-smi">LeaderId</span>, <span class="pl-smi">QueryFun</span>).</pre></div>
 <p dir="auto">Similarly, use <code>ra:local_query/{2,3}</code> to perform a local query:</p>
 <div class="highlight highlight-source-erlang notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="%% this is the replica hosted on the current Erlang node.
@@ -181,7 +181,7 @@ QueryFun = fun(StateVal) -&gt; StateVal end,
 {<span class="pl-c1">ok</span>, <span class="pl-smi">Members</span>, <span class="pl-smi">_LeaderId</span>} <span class="pl-k">=</span> <span class="pl-en">ra</span>:<span class="pl-en">members</span>(<span class="pl-c1">quick_start</span>),
 <span class="pl-smi">LocalReplicaId</span> <span class="pl-k">=</span> <span class="pl-en">lists</span>:<span class="pl-en">keyfind</span>(<span class="pl-en">node</span>(), <span class="pl-c1">2</span>, <span class="pl-smi">Members</span>),
 <span class="pl-c"><span class="pl-c">%</span>% perform a local query on the local node</span>
-<span class="pl-smi">QueryFun</span> <span class="pl-k">=</span> <span class="pl-k">fun</span>(<span class="pl-smi">StateVal</span>) -&gt; <span class="pl-smi">StateVal</span> <span class="pl-k">end</span>,
+Q<span class="pl-c1">ueryFun</span> <span class="pl-k">=</span> <span class="pl-k">fun</span>(<span class="pl-smi">StateVal</span>) -&gt; <span class="pl-smi">StateVal</span> <span class="pl-k">end</span>,
 {<span class="pl-c1">ok</span>, {<span class="pl-smi">_TermMeta</span>, <span class="pl-smi">State</span>}, <span class="pl-smi">LeaderId1</span>} <span class="pl-k">=</span> <span class="pl-en">ra</span>:<span class="pl-en">local_query</span>(<span class="pl-smi">LocalReplicaId</span>, <span class="pl-smi">QueryFun</span>).</pre></div>
 <p dir="auto">A query function is a single argument function that accepts current machine state
 and returns any value (usually derived from the state).</p>
@@ -207,17 +207,17 @@ rebar3 shell --name ra3@hostname.local</pre></div>
 <div class="highlight highlight-source-erlang notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="%% on ra1@hostname.local
 ra:start().
 % =&gt; ok"><pre><span class="pl-c"><span class="pl-c">%</span>% on ra1@hostname.local</span>
-<span class="pl-en">ra</span>:<span class="pl-en">start</span>().
+r<span class="pl-en">a</span>:<span class="pl-en">start</span>().
 <span class="pl-c"><span class="pl-c">%</span> =&gt; ok</span></pre></div>
 <div class="highlight highlight-source-erlang notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="%% on ra2@hostname.local
 ra:start().
 % =&gt; ok"><pre><span class="pl-c"><span class="pl-c">%</span>% on ra2@hostname.local</span>
-<span class="pl-en">ra</span>:<span class="pl-en">start</span>().
+r<span class="pl-en">a</span>:<span class="pl-en">start</span>().
 <span class="pl-c"><span class="pl-c">%</span> =&gt; ok</span></pre></div>
 <div class="highlight highlight-source-erlang notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="%% on ra3@hostname.local
 ra:start().
 % =&gt; ok"><pre><span class="pl-c"><span class="pl-c">%</span>% on ra3@hostname.local</span>
-<span class="pl-en">ra</span>:<span class="pl-en">start</span>().
+r<span class="pl-en">a</span>:<span class="pl-en">start</span>().
 <span class="pl-c"><span class="pl-c">%</span> =&gt; ok</span></pre></div>
 <p dir="auto">A single node cluster can be started from any node.</p>
 <p dir="auto">For the purpose of this example, <code>ra2@hostname.local</code> is used as the starting member:</p>
@@ -241,7 +241,7 @@ ok = ra:start_server(default, ClusterName, {dyn_members, 'ra1@hostname.local'}, 
 {<span class="pl-c1">ok</span>, <span class="pl-c1">_</span>, <span class="pl-c1">_</span>} <span class="pl-k">=</span> <span class="pl-en">ra</span>:<span class="pl-en">add_member</span>({<span class="pl-c1">dyn_members</span>, <span class="pl-c1">'ra2@hostname.local'</span>}, {<span class="pl-c1">dyn_members</span>, <span class="pl-c1">'ra1@hostname.local'</span>}),
 
 <span class="pl-c"><span class="pl-c">%</span> Start the server</span>
-<span class="pl-c1">ok</span> <span class="pl-k">=</span> <span class="pl-en">ra</span>:<span class="pl-en">start_server</span>(<span class="pl-c1">default</span>, <span class="pl-smi">ClusterName</span>, {<span class="pl-c1">dyn_members</span>, <span class="pl-c1">'ra1@hostname.local'</span>}, <span class="pl-smi">Machine</span>, [{<span class="pl-c1">dyn_members</span>, <span class="pl-c1">'ra2@hostname.local'</span>}]).</pre></div>
+o<span class="pl-c1">k</span> <span class="pl-k">=</span> <span class="pl-en">ra</span>:<span class="pl-en">start_server</span>(<span class="pl-c1">default</span>, <span class="pl-smi">ClusterName</span>, {<span class="pl-c1">dyn_members</span>, <span class="pl-c1">'ra1@hostname.local'</span>}, <span class="pl-smi">Machine</span>, [{<span class="pl-c1">dyn_members</span>, <span class="pl-c1">'ra2@hostname.local'</span>}]).</pre></div>
 <p dir="auto">Add <code>ra3@hostname.local</code> to the cluster:</p>
 <div class="highlight highlight-source-erlang notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="% Add a new member
 {ok, _, _} = ra:add_member({dyn_members, 'ra2@hostname.local'}, {dyn_members, 'ra3@hostname.local'}),
@@ -251,7 +251,7 @@ ok = ra:start_server(default, ClusterName, {dyn_members, 'ra3@hostname.local'}, 
 {<span class="pl-c1">ok</span>, <span class="pl-c1">_</span>, <span class="pl-c1">_</span>} <span class="pl-k">=</span> <span class="pl-en">ra</span>:<span class="pl-en">add_member</span>({<span class="pl-c1">dyn_members</span>, <span class="pl-c1">'ra2@hostname.local'</span>}, {<span class="pl-c1">dyn_members</span>, <span class="pl-c1">'ra3@hostname.local'</span>}),
 
 <span class="pl-c"><span class="pl-c">%</span> Start the server</span>
-<span class="pl-c1">ok</span> <span class="pl-k">=</span> <span class="pl-en">ra</span>:<span class="pl-en">start_server</span>(<span class="pl-c1">default</span>, <span class="pl-smi">ClusterName</span>, {<span class="pl-c1">dyn_members</span>, <span class="pl-c1">'ra3@hostname.local'</span>}, <span class="pl-smi">Machine</span>, [{<span class="pl-c1">dyn_members</span>, <span class="pl-c1">'ra2@hostname.local'</span>}]).</pre></div>
+o<span class="pl-c1">k</span> <span class="pl-k">=</span> <span class="pl-en">ra</span>:<span class="pl-en">start_server</span>(<span class="pl-c1">default</span>, <span class="pl-smi">ClusterName</span>, {<span class="pl-c1">dyn_members</span>, <span class="pl-c1">'ra3@hostname.local'</span>}, <span class="pl-smi">Machine</span>, [{<span class="pl-c1">dyn_members</span>, <span class="pl-c1">'ra2@hostname.local'</span>}]).</pre></div>
 <p dir="auto">Check the members from any node:</p>
 <div class="highlight highlight-source-erlang notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="ra:members({dyn_members, node()}).
 % =&gt; {ok,[{dyn_members,'ra1@hostname.local'},
@@ -282,10 +282,10 @@ ra:members({ClusterName, node()}).
 {<span class="pl-c1">ok</span>, <span class="pl-c1">_</span>, <span class="pl-c1">_</span>} <span class="pl-k">=</span> <span class="pl-en">ra</span>:<span class="pl-en">add_member</span>({<span class="pl-c1">dyn_members</span>, <span class="pl-c1">'ra2@hostname.local'</span>}, {<span class="pl-c1">dyn_members</span>, <span class="pl-c1">'ra4@hostname.local'</span>}),
 
 <span class="pl-c"><span class="pl-c">%</span> Start the server</span>
-<span class="pl-c1">ok</span> <span class="pl-k">=</span> <span class="pl-en">ra</span>:<span class="pl-en">start_server</span>(<span class="pl-c1">default</span>, <span class="pl-smi">ClusterName</span>, {<span class="pl-c1">dyn_members</span>, <span class="pl-c1">'ra4@hostname.local'</span>}, <span class="pl-smi">Machine</span>, [{<span class="pl-c1">dyn_members</span>, <span class="pl-c1">'ra2@hostname.local'</span>}]).
+o<span class="pl-c1">k</span> <span class="pl-k">=</span> <span class="pl-en">ra</span>:<span class="pl-en">start_server</span>(<span class="pl-c1">default</span>, <span class="pl-smi">ClusterName</span>, {<span class="pl-c1">dyn_members</span>, <span class="pl-c1">'ra4@hostname.local'</span>}, <span class="pl-smi">Machine</span>, [{<span class="pl-c1">dyn_members</span>, <span class="pl-c1">'ra2@hostname.local'</span>}]).
 
 <span class="pl-c"><span class="pl-c">%</span>% on ra4@hostname.local</span>
-<span class="pl-en">ra</span>:<span class="pl-en">leave_and_terminate</span>(<span class="pl-c1">default</span>, {<span class="pl-smi">ClusterName</span>, <span class="pl-en">node</span>()}, {<span class="pl-smi">ClusterName</span>, <span class="pl-en">node</span>()}).
+r<span class="pl-en">a</span>:<span class="pl-en">leave_and_terminate</span>(<span class="pl-c1">default</span>, {<span class="pl-smi">ClusterName</span>, <span class="pl-en">node</span>()}, {<span class="pl-smi">ClusterName</span>, <span class="pl-en">node</span>()}).
 
 <span class="pl-en">ra</span>:<span class="pl-en">members</span>({<span class="pl-smi">ClusterName</span>, <span class="pl-en">node</span>()}).
 <span class="pl-c"><span class="pl-c">%</span> =&gt; {ok,[{dyn_members,'ra1@hostname.local'},</span>
