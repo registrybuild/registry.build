@@ -6,11 +6,11 @@ Read
 <a href="https://andrewkelley.me/post/zig-cc-powerful-drop-in-replacement-gcc-clang.html" rel="nofollow">here</a>
 about zig-cc; the rest of the README will present how to use this toolchain
 from Bazel.</p>
-<p dir="auto">Configuring toolchains in Bazel is complex, under-documented, and fraught with
-peril.  We, the team behind <code>hermetic_cc_toolchain</code>,are still confused on how
-this all works, and often wonder why it works at all. That aside, we made
-our best effort to make <code>hermetic_cc_toolchain</code> usable for your C/C++/CGo
-projects, with as many guardrails as we could install.</p>
+<p dir="auto">Configuring toolchains in Bazel is complex and fraught with peril. We, the team
+behind <code>hermetic_cc_toolchain</code>, are still confused on how this all works, and
+often wonder why it works at all. That aside, we made our best effort to make
+<code>hermetic_cc_toolchain</code> usable for your C/C++/CGo projects, with as many
+guardrails can be installed.</p>
 <p dir="auto">While copy-pasting the code in your project, attempt to read and understand the
 text surrounding the code snippets. This will save you hours of head
 scratching.</p>
@@ -66,16 +66,28 @@ load("@hermetic_cc_toolchain//toolchain:defs.bzl", zig_toolchains = "toolchains"
 # download URL.
 zig_toolchains()
 </code></pre></div>
-<p dir="auto">And this to <code>.bazelrc</code>:</p>
-<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="build --incompatible_enable_cc_toolchain_resolution"><pre class="notranslate"><code>build --incompatible_enable_cc_toolchain_resolution
+<p dir="auto">And this to <code>.bazelrc</code> on a Unix-y systems:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="build --sandbox_add_mount_pair=/tmp"><pre class="notranslate"><code>build --sandbox_add_mount_pair=/tmp
+</code></pre></div>
+<p dir="auto">Windows:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="build --sandbox_add_mount_pair=C:\Temp"><pre class="notranslate"><code>build --sandbox_add_mount_pair=C:\Temp
+</code></pre></div>
+<p dir="auto">The directories can be narrowed down to <code>/tmp/zig-cache</code> and
+<code>C:\Temp\hermetic_cc_toolchain</code> respectively if it can be ensured they will be
+created before the invocation of <code>bazel build</code>. See <a href="https://github.com/uber/hermetic_cc_toolchain/issues/83" data-hovercard-type="issue" data-hovercard-url="/uber/hermetic_cc_toolchain/issues/83/hovercard">#83</a> for more
+context. If a different place is prefferred for zig cache, set:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="build --repo_env=HERMETIC_CC_TOOLCHAIN_CACHE_PREFIX=/path/to/cache
+build --sandbox_add_mount_pair=/path/to/cache"><pre class="notranslate"><code>build --repo_env=HERMETIC_CC_TOOLCHAIN_CACHE_PREFIX=/path/to/cache
+build --sandbox_add_mount_pair=/path/to/cache
 </code></pre></div>
 <p dir="auto">The snippets above will download the zig toolchain and make the bazel
-toolchains available for registration and usage. If you do nothing else, this
-may work. The <code>.bazelrc</code> snippet instructs Bazel to use the registered "new
-kinds of toolchains". All above are required regardless of how wants to use it.
-The next steps depend on how one wants to use <code>hermetic_cc_toolchain</code>. The
-descriptions below is a gentle introduction to C++ toolchains from "user's
-perspective" too.</p>
+toolchains available for registration and usage. If nothing else is done, this
+will work for some minimal use cases. The <code>.bazelrc</code> snippet instructs Bazel to
+use the registered "new kinds of toolchains". The next steps depend on how one
+wants to use <code>hermetic_cc_toolchain</code>. The descriptions below is a gentle
+introduction to C++ toolchains from "user's perspective" too.</p>
+<p dir="auto">See <a href="https://github.com/uber/hermetic_cc_toolchain/tree/main/examples">examples</a> for some other recommended <code>.bazelrc</code> flags, as well
+as how to use <code>hermetic_cc_toolchain</code> with bzlmod.</p>
 <h3 dir="auto"><a id="user-content-use-case-manually-build-a-single-target-with-a-specific-zig-cc-toolchain" class="anchor" aria-hidden="true" tabindex="-1" href="#use-case-manually-build-a-single-target-with-a-specific-zig-cc-toolchain"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Use case: manually build a single target with a specific zig cc toolchain</h3>
 <p dir="auto">This option is least disruptive to the workflow compared to no hermetic C++
 toolchain, and works best when trying out or getting started with
@@ -136,7 +148,7 @@ toolchain(
 )
 </code></pre></div>
 <p dir="auto">For a platform to pick up the right toolchain, the platform's
-<code>constraint_values</code> must be a subset<sup><a href="#user-content-fn-1-971c922c7b6ba260a7126938a1843046" id="user-content-fnref-1-971c922c7b6ba260a7126938a1843046" data-footnote-ref="" aria-describedby="footnote-label">1</a></sup> of the toolchain's
+<code>constraint_values</code> must be a subset<sup><a href="#user-content-fn-1-98a0724e460ed284d100f8d2940c3bfe" id="user-content-fnref-1-98a0724e460ed284d100f8d2940c3bfe" data-footnote-ref="" aria-describedby="footnote-label">1</a></sup> of the toolchain's
 <code>target_compatible_with</code>. Since the platform is a subset (therefore,
 toolchain's <code>@zig_sdk//libc:unconstrained</code> does not matter), this toolchain is
 selected for this platform. As a result, <code>--platforms @zig_sdk//platform:linux_amd64</code> causes Bazel to select a toolchain
@@ -303,21 +315,18 @@ will be accepted.</p>
 <h3 dir="auto"><a id="user-content-zig-cache-location" class="anchor" aria-hidden="true" tabindex="-1" href="#zig-cache-location"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Zig cache location</h3>
 <p dir="auto">Currently zig cache is stored in <code>/tmp/hermetic_cc_toolchain</code>, so <code>bazel clean --expunge</code> will not clear the zig cache. Zig's cache should be stored somewhere
 in the project's path. It is not clear how to do it.</p>
+<p dir="auto">See <a href="https://github.com/uber/hermetic_cc_toolchain/issues/83" data-hovercard-type="issue" data-hovercard-url="/uber/hermetic_cc_toolchain/issues/83/hovercard">#83</a> for more context.</p>
 <h3 dir="auto"><a id="user-content-osx-sysroot" class="anchor" aria-hidden="true" tabindex="-1" href="#osx-sysroot"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>OSX: sysroot</h3>
 <p dir="auto">For non-trivial programs (and for all darwin/arm64 cgo programs) MacOS SDK may
 be necessary. Read <a href="https://github.com/ziglang/zig/issues/10299#issuecomment-989153750" data-hovercard-type="issue" data-hovercard-url="/ziglang/zig/issues/10299/hovercard">Jakub's comment</a> about it. Support for OSX sysroot
 is currently not implemented, but patches implementing it will be accepted, as
 long as the OSX sysroot must come through an <code>http_archive</code>.</p>
-<p dir="auto">In essence, OSX target support is not well tested with <code>hermetic_cc_toolchain</code>.</p>
-<h2 dir="auto"><a id="user-content-known-issues-in-upstream" class="anchor" aria-hidden="true" tabindex="-1" href="#known-issues-in-upstream"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Known Issues In Upstream</h2>
-<p dir="auto">This section lists issues that we have stumbled into when using <code>zig cc</code>, and
-is outside of <code>hermetic_cc_toolchain</code>'s control.</p>
-<h3 dir="auto"><a id="user-content-number-of-libc-stubs-with-go-120" class="anchor" aria-hidden="true" tabindex="-1" href="#number-of-libc-stubs-with-go-120"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Number of libc stubs with Go 1.20+</h3>
-<p dir="auto">Until Go 1.19 the number of glibc stubs that needed to be compiled was strictly
-controlled. Go 1.20 no longer ships with pre-compiled archive files for the
-standard library, and it generates them on the fly, causing many extraneous
-libc stubs. Therefore, the initial compilation will take longer until those
-stubs are pre-cached.</p>
+<p dir="auto">In essence, OSX target support is not well tested with <code>hermetic_cc_toolchain</code>.
+Also see <a href="https://github.com/uber/hermetic_cc_toolchain/issues/10" data-hovercard-type="issue" data-hovercard-url="/uber/hermetic_cc_toolchain/issues/10/hovercard">#10</a>.</p>
+<h3 dir="auto"><a id="user-content-bazel-6-or-earlier" class="anchor" aria-hidden="true" tabindex="-1" href="#bazel-6-or-earlier"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Bazel 6 or earlier</h3>
+<p dir="auto">Add to <code>.bazelrc</code>:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="build --incompatible_enable_cc_toolchain_resolution"><pre class="notranslate"><code>build --incompatible_enable_cc_toolchain_resolution
+</code></pre></div>
 <h2 dir="auto"><a id="user-content-host-environments" class="anchor" aria-hidden="true" tabindex="-1" href="#host-environments"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Host Environments</h2>
 <p dir="auto">This repository is used on the following (host) platforms:</p>
 <ul dir="auto">
@@ -366,7 +375,7 @@ mutt -R -f mailing-list-archive.mbox
 <li><a href="https://github.com/motiejus">@motiejus</a></li>
 <li><a href="https://github.com/sywhang">@sywhang</a></li>
 </ul>
-<p dir="auto">Guidelines for maintainers<sup><a href="#user-content-fn-2-971c922c7b6ba260a7126938a1843046" id="user-content-fnref-2-971c922c7b6ba260a7126938a1843046" data-footnote-ref="" aria-describedby="footnote-label">2</a></sup>:</p>
+<p dir="auto">Guidelines for maintainers<sup><a href="#user-content-fn-2-98a0724e460ed284d100f8d2940c3bfe" id="user-content-fnref-2-98a0724e460ed284d100f8d2940c3bfe" data-footnote-ref="" aria-describedby="footnote-label">2</a></sup>:</p>
 <ul dir="auto">
 <li>Communicate intent precisely.</li>
 <li>Edge cases matter.</li>
@@ -395,11 +404,11 @@ release.</li>
 </ul>
 <section data-footnotes="" class="footnotes"><h2 id="footnote-label" class="sr-only" dir="auto">Footnotes</h2>
 <ol dir="auto">
-<li id="user-content-fn-1-971c922c7b6ba260a7126938a1843046">
-<p dir="auto">a <a href="https://en.wikipedia.org/wiki/Subset">mathematical subset</a>: both can be equal. <a href="#user-content-fnref-1-971c922c7b6ba260a7126938a1843046" data-footnote-backref="" aria-label="Back to reference 1" class="data-footnote-backref">↩</a></p>
+<li id="user-content-fn-1-98a0724e460ed284d100f8d2940c3bfe">
+<p dir="auto">a <a href="https://en.wikipedia.org/wiki/Subset">mathematical subset</a>: both can be equal. <a href="#user-content-fnref-1-98a0724e460ed284d100f8d2940c3bfe" data-footnote-backref="" aria-label="Back to reference 1" class="data-footnote-backref">↩</a></p>
 </li>
-<li id="user-content-fn-2-971c922c7b6ba260a7126938a1843046">
-<p dir="auto">Credit: <code>zig zen</code> <a href="#user-content-fnref-2-971c922c7b6ba260a7126938a1843046" data-footnote-backref="" aria-label="Back to reference 2" class="data-footnote-backref">↩</a></p>
+<li id="user-content-fn-2-98a0724e460ed284d100f8d2940c3bfe">
+<p dir="auto">Credit: <code>zig zen</code> <a href="#user-content-fnref-2-98a0724e460ed284d100f8d2940c3bfe" data-footnote-backref="" aria-label="Back to reference 2" class="data-footnote-backref">↩</a></p>
 </li>
 </ol>
 </section>
