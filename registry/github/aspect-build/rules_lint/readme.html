@@ -55,6 +55,21 @@ It is also inspired by <a href="https://github.com/github/super-linter">https://
 </tbody>
 </table>
 <p dir="auto">This leads to some minor differences in how they are used in rules_lint.</p>
+<p dir="auto">We treat type-checkers as a build tool, not as a linter. This is for a few reasons:</p>
+<ul dir="auto">
+<li>They are commonly distributed along with compilers.
+In compiled languages like Java, types are required in order for the compiler to emit executable bytecode at all.
+In interpreted languages they're still often linked, e.g. TypeScript does both "compiling" to JavaScript and also type-checking.
+This suggests that rules for a language should include the type-checker,
+e.g. we expect Sorbet to be integrated with rules_ruby.</li>
+<li>We think most developers want "error" semantics for type-checks:
+the whole repository should successfully type-check or you cannot commit the change.
+rules_lint is optimized for "warning" semantics, where we produce report files and it's up to the
+Dev Infra team how to present those, for example only on changed files.</li>
+<li>You can only type-check a library if its dependencies were checkable, which means short-circuiting
+execution. rules_lint currently runs linters on every node in the dependency graph, including any
+whose dependencies have lint warnings.</li>
+</ul>
 <h2 dir="auto"><a id="user-content-available-tools" class="anchor" aria-hidden="true" tabindex="-1" href="#available-tools"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Available tools</h2>
 <table>
 <thead>
