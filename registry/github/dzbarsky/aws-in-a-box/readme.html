@@ -1,0 +1,1170 @@
+<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><h1 dir="auto"><a id="user-content-aws-in-a-box" class="anchor" aria-hidden="true" tabindex="-1" href="#aws-in-a-box"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>aws-in-a-box</h1>
+<p dir="auto">This project is an emulator for several AWS services, à la Localstack. README in progress!</p>
+<p dir="auto">Currently supported services (see below for full support details):</p>
+<ul dir="auto">
+<li><a href="https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/Welcome.html" rel="nofollow">DynamoDB</a> - highly experimental, only enough for Kinesis Client Library to work. Not recommended to use!</li>
+<li><a href="https://docs.aws.amazon.com/kinesis/latest/APIReference/Welcome.html" rel="nofollow">Kinesis</a></li>
+<li><a href="https://docs.aws.amazon.com/kms/latest/APIReference/Welcome.html" rel="nofollow">KMS</a></li>
+<li><a href="https://docs.aws.amazon.com/AmazonS3/latest/API/Welcome.html" rel="nofollow">S3</a></li>
+<li><a href="https://docs.aws.amazon.com/AWSSimpleQueueService/latest/APIReference/Welcome.html" rel="nofollow">SQS</a></li>
+</ul>
+<p dir="auto">Aws-in-a-box runs on HTTP (not HTTPS) but supports HTTP2 upgrade with h2c (HTTP without TLS).</p>
+<h2 dir="auto"><a id="user-content-why-use-this-over-localstack" class="anchor" aria-hidden="true" tabindex="-1" href="#why-use-this-over-localstack"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Why use this over localstack?</h2>
+<ul dir="auto">
+<li>High-performance; no overhead from docker or proxies</li>
+<li>Single statically-linked 7MB native binary. No interpereter/runtime hell. (There are also 3MB compressed <a href="https://hub.docker.com/r/dzbarsky/aws-in-a-box/tags" rel="nofollow">docker images</a> if you prefer)</li>
+<li>Simple persistence scheme using atomic file writes. When using the native binary, no more broken persistent docker volumes</li>
+</ul>
+<h2 dir="auto"><a id="user-content-usage" class="anchor" aria-hidden="true" tabindex="-1" href="#usage"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Usage</h2>
+<p dir="auto">The easiest way to consume this project is from pre-built artifacts on the release page or the docker image.
+You can also build from source with either go native tooling or with Bazel, see Development section.</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="  -addr string
+    	Address to run on (default &quot;localhost:4569&quot;)
+  -enableKMS
+    	Enable Kinesis service (default true)
+  -enableKinesis
+    	Enable Kinesis service (default true)
+  -enableSQS
+    	Enable SQS service (default true)
+  -experimental_enableDynamoDB
+    	Enable DynamoDB service (default true)
+  -experimental_enableS3
+    	Enable S3 service (default true)
+  -kinesisDefaultDuration duration
+    	How long to retain messages. Can be used to control memory usage. After creation, retention can be adjusted with [Increase/Decrease]StreamRetentionPeriod (default 24h0m0s)
+  -kinesisInitialShardsPerStream int
+    	How many shards to create for each stream listed in -kinesisInitialStreams (default 2)
+  -kinesisInitialStreams string
+    	Streams to create at startup. Example: stream1,stream2,stream3
+  -kinesisStreamCreateDuration duration
+    	How long a new Kinesis stream stays in CREATING status (default 5s)
+  -kinesisStreamDeleteDuration duration
+    	How long a deleted Kinesis stream stays in DELETING status (default 5s)
+  -logLevel string
+    	debug/info/warn/error (default &quot;debug&quot;)
+  -persistDir string
+    	Directory to persist data to. If empty, data is not persisted.
+  -s3InitialBuckets string
+    	Buckets to create at startup. Example: bucket1,bucket2,bucket3"><pre class="notranslate"><code>  -addr string
+    	Address to run on (default "localhost:4569")
+  -enableKMS
+    	Enable Kinesis service (default true)
+  -enableKinesis
+    	Enable Kinesis service (default true)
+  -enableSQS
+    	Enable SQS service (default true)
+  -experimental_enableDynamoDB
+    	Enable DynamoDB service (default true)
+  -experimental_enableS3
+    	Enable S3 service (default true)
+  -kinesisDefaultDuration duration
+    	How long to retain messages. Can be used to control memory usage. After creation, retention can be adjusted with [Increase/Decrease]StreamRetentionPeriod (default 24h0m0s)
+  -kinesisInitialShardsPerStream int
+    	How many shards to create for each stream listed in -kinesisInitialStreams (default 2)
+  -kinesisInitialStreams string
+    	Streams to create at startup. Example: stream1,stream2,stream3
+  -kinesisStreamCreateDuration duration
+    	How long a new Kinesis stream stays in CREATING status (default 5s)
+  -kinesisStreamDeleteDuration duration
+    	How long a deleted Kinesis stream stays in DELETING status (default 5s)
+  -logLevel string
+    	debug/info/warn/error (default "debug")
+  -persistDir string
+    	Directory to persist data to. If empty, data is not persisted.
+  -s3InitialBuckets string
+    	Buckets to create at startup. Example: bucket1,bucket2,bucket3
+</code></pre></div>
+<h2 dir="auto"><a id="user-content-development" class="anchor" aria-hidden="true" tabindex="-1" href="#development"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Development</h2>
+<h3 dir="auto"><a id="user-content-running-the-service" class="anchor" aria-hidden="true" tabindex="-1" href="#running-the-service"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Running the service</h3>
+<p dir="auto"><code>go run .</code>
+<code>bazel run //:aws-in-a-box</code></p>
+<h3 dir="auto"><a id="user-content-running-tests" class="anchor" aria-hidden="true" tabindex="-1" href="#running-tests"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Running tests</h3>
+<p dir="auto"><code>go test ./...</code>
+<code>bazel test //...</code>
+<br></p>
+<h2 dir="auto"><a id="user-content-kinesis-support" class="anchor" aria-hidden="true" tabindex="-1" href="#kinesis-support"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Kinesis Support</h2>
+<p dir="auto">Most of Kinesis is implemented, including the Consumer APIS. Remaining work:</p>
+<ul dir="auto">
+<li>KMS integration not wired up</li>
+<li>A few List/Describe APIs are missing</li>
+<li>Shard split/merge</li>
+</ul>
+<p dir="auto">There is no persistence for Kinesis data.</p>
+<details>
+<summary>Click to expand the detailed support table</summary>
+<table>
+<thead>
+<tr>
+<th>API</th>
+<th>Support Status</th>
+<th>Caveats/Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AddTagsToStream</td>
+<td>✅ Supported</td>
+<td></td>
+</tr>
+<tr>
+<td>CreateStream</td>
+<td>✅ Supported</td>
+<td></td>
+</tr>
+<tr>
+<td>DecreaseStreamRetentionPeriod</td>
+<td>✅ Supported</td>
+<td></td>
+</tr>
+<tr>
+<td>DeleteStream</td>
+<td>✅ Supported</td>
+<td></td>
+</tr>
+<tr>
+<td>DeregisterStreamConsumer</td>
+<td>✅ Supported</td>
+<td></td>
+</tr>
+<tr>
+<td>DescribeLimits</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>DescribeStream</td>
+<td>❌ Unsupported</td>
+<td>This API is discouraged by AWS</td>
+</tr>
+<tr>
+<td>DescribeStreamConsumer</td>
+<td>✅ Supported</td>
+<td></td>
+</tr>
+<tr>
+<td>DescribeStreamSummary</td>
+<td>✅ Supported</td>
+<td></td>
+</tr>
+<tr>
+<td>DisableEnhancedMonitoring</td>
+<td>❌ Unsupported</td>
+<td>Cloudwatch not implemented</td>
+</tr>
+<tr>
+<td>EnableEnhancedMonitoring</td>
+<td>❌ Unsupported</td>
+<td>Cloudwatch not implemented</td>
+</tr>
+<tr>
+<td>GetRecords</td>
+<td>✅ Supported</td>
+<td></td>
+</tr>
+<tr>
+<td>GetShardIterator</td>
+<td>✅ Supported</td>
+<td></td>
+</tr>
+<tr>
+<td>IncreaseStreamRetentionPeriod</td>
+<td>✅ Supported</td>
+<td></td>
+</tr>
+<tr>
+<td>ListShards</td>
+<td>✅ Supported</td>
+<td></td>
+</tr>
+<tr>
+<td>ListStreamConsumers</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>ListStreams</td>
+<td>✅ Supported</td>
+<td></td>
+</tr>
+<tr>
+<td>ListTagsForStream</td>
+<td>✅ Supported</td>
+<td></td>
+</tr>
+<tr>
+<td>MergeShards</td>
+<td>❌ Unsupported</td>
+<td>No support for merging/splitting yet.</td>
+</tr>
+<tr>
+<td>PutRecord</td>
+<td>✅ Supported</td>
+<td></td>
+</tr>
+<tr>
+<td>PutRecords</td>
+<td>❌ Unsupported</td>
+<td>Use PutRecord for single records instead.</td>
+</tr>
+<tr>
+<td>RegisterStreamConsumer</td>
+<td>✅ Supported</td>
+<td></td>
+</tr>
+<tr>
+<td>RemoveTagsFromStream</td>
+<td>✅ Supported</td>
+<td></td>
+</tr>
+<tr>
+<td>SplitShard</td>
+<td>❌ Unsupported</td>
+<td>No support for merging/splitting yet.</td>
+</tr>
+<tr>
+<td>StartStreamEncryption</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>StopStreamEncryption</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>SubscribeToStream</td>
+<td>✅ Supported</td>
+<td></td>
+</tr>
+<tr>
+<td>UpdateShardCount</td>
+<td>❌ Unsupported</td>
+<td>No support for merging/splitting yet.</td>
+</tr>
+<tr>
+<td>UpdateStreamMode</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</details>
+<br>
+<h2 dir="auto"><a id="user-content-kms-support" class="anchor" aria-hidden="true" tabindex="-1" href="#kms-support"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>KMS Support</h2>
+<p dir="auto">Most of KMS is implemented. Remaining work:</p>
+<ul dir="auto">
+<li>Key deletion/key rotation is missing</li>
+<li>Grants are missing</li>
+<li>Key policies are missing</li>
+</ul>
+<p dir="auto">KMS data is fully persisted.</p>
+<details>
+<summary>Click to expand the detailed support table</summary>
+<table>
+<thead>
+<tr>
+<th>API</th>
+<th>Support Status</th>
+<th>Caveats/Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CancelKeyDeletion</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>ConnectCustomKeyStore</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>CreateAlias</td>
+<td>✅ Supported</td>
+<td></td>
+</tr>
+<tr>
+<td>CreateCustomKeyStore</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>CreateGrant</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>CreateKey</td>
+<td>✅ Supported</td>
+<td>ECC_SECG_P256K1 and SM2 not supported</td>
+</tr>
+<tr>
+<td>Decrypt</td>
+<td>✅ Supported</td>
+<td></td>
+</tr>
+<tr>
+<td>DeleteAlias</td>
+<td>✅ Supported</td>
+<td></td>
+</tr>
+<tr>
+<td>DeleteCustomKeyStore</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>DeleteImportedKeyMaterial</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>DescribeCustomKeyStores</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>DescribeKey</td>
+<td>✅ Supported</td>
+<td>Lots of metadata properties missing</td>
+</tr>
+<tr>
+<td>DisableKey</td>
+<td>✅ Supported</td>
+<td></td>
+</tr>
+<tr>
+<td>DisableKeyRotation</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>DisconnectCustomKeyStore</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>EnableKey</td>
+<td>✅ Supported</td>
+<td></td>
+</tr>
+<tr>
+<td>EnableKeyRotation</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>Encrypt</td>
+<td>✅ Supported</td>
+<td></td>
+</tr>
+<tr>
+<td>GenerateDataKey</td>
+<td>✅ Supported</td>
+<td></td>
+</tr>
+<tr>
+<td>GenerateDataKeyPair</td>
+<td>✅ Supported</td>
+<td>ECC_SECG_P256K1 not supported</td>
+</tr>
+<tr>
+<td>GenerateDataKeyPairWithoutPlaintext</td>
+<td>✅ Supported</td>
+<td>ECC_SECG_P256K1 not supported</td>
+</tr>
+<tr>
+<td>GenerateDataKeyWithoutPlaintext</td>
+<td>✅ Supported</td>
+<td></td>
+</tr>
+<tr>
+<td>GenerateMac</td>
+<td>✅ Supported</td>
+<td></td>
+</tr>
+<tr>
+<td>GenerateRandom</td>
+<td>✅ Supported</td>
+<td></td>
+</tr>
+<tr>
+<td>GetKeyPolicy</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>GetKeyRotationStatus</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>GetParametersForImport</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>GetPublicKey</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>ImportKeyMaterial</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>ListAliases</td>
+<td>✅ Supported</td>
+<td></td>
+</tr>
+<tr>
+<td>ListGrants</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>ListKeyPolicies</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>ListKeys</td>
+<td>✅ Supported</td>
+<td></td>
+</tr>
+<tr>
+<td>ListResourceTags</td>
+<td>✅ Supported</td>
+<td></td>
+</tr>
+<tr>
+<td>ListRetirableGrants</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>PutKeyPolicy</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>ReEncrypt</td>
+<td>✅ Supported</td>
+<td></td>
+</tr>
+<tr>
+<td>ReplicateKey</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>RetireGrant</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>RevokeGrant</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>ScheduleKeyDeletion</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>Sign</td>
+<td>✅ Supported</td>
+<td></td>
+</tr>
+<tr>
+<td>TagResource</td>
+<td>✅ Supported</td>
+<td></td>
+</tr>
+<tr>
+<td>UntagResource</td>
+<td>✅ Supported</td>
+<td></td>
+</tr>
+<tr>
+<td>UpdateAlias</td>
+<td>✅ Supported</td>
+<td></td>
+</tr>
+<tr>
+<td>UpdateCustomKeyStore</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>UntagResource</td>
+<td>✅ Supported</td>
+<td></td>
+</tr>
+<tr>
+<td>UpdateKeyDescription</td>
+<td>✅ Supported</td>
+<td></td>
+</tr>
+<tr>
+<td>UpdatePrimaryRegion</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>Verify</td>
+<td>✅ Supported</td>
+<td></td>
+</tr>
+<tr>
+<td>VerifyMac</td>
+<td>✅ Supported</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</details>
+<br>
+<h2 dir="auto"><a id="user-content-s3-support" class="anchor" aria-hidden="true" tabindex="-1" href="#s3-support"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>S3 Support</h2>
+<p dir="auto">Most common operations of S3 are implemented. Remaining work:</p>
+<ul dir="auto">
+<li>Versioning</li>
+<li>A bunch of metadata/usage APIs</li>
+<li>Policy/ACL is missing</li>
+</ul>
+<p dir="auto">S3 blocks are persisted, but metadata is not. This will be fixed in the future.</p>
+<details>
+<summary>Click to expand the detailed support table</summary>
+<table>
+<thead>
+<tr>
+<th>API</th>
+<th>Support Status</th>
+<th>Caveats/Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AbortMultipartUpload</td>
+<td>✅ Supported</td>
+<td></td>
+</tr>
+<tr>
+<td>CompleteMultipartUpload</td>
+<td>✅ Supported</td>
+<td></td>
+</tr>
+<tr>
+<td>CopyObject</td>
+<td>✅ Supported</td>
+<td></td>
+</tr>
+<tr>
+<td>CreateBucket</td>
+<td>✅ Supported</td>
+<td></td>
+</tr>
+<tr>
+<td>CreateMultipartUpload</td>
+<td>✅ Supported</td>
+<td></td>
+</tr>
+<tr>
+<td>DeleteBucket</td>
+<td>✅ Supported</td>
+<td></td>
+</tr>
+<tr>
+<td>DeleteBucketAnalyticsConfiguration</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>DeleteBucketCors</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>DeleteBucketEncryption</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>DeleteBucketIntelligentTieringConfiguration</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>DeleteBucketInventoryConfiguration</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>DeleteBucketLifecycle</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>DeleteBucketMetricsConfiguration</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>DeleteBucketOwnershipControls</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>DeleteBucketPolicy</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>DeleteBucketReplication</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>DeleteBucketTagging</td>
+<td>✅ Supported</td>
+<td></td>
+</tr>
+<tr>
+<td>DeleteBucketWebsite</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>DeleteObject</td>
+<td>✅ Supported</td>
+<td></td>
+</tr>
+<tr>
+<td>DeleteObjects</td>
+<td>✅ Supported</td>
+<td></td>
+</tr>
+<tr>
+<td>DeleteObjectTagging</td>
+<td>✅ Supported</td>
+<td></td>
+</tr>
+<tr>
+<td>DeletePublicAccessBlock</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>GetBucketAccelerateConfiguration</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>GetBucketAcl</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>GetBucketAnalyticsConfiguration</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>GetBucketCors</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>GetBucketEncryption</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>GetBucketIntelligentTieringConfiguration</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>GetBucketInventoryConfiguration</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>GetBucketLifecycle</td>
+<td>❌ Unsupported</td>
+<td>Discouraged by AWS</td>
+</tr>
+<tr>
+<td>GetBucketLifecycleConfiguration</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>GetBucketLocation</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>GetBucketLogging</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>GetBucketMetricsConfiguration</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>GetBucketNotification</td>
+<td>❌ Unsupported</td>
+<td>Discouraged by AWS. no longer used</td>
+</tr>
+<tr>
+<td>GetBucketNotificationConfiguration</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>GetBucketOwnershipControls</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>GetBucketPolicy</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>GetBucketPolicyStatus</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>GetBucketReplication</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>GetBucketRequestPayment</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>GetBucketTagging</td>
+<td>✅ Supported</td>
+<td></td>
+</tr>
+<tr>
+<td>GetBucketVersioning</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>GetBucketWebsite</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>GetObject</td>
+<td>✅ Supported</td>
+<td></td>
+</tr>
+<tr>
+<td>GetObjectAcl</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>GetObjectAttributes</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>GetObjectLegalHold</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>GetObjectLockConfiguration</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>GetObjectRetention</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>GetObjectTagging</td>
+<td>✅ Supported</td>
+<td></td>
+</tr>
+<tr>
+<td>GetObjectTorrent</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>GetPublicAccessBlock</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>HeadBucket</td>
+<td>✅ Supported</td>
+<td></td>
+</tr>
+<tr>
+<td>HeadObject</td>
+<td>✅ Supported</td>
+<td></td>
+</tr>
+<tr>
+<td>ListBucketAnalyticsConfigurations</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>ListBucketIntelligentTieringConfigurations</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>ListBucketInventoryConfigurations</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>ListBucketMetricsConfigurations</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>ListBuckets</td>
+<td>❌ Unsupported</td>
+<td>implement me!</td>
+</tr>
+<tr>
+<td>ListMultipartUploads</td>
+<td>❌ Unsupported</td>
+<td>implement me!</td>
+</tr>
+<tr>
+<td>ListObjects</td>
+<td>❌ Unsupported</td>
+<td>implement me!</td>
+</tr>
+<tr>
+<td>ListObjectsV2</td>
+<td>❌ Unsupported</td>
+<td>implement me!</td>
+</tr>
+<tr>
+<td>ListObjectVersions</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>ListParts</td>
+<td>✅ Supported</td>
+<td></td>
+</tr>
+<tr>
+<td>PutBucketAccelerateConfiguration</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>PutBucketAcl</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>PutBucketAnalyticsConfiguration</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>PutBucketCors</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>PutBucketEncryption</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>PutBucketIntelligentTieringConfiguration</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>PutBucketInventoryConfiguration</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>PutBucketLifecycle</td>
+<td>❌ Unsupported</td>
+<td>Deprecated</td>
+</tr>
+<tr>
+<td>PutBucketLifecycleConfiguration</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>PutBucketLogging</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>PutBucketMetricsConfiguration</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>PutBucketNotification</td>
+<td>❌ Unsupported</td>
+<td>No longer used</td>
+</tr>
+<tr>
+<td>PutBucketNotificationConfiguration</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>PutBucketOwnershipControls</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>PutBucketPolicy</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>PutBucketReplication</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>PutBucketRequestPayment</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>PutBucketTagging</td>
+<td>✅ Supported</td>
+<td></td>
+</tr>
+<tr>
+<td>PutBucketVersioning</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>PutBucketWebsite</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>PutObject</td>
+<td>✅ Supported</td>
+<td></td>
+</tr>
+<tr>
+<td>PutObjectAcl</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>PutObjectLegalHold</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>PutObjectLockConfiguration</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>PutObjectRetention</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>PutObjectTagging</td>
+<td>✅ Supported</td>
+<td></td>
+</tr>
+<tr>
+<td>PutPublicAccessBlock</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>RestoreObject</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>SelectObjectContent</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>UploadPart</td>
+<td>✅ Supported</td>
+<td></td>
+</tr>
+<tr>
+<td>UploadPartCopy</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>WriteGetObjectResponse</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</details>
+<br>
+<h2 dir="auto"><a id="user-content-sqs-support" class="anchor" aria-hidden="true" tabindex="-1" href="#sqs-support"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>SQS Support</h2>
+<p dir="auto">SQS support is in in-progress.</p>
+<details>
+<summary>Click to expand the detailed support table</summary>
+<table>
+<thead>
+<tr>
+<th>API</th>
+<th>Support Status</th>
+<th>Caveats/Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AddPermission</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>CancelMessageMoveTask</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>ChangeMessageVisibility</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>ChangeMessageVisibilityBatch</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>CreateQueue</td>
+<td>✅ Supported</td>
+<td></td>
+</tr>
+<tr>
+<td>DeleteMessage</td>
+<td>✅ Supported</td>
+<td></td>
+</tr>
+<tr>
+<td>DeleteMessageBatch</td>
+<td>✅ Supported</td>
+<td></td>
+</tr>
+<tr>
+<td>DeleteQueue</td>
+<td>✅ Supported</td>
+<td></td>
+</tr>
+<tr>
+<td>GetQueueAttributes</td>
+<td>✅ Supported</td>
+<td></td>
+</tr>
+<tr>
+<td>GetQueueUrl</td>
+<td>✅ Supported</td>
+<td></td>
+</tr>
+<tr>
+<td>ListDeadLetterSourceQueues</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>ListMessageMoveTasks</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>ListQueues</td>
+<td>✅ Supported</td>
+<td></td>
+</tr>
+<tr>
+<td>ListQueueTags</td>
+<td>✅ Supported</td>
+<td></td>
+</tr>
+<tr>
+<td>PurgeQueue</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>ReceiveMessage</td>
+<td>✅ Supported</td>
+<td>wait not supported</td>
+</tr>
+<tr>
+<td>RemovePermission</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>SendMessage</td>
+<td>✅ Supported</td>
+<td></td>
+</tr>
+<tr>
+<td>SendMessageBatch</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>SetQueueAttributes</td>
+<td>✅ Supported</td>
+<td>not all attributes</td>
+</tr>
+<tr>
+<td>StartMessageMoveTask</td>
+<td>❌ Unsupported</td>
+<td></td>
+</tr>
+<tr>
+<td>TagQueue</td>
+<td>✅ Supported</td>
+<td></td>
+</tr>
+<tr>
+<td>UntagQueue</td>
+<td>✅ Supported</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</details>
+</article></div>
