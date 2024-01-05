@@ -123,8 +123,10 @@ module.exports = async function modules(context, options) {
         // Filter out duplicate release names
         let releases = r.releases.filter(function (item, pos) {
           return (
-            a.indexOf(item).tag_name.replace(/^v/, "") ==
-            pos.tag_name.replace(/^v/, "")
+            r.releases.findIndex(
+              (e) =>
+                e.tag_name.replace(/^v/, "") == item.tag_name.replace(/^v/, "")
+            ) == pos
           );
         });
 
