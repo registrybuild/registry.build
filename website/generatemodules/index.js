@@ -120,7 +120,15 @@ module.exports = async function modules(context, options) {
           exact: true,
         });
 
-        for (let release of r.releases) {
+        // Filter out duplicate release names
+        let releases = releases.filter(function (item, pos) {
+          return (
+            a.indexOf(item).tag_name.replace(/^v/, "") ==
+            pos.tag_name.replace(/^v/, "")
+          );
+        });
+
+        for (let release of releases) {
           let v = release.tag_name.replace(/^v/, "");
           actions.addRoute({
             path: `/github/${r.repo.full_name}@${v}`,
