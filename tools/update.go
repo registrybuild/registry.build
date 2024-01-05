@@ -212,6 +212,10 @@ func main() {
 		Repository: []string{"github:bazelbuild/rules_cc"},
 		Name:       "rules_cc",
 	})
+	modules = append(modules, Module{
+		Repository: []string{"github:libigl/eigen"},
+		Name:       "eigen",
+	})
 
 	for _, module := range modules {
 		for _, repo := range module.Repository {
