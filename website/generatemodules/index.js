@@ -121,7 +121,7 @@ module.exports = async function modules(context, options) {
         });
 
         // Filter out duplicate release names
-        let releases = releases.filter(function (item, pos) {
+        let releases = r.releases.filter(function (item, pos) {
           return (
             a.indexOf(item).tag_name.replace(/^v/, "") ==
             pos.tag_name.replace(/^v/, "")
