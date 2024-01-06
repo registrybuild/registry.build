@@ -31,8 +31,8 @@ int main(int argc, char* argv[]) {
 <a href="#building-from-source">source</a>. For a detailed overview of glog features and
 their usage, please refer to the <a href="#user-guide">user guide</a>.</p>
 <div class="markdown-alert markdown-alert-important" dir="auto"><p class="markdown-alert-title" dir="auto"><svg class="octicon octicon-report mr-2" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="M0 1.75C0 .784.784 0 1.75 0h12.5C15.216 0 16 .784 16 1.75v9.5A1.75 1.75 0 0 1 14.25 13H8.06l-2.573 2.573A1.458 1.458 0 0 1 3 14.543V13H1.75A1.75 1.75 0 0 1 0 11.25Zm1.75-.25a.25.25 0 0 0-.25.25v9.5c0 .138.112.25.25.25h2a.75.75 0 0 1 .75.75v2.19l2.72-2.72a.749.749 0 0 1 .53-.22h6.5a.25.25 0 0 0 .25-.25v-9.5a.25.25 0 0 0-.25-.25Zm7 2.25v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 9a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"></path></svg>Important</p>
-<p dir="auto">The above example requires further Bazel or CMake setup for
-<a href="#usage-in-projects">use in own projects</a>.</p>
+<p dir="auto">The above example requires further <a href="#bazel">Bazel</a> or
+<a href="#usage-in-projects">CMake</a> setup for use in own projects.</p>
 </div>
 <div id="user-content-table-of-contents" dir="auto">
 <p dir="auto">Table of Contents</p>
@@ -229,27 +229,60 @@ want to find less common features, please check header files under <a href="src/
 <a name="user-content-severity-levels"></a>
 <h3 dir="auto"><a id="user-content-severity-levels" class="anchor" aria-hidden="true" tabindex="-1" href="#severity-levels"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a><a href="#id9">Severity Levels</a></h3>
 <p dir="auto">You can specify one of the following severity levels (in increasing
-order of severity): <code>INFO</code>, <code>WARNING</code>, <code>ERROR</code>, and <code>FATAL</code>.
-Logging a <code>FATAL</code> message terminates the program (after the message is
-logged). Note that messages of a given severity are logged not only in
-the logfile for that severity, but also in all logfiles of lower
-severity. E.g., a message of severity <code>FATAL</code> will be logged to the
-logfiles of severity <code>FATAL</code>, <code>ERROR</code>, <code>WARNING</code>, and <code>INFO</code>.</p>
+order of severity):</p>
+<ol dir="auto">
+<li><code>INFO</code>,</li>
+<li><code>WARNING</code>,</li>
+<li><code>ERROR</code>, and</li>
+<li><code>FATAL</code>.</li>
+</ol>
+<p dir="auto">Logging a <code>FATAL</code> message terminates the program (after the message is
+logged).</p>
+<div class="markdown-alert markdown-alert-note" dir="auto"><p class="markdown-alert-title" dir="auto"><svg class="octicon octicon-info mr-2" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</p>
+<p dir="auto">Messages of a given severity are logged not only to corresponding severity
+logfile but also to other logfiles of lower severity. For instance, a message
+of severity <code>FATAL</code> will be logged to logfiles of severity <code>FATAL</code>,
+<code>ERROR</code>, <code>WARNING</code>, and <code>INFO</code>.</p>
+</div>
 <p dir="auto">The <code>DFATAL</code> severity logs a <code>FATAL</code> error in debug mode (i.e.,
 there is no <code>NDEBUG</code> macro defined), but avoids halting the program in
 production by automatically reducing the severity to <code>ERROR</code>.</p>
-<p dir="auto">Unless otherwise specified, glog writes to the filename
-<code>/tmp/\&lt;program name\&gt;.\&lt;hostname\&gt;.\&lt;user name\&gt;.log.\&lt;severity level\&gt;.\&lt;date\&gt;-\&lt;time\&gt;.\&lt;pid\&gt;</code>
-(e.g.,
-<code>/tmp/hello_world.example.com.hamaji.log.INFO.20080709-222411.10474</code>).
-By default, glog copies the log messages of severity level <code>ERROR</code> or
-<code>FATAL</code> to standard error (<code>stderr</code>) in addition to log files.</p>
+<p dir="auto">Unless otherwise specified, glog uses the format</p>
+<pre>&lt;tmp&gt;/&lt;program name&gt;.&lt;hostname&gt;.&lt;user name&gt;.log.&lt;severity level&gt;.&lt;date&gt;-&lt;time&gt;.&lt;pid&gt;
+</pre>
+<p dir="auto">for log filenames written to a directory designated as <code>&lt;tmp&gt;</code> and determined
+according to the following rules.</p>
+<dl>
+<dt><strong>Windows</strong></dt>
+<dd><p dir="auto">glog uses the
+<a href="https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-gettemppatha" rel="nofollow">GetTempPathA</a>
+API function to retrieve the directory for temporary files with a fallback to</p>
+<ol dir="auto">
+<li><code>C:\TMP\</code></li>
+<li><code>C:\TEMP\</code></li>
+</ol>
+<p dir="auto">(in the order given.)</p>
+</dd>
+<dt><strong>non-Windows</strong></dt>
+<dd><p dir="auto">The directory is determined by referencing the environment variables</p>
+<ol dir="auto">
+<li><code>TMPDIR</code></li>
+<li><code>TMP</code></li>
+</ol>
+<p dir="auto">if set with a fallback to <code>/tmp/</code>.</p>
+</dd>
+</dl>
+<p dir="auto">The default path to a log file on Linux, for instance, could be</p>
+<pre>/tmp/hello_world.example.com.hamaji.log.INFO.20080709-222411.10474
+</pre>
+<p dir="auto">By default, glog echos <code>ERROR</code> and <code>FATAL</code> messages to standard error in
+addition to log files.</p>
 <a name="user-content-setting-flags"></a>
 <h3 dir="auto"><a id="user-content-setting-flags" class="anchor" aria-hidden="true" tabindex="-1" href="#setting-flags"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a><a href="#id10">Setting Flags</a></h3>
 <p dir="auto">Several flags influence glog’s output behavior. If the <a href="https://github.com/gflags/gflags">Google gflags library</a> is installed on your machine, the build
 system will automatically detect and use it, allowing you to pass flags on the
-command line. For example, if you want to turn the flag <code>--logtostderr</code> on,
-you can start your application with the following command line:</p>
+command line. For example, if you want to activate <code>--logtostderr</code>, you can
+start your application with the following command line:</p>
 <div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="./your_application --logtostderr=1"><pre>./your_application --logtostderr=1</pre></div>
 <p dir="auto">If the Google gflags library isn’t installed, you set flags via
 environment variables, prefixing the flag name with <code>GLOG_</code>, e.g.,</p>
@@ -257,10 +290,13 @@ environment variables, prefixing the flag name with <code>GLOG_</code>, e.g.,</p
 <p dir="auto">The following flags are most commonly used:</p>
 <dl>
 <dt><code>logtostderr</code> (<code>bool</code>, default=<code>false</code>)</dt>
-<dd>Log messages to <code>stderr</code> instead of logfiles. Note: you can set
-binary flags to <code>true</code> by specifying <code>1</code>, <code>true</code>, or <code>yes</code>
-(case insensitive). Also, you can set binary flags to <code>false</code> by
-specifying <code>0</code>, <code>false</code>, or <code>no</code> (again, case insensitive).</dd>
+<dd><p dir="auto">Log messages to <code>stderr</code> instead of logfiles.</p>
+<div class="markdown-alert markdown-alert-tip" dir="auto"><p class="markdown-alert-title" dir="auto"><svg class="octicon octicon-light-bulb mr-2" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="M8 1.5c-2.363 0-4 1.69-4 3.75 0 .984.424 1.625.984 2.304l.214.253c.223.264.47.556.673.848.284.411.537.896.621 1.49a.75.75 0 0 1-1.484.211c-.04-.282-.163-.547-.37-.847a8.456 8.456 0 0 0-.542-.68c-.084-.1-.173-.205-.268-.32C3.201 7.75 2.5 6.766 2.5 5.25 2.5 2.31 4.863 0 8 0s5.5 2.31 5.5 5.25c0 1.516-.701 2.5-1.328 3.259-.095.115-.184.22-.268.319-.207.245-.383.453-.541.681-.208.3-.33.565-.37.847a.751.751 0 0 1-1.485-.212c.084-.593.337-1.078.621-1.489.203-.292.45-.584.673-.848.075-.088.147-.173.213-.253.561-.679.985-1.32.985-2.304 0-2.06-1.637-3.75-4-3.75ZM5.75 12h4.5a.75.75 0 0 1 0 1.5h-4.5a.75.75 0 0 1 0-1.5ZM6 15.25a.75.75 0 0 1 .75-.75h2.5a.75.75 0 0 1 0 1.5h-2.5a.75.75 0 0 1-.75-.75Z"></path></svg>Tip</p>
+<p dir="auto">You can set boolean flags to <code>true</code> by specifying <code>1</code>, <code>true</code>,
+or <code>yes</code>. To set boolean flags to <code>false</code>, specify <code>0</code>,
+<code>false</code>, or <code>no</code>. In either case the spelling is case-insensitive.</p>
+</div>
+</dd>
 <dt><code>stderrthreshold</code> (<code>int</code>, default=2, which is <code>ERROR</code>)</dt>
 <dd>Copy log messages at or above this level to stderr in addition to
 logfiles. The numbers of severity levels <code>INFO</code>, <code>WARNING</code>,
@@ -273,19 +309,19 @@ and 3, respectively.</dd>
 <dd>If specified, logfiles are written into this directory instead of the
 default logging directory.</dd>
 <dt><code>v</code> (<code>int</code>, default=0)</dt>
-<dd>Show all <code>VLOG(m)</code> messages for <code>m</code> less or equal the value of
-this flag. Overridable by <code>--vmodule</code>. See <a href="#verbose-logging">the section about
-verbose logging</a> for more detail.</dd>
+<dd>Show all <code>VLOG(m)</code> messages for <code>m</code> less or equal the value of this flag.
+Overridable by <code>--vmodule</code>. Refer to <a href="#verbose-logging">verbose logging</a>
+for more detail.</dd>
 <dt><code>vmodule</code> (<code>string</code>, default="")</dt>
 <dd>Per-module verbose level. The argument has to contain a
-comma-separated list of &lt;module name&gt;=&lt;log level&gt;. &lt;module name&gt; is a
+comma-separated list of <code>&lt;module name&gt;=&lt;log level&gt;</code>. <code>&lt;module name&gt;</code> is a
 glob pattern (e.g., <code>gfs*</code> for all modules whose name starts with
 "gfs"), matched against the filename base (that is, name ignoring
-.cc/.h./-inl.h). &lt;log level&gt; overrides any value given by <code>--v</code>.
-See also <a href="#verbose-logging">the section about verbose logging</a>.</dd>
+.cc/.h./-inl.h). <code>&lt;log level&gt;</code> overrides any value given by <code>--v</code>.
+See also <a href="#verbose-logging">verbose logging</a> for more details.</dd>
 </dl>
-<p dir="auto">There are some other flags defined in logging.cc. Please grep the source
-code for <code>DEFINE_</code> to see a complete list of all flags.</p>
+<p dir="auto">Additional flags are defined in <a href="src/flags.cc">flags.cc</a>. Please see the
+source for their complete list.</p>
 <p dir="auto">You can also modify flag values in your program by modifying global
 variables <code>FLAGS_*</code> . Most settings start working immediately after
 you update <code>FLAGS_*</code> . The exceptions are the flags related to
@@ -319,8 +355,10 @@ may be useful to only log a message at certain intervals. This kind of
 logging is most useful for informational messages.</p>
 <div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="LOG_EVERY_N(INFO, 10) &lt;&lt; &quot;Got the &quot; &lt;&lt; google::COUNTER &lt;&lt; &quot;th cookie&quot;;"><pre><span class="pl-en">LOG_EVERY_N</span>(INFO, <span class="pl-c1">10</span>) &lt;&lt; "Got the " &lt;&lt; google::COUNTER &lt;&lt; "th cookie";</pre></div>
 <p dir="auto">The above line outputs a log messages on the 1st, 11th, 21st, ... times
-it is executed. Note that the special <code>google::COUNTER</code> value is used
-to identify which repetition is happening.</p>
+it is executed.</p>
+<div class="markdown-alert markdown-alert-note" dir="auto"><p class="markdown-alert-title" dir="auto"><svg class="octicon octicon-info mr-2" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</p>
+<p dir="auto">The placeholder <code>google::COUNTER</code> identifies the reccuring repetition.</p>
+</div>
 <p dir="auto">You can combine conditional and occasional logging with the following
 macro.</p>
 <div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="LOG_IF_EVERY_N(INFO, (size &gt; 1024), 10) &lt;&lt; &quot;Got the &quot; &lt;&lt; google::COUNTER
@@ -329,10 +367,10 @@ macro.</p>
 <p dir="auto">Instead of outputting a message every nth time, you can also limit the
 output to the first n occurrences:</p>
 <div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="LOG_FIRST_N(INFO, 20) &lt;&lt; &quot;Got the &quot; &lt;&lt; google::COUNTER &lt;&lt; &quot;th cookie&quot;;"><pre><span class="pl-en">LOG_FIRST_N</span>(INFO, <span class="pl-c1">20</span>) &lt;&lt; "Got the " &lt;&lt; google::COUNTER &lt;&lt; "th cookie";</pre></div>
-<p dir="auto">Outputs log messages for the first 20 times it is executed. Again, the
+<p dir="auto">Outputs log messages for the first 20 times it is executed. The
 <code>google::COUNTER</code> identifier indicates which repetition is happening.</p>
 <p dir="auto">Other times, it is desired to only log a message periodically based on a time.
-So for example, to log a message every 10ms:</p>
+For instance, to log a message every 10ms:</p>
 <div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="LOG_EVERY_T(INFO, 0.01) &lt;&lt; &quot;Got a cookie&quot;;"><pre><span class="pl-en">LOG_EVERY_T</span>(INFO, <span class="pl-c1">0.01</span>) &lt;&lt; "Got a cookie";</pre></div>
 <p dir="auto">Or every 2.35s:</p>
 <div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="LOG_EVERY_T(INFO, 2.35) &lt;&lt; &quot;Got a cookie&quot;;"><pre><span class="pl-en">LOG_EVERY_T</span>(INFO, <span class="pl-c1">2.35</span>) &lt;&lt; "Got a cookie";</pre></div>
@@ -392,18 +430,24 @@ constructor initializer lists.</p>
     <span class="pl-en">S</span>(Something* ptr) : ptr_(CHECK_NOTNULL(ptr)) {}
     Something* ptr_;
 };</pre></div>
-<p dir="auto">Note that you cannot use this macro as a C++ stream due to this feature.
-Please use <code>CHECK_EQ</code> described above to log a custom message before
-aborting the application.</p>
+<div class="markdown-alert markdown-alert-warning" dir="auto"><p class="markdown-alert-title" dir="auto"><svg class="octicon octicon-alert mr-2" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="M6.457 1.047c.659-1.234 2.427-1.234 3.086 0l6.082 11.378A1.75 1.75 0 0 1 14.082 15H1.918a1.75 1.75 0 0 1-1.543-2.575Zm1.763.707a.25.25 0 0 0-.44 0L1.698 13.132a.25.25 0 0 0 .22.368h12.164a.25.25 0 0 0 .22-.368Zm.53 3.996v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 11a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"></path></svg>Warning</p>
+<p dir="auto">Due to the argument forwarding, <code>CHECK_NOTNULL</code> cannot be used to
+simultaneously stream an additional custom message. To provide a custom
+message, one can use the macro <code>CHECK_EQ</code> prior to the failing check.</p>
+</div>
 <p dir="auto">If you are comparing C strings (<code>char *</code>), a handy set of macros performs
-case sensitive as well as case insensitive comparisons - <code>CHECK_STREQ</code>,
-<code>CHECK_STRNE</code>, <code>CHECK_STRCASEEQ</code>, and <code>CHECK_STRCASENE</code>. The CASE versions
-are case-insensitive. You can safely pass <code>nullptr</code> pointers for this macro. They
-treat <code>nullptr</code> and any non-<code>nullptr</code> string as not equal. Two <code>nullptr</code>s are equal.</p>
-<p dir="auto">Note that both arguments may be temporary strings which are destructed
-at the end of the current "full expression" (e.g.,
-<code>CHECK_STREQ(Foo().c_str(), Bar().c_str())</code> where <code>Foo</code> and <code>Bar</code>
-return C++’s <code>std::string</code>).</p>
+both case sensitive and insensitive comparisons - <code>CHECK_STREQ</code>,
+<code>CHECK_STRNE</code>, <code>CHECK_STRCASEEQ</code>, and <code>CHECK_STRCASENE</code>. The
+<code>CHECK_*CASE*</code> macro variants are case-insensitive. You can safely pass
+<code>nullptr</code> pointers to this macro. They treat <code>nullptr</code> and any
+non-<code>nullptr</code> string as not equal. Two <code>nullptr</code>s are equal.</p>
+<div class="markdown-alert markdown-alert-note" dir="auto"><p class="markdown-alert-title" dir="auto"><svg class="octicon octicon-info mr-2" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</p>
+<p dir="auto">Both arguments may be temporary objects which are destructed at the end of
+the current "full expression", such as</p>
+<pre lang="cpp">CHECK_STREQ(Foo().c_str(), Bar().c_str());
+</pre>
+<p dir="auto">where <code>Foo</code> and <code>Bar</code> return <code>std::string</code>.</p>
+</div>
 <p dir="auto">The <code>CHECK_DOUBLE_EQ</code> macro checks the equality of two floating point
 values, accepting a small error margin. <code>CHECK_NEAR</code> accepts a third
 floating point argument, which specifies the acceptable error margin.</p>
@@ -419,29 +463,34 @@ VLOG(2) &lt;&lt; &quot;I’m printed when you run the program with --v=2 or high
 <span class="pl-en">VLOG</span>(<span class="pl-c1">2</span>) &lt;&lt; "I’m printed when you run the program with --v=2 or higher";</pre></div>
 <p dir="auto">With <code>VLOG</code>, the lower the verbose level, the more likely messages are to be
 logged. For example, if <code>--v==1</code>, <code>VLOG(1)</code> will log, but <code>VLOG(2)</code>
-will not log. This is opposite of the severity level, where <code>INFO</code> is 0, and
-<code>ERROR</code> is 2. <code>--minloglevel</code> of 1 will log <code>WARNING</code> and above. Though
-you can specify any integers for both <code>VLOG</code> macro and <code>--v</code> flag, the
-common values for them are small positive integers. For example, if you write
-<code>VLOG(0)</code>, you should specify <code>--v=-1</code> or lower to silence it. This is
-less useful since we may not want verbose logs by default in most cases. The
+will not log.</p>
+<div class="markdown-alert markdown-alert-caution" dir="auto"><p class="markdown-alert-title" dir="auto"><svg class="octicon octicon-stop mr-2" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="M4.47.22A.749.749 0 0 1 5 0h6c.199 0 .389.079.53.22l4.25 4.25c.141.14.22.331.22.53v6a.749.749 0 0 1-.22.53l-4.25 4.25A.749.749 0 0 1 11 16H5a.749.749 0 0 1-.53-.22L.22 11.53A.749.749 0 0 1 0 11V5c0-.199.079-.389.22-.53Zm.84 1.28L1.5 5.31v5.38l3.81 3.81h5.38l3.81-3.81V5.31L10.69 1.5ZM8 4a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0v-3.5A.75.75 0 0 1 8 4Zm0 8a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Caution</p>
+<p dir="auto">The <code>VLOG</code> behavior is opposite of the severity level logging, where
+<code>INFO</code>, <code>ERROR</code>, etc. are defined in increasing order and thus
+<code>--minloglevel</code> of 1 will only log <code>WARNING</code> and above.</p>
+</div>
+<p dir="auto">Though you can specify any integers for both <code>VLOG</code> macro and <code>--v</code> flag,
+the common values for them are small positive integers. For example, if you
+write <code>VLOG(0)</code>, you should specify <code>--v=-1</code> or lower to silence it. This
+is less useful since we may not want verbose logs by default in most cases. The
 <code>VLOG</code> macros always log at the <code>INFO</code> log level (when they log at all).</p>
 <p dir="auto">Verbose logging can be controlled from the command line on a per-module
 basis:</p>
 <div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="--vmodule=mapreduce=2,file=1,gfs*=3 --v=0"><pre>--vmodule=mapreduce=2,file=1,gfs<span class="pl-k">*</span>=3 --v=0</pre></div>
-<p dir="auto">will:</p>
+<p dir="auto">Specifying these options will specficially:</p>
 <ol dir="auto">
 <li>Print <code>VLOG(2)</code> and lower messages from mapreduce.{h,cc}</li>
 <li>Print <code>VLOG(1)</code> and lower messages from file.{h,cc}</li>
 <li>Print <code>VLOG(3)</code> and lower messages from files prefixed with "gfs"</li>
 <li>Print <code>VLOG(0)</code> and lower messages from elsewhere</li>
 </ol>
-<p dir="auto">The wildcarding functionality shown by (c) supports both ’*’ (matches 0
-or more characters) and ’?’ (matches any single character) wildcards.
-Please also check the section about <a href="#setting-flags">command line flags</a>.</p>
-<p dir="auto">There’s also <code>VLOG_IS_ON(n)</code> "verbose level" condition macro. This
-macro returns true when the <code>--v</code> is equal or greater than <code>n</code>. To
-be used as</p>
+<p dir="auto">The wildcarding functionality 3. supports both <code>*</code> (matches 0
+or more characters) and <code>?</code> (matches any single character) wildcards.
+Please also refer to <a href="#setting-flags">command line flags</a> for more
+information.</p>
+<p dir="auto">There’s also <code>VLOG_IS_ON(n)</code> "verbose level" condition macro. This macro
+returns <code>true</code> when the <code>--v</code> is equal to or greater than <code>n</code>. The
+macro can be used as follows:</p>
 <div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="if (VLOG_IS_ON(2)) {
     // do some logging preparation and logging
     // that can’t be accomplished with just VLOG(2) &lt;&lt; ...;
@@ -475,17 +524,15 @@ VLOG_IF_EVERY_N(1, (size &gt; 1024), 10)
 <a name="user-content-custom-log-prefix-format"></a>
 <h3 dir="auto"><a id="user-content-custom-log-prefix-format" class="anchor" aria-hidden="true" tabindex="-1" href="#custom-log-prefix-format"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a><a href="#id15">Custom Log Prefix Format</a></h3>
 <p dir="auto">glog supports changing the format of the prefix attached to log messages by
-receiving a user-provided callback to be used to generate such strings.</p>
+receiving a user-provided callback that generates such strings.</p>
 <p dir="auto">For each log entry, the callback will be invoked with a <code>LogMessageInfo</code>
 struct containing the severity, filename, line number, thread ID, and time of
 the event. It will also be given a reference to the output stream, whose
 contents will be prepended to the actual message in the final log line.</p>
-<p dir="auto">For example:</p>
-<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="/* This function writes a prefix that matches glog's default format.
- * (The third parameter can be used to receive user-supplied data, and is
- * nullptr by default.)
- */
-void CustomPrefix(std::ostream &amp;s, const LogMessageInfo &amp;l, void*) {
+<p dir="auto">For example, the following function outputs a prefix that matches glog's default
+format. The third parameter <code>data</code> can be used to access user-supplied data
+which unless specified defaults to <code>nullptr</code>.</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="void CustomPrefix(std::ostream&amp; s, const LogMessageInfo&amp; l, void* /*data*/) {
    s &lt;&lt; l.severity[0]
    &lt;&lt; setw(4) &lt;&lt; 1900 + l.time.year()
    &lt;&lt; setw(2) &lt;&lt; 1 + l.time.month()
@@ -500,11 +547,7 @@ void CustomPrefix(std::ostream &amp;s, const LogMessageInfo &amp;l, void*) {
    &lt;&lt; l.thread_id &lt;&lt; setfill('0')
    &lt;&lt; ' '
    &lt;&lt; l.filename &lt;&lt; ':' &lt;&lt; l.line_number &lt;&lt; &quot;]&quot;;
-}"><pre><span class="pl-c"><span class="pl-c">/*</span> This function writes a prefix that matches glog's default format.</span>
-<span class="pl-c"> * (The third parameter can be used to receive user-supplied data, and is</span>
-<span class="pl-c"> * nullptr by default.)</span>
-<span class="pl-c"> <span class="pl-c">*/</span></span>
-<span class="pl-k">void</span> <span class="pl-en">CustomPrefix</span>(std::ostream &amp;s, <span class="pl-k">const</span> LogMessageInfo &amp;l, <span class="pl-k">void</span>*) {
+}"><pre><span class="pl-k">void</span> <span class="pl-en">CustomPrefix</span>(std::ostream&amp; s, <span class="pl-k">const</span> LogMessageInfo&amp; l, <span class="pl-k">void</span>* <span class="pl-c"><span class="pl-c">/*</span>data<span class="pl-c">*/</span></span>) {
    s &lt;&lt; l.<span class="pl-smi">severity</span>[<span class="pl-c1">0</span>]
    &lt;&lt; <span class="pl-c1">setw</span>(<span class="pl-c1">4</span>) &lt;&lt; <span class="pl-c1">1900</span> + l.<span class="pl-smi">time</span>.<span class="pl-c1">year</span>()
    &lt;&lt; <span class="pl-c1">setw</span>(<span class="pl-c1">2</span>) &lt;&lt; <span class="pl-c1">1</span> + l.<span class="pl-smi">time</span>.<span class="pl-c1">month</span>()
@@ -520,10 +563,11 @@ void CustomPrefix(std::ostream &amp;s, const LogMessageInfo &amp;l, void*) {
    &lt;&lt; <span class="pl-s"><span class="pl-pds">'</span> <span class="pl-pds">'</span></span>
    &lt;&lt; l.<span class="pl-smi">filename</span> &lt;&lt; <span class="pl-s"><span class="pl-pds">'</span>:<span class="pl-pds">'</span></span> &lt;&lt; l.<span class="pl-smi">line_number</span> &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>]<span class="pl-pds">"</span></span>;
 }</pre></div>
-<p dir="auto">To enable the use of <code>CustomPrefix()</code>, simply give glog a pointer to it
-during initialization: <code>InitGoogleLogging(argv[0], &amp;CustomPrefix);</code>.</p>
-<p dir="auto">Optionally, <code>InitGoogleLogging()</code> takes a third argument of type  <code>void*</code>
-to pass on to the callback function.</p>
+<p dir="auto">To enable the use of a custom prefix, use the</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="InitGoogleLogging(argv[0], &amp;CustomPrefix);"><pre><span class="pl-en">InitGoogleLogging</span>(argv[<span class="pl-c1">0</span>], &amp;CustomPrefix);</pre></div>
+<p dir="auto">overload to pass a pointer to the corresponding <code>CustomPrefix</code> function during
+initialization. <code>InitGoogleLogging()</code> takes a third optional argument of
+type  <code>void*</code> that allows supplying user data to the callback.</p>
 <a name="user-content-failure-signal-handler"></a>
 <h3 dir="auto"><a id="user-content-failure-signal-handler" class="anchor" aria-hidden="true" tabindex="-1" href="#failure-signal-handler"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a><a href="#id16">Failure Signal Handler</a></h3>
 <p dir="auto">The library provides a convenient signal handler that will dump useful
@@ -572,16 +616,18 @@ int main(int argc, char* argv[]) {
 <span class="pl-k">int</span> <span class="pl-en">main</span>(<span class="pl-k">int</span> argc, <span class="pl-k">char</span>* argv[]) {
   <span class="pl-c1">google::InstallFailureFunction</span>(&amp;YourFailureFunction);
 }</pre></div>
-<p dir="auto">By default, glog tries to dump stacktrace and makes the program exit
-with status 1. The stacktrace is produced only when you run the program
-on an architecture for which glog supports stack tracing (as of
-September 2008, glog supports stack tracing for x86 and x86_64).</p>
+<p dir="auto">By default, glog tries to dump the stacktrace and calls <code>std::abort</code>. The
+stacktrace is generated only when running the application on a system supported
+by glog. Currently, glog supports x86, x86_64, PowerPC architectures,
+<code>libunwind</code>, and the Debug Help Library (<code>dbghelp</code>) on Windows for
+extracting the stack trace.</p>
 <a name="user-content-raw-logging"></a>
 <h3 dir="auto"><a id="user-content-raw-logging" class="anchor" aria-hidden="true" tabindex="-1" href="#raw-logging"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a><a href="#id19">Raw Logging</a></h3>
 <p dir="auto">The header file <code>&lt;glog/raw_logging.h&gt;</code> can be used for thread-safe logging,
 which does not allocate any memory or acquire any locks. Therefore, the macros
 defined in this header file can be used by low-level memory allocation and
-synchronization code. Please check <a href="src/glog/raw_logging.h.in">src/glog/raw_logging.h.in</a> for detail.</p>
+synchronization code. Please check
+<a href="src/glog/raw_logging.h">src/glog/raw_logging.h</a> for detail.</p>
 <a name="user-content-google-style-perror"></a>
 <h3 dir="auto"><a id="user-content-google-style-perror" class="anchor" aria-hidden="true" tabindex="-1" href="#google-style-perror"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a><a href="#id20">Google Style <code>perror()</code></a></h3>
 <p dir="auto"><code>PLOG()</code> and <code>PLOG_IF()</code> and <code>PCHECK()</code> behave exactly like their
@@ -677,9 +723,9 @@ google::FlushLogFiles(google::GLOG_ERROR);</pre></div>
 <p dir="auto">If you don’t need <code>ERROR</code> defined by <code>windows.h</code>, there are a couple
 of more workarounds which sometimes don’t work:</p>
 <ul dir="auto">
-<li><code>#define WIN32_LEAN_AND_MEAN</code> or <code>NOGDI</code> <strong>before</strong> you
-<code>#include windows.h</code>.</li>
-<li><code>#undef ERROR</code> <strong>after</strong> you <code>#include windows.h</code> .</li>
+<li><code>#define WIN32_LEAN_AND_MEAN</code> or <code>NOGDI</code> <strong>before</strong>
+<code>#include &lt;windows.h&gt;</code>.</li>
+<li><code>#undef ERROR</code> <strong>after</strong> <code>#include &lt;windows.h&gt;</code>.</li>
 </ul>
 <p dir="auto">See <a href="http://code.google.com/p/google-glog/issues/detail?id=33" rel="nofollow">this
 issue</a> for
@@ -712,19 +758,19 @@ stack unwinding.</p>
 <p dir="auto">Using <code>-static</code> is rare, though, so unless you know this will affect you it
 probably won’t.</p>
 <p dir="auto">If you cannot or do not wish to install libunwind, you can still try to
-use two kinds of stack-unwinder: 1. glibc built-in stack-unwinder and 2.
-frame pointer based stack-unwinder.</p>
-<ol dir="auto">
-<li>As we already mentioned, glibc’s unwinder has a deadlock issue.
-However, if you don’t use <code>InstallFailureSignalHandler()</code> or you
-don’t worry about the rare possibilities of deadlocks, you can use
-this stack-unwinder. If you specify no options and <code>libunwind</code>
-isn’t detected on your system, the configure script chooses this
-unwinder by default.</li>
-<li>The frame pointer based stack unwinder requires that your
-application, the glog library, and system libraries like libc, all be
-compiled with a frame pointer. This is <em>not</em> the default for x86-64.</li>
-</ol>
+use two kinds of stack-unwinder:</p>
+<dl>
+<dt>glibc built-in stack-unwinder</dt>
+<dd>As we already mentioned, glibc’s unwinder has a deadlock issue. However, if
+you don’t use <code>InstallFailureSignalHandler()</code> or you don’t worry about
+the rare possibilities of deadlocks, you can use this stack-unwinder. If you
+specify no options and <code>libunwind</code> isn’t detected on your system, the
+configure script chooses this unwinder by default.</dd>
+<dt>frame pointer based stack-unwinder</dt>
+<dd>The frame pointer based stack unwinder requires that your application, the
+glog library, and system libraries like libc, all be compiled with a frame
+pointer. This is <em>not</em> the default for x86-64.</dd>
+</dl>
 <a name="user-content-how-to-contribute"></a>
 <h2 dir="auto"><a id="user-content-how-to-contribute" class="anchor" aria-hidden="true" tabindex="-1" href="#how-to-contribute"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a><a href="#id26">How to Contribute</a></h2>
 <p dir="auto">We’d love to accept your patches and contributions to this project.
