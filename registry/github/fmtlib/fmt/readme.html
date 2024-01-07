@@ -209,14 +209,12 @@ than <a href="https://github.com/google/double-conversion">double-conversion</a>
 and <a href="https://github.com/ulfjack/ryu">ryu</a>:</p>
 <p dir="auto"><a href="https://fmt.dev/unknown_mac64_clang12.0.html" rel="nofollow"><img src="https://user-images.githubusercontent.com/576385/95684665-11719600-0ba8-11eb-8e5b-972ff4e49428.png" alt="image" style="max-width: 100%;"></a></p>
 <h2 dir="auto"><a id="user-content-compile-time-and-code-bloat" class="anchor" aria-hidden="true" tabindex="-1" href="#compile-time-and-code-bloat"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Compile time and code bloat</h2>
-<p dir="auto">The script
-<a href="https://github.com/fmtlib/format-benchmark/blob/master/bloat-test.py">bloat-test.py</a>
-from <a href="https://github.com/fmtlib/format-benchmark">format-benchmark</a>
-tests compile time and code bloat for nontrivial projects. It generates
-100 translation units and uses <code>printf()</code> or its alternative five times
-in each to simulate a medium-sized project. The resulting executable
-size and compile time (Apple LLVM version 8.1.0 (clang-802.0.42), macOS
-Sierra, best of three) is shown in the following tables.</p>
+<p dir="auto">The script <a href="https://github.com/fmtlib/format-benchmark/blob/master/bloat-test.py">bloat-test.py</a> from <a href="https://github.com/fmtlib/format-benchmark">format-benchmark</a> tests compile
+time and code bloat for nontrivial projects. It generates 100 translation units
+and uses <code>printf()</code> or its alternative five times in each to simulate a
+medium-sized project. The resulting executable size and compile time (Apple
+clang version 15.0.0 (clang-1500.1.0.2.5), macOS Sonoma, best of three) is shown
+in the following tables.</p>
 <p dir="auto"><strong>Optimized build (-O3)</strong></p>
 <table>
 <thead>
@@ -230,47 +228,39 @@ Sierra, best of three) is shown in the following tables.</p>
 <tbody>
 <tr>
 <td>printf</td>
-<td>2.6</td>
-<td>29</td>
-<td>26</td>
+<td>1.6</td>
+<td>54</td>
+<td>50</td>
 </tr>
 <tr>
-<td>printf+string</td>
-<td>16.4</td>
-<td>29</td>
-<td>26</td>
+<td>IOStreams</td>
+<td>25.6</td>
+<td>98</td>
+<td>84</td>
 </tr>
 <tr>
-<td>iostreams</td>
-<td>31.1</td>
-<td>59</td>
-<td>55</td>
+<td>{fmt} 1b7d9db</td>
+<td>4.8</td>
+<td>54</td>
+<td>50</td>
 </tr>
 <tr>
-<td>{fmt}</td>
-<td>19.0</td>
-<td>37</td>
-<td>34</td>
+<td>tinyformat</td>
+<td>30.5</td>
+<td>161</td>
+<td>136</td>
 </tr>
 <tr>
 <td>Boost Format</td>
-<td>91.9</td>
-<td>226</td>
-<td>203</td>
-</tr>
-<tr>
-<td>Folly Format</td>
-<td>115.7</td>
-<td>101</td>
-<td>88</td>
+<td>56.7</td>
+<td>530</td>
+<td>317</td>
 </tr>
 </tbody>
 </table>
-<p dir="auto">As you can see, {fmt} has 60% less overhead in terms of resulting binary
-code size compared to iostreams and comes pretty close to <code>printf</code>.
-Boost Format and Folly Format have the largest overheads.</p>
-<p dir="auto"><code>printf+string</code> is the same as <code>printf</code> but with an extra <code>&lt;string&gt;</code>
-include to measure the overhead of the latter.</p>
+<p dir="auto">As you can see, {fmt} has ~70% less overhead in terms of resulting binary code
+size compared to iostreams and comes pretty close to <code>printf</code>. Boost Format and
+Folly Format have the largest overheads.</p>
 <p dir="auto"><strong>Non-optimized build</strong></p>
 <table>
 <thead>
@@ -284,39 +274,33 @@ include to measure the overhead of the latter.</p>
 <tbody>
 <tr>
 <td>printf</td>
-<td>2.2</td>
-<td>33</td>
-<td>30</td>
-</tr>
-<tr>
-<td>printf+string</td>
-<td>16.0</td>
-<td>33</td>
-<td>30</td>
-</tr>
-<tr>
-<td>iostreams</td>
-<td>28.3</td>
-<td>56</td>
-<td>52</td>
-</tr>
-<tr>
-<td>{fmt}</td>
-<td>18.2</td>
-<td>59</td>
+<td>1.4</td>
+<td>54</td>
 <td>50</td>
 </tr>
 <tr>
-<td>Boost Format</td>
-<td>54.1</td>
-<td>365</td>
-<td>303</td>
+<td>IOStreams</td>
+<td>24.2</td>
+<td>92</td>
+<td>68</td>
 </tr>
 <tr>
-<td>Folly Format</td>
-<td>79.9</td>
-<td>445</td>
-<td>430</td>
+<td>{fmt} 1b7d9db</td>
+<td>4.7</td>
+<td>217</td>
+<td>214</td>
+</tr>
+<tr>
+<td>tinyformat</td>
+<td>25.7</td>
+<td>204</td>
+<td>161</td>
+</tr>
+<tr>
+<td>Boost Format</td>
+<td>37.5</td>
+<td>831</td>
+<td>462</td>
 </tr>
 </tbody>
 </table>
