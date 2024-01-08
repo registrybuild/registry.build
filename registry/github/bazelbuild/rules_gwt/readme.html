@@ -18,7 +18,7 @@ via <code>bazel run</code>.</p>
 everything it depends on. The easiest way to do so is to add the following to
 your <code>WORKSPACE</code> file, which will give you default versions for GWT and each
 dependency:</p>
-<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(&quot;@bazel_tools//tools/build_defs/repo:http.bzl&quot;, &quot;http_archive&quot;)
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@bazel_tools//tools/build_defs/repo:http.bzl&quot;, &quot;http_archive&quot;)
 http_archive(
   name = &quot;io_bazel_rules_gwt&quot;,
   url = &quot;https://github.com/bazelbuild/rules_gwt/archive/0.1.3.tar.gz&quot;,
@@ -26,16 +26,15 @@ http_archive(
   strip_prefix = &quot;rules_gwt-0.1.3&quot;,
 )
 load(&quot;@io_bazel_rules_gwt//gwt:gwt.bzl&quot;, &quot;gwt_repositories&quot;)
-gwt_repositories()"><pre lang="python" class="notranslate"><code>load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
-http_archive(
-  name = "io_bazel_rules_gwt",
-  url = "https://github.com/bazelbuild/rules_gwt/archive/0.1.3.tar.gz",
-  sha256 = "3f017bd2f7734e259535da0bcc75398b883dda6da6b657dfa84bd02fab0a6916",
-  strip_prefix = "rules_gwt-0.1.3",
+gwt_repositories()"><pre><span class="pl-en">load</span>(<span class="pl-s">"@bazel_tools//tools/build_defs/repo:http.bzl"</span>, <span class="pl-s">"http_archive"</span>)
+<span class="pl-en">http_archive</span>(
+  <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"io_bazel_rules_gwt"</span>,
+  <span class="pl-s1">url</span> <span class="pl-c1">=</span> <span class="pl-s">"https://github.com/bazelbuild/rules_gwt/archive/0.1.3.tar.gz"</span>,
+  <span class="pl-s1">sha256</span> <span class="pl-c1">=</span> <span class="pl-s">"3f017bd2f7734e259535da0bcc75398b883dda6da6b657dfa84bd02fab0a6916"</span>,
+  <span class="pl-s1">strip_prefix</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_gwt-0.1.3"</span>,
 )
-load("@io_bazel_rules_gwt//gwt:gwt.bzl", "gwt_repositories")
-gwt_repositories()
-</code></pre></div>
+<span class="pl-en">load</span>(<span class="pl-s">"@io_bazel_rules_gwt//gwt:gwt.bzl"</span>, <span class="pl-s">"gwt_repositories"</span>)
+<span class="pl-en">gwt_repositories</span>()</pre></div>
 <p dir="auto">If you want to use a different version of GWT or any of its dependencies, you
 must provide your own bindings. Remove the <code>gwt_repositories()</code> line above and
 add a <code>bind</code> rule for each of the following in your <code>WORKSPACE</code>:</p>
@@ -99,7 +98,7 @@ add a <code>bind</code> rule for each of the following in your <code>WORKSPACE</
 <code>MyApp.gwt.xml</code> which depends on another Java library <code>MyLib.java</code>. <code>index.html</code>
 defines the HTML page that links in the GWT application. To build this app, your
 <code>src/main/java/app/BUILD</code> can look like this:</p>
-<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(&quot;@io_bazel_rules_gwt//gwt:gwt.bzl&quot;, &quot;gwt_application&quot;)
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@io_bazel_rules_gwt//gwt:gwt.bzl&quot;, &quot;gwt_application&quot;)
 
 gwt_application(
   name = &quot;MyApp&quot;,
@@ -110,19 +109,18 @@ gwt_application(
   deps = [
     &quot;//src/main/java/lib&quot;,
   ],
-)"><pre lang="python" class="notranslate"><code>load("@io_bazel_rules_gwt//gwt:gwt.bzl", "gwt_application")
+)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@io_bazel_rules_gwt//gwt:gwt.bzl"</span>, <span class="pl-s">"gwt_application"</span>)
 
-gwt_application(
-  name = "MyApp",
-  srcs = glob(["*.java"]),
-  resources = glob(["*.gwt.xml"]),
-  modules = ["app.MyApp"],
-  pubs = glob(["public/*"]),
-  deps = [
-    "//src/main/java/lib",
+<span class="pl-en">gwt_application</span>(
+  <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"MyApp"</span>,
+  <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> <span class="pl-en">glob</span>([<span class="pl-s">"*.java"</span>]),
+  <span class="pl-s1">resources</span> <span class="pl-c1">=</span> <span class="pl-en">glob</span>([<span class="pl-s">"*.gwt.xml"</span>]),
+  <span class="pl-s1">modules</span> <span class="pl-c1">=</span> [<span class="pl-s">"app.MyApp"</span>],
+  <span class="pl-s1">pubs</span> <span class="pl-c1">=</span> <span class="pl-en">glob</span>([<span class="pl-s">"public/*"</span>]),
+  <span class="pl-s1">deps</span> <span class="pl-c1">=</span> [
+    <span class="pl-s">"//src/main/java/lib"</span>,
   ],
-)
-</code></pre></div>
+)</pre></div>
 <p dir="auto">Now, you can build the GWT application by running
 <code>bazel build src/main/java/app:MyApp</code>. This will run the GWT compiler and place
 all of its output as well as <code>index.html</code> into
@@ -137,8 +135,7 @@ details on the <code>java_roots</code> flag below if this is not the case.</p>
 directory in this repository.</p>
 <p dir="auto"><a name="user-content-gwt_application"></a></p>
 <h2 dir="auto"><a id="user-content-gwt_application" class="anchor" aria-hidden="true" tabindex="-1" href="#gwt_application"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>gwt_application</h2>
-<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="gwt_application(name, srcs, resources, modules, pubs, deps, output_root, java_roots, compiler_flags, compiler_jvm_flags, dev_flags, dev_jvm_flags):"><pre lang="python" class="notranslate"><code>gwt_application(name, srcs, resources, modules, pubs, deps, output_root, java_roots, compiler_flags, compiler_jvm_flags, dev_flags, dev_jvm_flags):
-</code></pre></div>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="gwt_application(name, srcs, resources, modules, pubs, deps, output_root, java_roots, compiler_flags, compiler_jvm_flags, dev_flags, dev_jvm_flags):"><pre><span class="pl-en">gwt_application</span>(<span class="pl-s1">name</span>, <span class="pl-s1">srcs</span>, <span class="pl-s1">resources</span>, <span class="pl-s1">modules</span>, <span class="pl-s1">pubs</span>, <span class="pl-s1">deps</span>, <span class="pl-s1">output_root</span>, <span class="pl-s1">java_roots</span>, <span class="pl-s1">compiler_flags</span>, <span class="pl-s1">compiler_jvm_flags</span>, <span class="pl-s1">dev_flags</span>, <span class="pl-s1">dev_jvm_flags</span>):</pre></div>
 <h3 dir="auto"><a id="user-content-implicit-output-targets" class="anchor" aria-hidden="true" tabindex="-1" href="#implicit-output-targets"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Implicit output targets</h3>
 <ul dir="auto">
 <li><code>&lt;name&gt;.war</code>: archive containing GWT compiler output and any files passed
