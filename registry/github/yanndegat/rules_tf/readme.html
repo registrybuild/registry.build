@@ -1,0 +1,219 @@
+<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><h1 dir="auto"><a id="user-content-tf-rules" class="anchor" aria-hidden="true" tabindex="-1" href="#tf-rules"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Tf Rules</h1>
+<p dir="auto">The Tf rules is useful to validate, lint and format terraform code.</p>
+<p dir="auto">It can typically be used in a terraform monorepo of modules to enforce the
+consistency of providers versions used across all modules, auto generate documentation
+and run lint and validation tests on all your modules.</p>
+<h2 dir="auto"><a id="user-content-getting-started" class="anchor" aria-hidden="true" tabindex="-1" href="#getting-started"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Getting Started</h2>
+<p dir="auto">To import rules_tf in your project, you first need to add it to your <code>MODULE.bazel</code> file:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel_dep(name = &quot;rules_tf&quot;, version = &quot;0.0.1&quot;)
+git_override(
+    module_name = &quot;rules_tf&quot;,
+    remote      = &quot;https://github.com/yanndegat/rules_tf&quot;,
+    commit      = &quot;200aa83e95eca46976000dfcc1b4b090b2fab06a&quot;,
+)"><pre><span class="pl-en">bazel_dep</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_tf"</span>, <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"0.0.1"</span>)
+<span class="pl-en">git_override</span>(
+    <span class="pl-s1">module_name</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_tf"</span>,
+    <span class="pl-s1">remote</span>      <span class="pl-c1">=</span> <span class="pl-s">"https://github.com/yanndegat/rules_tf"</span>,
+    <span class="pl-s1">commit</span>      <span class="pl-c1">=</span> <span class="pl-s">"200aa83e95eca46976000dfcc1b4b090b2fab06a"</span>,
+)</pre></div>
+<p dir="auto">Once you've imported the rule set , you can then load the tf rules in your <code>BUILD</code> files with:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@rules_tf//tf:def.bzl&quot;, &quot;tf_providers_versions&quot;, &quot;tf_module&quot;)
+
+tf_providers_versions(
+    name = &quot;providers&quot;,
+    tf_version = &quot;1.2.3&quot;,
+    providers = {
+        &quot;random&quot; : &quot;hashicorp/random:3.3.2&quot;,
+        &quot;null&quot;   : &quot;hashicorp/null:3.1.1&quot;,
+    },
+)
+
+tf_module(
+    name = &quot;root-mod-a&quot;,
+    providers = [
+        &quot;random&quot;,
+    ],
+    deps = [
+        &quot;//tf/modules/mod-a&quot;,
+    ],
+    
+    providers_versions = &quot;:providers&quot;,
+)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@rules_tf//tf:def.bzl"</span>, <span class="pl-s">"tf_providers_versions"</span>, <span class="pl-s">"tf_module"</span>)
+
+<span class="pl-en">tf_providers_versions</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"providers"</span>,
+    <span class="pl-s1">tf_version</span> <span class="pl-c1">=</span> <span class="pl-s">"1.2.3"</span>,
+    <span class="pl-s1">providers</span> <span class="pl-c1">=</span> {
+        <span class="pl-s">"random"</span> : <span class="pl-s">"hashicorp/random:3.3.2"</span>,
+        <span class="pl-s">"null"</span>   : <span class="pl-s">"hashicorp/null:3.1.1"</span>,
+    },
+)
+
+<span class="pl-en">tf_module</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"root-mod-a"</span>,
+    <span class="pl-s1">providers</span> <span class="pl-c1">=</span> [
+        <span class="pl-s">"random"</span>,
+    ],
+    <span class="pl-s1">deps</span> <span class="pl-c1">=</span> [
+        <span class="pl-s">"//tf/modules/mod-a"</span>,
+    ],
+    
+    <span class="pl-s1">providers_versions</span> <span class="pl-c1">=</span> <span class="pl-s">":providers"</span>,
+)</pre></div>
+<h2 dir="auto"><a id="user-content-using-tf-modules" class="anchor" aria-hidden="true" tabindex="-1" href="#using-tf-modules"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Using Tf Modules</h2>
+<ol dir="auto">
+<li>Using custom tflint config file</li>
+</ol>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@rules_tf//tf:def.bzl&quot;, &quot;tf_module&quot;)
+
+filegroup(
+    name = &quot;tflint-custom-config&quot;,
+    srcs = [
+        &quot;my-tflint-config.hcl&quot;,
+    ],
+)
+
+tf_module(
+    name = &quot;mod-a&quot;,
+    providers = [
+        &quot;random&quot;,
+    ],
+    ...
+    tflint_config = &quot;:tflint-custom-config&quot;
+    
+)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@rules_tf//tf:def.bzl"</span>, <span class="pl-s">"tf_module"</span>)
+
+<span class="pl-en">filegroup</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"tflint-custom-config"</span>,
+    <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> [
+        <span class="pl-s">"my-tflint-config.hcl"</span>,
+    ],
+)
+
+<span class="pl-en">tf_module</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"mod-a"</span>,
+    <span class="pl-s1">providers</span> <span class="pl-c1">=</span> [
+        <span class="pl-s">"random"</span>,
+    ],
+    ...
+    <span class="pl-s1">tflint_config</span> <span class="pl-c1">=</span> <span class="pl-s">":tflint-custom-config"</span>
+    
+)</pre></div>
+<ol dir="auto">
+<li>Generating versions.tf.json files</li>
+</ol>
+<p dir="auto">Terraform linter by default requires that all providers used by a module
+are versioned. It is possible to generate a versions.tf.json file by running
+a dedicated target:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@rules_tf//tf:def.bzl&quot;, &quot;tf_providers_versions&quot;, &quot;tf_module&quot;)
+
+tf_providers_versions(
+    name = &quot;providers&quot;,
+    tf_version = &quot;1.2.3&quot;,
+    providers = {
+        &quot;random&quot; : &quot;hashicorp/random:3.3.2&quot;,
+        &quot;null&quot;   : &quot;hashicorp/null:3.1.1&quot;,
+    },
+)
+
+tf_module(
+    name = &quot;root-mod-a&quot;,
+    providers = [
+        &quot;random&quot;,
+    ],
+    deps = [
+        &quot;//tf/modules/mod-a&quot;,
+    ],
+    
+    providers_versions = &quot;:providers&quot;,
+)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@rules_tf//tf:def.bzl"</span>, <span class="pl-s">"tf_providers_versions"</span>, <span class="pl-s">"tf_module"</span>)
+
+<span class="pl-en">tf_providers_versions</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"providers"</span>,
+    <span class="pl-s1">tf_version</span> <span class="pl-c1">=</span> <span class="pl-s">"1.2.3"</span>,
+    <span class="pl-s1">providers</span> <span class="pl-c1">=</span> {
+        <span class="pl-s">"random"</span> : <span class="pl-s">"hashicorp/random:3.3.2"</span>,
+        <span class="pl-s">"null"</span>   : <span class="pl-s">"hashicorp/null:3.1.1"</span>,
+    },
+)
+
+<span class="pl-en">tf_module</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"root-mod-a"</span>,
+    <span class="pl-s1">providers</span> <span class="pl-c1">=</span> [
+        <span class="pl-s">"random"</span>,
+    ],
+    <span class="pl-s1">deps</span> <span class="pl-c1">=</span> [
+        <span class="pl-s">"//tf/modules/mod-a"</span>,
+    ],
+    
+    <span class="pl-s1">providers_versions</span> <span class="pl-c1">=</span> <span class="pl-s">":providers"</span>,
+)</pre></div>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel run //path/to/root-mod-a:gen-tf-versions"><pre>bazel run //path/to/root-mod-a:gen-tf-versions</pre></div>
+<p dir="auto">or generate all files of a workspace:</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel cquery 'kind(tf_gen_versions, //...)' --output files | xargs -n1 bash"><pre>bazel cquery <span class="pl-s"><span class="pl-pds">'</span>kind(tf_gen_versions, //...)<span class="pl-pds">'</span></span> --output files <span class="pl-k">|</span> xargs -n1 bash</pre></div>
+<ol dir="auto">
+<li>Generating terraform doc files</li>
+</ol>
+<p dir="auto">It is possible to generate a README.md file by running
+a dedicated target for terraform modules:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@rules_tf//tf:def.bzl&quot;, &quot;tf_gen_doc&quot;)
+
+tf_gen_doc(
+    name = &quot;tfgendoc&quot;,
+    modules = [&quot;//{}/{}&quot;.format(package_name(), m) for m in subpackages(include = [&quot;**/*.tf&quot;])],
+)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@rules_tf//tf:def.bzl"</span>, <span class="pl-s">"tf_gen_doc"</span>)
+
+<span class="pl-en">tf_gen_doc</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"tfgendoc"</span>,
+    <span class="pl-s1">modules</span> <span class="pl-c1">=</span> [<span class="pl-s">"//{}/{}"</span>.<span class="pl-en">format</span>(<span class="pl-en">package_name</span>(), <span class="pl-s1">m</span>) <span class="pl-k">for</span> <span class="pl-s1">m</span> <span class="pl-c1">in</span> <span class="pl-en">subpackages</span>(<span class="pl-s1">include</span> <span class="pl-c1">=</span> [<span class="pl-s">"**/*.tf"</span>])],
+)</pre></div>
+<p dir="auto">and run the following command to generate docs for all sub packages.</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel run //path/to:tfgendoc"><pre>bazel run //path/to:tfgendoc</pre></div>
+<p dir="auto">It is also possible to customize terraform docs config:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@rules_tf//tf:def.bzl&quot;, &quot;tf_gen_doc&quot;)
+
+filegroup(
+    name = &quot;tfdoc-config&quot;,
+    srcs = [
+        &quot;my-tfdoc-config.yaml&quot;,
+    ],
+)
+
+tf_gen_doc(
+    name   = &quot;custom-tfgendoc&quot;,
+    modules = [&quot;//{}/{}&quot;.format(package_name(), m) for m in subpackages(include = [&quot;**/*.tf&quot;])],
+    config = &quot;:tfdoc-config&quot;,
+)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@rules_tf//tf:def.bzl"</span>, <span class="pl-s">"tf_gen_doc"</span>)
+
+<span class="pl-en">filegroup</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"tfdoc-config"</span>,
+    <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> [
+        <span class="pl-s">"my-tfdoc-config.yaml"</span>,
+    ],
+)
+
+<span class="pl-en">tf_gen_doc</span>(
+    <span class="pl-s1">name</span>   <span class="pl-c1">=</span> <span class="pl-s">"custom-tfgendoc"</span>,
+    <span class="pl-s1">modules</span> <span class="pl-c1">=</span> [<span class="pl-s">"//{}/{}"</span>.<span class="pl-en">format</span>(<span class="pl-en">package_name</span>(), <span class="pl-s1">m</span>) <span class="pl-k">for</span> <span class="pl-s1">m</span> <span class="pl-c1">in</span> <span class="pl-en">subpackages</span>(<span class="pl-s1">include</span> <span class="pl-c1">=</span> [<span class="pl-s">"**/*.tf"</span>])],
+    <span class="pl-s1">config</span> <span class="pl-c1">=</span> <span class="pl-s">":tfdoc-config"</span>,
+)</pre></div>
+<ol dir="auto">
+<li>Formatting terraform files</li>
+</ol>
+<p dir="auto">It is possible to format terraform files by running a dedicated target:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@rules_tf//tf:def.bzl&quot;, &quot;tf_format&quot;)
+
+
+tf_format(
+    name = &quot;tffmt&quot;,
+    modules = [&quot;//{}/{}&quot;.format(package_name(), m) for m in subpackages(include = [&quot;**/*.tf&quot;])],
+)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@rules_tf//tf:def.bzl"</span>, <span class="pl-s">"tf_format"</span>)
+
+
+<span class="pl-en">tf_format</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"tffmt"</span>,
+    <span class="pl-s1">modules</span> <span class="pl-c1">=</span> [<span class="pl-s">"//{}/{}"</span>.<span class="pl-en">format</span>(<span class="pl-en">package_name</span>(), <span class="pl-s1">m</span>) <span class="pl-k">for</span> <span class="pl-s1">m</span> <span class="pl-c1">in</span> <span class="pl-en">subpackages</span>(<span class="pl-s1">include</span> <span class="pl-c1">=</span> [<span class="pl-s">"**/*.tf"</span>])],
+)</pre></div>
+<p dir="auto">and run the following command to generate docs for all sub packages.</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel run //path/to:tffmt"><pre>bazel run //path/to:tffmt</pre></div>
+</article></div>
