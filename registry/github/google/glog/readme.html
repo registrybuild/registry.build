@@ -51,12 +51,12 @@ their usage, please refer to the <a href="#user-guide">user guide</a>.</p>
 <li><a href="#user-guide" id="user-content-id8">User Guide</a><ul dir="auto">
 <li><a href="#severity-levels" id="user-content-id9">Severity Levels</a></li>
 <li><a href="#log-line-prefix-format" id="user-content-id10">Log Line Prefix Format</a></li>
-<li><a href="#setting-flags" id="user-content-id11">Setting Flags</a></li>
-<li><a href="#conditional-occasional-logging" id="user-content-id12">Conditional / Occasional Logging</a></li>
-<li><a href="#debug-mode-support" id="user-content-id13">Debug Mode Support</a></li>
-<li><a href="#check-macros" id="user-content-id14"><code>CHECK</code> Macros</a></li>
-<li><a href="#verbose-logging" id="user-content-id15">Verbose Logging</a></li>
-<li><a href="#custom-log-prefix-format" id="user-content-id16">Custom Log Prefix Format</a></li>
+<li><a href="#customizing-the-log-line-prefix" id="user-content-id11">Customizing the Log Line Prefix</a></li>
+<li><a href="#setting-flags" id="user-content-id12">Setting Flags</a></li>
+<li><a href="#conditional-occasional-logging" id="user-content-id13">Conditional / Occasional Logging</a></li>
+<li><a href="#debug-mode-support" id="user-content-id14">Debug Mode Support</a></li>
+<li><a href="#check-macros" id="user-content-id15"><code>CHECK</code> Macros</a></li>
+<li><a href="#verbose-logging" id="user-content-id16">Verbose Logging</a></li>
 <li><a href="#failure-signal-handler" id="user-content-id17">Failure Signal Handler</a></li>
 <li><a href="#performance-of-messages" id="user-content-id18">Performance of Messages</a></li>
 <li><a href="#user-defined-failure-function" id="user-content-id19">User-defined Failure Function</a></li>
@@ -333,8 +333,57 @@ I1103 11:57:31.739403 24395 google.cc:2342] Process id 24395
 clocks on different machines may not be well synchronized. Hence, use with
 caution when comparing the low bits of timestamps from different machines.</p>
 </div>
+<a name="user-content-customizing-the-log-line-prefix"></a>
+<h3 dir="auto"><a id="user-content-customizing-the-log-line-prefix" class="anchor" aria-hidden="true" tabindex="-1" href="#customizing-the-log-line-prefix"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a><a href="#id11">Customizing the Log Line Prefix</a></h3>
+<p dir="auto">The predefined log line prefix can be replaced using a user-provided callback
+that formats the corresponding output.</p>
+<p dir="auto">For each log entry, the callback will be invoked with a reference to a
+<code>google::LogMessage</code> instance containing the severity, filename, line number,
+thread ID, and time of the event. It will also be given a reference to the
+output stream, whose contents will be prepended to the actual message in the
+final log line.</p>
+<p dir="auto">For example, the following function outputs a prefix that matches glog's default
+format. The third parameter <code>data</code> can be used to access user-supplied data
+which unless specified defaults to <code>nullptr</code>.</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="void MyPrefixFormatter(std::ostream&amp; s, const google::LogMessage&amp; m, void* /*data*/) {
+   s &lt;&lt; google::GetLogSeverityName(m.severity())[0]
+   &lt;&lt; setw(4) &lt;&lt; 1900 + m.time().year()
+   &lt;&lt; setw(2) &lt;&lt; 1 + m.time().month()
+   &lt;&lt; setw(2) &lt;&lt; m.time().day()
+   &lt;&lt; ' '
+   &lt;&lt; setw(2) &lt;&lt; m.time().hour() &lt;&lt; ':'
+   &lt;&lt; setw(2) &lt;&lt; m.time().min()  &lt;&lt; ':'
+   &lt;&lt; setw(2) &lt;&lt; m.time().sec() &lt;&lt; &quot;.&quot;
+   &lt;&lt; setw(6) &lt;&lt; m.time().usec()
+   &lt;&lt; ' '
+   &lt;&lt; setfill(' ') &lt;&lt; setw(5)
+   &lt;&lt; m.thread_id() &lt;&lt; setfill('0')
+   &lt;&lt; ' '
+   &lt;&lt; m.basename() &lt;&lt; ':' &lt;&lt; m.line() &lt;&lt; &quot;]&quot;;
+}"><pre><span class="pl-k">void</span> <span class="pl-en">MyPrefixFormatter</span>(std::ostream&amp; s, <span class="pl-k">const</span> google::LogMessage&amp; m, <span class="pl-k">void</span>* <span class="pl-c"><span class="pl-c">/*</span>data<span class="pl-c">*/</span></span>) {
+   s &lt;&lt; <span class="pl-c1">google::GetLogSeverityName</span>(m.<span class="pl-c1">severity</span>())[<span class="pl-c1">0</span>]
+   &lt;&lt; <span class="pl-c1">setw</span>(<span class="pl-c1">4</span>) &lt;&lt; <span class="pl-c1">1900</span> + m.<span class="pl-c1">time</span>().<span class="pl-c1">year</span>()
+   &lt;&lt; <span class="pl-c1">setw</span>(<span class="pl-c1">2</span>) &lt;&lt; <span class="pl-c1">1</span> + m.<span class="pl-c1">time</span>().<span class="pl-c1">month</span>()
+   &lt;&lt; <span class="pl-c1">setw</span>(<span class="pl-c1">2</span>) &lt;&lt; m.<span class="pl-c1">time</span>().<span class="pl-c1">day</span>()
+   &lt;&lt; <span class="pl-s"><span class="pl-pds">'</span> <span class="pl-pds">'</span></span>
+   &lt;&lt; <span class="pl-c1">setw</span>(<span class="pl-c1">2</span>) &lt;&lt; m.<span class="pl-c1">time</span>().<span class="pl-c1">hour</span>() &lt;&lt; <span class="pl-s"><span class="pl-pds">'</span>:<span class="pl-pds">'</span></span>
+   &lt;&lt; <span class="pl-c1">setw</span>(<span class="pl-c1">2</span>) &lt;&lt; m.<span class="pl-c1">time</span>().<span class="pl-c1">min</span>()  &lt;&lt; <span class="pl-s"><span class="pl-pds">'</span>:<span class="pl-pds">'</span></span>
+   &lt;&lt; <span class="pl-c1">setw</span>(<span class="pl-c1">2</span>) &lt;&lt; m.<span class="pl-c1">time</span>().<span class="pl-c1">sec</span>() &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>.<span class="pl-pds">"</span></span>
+   &lt;&lt; <span class="pl-c1">setw</span>(<span class="pl-c1">6</span>) &lt;&lt; m.<span class="pl-c1">time</span>().<span class="pl-c1">usec</span>()
+   &lt;&lt; <span class="pl-s"><span class="pl-pds">'</span> <span class="pl-pds">'</span></span>
+   &lt;&lt; <span class="pl-c1">setfill</span>(<span class="pl-s"><span class="pl-pds">'</span> <span class="pl-pds">'</span></span>) &lt;&lt; <span class="pl-c1">setw</span>(<span class="pl-c1">5</span>)
+   &lt;&lt; m.<span class="pl-c1">thread_id</span>() &lt;&lt; <span class="pl-c1">setfill</span>(<span class="pl-s"><span class="pl-pds">'</span>0<span class="pl-pds">'</span></span>)
+   &lt;&lt; <span class="pl-s"><span class="pl-pds">'</span> <span class="pl-pds">'</span></span>
+   &lt;&lt; m.<span class="pl-c1">basename</span>() &lt;&lt; <span class="pl-s"><span class="pl-pds">'</span>:<span class="pl-pds">'</span></span> &lt;&lt; m.<span class="pl-c1">line</span>() &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>]<span class="pl-pds">"</span></span>;
+}</pre></div>
+<p dir="auto">To enable the use of a prefix formatter, use the</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="google::InstallPrefixFormatter(&amp;MyPrefixFormatter);"><pre><span class="pl-en">google::InstallPrefixFormatter</span>(&amp;MyPrefixFormatter);</pre></div>
+<p dir="auto">function to pass a pointer to the corresponding <code>MyPrefixFormatter</code>
+callback during initialization. <code>InstallPrefixFormatter</code> takes a second
+optional argument of type  <code>void*</code> that allows supplying user data to the
+callback.</p>
 <a name="user-content-setting-flags"></a>
-<h3 dir="auto"><a id="user-content-setting-flags" class="anchor" aria-hidden="true" tabindex="-1" href="#setting-flags"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a><a href="#id11">Setting Flags</a></h3>
+<h3 dir="auto"><a id="user-content-setting-flags" class="anchor" aria-hidden="true" tabindex="-1" href="#setting-flags"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a><a href="#id12">Setting Flags</a></h3>
 <p dir="auto">Several flags influence glog’s output behavior. If the <a href="https://github.com/gflags/gflags">Google gflags library</a> is installed on your machine, the build
 system will automatically detect and use it, allowing you to pass flags on the
 command line. For example, if you want to activate <code>--logtostderr</code>, you can
@@ -401,7 +450,7 @@ FLAGS_logtostderr = <span class="pl-c1">0</span>;
 FLAGS_log_dir = <span class="pl-s"><span class="pl-pds">"</span>/some/log/directory<span class="pl-pds">"</span></span>;
 <span class="pl-en">LOG</span>(INFO) &lt;&lt; "the same file";</pre></div>
 <a name="user-content-conditional-occasional-logging"></a>
-<h3 dir="auto"><a id="user-content-conditional--occasional-logging" class="anchor" aria-hidden="true" tabindex="-1" href="#conditional--occasional-logging"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a><a href="#id12">Conditional / Occasional Logging</a></h3>
+<h3 dir="auto"><a id="user-content-conditional--occasional-logging" class="anchor" aria-hidden="true" tabindex="-1" href="#conditional--occasional-logging"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a><a href="#id13">Conditional / Occasional Logging</a></h3>
 <p dir="auto">Sometimes, you may only want to log a message under certain conditions.
 You can use the following macros to perform conditional logging:</p>
 <div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="LOG_IF(INFO, num_cookies &gt; 10) &lt;&lt; &quot;Got lots of cookies&quot;;"><pre><span class="pl-en">LOG_IF</span>(INFO, num_cookies &gt; <span class="pl-c1">10</span>) &lt;&lt; "Got lots of cookies";</pre></div>
@@ -431,7 +480,7 @@ For instance, to log a message every 10ms:</p>
 <p dir="auto">Or every 2.35s:</p>
 <div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="LOG_EVERY_T(INFO, 2.35) &lt;&lt; &quot;Got a cookie&quot;;"><pre><span class="pl-en">LOG_EVERY_T</span>(INFO, <span class="pl-c1">2.35</span>) &lt;&lt; "Got a cookie";</pre></div>
 <a name="user-content-debug-mode-support"></a>
-<h3 dir="auto"><a id="user-content-debug-mode-support" class="anchor" aria-hidden="true" tabindex="-1" href="#debug-mode-support"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a><a href="#id13">Debug Mode Support</a></h3>
+<h3 dir="auto"><a id="user-content-debug-mode-support" class="anchor" aria-hidden="true" tabindex="-1" href="#debug-mode-support"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a><a href="#id14">Debug Mode Support</a></h3>
 <p dir="auto">Special "debug mode" logging macros only have an effect in debug mode
 and are compiled away to nothing for non-debug mode compiles. Use these
 macros to avoid slowing down your production application due to
@@ -446,7 +495,7 @@ DLOG_EVERY_T(INFO, 0.01) &lt;&lt; &quot;Got a cookie&quot;;"><pre><span class="p
 <span class="pl-en">DLOG_FIRST_N</span>(INFO, <span class="pl-c1">10</span>) &lt;&lt; "Got the " &lt;&lt; google::COUNTER &lt;&lt; "th cookie";
 <span class="pl-en">DLOG_EVERY_T</span>(INFO, <span class="pl-c1">0.01</span>) &lt;&lt; "Got a cookie";</pre></div>
 <a name="user-content-check-macros"></a>
-<h3 dir="auto"><a id="user-content-check-macros" class="anchor" aria-hidden="true" tabindex="-1" href="#check-macros"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a><a href="#id14"><code>CHECK</code> Macros</a></h3>
+<h3 dir="auto"><a id="user-content-check-macros" class="anchor" aria-hidden="true" tabindex="-1" href="#check-macros"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a><a href="#id15"><code>CHECK</code> Macros</a></h3>
 <p dir="auto">It is a good practice to check expected conditions in your program
 frequently to detect errors as early as possible. The <code>CHECK</code> macro
 provides the ability to abort the application when a condition is not
@@ -508,7 +557,7 @@ the current "full expression", such as</p>
 values, accepting a small error margin. <code>CHECK_NEAR</code> accepts a third
 floating point argument, which specifies the acceptable error margin.</p>
 <a name="user-content-verbose-logging"></a>
-<h3 dir="auto"><a id="user-content-verbose-logging" class="anchor" aria-hidden="true" tabindex="-1" href="#verbose-logging"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a><a href="#id15">Verbose Logging</a></h3>
+<h3 dir="auto"><a id="user-content-verbose-logging" class="anchor" aria-hidden="true" tabindex="-1" href="#verbose-logging"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a><a href="#id16">Verbose Logging</a></h3>
 <p dir="auto">When you are chasing difficult bugs, thorough log messages are very useful.
 However, you may want to ignore too verbose messages in usual development. For
 such verbose logging, glog provides the <code>VLOG</code> macro, which allows you to
@@ -577,53 +626,6 @@ VLOG_IF_EVERY_N(1, (size &gt; 1024), 10)
    &lt;&lt; "I’m printed on every 10th occurrence of case when size is more "
       " than 1024, when you run the program with --v=1 or more. ";
       <span class="pl-s"><span class="pl-pds">"</span>Present occurrence is <span class="pl-pds">"</span></span> &lt;&lt; google::COUNTER;</pre></div>
-<a name="user-content-custom-log-prefix-format"></a>
-<h3 dir="auto"><a id="user-content-custom-log-prefix-format" class="anchor" aria-hidden="true" tabindex="-1" href="#custom-log-prefix-format"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a><a href="#id16">Custom Log Prefix Format</a></h3>
-<p dir="auto">glog supports changing the format of the prefix attached to log messages by
-receiving a user-provided callback that generates such strings.</p>
-<p dir="auto">For each log entry, the callback will be invoked with a <code>LogMessageInfo</code>
-struct containing the severity, filename, line number, thread ID, and time of
-the event. It will also be given a reference to the output stream, whose
-contents will be prepended to the actual message in the final log line.</p>
-<p dir="auto">For example, the following function outputs a prefix that matches glog's default
-format. The third parameter <code>data</code> can be used to access user-supplied data
-which unless specified defaults to <code>nullptr</code>.</p>
-<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="void CustomPrefix(std::ostream&amp; s, const LogMessageInfo&amp; l, void* /*data*/) {
-   s &lt;&lt; l.severity[0]
-   &lt;&lt; setw(4) &lt;&lt; 1900 + l.time.year()
-   &lt;&lt; setw(2) &lt;&lt; 1 + l.time.month()
-   &lt;&lt; setw(2) &lt;&lt; l.time.day()
-   &lt;&lt; ' '
-   &lt;&lt; setw(2) &lt;&lt; l.time.hour() &lt;&lt; ':'
-   &lt;&lt; setw(2) &lt;&lt; l.time.min()  &lt;&lt; ':'
-   &lt;&lt; setw(2) &lt;&lt; l.time.sec() &lt;&lt; &quot;.&quot;
-   &lt;&lt; setw(6) &lt;&lt; l.time.usec()
-   &lt;&lt; ' '
-   &lt;&lt; setfill(' ') &lt;&lt; setw(5)
-   &lt;&lt; l.thread_id &lt;&lt; setfill('0')
-   &lt;&lt; ' '
-   &lt;&lt; l.filename &lt;&lt; ':' &lt;&lt; l.line_number &lt;&lt; &quot;]&quot;;
-}"><pre><span class="pl-k">void</span> <span class="pl-en">CustomPrefix</span>(std::ostream&amp; s, <span class="pl-k">const</span> LogMessageInfo&amp; l, <span class="pl-k">void</span>* <span class="pl-c"><span class="pl-c">/*</span>data<span class="pl-c">*/</span></span>) {
-   s &lt;&lt; l.<span class="pl-smi">severity</span>[<span class="pl-c1">0</span>]
-   &lt;&lt; <span class="pl-c1">setw</span>(<span class="pl-c1">4</span>) &lt;&lt; <span class="pl-c1">1900</span> + l.<span class="pl-smi">time</span>.<span class="pl-c1">year</span>()
-   &lt;&lt; <span class="pl-c1">setw</span>(<span class="pl-c1">2</span>) &lt;&lt; <span class="pl-c1">1</span> + l.<span class="pl-smi">time</span>.<span class="pl-c1">month</span>()
-   &lt;&lt; <span class="pl-c1">setw</span>(<span class="pl-c1">2</span>) &lt;&lt; l.<span class="pl-smi">time</span>.<span class="pl-c1">day</span>()
-   &lt;&lt; <span class="pl-s"><span class="pl-pds">'</span> <span class="pl-pds">'</span></span>
-   &lt;&lt; <span class="pl-c1">setw</span>(<span class="pl-c1">2</span>) &lt;&lt; l.<span class="pl-smi">time</span>.<span class="pl-c1">hour</span>() &lt;&lt; <span class="pl-s"><span class="pl-pds">'</span>:<span class="pl-pds">'</span></span>
-   &lt;&lt; <span class="pl-c1">setw</span>(<span class="pl-c1">2</span>) &lt;&lt; l.<span class="pl-smi">time</span>.<span class="pl-c1">min</span>()  &lt;&lt; <span class="pl-s"><span class="pl-pds">'</span>:<span class="pl-pds">'</span></span>
-   &lt;&lt; <span class="pl-c1">setw</span>(<span class="pl-c1">2</span>) &lt;&lt; l.<span class="pl-smi">time</span>.<span class="pl-c1">sec</span>() &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>.<span class="pl-pds">"</span></span>
-   &lt;&lt; <span class="pl-c1">setw</span>(<span class="pl-c1">6</span>) &lt;&lt; l.<span class="pl-smi">time</span>.<span class="pl-c1">usec</span>()
-   &lt;&lt; <span class="pl-s"><span class="pl-pds">'</span> <span class="pl-pds">'</span></span>
-   &lt;&lt; <span class="pl-c1">setfill</span>(<span class="pl-s"><span class="pl-pds">'</span> <span class="pl-pds">'</span></span>) &lt;&lt; <span class="pl-c1">setw</span>(<span class="pl-c1">5</span>)
-   &lt;&lt; l.<span class="pl-smi">thread_id</span> &lt;&lt; <span class="pl-c1">setfill</span>(<span class="pl-s"><span class="pl-pds">'</span>0<span class="pl-pds">'</span></span>)
-   &lt;&lt; <span class="pl-s"><span class="pl-pds">'</span> <span class="pl-pds">'</span></span>
-   &lt;&lt; l.<span class="pl-smi">filename</span> &lt;&lt; <span class="pl-s"><span class="pl-pds">'</span>:<span class="pl-pds">'</span></span> &lt;&lt; l.<span class="pl-smi">line_number</span> &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>]<span class="pl-pds">"</span></span>;
-}</pre></div>
-<p dir="auto">To enable the use of a custom prefix, use the</p>
-<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="InitGoogleLogging(argv[0], &amp;CustomPrefix);"><pre><span class="pl-en">InitGoogleLogging</span>(argv[<span class="pl-c1">0</span>], &amp;CustomPrefix);</pre></div>
-<p dir="auto">overload to pass a pointer to the corresponding <code>CustomPrefix</code> function during
-initialization. <code>InitGoogleLogging()</code> takes a third optional argument of
-type  <code>void*</code> that allows supplying user data to the callback.</p>
 <a name="user-content-failure-signal-handler"></a>
 <h3 dir="auto"><a id="user-content-failure-signal-handler" class="anchor" aria-hidden="true" tabindex="-1" href="#failure-signal-handler"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a><a href="#id17">Failure Signal Handler</a></h3>
 <p dir="auto">The library provides a convenient signal handler that will dump useful
