@@ -119,6 +119,33 @@ let templates = [
     image: "/img/templates/nextjs.svg",
     tags: ["static", "nextjs", "gcs", "gcp", "genrules"],
   },
+  {
+    name: "Simple Gatsby Starter",
+    url: "https://github.com/monoreponew/template-gatsby",
+    secret: "CLOUDSDK_AUTH_REFRESH_TOKEN,CLOUDSDK_CORE_PROJECT",
+    dir: "",
+    var: "BUCKET_NAME",
+    image: "/img/templates/gatsby.svg",
+    tags: ["static", "gatsby", "gcs", "gcp", "genrules", "typescript"],
+  },
+  {
+    name: "Simple Nuxt Starter",
+    url: "https://github.com/monoreponew/template-nuxt",
+    secret: "CLOUDSDK_AUTH_REFRESH_TOKEN,CLOUDSDK_CORE_PROJECT",
+    dir: "",
+    var: "BUCKET_NAME",
+    image: "/img/templates/nuxt.svg",
+    tags: ["static", "nuxt", "gcs", "gcp", "genrules", "typescript"],
+  },
+  {
+    name: "Simple Astro Starter",
+    url: "https://github.com/monoreponew/template-astro",
+    secret: "CLOUDSDK_AUTH_REFRESH_TOKEN,CLOUDSDK_CORE_PROJECT",
+    dir: "",
+    var: "BUCKET_NAME",
+    image: "/img/templates/astro.svg",
+    tags: ["static", "astro", "gcs", "gcp", "genrules", "typescript"],
+  },
 ];
 
 const Template = (props) => (
