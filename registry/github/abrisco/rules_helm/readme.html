@@ -1,0 +1,673 @@
+<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text">
+<h1 dir="auto"><a id="user-content-rules_helm" class="anchor" aria-hidden="true" tabindex="-1" href="#rules_helm"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>rules_helm</h1>
+<p dir="auto">Bazel rules for producing <a href="https://helm.sh/" rel="nofollow">helm charts</a></p>
+<h2 dir="auto"><a id="user-content-setup-workspace" class="anchor" aria-hidden="true" tabindex="-1" href="#setup-workspace"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Setup WORKSPACE</h2>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@bazel_tools//tools/build_defs/repo:http.bzl&quot;, &quot;http_archive&quot;)
+
+# See releases for urls and checksums
+http_archive(
+    name = &quot;rules_helm&quot;,
+    sha256 = &quot;{sha256}&quot;,
+    urls = [&quot;https://github.com/abrisco/rules_helm/releases/download/{version}/rules_helm-v{version}.tar.gz&quot;],
+)
+
+load(&quot;@rules_helm//helm:repositories.bzl&quot;, &quot;helm_register_toolchains&quot;, &quot;rules_helm_dependencies&quot;)
+
+rules_helm_dependencies()
+
+helm_register_toolchains()
+
+load(&quot;@rules_helm//helm:repositories_transitive.bzl&quot;, &quot;rules_helm_transitive_dependencies&quot;)
+
+rules_helm_transitive_dependencies()"><pre><span class="pl-en">load</span>(<span class="pl-s">"@bazel_tools//tools/build_defs/repo:http.bzl"</span>, <span class="pl-s">"http_archive"</span>)
+
+<span class="pl-c"># See releases for urls and checksums</span>
+<span class="pl-en">http_archive</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_helm"</span>,
+    <span class="pl-s1">sha256</span> <span class="pl-c1">=</span> <span class="pl-s">"{sha256}"</span>,
+    <span class="pl-s1">urls</span> <span class="pl-c1">=</span> [<span class="pl-s">"https://github.com/abrisco/rules_helm/releases/download/{version}/rules_helm-v{version}.tar.gz"</span>],
+)
+
+<span class="pl-en">load</span>(<span class="pl-s">"@rules_helm//helm:repositories.bzl"</span>, <span class="pl-s">"helm_register_toolchains"</span>, <span class="pl-s">"rules_helm_dependencies"</span>)
+
+<span class="pl-en">rules_helm_dependencies</span>()
+
+<span class="pl-en">helm_register_toolchains</span>()
+
+<span class="pl-en">load</span>(<span class="pl-s">"@rules_helm//helm:repositories_transitive.bzl"</span>, <span class="pl-s">"rules_helm_transitive_dependencies"</span>)
+
+<span class="pl-en">rules_helm_transitive_dependencies</span>()</pre></div>
+<h2 dir="auto"><a id="user-content-setup-module" class="anchor" aria-hidden="true" tabindex="-1" href="#setup-module"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Setup MODULE</h2>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel_dep(name = &quot;rules_helm&quot;, version = &quot;{version}&quot;)"><pre><span class="pl-en">bazel_dep</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_helm"</span>, <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"{version}"</span>)</pre></div>
+<h2 dir="auto"><a id="user-content-rules" class="anchor" aria-hidden="true" tabindex="-1" href="#rules"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Rules</h2>
+<ul dir="auto">
+<li><a href="#helm_chart">helm_chart</a></li>
+<li><a href="#helm_import_repository">helm_import_repository</a></li>
+<li><a href="#helm_import">helm_import</a></li>
+<li><a href="#helm_install">helm_install</a></li>
+<li><a href="#helm_lint_aspect">helm_lint_aspect</a></li>
+<li><a href="#helm_lint_test">helm_lint_test</a></li>
+<li><a href="#helm_package">helm_package</a></li>
+<li><a href="#helm_push">helm_push</a></li>
+<li><a href="#helm_register_toolchains">helm_register_toolchains</a></li>
+<li><a href="#helm_reinstall">helm_reinstall</a></li>
+<li><a href="#helm_toolchain">helm_toolchain</a></li>
+<li><a href="#helm_uninstall">helm_uninstall</a></li>
+<li><a href="#rules_helm_dependencies">rules_helm_dependencies</a></li>
+<li><a href="#chart_content">chart_content</a></li>
+</ul>
+<p dir="auto"><a id="user-content-helm_import"></a></p>
+<h2 dir="auto"><a id="user-content-helm_import" class="anchor" aria-hidden="true" tabindex="-1" href="#helm_import"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>helm_import</h2>
+<pre>helm_import(<a href="#helm_import-name">name</a>, <a href="#helm_import-chart">chart</a>, <a href="#helm_import-version">version</a>)
+</pre>
+<p dir="auto">A rule that allows pre-packaged Helm charts to be used within Bazel.</p>
+<p dir="auto"><strong>ATTRIBUTES</strong></p>
+<table>
+<thead>
+<tr>
+<th align="left">Name</th>
+<th align="left">Description</th>
+<th align="left">Type</th>
+<th align="left">Mandatory</th>
+<th align="left">Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left"><a id="user-content-helm_import-name"></a>name</td>
+<td align="left">A unique name for this target.</td>
+<td align="left"><a href="https://bazel.build/concepts/labels#target-names" rel="nofollow">Name</a></td>
+<td align="left">required</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-helm_import-chart"></a>chart</td>
+<td align="left">A Helm chart's <code>.tgz</code> file.</td>
+<td align="left"><a href="https://bazel.build/concepts/labels" rel="nofollow">Label</a></td>
+<td align="left">optional</td>
+<td align="left"><code>None</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-helm_import-version"></a>version</td>
+<td align="left">The version fo the helm chart</td>
+<td align="left">String</td>
+<td align="left">optional</td>
+<td align="left"><code>""</code></td>
+</tr>
+</tbody>
+</table>
+<p dir="auto"><a id="user-content-helm_import_repository"></a></p>
+<h2 dir="auto"><a id="user-content-helm_import_repository" class="anchor" aria-hidden="true" tabindex="-1" href="#helm_import_repository"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>helm_import_repository</h2>
+<pre>helm_import_repository(<a href="#helm_import_repository-name">name</a>, <a href="#helm_import_repository-chart_name">chart_name</a>, <a href="#helm_import_repository-repo_mapping">repo_mapping</a>, <a href="#helm_import_repository-repository">repository</a>, <a href="#helm_import_repository-sha256">sha256</a>, <a href="#helm_import_repository-url">url</a>, <a href="#helm_import_repository-version">version</a>)
+</pre>
+<p dir="auto">A rule for fetching external Helm charts from an arbitrary repository.</p>
+<p dir="auto"><strong>ATTRIBUTES</strong></p>
+<table>
+<thead>
+<tr>
+<th align="left">Name</th>
+<th align="left">Description</th>
+<th align="left">Type</th>
+<th align="left">Mandatory</th>
+<th align="left">Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left"><a id="user-content-helm_import_repository-name"></a>name</td>
+<td align="left">A unique name for this repository.</td>
+<td align="left"><a href="https://bazel.build/concepts/labels#target-names" rel="nofollow">Name</a></td>
+<td align="left">required</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-helm_import_repository-chart_name"></a>chart_name</td>
+<td align="left">Chart name to import.</td>
+<td align="left">String</td>
+<td align="left">optional</td>
+<td align="left"><code>""</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-helm_import_repository-repo_mapping"></a>repo_mapping</td>
+<td align="left">A dictionary from local repository name to global repository name. This allows controls over workspace dependency resolution for dependencies of this repository.<p dir="auto">For example, an entry <code>"@foo": "@bar"</code> declares that, for any time this repository depends on <code>@foo</code> (such as a dependency on <code>@foo//some:target</code>, it should actually resolve that dependency within globally-declared <code>@bar</code> (<code>@bar//some:target</code>).</p></td>
+<td align="left"><a href="https://bazel.build/rules/lib/dict" rel="nofollow">Dictionary: String -&gt; String</a></td>
+<td align="left">required</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-helm_import_repository-repository"></a>repository</td>
+<td align="left">Chart repository url where to locate the requested chart.</td>
+<td align="left">String</td>
+<td align="left">required</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-helm_import_repository-sha256"></a>sha256</td>
+<td align="left">The expected SHA-256 hash of the chart imported.</td>
+<td align="left">String</td>
+<td align="left">optional</td>
+<td align="left"><code>""</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-helm_import_repository-url"></a>url</td>
+<td align="left">The url where the chart can be directly downloaded.</td>
+<td align="left">String</td>
+<td align="left">optional</td>
+<td align="left"><code>""</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-helm_import_repository-version"></a>version</td>
+<td align="left">Specify a version constraint for the chart version to use.</td>
+<td align="left">String</td>
+<td align="left">optional</td>
+<td align="left"><code>""</code></td>
+</tr>
+</tbody>
+</table>
+<p dir="auto"><a id="user-content-helm_install"></a></p>
+<h2 dir="auto"><a id="user-content-helm_install" class="anchor" aria-hidden="true" tabindex="-1" href="#helm_install"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>helm_install</h2>
+<pre>helm_install(<a href="#helm_install-name">name</a>, <a href="#helm_install-install_name">install_name</a>, <a href="#helm_install-package">package</a>)
+</pre>
+<p dir="auto">Produce a script for performing a helm install action</p>
+<p dir="auto"><strong>ATTRIBUTES</strong></p>
+<table>
+<thead>
+<tr>
+<th align="left">Name</th>
+<th align="left">Description</th>
+<th align="left">Type</th>
+<th align="left">Mandatory</th>
+<th align="left">Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left"><a id="user-content-helm_install-name"></a>name</td>
+<td align="left">A unique name for this target.</td>
+<td align="left"><a href="https://bazel.build/concepts/labels#target-names" rel="nofollow">Name</a></td>
+<td align="left">required</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-helm_install-install_name"></a>install_name</td>
+<td align="left">The name to use for the <code>helm install</code> command. The target name will be used if unset.</td>
+<td align="left">String</td>
+<td align="left">optional</td>
+<td align="left"><code>""</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-helm_install-package"></a>package</td>
+<td align="left">The helm pacage to install.</td>
+<td align="left"><a href="https://bazel.build/concepts/labels" rel="nofollow">Label</a></td>
+<td align="left">required</td>
+<td align="left"></td>
+</tr>
+</tbody>
+</table>
+<p dir="auto"><a id="user-content-helm_lint_test"></a></p>
+<h2 dir="auto"><a id="user-content-helm_lint_test" class="anchor" aria-hidden="true" tabindex="-1" href="#helm_lint_test"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>helm_lint_test</h2>
+<pre>helm_lint_test(<a href="#helm_lint_test-name">name</a>, <a href="#helm_lint_test-chart">chart</a>)
+</pre>
+<p dir="auto">A rule for performing <code>helm lint</code> on a helm package</p>
+<p dir="auto"><strong>ATTRIBUTES</strong></p>
+<table>
+<thead>
+<tr>
+<th align="left">Name</th>
+<th align="left">Description</th>
+<th align="left">Type</th>
+<th align="left">Mandatory</th>
+<th align="left">Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left"><a id="user-content-helm_lint_test-name"></a>name</td>
+<td align="left">A unique name for this target.</td>
+<td align="left"><a href="https://bazel.build/concepts/labels#target-names" rel="nofollow">Name</a></td>
+<td align="left">required</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-helm_lint_test-chart"></a>chart</td>
+<td align="left">The helm package to run linting on.</td>
+<td align="left"><a href="https://bazel.build/concepts/labels" rel="nofollow">Label</a></td>
+<td align="left">required</td>
+<td align="left"></td>
+</tr>
+</tbody>
+</table>
+<p dir="auto"><a id="user-content-helm_package"></a></p>
+<h2 dir="auto"><a id="user-content-helm_package" class="anchor" aria-hidden="true" tabindex="-1" href="#helm_package"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>helm_package</h2>
+<pre>helm_package(<a href="#helm_package-name">name</a>, <a href="#helm_package-deps">deps</a>, <a href="#helm_package-chart">chart</a>, <a href="#helm_package-chart_json">chart_json</a>, <a href="#helm_package-images">images</a>, <a href="#helm_package-stamp">stamp</a>, <a href="#helm_package-templates">templates</a>, <a href="#helm_package-values">values</a>, <a href="#helm_package-values_json">values_json</a>)
+</pre>
+<p dir="auto"><strong>ATTRIBUTES</strong></p>
+<table>
+<thead>
+<tr>
+<th align="left">Name</th>
+<th align="left">Description</th>
+<th align="left">Type</th>
+<th align="left">Mandatory</th>
+<th align="left">Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left"><a id="user-content-helm_package-name"></a>name</td>
+<td align="left">A unique name for this target.</td>
+<td align="left"><a href="https://bazel.build/concepts/labels#target-names" rel="nofollow">Name</a></td>
+<td align="left">required</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-helm_package-deps"></a>deps</td>
+<td align="left">Other helm packages this package depends on.</td>
+<td align="left"><a href="https://bazel.build/concepts/labels" rel="nofollow">List of labels</a></td>
+<td align="left">optional</td>
+<td align="left"><code>[]</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-helm_package-chart"></a>chart</td>
+<td align="left">The <code>Chart.yaml</code> file of the helm chart</td>
+<td align="left"><a href="https://bazel.build/concepts/labels" rel="nofollow">Label</a></td>
+<td align="left">optional</td>
+<td align="left"><code>None</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-helm_package-chart_json"></a>chart_json</td>
+<td align="left">A json encoded string to use as the <code>Chart.yaml</code> file of the helm chart</td>
+<td align="left">String</td>
+<td align="left">optional</td>
+<td align="left"><code>""</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-helm_package-images"></a>images</td>
+<td align="left"><a href="https://github.com/bazel-contrib/rules_oci/blob/main/docs/push.md#oci_push_rule-remote_tags">@rules_oci//oci:defs.bzl%oci_push</a> targets.</td>
+<td align="left"><a href="https://bazel.build/concepts/labels" rel="nofollow">List of labels</a></td>
+<td align="left">optional</td>
+<td align="left"><code>[]</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-helm_package-stamp"></a>stamp</td>
+<td align="left">Whether to encode build information into the helm actions. Possible values:<br><br>- <code>stamp = 1</code>: Always stamp the build information into the helm actions, even in                 <a href="https://docs.bazel.build/versions/main/user-manual.html#flag--stamp" rel="nofollow">--nostamp</a> builds.                 This setting should be avoided, since it potentially kills remote caching for the target and                 any downstream actions that depend on it.<br><br>- <code>stamp = 0</code>: Always replace build information by constant values. This gives good build result caching.<br><br>- <code>stamp = -1</code>: Embedding of build information is controlled by the                 <a href="https://docs.bazel.build/versions/main/user-manual.html#flag--stamp" rel="nofollow">--[no]stamp</a> flag.<br><br>Stamped targets are not rebuilt unless their dependencies change.</td>
+<td align="left">Integer</td>
+<td align="left">optional</td>
+<td align="left"><code>-1</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-helm_package-templates"></a>templates</td>
+<td align="left">All templates associated with the current helm chart. E.g., the <code>./templates</code> directory</td>
+<td align="left"><a href="https://bazel.build/concepts/labels" rel="nofollow">List of labels</a></td>
+<td align="left">optional</td>
+<td align="left"><code>[]</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-helm_package-values"></a>values</td>
+<td align="left">The <code>values.yaml</code> file for the current package. This attribute is mutally exclusive with <code>values_json</code>.</td>
+<td align="left"><a href="https://bazel.build/concepts/labels" rel="nofollow">Label</a></td>
+<td align="left">optional</td>
+<td align="left"><code>None</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-helm_package-values_json"></a>values_json</td>
+<td align="left">A json encoded string to use as the <code>values.yaml</code> file. This attribute is mutally exclusive with <code>values</code>.</td>
+<td align="left">String</td>
+<td align="left">optional</td>
+<td align="left"><code>""</code></td>
+</tr>
+</tbody>
+</table>
+<p dir="auto"><a id="user-content-helm_push"></a></p>
+<h2 dir="auto"><a id="user-content-helm_push" class="anchor" aria-hidden="true" tabindex="-1" href="#helm_push"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>helm_push</h2>
+<pre>helm_push(<a href="#helm_push-name">name</a>, <a href="#helm_push-package">package</a>)
+</pre>
+<p dir="auto">Produce a script for pushing all oci images used by a helm chart</p>
+<p dir="auto"><strong>ATTRIBUTES</strong></p>
+<table>
+<thead>
+<tr>
+<th align="left">Name</th>
+<th align="left">Description</th>
+<th align="left">Type</th>
+<th align="left">Mandatory</th>
+<th align="left">Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left"><a id="user-content-helm_push-name"></a>name</td>
+<td align="left">A unique name for this target.</td>
+<td align="left"><a href="https://bazel.build/concepts/labels#target-names" rel="nofollow">Name</a></td>
+<td align="left">required</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-helm_push-package"></a>package</td>
+<td align="left">The helm package to upload images from.</td>
+<td align="left"><a href="https://bazel.build/concepts/labels" rel="nofollow">Label</a></td>
+<td align="left">required</td>
+<td align="left"></td>
+</tr>
+</tbody>
+</table>
+<p dir="auto"><a id="user-content-helm_reinstall"></a></p>
+<h2 dir="auto"><a id="user-content-helm_reinstall" class="anchor" aria-hidden="true" tabindex="-1" href="#helm_reinstall"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>helm_reinstall</h2>
+<pre>helm_reinstall(<a href="#helm_reinstall-name">name</a>, <a href="#helm_reinstall-install_name">install_name</a>, <a href="#helm_reinstall-package">package</a>)
+</pre>
+<p dir="auto">Produce a script for performing a helm uninstall and install actions</p>
+<p dir="auto"><strong>ATTRIBUTES</strong></p>
+<table>
+<thead>
+<tr>
+<th align="left">Name</th>
+<th align="left">Description</th>
+<th align="left">Type</th>
+<th align="left">Mandatory</th>
+<th align="left">Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left"><a id="user-content-helm_reinstall-name"></a>name</td>
+<td align="left">A unique name for this target.</td>
+<td align="left"><a href="https://bazel.build/concepts/labels#target-names" rel="nofollow">Name</a></td>
+<td align="left">required</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-helm_reinstall-install_name"></a>install_name</td>
+<td align="left">The name to use for the <code>helm install</code> command. The target name will be used if unset.</td>
+<td align="left">String</td>
+<td align="left">optional</td>
+<td align="left"><code>""</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-helm_reinstall-package"></a>package</td>
+<td align="left">The helm pacage to reinstall.</td>
+<td align="left"><a href="https://bazel.build/concepts/labels" rel="nofollow">Label</a></td>
+<td align="left">required</td>
+<td align="left"></td>
+</tr>
+</tbody>
+</table>
+<p dir="auto"><a id="user-content-helm_toolchain"></a></p>
+<h2 dir="auto"><a id="user-content-helm_toolchain" class="anchor" aria-hidden="true" tabindex="-1" href="#helm_toolchain"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>helm_toolchain</h2>
+<pre>helm_toolchain(<a href="#helm_toolchain-name">name</a>, <a href="#helm_toolchain-helm">helm</a>)
+</pre>
+<p dir="auto">A helm toolchain</p>
+<p dir="auto"><strong>ATTRIBUTES</strong></p>
+<table>
+<thead>
+<tr>
+<th align="left">Name</th>
+<th align="left">Description</th>
+<th align="left">Type</th>
+<th align="left">Mandatory</th>
+<th align="left">Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left"><a id="user-content-helm_toolchain-name"></a>name</td>
+<td align="left">A unique name for this target.</td>
+<td align="left"><a href="https://bazel.build/concepts/labels#target-names" rel="nofollow">Name</a></td>
+<td align="left">required</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-helm_toolchain-helm"></a>helm</td>
+<td align="left">A helm binary</td>
+<td align="left"><a href="https://bazel.build/concepts/labels" rel="nofollow">Label</a></td>
+<td align="left">required</td>
+<td align="left"></td>
+</tr>
+</tbody>
+</table>
+<p dir="auto"><a id="user-content-helm_uninstall"></a></p>
+<h2 dir="auto"><a id="user-content-helm_uninstall" class="anchor" aria-hidden="true" tabindex="-1" href="#helm_uninstall"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>helm_uninstall</h2>
+<pre>helm_uninstall(<a href="#helm_uninstall-name">name</a>, <a href="#helm_uninstall-install_name">install_name</a>)
+</pre>
+<p dir="auto">Produce a script for performing a helm uninstall action</p>
+<p dir="auto"><strong>ATTRIBUTES</strong></p>
+<table>
+<thead>
+<tr>
+<th align="left">Name</th>
+<th align="left">Description</th>
+<th align="left">Type</th>
+<th align="left">Mandatory</th>
+<th align="left">Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left"><a id="user-content-helm_uninstall-name"></a>name</td>
+<td align="left">A unique name for this target.</td>
+<td align="left"><a href="https://bazel.build/concepts/labels#target-names" rel="nofollow">Name</a></td>
+<td align="left">required</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-helm_uninstall-install_name"></a>install_name</td>
+<td align="left">The name to use for the <code>helm install</code> command. The target name will be used if unset.</td>
+<td align="left">String</td>
+<td align="left">optional</td>
+<td align="left"><code>""</code></td>
+</tr>
+</tbody>
+</table>
+<p dir="auto"><a id="user-content-helmpackageinfo"></a></p>
+<h2 dir="auto"><a id="user-content-helmpackageinfo" class="anchor" aria-hidden="true" tabindex="-1" href="#helmpackageinfo"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>HelmPackageInfo</h2>
+<pre>HelmPackageInfo(<a href="#HelmPackageInfo-chart">chart</a>, <a href="#HelmPackageInfo-images">images</a>, <a href="#HelmPackageInfo-metadata">metadata</a>)
+</pre>
+<p dir="auto">A provider for helm packages</p>
+<p dir="auto"><strong>FIELDS</strong></p>
+<table>
+<thead>
+<tr>
+<th align="left">Name</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left"><a id="user-content-helmpackageinfo-chart"></a>chart</td>
+<td align="left">File: The result of <code>helm package</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-helmpackageinfo-images"></a>images</td>
+<td align="left">list[Target]: A list of <a href="https://github.com/bazel-contrib/rules_oci/blob/main/docs/push.md#oci_push_rule-remote_tags">@rules_oci//oci:defs.bzl%oci_push</a>]) targets</td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-helmpackageinfo-metadata"></a>metadata</td>
+<td align="left">File: A json encoded file containing metadata about the helm chart</td>
+</tr>
+</tbody>
+</table>
+<p dir="auto"><a id="user-content-chart_content"></a></p>
+<h2 dir="auto"><a id="user-content-chart_content" class="anchor" aria-hidden="true" tabindex="-1" href="#chart_content"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>chart_content</h2>
+<pre>chart_content(<a href="#chart_content-name">name</a>, <a href="#chart_content-api_version">api_version</a>, <a href="#chart_content-description">description</a>, <a href="#chart_content-type">type</a>, <a href="#chart_content-version">version</a>, <a href="#chart_content-app_version">app_version</a>)
+</pre>
+<p dir="auto">A convenience wrapper for defining Chart.yaml files with <a href="#helm_package-chart_json">helm_package.chart_json</a>.</p>
+<p dir="auto"><strong>PARAMETERS</strong></p>
+<table>
+<thead>
+<tr>
+<th align="left">Name</th>
+<th align="left">Description</th>
+<th align="left">Default Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left"><a id="user-content-chart_content-name"></a>name</td>
+<td align="left">The name of the chart</td>
+<td align="left">none</td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-chart_content-api_version"></a>api_version</td>
+<td align="left">The Helm API version</td>
+<td align="left"><code>"v2"</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-chart_content-description"></a>description</td>
+<td align="left">A descritpion of the chart.</td>
+<td align="left"><code>"A Helm chart for Kubernetes by Bazel."</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-chart_content-type"></a>type</td>
+<td align="left">The chart type.</td>
+<td align="left"><code>"application"</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-chart_content-version"></a>version</td>
+<td align="left">The chart version.</td>
+<td align="left"><code>"0.1.0"</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-chart_content-app_version"></a>app_version</td>
+<td align="left">The version number of the application being deployed.</td>
+<td align="left"><code>"0.16.0"</code></td>
+</tr>
+</tbody>
+</table>
+<p dir="auto"><strong>RETURNS</strong></p>
+<p dir="auto">str: A json encoded string which represents <code>Chart.yaml</code> contents.</p>
+<p dir="auto"><a id="user-content-helm_chart"></a></p>
+<h2 dir="auto"><a id="user-content-helm_chart" class="anchor" aria-hidden="true" tabindex="-1" href="#helm_chart"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>helm_chart</h2>
+<pre>helm_chart(<a href="#helm_chart-name">name</a>, <a href="#helm_chart-images">images</a>, <a href="#helm_chart-deps">deps</a>, <a href="#helm_chart-tags">tags</a>, <a href="#helm_chart-install_name">install_name</a>, <a href="#helm_chart-kwargs">kwargs</a>)
+</pre>
+<p dir="auto">Rules for producing a helm package and some convenience targets.</p>
+<table>
+<thead>
+<tr>
+<th>target</th>
+<th>rule</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>{name}</code></td>
+<td><a href="#helm_package">helm_package</a></td>
+</tr>
+<tr>
+<td><code>{name}.push</code></td>
+<td><a href="#helm_push">helm_push</a></td>
+</tr>
+<tr>
+<td><code>{name}.install</code></td>
+<td><a href="#helm_install">helm_install</a></td>
+</tr>
+<tr>
+<td><code>{name}.uninstall</code></td>
+<td><a href="#helm_uninstall">helm_uninstall</a></td>
+</tr>
+<tr>
+<td><code>{name}.reinstall</code></td>
+<td><a href="#helm_reinstall">helm_reinstall</a></td>
+</tr>
+</tbody>
+</table>
+<p dir="auto"><strong>PARAMETERS</strong></p>
+<table>
+<thead>
+<tr>
+<th align="left">Name</th>
+<th align="left">Description</th>
+<th align="left">Default Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left"><a id="user-content-helm_chart-name"></a>name</td>
+<td align="left">The name of the <a href="#helm_package">helm_package</a> target.</td>
+<td align="left">none</td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-helm_chart-images"></a>images</td>
+<td align="left">A list of <a href="https://github.com/bazel-contrib/rules_oci/blob/main/docs/push.md#oci_push_rule-remote_tags">oci_push</a> targets</td>
+<td align="left"><code>[]</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-helm_chart-deps"></a>deps</td>
+<td align="left">A list of helm package dependencies.</td>
+<td align="left"><code>None</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-helm_chart-tags"></a>tags</td>
+<td align="left">Tags to apply to all targets.</td>
+<td align="left"><code>[]</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-helm_chart-install_name"></a>install_name</td>
+<td align="left">The <code>helm install</code> name to use. <code>name</code> will be used if unset.</td>
+<td align="left"><code>None</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-helm_chart-kwargs"></a>kwargs</td>
+<td align="left">Additional keyword arguments for <code>helm_package</code>.</td>
+<td align="left">none</td>
+</tr>
+</tbody>
+</table>
+<p dir="auto"><a id="user-content-helm_register_toolchains"></a></p>
+<h2 dir="auto"><a id="user-content-helm_register_toolchains" class="anchor" aria-hidden="true" tabindex="-1" href="#helm_register_toolchains"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>helm_register_toolchains</h2>
+<pre>helm_register_toolchains(<a href="#helm_register_toolchains-version">version</a>, <a href="#helm_register_toolchains-helm_url_templates">helm_url_templates</a>)
+</pre>
+<p dir="auto">Register helm toolchains.</p>
+<p dir="auto"><strong>PARAMETERS</strong></p>
+<table>
+<thead>
+<tr>
+<th align="left">Name</th>
+<th align="left">Description</th>
+<th align="left">Default Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left"><a id="user-content-helm_register_toolchains-version"></a>version</td>
+<td align="left">The version of Helm to use</td>
+<td align="left"><code>"3.13.3"</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-helm_register_toolchains-helm_url_templates"></a>helm_url_templates</td>
+<td align="left">A list of url templates where helm can be downloaded.</td>
+<td align="left"><code>["https://get.helm.sh/helm-v{version}-{platform}.{compression}"]</code></td>
+</tr>
+</tbody>
+</table>
+<p dir="auto"><a id="user-content-rules_helm_dependencies"></a></p>
+<h2 dir="auto"><a id="user-content-rules_helm_dependencies" class="anchor" aria-hidden="true" tabindex="-1" href="#rules_helm_dependencies"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>rules_helm_dependencies</h2>
+<pre>rules_helm_dependencies()
+</pre>
+<p dir="auto">Defines helm dependencies</p>
+<p dir="auto"><a id="user-content-helm_lint_aspect"></a></p>
+<h2 dir="auto"><a id="user-content-helm_lint_aspect" class="anchor" aria-hidden="true" tabindex="-1" href="#helm_lint_aspect"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>helm_lint_aspect</h2>
+<pre>helm_lint_aspect(<a href="#helm_lint_aspect-name">name</a>)
+</pre>
+<p dir="auto">An aspect for running <code>helm lint</code> on helm package targets</p>
+<p dir="auto"><strong>ASPECT ATTRIBUTES</strong></p>
+<p dir="auto"><strong>ATTRIBUTES</strong></p>
+<table>
+<thead>
+<tr>
+<th align="left">Name</th>
+<th align="left">Description</th>
+<th align="left">Type</th>
+<th align="left">Mandatory</th>
+<th align="left">Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left"><a id="user-content-helm_lint_aspect-name"></a>name</td>
+<td align="left">A unique name for this target.</td>
+<td align="left"><a href="https://bazel.build/concepts/labels#target-names" rel="nofollow">Name</a></td>
+<td align="left">required</td>
+<td align="left"></td>
+</tr>
+</tbody>
+</table>
+</article></div>
