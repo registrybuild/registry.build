@@ -3,18 +3,45 @@
 <p dir="auto">It can typically be used in a terraform monorepo of modules to enforce the
 consistency of providers versions used across all modules, auto generate documentation
 and run lint and validation tests on all your modules.</p>
+<h1 dir="auto"><a id="user-content-why-tf-and-not-terraform" class="anchor" aria-hidden="true" tabindex="-1" href="#why-tf-and-not-terraform"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Why "Tf" and not "Terraform"</h1>
+<p dir="auto">Because now you can either use "tofu" or "terraform" binary.</p>
 <h2 dir="auto"><a id="user-content-getting-started" class="anchor" aria-hidden="true" tabindex="-1" href="#getting-started"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Getting Started</h2>
 <p dir="auto">To import rules_tf in your project, you first need to add it to your <code>MODULE.bazel</code> file:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel_dep(name = &quot;rules_tf&quot;, version = &quot;0.0.1&quot;)
-git_override(
-    module_name = &quot;rules_tf&quot;,
-    remote      = &quot;https://github.com/yanndegat/rules_tf&quot;,
-    commit      = &quot;200aa83e95eca46976000dfcc1b4b090b2fab06a&quot;,
-)"><pre><span class="pl-en">bazel_dep</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_tf"</span>, <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"0.0.1"</span>)
-<span class="pl-en">git_override</span>(
-    <span class="pl-s1">module_name</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_tf"</span>,
-    <span class="pl-s1">remote</span>      <span class="pl-c1">=</span> <span class="pl-s">"https://github.com/yanndegat/rules_tf"</span>,
-    <span class="pl-s1">commit</span>      <span class="pl-c1">=</span> <span class="pl-s">"200aa83e95eca46976000dfcc1b4b090b2fab06a"</span>,
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel_dep(name = &quot;rules_tf&quot;, version = &quot;0.0.3&quot;)
+# git_override(
+#     module_name = &quot;rules_tf&quot;,
+#     remote      = &quot;https://github.com/yanndegat/rules_tf&quot;,
+#     commit      = &quot;...&quot;,
+# )
+
+tf = use_extension(&quot;@rules_tf//tf:extensions.bzl&quot;, &quot;tf_repositories&quot;)
+tf.download( version = &quot;1.5.7&quot;, use_tofu = False )
+
+use_repo(
+    tf,
+    &quot;tf_binary&quot;,
+)
+
+register_toolchains(
+    &quot;@tf_binary//:toolchain&quot;,
+)
+"><pre><span class="pl-en">bazel_dep</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_tf"</span>, <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"0.0.3"</span>)
+<span class="pl-c"># git_override(</span>
+<span class="pl-c">#     module_name = "rules_tf",</span>
+<span class="pl-c">#     remote      = "https://github.com/yanndegat/rules_tf",</span>
+<span class="pl-c">#     commit      = "...",</span>
+<span class="pl-c"># )</span>
+
+<span class="pl-s1">tf</span> <span class="pl-c1">=</span> <span class="pl-en">use_extension</span>(<span class="pl-s">"@rules_tf//tf:extensions.bzl"</span>, <span class="pl-s">"tf_repositories"</span>)
+<span class="pl-s1">tf</span>.<span class="pl-en">download</span>( <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"1.5.7"</span>, <span class="pl-s1">use_tofu</span> <span class="pl-c1">=</span> <span class="pl-c1">False</span> )
+
+<span class="pl-en">use_repo</span>(
+    <span class="pl-s1">tf</span>,
+    <span class="pl-s">"tf_binary"</span>,
+)
+
+<span class="pl-en">register_toolchains</span>(
+    <span class="pl-s">"@tf_binary//:toolchain"</span>,
 )</pre></div>
 <p dir="auto">Once you've imported the rule set , you can then load the tf rules in your <code>BUILD</code> files with:</p>
 <div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@rules_tf//tf:def.bzl&quot;, &quot;tf_providers_versions&quot;, &quot;tf_module&quot;)
@@ -36,7 +63,6 @@ tf_module(
     deps = [
         &quot;//tf/modules/mod-a&quot;,
     ],
-    
     providers_versions = &quot;:providers&quot;,
 )"><pre><span class="pl-en">load</span>(<span class="pl-s">"@rules_tf//tf:def.bzl"</span>, <span class="pl-s">"tf_providers_versions"</span>, <span class="pl-s">"tf_module"</span>)
 
@@ -57,7 +83,6 @@ tf_module(
     <span class="pl-s1">deps</span> <span class="pl-c1">=</span> [
         <span class="pl-s">"//tf/modules/mod-a"</span>,
     ],
-    
     <span class="pl-s1">providers_versions</span> <span class="pl-c1">=</span> <span class="pl-s">":providers"</span>,
 )</pre></div>
 <h2 dir="auto"><a id="user-content-using-tf-modules" class="anchor" aria-hidden="true" tabindex="-1" href="#using-tf-modules"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Using Tf Modules</h2>
