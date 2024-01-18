@@ -12,10 +12,10 @@ using the GitHub-provided source archive like
 See <a href="https://github.blog/2023-02-21-update-on-the-future-stability-of-source-code-archives-and-hashes/" rel="nofollow">https://github.blog/2023-02-21-update-on-the-future-stability-of-source-code-archives-and-hashes/</a></p>
 </div>
 <h2 dir="auto"><a id="user-content-usage" class="anchor" aria-hidden="true" tabindex="-1" href="#usage"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Usage</h2>
-<p dir="auto">Apko usage begins with an <code>apko.yaml</code> configuration file. The <code>apko resolve</code> tool will create a corresponding
-<code>apko.resolved.json</code> file, and this is where Bazel will read to fetch external content.
+<p dir="auto">Apko usage begins with an <code>apko.yaml</code> configuration file. The <code>apko lock</code> tool will create a corresponding
+<code>apko.lock.json</code> file, and this is where Bazel will read to fetch external content.
 Assuming <code>apko_rules</code> are already loaded in your <code>MODULE.bazel</code> or <code>WORKSPACE</code> file one can call:
-<code>bazel run @rules_apko//apko resolve ./apko.yaml</code> to lock the dependencies and generate <code>apko.resolved.json</code> file.</p>
+<code>bazel run @rules_apko//apko lock ./apko.yaml</code> to lock the dependencies and generate <code>apko.lock.json</code> file.</p>
 <p dir="auto">Than you import these base layers into Bazel:</p>
 <ul dir="auto">
 <li>With Bazel 6 and [bzlmod], call <code>apk.translate_lock</code> in <code>MODULE.bazel</code></li>
@@ -23,17 +23,17 @@ Assuming <code>apko_rules</code> are already loaded in your <code>MODULE.bazel</
 </ul>
 <p dir="auto">Now you can use the <code>apko_image</code> rule to build the image, producing an OCI format output.
 As long as the apko <code>.yaml</code> file is in the same directory as the <code>apko_image</code> you can periodically refresh the
-<code>apko.resolved.json</code> file by just calling: <code>bazel run path/to/image.resolve</code>.
-Alternatively you can call <code>apko resolve path/to/apko.yaml</code> or <code>bazel run @rules_apko//apko resolve path/to/apko.yaml</code>
-to regenerate the <code>apko.resolved.json</code> file manually.
-To resolve all the files in the repository, such a <a href="./examples/resolve.sh">snippet</a> can be useful.</p>
+<code>apko.lock.json</code> file by just calling: <code>bazel run path/to/image.lock</code>.
+Alternatively you can call <code>apko lock path/to/apko.yaml</code> or <code>bazel run @rules_apko//apko lock path/to/apko.yaml</code>
+to regenerate the <code>apko.lock.json</code> file manually.
+To resolve all the files in the repository, such a <a href="./examples/lock.sh">snippet</a> can be useful.</p>
 <p dir="auto">Finally, we recommend using <a href="https://github.com/bazel-contrib/rules_oci">https://github.com/bazel-contrib/rules_oci</a> as the next step in your Bazel build
 to add application code from your repo as the next layers of the image.</p>
 <p dir="auto">See the examples folder in this repository, which relies on base layers declared in <code>/MODULE.bazel</code>.</p>
 <p dir="auto">Also see the <code>e2e</code> folder in this repository, where we declare our end-to-end test.</p>
 <h2 dir="auto"><a id="user-content-public-api" class="anchor" aria-hidden="true" tabindex="-1" href="#public-api"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Public API</h2>
 <ul dir="auto">
-<li><a href="./docs/translate_lock.md">translate_lock</a> Repository rules for translating <code>apko.resolved.json</code></li>
+<li><a href="./docs/translate_lock.md">translate_lock</a> Repository rules for translating <code>apko.lock.json</code></li>
 <li><a href="./docs/rules.md">rules</a> Build OCI images from APK packages directly without <code>Dockerfile</code></li>
 </ul>
 </article></div>
