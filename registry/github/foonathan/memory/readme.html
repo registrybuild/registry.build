@@ -1,0 +1,357 @@
+<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><h1 dir="auto"><a id="user-content-memory" class="anchor" aria-hidden="true" tabindex="-1" href="#memory"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>memory</h1>
+<p dir="auto"><a target="_blank" rel="noopener noreferrer nofollow" href="https://camo.githubusercontent.com/b0be9db63a31e898e560674fbe96bc6323a27ed524bfb9a2f2efa31c06aaf550/68747470733a2f2f696d672e736869656c64732e696f2f656e64706f696e743f75726c3d68747470732533412532462532467777772e6a6f6e617468616e6d75656c6c65722e64657625324670726f6a6563742532466d656d6f7279253246696e6465782e6a736f6e"><img src="https://camo.githubusercontent.com/b0be9db63a31e898e560674fbe96bc6323a27ed524bfb9a2f2efa31c06aaf550/68747470733a2f2f696d672e736869656c64732e696f2f656e64706f696e743f75726c3d68747470732533412532462532467777772e6a6f6e617468616e6d75656c6c65722e64657625324670726f6a6563742532466d656d6f7279253246696e6465782e6a736f6e" alt="Project Status" data-canonical-src="https://img.shields.io/endpoint?url=https%3A%2F%2Fwww.jonathanmueller.dev%2Fproject%2Fmemory%2Findex.json" style="max-width: 100%;"></a>
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/foonathan/memory/workflows/Main%20CI/badge.svg"><img src="https://github.com/foonathan/memory/workflows/Main%20CI/badge.svg" alt="Build Status" style="max-width: 100%;"></a>
+<a href="https://codecov.io/gh/foonathan/memory" rel="nofollow"><img src="https://camo.githubusercontent.com/e2a5341ff74e6ee5c54b16a9a0fa2fc239d9d3c3a8fe63e5fc1ebda8ed73a065/68747470733a2f2f636f6465636f762e696f2f67682f666f6f6e617468616e2f6d656d6f72792f6272616e63682f6d61737465722f67726170682f62616467652e7376673f746f6b656e3d5536776e496e6c616d59" alt="Code Coverage" data-canonical-src="https://codecov.io/gh/foonathan/memory/branch/master/graph/badge.svg?token=U6wnInlamY" style="max-width: 100%;"></a></p>
+<p dir="auto">The C++ STL allocator model has various flaws. For example, they are fixed to a certain type, because they are almost necessarily required to be templates. So you can't easily share a single allocator for multiple types. In addition, you can only get a copy from the containers and not the original allocator object. At least with C++11 they are allowed to be stateful and so can be made object not instance based. But still, the model has many flaws.
+Over the course of the years many solutions have been proposed, for example <a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2007/n2271.html" rel="nofollow">EASTL</a>. This library is another. But instead of trying to change the STL, it works with the current implementation.</p>
+<h2 dir="auto"><a id="user-content-features" class="anchor" aria-hidden="true" tabindex="-1" href="#features"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Features</h2>
+<p dir="auto">New allocator concepts:</p>
+<ul dir="auto">
+<li>a <code>RawAllocator</code> that is similar to an <code>Allocator</code> but easier to use and write</li>
+<li>a <code>BlockAllocator</code> that is an allocator for huge memory blocks</li>
+</ul>
+<p dir="auto">Several implementations:</p>
+<ul dir="auto">
+<li><code>heap_/malloc_/new_allocator</code></li>
+<li>virtual memory allocators</li>
+<li>allocator using a static memory block located on the stack</li>
+<li>memory stack, <code>iteration_allocator</code></li>
+<li>different memory pools</li>
+<li>a portable, improved <code>alloca()</code> in the form of <code>temporary_allocator</code></li>
+<li>facilities for joint memory allocations: share a big memory block for the object
+and all dynamic memory allocations for its members</li>
+</ul>
+<p dir="auto">Adapters, wrappers and storage classes:</p>
+<ul dir="auto">
+<li>incredible powerful <code>allocator_traits</code> allowing <code>Allocator</code>s as <code>RawAllocator</code>s</li>
+<li><code>std_allocator</code> to make a <code>RawAllocator</code> an <code>Allocator</code> again</li>
+<li>adapters for the memory resource TS</li>
+<li><code>allocator_deleter</code> classes for smart pointers</li>
+<li>(optionally type-erased) <code>allocator_reference</code> and other storage classes</li>
+<li>memory tracking wrapper</li>
+</ul>
+<p dir="auto">In addition:</p>
+<ul dir="auto">
+<li>container node size debuggers that obtain information about the node size of an STL container at compile-time to specify node sizes for pools</li>
+<li>debugging options for leak checking, double-free checks or buffer overflows</li>
+<li>customizable error handling routines that can work with exceptions disabled</li>
+<li>everything except the STL adapters works on a freestanding environment</li>
+</ul>
+<h2 dir="auto"><a id="user-content-basic-example" class="anchor" aria-hidden="true" tabindex="-1" href="#basic-example"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Basic example</h2>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="#include &lt;algorithm&gt;
+#include &lt;iostream&gt;
+#include &lt;iterator&gt;
+
+#include &lt;foonathan/memory/container.hpp&gt; // vector, list, list_node_size
+#include &lt;foonathan/memory/memory_pool.hpp&gt; // memory_pool
+#include &lt;foonathan/memory/smart_ptr.hpp&gt; // allocate_unique
+#include &lt;foonathan/memory/static_allocator.hpp&gt; // static_allocator_storage, static_block_allocator
+#include &lt;foonathan/memory/temporary_allocator.hpp&gt; // temporary_allocator
+
+// alias namespace foonathan::memory as memory for easier access
+#include &lt;foonathan/memory/namespace_alias.hpp&gt;
+
+template &lt;typename BiIter&gt;
+void merge_sort(BiIter begin, BiIter end);
+
+int main()
+{
+    using namespace memory::literals;
+
+    // a memory pool RawAllocator
+    // allocates a memory block - initially 4KiB - and splits it into chunks of list_node_size&lt;int&gt;::value big
+    // list_node_size&lt;int&gt;::value is the size of each node of a std::list
+    memory::memory_pool&lt;&gt; pool(memory::list_node_size&lt;int&gt;::value, 4_KiB);
+
+    // just an alias for std::list&lt;int, memory::std_allocator&lt;int, memory::memory_pool&lt;&gt;&gt;
+    // a std::list using a memory_pool
+    // std_allocator stores a reference to a RawAllocator and provides the Allocator interface
+    memory::list&lt;int, memory::memory_pool&lt;&gt;&gt; list(pool);
+    list.push_back(3);
+    list.push_back(2);
+    list.push_back(1);
+
+    for (auto e : list)
+        std::cout &lt;&lt; e &lt;&lt; ' ';
+    std::cout &lt;&lt; '\n';
+
+    merge_sort(list.begin(), list.end());
+
+    for (auto e : list)
+        std::cout &lt;&lt; e &lt;&lt; ' ';
+    std::cout &lt;&lt; '\n';
+
+    // allocate a std::unique_ptr using the pool
+    // memory::allocate_shared is also available
+    auto ptr = memory::allocate_unique&lt;int&gt;(pool, *list.begin());
+    std::cout &lt;&lt; *ptr &lt;&lt; '\n';
+
+    // static storage of size 4KiB
+    memory::static_allocator_storage&lt;4096u&gt; storage;
+
+    // a memory pool again but this time with a BlockAllocator
+    // this controls the internal allocations of the pool itself
+    // we need to specify the first template parameter giving the type of the pool as well
+    // (node_pool is the default)
+    // we use a static_block_allocator that uses the static storage above
+    // all allocations will use a memory block on the stack
+    using static_pool_t = memory::memory_pool&lt;memory::node_pool, memory::static_block_allocator&gt;;
+    static_pool_t static_pool(memory::unordered_set_node_size&lt;int&gt;::value, 4096u, storage);
+
+    // again, just an alias for std::unordered_set&lt;int, std::hash&lt;int&gt;, std::equal_to&lt;int&gt;, memory::std_allocator&lt;int, static_pool_t&gt;
+    // see why I wrote these? :D
+    // now we have a hash set that lives on the stack!
+    memory::unordered_set&lt;int, static_pool_t&gt; set(static_pool);
+
+    set.insert(3);
+    set.insert(2);
+    set.insert(3); // running out of stack memory is properly handled, of course
+
+    for (auto e : set)
+        std::cout &lt;&lt; e &lt;&lt; ' ';
+    std::cout &lt;&lt; '\n';
+}
+
+// naive implementation of merge_sort using temporary memory allocator
+template &lt;typename BiIter&gt;
+void merge_sort(BiIter begin, BiIter end)
+{
+    using value_type = typename std::iterator_traits&lt;BiIter&gt;::value_type;
+
+    auto distance = std::distance(begin, end);
+    if (distance &lt;= 1)
+        return;
+
+    auto mid = begin;
+    std::advance(mid, distance / 2);
+
+    // an allocator for temporary memory
+    // is similar to alloca() but uses its own stack
+    // this stack is thread_local and created on the first call to this function
+    // as soon as the allocator object goes out of scope, everything allocated through it, will be freed
+    auto alloc = memory::temporary_allocator();
+
+    // alias for std::vector&lt;value_type, memory::std_allocator&lt;value_type, memory::temporary_allocator&gt;&gt;
+    // a std::vector using a temporary_allocator
+    memory::vector&lt;value_type, memory::temporary_allocator&gt; first(begin, mid, alloc),
+                                                            second(mid, end, alloc);
+
+    merge_sort(first.begin(), first.end());
+    merge_sort(second.begin(), second.end());
+    std::merge(first.begin(), first.end(), second.begin(), second.end(), begin);
+}"><pre>#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>algorithm<span class="pl-pds">&gt;</span></span>
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>iostream<span class="pl-pds">&gt;</span></span>
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>iterator<span class="pl-pds">&gt;</span></span>
+
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>foonathan/memory/container.hpp<span class="pl-pds">&gt;</span></span> <span class="pl-c"><span class="pl-c">//</span> vector, list, list_node_size</span>
+#include &lt;foonathan/memory/memory_pool.hpp&gt; <span class="pl-c"><span class="pl-c">//</span> memory_pool</span>
+#include &lt;foonathan/memory/smart_ptr.hpp&gt; <span class="pl-c"><span class="pl-c">//</span> allocate_unique</span>
+#include &lt;foonathan/memory/static_allocator.hpp&gt; <span class="pl-c"><span class="pl-c">//</span> static_allocator_storage, static_block_allocator</span>
+#include &lt;foonathan/memory/temporary_allocator.hpp&gt; <span class="pl-c"><span class="pl-c">//</span> temporary_allocator</span>
+
+<span class="pl-c"><span class="pl-c">//</span> alias namespace foonathan::memory as memory for easier access</span>
+#include &lt;foonathan/memory/namespace_alias.hpp&gt;
+
+<span class="pl-k">template </span>&lt;<span class="pl-k">typename</span> BiIter&gt;
+<span class="pl-k">void</span> <span class="pl-en">merge_sort</span>(BiIter begin, BiIter end);
+
+<span class="pl-k">int</span> <span class="pl-en">main</span>()
+{
+    <span class="pl-k">using</span> <span class="pl-k">namespace</span> <span class="pl-en">memory</span>::literals<span class="pl-k">;</span>
+
+    <span class="pl-c"><span class="pl-c">//</span> a memory pool RawAllocator</span>
+    <span class="pl-c"><span class="pl-c">//</span> allocates a memory block - initially 4KiB - and splits it into chunks of list_node_size&lt;int&gt;::value big</span>
+    <span class="pl-c"><span class="pl-c">//</span> list_node_size&lt;int&gt;::value is the size of each node of a std::list</span>
+    memory::memory_pool&lt;&gt; <span class="pl-c1">pool</span>(memory::list_node_size&lt;<span class="pl-k">int</span>&gt;::value, 4_KiB);
+
+    <span class="pl-c"><span class="pl-c">//</span> just an alias for std::list&lt;int, memory::std_allocator&lt;int, memory::memory_pool&lt;&gt;&gt;</span>
+    <span class="pl-c"><span class="pl-c">//</span> a std::list using a memory_pool</span>
+    <span class="pl-c"><span class="pl-c">//</span> std_allocator stores a reference to a RawAllocator and provides the Allocator interface</span>
+    memory::list&lt;<span class="pl-k">int</span>, memory::memory_pool&lt;&gt;&gt; <span class="pl-c1">list</span>(pool);
+    list.<span class="pl-c1">push_back</span>(<span class="pl-c1">3</span>);
+    list.<span class="pl-c1">push_back</span>(<span class="pl-c1">2</span>);
+    list.<span class="pl-c1">push_back</span>(<span class="pl-c1">1</span>);
+
+    <span class="pl-k">for</span> (<span class="pl-k">auto</span> e : list)
+        std::cout &lt;&lt; e &lt;&lt; <span class="pl-s"><span class="pl-pds">'</span> <span class="pl-pds">'</span></span>;
+    std::cout &lt;&lt; <span class="pl-s"><span class="pl-pds">'</span><span class="pl-cce">\n</span><span class="pl-pds">'</span></span>;
+
+    <span class="pl-c1">merge_sort</span>(list.<span class="pl-c1">begin</span>(), list.<span class="pl-c1">end</span>());
+
+    <span class="pl-k">for</span> (<span class="pl-k">auto</span> e : list)
+        std::cout &lt;&lt; e &lt;&lt; <span class="pl-s"><span class="pl-pds">'</span> <span class="pl-pds">'</span></span>;
+    std::cout &lt;&lt; <span class="pl-s"><span class="pl-pds">'</span><span class="pl-cce">\n</span><span class="pl-pds">'</span></span>;
+
+    <span class="pl-c"><span class="pl-c">//</span> allocate a std::unique_ptr using the pool</span>
+    <span class="pl-c"><span class="pl-c">//</span> memory::allocate_shared is also available</span>
+    <span class="pl-k">auto</span> ptr = memory::allocate_unique&lt;<span class="pl-k">int</span>&gt;(pool, *list.<span class="pl-c1">begin</span>());
+    std::cout &lt;&lt; *ptr &lt;&lt; <span class="pl-s"><span class="pl-pds">'</span><span class="pl-cce">\n</span><span class="pl-pds">'</span></span>;
+
+    <span class="pl-c"><span class="pl-c">//</span> static storage of size 4KiB</span>
+    memory::static_allocator_storage&lt;<span class="pl-c1">4096u</span>&gt; storage;
+
+    <span class="pl-c"><span class="pl-c">//</span> a memory pool again but this time with a BlockAllocator</span>
+    <span class="pl-c"><span class="pl-c">//</span> this controls the internal allocations of the pool itself</span>
+    <span class="pl-c"><span class="pl-c">//</span> we need to specify the first template parameter giving the type of the pool as well</span>
+    <span class="pl-c"><span class="pl-c">//</span> (node_pool is the default)</span>
+    <span class="pl-c"><span class="pl-c">//</span> we use a static_block_allocator that uses the static storage above</span>
+    <span class="pl-c"><span class="pl-c">//</span> all allocations will use a memory block on the stack</span>
+    <span class="pl-k">using</span> <span class="pl-c1">static_pool_t</span> = memory::memory_pool&lt;memory::node_pool, memory::static_block_allocator&gt;;
+    <span class="pl-c1">static_pool_t</span> <span class="pl-smi">static_pool</span>(memory::unordered_set_node_size&lt;<span class="pl-k">int</span>&gt;::value, <span class="pl-c1">4096u</span>, storage);
+
+    <span class="pl-c"><span class="pl-c">//</span> again, just an alias for std::unordered_set&lt;int, std::hash&lt;int&gt;, std::equal_to&lt;int&gt;, memory::std_allocator&lt;int, static_pool_t&gt;</span>
+    <span class="pl-c"><span class="pl-c">//</span> see why I wrote these? :D</span>
+    <span class="pl-c"><span class="pl-c">//</span> now we have a hash set that lives on the stack!</span>
+    memory::unordered_set&lt;<span class="pl-k">int</span>, <span class="pl-c1">static_pool_t</span>&gt; <span class="pl-c1">set</span>(static_pool);
+
+    set.<span class="pl-c1">insert</span>(<span class="pl-c1">3</span>);
+    set.<span class="pl-c1">insert</span>(<span class="pl-c1">2</span>);
+    set.<span class="pl-c1">insert</span>(<span class="pl-c1">3</span>); <span class="pl-c"><span class="pl-c">//</span> running out of stack memory is properly handled, of course</span>
+
+    <span class="pl-k">for</span> (<span class="pl-k">auto</span> e : set)
+        std::cout &lt;&lt; e &lt;&lt; <span class="pl-s"><span class="pl-pds">'</span> <span class="pl-pds">'</span></span>;
+    std::cout &lt;&lt; <span class="pl-s"><span class="pl-pds">'</span><span class="pl-cce">\n</span><span class="pl-pds">'</span></span>;
+}
+
+<span class="pl-c"><span class="pl-c">//</span> naive implementation of merge_sort using temporary memory allocator</span>
+template &lt;<span class="pl-k">typename</span> BiIter&gt;
+<span class="pl-k">void</span> <span class="pl-en">merge_sort</span>(BiIter begin, BiIter end)
+{
+    <span class="pl-k">using</span> value_type = <span class="pl-k">typename</span> std::iterator_traits&lt;BiIter&gt;::value_type;
+
+    <span class="pl-k">auto</span> distance = <span class="pl-c1">std::distance</span>(begin, end);
+    <span class="pl-k">if</span> (distance &lt;= <span class="pl-c1">1</span>)
+        <span class="pl-k">return</span>;
+
+    <span class="pl-k">auto</span> mid = begin;
+    <span class="pl-c1">std::advance</span>(mid, distance / <span class="pl-c1">2</span>);
+
+    <span class="pl-c"><span class="pl-c">//</span> an allocator for temporary memory</span>
+    <span class="pl-c"><span class="pl-c">//</span> is similar to alloca() but uses its own stack</span>
+    <span class="pl-c"><span class="pl-c">//</span> this stack is thread_local and created on the first call to this function</span>
+    <span class="pl-c"><span class="pl-c">//</span> as soon as the allocator object goes out of scope, everything allocated through it, will be freed</span>
+    <span class="pl-k">auto</span> alloc = <span class="pl-c1">memory::temporary_allocator</span>();
+
+    <span class="pl-c"><span class="pl-c">//</span> alias for std::vector&lt;value_type, memory::std_allocator&lt;value_type, memory::temporary_allocator&gt;&gt;</span>
+    <span class="pl-c"><span class="pl-c">//</span> a std::vector using a temporary_allocator</span>
+    memory::vector&lt;value_type, memory::temporary_allocator&gt; <span class="pl-c1">first</span>(begin, mid, alloc),
+                                                            <span class="pl-c1">second</span>(mid, end, alloc);
+
+    <span class="pl-c1">merge_sort</span>(first.<span class="pl-c1">begin</span>(), first.<span class="pl-c1">end</span>());
+    <span class="pl-c1">merge_sort</span>(second.<span class="pl-c1">begin</span>(), second.<span class="pl-c1">end</span>());
+    <span class="pl-c1">std::merge</span>(first.<span class="pl-c1">begin</span>(), first.<span class="pl-c1">end</span>(), second.<span class="pl-c1">begin</span>(), second.<span class="pl-c1">end</span>(), begin);
+}</pre></div>
+<p dir="auto">See <code>example/</code> for more.</p>
+<h2 dir="auto"><a id="user-content-installation" class="anchor" aria-hidden="true" tabindex="-1" href="#installation"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Installation</h2>
+<p dir="auto">This library can be used as <a href="www.cmake.org">CMake</a> subdirectory.
+It is tested on GCC 4.8-5.0, Clang 3.5 and Visual Studio 2013. Newer versions should work too.</p>
+<ol dir="auto">
+<li>
+<p dir="auto">Fetch it, e.g. using <a href="http://git-scm.com/docs/git-submodule" rel="nofollow">git submodules</a> <code>git submodule add https://github.com/foonathan/memory ext/memory</code> and <code>git submodule update --init --recursive</code>.</p>
+</li>
+<li>
+<p dir="auto">Call <code>add_subdirectory(ext/memory)</code> or whatever your local path is to make it available in CMake.</p>
+</li>
+<li>
+<p dir="auto">Simply call <code>target_link_libraries(your_target PUBLIC foonathan_memory)</code> to link this library and setups the include search path and compilation options.</p>
+</li>
+</ol>
+<p dir="auto">You can also install the library:</p>
+<ol dir="auto">
+<li>
+<p dir="auto">Run <code>cmake -DCMAKE_BUILD_TYPE="buildtype" -DFOONATHAN_MEMORY_BUILD_EXAMPLES=OFF -DFOONATHAN_MEMORY_BUILD_TESTS=OFF .</code> inside the library sources.</p>
+</li>
+<li>
+<p dir="auto">Run <code>cmake --build . -- install</code> to install the library under <code>${CMAKE_INSTALL_PREFIX}</code>.</p>
+</li>
+<li>
+<p dir="auto">Repeat 1 and 2 for each build type/configuration you want to have (like <code>Debug</code>, <code>RelWithDebInfo</code> and <code>Release</code> or custom names).</p>
+</li>
+</ol>
+<p dir="auto">To use an installed library:</p>
+<ol start="4" dir="auto">
+<li>
+<p dir="auto">Call <code>find_package(foonathan_memory major.minor REQUIRED)</code> to find the library.</p>
+</li>
+<li>
+<p dir="auto">Call <code>target_link_libraries(your_target PUBLIC foonathan_memory)</code> to link to the library and setup all required options.</p>
+</li>
+</ol>
+<p dir="auto">See <a href="https://memory.foonathan.net/md_doc_installation.html" rel="nofollow">https://memory.foonathan.net/md_doc_installation.html</a> for a detailed guide.</p>
+<h2 dir="auto"><a id="user-content-building-foonathan-memory---using-vcpkg" class="anchor" aria-hidden="true" tabindex="-1" href="#building-foonathan-memory---using-vcpkg"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Building foonathan-memory - Using vcpkg</h2>
+<p dir="auto">You can download and install foonathan-memory using the <a href="https://github.com/Microsoft/vcpkg">vcpkg</a> dependency manager:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="git clone https://github.com/Microsoft/vcpkg.git
+cd vcpkg
+./bootstrap-vcpkg.sh
+./vcpkg integrate install
+./vcpkg install foonathan-memory"><pre class="notranslate"><code>git clone https://github.com/Microsoft/vcpkg.git
+cd vcpkg
+./bootstrap-vcpkg.sh
+./vcpkg integrate install
+./vcpkg install foonathan-memory
+</code></pre></div>
+<p dir="auto">The foonathan-memory port in vcpkg is kept up to date by Microsoft team members and community contributors. If the version is out of date, please <a href="https://github.com/Microsoft/vcpkg">create an issue or pull request</a> on the vcpkg repository.</p>
+<h2 dir="auto"><a id="user-content-documentation" class="anchor" aria-hidden="true" tabindex="-1" href="#documentation"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Documentation</h2>
+<p dir="auto">Full documentation can be found at <a href="https://memory.foonathan.net/" rel="nofollow">https://memory.foonathan.net/</a>.</p>
+<p dir="auto">A tutorial is also available at <a href="https://memory.foonathan.net/md_doc_tutorial.html" rel="nofollow">https://memory.foonathan.net/md_doc_tutorial.html</a>.</p>
+<h2 dir="auto"><a id="user-content-rawallocator" class="anchor" aria-hidden="true" tabindex="-1" href="#rawallocator"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>RawAllocator</h2>
+<p dir="auto">Below is the interface required for a <code>RawAllocator</code>, everything optional is marked:</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="struct raw_allocator
+{
+    using is_stateful = std::integral_constant&lt;bool, Value&gt;; // optional, defaults to std::is_empty
+
+    void* allocate_node(std::size_t size, std::size_t alignment); // required, allocation function
+    void deallocate_node(void *node, std::size_t size, std::size_t alignment) noexcept; // required, deallocation function
+
+    void* allocate_array(std::size_t count, std::size_t size, std::size_t alignment); // optional, forwards to node version
+    void deallocate_array(void *ptr, std::size_t count, std::size_t size, std::size_t alignment) noexcept; // optional, forwards to node version
+
+    std::size_t max_node_size() const; // optional, returns maximum value
+    std::size_t max_array_size() const; // optional, forwards to max_node_size()
+    std::size_t max_alignment() const; // optional, returns maximum fundamental alignment, i.e. alignof(std::max_align_t)
+};"><pre><span class="pl-k">struct</span> <span class="pl-en">raw_allocator</span>
+{
+    <span class="pl-k">using</span> is_stateful = std::integral_constant&lt;<span class="pl-k">bool</span>, Value&gt;; <span class="pl-c"><span class="pl-c">//</span> optional, defaults to std::is_empty</span>
+
+    <span class="pl-k">void</span>* <span class="pl-en">allocate_node</span>(std::<span class="pl-c1">size_t</span> size, std::<span class="pl-c1">size_t</span> alignment); <span class="pl-c"><span class="pl-c">//</span> required, allocation function</span>
+    <span class="pl-k">void</span> <span class="pl-en">deallocate_node</span>(<span class="pl-k">void</span> *node, std::<span class="pl-c1">size_t</span> size, std::<span class="pl-c1">size_t</span> alignment) <span class="pl-k">noexcept</span>; <span class="pl-c"><span class="pl-c">//</span> required, deallocation function</span>
+
+    <span class="pl-k">void</span>* <span class="pl-en">allocate_array</span>(std::<span class="pl-c1">size_t</span> count, std::<span class="pl-c1">size_t</span> size, std::<span class="pl-c1">size_t</span> alignment); <span class="pl-c"><span class="pl-c">//</span> optional, forwards to node version</span>
+    <span class="pl-k">void</span> <span class="pl-en">deallocate_array</span>(<span class="pl-k">void</span> *ptr, std::<span class="pl-c1">size_t</span> count, std::<span class="pl-c1">size_t</span> size, std::<span class="pl-c1">size_t</span> alignment) <span class="pl-k">noexcept</span>; <span class="pl-c"><span class="pl-c">//</span> optional, forwards to node version</span>
+
+    std::<span class="pl-c1">size_t</span> <span class="pl-en">max_node_size</span>() <span class="pl-k">const</span>; <span class="pl-c"><span class="pl-c">//</span> optional, returns maximum value</span>
+    std::<span class="pl-c1">size_t</span> <span class="pl-en">max_array_size</span>() <span class="pl-k">const</span>; <span class="pl-c"><span class="pl-c">//</span> optional, forwards to max_node_size()</span>
+    std::<span class="pl-c1">size_t</span> <span class="pl-en">max_alignment</span>() <span class="pl-k">const</span>; <span class="pl-c"><span class="pl-c">//</span> optional, returns maximum fundamental alignment, i.e. alignof(std::max_align_t)</span>
+};</pre></div>
+<p dir="auto">A <code>RawAllocator</code> only needs to be moveable, all <code>Allocator</code> classes are <code>RawAllocators</code> too.
+Classes not providing the interface can specialize the <code>allocator_traits</code>, read more about <a href="https://memory.foonathan.net/md_doc_writing_allocators.html" rel="nofollow">writing allocators here</a> or about the technical details of the <a href="https://memory.foonathan.net/md_doc_concepts.html" rel="nofollow">concept here</a>.</p>
+<h2 dir="auto"><a id="user-content-acknowledgements" class="anchor" aria-hidden="true" tabindex="-1" href="#acknowledgements"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Acknowledgements</h2>
+<p dir="auto">This project is greatly supported by my <a href="https://patreon.com/foonathan" rel="nofollow">patrons</a>.
+In particular thanks to the individual supporters:</p>
+<ul dir="auto">
+<li>Kaido Kert</li>
+</ul>
+<p dir="auto">And big thanks to the contributors as well:</p>
+<ul dir="auto">
+<li>@Guekka</li>
+<li>@Manu343726</li>
+<li>@MiguelCompany</li>
+<li>@asobhy-qnx</li>
+<li>@bfierz</li>
+<li>@cho3</li>
+<li>@gabyx</li>
+<li>@j-carl</li>
+<li>@kaidokert</li>
+<li>@maksqwe</li>
+<li>@moazzamak</li>
+<li>@myd7349</li>
+<li>@nicolastagliani</li>
+<li>@quattrinili</li>
+<li>@razr</li>
+<li>@roehling</li>
+<li>@seanyen</li>
+<li>@wtsnyder</li>
+<li>@zhouchengming1</li>
+<li>@jwdevel</li>
+</ul>
+</article></div>
