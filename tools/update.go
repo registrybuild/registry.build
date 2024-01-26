@@ -6,6 +6,7 @@ import (
 	"flag"
 	"io/ioutil"
 	"log"
+	"math/rand"
 	"net/http"
 	"os"
 	"os/exec"
@@ -217,7 +218,9 @@ func main() {
 		Name:       "eigen",
 	})
 
-	for _, module := range modules {
+	rand.Shuffle(len(modules), func (i, j int) {modules[i], modules[j] = modules[j], modules[i]})
+
+	for _, module := range modules[:200] {
 		for _, repo := range module.Repository {
 			if strings.HasPrefix(repo, "github:") {
 				r := strings.TrimPrefix(repo, "github:")
