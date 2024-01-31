@@ -93,6 +93,7 @@ host and device code.</p>
 <p dir="auto">The problem is caused by nvcc use PID to determine temporary file name, and with <code>--spawn_strategy linux-sandbox</code> which is the default strategy on Linux, the PIDs nvcc sees are all very small numbers, say 2~4 due to sandboxing. <code>linux-sandbox</code> is not hermetic because <a href="https://docs.bazel.build/versions/main/command-line-reference.html#flag--experimental_use_hermetic_linux_sandbox" rel="nofollow">it mounts root into the sandbox</a>, thus, <code>/tmp</code> is shared between sandboxes, which is causing name conflict under high parallelism. Similar problem has been reported at <a href="https://forums.developer.nvidia.com/t/avoid-generating-temp-files-in-tmp-while-nvcc-compiling/197657/10" rel="nofollow">nvidia forums</a>.</p>
 <p dir="auto">To avoid it:</p>
 <ul dir="auto">
+<li>Update to Bazel 7 where <code>--incompatible_sandbox_hermetic_tmp</code> is enabled by default.</li>
 <li>Use <code>--spawn_strategy local</code> should eliminate the case because it will let nvcc sees the true PIDs.</li>
 <li>Use <code>--experimental_use_hermetic_linux_sandbox</code> should eliminate the case because it will avoid the sharing of <code>/tmp</code>.</li>
 <li>Add <code>-objtemp</code> option to the command should reduce the case from happening.</li>
