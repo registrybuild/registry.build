@@ -1,0 +1,142 @@
+<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><h1 dir="auto"><a id="user-content-swift-index-store" class="anchor" aria-hidden="true" tabindex="-1" href="#swift-index-store"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>swift-index-store</h1>
+<p dir="auto"><code>swift-index-store</code> is collection of libraries and tools for
+programmatically reading the source code index produced by <code>swiftc</code> and
+<code>clang</code>.</p>
+<h2 dir="auto"><a id="user-content-example-usage" class="anchor" aria-hidden="true" tabindex="-1" href="#example-usage"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Example Usage</h2>
+<p dir="auto">The <code>IndexStore</code> library is the primary entrypoint. For example if you
+want to print all the <code>class</code>es defined in a specific file:</p>
+<div class="highlight highlight-source-swift notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="let storePath = // path/to/DerivedData/index/store
+let sourceFile = // path/to/interesting/source/file
+
+// Load the index store produced by swiftc
+let store = try IndexStore(path: storePath)
+for unit in store.units {
+    // Find the unit that corresponds to the source file we're interested in
+    guard unit.mainFile == sourceFile, let recordName = unit.recordName else {
+        continue
+    }
+
+    let recordReader = try RecordReader(indexStore: store, recordName: recordName)
+    recordReader.forEach { symbolOccurrence in
+        // Print class definitions in the source file
+        if symbolOccurrence.roles.contains(.definition) &amp;&amp; symbolOccurrence.symbol.kind == .class {
+            print(symbolOccurrence.symbol.name)
+        }
+    }
+}"><pre><span class="pl-k">let</span> storePath <span class="pl-k">=</span> <span class="pl-c"><span class="pl-c">//</span> path/to/DerivedData/index/store</span>
+<span class="pl-k">let</span> sourceFile <span class="pl-k">=</span> <span class="pl-c"><span class="pl-c">//</span> path/to/interesting/source/file</span>
+
+<span class="pl-c"><span class="pl-c">//</span> Load the index store produced by swiftc</span>
+<span class="pl-k">let</span> store <span class="pl-k">=</span> <span class="pl-k">try</span> <span class="pl-c1">IndexStore</span>(<span class="pl-c1">path</span>: storePath)
+<span class="pl-k">for</span> unit <span class="pl-k">in</span> store.units {
+    <span class="pl-c"><span class="pl-c">//</span> Find the unit that corresponds to the source file we're interested in</span>
+    <span class="pl-k">guard</span> unit.mainFile <span class="pl-k">==</span> sourceFile, <span class="pl-k">let</span> recordName <span class="pl-k">=</span> unit.recordName <span class="pl-k">else</span> {
+        <span class="pl-k">continue</span>
+    }
+
+    <span class="pl-k">let</span> recordReader <span class="pl-k">=</span> <span class="pl-k">try</span> <span class="pl-c1">RecordReader</span>(<span class="pl-c1">indexStore</span>: store, <span class="pl-c1">recordName</span>: recordName)
+    recordReader.<span class="pl-c1">forEach</span> { symbolOccurrence <span class="pl-k">in</span>
+        <span class="pl-c"><span class="pl-c">//</span> Print class definitions in the source file</span>
+        <span class="pl-k">if</span> symbolOccurrence.roles.<span class="pl-c1">contains</span>(.<span class="pl-smi">definition</span>) <span class="pl-k">&amp;&amp;</span> symbolOccurrence.symbol.kind <span class="pl-k">==</span> .class {
+            <span class="pl-c1">print</span>(symbolOccurrence.<span class="pl-smi">symbol</span>.<span class="pl-smi">name</span>)
+        }
+    }
+}</pre></div>
+<p dir="auto">For more examples see:</p>
+<ul dir="auto">
+<li><a href="Sources/unnecessary-testable/main.swift"><code>unnecessary-testable</code></a>
+which discovers uses of <code>@testable</code> that aren't required based on the
+API being called by the importing file.</li>
+<li><a href="Sources/tycat"><code>tycat</code></a> which print the subtypes or supertypes of a
+given type.</li>
+<li><a href="Sources/indexutil-annotate"><code>indexutil-annotate</code></a> which outputs
+the index information overlaid on the given source file for debugging
+unexpected index data.</li>
+</ul>
+<h2 dir="auto"><a id="user-content-setup" class="anchor" aria-hidden="true" tabindex="-1" href="#setup"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Setup</h2>
+<p dir="auto">Swift Package Manager:</p>
+<div class="highlight highlight-source-swift notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="let package = Package(
+    // ...
+    dependencies: [
+        .package(url: &quot;https://github.com/lyft/swift-index-store&quot;, from: &quot;1.0.0&quot;),
+    ],
+    targets: [
+        .executableTarget(name: &quot;&lt;command-line-tool&gt;&quot;, dependencies: [
+            .product(name: &quot;IndexStore&quot;, package: &quot;swift-index-store&quot;),
+        ]),
+    ]
+)"><pre><span class="pl-k">let</span> <span class="pl-k">package</span> <span class="pl-k">=</span> <span class="pl-c1">Package</span>(
+    <span class="pl-c"><span class="pl-c">//</span> ...</span>
+    <span class="pl-c1">dependencies</span>: [
+        .<span class="pl-c1">package</span>(<span class="pl-c1">url</span>: <span class="pl-s"><span class="pl-pds">"</span>https://github.com/lyft/swift-index-store<span class="pl-pds">"</span></span>, <span class="pl-c1">from</span>: <span class="pl-s"><span class="pl-pds">"</span>1.0.0<span class="pl-pds">"</span></span>),
+    ],
+    <span class="pl-c1">targets</span>: [
+        .<span class="pl-c1">executableTarget</span>(<span class="pl-c1">name</span>: <span class="pl-s"><span class="pl-pds">"</span>&lt;command-line-tool&gt;<span class="pl-pds">"</span></span>, <span class="pl-c1">dependencies</span>: [
+            .<span class="pl-c1">product</span>(<span class="pl-c1">name</span>: <span class="pl-s"><span class="pl-pds">"</span>IndexStore<span class="pl-pds">"</span></span>, <span class="pl-c1">package</span>: <span class="pl-s"><span class="pl-pds">"</span>swift-index-store<span class="pl-pds">"</span></span>),
+        ]),
+    ]
+)</pre></div>
+<p dir="auto">Bazel:</p>
+<p dir="auto">Add the following to your <code>WORKSPACE</code> file:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="SWIFT_INDEX_STORE_VERSION = &quot;1.1.0&quot;
+
+http_archive(
+    name = &quot;IndexStore&quot;,
+    sha256 = &quot;b9c7dbcf100783c55d2c24e491feab943a489b485b016016dcd3f3d568836b3b&quot;,
+    strip_prefix = &quot;swift-index-store-%s&quot; % SWIFT_INDEX_STORE_VERSION,
+    url = &quot;https://github.com/lyft/swift-index-store/archive/refs/tags/%s.tar.gz&quot; % SWIFT_INDEX_STORE_VERSION,
+)
+
+load(
+    &quot;@IndexStore//:repositories.bzl&quot;,
+    &quot;swift_index_store_dependencies&quot;,
+)
+
+swift_index_store_dependencies()"><pre><span class="pl-v">SWIFT_INDEX_STORE_VERSION</span> <span class="pl-c1">=</span> <span class="pl-s">"1.1.0"</span>
+
+<span class="pl-en">http_archive</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"IndexStore"</span>,
+    <span class="pl-s1">sha256</span> <span class="pl-c1">=</span> <span class="pl-s">"b9c7dbcf100783c55d2c24e491feab943a489b485b016016dcd3f3d568836b3b"</span>,
+    <span class="pl-s1">strip_prefix</span> <span class="pl-c1">=</span> <span class="pl-s">"swift-index-store-%s"</span> <span class="pl-c1">%</span> <span class="pl-v">SWIFT_INDEX_STORE_VERSION</span>,
+    <span class="pl-s1">url</span> <span class="pl-c1">=</span> <span class="pl-s">"https://github.com/lyft/swift-index-store/archive/refs/tags/%s.tar.gz"</span> <span class="pl-c1">%</span> <span class="pl-v">SWIFT_INDEX_STORE_VERSION</span>,
+)
+
+<span class="pl-en">load</span>(
+    <span class="pl-s">"@IndexStore//:repositories.bzl"</span>,
+    <span class="pl-s">"swift_index_store_dependencies"</span>,
+)
+
+<span class="pl-en">swift_index_store_dependencies</span>()</pre></div>
+<p dir="auto">then you can consume the target like so:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="deps = [
+    &quot;@IndexStore&quot;,
+]"><pre><span class="pl-s1">deps</span> <span class="pl-c1">=</span> [
+    <span class="pl-s">"@IndexStore"</span>,
+]</pre></div>
+<p dir="auto">Xcode:</p>
+<ol dir="auto">
+<li>Add the swift-index-store as a Package Dependency to your project (via File ▸ Add Packages…).</li>
+<li>Added the “IndexStore” library to your target's Frameworks and Libraries.</li>
+<li>Add <code>$(TOOLCHAIN_DIR)/usr/lib</code> to your target's Runpath Search Paths (LD_RUNPATH_SEARCH_PATHS) build setting.</li>
+<li>Add <code>$(TOOLCHAIN_DIR)/usr/lib</code> to your target's Library Search Paths (LIBRARY_SEARCH_PATHS) build setting.</li>
+</ol>
+<h2 dir="auto"><a id="user-content-how-it-works" class="anchor" aria-hidden="true" tabindex="-1" href="#how-it-works"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>How it works</h2>
+<p dir="auto">During compilation, both <code>swiftc</code> and <code>clang</code> can generate a detailed
+source code index by providing the <code>-index-store-path</code> flag. The data
+model of the index is public, just not well known or well documented.</p>
+<p dir="auto"><code>IndexStore</code> is a Swift wrapper over the first party <code>libIndexStore</code> C
+library which is part of LLVM. Xcode and Swift for Linux contain
+<code>libIndexStore</code>, but its header is found separately in
+<a href="https://github.com/apple/llvm-project/blob/apple/next/clang/include/indexstore/indexstore.h">apple/llvm-project's
+<code>indexstore.h</code></a>.</p>
+<p dir="auto">For more details on the index store's data model, see:</p>
+<ol dir="auto">
+<li>Adding Index-While-Building and Refactoring to Clang: <a href="https://www.youtube.com/watch?v=jGJhnIT-D2M" rel="nofollow">https://www.youtube.com/watch?v=jGJhnIT-D2M</a></li>
+<li>High level design: <a href="https://docs.google.com/document/d/1cH2sTpgSnJZCkZtJl1aY-rzy4uGPcrI-6RrUpdATO2Q/" rel="nofollow">https://docs.google.com/document/d/1cH2sTpgSnJZCkZtJl1aY-rzy4uGPcrI-6RrUpdATO2Q/</a></li>
+</ol>
+<h3 dir="auto"><a id="user-content-how-does-this-differ-from-indexstore-db" class="anchor" aria-hidden="true" tabindex="-1" href="#how-does-this-differ-from-indexstore-db"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>How does this differ from <a href="https://github.com/apple/indexstore-db"><code>indexstore-db</code></a></h3>
+<p dir="auto">The goal of this library is to provide a thin Swift layer on top of the
+C library for one shot tools that manage the structure of the index data
+themselves. <a href="https://github.com/apple/indexstore-db"><code>indexstore-db</code></a> provides more comprehensive
+support for querying index data as it changes across multiple builds.</p>
+</article></div>
