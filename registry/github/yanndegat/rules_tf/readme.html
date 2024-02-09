@@ -22,10 +22,20 @@ use_repo(
     &quot;tf_toolchains&quot;,
 )
 
+plugins_mirror = use_extension(&quot;@rules_tf//tf:extensions.bzl&quot;, &quot;plugins_mirror&quot;)
+plugins_mirror.versions(
+    name = &quot;tf_plugins_mirror&quot;,
+    versions = {
+        &quot;random&quot; : &quot;hashicorp/random:3.3.2&quot;,
+        &quot;null&quot;   : &quot;hashicorp/null:3.1.1&quot;,
+    }
+)
+
+use_repo(plugins_mirror, &quot;tf_plugins_mirror&quot;)
 register_toolchains(
     &quot;@tf_toolchains//:all&quot;,
-)
-"><pre><span class="pl-en">bazel_dep</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_tf"</span>, <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"0.0.3"</span>)
+    &quot;@tf_plugins_mirror//:all&quot;,
+)"><pre><span class="pl-en">bazel_dep</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_tf"</span>, <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"0.0.3"</span>)
 <span class="pl-c"># git_override(</span>
 <span class="pl-c">#     module_name = "rules_tf",</span>
 <span class="pl-c">#     remote      = "https://github.com/yanndegat/rules_tf",</span>
@@ -40,8 +50,19 @@ register_toolchains(
     <span class="pl-s">"tf_toolchains"</span>,
 )
 
+<span class="pl-s1">plugins_mirror</span> <span class="pl-c1">=</span> <span class="pl-en">use_extension</span>(<span class="pl-s">"@rules_tf//tf:extensions.bzl"</span>, <span class="pl-s">"plugins_mirror"</span>)
+<span class="pl-s1">plugins_mirror</span>.<span class="pl-en">versions</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"tf_plugins_mirror"</span>,
+    <span class="pl-s1">versions</span> <span class="pl-c1">=</span> {
+        <span class="pl-s">"random"</span> : <span class="pl-s">"hashicorp/random:3.3.2"</span>,
+        <span class="pl-s">"null"</span>   : <span class="pl-s">"hashicorp/null:3.1.1"</span>,
+    }
+)
+
+<span class="pl-en">use_repo</span>(<span class="pl-s1">plugins_mirror</span>, <span class="pl-s">"tf_plugins_mirror"</span>)
 <span class="pl-en">register_toolchains</span>(
     <span class="pl-s">"@tf_toolchains//:all"</span>,
+    <span class="pl-s">"@tf_plugins_mirror//:all"</span>,
 )</pre></div>
 <p dir="auto">Once you've imported the rule set , you can then load the tf rules in your <code>BUILD</code> files with:</p>
 <div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@rules_tf//tf:def.bzl&quot;, &quot;tf_providers_versions&quot;, &quot;tf_module&quot;)
@@ -50,8 +71,8 @@ tf_providers_versions(
     name = &quot;providers&quot;,
     tf_version = &quot;1.2.3&quot;,
     providers = {
-        &quot;random&quot; : &quot;hashicorp/random:3.3.2&quot;,
-        &quot;null&quot;   : &quot;hashicorp/null:3.1.1&quot;,
+        &quot;random&quot; : &quot;hashicorp/random:&gt;=3.3&quot;,
+        &quot;null&quot;   : &quot;hashicorp/null:&gt;=3.1&quot;,
     },
 )
 
@@ -70,8 +91,8 @@ tf_module(
     <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"providers"</span>,
     <span class="pl-s1">tf_version</span> <span class="pl-c1">=</span> <span class="pl-s">"1.2.3"</span>,
     <span class="pl-s1">providers</span> <span class="pl-c1">=</span> {
-        <span class="pl-s">"random"</span> : <span class="pl-s">"hashicorp/random:3.3.2"</span>,
-        <span class="pl-s">"null"</span>   : <span class="pl-s">"hashicorp/null:3.1.1"</span>,
+        <span class="pl-s">"random"</span> : <span class="pl-s">"hashicorp/random:&gt;=3.3"</span>,
+        <span class="pl-s">"null"</span>   : <span class="pl-s">"hashicorp/null:&gt;=3.1"</span>,
     },
 )
 
