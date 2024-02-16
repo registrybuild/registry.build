@@ -170,6 +170,8 @@ module.exports = async function modules(context, options) {
         index.push(module);
       }
 
+      await fs.outputFile("static/v1/modules.json", JSON.stringify(index));
+
       const jsonPath = await actions.createData(
         `index.json`,
         JSON.stringify(index)
