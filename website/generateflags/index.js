@@ -6,7 +6,6 @@ module.exports = async function modules(context, options) {
     name: "flags",
     async contentLoaded({ content, actions }) {
       let versions = fs.readdirSync("../flag/bazel");
-
       let i = 0;
       for (let version of versions) {
         let files = fs.readdirSync(`../flag/bazel/${version}`);
@@ -40,6 +39,10 @@ module.exports = async function modules(context, options) {
             },
             exact: true,
           });
+          await fs.outputFile(
+            `static/v1/flags-${version}.json`,
+            JSON.stringify(json)
+          );
 
           if (i == versions.length - 1) {
             let path = `flag/bazel/${
@@ -53,10 +56,13 @@ module.exports = async function modules(context, options) {
               },
               exact: true,
             });
+            await fs.outputFile(`static/v1/flags.json`, JSON.stringify(json));
           }
         }
         i++;
       }
+
+      await fs.outputFile("static/v1/versions.json", JSON.stringify(versions));
     },
 
     async postBuild({ siteConfig, routesPaths, outDir, head }) {},
