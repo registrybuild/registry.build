@@ -67,12 +67,13 @@ load("@hermetic_cc_toolchain//toolchain:defs.bzl", zig_toolchains = "toolchains"
 zig_toolchains()
 </code></pre></div>
 <p dir="auto">And this to <code>.bazelrc</code> on a Unix-y systems:</p>
-<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="build --sandbox_add_mount_pair=/tmp
-build --sandbox_add_mount_pair=/var/tmp"><pre class="notranslate"><code>build --sandbox_add_mount_pair=/tmp
-build --sandbox_add_mount_pair=/var/tmp
-</code></pre></div>
-<p dir="auto">Windows:</p>
-<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="build --sandbox_add_mount_pair=C:\Temp"><pre class="notranslate"><code>build --sandbox_add_mount_pair=C:\Temp
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="common --enable_platform_specific_config
+build:linux --sandbox_add_mount_pair=/tmp
+build:macos --sandbox_add_mount_pair=/var/tmp
+build:windows --sandbox_add_mount_pair=C:\Temp"><pre class="notranslate"><code>common --enable_platform_specific_config
+build:linux --sandbox_add_mount_pair=/tmp
+build:macos --sandbox_add_mount_pair=/var/tmp
+build:windows --sandbox_add_mount_pair=C:\Temp
 </code></pre></div>
 <p dir="auto">The directories can be narrowed down to <code>/tmp/zig-cache</code> (Linux),
 <code>/var/tmp/zig-cache</code> (MacOS) and <code>C:\Temp\zig-cache</code> respectively
@@ -150,7 +151,7 @@ toolchain(
 )
 </code></pre></div>
 <p dir="auto">For a platform to pick up the right toolchain, the platform's
-<code>constraint_values</code> must be a subset<sup><a href="#user-content-fn-1-87f0d7e500b65346b3c619743a4848f1" id="user-content-fnref-1-87f0d7e500b65346b3c619743a4848f1" data-footnote-ref="" aria-describedby="footnote-label">1</a></sup> of the toolchain's
+<code>constraint_values</code> must be a subset<sup><a href="#user-content-fn-1-ddf9db0652e1443a0c8a6a936a84cd7a" id="user-content-fnref-1-ddf9db0652e1443a0c8a6a936a84cd7a" data-footnote-ref="" aria-describedby="footnote-label">1</a></sup> of the toolchain's
 <code>target_compatible_with</code>. Since the platform is a subset (therefore,
 toolchain's <code>@zig_sdk//libc:unconstrained</code> does not matter), this toolchain is
 selected for this platform. As a result, <code>--platforms @zig_sdk//platform:linux_amd64</code> causes Bazel to select a toolchain
@@ -344,15 +345,15 @@ Also see <a href="https://github.com/uber/hermetic_cc_toolchain/issues/10" data-
 <div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="$ docker run -e CC=/usr/bin/false -ti --rm -v &quot;$PWD:/x&quot; -w /x debian:bookworm-slim
 # apt update &amp;&amp; apt install --no-install-recommends -y shellcheck ca-certificates python3 git
 # git config --global --add safe.directory /x
+# tools/bazel test //...
 # ./ci/lint
 # ./ci/release
-# ./ci/test
 # ./ci/zig-wrapper"><pre class="notranslate"><code>$ docker run -e CC=/usr/bin/false -ti --rm -v "$PWD:/x" -w /x debian:bookworm-slim
 # apt update &amp;&amp; apt install --no-install-recommends -y shellcheck ca-certificates python3 git
 # git config --global --add safe.directory /x
+# tools/bazel test //...
 # ./ci/lint
 # ./ci/release
-# ./ci/test
 # ./ci/zig-wrapper
 </code></pre></div>
 <h2 dir="auto"><a id="user-content-communication" class="anchor" aria-hidden="true" tabindex="-1" href="#communication"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a>Communication</h2>
@@ -377,7 +378,7 @@ mutt -R -f mailing-list-archive.mbox
 <li><a href="https://github.com/motiejus">@motiejus</a></li>
 <li><a href="https://github.com/sywhang">@sywhang</a></li>
 </ul>
-<p dir="auto">Guidelines for maintainers<sup><a href="#user-content-fn-2-87f0d7e500b65346b3c619743a4848f1" id="user-content-fnref-2-87f0d7e500b65346b3c619743a4848f1" data-footnote-ref="" aria-describedby="footnote-label">2</a></sup>:</p>
+<p dir="auto">Guidelines for maintainers<sup><a href="#user-content-fn-2-ddf9db0652e1443a0c8a6a936a84cd7a" id="user-content-fnref-2-ddf9db0652e1443a0c8a6a936a84cd7a" data-footnote-ref="" aria-describedby="footnote-label">2</a></sup>:</p>
 <ul dir="auto">
 <li>Communicate intent precisely.</li>
 <li>Edge cases matter.</li>
@@ -407,11 +408,11 @@ validate it before cutting the release.</li>
 </ul>
 <section data-footnotes="" class="footnotes"><h2 id="footnote-label" class="sr-only" dir="auto">Footnotes</h2>
 <ol dir="auto">
-<li id="user-content-fn-1-87f0d7e500b65346b3c619743a4848f1">
-<p dir="auto">a <a href="https://en.wikipedia.org/wiki/Subset">mathematical subset</a>: both can be equal. <a href="#user-content-fnref-1-87f0d7e500b65346b3c619743a4848f1" data-footnote-backref="" aria-label="Back to reference 1" class="data-footnote-backref">↩</a></p>
+<li id="user-content-fn-1-ddf9db0652e1443a0c8a6a936a84cd7a">
+<p dir="auto">a <a href="https://en.wikipedia.org/wiki/Subset">mathematical subset</a>: both can be equal. <a href="#user-content-fnref-1-ddf9db0652e1443a0c8a6a936a84cd7a" data-footnote-backref="" aria-label="Back to reference 1" class="data-footnote-backref">↩</a></p>
 </li>
-<li id="user-content-fn-2-87f0d7e500b65346b3c619743a4848f1">
-<p dir="auto">Credit: <code>zig zen</code> <a href="#user-content-fnref-2-87f0d7e500b65346b3c619743a4848f1" data-footnote-backref="" aria-label="Back to reference 2" class="data-footnote-backref">↩</a></p>
+<li id="user-content-fn-2-ddf9db0652e1443a0c8a6a936a84cd7a">
+<p dir="auto">Credit: <code>zig zen</code> <a href="#user-content-fnref-2-ddf9db0652e1443a0c8a6a936a84cd7a" data-footnote-backref="" aria-label="Back to reference 2" class="data-footnote-backref">↩</a></p>
 </li>
 </ol>
 </section>
