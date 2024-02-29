@@ -1,0 +1,319 @@
+<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><p dir="auto"><a href="https://opensource.org/licenses/MIT" rel="nofollow"><img src="https://camo.githubusercontent.com/a4426cbe5c21edb002526331c7a8fbfa089e84a550567b02a0d829a98b136ad0/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f4c6963656e73652d4d49542d79656c6c6f772e737667" alt="License: MIT" data-canonical-src="https://img.shields.io/badge/License-MIT-yellow.svg" style="max-width: 100%;"></a>
+<a href="https://github.com/astral-sh/ruff"><img src="https://camo.githubusercontent.com/18c26428c337f9d641fa09b629a3a03b514e8ac84b57974a0ed7d1b38e14e060/68747470733a2f2f696d672e736869656c64732e696f2f656e64706f696e743f75726c3d68747470733a2f2f7261772e67697468756275736572636f6e74656e742e636f6d2f61737472616c2d73682f727566662f6d61696e2f6173736574732f62616467652f76322e6a736f6e" alt="Ruff" data-canonical-src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json" style="max-width: 100%;"></a>
+<a href="https://github.com/pre-commit/pre-commit"><img src="https://camo.githubusercontent.com/f9f3d4b9da2ae7190cc5ce42cbdb9d04ce63bec0fd0af14e0e115218fceac615/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f7072652d2d636f6d6d69742d656e61626c65642d627269676874677265656e3f6c6f676f3d7072652d636f6d6d6974266c6f676f436f6c6f723d7768697465" alt="pre-commit" data-canonical-src="https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&amp;logoColor=white" style="max-width: 100%;"></a></p>
+<ul dir="auto">
+<li><a href="#depend-on-what-you-use-dwyu">Depend on what you use (DWYU)</a></li>
+<li><a href="#getting-started">Getting started</a>
+<ul dir="auto">
+<li><a href="#get-a-release">Get a release</a></li>
+<li><a href="#get-a-specific-commit">Get a specific commit</a></li>
+<li><a href="#use-dwyu">Use DWYU</a></li>
+</ul>
+</li>
+<li><a href="#configuring-dwyu">Configuring DWYU</a>
+<ul dir="auto">
+<li><a href="#custom-header-ignore-list">Custom header ignore list</a></li>
+<li><a href="#skipping-targets">Skipping Targets</a></li>
+<li><a href="#recursion">Recursion</a></li>
+<li><a href="#Implementation_deps">Implementation_deps</a></li>
+<li><a href="#target-mapping">Target mapping</a></li>
+<li><a href="#verbosity">Verbosity</a></li>
+</ul>
+</li>
+<li><a href="#applying-automatic-fixes">Applying automatic fixes</a></li>
+<li><a href="#assumptions-of-use">Assumptions of use</a></li>
+<li><a href="#supported-platforms">Supported Platforms</a></li>
+<li><a href="#alternatives-to-dwyu">Alternatives to DWYU</a></li>
+<li><a href="#versioning">Versioning</a></li>
+<li><a href="#contributing">Contributing</a></li>
+<li><a href="#license">License</a></li>
+</ul>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Depend on what you use (DWYU)</h1><a id="user-content-depend-on-what-you-use-dwyu" class="anchor-element" aria-label="Permalink: Depend on what you use (DWYU)" href="#depend-on-what-you-use-dwyu"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">DWYU is a Bazel aspect for C++ projects making sure the headers your Bazel targets are using are aligned with their dependency lists.</p>
+<p dir="auto">DWYUs enforces the design principle:<br>
+<strong>A <code>cc_*</code> target <em>X</em> shall depend directly on the targets providing the header files which are included in the source code of <em>X</em>.</strong></p>
+<p dir="auto">The main features are:</p>
+<ul dir="auto">
+<li>Finding include statements which are not available through a direct dependency, aka <strong>preventing to rely on transitive dependencies for includes</strong>.</li>
+<li>Finding unused dependencies.</li>
+<li>Given one uses <a href="https://bazel.build/reference/be/c-cpp#cc_library.implementation_deps" rel="nofollow"><code>implementation_deps</code></a>, making sure one distinguishes properly between public and private dependencies for <code>cc_library</code> targets.
+For more details see <a href="#Implementation_deps">features chapter Implementation_deps</a>.</li>
+</ul>
+<p dir="auto">More information about the idea behind DWYU and the implementation of the project is available in <a href="docs">the docs</a>.</p>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Getting started</h1><a id="user-content-getting-started" class="anchor-element" aria-label="Permalink: Getting started" href="#getting-started"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Get a release</h2><a id="user-content-get-a-release" class="anchor-element" aria-label="Permalink: Get a release" href="#get-a-release"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Choose a release from the <a href="https://github.com/martis42/depend_on_what_you_use/releases">release page</a> and follow the instructions.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Get a specific commit</h2><a id="user-content-get-a-specific-commit" class="anchor-element" aria-label="Permalink: Get a specific commit" href="#get-a-specific-commit"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">bzlmod (recommended)</h3><a id="user-content-bzlmod-recommended" class="anchor-element" aria-label="Permalink: bzlmod (recommended)" href="#bzlmod-recommended"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Put the following into your <code>MODULE.bazel</code> file</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel_dep(name = &quot;depend_on_what_you_use&quot;, version = &quot;0.0.0&quot;)
+git_override(
+    module_name = &quot;depend_on_what_you_use&quot;,
+    commit = &lt;commit_you_are_interested_in&gt;,
+    remote = &quot;https://github.com/martis42/depend_on_what_you_use&quot;,
+)"><pre><span class="pl-en">bazel_dep</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"depend_on_what_you_use"</span>, <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"0.0.0"</span>)
+<span class="pl-en">git_override</span>(
+    <span class="pl-s1">module_name</span> <span class="pl-c1">=</span> <span class="pl-s">"depend_on_what_you_use"</span>,
+    <span class="pl-s1">commit</span> <span class="pl-c1">=</span> <span class="pl-c1">&lt;</span><span class="pl-s1">commit_you_are_interested_in</span><span class="pl-c1">&gt;</span>,
+    <span class="pl-s1">remote</span> <span class="pl-c1">=</span> <span class="pl-s">"https://github.com/martis42/depend_on_what_you_use"</span>,
+)</pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">legacy approach</h3><a id="user-content-legacy-approach" class="anchor-element" aria-label="Permalink: legacy approach" href="#legacy-approach"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Put the following into your <code>WORKSPACE</code> file to use a specific DWYU commit</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@bazel_tools//tools/build_defs/repo:git.bzl&quot;, &quot;git_repository&quot;)
+git_repository(
+    name = &quot;depend_on_what_you_use&quot;,
+    commit = &lt;commit_you_are_interested_in&gt;,
+    remote = &quot;https://github.com/martis42/depend_on_what_you_use&quot;,
+)
+
+load(&quot;@depend_on_what_you_use//:setup_step_1.bzl&quot;, dwyu_setup_step_1 = &quot;setup_step_1&quot;)
+dwyu_setup_step_1()
+
+load(&quot;@depend_on_what_you_use//:setup_step_2.bzl&quot;, dwyu_setup_step_2 = &quot;setup_step_2&quot;)
+dwyu_setup_step_2()"><pre><span class="pl-en">load</span>(<span class="pl-s">"@bazel_tools//tools/build_defs/repo:git.bzl"</span>, <span class="pl-s">"git_repository"</span>)
+<span class="pl-en">git_repository</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"depend_on_what_you_use"</span>,
+    <span class="pl-s1">commit</span> <span class="pl-c1">=</span> <span class="pl-c1">&lt;</span><span class="pl-s1">commit_you_are_interested_in</span><span class="pl-c1">&gt;</span>,
+    <span class="pl-s1">remote</span> <span class="pl-c1">=</span> <span class="pl-s">"https://github.com/martis42/depend_on_what_you_use"</span>,
+)
+
+<span class="pl-en">load</span>(<span class="pl-s">"@depend_on_what_you_use//:setup_step_1.bzl"</span>, <span class="pl-s1">dwyu_setup_step_1</span> <span class="pl-c1">=</span> <span class="pl-s">"setup_step_1"</span>)
+<span class="pl-en">dwyu_setup_step_1</span>()
+
+<span class="pl-en">load</span>(<span class="pl-s">"@depend_on_what_you_use//:setup_step_2.bzl"</span>, <span class="pl-s1">dwyu_setup_step_2</span> <span class="pl-c1">=</span> <span class="pl-s">"setup_step_2"</span>)
+<span class="pl-en">dwyu_setup_step_2</span>()</pre></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Use DWYU</h2><a id="user-content-use-dwyu" class="anchor-element" aria-label="Permalink: Use DWYU" href="#use-dwyu"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Configure the aspect</h3><a id="user-content-configure-the-aspect" class="anchor-element" aria-label="Permalink: Configure the aspect" href="#configure-the-aspect"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The features which can be configured through the aspect factory attributes are documented at <a href="#configuring-dwyu">Configuring DWYU</a>.
+Put the following inside a <code>.bzl</code> file:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@depend_on_what_you_use//:defs.bzl&quot;, &quot;dwyu_aspect_factory&quot;)
+
+# Provide no arguments for the default behavior
+# Or set a custom value for the various attributes
+your_dwyu_aspect = dwyu_aspect_factory()"><pre><span class="pl-en">load</span>(<span class="pl-s">"@depend_on_what_you_use//:defs.bzl"</span>, <span class="pl-s">"dwyu_aspect_factory"</span>)
+
+<span class="pl-c"># Provide no arguments for the default behavior</span>
+<span class="pl-c"># Or set a custom value for the various attributes</span>
+<span class="pl-s1">your_dwyu_aspect</span> <span class="pl-c1">=</span> <span class="pl-en">dwyu_aspect_factory</span>()</pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Use the aspect</h3><a id="user-content-use-the-aspect" class="anchor-element" aria-label="Permalink: Use the aspect" href="#use-the-aspect"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Invoke the aspect through the command line on a target:<br>
+<code>bazel build &lt;target_pattern&gt; --aspects=//:aspect.bzl%your_dwyu_aspect --output_groups=dwyu</code></p>
+<p dir="auto">If no problem is found, the command will exit with <code>INFO: Build completed successfully</code>.<br>
+If a problem is detected, the build command will fail with an error and a description of the problem will be printed in the terminal. For example:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="================================================================================
+DWYU analyzing: '&lt;analyzed_target&gt;'
+
+Result: Failure
+
+Unused dependencies in 'deps' (none of their headers are referenced):
+  Dependency='//some/target/with_an_unused:dependency'
+==============================================================================="><pre class="notranslate"><code>================================================================================
+DWYU analyzing: '&lt;analyzed_target&gt;'
+
+Result: Failure
+
+Unused dependencies in 'deps' (none of their headers are referenced):
+  Dependency='//some/target/with_an_unused:dependency'
+===============================================================================
+</code></pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Create a rule invoking the aspect</h3><a id="user-content-create-a-rule-invoking-the-aspect" class="anchor-element" aria-label="Permalink: Create a rule invoking the aspect" href="#create-a-rule-invoking-the-aspect"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">You can invoke the aspect from within a rule.
+This can be useful to make the execution part of a bazel build without having to manually execute the longish aspect build command.</p>
+<p dir="auto">The Bazel documentation for invoking an aspect from within a rule can be found <a href="https://bazel.build/rules/aspects#invoking_the_aspect_from_a_rule" rel="nofollow">here</a>.</p>
+<p dir="auto">This is demonstrated in the <a href="/examples/rule_using_dwyu">rule_using_dwyu example</a>.</p>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Configuring DWYU</h1><a id="user-content-configuring-dwyu" class="anchor-element" aria-label="Permalink: Configuring DWYU" href="#configuring-dwyu"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Custom header ignore list</h2><a id="user-content-custom-header-ignore-list" class="anchor-element" aria-label="Permalink: Custom header ignore list" href="#custom-header-ignore-list"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">By default, DWYU ignores all header from the standard library when comparing include statements to the dependencies.
+This list of headers can be seen in <a href="src/analyze_includes/std_header.py">std_header.py</a>.</p>
+<p dir="auto">You can exclude a custom set of header files by providing a config file in json format to the aspect:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="your_aspect = dwyu_aspect_factory(ignored_includes = &quot;//&lt;your_config_file&gt;.json&quot;)"><pre><span class="pl-s1">your_aspect</span> <span class="pl-c1">=</span> <span class="pl-en">dwyu_aspect_factory</span>(<span class="pl-s1">ignored_includes</span> <span class="pl-c1">=</span> <span class="pl-s">"//&lt;your_config_file&gt;.json"</span>)</pre></div>
+<p dir="auto">The config file can contain these fields which should be lists of strings.
+All fields are optional:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ignore_include_paths</code></td>
+<td>List of include paths which are ignored by the analysis. Setting this <strong>disables ignoring the standard library include paths</strong>.</td>
+</tr>
+<tr>
+<td><code>extra_ignore_include_paths</code></td>
+<td>List of include paths which are ignored by the analysis. If <code>ignore_include_paths</code> is specified as well, both list are combined. If <code>ignore_include_paths</code> is not set, the default list of standard library headers is extended.</td>
+</tr>
+<tr>
+<td><code>ignore_include_patterns</code></td>
+<td>List of patterns for include paths which are ignored by the analysis. Patterns have to be compatible to Python <a href="https://docs.python.org/3/library/re.html#regular-expression-syntax" rel="nofollow">regex syntax</a>. The <a href="https://docs.python.org/3/library/re.html#re.match" rel="nofollow">match</a> function is used to process the patterns.</td>
+</tr>
+</tbody>
+</table>
+<p dir="auto">This is demonstrated in the <a href="/examples/ignoring_includes">ignoring_includes example</a>.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Skipping targets</h2><a id="user-content-skipping-targets" class="anchor-element" aria-label="Permalink: Skipping targets" href="#skipping-targets"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">If you want the DWYU aspect to skip certain targets and negative target patterns are not an option you can do so by setting the <code>no-dwyu</code> tag on those.
+You can also configure the aspect to skip targets based on a custom list of tags:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="your_aspect = dwyu_aspect_factory(skipped_tags = [&quot;tag1_marking_skipping&quot;, &quot;tag2_marking_skipping&quot;])"><pre><span class="pl-s1">your_aspect</span> <span class="pl-c1">=</span> <span class="pl-en">dwyu_aspect_factory</span>(<span class="pl-s1">skipped_tags</span> <span class="pl-c1">=</span> [<span class="pl-s">"tag1_marking_skipping"</span>, <span class="pl-s">"tag2_marking_skipping"</span>])</pre></div>
+<p dir="auto">This is demonstrated in the <a href="/examples/skipping_targets">skipping_targets example</a>.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Recursion</h2><a id="user-content-recursion" class="anchor-element" aria-label="Permalink: Recursion" href="#recursion"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">By default, DWYU analyzes only the target it is being applied to.</p>
+<p dir="auto">You can also activate recursive analysis.
+Meaning the aspect analyzes recursively all dependencies of the target it is being applied to:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="your_aspect = dwyu_aspect_factory(recursive = True)"><pre><span class="pl-s1">your_aspect</span> <span class="pl-c1">=</span> <span class="pl-en">dwyu_aspect_factory</span>(<span class="pl-s1">recursive</span> <span class="pl-c1">=</span> <span class="pl-c1">True</span>)</pre></div>
+<p dir="auto">This is demonstrated in the <a href="/examples/recursion">recursion example</a>.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Implementation_deps</h2><a id="user-content-implementation_deps" class="anchor-element" aria-label="Permalink: Implementation_deps" href="#implementation_deps"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Bazel offers the experimental feature <a href="https://bazel.build/reference/be/c-cpp#cc_library.implementation_deps" rel="nofollow"><code>implementation_deps</code></a> to distinguish between public (aka interface) and private (aka implementation) dependencies for <code>cc_library</code>.
+Headers from the private dependencies are not made available to users of the library.</p>
+<p dir="auto">DWYU analyzes the usage of headers from the dependencies and can raise an error if a dependency is used only in private files, but not put into the private dependency attribute.
+Meaning, it can find dependencies which should be moved from <code>deps</code> to <code>implementation_deps</code>.</p>
+<p dir="auto">Activate this behavior via:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="your_aspect = dwyu_aspect_factory(use_implementation_deps = True)"><pre><span class="pl-s1">your_aspect</span> <span class="pl-c1">=</span> <span class="pl-en">dwyu_aspect_factory</span>(<span class="pl-s1">use_implementation_deps</span> <span class="pl-c1">=</span> <span class="pl-c1">True</span>)</pre></div>
+<p dir="auto">Usage of this can be seen in the <a href="examples/basic_usage">basic example</a>.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Target mapping</h2><a id="user-content-target-mapping" class="anchor-element" aria-label="Permalink: Target mapping" href="#target-mapping"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Sometimes users don't want to follow the DWYU rules for all targets or have to work with external dependencies not following the DWYU principles.
+For such cases DWYU allows creating a mapping which for a chosen target makes more headers available as the target actually provides.
+In other words, one can combine virtually multiple targets for the DWYU analysis.
+Doing so allows using headers from transitive dependencies without DWYU raising an error for select cases.</p>
+<p dir="auto">Such a mapping is created with the <a href="src/cc_info_mapping/cc_info_mapping.bzl">dwyu_make_cc_info_mapping</a> rule.
+This offers multiple ways of mapping targets:</p>
+<ol dir="auto">
+<li>Explicitly providing a list of targets which are mapped into a single target.</li>
+<li>Specifying that all direct dependencies of a given target are mapped into the target.</li>
+<li>Specifying that all transitive dependencies of a given target are mapped into the target.</li>
+</ol>
+<p dir="auto">Activate this behavior via:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="your_aspect = dwyu_aspect_factory(target_mapping = &quot;&lt;mapping_target_created_by_the_user&gt;&quot;)"><pre><span class="pl-s1">your_aspect</span> <span class="pl-c1">=</span> <span class="pl-en">dwyu_aspect_factory</span>(<span class="pl-s1">target_mapping</span> <span class="pl-c1">=</span> <span class="pl-s">"&lt;mapping_target_created_by_the_user&gt;"</span>)</pre></div>
+<p dir="auto">This is demonstrated in the <a href="/examples/target_mapping">target_mapping example</a>.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Verbosity</h2><a id="user-content-verbosity" class="anchor-element" aria-label="Permalink: Verbosity" href="#verbosity"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">One can configure the DWYU aspect to print debugging information.</p>
+<p dir="auto">Activate this behavior via:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="your_aspect = dwyu_aspect_factory(verbose = True)"><pre><span class="pl-s1">your_aspect</span> <span class="pl-c1">=</span> <span class="pl-en">dwyu_aspect_factory</span>(<span class="pl-s1">verbose</span> <span class="pl-c1">=</span> <span class="pl-c1">True</span>)</pre></div>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Applying automatic fixes</h1><a id="user-content-applying-automatic-fixes" class="anchor-element" aria-label="Permalink: Applying automatic fixes" href="#applying-automatic-fixes"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="markdown-alert markdown-alert-warning" dir="auto"><p class="markdown-alert-title" dir="auto"><svg class="octicon octicon-alert mr-2" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="M6.457 1.047c.659-1.234 2.427-1.234 3.086 0l6.082 11.378A1.75 1.75 0 0 1 14.082 15H1.918a1.75 1.75 0 0 1-1.543-2.575Zm1.763.707a.25.25 0 0 0-.44 0L1.698 13.132a.25.25 0 0 0 .22.368h12.164a.25.25 0 0 0 .22-.368Zm.53 3.996v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 11a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"></path></svg>Warning</p><p dir="auto">Please note that <strong>the tool cannot guarantee that your build is not being broken</strong> by the changes.
+Always make sure your project is still valid after the changes and review the performed changes.</p>
+</div>
+<p dir="auto">DWYU offers a tool to automatically fix some detected problems.
+The workflow is the following:</p>
+<ol dir="auto">
+<li>Execute DWYU on your workspace.
+DWYU will create report files containing information about discovered problems in the Bazel output directory for each analyzed target.</li>
+<li>Execute <code>bazel run @depend_on_what_you_use//:apply_fixes -- &lt;your_options&gt;</code>.
+The tool discovers the report files generated in the previous step and gathers the problems for which a fix is available.
+Then, <a href="https://github.com/bazelbuild/buildtools/blob/master/buildozer/README.md">buildozer</a> is utilized to adapt the BUILD files in your workspace.</li>
+</ol>
+<p dir="auto">The <code>apply_fixes</code> tool requires you to explicitly choose which kind or errors you want to be fixed.
+You can see the full command line interface and more information about the script behavior and limitations by executing:<br>
+<code>bazel run @depend_on_what_you_use//:apply_fixes -- --help</code></p>
+<p dir="auto">If the <code>apply_fixes</code> tool is not able to discover the report files, this can be caused by the <code>bazel-bin</code> convenience symlink at the workspace root not existing or not pointing to the output directory which was used by to generate the report files.
+The tool offers options to control how the output directory is discovered.</p>
+<p dir="auto">Unfortunately, the tool cannot promise perfect results due to various constraints:</p>
+<ul dir="auto">
+<li>If alias targets are involved, this cannot be processed properly.
+Alias targets are resolved to their actual target before the DWYU aspect is running.
+Thus, the DWYU report file contains the actual targets in its report and buildozer is not able to modify the BUILD files containing the alias name.</li>
+<li>Buildozer is working on the plain BUILD files as a user would see them in the editor.
+Meaning without alias resolution or macro expansion.
+Consequently, buildozer cannot work on targets which are generated inside a macro or whose name is constructed.</li>
+<li>Adding missing direct dependencies is based on a heuristic and not guaranteed to find the correct dependency.</li>
+<li>If you execute DWYU only on some targets and not the complete build tree, this can break the overall build.
+For example dependency <em>X</em> in library <em>A</em> is unused and would be removed.
+But a downstream user of library <em>A</em> might transitively depend on <em>X</em>.
+Removing the unused dependency will break the build as the downstream dependency no longer finds dependency <em>X</em>.</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Assumptions of use</h1><a id="user-content-assumptions-of-use" class="anchor-element" aria-label="Permalink: Assumptions of use" href="#assumptions-of-use"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="markdown-heading" dir="auto"><h5 class="heading-element" dir="auto">The code has to be compilable</h5><a id="user-content-the-code-has-to-be-compilable" class="anchor-element" aria-label="Permalink: The code has to be compilable" href="#the-code-has-to-be-compilable"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">DWYU is not performing a compilation.
+It works by statically analyzing the source code and build tree.
+However, non compiling code can contain errors infringing the assumptions DWYU is based on.
+For example, including header files which do not exist at the expected path.</p>
+<div class="markdown-heading" dir="auto"><h5 class="heading-element" dir="auto">Include paths have to be unambiguous</h5><a id="user-content-include-paths-have-to-be-unambiguous" class="anchor-element" aria-label="Permalink: Include paths have to be unambiguous" href="#include-paths-have-to-be-unambiguous"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">There shall not be multiple header files in the dependency tree of a target matching an include statement.
+Even if analysing the code works initially, it might break at any time if the ordering of paths in the analysis changes.</p>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Supported Platforms</h1><a id="user-content-supported-platforms" class="anchor-element" aria-label="Permalink: Supported Platforms" href="#supported-platforms"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Aspect</h3><a id="user-content-aspect" class="anchor-element" aria-label="Permalink: Aspect" href="#aspect"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<table>
+<thead>
+<tr>
+<th>Platform</th>
+<th>Constraints</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Operating system</td>
+<td>Integration tests check [Ubuntu 22.04, Macos 12, Windows 2022].</td>
+</tr>
+<tr>
+<td>Python</td>
+<td>Minimum version is 3.8. Integration tests check [3.8.x, 3.9.x, 3.10.x, 3.11.x, 3.12.x].</td>
+</tr>
+<tr>
+<td>Bazel</td>
+<td>Minimum version is 5.4.0. Integration tests check [5.x, 6.x, 7.x, 8.0.0-pre.x].</td>
+</tr>
+</tbody>
+</table>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Applying fixes</h3><a id="user-content-applying-fixes" class="anchor-element" aria-label="Permalink: Applying fixes" href="#applying-fixes"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<table>
+<thead>
+<tr>
+<th>Platform</th>
+<th>Constraints</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Operating system</td>
+<td>Integration tests check [Ubuntu 22.04, Macos 12, Windows 2022].</td>
+</tr>
+<tr>
+<td>Python</td>
+<td>Minimum version is 3.8. Integration tests check 3.8.</td>
+</tr>
+<tr>
+<td>Bazel</td>
+<td>No known constraint. Integration tests check 7.0.0.</td>
+</tr>
+<tr>
+<td>Buildozer</td>
+<td>No known constraint. Integration tests check 6.4.0.</td>
+</tr>
+</tbody>
+</table>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Alternatives to DWYU</h1><a id="user-content-alternatives-to-dwyu" class="anchor-element" aria-label="Permalink: Alternatives to DWYU" href="#alternatives-to-dwyu"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Layering check</h2><a id="user-content-layering-check" class="anchor-element" aria-label="Permalink: Layering check" href="#layering-check"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">To make sure no headers from transitive dependencies or private headers from dependencies are used you can use <a href="https://maskray.me/blog/2022-09-25-layering-check-with-clang" rel="nofollow">Layering check with Clang</a> which is natively supported by Bazel.
+The main benefit of this approach is it being directly integrated into Bazel without need of further tooling like DWYU.</p>
+<p dir="auto">Still, there are reasons to use DWYU instead of or in addition to layering_check:</p>
+<ul dir="auto">
+<li>DWYU does not require a compiler, it works purely by text parsing.
+The only requirement towards your platform is the availability of a Python interpreter.</li>
+<li>DWYU is able to analyze header only libraries.</li>
+<li>DWYU detects unused dependencies.</li>
+<li>DWYU allows optimizing <a href="#implementation_deps">implementation_deps</a>.</li>
+<li>DWYU offers automatic fixes for detected issues.</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Gazelle</h2><a id="user-content-gazelle" class="anchor-element" aria-label="Permalink: Gazelle" href="#gazelle"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><a href="https://github.com/bazelbuild/bazel-gazelle">Gazelle</a> is a tool automatically creating <code>BUILD</code> files for your code.
+It seems there is no public and established C++ extension for gazelle.</p>
+<p dir="auto">Still, if one agrees with the best practices enforced by DWYU but cannot use it, investing time into a gazelle C++ extension might be worth it.
+Automatically generating correct BUILD files based on your source code is a more efficient approach compared to having to manually execute DWYU regularly to make sure no error was introduced.</p>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Versioning</h1><a id="user-content-versioning" class="anchor-element" aria-label="Permalink: Versioning" href="#versioning"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">This project uses <a href="https://semver.org/spec/v2.0.0.html" rel="nofollow">semantic versioning</a>.
+Please be aware that the project is still in an early phase and until version 1.0.0 has been reached all releases can contain breaking changes.</p>
+<p dir="auto"><strong>The following things can always break</strong> and do not promise stability with respect to the semantic versioning:</p>
+<ul dir="auto">
+<li>The report files DWYU generates to facilitate running automatic fixes are considered an implementation detail.
+Changing their content is not considered a breaking change.</li>
+<li>How to include DWYU in your project git commit might change at any time.</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Contributing</h1><a id="user-content-contributing" class="anchor-element" aria-label="Permalink: Contributing" href="#contributing"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">See <a href="CONTRIBUTING.md">Contributing</a>.</p>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">License</h1><a id="user-content-license" class="anchor-element" aria-label="Permalink: License" href="#license"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Copyright © 2022-present, <a href="https://github.com/martis42">Martin Medler</a>. <br>
+This project licensed under the <a href="https://opensource.org/licenses/MIT" rel="nofollow">MIT</a> license.</p>
+<p dir="auto">This projects references several other projects which each have individual licenses.
+See the content of <a href="third_party">third_party</a> for all references to other projects.</p>
+</article></div>
