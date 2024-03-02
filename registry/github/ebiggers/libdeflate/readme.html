@@ -72,9 +72,25 @@ to your application, without using CMake.</p>
 <p dir="auto">You should compile both <code>lib/*.c</code> and <code>lib/*/*.c</code>.  You don't need to worry
 about excluding irrelevant architecture-specific code, as this is already
 handled in the source files themselves using <code>#ifdef</code>s.</p>
-<p dir="auto">It is strongly recommended to use either gcc or clang, and to use <code>-O2</code>.</p>
 <p dir="auto">If you are doing a freestanding build with <code>-ffreestanding</code>, you must add
 <code>-DFREESTANDING</code> as well (matching what the <code>CMakeLists.txt</code> does).</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Supported compilers</h2><a id="user-content-supported-compilers" class="anchor-element" aria-label="Permalink: Supported compilers" href="#supported-compilers"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li>gcc: v4.9 and later</li>
+<li>clang: v3.9 and later (upstream), Xcode 8 and later (Apple)</li>
+<li>MSVC: Visual Studio 2015 and later</li>
+<li>Other compilers: any other C99-compatible compiler should work, though if your
+compiler pretends to be gcc, clang, or MSVC, it needs to be sufficiently
+compatible with the compiler it pretends to be.</li>
+</ul>
+<p dir="auto">The above are the minimums, but using a newer compiler allows more of the
+architecture-optimized code to be built.  libdeflate is most heavily optimized
+for gcc and clang, but MSVC is supported fairly well now too.</p>
+<p dir="auto">The recommended optimization flag is <code>-O2</code>, and the <code>CMakeLists.txt</code> sets this
+for release builds.  <code>-O3</code> is fine too, but often <code>-O2</code> actually gives better
+results.  It's unnecessary to add flags such as <code>-mavx2</code> or <code>/arch:AVX2</code>, though
+you can do so if you want to.  Most of the relevant optimized functions are
+built regardless of such flags, and appropriate ones are selected at runtime.</p>
 <div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">API</h1><a id="user-content-api" class="anchor-element" aria-label="Permalink: API" href="#api"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">libdeflate has a simple API that is not zlib-compatible.  You can create
 compressors and decompressors and use them to compress or decompress buffers.
