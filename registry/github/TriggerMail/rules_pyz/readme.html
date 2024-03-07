@@ -6,7 +6,7 @@
 <p dir="auto">We named this rules_pyz because originally it built a zip for every <code>pyz_binary</code> and <code>pyz_test</code>. We have since changed it so it only optionally builds a zip.</p>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Using the rules</h2><a id="user-content-using-the-rules" class="anchor" aria-label="Permalink: Using the rules" href="#using-the-rules"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">Add the following lines to your <code>WORKSPACE</code>:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="# Load the dependencies required for the rules
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="# Load the dependencies required for the rules
 git_repository(
     name = &quot;com_bluecore_rules_pyz&quot;,
     commit = &quot;eb2527d42664bc2dc4834ee54cb1bb94a1d08216&quot;,
@@ -15,28 +15,30 @@ git_repository(
 
 load(&quot;@com_bluecore_rules_pyz//rules_python_zip:rules_python_zip.bzl&quot;, &quot;pyz_repositories&quot;)
 
-pyz_repositories()"><pre><span class="pl-c"># Load the dependencies required for the rules</span>
-<span class="pl-en">git_repository</span>(
-    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"com_bluecore_rules_pyz"</span>,
-    <span class="pl-s1">commit</span> <span class="pl-c1">=</span> <span class="pl-s">"eb2527d42664bc2dc4834ee54cb1bb94a1d08216"</span>,
-    <span class="pl-s1">remote</span> <span class="pl-c1">=</span> <span class="pl-s">"https://github.com/TriggerMail/rules_pyz.git"</span>,
+pyz_repositories()"><pre lang="python" class="notranslate"><code># Load the dependencies required for the rules
+git_repository(
+    name = "com_bluecore_rules_pyz",
+    commit = "eb2527d42664bc2dc4834ee54cb1bb94a1d08216",
+    remote = "https://github.com/TriggerMail/rules_pyz.git",
 )
 
-<span class="pl-en">load</span>(<span class="pl-s">"@com_bluecore_rules_pyz//rules_python_zip:rules_python_zip.bzl"</span>, <span class="pl-s">"pyz_repositories"</span>)
+load("@com_bluecore_rules_pyz//rules_python_zip:rules_python_zip.bzl", "pyz_repositories")
 
-<span class="pl-en">pyz_repositories</span>()</pre></div>
+pyz_repositories()
+</code></pre></div>
 <p dir="auto">To each BUILD file where you want to use the rules, add:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(
     &quot;@com_bluecore_rules_pyz//rules_python_zip:rules_python_zip.bzl&quot;,
     &quot;pyz_binary&quot;,
     &quot;pyz_library&quot;,
     &quot;pyz_test&quot;,
-)"><pre><span class="pl-en">load</span>(
-    <span class="pl-s">"@com_bluecore_rules_pyz//rules_python_zip:rules_python_zip.bzl"</span>,
-    <span class="pl-s">"pyz_binary"</span>,
-    <span class="pl-s">"pyz_library"</span>,
-    <span class="pl-s">"pyz_test"</span>,
-)</pre></div>
+)"><pre lang="python" class="notranslate"><code>load(
+    "@com_bluecore_rules_pyz//rules_python_zip:rules_python_zip.bzl",
+    "pyz_binary",
+    "pyz_library",
+    "pyz_test",
+)
+</code></pre></div>
 <p dir="auto">Instead of <code>py_*</code> rules, use <code>pyz_*</code>. They should work the same way. One notable difference is instead of <code>imports</code> to change the import path, you need to use the <code>pythonroot</code> attribute, which only applies to the <code>srcs</code> and <code>data</code> of that rule, and not all transitive dependencies.</p>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">PyPI dependencies</h3><a id="user-content-pypi-dependencies" class="anchor" aria-label="Permalink: PyPI dependencies" href="#pypi-dependencies"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">If you want to import packages from PyPI, write a pip <code>requirements.txt</code> file, then:</p>
@@ -44,34 +46,38 @@ pyz_repositories()"><pre><span class="pl-c"># Load the dependencies required for
 <li><code>mkdir -p third_party/pypi</code></li>
 <li><code>mkdir wheels</code></li>
 <li>Add the following lines to <code>third_party/pypi/BUILD</code>:
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;:pypi_rules.bzl&quot;, &quot;pypi_libraries&quot;)
-pypi_libraries()"><pre><span class="pl-en">load</span>(<span class="pl-s">":pypi_rules.bzl"</span>, <span class="pl-s">"pypi_libraries"</span>)
-<span class="pl-en">pypi_libraries</span>()</pre></div>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(&quot;:pypi_rules.bzl&quot;, &quot;pypi_libraries&quot;)
+pypi_libraries()"><pre lang="python" class="notranslate"><code>load(":pypi_rules.bzl", "pypi_libraries")
+pypi_libraries()
+</code></pre></div>
 </li>
 <li>Add the following lines to <code>WORKSPACE</code>:
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@com_bluecore_rules_pyz//pypi:pip.bzl&quot;, &quot;pip_repositories&quot;)
-pip_repositories()"><pre><span class="pl-en">load</span>(<span class="pl-s">"@com_bluecore_rules_pyz//pypi:pip.bzl"</span>, <span class="pl-s">"pip_repositories"</span>)
-<span class="pl-en">pip_repositories</span>()</pre></div>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(&quot;@com_bluecore_rules_pyz//pypi:pip.bzl&quot;, &quot;pip_repositories&quot;)
+pip_repositories()"><pre lang="python" class="notranslate"><code>load("@com_bluecore_rules_pyz//pypi:pip.bzl", "pip_repositories")
+pip_repositories()
+</code></pre></div>
 </li>
 <li>Generate the dependencies using the tool:
-<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel build @com_bluecore_rules_pyz//pypi:pip_generate_wrapper
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="bazel build @com_bluecore_rules_pyz//pypi:pip_generate_wrapper
 bazel-bin/external/com_bluecore_rules_pyz/pypi/pip_generate_wrapper \
     -requirements requirements.txt \
     -outputDir third_party/pypi \
     -wheelURLPrefix http://example.com/ \
-    -wheelDir wheels"><pre>bazel build @com_bluecore_rules_pyz//pypi:pip_generate_wrapper
+    -wheelDir wheels"><pre lang="bash" class="notranslate"><code>bazel build @com_bluecore_rules_pyz//pypi:pip_generate_wrapper
 bazel-bin/external/com_bluecore_rules_pyz/pypi/pip_generate_wrapper \
     -requirements requirements.txt \
     -outputDir third_party/pypi \
     -wheelURLPrefix http://example.com/ \
-    -wheelDir wheels</pre></div>
+    -wheelDir wheels
+</code></pre></div>
 </li>
 <li>If this depends on any Python packages that don't publish wheels, you will need to copy the <code>wheels</code> directory to some server where they are publicly accessible, and set the <code>-wheelURLPrefix</code> argument to that URL. We use a [Google Cloud Storage bucket](<a href="https://cloud.google.com/storage/docs/" rel="nofollow">https://cloud.google.com/storage/docs/</a>
 access-public-data) and copy the wheels with: <code>gsutil -m rsync -a public-read wheels gs://public-bucket</code></li>
 <li>Add the following lines to <code>WORKSPACE</code> to load the generate requirements:
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;//third_party/pypi:pypi_rules.bzl&quot;, &quot;pypi_repositories&quot;)
-pypi_repositories()"><pre><span class="pl-en">load</span>(<span class="pl-s">"//third_party/pypi:pypi_rules.bzl"</span>, <span class="pl-s">"pypi_repositories"</span>)
-<span class="pl-en">pypi_repositories</span>()</pre></div>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(&quot;//third_party/pypi:pypi_rules.bzl&quot;, &quot;pypi_repositories&quot;)
+pypi_repositories()"><pre lang="python" class="notranslate"><code>load("//third_party/pypi:pypi_rules.bzl", "pypi_repositories")
+pypi_repositories()
+</code></pre></div>
 </li>
 </ol>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Local Wheels</h3><a id="user-content-local-wheels" class="anchor" aria-label="Permalink: Local Wheels" href="#local-wheels"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
