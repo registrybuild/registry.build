@@ -1,0 +1,472 @@
+<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">tinyformat.h</h1><a id="user-content-tinyformath" class="anchor" aria-label="Permalink: tinyformat.h" href="#tinyformath"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">A minimal type safe printf() replacement</h2><a id="user-content-a-minimal-type-safe-printf-replacement" class="anchor" aria-label="Permalink: A minimal type safe printf() replacement" href="#a-minimal-type-safe-printf-replacement"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><strong>tinyformat.h</strong> is a type safe printf replacement library in a single C++
+header file.  If you've ever wanted <code>printf("%s", s)</code> to just work regardless
+of the type of <code>s</code>, tinyformat might be for you.  Design goals include:</p>
+<ul dir="auto">
+<li>Type safety and extensibility for user defined types.</li>
+<li>C99 <code>printf()</code> compatibility, to the extent possible using <code>std::ostream</code></li>
+<li>POSIX extension for positional arguments</li>
+<li>Simplicity and minimalism.  A single header file to include and distribute
+with your projects.</li>
+<li>Augment rather than replace the standard stream formatting mechanism</li>
+<li>C++98 support, with optional C++11 niceties</li>
+</ul>
+<p dir="auto">Build status, master branch:
+<a href="https://travis-ci.org/c42f/tinyformat" rel="nofollow"><img src="https://camo.githubusercontent.com/a3012cb676dcedead3489a22d43da54b830a32c3f9ae687f1814241603eb2596/68747470733a2f2f7472617669732d63692e6f72672f633432662f74696e79666f726d61742e7376673f6272616e63683d6d6173746572" alt="Linux/OSX build" data-canonical-src="https://travis-ci.org/c42f/tinyformat.svg?branch=master" style="max-width: 100%;"></a>
+<a href="https://ci.appveyor.com/project/c42f/tinyformat/branch/master" rel="nofollow"><img src="https://camo.githubusercontent.com/a36e4e81dd1321e0389ea71840143194d63285606aeb98146bd7a94cdf2c6cfd/68747470733a2f2f63692e6170707665796f722e636f6d2f6170692f70726f6a656374732f7374617475732f727778716868793676356d30703161712f6272616e63682f6d61737465723f7376673d74727565" alt="Windows build" data-canonical-src="https://ci.appveyor.com/api/projects/status/rwxqhhy6v5m0p1aq/branch/master?svg=true" style="max-width: 100%;"></a></p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Quickstart</h2><a id="user-content-quickstart" class="anchor" aria-label="Permalink: Quickstart" href="#quickstart"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">To print a date to <code>std::cout</code>:</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="std::string weekday = &quot;Wednesday&quot;;
+const char* month = &quot;July&quot;;
+size_t day = 27;
+long hour = 14;
+int min = 44;
+
+tfm::printf(&quot;%s, %s %d, %.2d:%.2d\n&quot;, weekday, month, day, hour, min);"><pre>std::string weekday = <span class="pl-s"><span class="pl-pds">"</span>Wednesday<span class="pl-pds">"</span></span>;
+<span class="pl-k">const</span> <span class="pl-k">char</span>* month = <span class="pl-s"><span class="pl-pds">"</span>July<span class="pl-pds">"</span></span>;
+<span class="pl-c1">size_t</span> day = <span class="pl-c1">27</span>;
+<span class="pl-k">long</span> hour = <span class="pl-c1">14</span>;
+<span class="pl-k">int</span> min = <span class="pl-c1">44</span>;
+
+<span class="pl-en">tfm::printf</span>(<span class="pl-s"><span class="pl-pds">"</span>%s, %s %d, %.2d:%.2d<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>, weekday, month, day, hour, min);</pre></div>
+<p dir="auto">POSIX extension for positional arguments is available.
+The ability to rearrange formatting arguments is an important feature
+for localization because the word order may vary in different languages.</p>
+<p dir="auto">Previous example for German usage. Arguments are reordered:</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="tfm::printf(&quot;%1$s, %3$d. %2$s, %4$d:%5$.2d\n&quot;, weekday, month, day, hour, min);"><pre><span class="pl-en">tfm::printf</span>(<span class="pl-s"><span class="pl-pds">"</span>%1$s, %3$d. %2$s, %4$d:%5$.2d<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>, weekday, month, day, hour, min);</pre></div>
+<p dir="auto">The strange types here emphasize the type safety of the interface, for example
+it is possible to print a <code>std::string</code> using the <code>"%s"</code> conversion, and a
+<code>size_t</code> using the <code>"%d"</code> conversion.  A similar result could be achieved
+using either of the <code>tfm::format()</code> functions.  One prints on a user provided
+stream:</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="tfm::format(std::cerr, &quot;%s, %s %d, %.2d:%.2d\n&quot;,
+            weekday, month, day, hour, min);"><pre><span class="pl-en">tfm::format</span>(std::cerr, <span class="pl-s"><span class="pl-pds">"</span>%s, %s %d, %.2d:%.2d<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>,
+            weekday, month, day, hour, min);</pre></div>
+<p dir="auto">The other returns a <code>std::string</code>:</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="std::string date = tfm::format(&quot;%s, %s %d, %.2d:%.2d\n&quot;,
+                               weekday, month, day, hour, min);
+std::cout &lt;&lt; date;"><pre>std::string date = tfm::format(<span class="pl-s"><span class="pl-pds">"</span>%s, %s %d, %.2d:%.2d<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>,
+                               weekday, month, day, hour, min);
+std::cout &lt;&lt; date;</pre></div>
+<p dir="auto">It is safe to use tinyformat inside a template function.  For any type which
+has the usual stream insertion <code>operator&lt;&lt;</code> defined, the following will work
+as desired:</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="template&lt;typename T&gt;
+void myPrint(const T&amp; value)
+{
+    tfm::printf(&quot;My value is '%s'\n&quot;, value);
+}"><pre><span class="pl-k">template</span>&lt;<span class="pl-k">typename</span> T&gt;
+<span class="pl-k">void</span> <span class="pl-en">myPrint</span>(<span class="pl-k">const</span> T&amp; value)
+{
+    <span class="pl-c1">tfm::printf</span>(<span class="pl-s"><span class="pl-pds">"</span>My value is '%s'<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>, value);
+}</pre></div>
+<p dir="auto">(The above is a compile error for types <code>T</code> without a stream insertion
+operator.)</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Function reference</h2><a id="user-content-function-reference" class="anchor" aria-label="Permalink: Function reference" href="#function-reference"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">All user facing functions are defined in the namespace <code>tinyformat</code>.  A
+namespace alias <code>tfm</code> is provided to encourage brevity, but can easily be
+disabled if desired.</p>
+<p dir="auto">Three main interface functions are available: an iostreams-based <code>format()</code>,
+a string-based <code>format()</code> and a <code>printf()</code> replacement.  These functions
+can be thought of as C++ replacements for C's <code>fprintf()</code>, <code>sprintf()</code> and
+<code>printf()</code> functions respectively.  All the interface functions can take an
+unlimited number of input arguments if compiled with C++11 variadic templates
+support.  In C++98 mode, the number of arguments must be limited to some fixed
+upper bound which is currently 16 as of version 1.3. Supporting more arguments
+is quite easy using the in-source code generator based on
+<a href="http://nedbatchelder.com/code/cog" rel="nofollow">cog.py</a> - see the source for details.</p>
+<p dir="auto">The <code>format()</code> function which takes a stream as the first argument is the
+main part of the tinyformat interface.  <code>stream</code> is the output stream,
+<code>formatString</code> is a format string in C99 <code>printf()</code> format, and the values
+to be formatted have arbitrary types:</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="template&lt;typename... Args&gt;
+void format(std::ostream&amp; stream, const char* formatString,
+            const Args&amp;... args);"><pre><span class="pl-k">template</span>&lt;<span class="pl-k">typename</span>... Args&gt;
+<span class="pl-k">void</span> <span class="pl-en">format</span>(std::ostream&amp; stream, <span class="pl-k">const</span> <span class="pl-k">char</span>* formatString,
+            <span class="pl-k">const</span> Args&amp;... args);</pre></div>
+<p dir="auto">The second version of <code>format()</code> is a convenience function which returns a
+<code>std::string</code> rather than printing onto a stream.  This function simply
+calls the main version of <code>format()</code> using a <code>std::ostringstream</code>, and
+returns the resulting string:</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="template&lt;typename... Args&gt;
+std::string format(const char* formatString, const Args&amp;... args);"><pre><span class="pl-k">template</span>&lt;<span class="pl-k">typename</span>... Args&gt;
+std::string <span class="pl-en">format</span>(<span class="pl-k">const</span> <span class="pl-k">char</span>* formatString, <span class="pl-k">const</span> Args&amp;... args);</pre></div>
+<p dir="auto">Finally, <code>printf()</code> and <code>printfln()</code> are convenience functions which call
+<code>format()</code> with <code>std::cout</code> as the first argument; both have the same
+signature:</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="template&lt;typename... Args&gt;
+void printf(const char* formatString, const Args&amp;... args);"><pre><span class="pl-k">template</span>&lt;<span class="pl-k">typename</span>... Args&gt;
+<span class="pl-k">void</span> <span class="pl-en">printf</span>(<span class="pl-k">const</span> <span class="pl-k">char</span>* formatString, <span class="pl-k">const</span> Args&amp;... args);</pre></div>
+<p dir="auto"><code>printfln()</code> is the same as <code>printf()</code> but appends an additional newline
+for convenience - a concession to the author's tendency to forget the newline
+when using the library for simple logging.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Format strings and type safety</h2><a id="user-content-format-strings-and-type-safety" class="anchor" aria-label="Permalink: Format strings and type safety" href="#format-strings-and-type-safety"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Tinyformat parses C99 format strings to guide the formatting process --- please
+refer to any standard C99 printf documentation for format string syntax.  In
+contrast to printf, tinyformat does not use the format string to decide on
+the type to be formatted so this does not compromise the type safety: <em>you may
+use any format specifier with any C++ type</em>.  The author suggests standardising
+on the <code>%s</code> conversion unless formatting numeric types.</p>
+<p dir="auto">Let's look at what happens when you execute the function call:</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="tfm::format(outStream, &quot;%+6.4f&quot;, yourType);"><pre><span class="pl-en">tfm::format</span>(outStream, <span class="pl-s"><span class="pl-pds">"</span>%+6.4f<span class="pl-pds">"</span></span>, yourType);</pre></div>
+<p dir="auto">First, the library parses the format string, and uses it to modify the state of
+<code>outStream</code>:</p>
+<ol dir="auto">
+<li>The <code>outStream</code> formatting flags are cleared and the width, precision and
+fill reset to the default.</li>
+<li>The flag <code>'+'</code> means to prefix positive numbers with a <code>'+'</code>; tinyformat
+executes <code>outStream.setf(std::ios::showpos)</code></li>
+<li>The number 6 gives the field width; execute <code>outStream.width(6)</code>.</li>
+<li>The number 4 gives the precision; execute <code>outStream.precision(4)</code>.</li>
+<li>The conversion specification character <code>'f'</code> means that floats should be
+formatted with a fixed number of digits; this corresponds to executing
+<code>outStream.setf(std::ios::fixed, std::ios::floatfield);</code></li>
+</ol>
+<p dir="auto">After all these steps, tinyformat executes:</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="outStream &lt;&lt; yourType;"><pre>outStream &lt;&lt; yourType;</pre></div>
+<p dir="auto">and finally restores the stream flags, precision and fill.</p>
+<p dir="auto">What happens if <code>yourType</code> isn't actually a floating point type?  In this
+case the flags set above are probably irrelevant and will be ignored by the
+underlying <code>std::ostream</code> implementation.  The field width of six may cause
+some padding in the output of <code>yourType</code>, but that's about it.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Special cases for "%p", "%c" and "%s"</h3><a id="user-content-special-cases-for-p-c-and-s" class="anchor" aria-label="Permalink: Special cases for &quot;%p&quot;, &quot;%c&quot; and &quot;%s&quot;" href="#special-cases-for-p-c-and-s"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Tinyformat normally uses <code>operator&lt;&lt;</code> to convert types to strings.  However,
+the "%p" and "%c" conversions require special rules for robustness.  Consider:</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="uint8_t* pixels = get_pixels(/* ... */);
+tfm::printf(&quot;%p&quot;, pixels);"><pre><span class="pl-c1">uint8_t</span>* pixels = get_pixels(<span class="pl-c"><span class="pl-c">/*</span> ... <span class="pl-c">*/</span></span>);
+<span class="pl-en">tfm::printf</span>(<span class="pl-s"><span class="pl-pds">"</span>%p<span class="pl-pds">"</span></span>, pixels);</pre></div>
+<p dir="auto">Clearly the intention here is to print a representation of the <em>pointer</em> to
+<code>pixels</code>, but since <code>uint8_t</code> is a character type the compiler would
+attempt to print it as a C string if we blindly fed it into <code>operator&lt;&lt;</code>.  To
+counter this kind of madness, tinyformat tries to static_cast any type fed to
+the "%p" conversion into a <code>const void*</code> before printing.  If this can't be
+done at compile time the library falls back to using <code>operator&lt;&lt;</code> as usual.</p>
+<p dir="auto">The "%c" conversion has a similar problem: it signifies that the given integral
+type should be converted into a <code>char</code> before printing.  The solution is
+identical: attempt to convert the provided type into a char using
+<code>static_cast</code> if possible, and if not fall back to using <code>operator&lt;&lt;</code>.</p>
+<p dir="auto">The "%s" conversion sets the boolalpha flag on the formatting stream.  This
+means that a <code>bool</code> variable printed with "%s" will come out as <code>true</code> or
+<code>false</code> rather than the <code>1</code> or <code>0</code> that you would otherwise get.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Incompatibilities with C99 printf</h3><a id="user-content-incompatibilities-with-c99-printf" class="anchor" aria-label="Permalink: Incompatibilities with C99 printf" href="#incompatibilities-with-c99-printf"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Not all features of printf can be simulated simply using standard iostreams.
+Here's a list of known incompatibilities:</p>
+<ul dir="auto">
+<li>The <code>"%a"</code> and <code>"%A"</code> hexadecimal floating point conversions ignore precision
+as stream output of hexfloat (introduced in C++11) ignores precision, always
+outputting the minimum number of digits required for exact representation.
+MSVC incorrectly honors stream precision, so we force precision to 13 in this
+case to guarentee lossless roundtrip conversion.</li>
+<li>The precision for integer conversions cannot be supported by the iostreams
+state independently of the field width.  (Note: <strong>this is only a
+problem for certain obscure integer conversions</strong>; float conversions like
+<code>%6.4f</code> work correctly.)  In tinyformat the field width takes precedence,
+so the 4 in <code>%6.4d</code> will be ignored.  However, if the field width is not
+specified, the width used internally is set equal to the precision and padded
+with zeros on the left.  That is, a conversion like <code>%.4d</code> effectively
+becomes <code>%04d</code> internally.  This isn't correct for every case (eg, negative
+numbers end up with one less digit than desired) but it's about the closest
+simple solution within the iostream model.</li>
+<li>The <code>"%n"</code> query specifier isn't supported to keep things simple and will
+result in a call to <code>TINYFORMAT_ERROR</code>.</li>
+<li>The <code>"%ls"</code> conversion is not supported, and attempting to format a
+<code>wchar_t</code> array will cause a compile time error to minimise unexpected
+surprises.  If you know the encoding of your wchar_t strings, you could write
+your own <code>std::ostream</code> insertion operator for them, and disable the
+compile time check by defining the macro <code>TINYFORMAT_ALLOW_WCHAR_STRINGS</code>.
+If you want to print the <em>address</em> of a wide character with the <code>"%p"</code>
+conversion, you should cast it to a <code>void*</code> before passing it to one of the
+formatting functions.</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Error handling</h2><a id="user-content-error-handling" class="anchor" aria-label="Permalink: Error handling" href="#error-handling"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">By default, tinyformat calls <code>assert()</code> if it encounters an error in the
+format string or number of arguments.  This behaviour can be changed (for
+example, to throw an exception) by defining the <code>TINYFORMAT_ERROR</code> macro
+before including tinyformat.h, or editing the config section of the header.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Formatting user defined types</h2><a id="user-content-formatting-user-defined-types" class="anchor" aria-label="Permalink: Formatting user defined types" href="#formatting-user-defined-types"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">User defined types with a stream insertion operator will be formatted using
+<code>operator&lt;&lt;(std::ostream&amp;, T)</code> by default.  The <code>"%s"</code> format specifier is
+suggested for user defined types, unless the type is inherently numeric.</p>
+<p dir="auto">For further customization, the user can override the <code>formatValue()</code>
+function to specify formatting independently of the stream insertion operator.
+If you override this function, the library will have already parsed the format
+specification and set the stream flags accordingly - see the source for details.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Wrapping tfm::format() inside a user defined format function</h2><a id="user-content-wrapping-tfmformat-inside-a-user-defined-format-function" class="anchor" aria-label="Permalink: Wrapping tfm::format() inside a user defined format function" href="#wrapping-tfmformat-inside-a-user-defined-format-function"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Suppose you wanted to define your own function which wraps <code>tfm::format</code>.
+For example, consider an error function taking an error code, which in C++11
+might be written simply as:</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="template&lt;typename... Args&gt;
+void error(int code, const char* fmt, const Args&amp;... args)
+{
+    std::cerr &lt;&lt; &quot;error (code &quot; &lt;&lt; code &lt;&lt; &quot;)&quot;;
+    tfm::format(std::cerr, fmt, args...);
+}"><pre><span class="pl-k">template</span>&lt;<span class="pl-k">typename</span>... Args&gt;
+<span class="pl-k">void</span> <span class="pl-en">error</span>(<span class="pl-k">int</span> code, <span class="pl-k">const</span> <span class="pl-k">char</span>* fmt, <span class="pl-k">const</span> Args&amp;... args)
+{
+    std::cerr &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>error (code <span class="pl-pds">"</span></span> &lt;&lt; code &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>)<span class="pl-pds">"</span></span>;
+    <span class="pl-c1">tfm::format</span>(std::cerr, fmt, args...);
+}</pre></div>
+<p dir="auto">Simulating this functionality in C++98 is pretty painful since it requires
+writing out a version of <code>error()</code> for each desired number of arguments.  To
+make this bearable tinyformat comes with a set of macros which are used
+internally to generate the API, but which may also be used in user code.</p>
+<p dir="auto">The three macros <code>TINYFORMAT_ARGTYPES(n)</code>, <code>TINYFORMAT_VARARGS(n)</code> and
+<code>TINYFORMAT_PASSARGS(n)</code> will generate a list of <code>n</code> argument types,
+type/name pairs and argument names respectively when called with an integer
+<code>n</code> between 1 and 16.  We can use these to define a macro which generates the
+desired user defined function with <code>n</code> arguments.  This should be followed by
+a call to <code>TINYFORMAT_FOREACH_ARGNUM</code> to generate the set of functions for
+all supported <code>n</code>:</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="#define MAKE_ERROR_FUNC(n)                                    \
+template&lt;TINYFORMAT_ARGTYPES(n)&gt;                              \
+void error(int code, const char* fmt, TINYFORMAT_VARARGS(n))  \
+{                                                             \
+    std::cerr &lt;&lt; &quot;error (code &quot; &lt;&lt; code &lt;&lt; &quot;)&quot;;               \
+    tfm::format(std::cerr, fmt, TINYFORMAT_PASSARGS(n));      \
+}
+TINYFORMAT_FOREACH_ARGNUM(MAKE_ERROR_FUNC)"><pre>#<span class="pl-k">define</span> <span class="pl-en">MAKE_ERROR_FUNC</span>(<span class="pl-v">n</span>)                                    \
+<span class="pl-k">template</span>&lt;TINYFORMAT_ARGTYPES(n)&gt;                              \
+<span class="pl-k">void</span> <span class="pl-en">error</span>(<span class="pl-k">int</span> code, <span class="pl-k">const</span> <span class="pl-k">char</span>* fmt, TINYFORMAT_VARARGS(n))  \
+{                                                             \
+    std::cerr &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>error (code <span class="pl-pds">"</span></span> &lt;&lt; code &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>)<span class="pl-pds">"</span></span>;               \
+    <span class="pl-c1">tfm::format</span>(std::cerr, fmt, <span class="pl-c1">TINYFORMAT_PASSARGS</span>(n));      \
+}
+<span class="pl-en">TINYFORMAT_FOREACH_ARGNUM</span>(MAKE_ERROR_FUNC)</pre></div>
+<p dir="auto">Sometimes it's useful to be able to pass a list of format arguments through to
+a non-template function.  The <code>FormatList</code> class is provided as a way to do
+this by storing the argument list in a type-opaque way.  For example:</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="template&lt;typename... Args&gt;
+void error(int code, const char* fmt, const Args&amp;... args)
+{
+    tfm::FormatListRef formatList = tfm::makeFormatList(args...);
+    errorImpl(code, fmt, formatList);
+}"><pre><span class="pl-k">template</span>&lt;<span class="pl-k">typename</span>... Args&gt;
+<span class="pl-k">void</span> <span class="pl-en">error</span>(<span class="pl-k">int</span> code, <span class="pl-k">const</span> <span class="pl-k">char</span>* fmt, <span class="pl-k">const</span> Args&amp;... args)
+{
+    tfm::FormatListRef formatList = <span class="pl-c1">tfm::makeFormatList</span>(args...);
+    <span class="pl-c1">errorImpl</span>(code, fmt, formatList);
+}</pre></div>
+<p dir="auto">What's interesting here is that <code>errorImpl()</code> is a non-template function so
+it could be separately compiled if desired.  The <code>FormatList</code> instance can be
+used via a call to the <code>vformat()</code> function (the name chosen for semantic
+similarity to <code>vprintf()</code>):</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="void errorImpl(int code, const char* fmt, tfm::FormatListRef formatList)
+{
+    std::cerr &lt;&lt; &quot;error (code &quot; &lt;&lt; code &lt;&lt; &quot;)&quot;;
+    tfm::vformat(std::cout, fmt, formatList);
+}"><pre><span class="pl-k">void</span> <span class="pl-en">errorImpl</span>(<span class="pl-k">int</span> code, <span class="pl-k">const</span> <span class="pl-k">char</span>* fmt, tfm::FormatListRef formatList)
+{
+    std::cerr &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>error (code <span class="pl-pds">"</span></span> &lt;&lt; code &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>)<span class="pl-pds">"</span></span>;
+    <span class="pl-c1">tfm::vformat</span>(std::cout, fmt, formatList);
+}</pre></div>
+<p dir="auto">The construction of a <code>FormatList</code> instance is very lightweight - it defers
+all formatting and simply stores a couple of function pointers and a value
+pointer per argument.  Since most of the actual work is done inside
+<code>vformat()</code>, any logic which causes an early exit of <code>errorImpl()</code> -
+filtering of verbose log messages based on error code for example - could be a
+useful optimization for programs using tinyformat.  (A faster option would be
+to write any early bailout code inside <code>error()</code>, though this must be done in
+the header.)</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Benchmarks</h2><a id="user-content-benchmarks" class="anchor" aria-label="Permalink: Benchmarks" href="#benchmarks"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Compile time and code bloat</h3><a id="user-content-compile-time-and-code-bloat" class="anchor" aria-label="Permalink: Compile time and code bloat" href="#compile-time-and-code-bloat"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The script <code>bloat_test.sh</code> included in the repository tests whether
+tinyformat succeeds in avoiding compile time and code bloat for nontrivial
+projects.  The idea is to include <code>tinyformat.h</code> into 100 translation units
+and use <code>printf()</code> five times in each to simulate a medium sized project.
+The resulting executable size and compile time (g++-4.8.2, linux ubuntu 14.04)
+is shown in the following tables, which can be regenerated using <code>make bloat_test</code>:</p>
+<p dir="auto"><strong>Non-optimized build</strong></p>
+<table>
+<thead>
+<tr>
+<th>test name</th>
+<th>compiler wall time</th>
+<th>executable size (stripped)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>libc printf</td>
+<td>1.8s</td>
+<td>48K  (36K)</td>
+</tr>
+<tr>
+<td>std::ostream</td>
+<td>10.7s</td>
+<td>96K  (76K)</td>
+</tr>
+<tr>
+<td>tinyformat, no inlines</td>
+<td>18.9s</td>
+<td>140K (104K)</td>
+</tr>
+<tr>
+<td>tinyformat</td>
+<td>21.1s</td>
+<td>220K (180K)</td>
+</tr>
+<tr>
+<td>tinyformat, c++0x mode</td>
+<td>20.7s</td>
+<td>220K (176K)</td>
+</tr>
+<tr>
+<td>boost::format</td>
+<td>70.1s</td>
+<td>844K (736K)</td>
+</tr>
+</tbody>
+</table>
+<p dir="auto"><strong>Optimized build (-O3 -DNDEBUG)</strong></p>
+<table>
+<thead>
+<tr>
+<th>test name</th>
+<th>compiler wall time</th>
+<th>executable size (stripped)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>libc printf</td>
+<td>2.3s</td>
+<td>40K  (28K)</td>
+</tr>
+<tr>
+<td>std::ostream</td>
+<td>11.8s</td>
+<td>104K (80K)</td>
+</tr>
+<tr>
+<td>tinyformat, no inlines</td>
+<td>23.0s</td>
+<td>128K (104K)</td>
+</tr>
+<tr>
+<td>tinyformat</td>
+<td>32.9s</td>
+<td>128K (104K)</td>
+</tr>
+<tr>
+<td>tinyformat, c++0x mode</td>
+<td>34.0s</td>
+<td>128K (104K)</td>
+</tr>
+<tr>
+<td>boost::format</td>
+<td>147.9s</td>
+<td>644K (600K)</td>
+</tr>
+</tbody>
+</table>
+<p dir="auto">For large projects it's arguably worthwhile to do separate compilation of the
+non-templated parts of tinyformat, as shown in the rows labelled <em>tinyformat,
+no inlines</em>.  These were generated by putting the implementation of <code>vformat</code>
+(<code>detail::formatImpl()</code> etc) it into a separate file, tinyformat.cpp.  Note
+that the results above can vary considerably with different compilers.  For
+example, the <code>-fipa-cp-clone</code> optimization pass in g++-4.6 resulted in
+excessively large binaries.  On the other hand, the g++-4.8 results are quite
+similar to using clang++-3.4.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Speed tests</h3><a id="user-content-speed-tests" class="anchor" aria-label="Permalink: Speed tests" href="#speed-tests"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The following speed tests results were generated by building
+<code>tinyformat_speed_test.cpp</code> on an Intel core i7-2600K running Linux Ubuntu
+14.04 with g++-4.8.2 using <code>-O3 -DNDEBUG</code>.  In the test, the format string
+<code>"%0.10f:%04d:%+g:%s:%p:%c:%%\n"</code> is filled 2000000 times with output sent to
+<code>/dev/null</code>; for further details see the source and Makefile.</p>
+<table>
+<thead>
+<tr>
+<th>test name</th>
+<th>run time</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>libc printf</td>
+<td>1.20s</td>
+</tr>
+<tr>
+<td>std::ostream</td>
+<td>1.82s</td>
+</tr>
+<tr>
+<td>tinyformat</td>
+<td>2.08s</td>
+</tr>
+<tr>
+<td>boost::format</td>
+<td>9.04s</td>
+</tr>
+</tbody>
+</table>
+<p dir="auto">It's likely that tinyformat has an advantage over boost.format because it tries
+reasonably hard to avoid formatting into temporary strings, preferring instead
+to send the results directly to the stream buffer.  Tinyformat cannot
+be faster than the iostreams because it uses them internally, but it comes
+acceptably close.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Rationale</h2><a id="user-content-rationale" class="anchor" aria-label="Permalink: Rationale" href="#rationale"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Or, why did I reinvent this particularly well studied wheel?</p>
+<p dir="auto">Nearly every program needs text formatting in some form but in many cases such
+formatting is <em>incidental</em> to the main purpose of the program.  In these cases,
+you really want a library which is simple to use but as lightweight as
+possible.</p>
+<p dir="auto">The ultimate in lightweight dependencies are the solutions provided by the C++
+and C libraries.  However, both the C++ iostreams and C's printf() have
+well known usability problems: iostreams are hopelessly verbose for complicated
+formatting and printf() lacks extensibility and type safety.  For example:</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="// Verbose; hard to read, hard to type:
+std::cout &lt;&lt; std::setprecision(2) &lt;&lt; std::fixed &lt;&lt; 1.23456 &lt;&lt; &quot;\n&quot;;
+// The alternative using a format string is much easier on the eyes
+tfm::printf(&quot;%.2f\n&quot;, 1.23456);
+
+// Type mismatch between &quot;%s&quot; and int: will cause a segfault at runtime!
+printf(&quot;%s&quot;, 1);
+// The following is perfectly fine, and will result in &quot;1&quot; being printed.
+tfm::printf(&quot;%s&quot;, 1);"><pre><span class="pl-c"><span class="pl-c">//</span> Verbose; hard to read, hard to type:</span>
+std::cout &lt;&lt; std::setprecision(<span class="pl-c1">2</span>) &lt;&lt; std::fixed &lt;&lt; <span class="pl-c1">1.23456</span> &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span><span class="pl-cce">\n</span><span class="pl-pds">"</span></span>;
+<span class="pl-c"><span class="pl-c">//</span> The alternative using a format string is much easier on the eyes</span>
+<span class="pl-en">tfm::printf</span>(<span class="pl-s"><span class="pl-pds">"</span>%.2f<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>, <span class="pl-c1">1.23456</span>);
+
+<span class="pl-c"><span class="pl-c">//</span> Type mismatch between "%s" and int: will cause a segfault at runtime!</span>
+<span class="pl-en">printf</span>(<span class="pl-s"><span class="pl-pds">"</span>%s<span class="pl-pds">"</span></span>, <span class="pl-c1">1</span>);
+<span class="pl-c"><span class="pl-c">//</span> The following is perfectly fine, and will result in "1" being printed.</span>
+<span class="pl-en">tfm::printf</span>(<span class="pl-s"><span class="pl-pds">"</span>%s<span class="pl-pds">"</span></span>, <span class="pl-c1">1</span>);</pre></div>
+<p dir="auto">On the other hand, there are plenty of excellent and complete libraries which
+solve the formatting problem in great generality (boost.format and fastformat
+come to mind, but there are many others).  Unfortunately these kind of
+libraries tend to be rather heavy dependencies, far too heavy for projects
+which need to do only a little formatting.  Problems include</p>
+<ol dir="auto">
+<li>Having many large source files.  This makes a heavy dependency unsuitable to
+bundle within other projects for convenience.</li>
+<li>Slow build times for every file using any sort of formatting (this is very
+noticeable with g++ and boost/format.hpp. I'm not sure about the various
+other alternatives.)</li>
+<li>Code bloat due to instantiating many templates</li>
+</ol>
+<p dir="auto">Tinyformat tries to solve these problems while providing formatting which is
+sufficiently general and fast for incidental day to day uses.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">License</h2><a id="user-content-license" class="anchor" aria-label="Permalink: License" href="#license"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">For minimum license-related fuss, tinyformat.h is distributed under the boost
+software license, version 1.0.  (Summary: you must keep the license text on
+all source copies, but don't have to mention tinyformat when distributing
+binaries.)</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Author and acknowledgements</h2><a id="user-content-author-and-acknowledgements" class="anchor" aria-label="Permalink: Author and acknowledgements" href="#author-and-acknowledgements"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Tinyformat is written and maintained by Chris Foster, with various contributions
+gratefully recieved <a href="https://github.com/c42f/tinyformat/graphs/contributors">from the community</a>.</p>
+<p dir="auto">Originally the implementation was inspired by the way <code>boost::format</code> uses
+stream based formatting to simulate most of the <code>printf()</code> syntax, and Douglas
+Gregor's toy <code>printf()</code> in an <a href="https://web.archive.org/web/20131018185034/http://www.generic-programming.org/~dgregor/cpp/variadic-templates.html" rel="nofollow">early variadic template example</a>.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Bugs</h2><a id="user-content-bugs" class="anchor" aria-label="Permalink: Bugs" href="#bugs"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Here's a list of known bugs which are probably cumbersome to fix:</p>
+<ul dir="auto">
+<li>Field padding won't work correctly with complicated user defined types.  For
+general types, the only way to do this correctly seems to be format to a
+temporary string stream, check the length, and finally send to the output
+stream with padding if necessary.  Doing this for all types would be
+quite inelegant because it implies extra allocations to make the temporary
+stream.  A workaround is to add logic to <code>operator&lt;&lt;()</code> for composite user
+defined types so they are aware of the stream field width.</li>
+</ul>
+</article></div>
