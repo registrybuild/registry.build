@@ -37,8 +37,8 @@ load(&quot;@rules_android//:defs.bzl&quot;, &quot;rules_android_workspace&quot;)
 rules_android_workspace()
 
 register_toolchains(
-&quot;@rules_android//toolchains/android:android_default_toolchain&quot;,
-&quot;@rules_android//toolchains/android_sdk:android_sdk_tools&quot;,
+    &quot;@rules_android//toolchains/android:android_default_toolchain&quot;,
+    &quot;@rules_android//toolchains/android_sdk:android_sdk_tools&quot;,
 )"><pre class="notranslate"><code>load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 # Or a later commit
@@ -56,8 +56,59 @@ load("@rules_android//:defs.bzl", "rules_android_workspace")
 rules_android_workspace()
 
 register_toolchains(
-"@rules_android//toolchains/android:android_default_toolchain",
-"@rules_android//toolchains/android_sdk:android_sdk_tools",
+    "@rules_android//toolchains/android:android_default_toolchain",
+    "@rules_android//toolchains/android_sdk:android_sdk_tools",
+)
+</code></pre></div>
+<p dir="auto">Or, if you want to use bzlmod, add the following to your WORKSPACE.bzlmod file and MODULE.bazel file:</p>
+<p dir="auto">WORKSPACE.bzlmod:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(&quot;@rules_android//rules:rules.bzl&quot;, &quot;android_sdk_repository&quot;)
+android_sdk_repository(
+    name = &quot;androidsdk&quot;,
+)"><pre class="notranslate"><code>load("@rules_android//rules:rules.bzl", "android_sdk_repository")
+android_sdk_repository(
+    name = "androidsdk",
+)
+</code></pre></div>
+<p dir="auto">MODULE.bazel:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="bazel_dep(name = &quot;rules_java&quot;, version = &quot;7.4.0&quot;)
+bazel_dep(name = &quot;bazel_skylib&quot;, version = &quot;1.3.0&quot;)
+
+bazel_dep(
+    name = &quot;rules_android&quot;,
+    version = &quot;0.2.0&quot;,
+)
+
+# Or a later commit
+RULES_ANDROID_COMMIT = &quot;0bf3093bd011acd35de3c479c8990dd630d552aa&quot;
+git_override(
+    module_name = &quot;rules_android&quot;,
+    remote = &quot;https://github.com/bazelbuild/rules_android&quot;,
+    commit = RULES_ANDROID_COMMIT,
+)
+
+register_toolchains(
+    &quot;@rules_android//toolchains/android:android_default_toolchain&quot;,
+    &quot;@rules_android//toolchains/android_sdk:android_sdk_tools&quot;,
+)"><pre class="notranslate"><code>bazel_dep(name = "rules_java", version = "7.4.0")
+bazel_dep(name = "bazel_skylib", version = "1.3.0")
+
+bazel_dep(
+    name = "rules_android",
+    version = "0.2.0",
+)
+
+# Or a later commit
+RULES_ANDROID_COMMIT = "0bf3093bd011acd35de3c479c8990dd630d552aa"
+git_override(
+    module_name = "rules_android",
+    remote = "https://github.com/bazelbuild/rules_android",
+    commit = RULES_ANDROID_COMMIT,
+)
+
+register_toolchains(
+    "@rules_android//toolchains/android:android_default_toolchain",
+    "@rules_android//toolchains/android_sdk:android_sdk_tools",
 )
 </code></pre></div>
 <p dir="auto">Then, in your BUILD files, import and use the rules:</p>
