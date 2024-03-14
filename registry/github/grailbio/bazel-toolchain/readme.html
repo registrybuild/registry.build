@@ -140,14 +140,33 @@ The following pairs have been tested to work for some hello-world binaries:</p>
 <p dir="auto">A recommended approach would be to define two toolchains, one without sysroot
 for single-platform builds, and one with sysroot for cross-compilation builds.
 Then, when cross-compiling, explicitly specify the toolchain with the sysroot
-and the target platform. For example, see the <a href="tests/WORKSPACE">WORKSPACE</a> file and
-the <a href="tests/scripts/run_xcompile_tests.sh">test script</a> for cross-compilation.</p>
+and the target platform. For example, see the <a href="tests/MODULE.bazel">MODULE.bazel</a>
+file for <code>llvm_toolchain_with_sysroot</code> and the <a href="tests/scripts/run_xcompile_tests.sh">test
+script</a> for cross-compilation.</p>
 <div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel build \
   --platforms=@toolchains_llvm//platforms:linux-x86_64 \
   --extra_toolchains=@llvm_toolchain_with_sysroot//:cc-toolchain-x86_64-linux \
   //..."><pre>bazel build \
   --platforms=@toolchains_llvm//platforms:linux-x86_64 \
   --extra_toolchains=@llvm_toolchain_with_sysroot//:cc-toolchain-x86_64-linux \
+  //...</pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Multi-platform builds</h3><a id="user-content-multi-platform-builds" class="anchor" aria-label="Permalink: Multi-platform builds" href="#multi-platform-builds"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The toolchain supports multi-platform builds through the combination of the
+<code>exec_os</code>, <code>exec_arch</code> attribute pair, and either the <code>distribution</code> attribute,
+or the <code>urls</code> attribute. This allows one to run their builds on one platform
+(e.g. macOS) and their build actions to run on another (e.g. Linux), enabling
+remote build execution (RBE). For example, see the <a href="tests/MODULE.bazel">MODULE.bazel</a>
+file for <code>llvm_toolchain_linux_exec</code> and the <a href="tests/scripts/run_docker_exec_test.sh">test
+script</a> for running the build actions on
+Linux even if the build is being run from macOS.</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel build \
+  --platforms=@toolchains_llvm//platforms:linux-x86_64 \
+  --extra_execution_platforms=@toolchains_llvm//platforms:linux-x86_64 \
+  --extra_toolchains=@llvm_toolchain_linux_exec//:cc-toolchain-x86_64-linux \
+  //..."><pre>bazel build \
+  --platforms=@toolchains_llvm//platforms:linux-x86_64 \
+  --extra_execution_platforms=@toolchains_llvm//platforms:linux-x86_64 \
+  --extra_toolchains=@llvm_toolchain_linux_exec//:cc-toolchain-x86_64-linux \
   //...</pre></div>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Supporting New Target Platforms</h3><a id="user-content-supporting-new-target-platforms" class="anchor" aria-label="Permalink: Supporting New Target Platforms" href="#supporting-new-target-platforms"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">The following is a rough (untested) list of steps:</p>
@@ -204,10 +223,6 @@ then they can be referenced as:</p>
 deps (also known as "depend on what you use") for <code>cc_*</code> rules. This feature
 can be enabled by enabling the <code>layering_check</code> feature on a per-target,
 per-package or global basis.</p>
-<p dir="auto">If one of toolchain or sysroot are specified via an absolute path rather than
-managed by Bazel, the <code>layering_check</code> feature may require running
-<code>bazel clean --expunge</code> after making changes to the set of header files
-installed on the host.</p>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Prior Art</h2><a id="user-content-prior-art" class="anchor" aria-label="Permalink: Prior Art" href="#prior-art"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">Other examples of toolchain configuration:</p>
 <p dir="auto"><a href="https://bazel.build/tutorials/ccp-toolchain-config" rel="nofollow">https://bazel.build/tutorials/ccp-toolchain-config</a></p>
