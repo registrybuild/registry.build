@@ -1,0 +1,47 @@
+<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Bazel toolchain for pre-built protoc</h1><a id="user-content-bazel-toolchain-for-pre-built-protoc" class="anchor" aria-label="Permalink: Bazel toolchain for pre-built protoc" href="#bazel-toolchain-for-pre-built-protoc"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><em>#NeverCompileProtocAgain</em></p>
+<p dir="auto">Using Protocol Buffers with Bazel has always been difficult.</p>
+<ul dir="auto">
+<li>Nearly every Bazel user has waited for <code>protoc</code> to compile from sources many, MANY times.
+This universally slows down builds, especially due to issues like <a class="issue-link js-issue-link" data-error-text="Failed to load title" data-id="398335574" data-permission-text="Title is private" data-url="https://github.com/bazelbuild/bazel/issues/7095" data-hovercard-type="issue" data-hovercard-url="/bazelbuild/bazel/issues/7095/hovercard" href="https://github.com/bazelbuild/bazel/issues/7095">bazelbuild/bazel#7095</a> where it is observed to be easily cache-busted.</li>
+<li>The versioning of the protobuf module on Bazel Central Registry has fallen behind and contains many patches.
+As of mid-March 2024 there are <a href="https://github.com/bazelbuild/bazel-central-registry/tree/main/modules/protobuf/23.1/patches">7 patches</a>
+which essentially constitute a fork of the protobuf repo specifically for publishing to BCR.</li>
+<li>Relying on the protobuf runtime for each language from the <code>@com_google_protobuf</code> repo forces you to use
+the same version of the runtime for all languages in a monorepo, and matching protoc.</li>
+</ul>
+<p dir="auto">The key observations:</p>
+<ul dir="auto">
+<li><code>protoc</code> has always been distributed as pre-built binaries on <a href="https://github.com/protocolbuffers/protobuf/releases">https://github.com/protocolbuffers/protobuf/releases</a></li>
+<li>That distribution includes the "well known types" such as <code>timestamp.proto</code></li>
+<li>The protobuf runtimes for each language are distributed to the appropriate package manager.</li>
+</ul>
+<p dir="auto">Bazel 7 introduced <code>--incompatible_enable_proto_toolchain_resolution</code> to allow us fetch <code>protoc</code> rather than re-build it!
+That flag ALSO decouples how each language rule locates the runtime.
+Thanks to that flag, this repo simply contains a toolchain that resolves those pre-built binaries.</p>
+<p dir="auto">See <code>examples</code> for several language rules like <code>py_proto_library</code> and <code>java_proto_library</code>.
+There is NO dependency on <code>@com_google_protobuf</code> anywhere.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Design</h2><a id="user-content-design" class="anchor" aria-label="Permalink: Design" href="#design"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Questioning why Bazel is different</h3><a id="user-content-questioning-why-bazel-is-different" class="anchor" aria-label="Permalink: Questioning why Bazel is different" href="#questioning-why-bazel-is-different"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Protobuf works fine under many build tools, using the releases and runtime libraries shipped by the protobuf team.
+Why is Bazel different?</p>
+<p dir="auto">Our answer is: it should not be. The protobuf team shouldn’t have to own Bazel rules or understand bzlmod.
+As with many other tools such as Swagger and GraphQL, the Bazel community is self-sufficient to create thin layers to establish a toolchain and execute actions that perform codegen steps.</p>
+<p dir="auto">This toolchain shows that there's no need to treat Bazel as a “special” build system vs. all the others that protobuf users rely on.
+<a href="https://protobuf.dev/reference/" rel="nofollow">https://protobuf.dev/reference/</a> is sufficient documentation for everyone.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Why a separate Bazel module?</h3><a id="user-content-why-a-separate-bazel-module" class="anchor" aria-label="Permalink: Why a separate Bazel module?" href="#why-a-separate-bazel-module"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">This belongs in rules_proto, see</p>
+<ul dir="auto">
+<li><a class="issue-link js-issue-link" data-error-text="Failed to load title" data-id="2167981015" data-permission-text="Title is private" data-url="https://github.com/bazelbuild/rules_proto/issues/205" data-hovercard-type="pull_request" data-hovercard-url="/bazelbuild/rules_proto/pull/205/hovercard" href="https://github.com/bazelbuild/rules_proto/pull/205">bazelbuild/rules_proto#205</a></li>
+<li><a class="issue-link js-issue-link" data-error-text="Failed to load title" data-id="2169747940" data-permission-text="Title is private" data-url="https://github.com/bazelbuild/rules_proto/issues/206" data-hovercard-type="pull_request" data-hovercard-url="/bazelbuild/rules_proto/pull/206/hovercard" href="https://github.com/bazelbuild/rules_proto/pull/206">bazelbuild/rules_proto#206</a></li>
+</ul>
+<p dir="auto">Getting reviews from Googlers is hard so let's not wait for them.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Installation</h2><a id="user-content-installation" class="anchor" aria-label="Permalink: Installation" href="#installation"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Make sure your <code>.bazelrc</code> contains</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="# Introduced in Bazel 7.
+common --incompatible_enable_proto_toolchain_resolution"><pre class="notranslate"><code># Introduced in Bazel 7.
+common --incompatible_enable_proto_toolchain_resolution
+</code></pre></div>
+<p dir="auto">Follow instructions from the release you wish to use:
+<a href="https://github.com/alexeagle/toolchains_protoc/releases">https://github.com/alexeagle/toolchains_protoc/releases</a></p>
+</article></div>
