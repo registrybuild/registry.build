@@ -339,6 +339,38 @@ bar_pinned_maven_install()"><pre><span class="pl-en">maven_install</span>(
 
 <span class="pl-en">load</span>(<span class="pl-s">"@bar//:defs.bzl"</span>, <span class="pl-s1">bar_pinned_maven_install</span> <span class="pl-c1">=</span> <span class="pl-s">"pinned_maven_install"</span>)
 <span class="pl-en">bar_pinned_maven_install</span>()</pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">(Experimental) Support for Maven BOM files</h3><a id="user-content-experimental-support-for-maven-bom-files" class="anchor" aria-label="Permalink: (Experimental) Support for Maven BOM files" href="#experimental-support-for-maven-bom-files"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Support for Maven BOMs can be enabled by switching the resolver used by <code>maven_install</code> to one that supports Maven BOMs.
+This can be done by setting the <code>resolver</code> attribute to <code>maven</code>. The new resolver will likely result in different
+resolutions than the existing resolver, so it is advised to re-run your dependencies pin.</p>
+<p dir="auto">The new resolver requires you to use a <code>maven_install_json</code> file, though if you have not yet pinned your dependencies,
+this can simply be an empty file.</p>
+<p dir="auto">As an example:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="maven.install(
+    # Resolution using BOMs is supported by using the `maven` resolver
+    resolver = &quot;maven&quot;,
+    boms = [
+        &quot;org.seleniumhq.selenium:selenium-bom:4.18.1&quot;,
+    ],
+    artifacts = [
+        # This dependency is included in the `selenium-bom`, so we can omit the version number
+        &quot;org.seleniumhq.selenium:selenium-java&quot;,
+    ],
+    # The `maven` resolver requires a lock file, though this can be an empty file before pinning
+    lock_file = &quot;@//:manifest_install.json&quot;,
+)    "><pre><span class="pl-s1">maven</span>.<span class="pl-en">install</span>(
+    <span class="pl-c"># Resolution using BOMs is supported by using the `maven` resolver</span>
+    <span class="pl-s1">resolver</span> <span class="pl-c1">=</span> <span class="pl-s">"maven"</span>,
+    <span class="pl-s1">boms</span> <span class="pl-c1">=</span> [
+        <span class="pl-s">"org.seleniumhq.selenium:selenium-bom:4.18.1"</span>,
+    ],
+    <span class="pl-s1">artifacts</span> <span class="pl-c1">=</span> [
+        <span class="pl-c"># This dependency is included in the `selenium-bom`, so we can omit the version number</span>
+        <span class="pl-s">"org.seleniumhq.selenium:selenium-java"</span>,
+    ],
+    <span class="pl-c"># The `maven` resolver requires a lock file, though this can be an empty file before pinning</span>
+    <span class="pl-s1">lock_file</span> <span class="pl-c1">=</span> <span class="pl-s">"@//:manifest_install.json"</span>,
+)    </pre></div>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Generated targets</h2><a id="user-content-generated-targets" class="anchor" aria-label="Permalink: Generated targets" href="#generated-targets"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">For the <code>junit:junit</code> example, using <code>bazel query @maven//:all --output=build</code>, we can see that the rule generated these targets:</p>
 <div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="alias(
