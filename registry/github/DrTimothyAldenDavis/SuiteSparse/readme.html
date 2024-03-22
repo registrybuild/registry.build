@@ -1,6 +1,6 @@
 <div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><hr>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">SuiteSparse:  A Suite of Sparse matrix packages at <a href="http://suitesparse.com" rel="nofollow">http://suitesparse.com</a></h2><a id="user-content-suitesparse--a-suite-of-sparse-matrix-packages-at-httpsuitesparsecom" class="anchor" aria-label="Permalink: SuiteSparse:  A Suite of Sparse matrix packages at http://suitesparse.com" href="#suitesparse--a-suite-of-sparse-matrix-packages-at-httpsuitesparsecom"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<p dir="auto">Feb XX, 2024, SuiteSparse VERSION 7.7.0</p>
+<p dir="auto">Mar 22, 2024, SuiteSparse VERSION 7.7.0</p>
 <p dir="auto">SuiteSparse is a set of sparse-matrix-related packages written or co-authored
 by Tim Davis, available at <a href="https://github.com/DrTimothyAldenDavis/SuiteSparse">https://github.com/DrTimothyAldenDavis/SuiteSparse</a> .</p>
 <p dir="auto">Primary author of SuiteSparse (codes and algorithms, excl. METIS): Tim Davis</p>
@@ -962,6 +962,11 @@ Default: <code>SUITESPARSE_USE_OPENMP</code>.</p>
 Default: <code>SUITESPARSE_USE_OPENMP</code>.</p>
 </li>
 <li>
+<p dir="auto"><code>SPEX_USE_OPENMP</code>:</p>
+<p dir="auto">If <code>ON</code>, OpenMP is used in SPEX if it is available.
+Default: <code>SUITESPARSE_USE_OPENMP</code>.</p>
+</li>
+<li>
 <p dir="auto"><code>SUITESPARSE_DEMOS</code>:</p>
 <p dir="auto">If <code>ON</code>, build the demo programs for each package.  Default: <code>OFF</code>.</p>
 </li>
@@ -1010,9 +1015,31 @@ Default: <code>OFF</code>.</p>
 <p dir="auto"><code>SUITESPARSE_USE_FORTRAN</code></p>
 <p dir="auto">If <code>ON</code>, use the Fortran compiler to determine how C calls Fortan, and to
 build several optional Fortran routines. If <code>OFF</code>, use
-<code>SUITESPARSE_C_TO_FORTRAN</code> to define how C calls Fortran (see
-<code>SuiteSparse_config/cmake_modules/SuiteSparsePolicy.cmake</code> for details).
+<code>SUITESPARSE_C_TO_FORTRAN</code> to define how C calls Fortran.
 Default: <code>ON</code>.</p>
+</li>
+<li>
+<p dir="auto"><code>SUITESPARSE_C_TO_FORTRAN</code></p>
+<p dir="auto">A string that defines how C calls Fortran (i.e., functions exported by the
+BLAS library).  This setting is used if no working Fortran compiler could be
+detected or <code>SUITESPARSE_USE_FORTRAN</code> is set to <code>OFF</code>.  This string is to be
+read as the argument list and the body of a preprocessor macro.  The first
+argument to that macro is any Fortran function name in lowercase letters.
+The second argument is the same function name in uppercase letters.  The body
+defines by which function name Fortran functions are called.  This is
+necessary because Fortran is case-insensitive, and different Fortran
+compilers use different name mangling conventions.  If a MSVC C/C++ compiler
+is used, this defaults to <code>"(name,NAME) name"</code> (i.e., lower case without
+trailing underscore).  That is the name mangling convention for the Intel
+Fortran compiler on Windows.  If any other C/C++ compilers are used, this
+defaults to <code>"(name,NAME) name##_"</code> (i.e., lower case with trailing
+underscore).  That is the name mangling convention for most of the commonly
+used Fortran compilers (like <code>ifx</code> on platforms other than Windows,
+<code>gfortran</code>, <code>flang</code>, ...).  The latter name mangling convention is also used
+by default by OpenBLAS (independent on the platform or the compiler used to
+build OpenBLAS).  You might need to configure with
+<code>-DSUITESPARSE_C_TO_FORTRAN="(name,NAME) name##_"</code> if you'd like to build
+SuiteSparse using a MSVC compiler and link to OpenBLAS.</p>
 </li>
 </ul>
 <p dir="auto">Additional options are available for specific packages:</p>
