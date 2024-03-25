@@ -1,0 +1,73 @@
+<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Common Expression Language</h1><a id="user-content-common-expression-language" class="anchor" aria-label="Permalink: Common Expression Language" href="#common-expression-language"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The Common Expression Language (CEL) implements common semantics for expression
+evaluation, enabling different applications to more easily interoperate.</p>
+<p dir="auto">Key Applications</p>
+<ul dir="auto">
+<li>Security policy: organizations have complex infrastructure and need common
+tooling to reason about the system as a whole</li>
+<li>Protocols: expressions are a useful data type and require interoperability
+across programming languages and platforms.</li>
+</ul>
+<p dir="auto">Guiding philosophy:</p>
+<ol dir="auto">
+<li>Keep it small &amp; fast.
+<ul dir="auto">
+<li>CEL evaluates in linear time, is mutation free, and not Turing-complete.
+This limitation is a feature of the language design, which allows the
+implementation to evaluate orders of magnitude faster than equivalently
+sandboxed JavaScript.</li>
+</ul>
+</li>
+<li>Make it extensible.
+<ul dir="auto">
+<li>CEL is designed to be embedded in applications, and allows for
+extensibility via its context which allows for functions and data to be
+provided by the software that embeds it.</li>
+</ul>
+</li>
+<li>Developer-friendly.
+<ul dir="auto">
+<li>The language is approachable to developers. The initial spec was based
+on the experience of developing Firebase Rules and usability testing
+many prior iterations.</li>
+<li>The library itself and accompanying toolings should be easy to adopt by
+teams that seek to integrate CEL into their platforms.</li>
+</ul>
+</li>
+</ol>
+<p dir="auto">The required components of a system that supports CEL are:</p>
+<ul dir="auto">
+<li>The textual representation of an expression as written by a developer. It is
+of similar syntax to expressions in C/C++/Java/JavaScript</li>
+<li>A binary representation of an expression. It is an abstract syntax tree
+(AST).</li>
+<li>A compiler library that converts the textual representation to the binary
+representation. This can be done ahead of time (in the control plane) or
+just before evaluation (in the data plane).</li>
+<li>A context containing one or more typed variables, often protobuf messages.
+Most use-cases will use <code>attribute_context.proto</code></li>
+<li>An evaluator library that takes the binary format in the context and
+produces a result, usually a Boolean.</li>
+</ul>
+<p dir="auto">Example of boolean conditions and object construction:</p>
+<div class="highlight highlight-source-c notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="// Condition
+account.balance &gt;= transaction.withdrawal
+    || (account.overdraftProtection
+    &amp;&amp; account.overdraftLimit &gt;= transaction.withdrawal  - account.balance)
+
+// Object construction
+common.GeoPoint{ latitude: 10.0, longitude: -5.5 }"><pre><span class="pl-c">// Condition</span>
+<span class="pl-s1">account</span>.<span class="pl-c1">balance</span> &gt;= <span class="pl-s1">transaction</span>.<span class="pl-c1">withdrawal</span>
+    <span class="pl-c1">||</span> (<span class="pl-s1">account</span>.<span class="pl-c1">overdraftProtection</span>
+    <span class="pl-c1">&amp;&amp;</span> <span class="pl-s1">account</span>.<span class="pl-c1">overdraftLimit</span> &gt;= <span class="pl-s1">transaction</span>.<span class="pl-c1">withdrawal</span>  <span class="pl-c1">-</span> <span class="pl-s1">account</span>.<span class="pl-c1">balance</span>)
+
+<span class="pl-c">// Object construction</span>
+<span class="pl-s1">common</span>.<span class="pl-c1">GeoPoint</span>{ <span class="pl-s1">latitude</span>: <span class="pl-c1">10.0</span>, <span class="pl-s1">longitude</span>: <span class="pl-c1">-5.5</span> }</pre></div>
+<p dir="auto">For more detail, see:</p>
+<ul dir="auto">
+<li><a href="doc/intro.md">Introduction</a></li>
+<li><a href="doc/langdef.md">Language Definition</a></li>
+</ul>
+<p dir="auto">Released under the <a href="LICENSE">Apache License</a>.</p>
+<p dir="auto">Disclaimer: This is not an official Google product.</p>
+</article></div>
