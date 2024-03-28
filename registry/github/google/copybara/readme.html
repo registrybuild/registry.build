@@ -1,0 +1,259 @@
+<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Copybara</h1><a id="user-content-copybara" class="anchor" aria-label="Permalink: Copybara" href="#copybara"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><em>A tool for transforming and moving code between repositories.</em></p>
+<p dir="auto">Copybara is a tool used internally at Google. It transforms and moves code between repositories.</p>
+<p dir="auto">Often, source code needs to exist in multiple repositories, and Copybara allows you to transform
+and move source code between these repositories. A common case is a project that involves
+maintaining a confidential repository and a public repository in sync.</p>
+<p dir="auto">Copybara requires you to choose one of the repositories to be the authoritative repository, so that
+there is always one source of truth. However, the tool allows contributions to any repository, and
+any repository can be used to cut a release.</p>
+<p dir="auto">The most common use case involves repetitive movement of code from one repository to another.
+Copybara can also be used for moving code once to a new repository.</p>
+<p dir="auto">Examples uses of Copybara include:</p>
+<ul dir="auto">
+<li>
+<p dir="auto">Importing sections of code from a confidential repository to a public repository.</p>
+</li>
+<li>
+<p dir="auto">Importing code from a public repository to a confidential repository.</p>
+</li>
+<li>
+<p dir="auto">Importing a change from a non-authoritative repository into the authoritative repository. When
+a change is made in the non-authoritative repository (for example, a contributor in the public
+repository), Copybara transforms and moves that change into the appropriate place in the
+authoritative repository. Any merge conflicts are dealt with in the same way as an out-of-date
+change within the authoritative repository.</p>
+</li>
+</ul>
+<p dir="auto">One of the main features of Copybara is that it is stateless, or more specifically, that it stores
+the state in the destination repository (As a label in the commit message). This allows several
+users (or a service) to use Copybara for the same config/repositories and get the same result.</p>
+<p dir="auto">Currently, the only supported type of repository is Git. Copybara is also able
+to read from Mercurial repositories, but the feature is still experimental.
+The extensible architecture allows adding bespoke origins and destinations
+for almost any use case.
+Official support for other repositories types will be added in the future.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Example</h2><a id="user-content-example" class="anchor" aria-label="Permalink: Example" href="#example"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="core.workflow(
+    name = &quot;default&quot;,
+    origin = git.github_origin(
+      url = &quot;https://github.com/google/copybara.git&quot;,
+      ref = &quot;master&quot;,
+    ),
+    destination = git.destination(
+        url = &quot;file:///tmp/foo&quot;,
+    ),
+
+    # Copy everything but don't remove a README_INTERNAL.txt file if it exists.
+    destination_files = glob([&quot;third_party/copybara/**&quot;], exclude = [&quot;README_INTERNAL.txt&quot;]),
+
+    authoring = authoring.pass_thru(&quot;Default email &lt;default@default.com&gt;&quot;),
+    transformations = [
+        core.replace(
+                before = &quot;//third_party/bazel/bashunit&quot;,
+                after = &quot;//another/path:bashunit&quot;,
+                paths = glob([&quot;**/BUILD&quot;])),
+        core.move(&quot;&quot;, &quot;third_party/copybara&quot;)
+    ],
+)"><pre><span class="pl-s1">core</span>.<span class="pl-en">workflow</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"default"</span>,
+    <span class="pl-s1">origin</span> <span class="pl-c1">=</span> <span class="pl-s1">git</span>.<span class="pl-en">github_origin</span>(
+      <span class="pl-s1">url</span> <span class="pl-c1">=</span> <span class="pl-s">"https://github.com/google/copybara.git"</span>,
+      <span class="pl-s1">ref</span> <span class="pl-c1">=</span> <span class="pl-s">"master"</span>,
+    ),
+    <span class="pl-s1">destination</span> <span class="pl-c1">=</span> <span class="pl-s1">git</span>.<span class="pl-en">destination</span>(
+        <span class="pl-s1">url</span> <span class="pl-c1">=</span> <span class="pl-s">"file:///tmp/foo"</span>,
+    ),
+
+    <span class="pl-c"># Copy everything but don't remove a README_INTERNAL.txt file if it exists.</span>
+    <span class="pl-s1">destination_files</span> <span class="pl-c1">=</span> <span class="pl-en">glob</span>([<span class="pl-s">"third_party/copybara/**"</span>], <span class="pl-s1">exclude</span> <span class="pl-c1">=</span> [<span class="pl-s">"README_INTERNAL.txt"</span>]),
+
+    <span class="pl-s1">authoring</span> <span class="pl-c1">=</span> <span class="pl-s1">authoring</span>.<span class="pl-en">pass_thru</span>(<span class="pl-s">"Default email &lt;default@default.com&gt;"</span>),
+    <span class="pl-s1">transformations</span> <span class="pl-c1">=</span> [
+        <span class="pl-s1">core</span>.<span class="pl-en">replace</span>(
+                <span class="pl-s1">before</span> <span class="pl-c1">=</span> <span class="pl-s">"//third_party/bazel/bashunit"</span>,
+                <span class="pl-s1">after</span> <span class="pl-c1">=</span> <span class="pl-s">"//another/path:bashunit"</span>,
+                <span class="pl-s1">paths</span> <span class="pl-c1">=</span> <span class="pl-en">glob</span>([<span class="pl-s">"**/BUILD"</span>])),
+        <span class="pl-s1">core</span>.<span class="pl-en">move</span>(<span class="pl-s">""</span>, <span class="pl-s">"third_party/copybara"</span>)
+    ],
+)</pre></div>
+<p dir="auto">Run:</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="$ (mkdir /tmp/foo ; cd /tmp/foo ; git init --bare)
+$ copybara copy.bara.sky"><pre>$ (mkdir /tmp/foo <span class="pl-k">;</span> <span class="pl-c1">cd</span> /tmp/foo <span class="pl-k">;</span> git init --bare)
+$ copybara copy.bara.sky</pre></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Getting Started using Copybara</h2><a id="user-content-getting-started-using-copybara" class="anchor" aria-label="Permalink: Getting Started using Copybara" href="#getting-started-using-copybara"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Copybara doesn't have a release process yet, so you need to compile from HEAD.
+In order to do that, you need to do the following:</p>
+<ul dir="auto">
+<li><a href="https://www.oracle.com/java/technologies/downloads/#java11" rel="nofollow">Install JDK 11</a>.</li>
+<li><a href="https://bazel.build/install" rel="nofollow">Install Bazel</a>.</li>
+<li>Clone the copybara source locally:
+<ul dir="auto">
+<li><code>git clone https://github.com/google/copybara.git</code></li>
+</ul>
+</li>
+<li>Build:
+<ul dir="auto">
+<li><code>bazel build //java/com/google/copybara</code></li>
+<li><code>bazel build //java/com/google/copybara:copybara_deploy.jar</code> to create an executable uberjar.</li>
+</ul>
+</li>
+<li>Tests: <code>bazel test //...</code> if you want to ensure you are not using a broken version. Note that
+certain tests require the underlying tool to be installed(e.g. Mercurial, Quilt, etc.). It is
+fine to skip those tests if your Pull Request is unrelated to those modules (And our CI will
+run all the tests anyway).</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">System packages</h3><a id="user-content-system-packages" class="anchor" aria-label="Permalink: System packages" href="#system-packages"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">These packages can be installed using the appropriate package manager for your
+system.</p>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Arch Linux</h4><a id="user-content-arch-linux" class="anchor" aria-label="Permalink: Arch Linux" href="#arch-linux"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li><a href="https://aur.archlinux.org/packages/copybara-git" title="Copybara on the AUR" rel="nofollow"><code>aur/copybara-git</code></a></li>
+</ul>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Using Intellij with Bazel plugin</h3><a id="user-content-using-intellij-with-bazel-plugin" class="anchor" aria-label="Permalink: Using Intellij with Bazel plugin" href="#using-intellij-with-bazel-plugin"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">If you use Intellij and the Bazel plugin, use this project configuration:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="directories:
+  copybara/integration
+  java/com/google/copybara
+  javatests/com/google/copybara
+  third_party
+
+targets:
+  //copybara/integration/...
+  //java/com/google/copybara/...
+  //javatests/com/google/copybara/...
+  //third_party/..."><pre class="notranslate"><code>directories:
+  copybara/integration
+  java/com/google/copybara
+  javatests/com/google/copybara
+  third_party
+
+targets:
+  //copybara/integration/...
+  //java/com/google/copybara/...
+  //javatests/com/google/copybara/...
+  //third_party/...
+</code></pre></div>
+<p dir="auto">Note: configuration files can be stored in any place, even in a local folder.
+We recommend using a VCS (like git) to store them; treat them as source code.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Building Copybara in an external Bazel workspace</h3><a id="user-content-building-copybara-in-an-external-bazel-workspace" class="anchor" aria-label="Permalink: Building Copybara in an external Bazel workspace" href="#building-copybara-in-an-external-bazel-workspace"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">There are convenience macros defined for all of Copybara's dependencies. Add the
+following code to your <code>WORKSPACE</code> file, replacing <code>{{ sha256sum }}</code> and
+<code>{{ commit }}</code> as necessary.</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="http_archive(
+  name = &quot;com_github_google_copybara&quot;,
+  sha256 = &quot;{{ sha256sum }}&quot;,
+  strip_prefix = &quot;copybara-{{ commit }}&quot;,
+  url = &quot;https://github.com/google/copybara/archive/{{ commit }}.zip&quot;,
+)
+
+load(&quot;@com_github_google_copybara//:repositories.bzl&quot;, &quot;copybara_repositories&quot;)
+
+copybara_repositories()
+
+load(&quot;@com_github_google_copybara//:repositories.maven.bzl&quot;, &quot;copybara_maven_repositories&quot;)
+
+copybara_maven_repositories()
+
+load(&quot;@com_github_google_copybara//:repositories.go.bzl&quot;, &quot;copybara_go_repositories&quot;)
+
+copybara_go_repositories()"><pre><span class="pl-en">http_archive</span>(
+  <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"com_github_google_copybara"</span>,
+  <span class="pl-s1">sha256</span> <span class="pl-c1">=</span> <span class="pl-s">"{{ sha256sum }}"</span>,
+  <span class="pl-s1">strip_prefix</span> <span class="pl-c1">=</span> <span class="pl-s">"copybara-{{ commit }}"</span>,
+  <span class="pl-s1">url</span> <span class="pl-c1">=</span> <span class="pl-s">"https://github.com/google/copybara/archive/{{ commit }}.zip"</span>,
+)
+
+<span class="pl-en">load</span>(<span class="pl-s">"@com_github_google_copybara//:repositories.bzl"</span>, <span class="pl-s">"copybara_repositories"</span>)
+
+<span class="pl-en">copybara_repositories</span>()
+
+<span class="pl-en">load</span>(<span class="pl-s">"@com_github_google_copybara//:repositories.maven.bzl"</span>, <span class="pl-s">"copybara_maven_repositories"</span>)
+
+<span class="pl-en">copybara_maven_repositories</span>()
+
+<span class="pl-en">load</span>(<span class="pl-s">"@com_github_google_copybara//:repositories.go.bzl"</span>, <span class="pl-s">"copybara_go_repositories"</span>)
+
+<span class="pl-en">copybara_go_repositories</span>()</pre></div>
+<p dir="auto">You can then build and run the Copybara tool from within your workspace:</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel run @com_github_google_copybara//java/com/google/copybara -- &lt;args...&gt;"><pre>bazel run @com_github_google_copybara//java/com/google/copybara -- <span class="pl-k">&lt;</span>args...<span class="pl-k">&gt;</span></pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Using Docker to build and run Copybara</h3><a id="user-content-using-docker-to-build-and-run-copybara" class="anchor" aria-label="Permalink: Using Docker to build and run Copybara" href="#using-docker-to-build-and-run-copybara"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><em>NOTE: Docker use is currently experimental, and we encourage feedback or contributions.</em></p>
+<p dir="auto">You can build copybara using Docker like so</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="docker build --rm -t copybara ."><pre>docker build --rm -t copybara <span class="pl-c1">.</span></pre></div>
+<p dir="auto">Once this has finished building, you can run the image like so from the root of
+the code you are trying to use Copybara on:</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="docker run -it -v &quot;$(pwd)&quot;:/usr/src/app copybara help"><pre>docker run -it -v <span class="pl-s"><span class="pl-pds">"</span><span class="pl-s"><span class="pl-pds">$(</span>pwd<span class="pl-pds">)</span></span><span class="pl-pds">"</span></span>:/usr/src/app copybara <span class="pl-c1">help</span></pre></div>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Environment variables</h4><a id="user-content-environment-variables" class="anchor" aria-label="Permalink: Environment variables" href="#environment-variables"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">In addition to passing cmd args to the container, you can also set the following
+environment variables as an alternative:</p>
+<ul dir="auto">
+<li><code>COPYBARA_SUBCOMMAND=migrate</code>
+<ul dir="auto">
+<li>allows you to change the command run, defaults to <code>migrate</code></li>
+</ul>
+</li>
+<li><code>COPYBARA_CONFIG=copy.bara.sky</code>
+<ul dir="auto">
+<li>allows you to specify a path to a config file, defaults to root <code>copy.bara.sky</code></li>
+</ul>
+</li>
+<li><code>COPYBARA_WORKFLOW=default</code>
+<ul dir="auto">
+<li>allows you to specify the workflow to run, defaults to <code>default</code></li>
+</ul>
+</li>
+<li><code>COPYBARA_SOURCEREF=''</code>
+<ul dir="auto">
+<li>allows you to specify the sourceref, defaults to none</li>
+</ul>
+</li>
+<li><code>COPYBARA_OPTIONS=''</code>
+<ul dir="auto">
+<li>allows you to specify options for copybara, defaults to none</li>
+</ul>
+</li>
+</ul>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="docker run \
+    -e COPYBARA_SUBCOMMAND='validate' \
+    -e COPYBARA_CONFIG='other.config.sky' \
+    -v &quot;$(pwd)&quot;:/usr/src/app \
+    -it copybara"><pre>docker run \
+    -e COPYBARA_SUBCOMMAND=<span class="pl-s"><span class="pl-pds">'</span>validate<span class="pl-pds">'</span></span> \
+    -e COPYBARA_CONFIG=<span class="pl-s"><span class="pl-pds">'</span>other.config.sky<span class="pl-pds">'</span></span> \
+    -v <span class="pl-s"><span class="pl-pds">"</span><span class="pl-s"><span class="pl-pds">$(</span>pwd<span class="pl-pds">)</span></span><span class="pl-pds">"</span></span>:/usr/src/app \
+    -it copybara</pre></div>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Git Config and Credentials</h4><a id="user-content-git-config-and-credentials" class="anchor" aria-label="Permalink: Git Config and Credentials" href="#git-config-and-credentials"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">There are a number of ways by which to share your git config and ssh credentials
+with the Docker container, an example is below:</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="docker run \
+    -v ~/.gitconfig:/root/.gitconfig:ro \
+    -v ~/.ssh:/root/.ssh \
+    -v ${SSH_AUTH_SOCK}:${SSH_AUTH_SOCK} -e SSH_AUTH_SOCK
+    -v &quot;$(pwd)&quot;:/usr/src/app \
+    -it copybara"><pre>docker run \
+    -v <span class="pl-k">~</span>/.gitconfig:/root/.gitconfig:ro \
+    -v <span class="pl-k">~</span>/.ssh:/root/.ssh \
+    -v <span class="pl-smi">${SSH_AUTH_SOCK}</span>:<span class="pl-smi">${SSH_AUTH_SOCK}</span> -e SSH_AUTH_SOCK
+    -v <span class="pl-s"><span class="pl-pds">"</span><span class="pl-s"><span class="pl-pds">$(</span>pwd<span class="pl-pds">)</span></span><span class="pl-pds">"</span></span>:/usr/src/app \
+    -it copybara</pre></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Documentation</h2><a id="user-content-documentation" class="anchor" aria-label="Permalink: Documentation" href="#documentation"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">We are still working on the documentation. Here are some resources:</p>
+<ul dir="auto">
+<li><a href="docs/reference.md">Reference documentation</a></li>
+<li><a href="docs/examples.md">Examples</a></li>
+<li><a href="https://blog.kubesimplify.com/moving-code-between-git-repositories-with-copybara" rel="nofollow">Tutorial on how to get started</a></li>
+</ul>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Contact us</h2><a id="user-content-contact-us" class="anchor" aria-label="Permalink: Contact us" href="#contact-us"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">If you have any questions about how Copybara works, please contact us at our
+<a href="https://groups.google.com/forum/#!forum/copybara-discuss" rel="nofollow">mailing list</a>.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Optional tips</h2><a id="user-content-optional-tips" class="anchor" aria-label="Permalink: Optional tips" href="#optional-tips"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li>
+<p dir="auto">If you want to see the test errors in Bazel, instead of having to <code>cat</code> the
+logs, add this line to your <code>~/.bazelrc</code>:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="test --test_output=streamed"><pre class="notranslate"><code>test --test_output=streamed
+</code></pre></div>
+</li>
+</ul>
+</article></div>
