@@ -1,0 +1,124 @@
+<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><p dir="auto">Snappy, a fast compressor/decompressor.</p>
+<p dir="auto"><a href="https://github.com/google/snappy/actions/workflows/build.yml"><img src="https://github.com/google/snappy/actions/workflows/build.yml/badge.svg" alt="Build Status" style="max-width: 100%;"></a></p>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Introduction</h1><a id="user-content-introduction" class="anchor" aria-label="Permalink: Introduction" href="#introduction"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Snappy is a compression/decompression library. It does not aim for maximum
+compression, or compatibility with any other compression library; instead,
+it aims for very high speeds and reasonable compression. For instance,
+compared to the fastest mode of zlib, Snappy is an order of magnitude faster
+for most inputs, but the resulting compressed files are anywhere from 20% to
+100% bigger. (For more information, see "Performance", below.)</p>
+<p dir="auto">Snappy has the following properties:</p>
+<ul dir="auto">
+<li>Fast: Compression speeds at 250 MB/sec and beyond, with no assembler code.
+See "Performance" below.</li>
+<li>Stable: Over the last few years, Snappy has compressed and decompressed
+petabytes of data in Google's production environment. The Snappy bitstream
+format is stable and will not change between versions.</li>
+<li>Robust: The Snappy decompressor is designed not to crash in the face of
+corrupted or malicious input.</li>
+<li>Free and open source software: Snappy is licensed under a BSD-type license.
+For more information, see the included COPYING file.</li>
+</ul>
+<p dir="auto">Snappy has previously been called "Zippy" in some Google presentations
+and the like.</p>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Performance</h1><a id="user-content-performance" class="anchor" aria-label="Permalink: Performance" href="#performance"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Snappy is intended to be fast. On a single core of a Core i7 processor
+in 64-bit mode, it compresses at about 250 MB/sec or more and decompresses at
+about 500 MB/sec or more. (These numbers are for the slowest inputs in our
+benchmark suite; others are much faster.) In our tests, Snappy usually
+is faster than algorithms in the same class (e.g. LZO, LZF, QuickLZ,
+etc.) while achieving comparable compression ratios.</p>
+<p dir="auto">Typical compression ratios (based on the benchmark suite) are about 1.5-1.7x
+for plain text, about 2-4x for HTML, and of course 1.0x for JPEGs, PNGs and
+other already-compressed data. Similar numbers for zlib in its fastest mode
+are 2.6-2.8x, 3-7x and 1.0x, respectively. More sophisticated algorithms are
+capable of achieving yet higher compression rates, although usually at the
+expense of speed. Of course, compression ratio will vary significantly with
+the input.</p>
+<p dir="auto">Although Snappy should be fairly portable, it is primarily optimized
+for 64-bit x86-compatible processors, and may run slower in other environments.
+In particular:</p>
+<ul dir="auto">
+<li>Snappy uses 64-bit operations in several places to process more data at
+once than would otherwise be possible.</li>
+<li>Snappy assumes unaligned 32 and 64-bit loads and stores are cheap.
+On some platforms, these must be emulated with single-byte loads
+and stores, which is much slower.</li>
+<li>Snappy assumes little-endian throughout, and needs to byte-swap data in
+several places if running on a big-endian platform.</li>
+</ul>
+<p dir="auto">Experience has shown that even heavily tuned code can be improved.
+Performance optimizations, whether for 64-bit x86 or other platforms,
+are of course most welcome; see "Contact", below.</p>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Building</h1><a id="user-content-building" class="anchor" aria-label="Permalink: Building" href="#building"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">You need the CMake version specified in <a href="./CMakeLists.txt">CMakeLists.txt</a>
+or later to build:</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="git submodule update --init
+mkdir build
+cd build &amp;&amp; cmake ../ &amp;&amp; make"><pre>git submodule update --init
+mkdir build
+<span class="pl-c1">cd</span> build <span class="pl-k">&amp;&amp;</span> cmake ../ <span class="pl-k">&amp;&amp;</span> make</pre></div>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Usage</h1><a id="user-content-usage" class="anchor" aria-label="Permalink: Usage" href="#usage"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Note that Snappy, both the implementation and the main interface,
+is written in C++. However, several third-party bindings to other languages
+are available; see the <a href="docs/README.md">home page</a> for more information.
+Also, if you want to use Snappy from C code, you can use the included C
+bindings in snappy-c.h.</p>
+<p dir="auto">To use Snappy from your own C++ program, include the file "snappy.h" from
+your calling file, and link against the compiled library.</p>
+<p dir="auto">There are many ways to call Snappy, but the simplest possible is</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="snappy::Compress(input.data(), input.size(), &amp;output);"><pre><span class="pl-en">snappy::Compress</span>(input.data(), input.size(), &amp;output);</pre></div>
+<p dir="auto">and similarly</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="snappy::Uncompress(input.data(), input.size(), &amp;output);"><pre><span class="pl-en">snappy::Uncompress</span>(input.data(), input.size(), &amp;output);</pre></div>
+<p dir="auto">where "input" and "output" are both instances of std::string.</p>
+<p dir="auto">There are other interfaces that are more flexible in various ways, including
+support for custom (non-array) input sources. See the header file for more
+information.</p>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Tests and benchmarks</h1><a id="user-content-tests-and-benchmarks" class="anchor" aria-label="Permalink: Tests and benchmarks" href="#tests-and-benchmarks"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">When you compile Snappy, the following binaries are compiled in addition to the
+library itself. You do not need them to use the compressor from your own
+library, but they are useful for Snappy development.</p>
+<ul dir="auto">
+<li><code>snappy_benchmark</code> contains microbenchmarks used to tune compression and
+decompression performance.</li>
+<li><code>snappy_unittests</code> contains unit tests, verifying correctness on your machine
+in various scenarios.</li>
+<li><code>snappy_test_tool</code> can benchmark Snappy against a few other compression
+libraries (zlib, LZO, LZF, and QuickLZ), if they were detected at configure
+time. To benchmark using a given file, give the compression algorithm you want
+to test Snappy against (e.g. --zlib) and then a list of one or more file names
+on the command line.</li>
+</ul>
+<p dir="auto">If you want to change or optimize Snappy, please run the tests and benchmarks to
+verify you have not broken anything.</p>
+<p dir="auto">The testdata/ directory contains the files used by the microbenchmarks, which
+should provide a reasonably balanced starting point for benchmarking. (Note that
+baddata[1-3].snappy are not intended as benchmarks; they are used to verify
+correctness in the presence of corrupted data in the unit test.)</p>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Contributing to the Snappy Project</h1><a id="user-content-contributing-to-the-snappy-project" class="anchor" aria-label="Permalink: Contributing to the Snappy Project" href="#contributing-to-the-snappy-project"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">In addition to the aims listed at the top of the <a href="README.md">README</a> Snappy
+explicitly supports the following:</p>
+<ol dir="auto">
+<li>C++11</li>
+<li>Clang (gcc and MSVC are best-effort).</li>
+<li>Low level optimizations (e.g. assembly or equivalent intrinsics) for:</li>
+<li><a href="https://en.wikipedia.org/wiki/X86" rel="nofollow">x86</a></li>
+<li><a href="https://en.wikipedia.org/wiki/X86-64" rel="nofollow">x86-64</a></li>
+<li>ARMv7 (32-bit)</li>
+<li>ARMv8 (AArch64)</li>
+<li>Supports only the Snappy compression scheme as described in
+<a href="format_description.txt">format_description.txt</a>.</li>
+<li>CMake for building</li>
+</ol>
+<p dir="auto">Changes adding features or dependencies outside of the core area of focus listed
+above might not be accepted. If in doubt post a message to the
+<a href="https://groups.google.com/g/snappy-compression" rel="nofollow">Snappy discussion mailing list</a>.</p>
+<p dir="auto">We are unlikely to accept contributions to the build configuration files, such
+as <code>CMakeLists.txt</code>. We are focused on maintaining a build configuration that
+allows us to test that the project works in a few supported configurations
+inside Google. We are not currently interested in supporting other requirements,
+such as different operating systems, compilers, or build systems.</p>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Contact</h1><a id="user-content-contact" class="anchor" aria-label="Permalink: Contact" href="#contact"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Snappy is distributed through GitHub. For the latest version and other
+information, see <a href="https://github.com/google/snappy">https://github.com/google/snappy</a>.</p>
+</article></div>
