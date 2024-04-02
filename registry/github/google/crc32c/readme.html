@@ -1,0 +1,109 @@
+<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">CRC32C</h1><a id="user-content-crc32c" class="anchor" aria-label="Permalink: CRC32C" href="#crc32c"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><a href="https://github.com/google/crc32c/actions/workflows/build.yml"><img src="https://github.com/google/crc32c/actions/workflows/build.yml/badge.svg" alt="Build Status" style="max-width: 100%;"></a></p>
+<p dir="auto">New file format authors should consider
+<a href="https://github.com/google/highwayhash">HighwayHash</a>. The initial version of
+this code was extracted from <a href="https://github.com/google/leveldb">LevelDB</a>, which
+is a stable key-value store that is widely used at Google.</p>
+<p dir="auto">This project collects a few CRC32C implementations under an umbrella that
+dispatches to a suitable implementation based on the host computer's hardware
+capabilities.</p>
+<p dir="auto">CRC32C is specified as the CRC that uses the iSCSI polynomial in
+<a href="https://tools.ietf.org/html/rfc3720#section-12.1" rel="nofollow">RFC 3720</a>. The polynomial was
+introduced by G. Castagnoli, S. Braeuer and M. Herrmann. CRC32C is used in
+software such as Btrfs, ext4, Ceph and leveldb.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Usage</h2><a id="user-content-usage" class="anchor" aria-label="Permalink: Usage" href="#usage"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="#include &quot;crc32c/crc32c.h&quot;
+
+int main() {
+  const std::uint8_t buffer[] = {0, 0, 0, 0};
+  std::uint32_t result;
+
+  // Process a raw buffer.
+  result = crc32c::Crc32c(buffer, 4);
+
+  // Process a std::string.
+  std::string string;
+  string.resize(4);
+  result = crc32c::Crc32c(string);
+
+  // If you have C++17 support, process a std::string_view.
+  std::string_view string_view(string);
+  result = crc32c::Crc32c(string_view);
+
+  return 0;
+}"><pre>#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">"</span>crc32c/crc32c.h<span class="pl-pds">"</span></span>
+
+<span class="pl-k">int</span> <span class="pl-en">main</span>() {
+  <span class="pl-k">const</span> std::<span class="pl-c1">uint8_t</span> buffer[] = {<span class="pl-c1">0</span>, <span class="pl-c1">0</span>, <span class="pl-c1">0</span>, <span class="pl-c1">0</span>};
+  std::<span class="pl-c1">uint32_t</span> result;
+
+  <span class="pl-c"><span class="pl-c">//</span> Process a raw buffer.</span>
+  result = <span class="pl-c1">crc32c::Crc32c</span>(buffer, <span class="pl-c1">4</span>);
+
+  <span class="pl-c"><span class="pl-c">//</span> Process a std::string.</span>
+  std::string string;
+  string.<span class="pl-c1">resize</span>(<span class="pl-c1">4</span>);
+  result = <span class="pl-c1">crc32c::Crc32c</span>(string);
+
+  <span class="pl-c"><span class="pl-c">//</span> If you have C++17 support, process a std::string_view.</span>
+  std::string_view <span class="pl-smi">string_view</span>(string);
+  result = <span class="pl-c1">crc32c::Crc32c</span>(string_view);
+
+  <span class="pl-k">return</span> <span class="pl-c1">0</span>;
+}</pre></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Prerequisites</h2><a id="user-content-prerequisites" class="anchor" aria-label="Permalink: Prerequisites" href="#prerequisites"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">This project uses <a href="https://cmake.org/" rel="nofollow">CMake</a> for building and testing. CMake is
+available in all popular Linux distributions, as well as in
+<a href="https://brew.sh/" rel="nofollow">Homebrew</a>.</p>
+<p dir="auto">This project uses submodules for dependency management.</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="git submodule update --init --recursive"><pre>git submodule update --init --recursive</pre></div>
+<p dir="auto">If you're using <a href="https://atom.io/" rel="nofollow">Atom</a>, the following packages can help.</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="apm install autocomplete-clang build build-cmake clang-format language-cmake \
+    linter linter-clang"><pre>apm install autocomplete-clang build build-cmake clang-format language-cmake \
+    linter linter-clang</pre></div>
+<p dir="auto">If you don't mind more setup in return for more speed, replace
+<code>autocomplete-clang</code> and <code>linter-clang</code> with <code>you-complete-me</code>. This requires
+<a href="https://github.com/ycm-core/ycmd#building">setting up ycmd</a>.</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="apm install autocomplete-plus build build-cmake clang-format language-cmake \
+    linter you-complete-me"><pre>apm install autocomplete-plus build build-cmake clang-format language-cmake \
+    linter you-complete-me</pre></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Building</h2><a id="user-content-building" class="anchor" aria-label="Permalink: Building" href="#building"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The following commands build and install the project.</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="mkdir build
+cd build
+cmake -DCRC32C_BUILD_TESTS=0 -DCRC32C_BUILD_BENCHMARKS=0 .. &amp;&amp; make all install"><pre>mkdir build
+<span class="pl-c1">cd</span> build
+cmake -DCRC32C_BUILD_TESTS=0 -DCRC32C_BUILD_BENCHMARKS=0 .. <span class="pl-k">&amp;&amp;</span> make all install</pre></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Development</h2><a id="user-content-development" class="anchor" aria-label="Permalink: Development" href="#development"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The following command (when executed from <code>build/</code>) (re)builds the project and
+runs the tests.</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="cmake .. &amp;&amp; cmake --build . &amp;&amp; ctest --output-on-failure"><pre>cmake .. <span class="pl-k">&amp;&amp;</span> cmake --build <span class="pl-c1">.</span> <span class="pl-k">&amp;&amp;</span> ctest --output-on-failure</pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Android testing</h3><a id="user-content-android-testing" class="anchor" aria-label="Permalink: Android testing" href="#android-testing"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The following command builds the project against the Android NDK, which is
+useful for benchmarking against ARM processors.</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="cmake .. -DCMAKE_SYSTEM_NAME=Android -DCMAKE_ANDROID_ARCH_ABI=arm64-v8a \
+    -DCMAKE_ANDROID_NDK=$HOME/Library/Android/sdk/ndk-bundle \
+    -DCMAKE_ANDROID_NDK_TOOLCHAIN_VERSION=clang \
+    -DCMAKE_ANDROID_STL_TYPE=c++_static -DCRC32C_USE_GLOG=0 \
+    -DCMAKE_BUILD_TYPE=Release &amp;&amp; cmake --build ."><pre>cmake .. -DCMAKE_SYSTEM_NAME=Android -DCMAKE_ANDROID_ARCH_ABI=arm64-v8a \
+    -DCMAKE_ANDROID_NDK=<span class="pl-smi">$HOME</span>/Library/Android/sdk/ndk-bundle \
+    -DCMAKE_ANDROID_NDK_TOOLCHAIN_VERSION=clang \
+    -DCMAKE_ANDROID_STL_TYPE=c++_static -DCRC32C_USE_GLOG=0 \
+    -DCMAKE_BUILD_TYPE=Release <span class="pl-k">&amp;&amp;</span> cmake --build <span class="pl-c1">.</span></pre></div>
+<p dir="auto">The following commands install and run the benchmarks.</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="adb push crc32c_bench /data/local/tmp
+adb shell chmod +x /data/local/tmp/crc32c_bench
+adb shell 'cd /data/local/tmp &amp;&amp; ./crc32c_bench'
+adb shell rm /data/local/tmp/crc32c_bench"><pre>adb push crc32c_bench /data/local/tmp
+adb shell chmod +x /data/local/tmp/crc32c_bench
+adb shell <span class="pl-s"><span class="pl-pds">'</span>cd /data/local/tmp &amp;&amp; ./crc32c_bench<span class="pl-pds">'</span></span>
+adb shell rm /data/local/tmp/crc32c_bench</pre></div>
+<p dir="auto">The following commands install and run the tests.</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="adb push crc32c_tests /data/local/tmp
+adb shell chmod +x /data/local/tmp/crc32c_tests
+adb shell 'cd /data/local/tmp &amp;&amp; ./crc32c_tests'
+adb shell rm /data/local/tmp/crc32c_tests"><pre>adb push crc32c_tests /data/local/tmp
+adb shell chmod +x /data/local/tmp/crc32c_tests
+adb shell <span class="pl-s"><span class="pl-pds">'</span>cd /data/local/tmp &amp;&amp; ./crc32c_tests<span class="pl-pds">'</span></span>
+adb shell rm /data/local/tmp/crc32c_tests</pre></div>
+</article></div>
