@@ -26,6 +26,7 @@ available (and customizable) for bazel developers.</p>
 <li><a href="#workspace">WORKSPACE support</a></li>
 <li><a href="#direct-access-to-gcc-tools">Direct access to gcc tools</a></li>
 <li><a href="#custom-toolchain">Custom toolchain support</a></li>
+<li><a href="./examples/gcc_version">Use a specific GCC version</a></li>
 <li><a href="./examples">Examples</a></li>
 <li>Remote execution support</li>
 <li>Linux, MacOS, Windows</li>
@@ -41,63 +42,34 @@ build --incompatible_enable_cc_toolchain_resolution"><pre><span class="pl-c"><sp
 <span class="pl-c"><span class="pl-c">#</span> Build using platforms by default</span>
 build --incompatible_enable_cc_toolchain_resolution</pre></div>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Bzlmod</h2><a id="user-content-bzlmod" class="anchor" aria-label="Permalink: Bzlmod" href="#bzlmod"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel_dep(name = &quot;toolchains_arm_gnu&quot;, version = &quot;0.0.1&quot;)
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel_dep(name = &quot;toolchains_arm_gnu&quot;, version = &quot;&lt;version&gt;&quot;)
 
-# Toolchains: arm-none-eabi
 arm_toolchain = use_extension(&quot;@toolchains_arm_gnu//:extensions.bzl&quot;, &quot;arm_toolchain&quot;)
-arm_toolchain.arm_none_eabi(version = &quot;13.2.1&quot;)
-use_repo(
-    arm_toolchain,
-    &quot;arm_none_eabi&quot;,
-    &quot;arm_none_eabi_darwin_arm64&quot;,
-    &quot;arm_none_eabi_darwin_x86_64&quot;,
-    &quot;arm_none_eabi_linux_aarch64&quot;,
-    &quot;arm_none_eabi_linux_x86_64&quot;,
-    &quot;arm_none_eabi_windows_x86_64&quot;,
-)
 
+arm_toolchain.arm_none_eabi()
+use_repo(arm_toolchain, &quot;arm_none_eabi&quot;)
 register_toolchains(&quot;@arm_none_eabi//toolchain:all&quot;)
 
-# Toolchains: arm-none-linux-gnueabihf
-arm_toolchain.arm_none_linux_gnueabihf(version = &quot;13.2.1&quot;)
-use_repo(
-    arm_toolchain,
-    &quot;arm_none_linux_gnueabihf&quot;,
-    &quot;arm_none_linux_gnueabihf_linux_aarch64&quot;,
-    &quot;arm_none_linux_gnueabihf_linux_x86_64&quot;,
-    &quot;arm_none_linux_gnueabihf_windows_x86_64&quot;,
-)
+arm_toolchain.arm_none_linux_gnueabihf()
+use_repo(arm_toolchain)
+register_toolchains(&quot;@arm_none_linux_gnueabihf//toolchain:all&quot;)"><pre><span class="pl-en">bazel_dep</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"toolchains_arm_gnu"</span>, <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"&lt;version&gt;"</span>)
 
-register_toolchains(&quot;@arm_none_linux_gnueabihf//toolchain:all&quot;)"><pre><span class="pl-en">bazel_dep</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"toolchains_arm_gnu"</span>, <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"0.0.1"</span>)
-
-<span class="pl-c"># Toolchains: arm-none-eabi</span>
 <span class="pl-s1">arm_toolchain</span> <span class="pl-c1">=</span> <span class="pl-en">use_extension</span>(<span class="pl-s">"@toolchains_arm_gnu//:extensions.bzl"</span>, <span class="pl-s">"arm_toolchain"</span>)
-<span class="pl-s1">arm_toolchain</span>.<span class="pl-en">arm_none_eabi</span>(<span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"13.2.1"</span>)
-<span class="pl-en">use_repo</span>(
-    <span class="pl-s1">arm_toolchain</span>,
-    <span class="pl-s">"arm_none_eabi"</span>,
-    <span class="pl-s">"arm_none_eabi_darwin_arm64"</span>,
-    <span class="pl-s">"arm_none_eabi_darwin_x86_64"</span>,
-    <span class="pl-s">"arm_none_eabi_linux_aarch64"</span>,
-    <span class="pl-s">"arm_none_eabi_linux_x86_64"</span>,
-    <span class="pl-s">"arm_none_eabi_windows_x86_64"</span>,
-)
 
+<span class="pl-s1">arm_toolchain</span>.<span class="pl-en">arm_none_eabi</span>()
+<span class="pl-en">use_repo</span>(<span class="pl-s1">arm_toolchain</span>, <span class="pl-s">"arm_none_eabi"</span>)
 <span class="pl-en">register_toolchains</span>(<span class="pl-s">"@arm_none_eabi//toolchain:all"</span>)
 
-<span class="pl-c"># Toolchains: arm-none-linux-gnueabihf</span>
-<span class="pl-s1">arm_toolchain</span>.<span class="pl-en">arm_none_linux_gnueabihf</span>(<span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"13.2.1"</span>)
-<span class="pl-en">use_repo</span>(
-    <span class="pl-s1">arm_toolchain</span>,
-    <span class="pl-s">"arm_none_linux_gnueabihf"</span>,
-    <span class="pl-s">"arm_none_linux_gnueabihf_linux_aarch64"</span>,
-    <span class="pl-s">"arm_none_linux_gnueabihf_linux_x86_64"</span>,
-    <span class="pl-s">"arm_none_linux_gnueabihf_windows_x86_64"</span>,
-)
-
+<span class="pl-s1">arm_toolchain</span>.<span class="pl-en">arm_none_linux_gnueabihf</span>()
+<span class="pl-en">use_repo</span>(<span class="pl-s1">arm_toolchain</span>)
 <span class="pl-en">register_toolchains</span>(<span class="pl-s">"@arm_none_linux_gnueabihf//toolchain:all"</span>)</pre></div>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">WORKSPACE</h2><a id="user-content-workspace" class="anchor" aria-label="Permalink: WORKSPACE" href="#workspace"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<p dir="auto">Add this git repository to your WORKSPACE to use the compiler</p>
+<p dir="auto">Add this git repository to your WORKSPACE to use the compiler (NOTE: WORSKPACE
+setups will become obsolete soon, do not use for new projects)</p>
+<details>
+<summary>
+WORKSPACE
+</summary>
 <div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@bazel_tools//tools/build_defs/repo:git.bzl&quot;, &quot;git_repository&quot;)
 
 git_repository(
@@ -112,12 +84,11 @@ git_repository(
     branch = &quot;master&quot;,
 )
 
-# Toolchain: arm-none-eabi
 load(&quot;@toolchains_arm_gnu//:deps.bzl&quot;, &quot;arm_none_eabi_deps&quot;, &quot;arm_none_linux_gnueabihf_deps&quot;)
+
 arm_none_eabi_deps()
 register_toolchains(&quot;@arm_none_eabi//toolchain:all&quot;)
 
-# Toolchain arm-none-linux-gnueabihf
 arm_none_linux_gnueabihf_deps()
 register_toolchains(&quot;@arm_none_linux_gnueabihf//toolchain:all&quot;)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@bazel_tools//tools/build_defs/repo:git.bzl"</span>, <span class="pl-s">"git_repository"</span>)
 
@@ -133,21 +104,20 @@ register_toolchains(&quot;@arm_none_linux_gnueabihf//toolchain:all&quot;)"><pre>
     <span class="pl-s1">branch</span> <span class="pl-c1">=</span> <span class="pl-s">"master"</span>,
 )
 
-<span class="pl-c"># Toolchain: arm-none-eabi</span>
 <span class="pl-en">load</span>(<span class="pl-s">"@toolchains_arm_gnu//:deps.bzl"</span>, <span class="pl-s">"arm_none_eabi_deps"</span>, <span class="pl-s">"arm_none_linux_gnueabihf_deps"</span>)
+
 <span class="pl-en">arm_none_eabi_deps</span>()
 <span class="pl-en">register_toolchains</span>(<span class="pl-s">"@arm_none_eabi//toolchain:all"</span>)
 
-<span class="pl-c"># Toolchain arm-none-linux-gnueabihf</span>
 <span class="pl-en">arm_none_linux_gnueabihf_deps</span>()
 <span class="pl-en">register_toolchains</span>(<span class="pl-s">"@arm_none_linux_gnueabihf//toolchain:all"</span>)</pre></div>
-<p dir="auto">Now Bazel will automatically use <code>arm-none-eabi-gcc</code> as a compiler.</p>
+</details>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Custom toolchain</h2><a id="user-content-custom-toolchain" class="anchor" aria-label="Permalink: Custom toolchain" href="#custom-toolchain"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<p dir="auto">If you want to bake certain compiler flags in to your toolchain, you can define a custom <code>arm-none-eabi</code> toolchain in your repo.</p>
+<p dir="auto">If you want to bake certain compiler flags in to your toolchain, you can define a custom toolchain in your repo.</p>
 <p dir="auto">In a BUILD file:</p>
 <div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="# path/to/toolchains/BUILD
 
-load(&quot;@toolchains_arm_gnu//toolchain:toolchain.bzl&quot;, &quot;arm_none_eabi_toolchain&quot;)
+load(&quot;@arm_none_eabi//toolchain:toolchain.bzl&quot;, &quot;arm_none_eabi_toolchain&quot;)
 arm_none_eabi_toolchain(
     name = &quot;custom_toolchain&quot;,
     target_compatible_with = [
@@ -161,7 +131,7 @@ arm_none_eabi_toolchain(
     ],
 )"><pre><span class="pl-c"># path/to/toolchains/BUILD</span>
 
-<span class="pl-en">load</span>(<span class="pl-s">"@toolchains_arm_gnu//toolchain:toolchain.bzl"</span>, <span class="pl-s">"arm_none_eabi_toolchain"</span>)
+<span class="pl-en">load</span>(<span class="pl-s">"@arm_none_eabi//toolchain:toolchain.bzl"</span>, <span class="pl-s">"arm_none_eabi_toolchain"</span>)
 <span class="pl-en">arm_none_eabi_toolchain</span>(
     <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"custom_toolchain"</span>,
     <span class="pl-s1">target_compatible_with</span> <span class="pl-c1">=</span> [
@@ -226,7 +196,7 @@ genrule(
     <span class="pl-s1">tools</span> <span class="pl-c1">=</span> [<span class="pl-s">"@arm_none_eabi//:objcopy"</span>],
 )</pre></div>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Remote execution</h2><a id="user-content-remote-execution" class="anchor" aria-label="Permalink: Remote execution" href="#remote-execution"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<p dir="auto">This toolchain is compatible with remote execution, see <a href=".github/workflows/remote.yml"><code>remote.yml</code></a></p>
+<p dir="auto">This toolchain is compatible with remote execution</p>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Building with the ARM Linux toolchain on Windows</h2><a id="user-content-building-with-the-arm-linux-toolchain-on-windows" class="anchor" aria-label="Permalink: Building with the ARM Linux toolchain on Windows" href="#building-with-the-arm-linux-toolchain-on-windows"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">The Windows maximum path length limitation may cause build failures with the
 <code>arm-none-linux-gnueabihf</code> toolchain. In some cases, it's enough to avoid this
