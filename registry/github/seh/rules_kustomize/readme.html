@@ -1,40 +1,20 @@
-<div id="readme" class="rst" data-path="README.rst"><article class="markdown-body entry-content container-lg" itemprop="text"><div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto"><em>kustomize</em> rules for Bazel</h1><a id="user-content-kustomize-rules-for-bazel" class="anchor" aria-label="Permalink: kustomize rules for Bazel" href="#kustomize-rules-for-bazel"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<p dir="auto">Integrate <a href="https://kubectl.docs.kubernetes.io/references/kustomize/glossary/#kustomize" rel="nofollow">the <em>kustomize</em> tool</a> into your Bazel projects to build Kubernetes-style manifests.</p>
-<div id="user-content-contents" dir="auto">
-<p dir="auto">Contents</p>
-<ul dir="auto">
-<li><a href="#overview" id="user-content-id4">Overview</a><ul dir="auto">
-<li><a href="#simple-example" id="user-content-id5">Simple Example</a></li>
-</ul>
-</li>
-<li><a href="#integrating-into-your-project" id="user-content-id6">Integrating Into Your Project</a></li>
-<li><a href="#tool-versions" id="user-content-id7">Tool Versions</a></li>
-<li><a href="#rules" id="user-content-id8">Rules</a><ul dir="auto">
-<li><a href="#kustomization" id="user-content-id9">kustomization</a></li>
-<li><a href="#kustomized-resources" id="user-content-id10">kustomized_resources</a></li>
-</ul>
-</li>
-<li><a href="#id3" id="user-content-id11">Providers</a><ul dir="auto">
-<li><a href="#kustomizationinfo" id="user-content-id12">KustomizationInfo</a></li>
-</ul>
-</li>
-<li><a href="#difficulties" id="user-content-id13">Difficulties</a><ul dir="auto">
-<li><a href="#bazel-s-sandbox-and-load-restrictors" id="user-content-id14">Bazel's Sandbox and Load Restrictors</a></li>
-<li><a href="#downloading-helm-charts" id="user-content-id15">Downloading Helm Charts</a></li>
-</ul>
-</li>
-</ul>
+<div id="readme" class="rst" data-path="README.rst"><article class="markdown-body entry-content container-lg" itemprop="text"><div class="markdown-heading" dir="auto"><h1 id="user-content-kustomize-rules-for-bazel" class="heading-element" dir="auto"><em>kustomize</em> rules for Bazel</h1><a id="user-content-kustomize-rules-for-bazel" class="anchor" aria-label="Permalink: kustomize rules for Bazel" href="#kustomize-rules-for-bazel"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Integrate the <code>kustomize</code> tool_ into your Bazel projects to build Kubernetes-style manifests.</p>
+<div dir="auto">
+<dl>
+<dt>depth</dt>
+<dd><p dir="auto">2</p>
+</dd>
+</dl>
 </div>
 <hr>
-<a name="user-content-overview"></a>
-<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto"><a href="#id4">Overview</a></h2><a id="user-content-overview" class="anchor" aria-label="Permalink: Overview" href="#overview"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<p dir="auto">These Bazel rules allow you to define <a href="https://kubectl.docs.kubernetes.io/references/kustomize/glossary/#kustomization" rel="nofollow">kustomizations</a> within your project workspace and capture the output of <em>building</em> those kustomizations with <a href="https://kubectl.docs.kubernetes.io/references/kustomize/glossary/#kustomize" rel="nofollow">the <em>kustomize</em> tool</a>. Using <em>kustomize</em> within a Bazel project orchestrates both the preparation of the input files—for when static files won't do—and consumption of the resulting YAML document stream, situating <em>kustomize</em> as a transformer in the middle of that data flow.</p>
+<div class="markdown-heading" dir="auto"><h2 id="user-content-overview" class="heading-element" dir="auto">Overview</h2><a id="user-content-overview" class="anchor" aria-label="Permalink: Overview" href="#overview"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">These Bazel rules allow you to define <a href="https://kubectl.docs.kubernetes.io/references/kustomize/glossary/#kustomization" rel="nofollow">kustomizations</a> within your project workspace and capture the output of <em>building</em> those kustomizations with the <code>kustomize</code> tool_. Using <em>kustomize</em> within a Bazel project orchestrates both the preparation of the input files—for when static files won't do—and consumption of the resulting YAML document stream, situating <em>kustomize</em> as a transformer in the middle of that data flow.</p>
 <p dir="auto"><em>kustomize</em> operates on the Kubernetes Resource Model (KRM), and most often comes into play just ahead of Kubernetes API clients like <em>kubectl</em>, sending the YAML document stream to the Kubernetes API to apply the <a href="https://kubectl.docs.kubernetes.io/references/kustomize/glossary/#resource" rel="nofollow">resources</a> to the cluster. These rules do no include any such interaction with the Kubernetes API. Instead, they focus solely on emitting the resources defined by the <em>kustomization</em>.</p>
-<a name="user-content-simple-example"></a>
-<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto"><a href="#id5">Simple Example</a></h3><a id="user-content-simple-example" class="anchor" aria-label="Permalink: Simple Example" href="#simple-example"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="markdown-heading" dir="auto"><h3 id="user-content-simple-example" class="heading-element" dir="auto">Simple Example</h3><a id="user-content-simple-example" class="anchor" aria-label="Permalink: Simple Example" href="#simple-example"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">Here we'll walk through a simple example to give a feel for how to use these Bazel rules.</p>
 <p dir="auto">Assume you have a <em>kustomization</em> that defines a single Kubernetes <em>ConfigMap</em>, taking its data entries from both a file containing "environment variable"-style line-by-line definitions and some inline definitions in the <em>kustomization.yaml</em> file. First, the <em>kustomization.yaml</em> file:</p>
-<div class="highlight highlight-source-yaml notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="apiVersion: kustomize.config.k8s.io/v1beta1
+<div id="user-content-cb1" dir="auto"><div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
 configMapGenerator:
@@ -43,38 +23,37 @@ configMapGenerator:
   - config-bindings
   literals:
   - HELLO=hola
-  - GOODBYE=adios"><pre><span class="pl-ent">apiVersion</span>: <span class="pl-s">kustomize.config.k8s.io/v1beta1</span>
-<span class="pl-ent">kind</span>: <span class="pl-s">Kustomization</span>
-
-<span class="pl-ent">configMapGenerator</span>:
-- <span class="pl-ent">name</span>: <span class="pl-s">translations</span>
-  <span class="pl-ent">envs</span>:
-  - <span class="pl-s">config-bindings</span>
-  <span class="pl-ent">literals</span>:
-  - <span class="pl-s">HELLO=hola</span>
-  - <span class="pl-s">GOODBYE=adios</span></pre></div>
+  - GOODBYE=adios"><pre class="notranslate"><code><a id="user-content-cb1-1" title="1"><span>apiVersion:</span><span> kustomize.config.k8s.io/v1beta1</span></a>
+<a id="user-content-cb1-2" title="2"><span>kind:</span><span> Kustomization</span></a>
+<a id="user-content-cb1-3" title="3"></a>
+<a id="user-content-cb1-4" title="4"><span>configMapGenerator:</span></a>
+<a id="user-content-cb1-5" title="5"><span>-</span> <span>name:</span><span> translations</span></a>
+<a id="user-content-cb1-6" title="6">  <span>envs:</span></a>
+<a id="user-content-cb1-7" title="7">  <span>-</span> config-bindings</a>
+<a id="user-content-cb1-8" title="8">  <span>literals:</span></a>
+<a id="user-content-cb1-9" title="9">  <span>-</span> HELLO=hola</a>
+<a id="user-content-cb1-10" title="10">  <span>-</span> GOODBYE=adios</a></code></pre></div></div>
 <p dir="auto">Note that the "envs" field references a sibling file named <em>config-bindings</em>, with content as follows:</p>
-<pre>THANK_YOU=gracias
-</pre>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="THANK_YOU=gracias"><pre class="notranslate"><code>THANK_YOU=gracias</code></pre></div>
 <p dir="auto">If we run the <em>kustomize build</em> command against the directory containing these two files, it emits the following YAML document:</p>
-<div class="highlight highlight-source-yaml notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="apiVersion: v1
+<div id="user-content-cb3" dir="auto"><div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="apiVersion: v1
 data:
   GOODBYE: adios
   HELLO: hola
   THANK_YOU: gracias
 kind: ConfigMap
 metadata:
-  name: translations-74424tmdd8"><pre><span class="pl-ent">apiVersion</span>: <span class="pl-c1">v1</span>
-<span class="pl-ent">data</span>:
-  <span class="pl-ent">GOODBYE</span>: <span class="pl-s">adios</span>
-  <span class="pl-ent">HELLO</span>: <span class="pl-s">hola</span>
-  <span class="pl-ent">THANK_YOU</span>: <span class="pl-s">gracias</span>
-<span class="pl-ent">kind</span>: <span class="pl-s">ConfigMap</span>
-<span class="pl-ent">metadata</span>:
-  <span class="pl-ent">name</span>: <span class="pl-s">translations-74424tmdd8</span></pre></div>
+  name: translations-74424tmdd8"><pre class="notranslate"><code><a id="user-content-cb3-1" title="1"><span>apiVersion:</span><span> v1</span></a>
+<a id="user-content-cb3-2" title="2"><span>data:</span></a>
+<a id="user-content-cb3-3" title="3">  <span>GOODBYE:</span><span> adios</span></a>
+<a id="user-content-cb3-4" title="4">  <span>HELLO:</span><span> hola</span></a>
+<a id="user-content-cb3-5" title="5">  <span>THANK_YOU:</span><span> gracias</span></a>
+<a id="user-content-cb3-6" title="6"><span>kind:</span><span> ConfigMap</span></a>
+<a id="user-content-cb3-7" title="7"><span>metadata:</span></a>
+<a id="user-content-cb3-8" title="8">  <span>name:</span><span> translations-74424tmdd8</span></a></code></pre></div></div>
 <p dir="auto">Now, let's teach Bazel to produce the same document.</p>
 <p dir="auto">By convention, we'll add a couple of Bazel targets to the <em>BUILD.bazel</em> file in the same directory. First, we define the <a href="https://kubectl.docs.kubernetes.io/references/kustomize/glossary/#kustomization" rel="nofollow">kustomization</a> itself, indicating where the <em>kustomization</em> file sits and which other files it depends on. For this, we use the <a href="#kustomization">kustomization</a> rule.</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(
      &quot;@rules_kustomize//kustomize:kustomize.bzl&quot;,
      &quot;kustomization&quot;,
  )
@@ -84,151 +63,174 @@ metadata:
      srcs = [
          &quot;config-bindings&quot;,
      ],
- )"><pre><span class="pl-en">load</span>(
-     <span class="pl-s">"@rules_kustomize//kustomize:kustomize.bzl"</span>,
-     <span class="pl-s">"kustomization"</span>,
+ )"><pre class="notranslate"><code>load(
+     "@rules_kustomize//kustomize:kustomize.bzl",
+     "kustomization",
  )
 
- <span class="pl-en">kustomization</span>(
-     <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"base"</span>,
-     <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> [
-         <span class="pl-s">"config-bindings"</span>,
+ kustomization(
+     name = "base",
+     srcs = [
+         "config-bindings",
      ],
- )</pre></div>
+ )</code></pre></div>
 <p dir="auto">By default, the <a href="#kustomization">kustomization</a> rule assumes the <em>kustomization</em> file is named <em>kustomization.yaml</em>, but you can also point it at other file names, such as the <em>kustomization.yml</em> or <em>kustomization</em> alternatives that the <em>kustomize</em> tool accepts.</p>
-<p dir="auto">This "base" target we've defined doesn't produce any artifacts. It prepares the recipe for building artifacts, in the same way that a <em>kustomization</em>'s files are inert input for the <em>kustomize</em> tool. When we'd like to build the <em>kustomization</em> using particular options—as we would by invoking <em>kustomize build</em>—we define another target in a <em>BUILD.bazel</em> file. Here we'll add to the same Bazel package, this time using the <a href="#kustomized-resources">kustomized_resources</a> rule.</p>
-<p dir="auto">When we tell Bazel to build this new "simple" target, it will invoke <em>kustomize build</em> and write the output to a file named <em>simple.yaml</em>. That's the default mapping from target name to output file name, but you can change it with the <a href="#kustomized-resources">kustomized_resources</a> rule's <kbd>result</kbd> attribute. Other Bazel targets can then demand this file as input, forcing Bazel to rebuild the file whenever—and only when—any of the input files change.</p>
-<a name="user-content-integrating-into-your-project"></a>
-<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto"><a href="#id6">Integrating Into Your Project</a></h2><a id="user-content-integrating-into-your-project" class="anchor" aria-label="Permalink: Integrating Into Your Project" href="#integrating-into-your-project"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">This "base" target we've defined doesn't produce any artifacts. It prepares the recipe for building artifacts, in the same way that a <em>kustomization</em>'s files are inert input for the <em>kustomize</em> tool. When we'd like to build the <em>kustomization</em> using particular options—as we would by invoking <em>kustomize build</em>—we define another target in a <em>BUILD.bazel</em> file. Here we'll add to the same Bazel package, this time using the <a href="#kustomized_resources">kustomized_resources</a> rule.</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="kustomized_resources(
+    name = &quot;simple&quot;,
+    kustomization = &quot;:base&quot;,
+)"><pre class="notranslate"><code>kustomized_resources(
+    name = "simple",
+    kustomization = ":base",
+)</code></pre></div>
+<p dir="auto">When we tell Bazel to build this new "simple" target, it will invoke <em>kustomize build</em> and write the output to a file named <em>simple.yaml</em>. That's the default mapping from target name to output file name, but you can change it with the <a href="#kustomized_resources">kustomized_resources</a> rule's <code>result</code> attribute. Other Bazel targets can then demand this file as input, forcing Bazel to rebuild the file whenever—and only when—any of the input files change.</p>
+<div class="markdown-heading" dir="auto"><h2 id="user-content-integrating-into-your-project" class="heading-element" dir="auto">Integrating Into Your Project</h2><a id="user-content-integrating-into-your-project" class="anchor" aria-label="Permalink: Integrating Into Your Project" href="#integrating-into-your-project"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">In order to use these rules in your Bazel project, you must instruct Bazel to download the source and run the functions that make the rules available. Add the following to your project's <em>MODULE.bazel</em> file.</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel_dep(name = &quot;rules_kustomize&quot;, version = &quot;0.3.8&quot;)"><pre><span class="pl-en">bazel_dep</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_kustomize"</span>, <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"0.3.8"</span>)</pre></div>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="bazel_dep(name = &quot;rules_kustomize&quot;, version = &quot;0.3.10&quot;)"><pre class="notranslate"><code>bazel_dep(name = "rules_kustomize", version = "0.3.10")</code></pre></div>
 <p dir="auto">This declaration registers a particular version of the <em>helm</em> and <em>kustomize</em> tools, respectively. By default, it registers <a href="#tool-versions">the latest version known to the rules</a>. You can specify a preferred version for each tool by supplying the known version slug (e.g. "v4.5.7") as an argument to the respective module extension's <code>download</code> tag.</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel_dep(name = &quot;rules_kustomize&quot;, version = &quot;0.3.8&quot;)
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="bazel_dep(name = &quot;rules_kustomize&quot;, version = &quot;0.3.10&quot;)
 
 kustomize = use_extension(&quot;@rules_kustomize//kustomize:extensions.bzl&quot;, &quot;kustomize&quot;)
-kustomize.download(version = &quot;v5.2.1&quot;)
+kustomize.download(version = &quot;v5.3.0&quot;)
 helm = use_extension(&quot;@rules_kustomize//kustomize:extensions.bzl&quot;, &quot;helm&quot;)
-helm.download(version = &quot;v3.12.1&quot;)"><pre><span class="pl-en">bazel_dep</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_kustomize"</span>, <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"0.3.8"</span>)
+helm.download(version = &quot;v3.12.1&quot;)"><pre class="notranslate"><code>bazel_dep(name = "rules_kustomize", version = "0.3.10")
 
-<span class="pl-s1">kustomize</span> <span class="pl-c1">=</span> <span class="pl-en">use_extension</span>(<span class="pl-s">"@rules_kustomize//kustomize:extensions.bzl"</span>, <span class="pl-s">"kustomize"</span>)
-<span class="pl-s1">kustomize</span>.<span class="pl-en">download</span>(<span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"v5.2.1"</span>)
-<span class="pl-s1">helm</span> <span class="pl-c1">=</span> <span class="pl-en">use_extension</span>(<span class="pl-s">"@rules_kustomize//kustomize:extensions.bzl"</span>, <span class="pl-s">"helm"</span>)
-<span class="pl-s1">helm</span>.<span class="pl-en">download</span>(<span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"v3.12.1"</span>)</pre></div>
+kustomize = use_extension("@rules_kustomize//kustomize:extensions.bzl", "kustomize")
+kustomize.download(version = "v5.3.0")
+helm = use_extension("@rules_kustomize//kustomize:extensions.bzl", "helm")
+helm.download(version = "v3.12.1")</code></pre></div>
 <p dir="auto">If any number of modules wind up specifying different version values for these tags, the latest version—per <em>Semantic Versioning</em> sorting—among the proposed candidate versions wins. If any of the tags also include the <code>tolerate_newer</code> attribute with a value of <code>False</code>, then no competing version newer than that tag's proposed version can win.</p>
 <p dir="auto">With those calls in place, you're now ready to use the rules in your Bazel packages.</p>
-<a name="user-content-tool-versions"></a>
-<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto"><a href="#id7">Tool Versions</a></h2><a id="user-content-tool-versions" class="anchor" aria-label="Permalink: Tool Versions" href="#tool-versions"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="markdown-heading" dir="auto"><h2 id="user-content-tool-versions" class="heading-element" dir="auto">Tool Versions</h2><a id="user-content-tool-versions" class="anchor" aria-label="Permalink: Tool Versions" href="#tool-versions"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">At present, these rules can load the following versions of these tools:</p>
 <ul dir="auto">
-<li><em>kustomize</em><ul dir="auto">
-<li><a href="https://github.com/kubernetes-sigs/kustomize/releases/tag/kustomize%2Fv5.3.0">v5.3.0</a> (default)</li>
+<li><em>kustomize</em>
+<ul dir="auto">
+<li><a href="https://github.com/kubernetes-sigs/kustomize/releases/tag/kustomize%2Fv5.4.1">v5.4.0</a> (default)</li>
+<li><a href="https://github.com/kubernetes-sigs/kustomize/releases/tag/kustomize%2Fv5.4.0">v5.4.0</a></li>
+<li><a href="https://github.com/kubernetes-sigs/kustomize/releases/tag/kustomize%2Fv5.3.0">v5.3.0</a></li>
 <li><a href="https://github.com/kubernetes-sigs/kustomize/releases/tag/kustomize%2Fv5.2.1">v5.2.1</a></li>
 <li><a href="https://github.com/kubernetes-sigs/kustomize/releases/tag/kustomize%2Fv5.1.0">v5.1.0</a></li>
 <li><a href="https://github.com/kubernetes-sigs/kustomize/releases/tag/kustomize%2Fv5.0.3">v5.0.3</a></li>
 <li><a href="https://github.com/kubernetes-sigs/kustomize/releases/tag/kustomize%2Fv5.0.1">v5.0.1</a></li>
-<li><a href="https://github.com/kubernetes-sigs/kustomize/releases/tag/kustomize%2Fv5.0.0">v5.0.0</a></li>
-</ul>
-</li>
-<li><em>helm</em><ul dir="auto">
+</ul></li>
+<li><em>helm</em>
+<ul dir="auto">
 <li><a href="https://github.com/helm/helm/releases/tag/v3.13.1">v3.13.1</a> (default)</li>
 <li><a href="https://github.com/helm/helm/releases/tag/v3.12.1">v3.12.1</a></li>
 <li><a href="https://github.com/helm/helm/releases/tag/v3.11.3">v3.11.3</a></li>
 <li><a href="https://github.com/helm/helm/releases/tag/v3.11.2">v3.11.2</a></li>
 <li><a href="https://github.com/helm/helm/releases/tag/v3.11.0">v3.11.0</a></li>
+</ul></li>
 </ul>
-</li>
-</ul>
-<a name="user-content-rules"></a>
-<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto"><a href="#id8">Rules</a></h2><a id="user-content-rules" class="anchor" aria-label="Permalink: Rules" href="#rules"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<a name="user-content-kustomization"></a>
-<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto"><a href="#id9">kustomization</a></h3><a id="user-content-kustomization" class="anchor" aria-label="Permalink: kustomization" href="#kustomization"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<p dir="auto">This defines a <a href="https://kubectl.docs.kubernetes.io/references/kustomize/glossary/#kustomization" rel="nofollow">kustomization</a> from a set of source files and other <a href="#kustomization">kustomizations</a>, intended for referencing from one or more dependent <a href="#kustomized-resources">kustomized_resources</a> targets.</p>
-<a name="user-content-providers"></a>
-<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Providers</h4><a id="user-content-providers" class="anchor" aria-label="Permalink: Providers" href="#providers"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="markdown-heading" dir="auto"><h2 id="user-content-rules" class="heading-element" dir="auto">Rules</h2><a id="user-content-rules" class="anchor" aria-label="Permalink: Rules" href="#rules"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="markdown-heading" dir="auto"><h3 id="user-content-kustomization" class="heading-element" dir="auto">kustomization</h3><a id="user-content-kustomization" class="anchor" aria-label="Permalink: kustomization" href="#kustomization"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">This defines a <a href="https://kubectl.docs.kubernetes.io/references/kustomize/glossary/#kustomization" rel="nofollow">kustomization</a> from a set of source files and other <a href="#kustomization">kustomizations</a>, intended for referencing from one or more dependent <a href="#kustomized_resources">kustomized_resources</a> targets.</p>
+<div class="markdown-heading" dir="auto"><h4 id="user-content-providers" class="heading-element" dir="auto">Providers</h4><a id="user-content-providers" class="anchor" aria-label="Permalink: Providers" href="#providers"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <ul dir="auto">
 <li><a href="#kustomizationinfo">KustomizationInfo</a></li>
 </ul>
-<a name="user-content-attributes"></a>
-<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Attributes</h4><a id="user-content-attributes" class="anchor" aria-label="Permalink: Attributes" href="#attributes"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="markdown-heading" dir="auto"><h4 id="user-content-attributes" class="heading-element" dir="auto">Attributes</h4><a id="user-content-attributes" class="anchor" aria-label="Permalink: Attributes" href="#attributes"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <table>
 
 
 
 
 
-<tbody valign="top">
-<tr><td><strong>Name</strong></td>
+<tbody>
+<tr>
+<td><strong>Name</strong></td>
 <td><strong>Type</strong></td>
 <td><strong>Default value</strong></td>
 </tr>
-<tr><td><kbd>name</kbd></td>
+<tr>
+<td><code>name</code></td>
 <td><em>string</em></td>
 <td><strong>mandatory value</strong></td>
 </tr>
-<tr><td colspan="3">A unique name for the <em>kustomization</em>. As there is usually only one such target defined  per Bazel
-package (assuming that the target is in the same package as the <em>kustomization</em> file), a simple name
-like "base" is fitting.</td>
+<tr>
+<td>A unique name for the :term:`kustomizatio package (assuming that the target is in t like "base" is fitting.</td>
+<td>n`. As there is usually only o he same package as the :term:`</td>
+<td>ne such target defined per Bazel kustomization` file), a simple name</td>
 </tr>
-<tr><td><kbd>deps</kbd></td>
+<tr>
+<td><code>deps</code></td>
 <td><em>label_list</em></td>
 <td><code>[]</code></td>
 </tr>
-<tr><td colspan="3">The set of <a href="#kustomization">kustomizations</a> referenced as <a href="https://kubectl.docs.kubernetes.io/references/kustomize/glossary/#resource" rel="nofollow">resources</a> by this <em>kustomization</em>.</td>
+<tr>
+<td>The set of `kustomizations &lt;kustomization</td>
+<td>_&gt;`_ referenced as <a href="https://kubectl.docs.kubernetes.io/references/kustomize/glossary/#resource" rel="nofollow">resources</a></td>
+<td>by this <em>kustomization</em>.</td>
 </tr>
-<tr><td><kbd>file</kbd></td>
+<tr>
+<td><code>file</code></td>
 <td><em>label</em></td>
-<td><code>kustomization.yaml</code></td>
+<td>:value:<span>kustomization.yaml</span></td>
 </tr>
-<tr><td colspan="3"><em>kustomization.yaml</em>, <em>kustomization.yml</em>, or <em>kustomization</em> file for this
-<em>kustomization</em>.</td>
+<tr>
+<td>:file:`kustomization.yaml<span>, :file:`kustom :term:`kustomization</span>.</td>
+<td>ization.yml`, or :file:`kustom</td>
+<td>ization` file for this</td>
 </tr>
-<tr><td><kbd>requires_exec_functions</kbd></td>
+<tr>
+<td><code>requires_exec_functions</code></td>
 <td><em>bool</em></td>
 <td><code>False</code></td>
 </tr>
-<tr><td colspan="3"><p dir="auto">Whether this <em>kustomization</em> requires use of exec functions (raw executables) (per the
-<code>--enable-exec</code> <em>kustomize</em> flag).</p>
-<p dir="auto">Even if this <em>kustomization</em>'s top-level resources don't require such use but any of its base <em>kustomizations</em> do, this value is effectively <code>True</code>.</p>
-</td>
+<tr>
+<td><p dir="auto">Whether this <em>kustomization</em> requir <code>--enable-exec</code> :tool:`kustomize</p>
+<p dir="auto">Even if this <code>kustomization</code>'s top-level resources don't require such use but any of its base <code>kustomizations</code> do, this value is effectively <code>True</code>.</p></td>
+<td>es use of exec functions (raw ` flag).</td>
+<td>executables) (per the</td>
 </tr>
-<tr><td><kbd>requires_helm</kbd></td>
+<tr>
+<td><code>requires_helm</code></td>
 <td><em>bool</em></td>
 <td><code>False</code></td>
 </tr>
-<tr><td colspan="3"><p dir="auto">Whether this <em>kustomization</em> requires use of the Helm chart inflator generator (per the
-<code>--enable-helm</code> <em>kustomize</em> flag).</p>
-<p dir="auto">Even if this <em>kustomization</em>'s top-level resources don't require such use but any of its base <em>kustomizations</em> do, this value is effectively <code>True</code>.</p>
-</td>
+<tr>
+<td><p dir="auto">Whether this <em>kustomization</em> requir <code>--enable-helm</code> :tool:`kustomize</p>
+<p dir="auto">Even if this <code>kustomization</code>'s top-level resources don't require such use but any of its base <code>kustomizations</code> do, this value is effectively <code>True</code>.</p></td>
+<td>es use of the Helm chart infla ` flag).</td>
+<td>tor generator (per the</td>
 </tr>
-<tr><td><kbd>requires_plugins</kbd></td>
+<tr>
+<td><code>requires_plugins</code></td>
 <td><em>bool</em></td>
 <td><code>False</code></td>
 </tr>
-<tr><td colspan="3"><p dir="auto">Whether this <em>kustomization</em> requires use of <em>kustomize</em> plugins (per the
-<code>--enable-alpha-plugins</code> <em>kustomize</em> flag).</p>
-<p dir="auto">Even if this <em>kustomization</em>'s top-level resources don't require such use but any of its base <em>kustomizations</em> do, this value is effectively <code>True</code>.</p>
-</td>
+<tr>
+<td><p dir="auto">Whether this <em>kustomization</em> requir <code>--enable-alpha-plugins</code> :tool:`</p>
+<p dir="auto">Even if this <code>kustomization</code>'s top-level resources don't require such use but any of its base <code>kustomizations</code> do, this value is effectively <code>True</code>.</p></td>
+<td>es use of <em>kustomize</em> pl kustomize` flag).</td>
+<td>ugins (per the</td>
 </tr>
-<tr><td><kbd>requires_starlark_functions</kbd></td>
+<tr>
+<td><code>requires_starlark_functions</code></td>
 <td><em>bool</em></td>
 <td><code>False</code></td>
 </tr>
-<tr><td colspan="3"><p dir="auto">Whether this <em>kustomization</em> requires use of Starlark functions (per the <code>--enable-star</code>
-<em>kustomize</em> flag).</p>
-<p dir="auto">Even if this <em>kustomization</em>'s top-level resources don't require such use but any of its base <em>kustomizations</em> do, this value is effectively <code>True</code>.</p>
-</td>
+<tr>
+<td><p dir="auto">Whether this <em>kustomization</em> requir <em>kustomize</em> flag).</p>
+<p dir="auto">Even if this <code>kustomization</code>'s top-level resources don't require such use but any of its base <code>kustomizations</code> do, this value is effectively <code>True</code>.</p></td>
+<td>es use of Starlark functions (</td>
+<td>per the <code>--enable-star</code></td>
 </tr>
-<tr><td><kbd>srcs</kbd></td>
+<tr>
+<td><code>srcs</code></td>
 <td><em>label_list</em></td>
-<td><code>[]</code></td>
+<td>:value:<span>[]</span></td>
 </tr>
-<tr><td colspan="3">Files referenced as <a href="https://kubectl.docs.kubernetes.io/references/kustomize/glossary/#resource" rel="nofollow">resources</a> for this <em>kustomization</em>.</td>
+<tr>
+<td>Files referenced as <a href="https://kubectl.docs.kubernetes.io/references/kustomize/glossary/#resource" rel="nofollow">resources</a> for this :</td>
+<td>term:<span>kustomization</span>.</td>
+<td></td>
 </tr>
 </tbody>
 </table>
-<a name="user-content-example"></a>
-<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Example</h4><a id="user-content-example" class="anchor" aria-label="Permalink: Example" href="#example"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="kustomization(
+<div class="markdown-heading" dir="auto"><h4 id="user-content-example" class="heading-element" dir="auto">Example</h4><a id="user-content-example" class="anchor" aria-label="Permalink: Example" href="#example"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="kustomization(
     name = &quot;overlay&quot;,
     deps = [
         # This target &quot;base:base&quot; is another kustomization.
@@ -242,194 +244,224 @@ like "base" is fitting.</td>
         &quot;extras.yaml&quot;,
     ],
     requires_helm = True,
-)"><pre><span class="pl-en">kustomization</span>(
-    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"overlay"</span>,
-    <span class="pl-s1">deps</span> <span class="pl-c1">=</span> [
-        <span class="pl-c"># This target "base:base" is another kustomization.</span>
-        <span class="pl-s">"//apps/base"</span>
+)"><pre class="notranslate"><code>kustomization(
+    name = "overlay",
+    deps = [
+        # This target "base:base" is another kustomization.
+        "//apps/base"
     ],
-    <span class="pl-c"># We can omit the "file" attribute because our kustomization</span>
-    <span class="pl-c"># file is named "kustomization.yaml," matching the default.</span>
-    <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> [
-        <span class="pl-c"># This target "charts:charts" is a filegroup.</span>
-        <span class="pl-s">"//apps/base/charts"</span>,
-        <span class="pl-s">"extras.yaml"</span>,
+    # We can omit the "file" attribute because our kustomization
+    # file is named "kustomization.yaml," matching the default.
+    srcs = [
+        # This target "charts:charts" is a filegroup.
+        "//apps/base/charts",
+        "extras.yaml",
     ],
-    <span class="pl-s1">requires_helm</span> <span class="pl-c1">=</span> <span class="pl-c1">True</span>,
-)</pre></div>
-<a name="user-content-kustomized-resources"></a>
-<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto"><a href="#id10">kustomized_resources</a></h3><a id="user-content-kustomized_resources" class="anchor" aria-label="Permalink: kustomized_resources" href="#kustomized_resources"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+    requires_helm = True,
+)</code></pre></div>
+<div class="markdown-heading" dir="auto"><h3 id="user-content-kustomized_resources" class="heading-element" dir="auto">kustomized_resources</h3><a id="user-content-kustomized_resources" class="anchor" aria-label="Permalink: kustomized_resources" href="#kustomized_resources"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">This defines an invocation of the <em>kustomize build</em> command against a <em>kustomization</em> <a href="https://kubectl.docs.kubernetes.io/references/kustomize/glossary/#target" rel="nofollow">target</a>, creating a resulting set of <em>resources</em> (collectively, a <a href="https://kubectl.docs.kubernetes.io/references/kustomize/glossary/#variant" rel="nofollow">variant</a>).</p>
 <p dir="auto">See the <a href="#difficulties">Difficulties</a> section below for considerations both with <em>kustomizations</em> that involve use of the <code>helmCharts</code> <em>Kustomization</em> (or <em>Component</em>) field and when executing Bazel actions on some computers.</p>
-<a name="user-content-id1"></a>
-<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Attributes</h4><a id="user-content-attributes-1" class="anchor" aria-label="Permalink: Attributes" href="#attributes-1"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="markdown-heading" dir="auto"><h4 id="user-content-attributes-1" class="heading-element" dir="auto">Attributes</h4><a id="user-content-attributes-1" class="anchor" aria-label="Permalink: Attributes" href="#attributes-1"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <table>
 
 
 
 
 
-<tbody valign="top">
-<tr><td><strong>Name</strong></td>
+<tbody>
+<tr>
+<td><strong>Name</strong></td>
 <td><strong>Type</strong></td>
 <td><strong>Default value</strong></td>
 </tr>
-<tr><td><kbd>name</kbd></td>
+<tr>
+<td><code>name</code></td>
 <td><em>string</em></td>
 <td><strong>mandatory value</strong></td>
 </tr>
-<tr><td colspan="3">A unique name for the <em>variant</em>.</td>
+<tr>
+<td>A unique name for the <em>variant</em>.</td>
+<td></td>
+<td></td>
 </tr>
-<tr><td><kbd>env_bindings</kbd></td>
+<tr>
+<td><code>env_bindings</code></td>
 <td><em>string_dict</em></td>
 <td><code>{}</code></td>
 </tr>
-<tr><td colspan="3"><p dir="auto">Names and values of environment variables to be used by functions (per the <code>--env</code>
-<em>kustomize</em> flag).</p>
-<p dir="auto">These bindings specify a value for each environment variable. To forward an exported environment variable's
-through instead, use the <kbd>env_exports</kbd> attribute.</p>
-</td>
+<tr>
+<td><p dir="auto">Names and values of environment variabl <em>kustomize</em> flag).</p>
+<p dir="auto">These bindings specify a value for each through instead, use the :ruleattr:`env</p></td>
+<td><p dir="auto">es to be used by functions (pe</p>
+<blockquote>
+<p dir="auto">environment variable. To forw</p>
+</blockquote>
+<p dir="auto">_exports` attribute.</p></td>
+<td><p dir="auto">r the <code>--env</code></p>
+<p dir="auto">ard an exported environment variable's</p></td>
 </tr>
-<tr><td><kbd>env_exports</kbd></td>
+<tr>
+<td><code>env_exports</code></td>
 <td><em>string_list</em></td>
 <td><code>[]</code></td>
 </tr>
-<tr><td colspan="3"><p dir="auto">Names of exported environment variables to be used by functions (per the <code>--env</code> <em>kustomize</em>
-flag).</p>
-<p dir="auto">These bindings forward each exported environment variable's value. To specify a value for each environment
-variable instead, use the <kbd>env_bindings</kbd> attribute.</p>
-</td>
+<tr>
+<td><p dir="auto">Names of exported environment variables flag).</p>
+<p dir="auto">These bindings forward each exported en variable instead, use the :ruleattr:`en</p></td>
+<td><blockquote>
+<p dir="auto">to be used by functions (per</p>
+</blockquote>
+vironment variable's value. To v_bindings` attribute.</td>
+<td><p dir="auto">the <code>--env</code> <em>kustomize</em></p>
+<blockquote>
+<p dir="auto">specify a value for each environment</p>
+</blockquote></td>
 </tr>
-<tr><td><kbd>kustomization</kbd></td>
+<tr>
+<td><code>kustomization</code></td>
 <td><em>label</em></td>
 <td><strong>mandatory value</strong></td>
 </tr>
-<tr><td colspan="3"><p dir="auto">The <em>kustomization</em> to build.</p>
-<p dir="auto">This may refer to a target using the <a href="#kustomization">kustomization</a> rule or another rule that yields a <a href="#kustomizationinfo">KustomizationInfo</a>
-provider.</p>
-</td>
+<tr>
+<td><p dir="auto">The <em>kustomization</em> to build.</p>
+<p dir="auto">This may refer to a target using the ku provider.</p></td>
+<td><a href="">stomization</a> rule or another r</td>
+<td>ule that yields a <a href="#kustomizationinfo">KustomizationInfo</a></td>
 </tr>
-<tr><td><kbd>load_restrictor</kbd></td>
+<tr>
+<td><code>load_restrictor</code></td>
 <td><em>string</em></td>
 <td><code>RootOnly</code></td>
 </tr>
-<tr><td colspan="3"><p dir="auto">Control whether <em>kustomizations</em> may load files from outsider their root directory (per the
-<code>--load-restrictor</code> :tool:kustomize flag). May be one of <code>None</code> or <code>RootOnly</code>.</p>
-<p dir="auto">See the <a href="#difficulties">Difficulties</a> section for cases where you may need to set this value to <code>None</code> within
-Bazel when you could normally get by with the <em>kustomize</em> tool's default behavior of preventing
-<em>kustomizations</em> from loading files from outside their <a href="https://kubectl.docs.kubernetes.io/references/kustomize/glossary/#kustomization-root" rel="nofollow">root</a>.</p>
-</td>
+<tr>
+<td><p dir="auto">Control whether <em>kustomizations</em> <code>--load-restrictor</code> :tool:kust</p>
+<p dir="auto">See the <a href="#difficulties">Difficulties</a> section for cases Bazel when you could normally get by wi <em>kustomizations</em> from loading fil</p></td>
+<td><p dir="auto">may load files from outsider t omize flag). May be one of :va</p>
+<blockquote>
+<p dir="auto">where you may need to set thi</p>
+</blockquote>
+<p dir="auto">th the <em>kustomize</em> tool' es from outside their <a href="https://kubectl.docs.kubernetes.io/references/kustomize/glossary/#kustomization-root" rel="nofollow">root</a>.</p></td>
+<td><p dir="auto">heir root directory (per the lue:<span>None</span> or <code>RootOnly</code>.</p>
+<p dir="auto">s value to <code>None</code> within s default behavior of preventing</p></td>
 </tr>
-<tr><td><kbd>result</kbd></td>
+<tr>
+<td><code>result</code></td>
 <td><em>output</em></td>
 <td><code>&lt;name&gt;.yaml</code></td>
 </tr>
-<tr><td colspan="3">The built result, as a YAML stream of KRM resources in separate documents (per the <code>--output</code>
-<em>kustomize</em> flag).</td>
+<tr>
+<td>The built result, as a YAML stream of K <em>kustomize</em> flag).</td>
+<td>RM resources in separate docum</td>
+<td>ents (per the <code>--output</code></td>
 </tr>
 </tbody>
 </table>
-<a name="user-content-id2"></a>
-<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Example</h4><a id="user-content-example-1" class="anchor" aria-label="Permalink: Example" href="#example-1"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="kustomized_resources(
+<div class="markdown-heading" dir="auto"><h4 id="user-content-example-1" class="heading-element" dir="auto">Example</h4><a id="user-content-example-1" class="anchor" aria-label="Permalink: Example" href="#example-1"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="kustomized_resources(
     name = &quot;production&quot;,
     env_bindings = {
         &quot;CLUSTER_NAME&quot;: &quot;prod1234&quot;,
         &quot;ENVIRONMENT&quot;: &quot;production&quot;,
     },
     kustomization = &quot;:overlay&quot;,
-)"><pre><span class="pl-en">kustomized_resources</span>(
-    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"production"</span>,
-    <span class="pl-s1">env_bindings</span> <span class="pl-c1">=</span> {
-        <span class="pl-s">"CLUSTER_NAME"</span>: <span class="pl-s">"prod1234"</span>,
-        <span class="pl-s">"ENVIRONMENT"</span>: <span class="pl-s">"production"</span>,
+)"><pre class="notranslate"><code>kustomized_resources(
+    name = "production",
+    env_bindings = {
+        "CLUSTER_NAME": "prod1234",
+        "ENVIRONMENT": "production",
     },
-    <span class="pl-s1">kustomization</span> <span class="pl-c1">=</span> <span class="pl-s">":overlay"</span>,
-)</pre></div>
-<a name="user-content-id3"></a>
-<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto"><a href="#id11">Providers</a></h2><a id="user-content-providers-1" class="anchor" aria-label="Permalink: Providers" href="#providers-1"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<a name="user-content-kustomizationinfo"></a>
-<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto"><a href="#id12">KustomizationInfo</a></h3><a id="user-content-kustomizationinfo" class="anchor" aria-label="Permalink: KustomizationInfo" href="#kustomizationinfo"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+    kustomization = ":overlay",
+)</code></pre></div>
+<div class="markdown-heading" dir="auto"><h2 id="user-content-providers-1" class="heading-element" dir="auto">Providers</h2><a id="user-content-providers-1" class="anchor" aria-label="Permalink: Providers" href="#providers-1"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="markdown-heading" dir="auto"><h3 id="user-content-kustomizationinfo" class="heading-element" dir="auto">KustomizationInfo</h3><a id="user-content-kustomizationinfo" class="anchor" aria-label="Permalink: KustomizationInfo" href="#kustomizationinfo"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto"><em>KustomizationInfo</em> summarizes a <em>kustomization</em> <a href="https://kubectl.docs.kubernetes.io/references/kustomize/glossary/#kustomization-root" rel="nofollow">root</a>, as provided by the <a href="#kustomization">kustomization</a> rule.</p>
-<a name="user-content-fields"></a>
-<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Fields</h4><a id="user-content-fields" class="anchor" aria-label="Permalink: Fields" href="#fields"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="markdown-heading" dir="auto"><h4 id="user-content-fields" class="heading-element" dir="auto">Fields</h4><a id="user-content-fields" class="anchor" aria-label="Permalink: Fields" href="#fields"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <table>
 
 
 
 
-<tbody valign="top">
-<tr><td><strong>Name</strong></td>
+<tbody>
+<tr>
+<td><strong>Name</strong></td>
 <td><strong>Type</strong></td>
 </tr>
-<tr><td><code>requires_exec_functions</code></td>
+<tr>
+<td><code>requires_exec_functions</code></td>
+<td>:type:<span>bool</span></td>
+</tr>
+<tr>
+<td>Whether this <em>kustomization</em> requ <code>--enable-exec</code> :tool:`kustomi</td>
+<td>ires use of exec functions (raw executables) (per the ze` flag).</td>
+</tr>
+<tr>
+<td><code>requires_helm</code></td>
 <td><em>bool</em></td>
 </tr>
-<tr><td colspan="2">Whether this <em>kustomization</em> requires use of exec functions (raw executables) (per the
-<code>--enable-exec</code> <em>kustomize</em> flag).</td>
+<tr>
+<td>Whether this <em>kustomization</em> requ <code>--enable-helm</code> :tool:`kustomi</td>
+<td>ires use of the Helm chart inflator generator (per the ze` flag).</td>
 </tr>
-<tr><td><code>requires_helm</code></td>
+<tr>
+<td><code>requires_plugins</code></td>
 <td><em>bool</em></td>
 </tr>
-<tr><td colspan="2">Whether this <em>kustomization</em> requires use of the Helm chart inflator generator (per the
-<code>--enable-helm</code> <em>kustomize</em> flag).</td>
+<tr>
+<td>Whether this <em>kustomization</em> requ <code>--enable-alpha-plugins</code> :tool</td>
+<td>ires use of <em>kustomize</em> plugins (per the :<span>kustomize</span> flag).</td>
 </tr>
-<tr><td><code>requires_plugins</code></td>
+<tr>
+<td><code>requires_starlark_functions</code></td>
 <td><em>bool</em></td>
 </tr>
-<tr><td colspan="2">Whether this <em>kustomization</em> requires use of <em>kustomize</em> plugins (per the
-<code>--enable-alpha-plugins</code> <em>kustomize</em> flag).</td>
+<tr>
+<td>Whether this <em>kustomization</em> requ <code>--enable-star</code> :tool:`kustomi</td>
+<td>ires use of Starlark functions (per the ze` flag).</td>
 </tr>
-<tr><td><code>requires_starlark_functions</code></td>
-<td><em>bool</em></td>
-</tr>
-<tr><td colspan="2">Whether this <em>kustomization</em> requires use of Starlark functions (per the
-<code>--enable-star</code> <em>kustomize</em> flag).</td>
-</tr>
-<tr><td><code>target_file</code></td>
+<tr>
+<td><code>target_file</code></td>
 <td><em>string</em></td>
 </tr>
-<tr><td colspan="2">The top-level <em>kustomization</em> file defining this <em>kustomization</em>.</td>
+<tr>
+<td>The top-level <em>kustomization</em> fil</td>
+<td>e defining this <em>kustomization</em>.</td>
 </tr>
-<tr><td><code>transitive_resources</code></td>
+<tr>
+<td><code>transitive_resources</code></td>
 <td><em>depset of File</em></td>
 </tr>
-<tr><td colspan="2">The set of files (including other <em>kustomizations</em>) referenced by this
-<em>kustomization</em>.</td>
+<tr>
+<td>The set of files (including other :term <em>kustomization</em>.</td>
+<td>:<span>kustomizations</span>) referenced by this</td>
 </tr>
 </tbody>
 </table>
-<a name="user-content-difficulties"></a>
-<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto"><a href="#id13">Difficulties</a></h2><a id="user-content-difficulties" class="anchor" aria-label="Permalink: Difficulties" href="#difficulties"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="markdown-heading" dir="auto"><h2 id="user-content-difficulties" class="heading-element" dir="auto">Difficulties</h2><a id="user-content-difficulties" class="anchor" aria-label="Permalink: Difficulties" href="#difficulties"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">These rules attempt to make using <em>kustomize</em> with Bazel easier, but there are a few features of the tools that interact poorly, or at least surprisingly, even when they're individually doing their job as intended. We can work around each problem once we know better what to expect.</p>
-<a name="user-content-bazel-s-sandbox-and-load-restrictors"></a>
-<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto"><a href="#id14">Bazel's Sandbox and Load Restrictors</a></h3><a id="user-content-bazels-sandbox-and-load-restrictors" class="anchor" aria-label="Permalink: Bazel's Sandbox and Load Restrictors" href="#bazels-sandbox-and-load-restrictors"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="markdown-heading" dir="auto"><h3 id="user-content-bazels-sandbox-and-load-restrictors" class="heading-element" dir="auto">Bazel's Sandbox and Load Restrictors</h3><a id="user-content-bazels-sandbox-and-load-restrictors" class="anchor" aria-label="Permalink: Bazel's Sandbox and Load Restrictors" href="#bazels-sandbox-and-load-restrictors"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto"><em>kustomize</em> prefers to load files only from the <em>kustomization</em> root directory—the one containing the <em>kustomization.yaml</em> file—or any of its subdirectories. The <em>kustomize build</em> subcommand runs with a <em>load restrictor</em> to enforce this restrictive policy. By default, the <code>--load-restrictor</code> flag uses the value <code>LoadRestrictionsRootOnly</code>. With that value in effect, <em>kustomize build</em> will refuse to read any files referenced by a <em>kustomization</em> that lie outside of the <em>kustomization</em> root directory tree, per <a href="https://kubectl.docs.kubernetes.io/faq/kustomize/#security-file-foo-is-not-in-or-below-bar" rel="nofollow">this FAQ entry</a>.</p>
 <p dir="auto">Bazel can execute the actions for its <em>build</em> and <em>test</em> commands in a restricted environment called a <em>sandbox</em>, using a technique called <a href="https://docs.bazel.build/versions/master/sandboxing.html" rel="nofollow">sandboxing</a>. On some operating systems, Bazel uses symbolic links to make only some files available to programs it runs in its actions. These symbolic links point upward and outward to files that lie outside of the <em>kustomization</em> root in the sandbox. Even though the links are within the <em>kustomization</em> root, their target files are not. <em>kustomize</em> considers this to transgress its <code>LoadRestrictionsRootOnly</code> load restriction and blocks the attempt to load the referenced file.</p>
 <p dir="auto">There are three ways around this problem:</p>
 <ul dir="auto">
-<li><p dir="auto">Relax <em>kustomize</em>'s load restrictor by passing <code>LoadRestrictionsNone</code> to its <code>--load-restrictor</code> flag, by way of specifying the value <code>None</code> for the <a href="#kustomized-resources">kustomized_resources</a> rule's <kbd>load_restrictor</kbd> attribute.</p>
-</li>
-<li><p dir="auto">Use a Bazel <a href="https://docs.bazel.build/versions/master/sandboxing.html" rel="nofollow">sandboxing</a> implementation that doesn't rely on symbolic links, such as its <a href="https://docs.bazel.build/versions/master/sandboxing.html#sandboxfs_" rel="nofollow">sandboxfs</a> FUSE file system. With the <em>sandboxfs</em> tool installed, pass the <code>--experimental_use_sandboxfs</code> <a href="https://docs.bazel.build/versions/master/command-line-reference.html#flag--experimental_use_sandboxfs" rel="nofollow">flag</a> to <em>bazel build</em>, <em>bazel test</em>, or <em>bazel run</em>.</p>
-<p dir="auto"><strong>NB:</strong> As of Bazel version 7.0.0, per <a href="https://github.com/bazelbuild/bazel/commit/b6e2693f83a7ece37c902416de26a3807b541ceb">commit b6e2693f83a7ece37c902416de26a3807b541ceb</a>, the <code>--experimental_use_sandboxfs</code> flag is no longer available. Bazel no longer supports use of the <em>sandboxfs</em> tool. See <em>kustomize</em> <a href="https://github.com/kubernetes-sigs/kustomize/issues/5216" data-hovercard-type="issue" data-hovercard-url="/kubernetes-sigs/kustomize/issues/5216/hovercard">issue 5216</a> for an alternate proposed workaround, which is implemented but not merged.</p>
-</li>
+<li>Relax <em>kustomize</em>'s load restrictor by passing <code>LoadRestrictionsNone</code> to its <code>--load-restrictor</code> flag, by way of specifying the value <code>None</code> for the <a href="#kustomized_resources">kustomized_resources</a> rule's <code>load_restrictor</code> attribute.</li>
+<li><p dir="auto">Use a Bazel <a href="https://docs.bazel.build/versions/master/sandboxing.html" rel="nofollow">sandboxing</a> implementation that doesn't rely on symbolic links, such as its <a href="">sandboxfs</a> FUSE file system. With the <em>sandboxfs</em> tool installed, pass the <code>--experimental_use_sandboxfs</code> <a href="https://docs.bazel.build/versions/master/command-line-reference.html#flag--experimental_use_sandboxfs" rel="nofollow">flag</a> to <em>bazel build</em>, <em>bazel test</em>, or <em>bazel run</em>.</p>
+<p dir="auto"><strong>NB:</strong> As of Bazel version 7.0.0, per <a href="https://github.com/bazelbuild/bazel/commit/b6e2693f83a7ece37c902416de26a3807b541ceb">commit b6e2693f83a7ece37c902416de26a3807b541ceb</a>, the <code>--experimental_use_sandboxfs</code> flag is no longer available. Bazel no longer supports use of the <em>sandboxfs</em> tool. See <em>kustomize</em> <a href="https://github.com/kubernetes-sigs/kustomize/issues/5216" data-hovercard-type="issue" data-hovercard-url="/kubernetes-sigs/kustomize/issues/5216/hovercard">issue 5216</a> for an alternate proposed workaround, which is implemented but not merged.</p></li>
 </ul>
-<ul id="user-content-disable-sandboxing" dir="auto">
+<div id="user-content-disable sandboxing" dir="auto">
+<ul dir="auto">
 <li>Disable Bazel <a href="https://docs.bazel.build/versions/master/sandboxing.html" rel="nofollow">sandboxing</a> entirely by omitting <code>sandboxed</code> from the values supplied via its <code>--spawn_strategy</code> <a href="https://docs.bazel.build/versions/master/command-line-reference.html#flag--spawn_strategy" rel="nofollow">flag</a>. With sandboxing disabled, Bazel will present the input files to <em>kustomize</em> as regular files. So long as those files lie within the <em>kustomization</em> root, the <code>LoadRestrictionsRootOnly</code> load restrictor will not intervene.</li>
 </ul>
-<a name="user-content-downloading-helm-charts"></a>
-<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto"><a href="#id15">Downloading Helm Charts</a></h3><a id="user-content-downloading-helm-charts" class="anchor" aria-label="Permalink: Downloading Helm Charts" href="#downloading-helm-charts"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+</div>
+<div class="markdown-heading" dir="auto"><h3 id="user-content-downloading-helm-charts" class="heading-element" dir="auto">Downloading Helm Charts</h3><a id="user-content-downloading-helm-charts" class="anchor" aria-label="Permalink: Downloading Helm Charts" href="#downloading-helm-charts"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">The <em>kustomize</em> tool can expand Helm charts using the <em>Kustomization</em> manifest's <code>helmCharts</code> <a href="https://github.com/kubernetes-sigs/kustomize/blob/master/examples/chart.md">field</a>. If the Helm chart's source files are not available already locally, <em>kustomize</em> can fetch the chart archive and unpack within the directory specified in the <code>helmGlobals.chartHome</code> <a href="https://github.com/kubernetes-sigs/kustomize/blob/master/examples/chart.md#build-the-base-and-the-variants">field</a>. By default, this <code>chartHome</code> field's value is <code>charts</code>, meaning that <em>kustomize</em> will download and expand chart archives in the <em>charts/&lt;chart name&gt;</em> directory within the <em>kustomization</em> root.</p>
 <p dir="auto">Now, first, let's acknowledge that the <em>kustomize</em> maintainers do <strong>not</strong> recommend <a href="https://github.com/kubernetes-sigs/kustomize/blob/master/examples/chart.md#but-its-not-really-about-performance">downloading Helm charts automatically</a>, nor <a href="https://github.com/kubernetes-sigs/kustomize/blob/master/examples/chart.md#best-practice">even relying on Helm for repeated expansion at all</a>. The capability is there in <em>kustomize</em> today, though, so let's clarify how Bazel might interfere.</p>
 <p dir="auto">What could go wrong? Consider:</p>
 <ul dir="auto">
 <li><p dir="auto">If Bazel <a href="https://docs.bazel.build/versions/master/sandboxing.html" rel="nofollow">sandboxing</a> is enabled, you can't have <em>kustomize</em> download and write files within the sandbox directory tree.</p>
-<p dir="auto">Instead, you can set the <em>Kustomization</em> <code>helmGlobals.chartHome</code> field to a directory to which Bazel is allowed to write, such as <em>/tmp</em>. Alternately, you can <a href="#disable-sandboxing">disable sandboxing</a> entirely.</p>
-</li>
+<p dir="auto">Instead, you can set the <em>Kustomization</em> <code>helmGlobals.chartHome</code> field to a directory to which Bazel is allowed to write, such as <em>/tmp</em>. Alternately, you can <a href="#disable sandboxing">disable sandboxing</a> entirely.</p></li>
 <li><p dir="auto">If your <em>kustomization</em> directs <em>kustomize</em> to store Helm chart files outside of the <em>kustomization</em> root, or even just refers to such distant files, the default load restrictor will block <em>kustomize</em> from reading them.</p>
-<p dir="auto">You must relax the default load restrictor by specifying the value <code>None</code> for the <a href="#kustomized-resources">kustomized_resources</a> rule's <kbd>load_restrictor</kbd> attribute.</p>
-</li>
+<p dir="auto">You must relax the default load restrictor by specifying the value <code>None</code> for the <a href="#kustomized_resources">kustomized_resources</a> rule's <code>load_restrictor</code> attribute.</p></li>
 </ul>
 <p dir="auto">Given that your chosen use of Bazel likely implies a preference for hermetic and repeatable builds, it's best to at least acquire and unpack the Helm chart archives beforehand, committing the resulting files for future use. Expanding the Helm chart as manifests outside of <em>kustomize</em> is even better, though it's then harder to include artifacts generated by other Bazel rules. Finding the right balance will take some experimentation.</p>
-
 </article></div>
