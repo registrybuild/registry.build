@@ -1,0 +1,466 @@
+<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><p dir="auto">Strong (well-distributed and unpredictable) hashes:</p>
+<ul dir="auto">
+<li>Portable implementation of
+<a href="https://www.131002.net/siphash/siphash.pdf" rel="nofollow">SipHash</a></li>
+<li>HighwayHash, a 5x faster SIMD hash with <a href="https://arxiv.org/abs/1612.06257" rel="nofollow">security
+claims</a></li>
+</ul>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Quick Start</h2><a id="user-content-quick-start" class="anchor" aria-label="Permalink: Quick Start" href="#quick-start"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">To build on a Linux or Mac platform, simply run <code>make</code>. For Windows, we provide
+a Visual Studio 2015 project in the <code>msvc</code> subdirectory.</p>
+<p dir="auto">Run <code>benchmark</code> for speed measurements. <code>sip_hash_test</code> and <code>highwayhash_test</code>
+ensure the implementations return known-good values for a given set of inputs.</p>
+<p dir="auto">64-bit SipHash for any CPU:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="    #include &quot;highwayhash/sip_hash.h&quot;
+    using namespace highwayhash;
+    HH_ALIGNAS(16) const HH_U64 key2[2] = {1234, 5678};
+    char in[8] = {1};
+    return SipHash(key2, in, 8);"><pre class="notranslate"><code>    #include "highwayhash/sip_hash.h"
+    using namespace highwayhash;
+    HH_ALIGNAS(16) const HH_U64 key2[2] = {1234, 5678};
+    char in[8] = {1};
+    return SipHash(key2, in, 8);
+</code></pre></div>
+<p dir="auto">64, 128 or 256 bit HighwayHash for the CPU determined by compiler flags:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="    #include &quot;highwayhash/highwayhash.h&quot;
+    using namespace highwayhash;
+    HH_ALIGNAS(32) const HHKey key = {1, 2, 3, 4};
+    char in[8] = {1};
+    HHResult64 result;  // or HHResult128 or HHResult256
+    HHStateT&lt;HH_TARGET&gt; state(key);
+    HighwayHashT(&amp;state, in, 8, &amp;result);"><pre class="notranslate"><code>    #include "highwayhash/highwayhash.h"
+    using namespace highwayhash;
+    HH_ALIGNAS(32) const HHKey key = {1, 2, 3, 4};
+    char in[8] = {1};
+    HHResult64 result;  // or HHResult128 or HHResult256
+    HHStateT&lt;HH_TARGET&gt; state(key);
+    HighwayHashT(&amp;state, in, 8, &amp;result);
+</code></pre></div>
+<p dir="auto">64, 128 or 256 bit HighwayHash for the CPU on which we're currently running:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="    #include &quot;highwayhash/highwayhash_target.h&quot;
+    #include &quot;highwayhash/instruction_sets.h&quot;
+    using namespace highwayhash;
+    HH_ALIGNAS(32) const HHKey key = {1, 2, 3, 4};
+    char in[8] = {1};
+    HHResult64 result;  // or HHResult128 or HHResult256
+    InstructionSets::Run&lt;HighwayHash&gt;(key, in, 8, &amp;result);"><pre class="notranslate"><code>    #include "highwayhash/highwayhash_target.h"
+    #include "highwayhash/instruction_sets.h"
+    using namespace highwayhash;
+    HH_ALIGNAS(32) const HHKey key = {1, 2, 3, 4};
+    char in[8] = {1};
+    HHResult64 result;  // or HHResult128 or HHResult256
+    InstructionSets::Run&lt;HighwayHash&gt;(key, in, 8, &amp;result);
+</code></pre></div>
+<p dir="auto">C-callable 64-bit HighwayHash for the CPU on which we're currently running:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="#include &quot;highwayhash/c_bindings.h&quot;
+const uint64_t key[4] = {1, 2, 3, 4};
+char in[8] = {1};
+return HighwayHash64(key, in, 8);"><pre class="notranslate"><code>#include "highwayhash/c_bindings.h"
+const uint64_t key[4] = {1, 2, 3, 4};
+char in[8] = {1};
+return HighwayHash64(key, in, 8);
+</code></pre></div>
+<p dir="auto">Printing a 256-bit result in a hexadecimal format similar to sha1sum:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="HHResult256 result;
+printf(&quot;%016&quot;PRIx64&quot;%016&quot;PRIx64&quot;%016&quot;PRIx64&quot;%016&quot;PRIx64&quot;\n&quot;,
+     result[3], result[2], result[1], result[0]);"><pre class="notranslate"><code>HHResult256 result;
+printf("%016"PRIx64"%016"PRIx64"%016"PRIx64"%016"PRIx64"\n",
+     result[3], result[2], result[1], result[0]);
+</code></pre></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Introduction</h2><a id="user-content-introduction" class="anchor" aria-label="Permalink: Introduction" href="#introduction"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Hash functions are widely used, so it is desirable to increase their speed and
+security. This package provides two 'strong' (well-distributed and
+unpredictable) hash functions: a faster version of SipHash, and an even faster
+algorithm we call HighwayHash.</p>
+<p dir="auto">SipHash is a fast but 'cryptographically strong' pseudo-random function by
+Aumasson and Bernstein [<a href="https://www.131002.net/siphash/siphash.pdf" rel="nofollow">https://www.131002.net/siphash/siphash.pdf</a>].</p>
+<p dir="auto">HighwayHash is a new way of mixing inputs which may inspire new
+cryptographically strong hashes. Large inputs are processed at a rate of 0.24
+cycles per byte, and latency remains low even for small inputs. HighwayHash is
+faster than SipHash for all input sizes, with 5 times higher throughput at 1
+KiB. We discuss design choices and provide statistical analysis and preliminary
+cryptanalysis in <a href="https://arxiv.org/abs/1612.06257" rel="nofollow">https://arxiv.org/abs/1612.06257</a>.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Applications</h2><a id="user-content-applications" class="anchor" aria-label="Permalink: Applications" href="#applications"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Unlike prior strong hashes, these functions are fast enough to be recommended
+as safer replacements for weak hashes in many applications. The additional CPU
+cost appears affordable, based on profiling data indicating C++ hash functions
+account for less than 0.25% of CPU usage.</p>
+<p dir="auto">Hash-based selection of random subsets is useful for A/B experiments and similar
+applications. Such random generators are idempotent (repeatable and
+deterministic), which is helpful for parallel algorithms and testing. To avoid
+bias, it is important that the hash function be unpredictable and
+indistinguishable from a uniform random generator. We have verified the bit
+distribution and avalanche properties of SipHash and HighwayHash.</p>
+<p dir="auto">64-bit hashes are also useful for authenticating short-lived messages such as
+network/RPC packets. This requires that the hash function withstand
+differential, length extension and other attacks. We have published a formal
+security analysis for HighwayHash. New cryptanalysis tools may still need to be
+developed for further analysis.</p>
+<p dir="auto">Strong hashes are also important parts of methods for protecting hash tables
+against unacceptable worst-case behavior and denial of service attacks
+(see "hash flooding" below).</p>
+<p dir="auto">128 and 256-bit hashes can be useful for verifying data integrity (checksums).</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">SipHash</h2><a id="user-content-siphash" class="anchor" aria-label="Permalink: SipHash" href="#siphash"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Our SipHash implementation is a fast and portable drop-in replacement for
+the reference C code. Outputs are identical for the given test cases (messages
+between 0 and 63 bytes).</p>
+<p dir="auto">Interestingly, it is about twice as fast as a SIMD implementation using SSE4.1
+(<a href="https://goo.gl/80GBSD" rel="nofollow">https://goo.gl/80GBSD</a>). This is presumably due to the lack of SIMD bit rotate
+instructions prior to AVX-512.</p>
+<p dir="auto">SipHash13 is a faster but weaker variant with one mixing round per update and
+three during finalization.</p>
+<p dir="auto">We also provide a data-parallel 'tree hash' variant that enables efficient SIMD
+while retaining safety guarantees. This is about twice as fast as SipHash, but
+does not return the same results.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">HighwayHash</h2><a id="user-content-highwayhash" class="anchor" aria-label="Permalink: HighwayHash" href="#highwayhash"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">We have devised a new way of mixing inputs with SIMD multiply and permute
+instructions. The multiplications are 32x32 -&gt; 64 bits and therefore infeasible
+to reverse. Permuting equalizes the distribution of the resulting bytes.</p>
+<p dir="auto">The internal state is quite large (1024 bits) but fits within SIMD registers.
+Due to limitations of the AVX2 instruction set, the registers are partitioned
+into two 512-bit halves that remain independent until the reduce phase. The
+algorithm outputs 64 bit digests or up to 256 bits at no extra cost.</p>
+<p dir="auto">In addition to high throughput, the algorithm is designed for low finalization
+cost. The result is more than twice as fast as SipTreeHash.</p>
+<p dir="auto">We also provide an SSE4.1 version (80% as fast for large inputs and 95% as fast
+for short inputs), an implementation for VSX on POWER and a portable version
+(10% as fast). A third-party ARM implementation is referenced below.</p>
+<p dir="auto">Statistical analyses and preliminary cryptanalysis are given in
+<a href="https://arxiv.org/abs/1612.06257" rel="nofollow">https://arxiv.org/abs/1612.06257</a>.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Versioning and stability</h2><a id="user-content-versioning-and-stability" class="anchor" aria-label="Permalink: Versioning and stability" href="#versioning-and-stability"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Now that 21 months have elapsed since their initial release, we have declared
+all (64/128/256 bit) variants of HighwayHash frozen, i.e. unchanging forever.</p>
+<p dir="auto">SipHash and HighwayHash are 'fingerprint functions' whose input -&gt; hash
+mapping will not change. This is important for applications that write hashes to
+persistent storage.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Speed measurements</h2><a id="user-content-speed-measurements" class="anchor" aria-label="Permalink: Speed measurements" href="#speed-measurements"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">To measure the CPU cost of a hash function, we can either create an artificial
+'microbenchmark' (easier to control, but probably not representative of the
+actual runtime), or insert instrumentation directly into an application (risks
+influencing the results through observer overhead). We provide novel variants of
+both approaches that mitigate their respective disadvantages.</p>
+<p dir="auto">profiler.h uses software write-combining to stream program traces to memory
+with minimal overhead. These can be analyzed offline, or when memory is full,
+to learn how much time was spent in each (possibly nested) zone.</p>
+<p dir="auto">nanobenchmark.h enables cycle-accurate measurements of very short functions.
+It uses CPU fences and robust statistics to minimize variability, and also
+avoids unrealistic branch prediction effects.</p>
+<p dir="auto">We compile the 64-bit C++ implementations with a patched GCC 4.9 and run on a
+single idle core of a Xeon E5-2690 v3 clocked at 2.6 GHz. CPU cost is measured
+as cycles per byte for various input sizes:</p>
+<table>
+<thead>
+<tr>
+<th>Algorithm</th>
+<th>8</th>
+<th>31</th>
+<th>32</th>
+<th>63</th>
+<th>64</th>
+<th>1024</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>HighwayHashAVX2</td>
+<td>7.34</td>
+<td>1.81</td>
+<td>1.71</td>
+<td>1.04</td>
+<td>0.95</td>
+<td>0.24</td>
+</tr>
+<tr>
+<td>HighwayHashSSE41</td>
+<td>8.00</td>
+<td>2.11</td>
+<td>1.75</td>
+<td>1.13</td>
+<td>0.96</td>
+<td>0.30</td>
+</tr>
+<tr>
+<td>SipTreeHash</td>
+<td>16.51</td>
+<td>4.57</td>
+<td>4.09</td>
+<td>2.22</td>
+<td>2.29</td>
+<td>0.57</td>
+</tr>
+<tr>
+<td>SipTreeHash13</td>
+<td>12.33</td>
+<td>3.47</td>
+<td>3.06</td>
+<td>1.68</td>
+<td>1.63</td>
+<td>0.33</td>
+</tr>
+<tr>
+<td>SipHash</td>
+<td>8.13</td>
+<td>2.58</td>
+<td>2.73</td>
+<td>1.87</td>
+<td>1.93</td>
+<td>1.26</td>
+</tr>
+<tr>
+<td>SipHash13</td>
+<td>6.96</td>
+<td>2.09</td>
+<td>2.12</td>
+<td>1.32</td>
+<td>1.33</td>
+<td>0.68</td>
+</tr>
+</tbody>
+</table>
+<p dir="auto">SipTreeHash is slower than SipHash for small inputs because it processes blocks
+of 32 bytes. AVX2 and SSE4.1 HighwayHash are faster than SipHash for all input
+sizes due to their highly optimized handling of partial vectors.</p>
+<p dir="auto">Note that previous measurements included the initialization of their input,
+which dramatically increased timings especially for small inputs.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">CPU requirements</h2><a id="user-content-cpu-requirements" class="anchor" aria-label="Permalink: CPU requirements" href="#cpu-requirements"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">SipTreeHash(13) requires an AVX2-capable CPU (e.g. Haswell). HighwayHash
+includes a dispatcher that chooses the implementation (AVX2, SSE4.1, VSX or
+portable)  at runtime, as well as a directly callable function template that can
+only run on the CPU for which it was built. SipHash(13) and
+ScalarSipTreeHash(13) have no particular CPU requirements.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">AVX2 vs SSE4</h3><a id="user-content-avx2-vs-sse4" class="anchor" aria-label="Permalink: AVX2 vs SSE4" href="#avx2-vs-sse4"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">When both AVX2 and SSE4 are available, the decision whether to use AVX2 is
+non-obvious. AVX2 vectors are twice as wide, but require a higher power license
+(integer multiplications count as 'heavy' instructions) and can thus reduce the
+clock frequency of the core or entire socket(!) on Haswell systems. This
+partially explains the observed 1.25x (not 2x) speedup over SSE4. Moreover, it
+is inadvisable to only sporadically use AVX2 instructions because there is also
+a ~56K cycle warmup period during which AVX2 operations are slower, and Haswell
+can even stall during this period. Thus, we recommend avoiding AVX2 for
+infrequent hashing if the rest of the application is also not using AVX2. For
+any input larger than 1 MiB, it is probably worthwhile to enable AVX2.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">SIMD implementations</h3><a id="user-content-simd-implementations" class="anchor" aria-label="Permalink: SIMD implementations" href="#simd-implementations"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Our x86 implementations use custom vector classes with overloaded operators
+(e.g. <code>const V4x64U a = b + c</code>) for type-safety and improved readability vs.
+compiler intrinsics (e.g. <code>const __m256i a = _mm256_add_epi64(b, c)</code>).
+The VSX implementation uses built-in vector types alongside Altivec intrinsics.
+A high-performance third-party ARM implementation is mentioned below.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Dispatch</h3><a id="user-content-dispatch" class="anchor" aria-label="Permalink: Dispatch" href="#dispatch"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Our instruction_sets dispatcher avoids running newer instructions on older CPUs
+that do not support them. However, intrinsics, and therefore also any vector
+classes that use them, require (on GCC &lt; 4.9 or Clang &lt; 3.9) a compiler flag
+that also allows the compiler to generate code for that CPU. This means the
+intrinsics must be placed in separate translation units that are compiled with
+the required flags. It is important that these source files and their headers
+not define any inline functions, because that might break the one definition
+rule and cause crashes.</p>
+<p dir="auto">To minimize dispatch overhead when hashes are computed often (e.g. in a loop),
+we can inline the hash function into its caller using templates. The dispatch
+overhead will only be paid once (e.g. before the loop). The template mechanism
+also avoids duplicating code in each CPU-specific implementation.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Defending against hash flooding</h2><a id="user-content-defending-against-hash-flooding" class="anchor" aria-label="Permalink: Defending against hash flooding" href="#defending-against-hash-flooding"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">To mitigate hash flooding attacks, we need to take both the hash function and
+the data structure into account.</p>
+<p dir="auto">We wish to defend (web) services that utilize hash sets/maps against
+denial-of-service attacks. Such data structures assign attacker-controlled
+input messages <code>m</code> to a hash table bin <code>b</code> by computing the hash <code>H(s, m)</code>
+using a hash function <code>H</code> seeded by <code>s</code>, and mapping it to a bin with some
+narrowing function <code>b = R(h)</code>, discussed below.</p>
+<p dir="auto">Attackers may attempt to trigger 'flooding' (excessive work in insertions or
+lookups) by finding multiple <code>m</code> that map to the same bin. If the attacker has
+local access, they can do far worse, so we assume the attacker can only issue
+remote requests. If the attacker is able to send large numbers of requests,
+they can already deny service, so we need only ensure the attacker's cost is
+sufficiently large compared to the service's provisioning.</p>
+<p dir="auto">If the hash function is 'weak', attackers can easily generate 'hash collisions'
+(inputs mapping to the same hash values) that are independent of the seed. In
+other words, certain input messages will cause collisions regardless of the seed
+value. The author of SipHash has published C++ programs to generate such
+'universal (key-independent) multicollisions' for CityHash and Murmur. Similar
+'differential' attacks are likely possible for any hash function consisting only
+of reversible operations (e.g. addition/multiplication/rotation) with a constant
+operand. <code>n</code> requests with such inputs cause <code>n^2</code> work for an unprotected hash
+table, which is unacceptable.</p>
+<p dir="auto">By contrast, 'strong' hashes such as SipHash or HighwayHash require infeasible
+attacker effort to find a hash collision (an expected 2^32 guesses of <code>m</code> per
+the birthday paradox) or recover the seed (2^63 requests). These security claims
+assume the seed is secret. It is reasonable to suppose <code>s</code> is initially unknown
+to attackers, e.g. generated on startup or even per-connection. A timing attack
+by Wool/Bar-Yosef recovers 13-bit seeds by testing all 8K possibilities using
+millions of requests, which takes several days (even assuming unrealistic 150 us
+round-trip times). It appears infeasible to recover 64-bit seeds in this way.</p>
+<p dir="auto">However, attackers are only looking for multiple <code>m</code> mapping to the same bin
+rather than identical hash values. We assume they know or are able to discover
+the hash table size <code>p</code>. It is common to choose <code>p = 2^i</code> to enable an efficient
+<code>R(h) := h &amp; (p - 1)</code>, which simply retains the lower hash bits. It may be
+easier for attackers to compute partial collisions where only the lower <code>i</code> bits
+match. This can be prevented by choosing a prime <code>p</code> so that <code>R(h) := h % p</code>
+incorporates all hash bits. The costly modulo operation can be avoided by
+multiplying with the inverse (<a href="https://goo.gl/l7ASm8" rel="nofollow">https://goo.gl/l7ASm8</a>). An interesting alternative
+suggested by Kyoung Jae Seo chooses a random subset of the <code>h</code> bits. Such an <code>R</code>
+function can be computed in just 3 cycles using PEXT from the BMI2 instruction
+set. This is expected to defend against SAT-solver attacks on the hash bits at a
+slightly lower cost than the multiplicative inverse method, and still allows
+power-of-two table sizes.</p>
+<p dir="auto">Summary thus far: given a strong hash function and secret seed, it appears
+infeasible for attackers to generate hash collisions because <code>s</code> and/or <code>R</code> are
+unknown. However, they can still observe the timings of data structure
+operations for various <code>m</code>. With typical table sizes of 2^10 to 2^17 entries,
+attackers can detect some 'bin collisions' (inputs mapping to the same bin).
+Although this will be costly for the attacker, they can then send many instances
+of such inputs, so we need to limit the resulting work for our data structure.</p>
+<p dir="auto">Hash tables with separate chaining typically store bin entries in a linked list,
+so worst-case inputs lead to unacceptable linear-time lookup cost. We instead
+seek optimal asymptotic worst-case complexity for each operation (insertion,
+deletion and lookups), which is a constant factor times the logarithm of the
+data structure size. This naturally leads to a tree-like data structure for each
+bin. The Java8 HashMap only replaces its linked list with trees when needed.
+This leads to additional cost and complexity for deciding whether a bin is a
+list or tree.</p>
+<p dir="auto">Our first proposal (suggested by Github user funny-falcon) avoids this overhead
+by always storing one tree per bin. It may also be worthwhile to store the first
+entry directly in the bin, which avoids allocating any tree nodes in the common
+case where bins are sparsely populated. What kind of tree should be used?</p>
+<p dir="auto">Given SipHash and HighwayHash provide high quality randomness, depending on
+expecting attack surface simple non-balancing binary search tree could perform
+reasonably well. <a href="https://en.wikipedia.org/wiki/Binary_search_tree#Definition" rel="nofollow">Wikipedia says</a></p>
+<blockquote>
+<p dir="auto">After a long intermixed sequence of random insertion and deletion, the
+expected height of the tree approaches square root of the number of keys, √n,
+which grows much faster than log n.</p>
+</blockquote>
+<p dir="auto">While <code>O(√n)</code> is much larger than <code>O(log n)</code>, it is still much smaller than <code>O(n)</code>.
+And it will certainly complicate the timing attack, since the time of operation
+on collisioned bin will grow slower.</p>
+<p dir="auto">If stronger safety guarantees are needed, then a balanced tree should be used.
+Scapegoat and splay trees only offer amortized complexity guarantees, whereas
+treaps require an entropy source and have higher constant factors in practice.
+Self-balancing structures such as 2-3 or red-black trees require additional
+bookkeeping information. We can hope to reduce rebalancing cost by realizing
+that the output bits of strong <code>H</code> functions are uniformly distributed. When
+using them as keys instead of the original message <code>m</code>, recent relaxed balancing
+schemes such as left-leaning red-black or weak AVL trees may require fewer tree
+rotations to maintain their invariants. Note that <code>H</code> already determines the
+bin, so we should only use the remaining bits. 64-bit hashes are likely
+sufficient for this purpose, and HighwayHash generates up to 256 bits. It seems
+unlikely that attackers can craft inputs resulting in worst cases for both the
+bin index and tree key without being able to generate hash collisions, which
+would contradict the security claims of strong hashes. Even if they succeed, the
+relaxed tree balancing still guarantees an upper bound on height and therefore
+the worst-case operation cost. For the AVL variant, the constant factors are
+slightly lower than for red-black trees.</p>
+<p dir="auto">The second proposed approach uses augmented/de-amortized cuckoo hash tables
+(<a href="https://goo.gl/PFwwkx" rel="nofollow">https://goo.gl/PFwwkx</a>). These guarantee worst-case <code>log n</code> bounds for all
+operations, but only if the hash function is 'indistinguishable from random'
+(uniformly distributed regardless of the input distribution), which is claimed
+for SipHash and HighwayHash but certainly not for weak hashes.</p>
+<p dir="auto">Both alternatives retain good average case performance and defend against
+flooding by limiting the amount of extra work an attacker can cause. The first
+approach guarantees an upper bound of <code>log n</code> additional work even if the hash
+function is compromised.</p>
+<p dir="auto">In summary, a strong hash function is not, by itself, sufficient to protect a
+chained hash table from flooding attacks. However, strong hash functions are
+important parts of two schemes for preventing denial of service. Using weak hash
+functions can slightly accelerate the best-case and average-case performance of
+a service, but at the risk of greatly reduced attack costs and worst-case
+performance.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Third-party implementations / bindings</h2><a id="user-content-third-party-implementations--bindings" class="anchor" aria-label="Permalink: Third-party implementations / bindings" href="#third-party-implementations--bindings"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Thanks to Damian Gryski and Frank Wessels for making us aware of these
+third-party implementations or bindings. Please feel free to get in touch or
+raise an issue and we'll add yours as well.</p>
+<table>
+<thead>
+<tr>
+<th>By</th>
+<th>Language</th>
+<th>URL</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Damian Gryski</td>
+<td>Go and x64 assembly</td>
+<td><a href="https://github.com/dgryski/go-highway/">https://github.com/dgryski/go-highway/</a></td>
+</tr>
+<tr>
+<td>Simon Abdullah</td>
+<td>NPM package</td>
+<td><a href="https://www.npmjs.com/package/highwayhash-nodejs" rel="nofollow">https://www.npmjs.com/package/highwayhash-nodejs</a></td>
+</tr>
+<tr>
+<td>Lovell Fuller</td>
+<td>node.js bindings</td>
+<td><a href="https://github.com/lovell/highwayhash">https://github.com/lovell/highwayhash</a></td>
+</tr>
+<tr>
+<td>Andreas Sonnleitner</td>
+<td><a href="https://github.com/asonnleitner/highwayhash-wasm">WebAssembly</a> and NPM package</td>
+<td><a href="https://www.npmjs.com/package/highwayhash-wasm" rel="nofollow">https://www.npmjs.com/package/highwayhash-wasm</a></td>
+</tr>
+<tr>
+<td>Nick Babcock</td>
+<td>Rust port</td>
+<td><a href="https://github.com/nickbabcock/highway-rs">https://github.com/nickbabcock/highway-rs</a></td>
+</tr>
+<tr>
+<td>Caleb Zulawski</td>
+<td>Rust portable SIMD</td>
+<td><a href="https://github.com/calebzulawski/autobahn-hash">https://github.com/calebzulawski/autobahn-hash</a></td>
+</tr>
+<tr>
+<td>Vinzent Steinberg</td>
+<td>Rust bindings</td>
+<td><a href="https://github.com/vks/highwayhash-rs">https://github.com/vks/highwayhash-rs</a></td>
+</tr>
+<tr>
+<td>Frank Wessels &amp; Andreas Auernhammer</td>
+<td>Go and ARM assembly</td>
+<td><a href="https://github.com/minio/highwayhash">https://github.com/minio/highwayhash</a></td>
+</tr>
+<tr>
+<td>Phil Demetriou</td>
+<td>Python 3 bindings</td>
+<td><a href="https://github.com/kpdemetriou/highwayhash-cffi">https://github.com/kpdemetriou/highwayhash-cffi</a></td>
+</tr>
+<tr>
+<td>Jonathan Beard</td>
+<td>C++20 constexpr</td>
+<td><a href="https://gist.github.com/jonathan-beard/632017faa1d9d1936eb5948ac9186657">https://gist.github.com/jonathan-beard/632017faa1d9d1936eb5948ac9186657</a></td>
+</tr>
+<tr>
+<td>James Cook</td>
+<td>Ruby bindings</td>
+<td><a href="https://github.com/jamescook/highwayhash">https://github.com/jamescook/highwayhash</a></td>
+</tr>
+</tbody>
+</table>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Modules</h2><a id="user-content-modules" class="anchor" aria-label="Permalink: Modules" href="#modules"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Hashes</h3><a id="user-content-hashes" class="anchor" aria-label="Permalink: Hashes" href="#hashes"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li>c_bindings.h declares C-callable versions of SipHash/HighwayHash.</li>
+<li>sip_hash.cc is the compatible implementation of SipHash, and also provides
+the final reduction for sip_tree_hash.</li>
+<li>sip_tree_hash.cc is the faster but incompatible SIMD j-lanes tree hash.</li>
+<li>scalar_sip_tree_hash.cc is a non-SIMD version.</li>
+<li>state_helpers.h simplifies the implementation of the SipHash variants.</li>
+<li>highwayhash.h is our new, fast hash function.</li>
+<li>hh_{avx2,sse41,vsx,portable}.h are its various implementations.</li>
+<li>highwayhash_target.h chooses the best available implementation at runtime.</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Infrastructure</h3><a id="user-content-infrastructure" class="anchor" aria-label="Permalink: Infrastructure" href="#infrastructure"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li>arch_specific.h offers byte swapping and CPUID detection.</li>
+<li>compiler_specific.h defines some compiler-dependent language extensions.</li>
+<li>data_parallel.h provides a C++11 ThreadPool and PerThread (similar to
+OpenMP).</li>
+<li>instruction_sets.h and targets.h enable efficient CPU-specific dispatching.</li>
+<li>nanobenchmark.h measures elapsed times with &lt; 1 cycle variability.</li>
+<li>os_specific.h sets thread affinity and priority for benchmarking.</li>
+<li>profiler.h is a low-overhead, deterministic hierarchical profiler.</li>
+<li>tsc_timer.h obtains high-resolution timestamps without CPU reordering.</li>
+<li>vector256.h and vector128.h contain wrapper classes for AVX2 and SSE4.1.</li>
+</ul>
+<p dir="auto">By Jan Wassenberg <a href="mailto:jan.wassenberg@gmail.com">jan.wassenberg@gmail.com</a> and Jyrki Alakuijala
+<a href="mailto:jyrki.alakuijala@gmail.com">jyrki.alakuijala@gmail.com</a>, updated 2023-03-29</p>
+<p dir="auto">This is not an official Google product.</p>
+</article></div>
