@@ -25,6 +25,7 @@
 <li><a href="#fetch-source-jars">Fetch source JARs</a></li>
 <li><a href="#checksum-verification">Checksum verification</a></li>
 <li><a href="#artifact-helper-macro">artifact helper macro</a></li>
+<li><a href="#java_plugin_artifact-helper-macro">java_plugin_artifact helper macro</a></li>
 <li><a href="#multiple-maven_install-declarations-for-isolated-artifact-version-trees">Multiple maven_install declarations for isolated artifact version trees</a></li>
 <li><a href="#detailed-dependency-information-specifications">Detailed dependency information specifications</a></li>
 <li><a href="#artifact-exclusion">Artifact exclusion</a></li>
@@ -493,6 +494,25 @@ supported and translate to corresponding versionless target.</p>
 <p dir="auto">Note that usage of this macro makes BUILD file refactoring with tools like
 <code>buildozer</code> more difficult, because the macro hides the actual target label at
 the syntax level.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto"><code>java_plugin_artifact</code> helper macro</h3><a id="user-content-java_plugin_artifact-helper-macro" class="anchor" aria-label="Permalink: java_plugin_artifact helper macro" href="#java_plugin_artifact-helper-macro"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The <code>java_plugin_artifact</code> macro finds a <code>java_plugin</code> target which can be used
+to run an annotation procesor from a particular artifact.</p>
+<p dir="auto">For example, if you pull <code>com.google.auto.value:auto-value</code> into a
+<code>maven_install</code>, you can use the <code>java_plugin_artifact</code> macro in the <code>plugins</code>
+attribute of a target like <code>java_library</code>:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="java_library(
+    name = &quot;some_lib&quot;,
+    srcs = [&quot;SrcUsingAuto.java&quot;],
+    plugins = [
+        java_plugin_artifact(&quot;com.google.auto.value:auto-value&quot;, &quot;com.google.auto.value.processor.AutoValueProcessor&quot;),
+    ],
+)"><pre><span class="pl-en">java_library</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"some_lib"</span>,
+    <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> [<span class="pl-s">"SrcUsingAuto.java"</span>],
+    <span class="pl-s1">plugins</span> <span class="pl-c1">=</span> [
+        <span class="pl-en">java_plugin_artifact</span>(<span class="pl-s">"com.google.auto.value:auto-value"</span>, <span class="pl-s">"com.google.auto.value.processor.AutoValueProcessor"</span>),
+    ],
+)</pre></div>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Multiple <code>maven_install</code> declarations for isolated artifact version trees</h3><a id="user-content-multiple-maven_install-declarations-for-isolated-artifact-version-trees" class="anchor" aria-label="Permalink: Multiple maven_install declarations for isolated artifact version trees" href="#multiple-maven_install-declarations-for-isolated-artifact-version-trees"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">If your WORKSPACE contains several projects that use different versions of the
 same artifact, you can specify multiple <code>maven_install</code> declarations in the
