@@ -765,6 +765,42 @@ int main() {
         <span class="pl-c1">assert</span>(map == map_deserialized);
     }
 }</pre></div>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Performance pitfalls</h4><a id="user-content-performance-pitfalls" class="anchor" aria-label="Permalink: Performance pitfalls" href="#performance-pitfalls"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Two potential performance pitfalls involving <code>tsl::robin_map</code> and
+<code>tsl::robin_set</code> are noteworthy:</p>
+<ol dir="auto">
+<li>
+<p dir="auto"><em>Bad hashes</em>. Hash functions that produce many collisions can lead to the
+following surprising behavior: when the number of collisions exceeds a
+certain threshold, the hash table will automatically expand to fix the
+problem. However, in degenerate cases, this expansion might have <em>no effect</em>
+on the collision count, causing a failure mode where a linear sequence of
+insertion leads to exponential storage growth.</p>
+<p dir="auto">This case has mainly been observed when using the default power-of-two
+growth strategy with the default STL <code>std::hash&lt;T&gt;</code> for arithmetic types
+<code>T</code>, which is often an identity! See issue
+<a href="https://github.com/Tessil/robin-map/issues/39" data-hovercard-type="issue" data-hovercard-url="/Tessil/robin-map/issues/39/hovercard">#39</a> for an example. The
+solution is simple: use a better hash function and/or <code>tsl::robin_pg_set</code> /
+<code>tsl::robin_pg_map</code>.</p>
+</li>
+<li>
+<p dir="auto"><em>Element erasure and low load factors</em>. <code>tsl::robin_map</code> and
+<code>tsl::robin_set</code> mirror the STL map/set API, which exposes an <code>iterator erase(iterator)</code> method that removes an element at a certain position,
+returning a valid iterator that points to the next element.</p>
+<p dir="auto">Constructing this new iterator object requires walking to the next nonempty
+bucket in the table, which can be a expensive operation when the hash table
+has a low <em>load factor</em> (i.e., when <code>capacity()</code> is much larger then
+<code>size()</code>).</p>
+<p dir="auto">The <code>erase()</code> method furthermore never shrinks &amp; re-hashes the table as
+this is not permitted by the specification of this function. A linear
+sequence of random removals without intermediate insertions can then lead to
+a degenerate case with quadratic runtime cost.</p>
+<p dir="auto">In such cases, an iterator return value is often not even needed, so the
+cost is entirely unnecessary. Both <code>tsl::robin_set</code> and <code>tsl::robin_map</code>
+therefore provide an alternative erasure method <code>void erase_fast(iterator)</code>
+that does not return an iterator to avoid having to find the next element.</p>
+</li>
+</ol>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">License</h3><a id="user-content-license" class="anchor" aria-label="Permalink: License" href="#license"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">The code is licensed under the MIT license, see the <a href="LICENSE">LICENSE file</a> for details.</p>
 </article></div>
