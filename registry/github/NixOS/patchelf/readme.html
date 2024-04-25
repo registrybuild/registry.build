@@ -1,0 +1,83 @@
+<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><p dir="auto">PatchELF is a simple utility for modifying existing ELF executables and
+libraries.  In particular, it can do the following:</p>
+<ul dir="auto">
+<li>
+<p dir="auto">Change the dynamic loader ("ELF interpreter") of executables:</p>
+<div class="highlight highlight-text-shell-session notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="$ patchelf --set-interpreter /lib/my-ld-linux.so.2 my-program"><pre>$ <span class="pl-s1">patchelf --set-interpreter /lib/my-ld-linux.so.2 my-program</span></pre></div>
+</li>
+<li>
+<p dir="auto">Change the <code>RPATH</code> of executables and libraries:</p>
+<div class="highlight highlight-text-shell-session notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="$ patchelf --set-rpath /opt/my-libs/lib:/other-libs my-program"><pre>$ <span class="pl-s1">patchelf --set-rpath /opt/my-libs/lib:/other-libs my-program</span></pre></div>
+</li>
+<li>
+<p dir="auto">Shrink the <code>RPATH</code> of executables and libraries:</p>
+<div class="highlight highlight-text-shell-session notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="$ patchelf --shrink-rpath my-program"><pre>$ <span class="pl-s1">patchelf --shrink-rpath my-program</span></pre></div>
+<p dir="auto">This removes from the <code>RPATH</code> all directories that do not contain a
+library referenced by <code>DT_NEEDED</code> fields of the executable or library.
+For instance, if an executable references one library <code>libfoo.so</code>, has
+an RPATH <code>/lib:/usr/lib:/foo/lib</code>, and <code>libfoo.so</code> can only be found
+in <code>/foo/lib</code>, then the new <code>RPATH</code> will be <code>/foo/lib</code>.</p>
+<p dir="auto">In addition, the <code>--allowed-rpath-prefixes</code> option can be used for
+further rpath tuning. For instance, if an executable has an <code>RPATH</code>
+<code>/tmp/build-foo/.libs:/foo/lib</code>, it is probably desirable to keep
+the <code>/foo/lib</code> reference instead of the <code>/tmp</code> entry. To accomplish
+that, use:</p>
+<div class="highlight highlight-text-shell-session notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="$ patchelf --shrink-rpath --allowed-rpath-prefixes /usr/lib:/foo/lib my-program"><pre>$ <span class="pl-s1">patchelf --shrink-rpath --allowed-rpath-prefixes /usr/lib:/foo/lib my-program</span></pre></div>
+</li>
+<li>
+<p dir="auto">Remove declared dependencies on dynamic libraries (<code>DT_NEEDED</code>
+entries):</p>
+<div class="highlight highlight-text-shell-session notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="$ patchelf --remove-needed libfoo.so.1 my-program"><pre>$ <span class="pl-s1">patchelf --remove-needed libfoo.so.1 my-program</span></pre></div>
+<p dir="auto">This option can be given multiple times.</p>
+</li>
+<li>
+<p dir="auto">Add a declared dependency on a dynamic library (<code>DT_NEEDED</code>):</p>
+<div class="highlight highlight-text-shell-session notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="$ patchelf --add-needed libfoo.so.1 my-program"><pre>$ <span class="pl-s1">patchelf --add-needed libfoo.so.1 my-program</span></pre></div>
+<p dir="auto">This option can be give multiple times.</p>
+</li>
+<li>
+<p dir="auto">Replace a declared dependency on a dynamic library with another one
+(<code>DT_NEEDED</code>):</p>
+<div class="highlight highlight-text-shell-session notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="$ patchelf --replace-needed liboriginal.so.1 libreplacement.so.1 my-program"><pre>$ <span class="pl-s1">patchelf --replace-needed liboriginal.so.1 libreplacement.so.1 my-program</span></pre></div>
+<p dir="auto">This option can be give multiple times.</p>
+</li>
+<li>
+<p dir="auto">Change <code>SONAME</code> of a dynamic library:</p>
+<div class="highlight highlight-text-shell-session notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="$ patchelf --set-soname libnewname.so.3.4.5 path/to/libmylibrary.so.1.2.3"><pre>$ <span class="pl-s1">patchelf --set-soname libnewname.so.3.4.5 path/to/libmylibrary.so.1.2.3</span></pre></div>
+</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Compiling and Testing</h2><a id="user-content-compiling-and-testing" class="anchor" aria-label="Permalink: Compiling and Testing" href="#compiling-and-testing"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Via Autotools</h3><a id="user-content-via-autotools" class="anchor" aria-label="Permalink: Via Autotools" href="#via-autotools"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="highlight highlight-text-shell-session notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="./bootstrap.sh
+./configure
+make
+make check
+sudo make install"><pre><span class="pl-c1">./bootstrap.sh</span>
+<span class="pl-c1">./configure</span>
+<span class="pl-c1">make</span>
+<span class="pl-c1">make check</span>
+<span class="pl-c1">sudo make install</span></pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Via Nix</h3><a id="user-content-via-nix" class="anchor" aria-label="Permalink: Via Nix" href="#via-nix"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">You can build with Nix in several ways.</p>
+<ol dir="auto">
+<li>
+<p dir="auto">Building via <code>nix build</code> will produce the result in <code>./result/bin/patchelf</code>. If you would like to build <em>patchelf</em> with <em>musl</em> try <code>nix build .#patchelf-musl</code></p>
+</li>
+<li>
+<p dir="auto">You can launch a development environment with <code>nix develop</code> and follow the autotools steps above. If you would like to develop with <em>musl</em> try <code>nix develop .#musl</code></p>
+</li>
+</ol>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Author</h2><a id="user-content-author" class="anchor" aria-label="Permalink: Author" href="#author"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Copyright 2004-2019 Eelco Dolstra <a href="mailto:edolstra@gmail.com">edolstra@gmail.com</a>.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">License</h2><a id="user-content-license" class="anchor" aria-label="Permalink: License" href="#license"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or (at
+your option) any later version.</p>
+<p dir="auto">This program is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+General Public License for more details.</p>
+<p dir="auto">You should have received a copy of the GNU General Public License
+along with this program.  If not, see <a href="http://www.gnu.org/licenses/" rel="nofollow">http://www.gnu.org/licenses/</a>.</p>
+</article></div>
