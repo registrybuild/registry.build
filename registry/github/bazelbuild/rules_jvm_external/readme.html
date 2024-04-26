@@ -250,16 +250,10 @@ worry: either ignore the warning or repin the dependencies.</p>
 <p dir="auto">Whenever you make a change to the list of <code>artifacts</code> or <code>repositories</code> and want
 to update <code>maven_install.json</code>, run this command to re-pin the unpinned <code>@maven</code>
 repository:</p>
-<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="$ bazel run @unpinned_maven//:pin"><pre class="notranslate"><code>$ bazel run @unpinned_maven//:pin
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="$ REPIN=1 bazel run @maven//:pin"><pre class="notranslate"><code>$ REPIN=1 bazel run @maven//:pin
 </code></pre></div>
 <p dir="auto">Without re-pinning, <code>maven_install</code> will not pick up the changes made to the
 WORKSPACE, as <code>maven_install.json</code> is now the source of truth.</p>
-<p dir="auto">Note that the repository is <code>@unpinned_maven</code> instead of <code>@maven</code>. When using
-artifact pinning, each <code>maven_install</code> repository (e.g. <code>@maven</code>) will be
-accompanied by an unpinned repository. This repository name has the <code>@unpinned_</code>
-prefix (e.g.<code>@unpinned_maven</code> or <code>@unpinned_&lt;your_maven_install_name&gt;</code>). For
-example, if your <code>maven_install</code> is named <code>@foo</code>, <code>@unpinned_foo</code> will be
-created.</p>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Requiring lock file repinning when the list of artifacts changes</h3><a id="user-content-requiring-lock-file-repinning-when-the-list-of-artifacts-changes" class="anchor" aria-label="Permalink: Requiring lock file repinning when the list of artifacts changes" href="#requiring-lock-file-repinning-when-the-list-of-artifacts-changes"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">It can be easy to forget to update the <code>maven_install.json</code> lock file
 when updating artifacts in a <code>maven_install</code>. Normally,
@@ -269,17 +263,17 @@ the build when this happens, but by setting the
 a build error, causing the build to fail. When this attribute is set,
 it is possible to update the <code>maven_install.json</code> file using:</p>
 <div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="# To repin everything:
-REPIN=1 bazel run @unpinned_maven//:pin
+REPIN=1 bazel run @maven//:pin
 
 # To only repin rules_jvm_external:
-RULES_JVM_EXTERNAL_REPIN=1 bazel run @unpinned_maven//:pin"><pre><span class="pl-c"><span class="pl-c">#</span> To repin everything:</span>
-REPIN=1 bazel run @unpinned_maven//:pin
+RULES_JVM_EXTERNAL_REPIN=1 bazel run @maven//:pin"><pre><span class="pl-c"><span class="pl-c">#</span> To repin everything:</span>
+REPIN=1 bazel run @maven//:pin
 
 <span class="pl-c"><span class="pl-c">#</span> To only repin rules_jvm_external:</span>
-RULES_JVM_EXTERNAL_REPIN=1 bazel run @unpinned_maven//:pin</pre></div>
+RULES_JVM_EXTERNAL_REPIN=1 bazel run @maven//:pin</pre></div>
 <p dir="auto">Alternatively, it is also possible to modify the
 <code>fail_if_repin_required</code> attribute in your <code>WORKSPACE</code> file, run
-<code>bazel run @unpinned_maven//:pin</code> and then reset the
+<code>bazel run @maven//:pin</code> and then reset the
 <code>fail_if_repin_required</code> attribute.</p>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Custom location for <code>maven_install.json</code></h3><a id="user-content-custom-location-for-maven_installjson" class="anchor" aria-label="Permalink: Custom location for maven_install.json" href="#custom-location-for-maven_installjson"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">You can specify a custom location for <code>maven_install.json</code> by changing the
@@ -1436,7 +1430,7 @@ file when performing dependency resolution</p>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Verbose / debug mode</h3><a id="user-content-verbose--debug-mode" class="anchor" aria-label="Permalink: Verbose / debug mode" href="#verbose--debug-mode"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">Set the <code>RJE_VERBOSE</code> environment variable to <code>true</code> to print <code>coursier</code>'s verbose
 output. For example:</p>
-<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="$ RJE_VERBOSE=true bazel run @unpinned_maven//:pin"><pre class="notranslate"><code>$ RJE_VERBOSE=true bazel run @unpinned_maven//:pin
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="$ RJE_VERBOSE=true bazel run @maven//:pin"><pre class="notranslate"><code>$ RJE_VERBOSE=true bazel run @maven//:pin
 </code></pre></div>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Tests</h3><a id="user-content-tests" class="anchor" aria-label="Permalink: Tests" href="#tests"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">In order to run tests, your system must have an Android SDK installed. You can install the Android SDK using <a href="https://developer.android.com/studio" rel="nofollow">Android Studio</a>, or through most system package managers.</p>
