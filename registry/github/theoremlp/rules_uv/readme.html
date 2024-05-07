@@ -35,4 +35,82 @@ create_venv(
 )</pre></div>
 <p dir="auto">Create a virtual environment with default path <code>venv</code> by running <code>bazel run //:create_venv</code>. The generated script accepts a single, optional argument to define the virtual environment path.</p>
 <p dir="auto">The created venv will use the default Python 3 runtime defined in rules_python.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Multi-platform setup</h2><a id="user-content-multi-platform-setup" class="anchor" aria-label="Permalink: Multi-platform setup" href="#multi-platform-setup"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><code>uv</code> supports generating platform-specific requirements files, and <code>rules_uv</code> exposes this configuration, and a multi-platform setup might look like this:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@rules_multirun//:defs.bzl&quot;, &quot;multirun&quot;)
+load(&quot;@rules_uv//uv:pip.bzl&quot;, &quot;pip_compile&quot;)
+load(&quot;@rules_uv//uv:venv.bzl&quot;, &quot;create_venv&quot;)
+
+pip_compile(
+    name = &quot;generate_requirements_linux_txt&quot;,
+    python_platform = &quot;x86_64-unknown-linux-gnu&quot;,
+    requirements_txt = &quot;requirements_linux.txt&quot;,
+)
+
+pip_compile(
+    name = &quot;generate_requirements_macos_txt&quot;,
+    python_platform = &quot;aarch64-apple-darwin&quot;,
+    requirements_txt = &quot;requirements_macos.txt&quot;,
+)
+
+multirun(
+    name = &quot;generate_requirements_lock&quot;,
+    commands = [
+        &quot;:generate_requirements_linux_txt&quot;,
+        &quot;:generate_requirements_macos_txt&quot;,
+    ],
+    jobs = 0,
+)
+
+create_venv(
+    name = &quot;create_venv&quot;,
+    requirements_txt = select({
+        &quot;@platforms//os:linux&quot;: &quot;:requirements_linux.txt&quot;,
+        &quot;@platforms//os:osx&quot;: &quot;:requirements_macos.txt&quot;,
+    }),
+)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@rules_multirun//:defs.bzl"</span>, <span class="pl-s">"multirun"</span>)
+<span class="pl-en">load</span>(<span class="pl-s">"@rules_uv//uv:pip.bzl"</span>, <span class="pl-s">"pip_compile"</span>)
+<span class="pl-en">load</span>(<span class="pl-s">"@rules_uv//uv:venv.bzl"</span>, <span class="pl-s">"create_venv"</span>)
+
+<span class="pl-en">pip_compile</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"generate_requirements_linux_txt"</span>,
+    <span class="pl-s1">python_platform</span> <span class="pl-c1">=</span> <span class="pl-s">"x86_64-unknown-linux-gnu"</span>,
+    <span class="pl-s1">requirements_txt</span> <span class="pl-c1">=</span> <span class="pl-s">"requirements_linux.txt"</span>,
+)
+
+<span class="pl-en">pip_compile</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"generate_requirements_macos_txt"</span>,
+    <span class="pl-s1">python_platform</span> <span class="pl-c1">=</span> <span class="pl-s">"aarch64-apple-darwin"</span>,
+    <span class="pl-s1">requirements_txt</span> <span class="pl-c1">=</span> <span class="pl-s">"requirements_macos.txt"</span>,
+)
+
+<span class="pl-en">multirun</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"generate_requirements_lock"</span>,
+    <span class="pl-s1">commands</span> <span class="pl-c1">=</span> [
+        <span class="pl-s">":generate_requirements_linux_txt"</span>,
+        <span class="pl-s">":generate_requirements_macos_txt"</span>,
+    ],
+    <span class="pl-s1">jobs</span> <span class="pl-c1">=</span> <span class="pl-c1">0</span>,
+)
+
+<span class="pl-en">create_venv</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"create_venv"</span>,
+    <span class="pl-s1">requirements_txt</span> <span class="pl-c1">=</span> <span class="pl-en">select</span>({
+        <span class="pl-s">"@platforms//os:linux"</span>: <span class="pl-s">":requirements_linux.txt"</span>,
+        <span class="pl-s">"@platforms//os:osx"</span>: <span class="pl-s">":requirements_macos.txt"</span>,
+    }),
+)</pre></div>
+<p dir="auto">This makes use of the excellent <a href="https://github.com/keith/rules_multirun">rules_multirun</a>.</p>
+<p dir="auto">To match up with <code>rules_python</code>, a bzlmod config will look something like:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="pip.parse(
+    hub_name = &quot;pip&quot;,
+    python_version = &quot;3.11&quot;,
+    requirements_darwin = &quot;//:requirements_macos.txt&quot;,
+    requirements_linux = &quot;//:requirements_linux.txt&quot;,
+)"><pre><span class="pl-s1">pip</span>.<span class="pl-en">parse</span>(
+    <span class="pl-s1">hub_name</span> <span class="pl-c1">=</span> <span class="pl-s">"pip"</span>,
+    <span class="pl-s1">python_version</span> <span class="pl-c1">=</span> <span class="pl-s">"3.11"</span>,
+    <span class="pl-s1">requirements_darwin</span> <span class="pl-c1">=</span> <span class="pl-s">"//:requirements_macos.txt"</span>,
+    <span class="pl-s1">requirements_linux</span> <span class="pl-c1">=</span> <span class="pl-s">"//:requirements_linux.txt"</span>,
+)</pre></div>
 </article></div>
