@@ -6,68 +6,98 @@
 </ul>
 <div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Table of Contents</h1><a id="user-content-table-of-contents" class="anchor" aria-label="Permalink: Table of Contents" href="#table-of-contents"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <ul dir="auto">
-<li><a href="#rules_jvm_external">rules_jvm_external</a>
-<ul dir="auto">
 <li><a href="#features">Features</a></li>
-<li><a href="#usage">Usage</a></li>
+<li><a href="#examples">Examples</a>
+<ul dir="auto">
+<li><a href="#projects-using-rules_jvm_external">Projects using rules_jvm_external</a></li>
+</ul>
+</li>
+<li><a href="#prerequisites">Prerequisites</a></li>
+<li><a href="#usage">Usage</a>
+<ul dir="auto">
+<li><a href="#with-bzlmod-bazel-6-and-above">With bzlmod (Bazel 6 and above)</a></li>
+<li><a href="#with-workspace-file-legacy">With WORKSPACE file (legacy)</a></li>
+</ul>
+</li>
 <li><a href="#api-reference">API Reference</a></li>
 <li><a href="#pinning-artifacts-and-integration-with-bazels-downloader">Pinning artifacts and integration with Bazel's downloader</a>
 <ul dir="auto">
-<li><a href="#updating-maven_installjson">Updating maven_install.json</a></li>
-<li><a href="#custom-location-for-maven_installjson">Custom location for maven_install.json</a></li>
-<li><a href="#multiple-maven_installjson-files">Multiple maven_install.json files</a></li>
+<li><a href="#updating-maven_installjson">Updating <code>maven_install.json</code></a></li>
+<li><a href="#requiring-lock-file-repinning-when-the-list-of-artifacts-changes">Requiring lock file repinning when the list of artifacts changes</a></li>
+<li><a href="#custom-location-for-maven_installjson">Custom location for <code>maven_install.json</code></a></li>
+<li><a href="#multiple-maven_installjson-files">Multiple <code>maven_install.json</code> files</a></li>
 </ul>
 </li>
+<li><a href="#experimental-support-for-maven-bom-files">(Experimental) Support for Maven BOM files</a></li>
 <li><a href="#generated-targets">Generated targets</a></li>
 <li><a href="#outdated-artifacts">Outdated artifacts</a></li>
 <li><a href="#advanced-usage">Advanced usage</a>
 <ul dir="auto">
 <li><a href="#fetch-source-jars">Fetch source JARs</a></li>
 <li><a href="#checksum-verification">Checksum verification</a></li>
-<li><a href="#artifact-helper-macro">artifact helper macro</a></li>
-<li><a href="#java_plugin_artifact-helper-macro">java_plugin_artifact helper macro</a></li>
-<li><a href="#multiple-maven_install-declarations-for-isolated-artifact-version-trees">Multiple maven_install declarations for isolated artifact version trees</a></li>
+<li><a href="#using-a-custom-coursier-download-url">Using a custom Coursier download url</a></li>
+<li><a href="#artifact-helper-macro"><code>artifact</code> helper macro</a></li>
+<li><a href="#java_plugin_artifact-helper-macro"><code>java_plugin_artifact</code> helper macro</a></li>
+<li><a href="#multiple-maven_install-declarations-for-isolated-artifact-version-trees">Multiple <code>maven_install</code> declarations for isolated artifact version trees</a></li>
 <li><a href="#detailed-dependency-information-specifications">Detailed dependency information specifications</a></li>
 <li><a href="#artifact-exclusion">Artifact exclusion</a></li>
 <li><a href="#compile-only-dependencies">Compile-only dependencies</a></li>
+<li><a href="#test-only-dependencies">Test-only dependencies</a></li>
 <li><a href="#resolving-user-specified-and-transitive-dependency-version-conflicts">Resolving user-specified and transitive dependency version conflicts</a></li>
 <li><a href="#overriding-generated-targets">Overriding generated targets</a></li>
 <li><a href="#proxies">Proxies</a></li>
-<li><a href="#repository-aliases">Repository aliases</a>
-<ul dir="auto">
+<li><a href="#repository-aliases">Repository aliases</a></li>
 <li><a href="#repository-remapping">Repository remapping</a></li>
-</ul>
-</li>
 <li><a href="#hiding-transitive-dependencies">Hiding transitive dependencies</a></li>
+<li><a href="#accessing-transitive-dependencies-list">Accessing transitive dependencies list</a></li>
 <li><a href="#fetch-and-resolve-timeout">Fetch and resolve timeout</a></li>
+<li><a href="#ignoring-empty-jars">Ignoring empty jars</a></li>
 <li><a href="#duplicate-artifact-warning">Duplicate artifact warning</a></li>
+<li><a href="#provide-jvm-options-for-coursier-with-coursier_opts">Provide JVM options for Coursier with <code>COURSIER_OPTS</code></a></li>
 <li><a href="#resolving-issues-with-nonstandard-system-default-jdks">Resolving issues with nonstandard system default JDKs</a></li>
+<li><a href="#exporting-and-consuming-artifacts-from-external-repositories">Exporting and consuming artifacts from external repositories</a></li>
+<li><a href="#publishing-to-external-repositories">Publishing to External Repositories</a></li>
 </ul>
 </li>
-<li><a href="#exporting-and-consuming-artifacts-from-external-repositories">Exporting and consuming artifacts from external repositories</a></li>
-<li><a href="#publishing-to-external-repositories">Publishing to external repositories</a></li>
-<li><a href="#configuring-the-dependency-resolver">Configuring the dependency resolver</a></li>
-<li><a href="#demo">Demo</a></li>
-<li><a href="#projects-using-rules_jvm_external">Projects using rules_jvm_external</a></li>
+<li><a href="#configuring-the-dependency-resolver">Configuring the dependency resolver</a>
+<ul dir="auto">
+<li><a href="#common-options">Common options</a></li>
+<li><a href="#configuring-coursier">Configuring Coursier</a></li>
+<li><a href="#configuring-maven">Configuring Maven</a></li>
+</ul>
+</li>
+<li><a href="#ipv6-support">IPv6 support</a></li>
+<li><a href="#developing-this-project">Developing this project</a>
+<ul dir="auto">
+<li><a href="#verbose--debug-mode">Verbose / debug mode</a></li>
+<li><a href="#tests">Tests</a></li>
+<li><a href="#installing-the-android-sdk-on-macos">Installing the Android SDK on macOS</a></li>
 <li><a href="#generating-documentation">Generating documentation</a></li>
 </ul>
 </li>
 </ul>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Features</h2><a id="user-content-features" class="anchor" aria-label="Permalink: Features" href="#features"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <ul dir="auto">
+<li>MODULE.bazel bzlmod configuration (Bazel 7 and above)</li>
 <li>WORKSPACE configuration</li>
-<li>JAR, AAR, source JARs</li>
-<li>Custom Maven repositories</li>
-<li>Private Maven repositories with HTTP Basic Authentication</li>
-<li>Artifact version resolution with Coursier</li>
-<li>Integration with Bazel's downloader and caching mechanisms for sharing artifacts across Bazel workspaces</li>
+<li>Artifact version resolution with Coursier or Maven</li>
+<li>Import downloaded JAR, AAR, source JARs</li>
+<li>Export built JARs to Maven repositories</li>
 <li>Pin resolved artifacts with their SHA-256 checksums into a version-controllable JSON file</li>
+<li>Custom Maven repositories</li>
+<li>Private Maven repositories using <code>netrc</code> files</li>
+<li>Integration with Bazel's downloader and caching mechanisms for sharing artifacts across Bazel workspaces</li>
 <li>Versionless target labels for simpler dependency management</li>
 <li>Ability to declare multiple sets of versioned artifacts</li>
 <li>Supported on Windows, macOS, Linux</li>
 </ul>
 <p dir="auto">Get the <a href="https://github.com/bazelbuild/rules_jvm_external/releases/latest">latest release
 here</a>.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Examples</h2><a id="user-content-examples" class="anchor" aria-label="Permalink: Examples" href="#examples"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">You can find examples in the <a href="./examples/"><code>examples/</code></a> directory.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Projects using rules_jvm_external</h3><a id="user-content-projects-using-rules_jvm_external" class="anchor" aria-label="Permalink: Projects using rules_jvm_external" href="#projects-using-rules_jvm_external"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Find other GitHub projects using <code>rules_jvm_external</code>
+<a href="https://github.com/search?p=1&amp;q=rules_jvm_external+filename%3A%2FWORKSPACE+filename%3A%5C.bzl&amp;type=Code">with this search query</a>.</p>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Prerequisites</h2><a id="user-content-prerequisites" class="anchor" aria-label="Permalink: Prerequisites" href="#prerequisites"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <ul dir="auto">
 <li>Bazel 5.4.1 and above.</li>
@@ -75,11 +105,16 @@ here</a>.</p>
 <p dir="auto">Support for Bazel versions between <code>4.x</code> and <code>5.4</code> is only available on rules_jvm_external releases <code>5.x</code>.</p>
 <p dir="auto">Support for Bazel versions before <code>4.0.0</code> is only available on rules_jvm_external releases <code>4.2</code> or earlier.</p>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Usage</h2><a id="user-content-usage" class="anchor" aria-label="Permalink: Usage" href="#usage"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<blockquote>
-<p dir="auto">New: on Bazel 6, you can use bzlmod instead of following directions below.
-See <a href="./docs/bzlmod.md">bzlmod</a>.
-bzlmod is on-by-default in Bazel 7.0.</p>
-</blockquote>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">With bzlmod (Bazel 7 and above)</h3><a id="user-content-with-bzlmod-bazel-7-and-above" class="anchor" aria-label="Permalink: With bzlmod (Bazel 7 and above)" href="#with-bzlmod-bazel-7-and-above"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">If you are starting a new project, or your project is already using Bazel 7 and
+above, we recommend using <a href="https://bazel.build/external/overview" rel="nofollow"><code>bzlmod</code></a> to
+manage your external dependencies, including Maven dependencies with
+<code>rules_jvm_external</code>. It address several shortcomings of the <code>WORKSPACE</code>
+mechanism. If you are unable to use <code>bzlmod</code>, <code>rules_jvm_external</code> also supports
+the <code>WORKSPACE</code> mechanism (see below).</p>
+<p dir="auto">See <a href="./docs/bzlmod.md">bzlmod.md</a> for the usage instructions. bzlmod is
+on-by-default in Bazel 7.0.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">With WORKSPACE file (legacy)</h3><a id="user-content-with-workspace-file-legacy" class="anchor" aria-label="Permalink: With WORKSPACE file (legacy)" href="#with-workspace-file-legacy"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">List the top-level Maven artifacts and servers in the WORKSPACE:</p>
 <div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@bazel_tools//tools/build_defs/repo:http.bzl&quot;, &quot;http_archive&quot;)
 
@@ -338,7 +373,7 @@ bar_pinned_maven_install()"><pre><span class="pl-en">maven_install</span>(
 
 <span class="pl-en">load</span>(<span class="pl-s">"@bar//:defs.bzl"</span>, <span class="pl-s1">bar_pinned_maven_install</span> <span class="pl-c1">=</span> <span class="pl-s">"pinned_maven_install"</span>)
 <span class="pl-en">bar_pinned_maven_install</span>()</pre></div>
-<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">(Experimental) Support for Maven BOM files</h3><a id="user-content-experimental-support-for-maven-bom-files" class="anchor" aria-label="Permalink: (Experimental) Support for Maven BOM files" href="#experimental-support-for-maven-bom-files"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">(Experimental) Support for Maven BOM files</h2><a id="user-content-experimental-support-for-maven-bom-files" class="anchor" aria-label="Permalink: (Experimental) Support for Maven BOM files" href="#experimental-support-for-maven-bom-files"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">Support for Maven BOMs can be enabled by switching the resolver used by <code>maven_install</code> to one that supports Maven BOMs.
 This can be done by setting the <code>resolver</code> attribute to <code>maven</code>. The new resolver will likely result in different
 resolutions than the existing resolver, so it is advised to re-run your dependencies pin.</p>
@@ -1425,11 +1460,6 @@ file when performing dependency resolution</p>
 <li><code>-Djava.net.preferIPv6Addresses=true to the </code>COURSIER_OPTS` environment variable to provide JVM options for Coursier.</li>
 </ul>
 <p dir="auto">For more information, read the <a href="https://bazel.build/docs/external#support-for-ipv6" rel="nofollow">official docs for IPv6 support in Bazel</a>.</p>
-<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Demo</h2><a id="user-content-demo" class="anchor" aria-label="Permalink: Demo" href="#demo"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<p dir="auto">You can find demos in the <a href="./examples/"><code>examples/</code></a> directory.</p>
-<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Projects using rules_jvm_external</h2><a id="user-content-projects-using-rules_jvm_external" class="anchor" aria-label="Permalink: Projects using rules_jvm_external" href="#projects-using-rules_jvm_external"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<p dir="auto">Find other GitHub projects using <code>rules_jvm_external</code>
-<a href="https://github.com/search?p=1&amp;q=rules_jvm_external+filename%3A%2FWORKSPACE+filename%3A%5C.bzl&amp;type=Code">with this search query</a>.</p>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Developing this project</h2><a id="user-content-developing-this-project" class="anchor" aria-label="Permalink: Developing this project" href="#developing-this-project"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Verbose / debug mode</h3><a id="user-content-verbose--debug-mode" class="anchor" aria-label="Permalink: Verbose / debug mode" href="#verbose--debug-mode"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">Set the <code>RJE_VERBOSE</code> environment variable to <code>true</code> to print <code>coursier</code>'s verbose
