@@ -191,13 +191,28 @@ documentation</a>
 for more information.</p>
 <p dir="auto"><code>rules_jvm_external_deps</code> uses a default list of maven repositories to download
 <code>rules_jvm_external</code>'s own dependencies from. Should you wish to change this,
-use the <code>repositories</code> parameter, generate your own <code>rules_jvm_external_deps_install.json</code> by
-running <code>REPIN=1 bazel run @unpinned_rules_jvm_external_deps//:pin</code> and commit the file to your
-version control system (note that at this point you will need to maintain your customized
-<code>rules_jvm_external_deps_install.json</code>):</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="rules_jvm_external_deps(repositories = [&quot;https://mycorp.com/artifacts&quot;])
-rules_jvm_external_setup()"><pre><span class="pl-en">rules_jvm_external_deps</span>(<span class="pl-s1">repositories</span> <span class="pl-c1">=</span> [<span class="pl-s">"https://mycorp.com/artifacts"</span>])
+use the <code>repositories</code> parameter, and also set the path to the lock file:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="rules_jvm_external_deps(
+   repositories = [&quot;https://mycorp.com/artifacts&quot;],
+   deps_lock_file = &quot;@//:rules_jvm_external_deps_install.json&quot;)
+rules_jvm_external_setup()"><pre><span class="pl-en">rules_jvm_external_deps</span>(
+   <span class="pl-s1">repositories</span> <span class="pl-c1">=</span> [<span class="pl-s">"https://mycorp.com/artifacts"</span>],
+   <span class="pl-s1">deps_lock_file</span> <span class="pl-c1">=</span> <span class="pl-s">"@//:rules_jvm_external_deps_install.json"</span>)
 <span class="pl-en">rules_jvm_external_setup</span>()</pre></div>
+<p dir="auto">If you are using <code>bzlmod</code>, define an <code>install</code> tag in your root
+<code>MODULE.bazel</code> which overrides the values:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="maven.install(
+    name = &quot;rules_jvm_external_deps&quot;,
+    repositories = [&quot;https://mycorp.com/artifacts&quot;],
+    lock_file = &quot;@//:rules_jvm_external_deps_install.json&quot;,
+)"><pre><span class="pl-s1">maven</span>.<span class="pl-en">install</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_jvm_external_deps"</span>,
+    <span class="pl-s1">repositories</span> <span class="pl-c1">=</span> [<span class="pl-s">"https://mycorp.com/artifacts"</span>],
+    <span class="pl-s1">lock_file</span> <span class="pl-c1">=</span> <span class="pl-s">"@//:rules_jvm_external_deps_install.json"</span>,
+)</pre></div>
+<p dir="auto">Once these changes have been made, repin using <code>REPIN=1 bazel run @rules_jvm_external_deps//:pin</code> and commit the file to your version
+control system (note that at this point you will need to maintain your
+customized <code>rules_jvm_external_deps_install.json</code>):</p>
 <p dir="auto">Next, reference the artifacts in the BUILD file with their versionless label:</p>
 <div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="java_library(
     name = &quot;java_test_deps&quot;,
