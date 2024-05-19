@@ -59,6 +59,20 @@ rules_helm_transitive_dependencies()"><pre><span class="pl-en">load</span>(<span
 </ul>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Run as a tool</h2><a id="user-content-run-as-a-tool" class="anchor" aria-label="Permalink: Run as a tool" href="#run-as-a-tool"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel run @helm//:helm -- ..."><pre>bazel run @helm//:helm -- ...</pre></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Use in a genrule</h2><a id="user-content-use-in-a-genrule" class="anchor" aria-label="Permalink: Use in a genrule" href="#use-in-a-genrule"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="genrule(
+    name = &quot;genrule&quot;,
+    srcs = [&quot;:chart&quot;],
+    outs = [&quot;template.yaml&quot;],
+    cmd = &quot;$(HELM_BIN) template my-chart $(execpath :chart) &gt; $@&quot;,
+    toolchains = [&quot;@rules_helm//helm:current_toolchain&quot;],
+)"><pre><span class="pl-en">genrule</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"genrule"</span>,
+    <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> [<span class="pl-s">":chart"</span>],
+    <span class="pl-s1">outs</span> <span class="pl-c1">=</span> [<span class="pl-s">"template.yaml"</span>],
+    <span class="pl-s1">cmd</span> <span class="pl-c1">=</span> <span class="pl-s">"$(HELM_BIN) template my-chart $(execpath :chart) &gt; $@"</span>,
+    <span class="pl-s1">toolchains</span> <span class="pl-c1">=</span> [<span class="pl-s">"@rules_helm//helm:current_toolchain"</span>],
+)</pre></div>
 <p dir="auto"><a id="user-content-chart_file"></a></p>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">chart_file</h2><a id="user-content-chart_file" class="anchor" aria-label="Permalink: chart_file" href="#chart_file"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <pre>chart_file(<a href="#chart_file-name">name</a>, <a href="#chart_file-api_version">api_version</a>, <a href="#chart_file-app_version">app_version</a>, <a href="#chart_file-chart_name">chart_name</a>, <a href="#chart_file-description">description</a>, <a href="#chart_file-type">type</a>, <a href="#chart_file-version">version</a>)
@@ -810,7 +824,7 @@ rules_helm_transitive_dependencies()"><pre><span class="pl-en">load</span>(<span
 <tr>
 <td align="left"><a id="user-content-helm_register_toolchains-version"></a>version</td>
 <td align="left">The version of Helm to use</td>
-<td align="left"><code>"3.13.3"</code></td>
+<td align="left"><code>"3.15.0"</code></td>
 </tr>
 <tr>
 <td align="left"><a id="user-content-helm_register_toolchains-helm_url_templates"></a>helm_url_templates</td>
