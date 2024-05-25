@@ -39,18 +39,13 @@ changing their dependency versions.</li>
 <td><a href="./examples/python">example</a></td>
 </tr>
 <tr>
-<td>Rust</td>
-<td></td>
-<td><a class="issue-link js-issue-link" data-error-text="Failed to load title" data-id="2259928179" data-permission-text="Title is private" data-url="https://github.com/bazelbuild/rules_rust/issues/2627" data-hovercard-type="issue" data-hovercard-url="/bazelbuild/rules_rust/issues/2627/hovercard" href="https://github.com/bazelbuild/rules_rust/issues/2627">bazelbuild/rules_rust#2627</a></td>
-</tr>
-<tr>
 <td>Go</td>
-<td></td>
-<td><a class="issue-link js-issue-link" data-error-text="Failed to load title" data-id="2193899410" data-permission-text="Title is private" data-url="https://github.com/bazelbuild/rules_go/issues/3895" data-hovercard-type="issue" data-hovercard-url="/bazelbuild/rules_go/issues/3895/hovercard" href="https://github.com/bazelbuild/rules_go/issues/3895">bazelbuild/rules_go#3895</a></td>
+<td>Yes</td>
+<td><a href="./examples/go">example</a></td>
 </tr>
 </tbody>
 </table>
-<p dir="auto">Your language missing? Please file the upstream issue and send a PR to update this table!</p>
+<p dir="auto">For all other languages, see <a class="issue-link js-issue-link" data-error-text="Failed to load title" data-id="6667852" data-permission-text="Title is private" data-url="https://github.com/bazelbuild/rules_proto/discussions/213" data-hovercard-type="discussion" data-hovercard-url="/bazelbuild/rules_proto/discussions/213/hovercard" href="https://github.com/bazelbuild/rules_proto/discussions/213">bazelbuild/rules_proto#213</a></p>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Installation</h2><a id="user-content-installation" class="anchor" aria-label="Permalink: Installation" href="#installation"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">Fetch this module using instructions from the release you wish to use:
 <a href="https://github.com/aspect-build/toolchains_protoc/releases">https://github.com/aspect-build/toolchains_protoc/releases</a></p>
@@ -71,39 +66,32 @@ using whatever Bazel rule you chose for interacting with package managers
 <li>JavaScript: <a href="https://www.npmjs.com/package/protobufjs" rel="nofollow">https://www.npmjs.com/package/protobufjs</a></li>
 <li>Go: <a href="https://pkg.go.dev/google.golang.org/protobuf/runtime" rel="nofollow">https://pkg.go.dev/google.golang.org/protobuf/runtime</a></li>
 </ul>
-<p dir="auto">Second, declare the toolchain in a <code>BUILD</code> file. It looks like the following
-(where <code>LANG</code>, <code>--flag_to_protoc</code>, and <code>runtime</code> are replaced
+<p dir="auto">For rulesets that need a "lang toolchain", declare one in a <code>BUILD</code> file.
+It looks like the following (where <code>LANG</code>, <code>--flag_to_protoc</code>, and <code>runtime</code> are replaced
 with appropriate values for the language and the label of the runtime you installed).</p>
-<p dir="auto">You can choose a Bazel package where this goes; we recommend <code>/tools/protoc/BUILD.bazel</code>.</p>
+<p dir="auto">You can choose a Bazel package where this goes; we recommend <code>/tools/toolchains/BUILD.bazel</code>.</p>
 <div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@rules_proto//proto:defs.bzl&quot;, &quot;proto_lang_toolchain&quot;)
+
 proto_lang_toolchain(
     name = &quot;protoc_LANG_toolchain&quot;,
     command_line = &quot;--flag_to_protoc=%s&quot;,
     progress_message = &quot;Generating LANG proto_library %{label}&quot;,
     runtime = &quot;@some-external//lib&quot;,
+    # This target should be declared by the language rules:
+    toolchain_type = &quot;@rules_LANG//path/to/proto:toolchain_type&quot;,
 )"><pre><span class="pl-en">load</span>(<span class="pl-s">"@rules_proto//proto:defs.bzl"</span>, <span class="pl-s">"proto_lang_toolchain"</span>)
+
 <span class="pl-en">proto_lang_toolchain</span>(
     <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"protoc_LANG_toolchain"</span>,
     <span class="pl-s1">command_line</span> <span class="pl-c1">=</span> <span class="pl-s">"--flag_to_protoc=%s"</span>,
     <span class="pl-s1">progress_message</span> <span class="pl-c1">=</span> <span class="pl-s">"Generating LANG proto_library %{label}"</span>,
     <span class="pl-s1">runtime</span> <span class="pl-c1">=</span> <span class="pl-s">"@some-external//lib"</span>,
-)</pre></div>
-<p dir="auto">Finally, in the same <code>BUILD</code> file, declare the registration target...</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="toolchain(
-    name = &quot;protoc_LANG_toolchain.registration&quot;,
-    toolchain = &quot;:protoc_LANG_toolchain&quot;,
-    # This type should be declared by the language rules:
-    toolchain_type = &quot;@rules_LANG//path/to/proto:toolchain_type&quot;,
-)"><pre><span class="pl-en">toolchain</span>(
-    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"protoc_LANG_toolchain.registration"</span>,
-    <span class="pl-s1">toolchain</span> <span class="pl-c1">=</span> <span class="pl-s">":protoc_LANG_toolchain"</span>,
-    <span class="pl-c"># This type should be declared by the language rules:</span>
+    <span class="pl-c"># This target should be declared by the language rules:</span>
     <span class="pl-s1">toolchain_type</span> <span class="pl-c1">=</span> <span class="pl-s">"@rules_LANG//path/to/proto:toolchain_type"</span>,
 )</pre></div>
-<p dir="auto">...and then register it, either in <code>MODULE.bazel</code> or <code>WORKSPACE</code>:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="register_toolchains(&quot;//tools/protoc:all&quot;)"><pre><span class="pl-en">register_toolchains</span>(<span class="pl-s">"//tools/protoc:all"</span>)</pre></div>
+<p dir="auto">Then register the toolchains, either in <code>MODULE.bazel</code> or <code>WORKSPACE</code>:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="register_toolchains(&quot;//tools/toolchains:all&quot;)"><pre><span class="pl-en">register_toolchains</span>(<span class="pl-s">"//tools/toolchains:all"</span>)</pre></div>
 <p dir="auto">See <code>examples</code> for several language rules like <code>py_proto_library</code> and <code>java_proto_library</code>.</p>
-<p dir="auto">Note that there is NO dependency on <code>@com_google_protobuf</code> anywhere.</p>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Troubleshooting</h3><a id="user-content-troubleshooting" class="anchor" aria-label="Permalink: Troubleshooting" href="#troubleshooting"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">What if you still see that protoc is compiling? This means that there is still a transitive dependency on the
 <code>com_google_protobuf</code> module, likely from some macro call in your <code>WORKSPACE</code> file.</p>
