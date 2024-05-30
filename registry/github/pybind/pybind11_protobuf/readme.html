@@ -1,0 +1,184 @@
+<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Pybind11 bindings for Google's Protocol Buffers</h1><a id="user-content-pybind11-bindings-for-googles-protocol-buffers" class="anchor" aria-label="Permalink: Pybind11 bindings for Google's Protocol Buffers" href="#pybind11-bindings-for-googles-protocol-buffers"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">[TOC]</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Overview</h2><a id="user-content-overview" class="anchor" aria-label="Permalink: Overview" href="#overview"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">These adapters make Protocol Buffer message types work with Pybind11 bindings.</p>
+<p dir="auto">To use the proto messages with pybind11:</p>
+<ol dir="auto">
+<li>Include the header file <code>pybind11_protobuf/native_proto_caster.h</code>
+in the .cc file with your bindings.</li>
+<li>Call <code>pybind11_protobuf::ImportNativeProtoCasters();</code> in your <code>PYBIND11_MODULE</code> definition.</li>
+<li>Ensure <code>"@com_google_protobuf//:protobuf_python"</code> is a python dependency.
+When using Bazel, a common strategy is to add a python library that "wraps"
+the extension along with any required python dependencies.</li>
+</ol>
+<p dir="auto">Any arguments or return values which are a protocol buffer (including the base
+class, <code>proto2::Message</code>) will be automatically converted to python native
+protocol buffers.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Basic Example</h3><a id="user-content-basic-example" class="anchor" aria-label="Permalink: Basic Example" href="#basic-example"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="#include &lt;pybind11/pybind11.h&gt;
+
+#include &quot;path/to/my/my_message.proto.h&quot;
+#include &quot;pybind11_protobuf/native_proto_caster.h&quot;
+
+// In real use, these two functions would probably be defined in a python-agnostic library.
+MyMessage ReturnMyMessage() { ... }
+void TakeMyMessage(const MyMessage&amp; in) { ... }
+
+PYBIND11_MODULE(my_module, m) {
+  pybind11_protobuf::ImportNativeProtoCasters();
+
+  m.def(&quot;return_my_message&quot;, &amp;ReturnMyMessage);
+  m.def(&quot;take_my_message&quot;, &amp;TakeMyMessage, pybind11::arg(&quot;in&quot;));
+}"><pre>#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>pybind11/pybind11.h<span class="pl-pds">&gt;</span></span>
+
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">"</span>path/to/my/my_message.proto.h<span class="pl-pds">"</span></span>
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">"</span>pybind11_protobuf/native_proto_caster.h<span class="pl-pds">"</span></span>
+
+<span class="pl-c"><span class="pl-c">//</span> In real use, these two functions would probably be defined in a python-agnostic library.</span>
+MyMessage <span class="pl-en">ReturnMyMessage</span>() { ... }
+<span class="pl-k">void</span> <span class="pl-en">TakeMyMessage</span>(<span class="pl-k">const</span> MyMessage&amp; in) { ... }
+
+<span class="pl-en">PYBIND11_MODULE</span>(my_module, m) {
+  <span class="pl-c1">pybind11_protobuf::ImportNativeProtoCasters</span>();
+
+  m.<span class="pl-c1">def</span>(<span class="pl-s"><span class="pl-pds">"</span>return_my_message<span class="pl-pds">"</span></span>, &amp;ReturnMyMessage);
+  m.<span class="pl-c1">def</span>(<span class="pl-s"><span class="pl-pds">"</span>take_my_message<span class="pl-pds">"</span></span>, &amp;TakeMyMessage, <span class="pl-c1">pybind11::arg</span>(<span class="pl-s"><span class="pl-pds">"</span>in<span class="pl-pds">"</span></span>));
+}</pre></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">C++ Native vs Python Native Types</h2><a id="user-content-c-native-vs-python-native-types" class="anchor" aria-label="Permalink: C++ Native vs Python Native Types" href="#c-native-vs-python-native-types"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">When passing protos between C++ and Python, the <code>native_proto_caster.h</code>
+bindings will convert protobuf objects to the native type on either side.</p>
+<p dir="auto">While C++ has only one native type, Python has two native types
+(<a href="https://rules-proto-grpc.com/en/latest/lang/python.html" rel="nofollow">https://rules-proto-grpc.com/en/latest/lang/python.html</a>):</p>
+<ul dir="auto">
+<li><code>--define=use_fast_cpp_protos=false</code> (aka <code>use_pure_python_protos</code>)</li>
+<li><code>--define=use_fast_cpp_protos=true</code></li>
+</ul>
+<p dir="auto">With <code>use_pure_python_protos</code>, protobuf objects passed between C++ and Python
+are always serialized/deserialized between the native C++ type and the pure
+Python native type. This is very safe but also slow.</p>
+<p dir="auto">With <code>use_fast_cpp_protos</code>, the native Python type is internally backed by
+the native C++ type, which unlocks various performance benefits, even when
+only used from Python. When passing protobuf objects between Python and C++,
+in certain situations the serialization/deserialization overhead can be
+avoided, but not universally. Fundamentally, sharing C++ native protobuf
+objects between C++ and Python is unsafe because C++ assumes that it has
+exclusive ownership and may manipulate references in a way that undermines
+Python's much safer ownership semantics. Because of this, sharing mutable
+references or pointers between C++ and Python is not allowed.
+However, when passing a Python protobuf object to
+C++, and with <code>PYBIND11_PROTOBUF_ASSUME_FULL_ABI_COMPATIBILITY</code> defined
+(see proto_cast_util.h),
+the bindings will share the underlying C++ native protobuf object with C++ when
+passed by <code>const &amp;</code> or <code>const *</code>.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Protobuf Extensions</h3><a id="user-content-protobuf-extensions" class="anchor" aria-label="Permalink: Protobuf Extensions" href="#protobuf-extensions"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">When <code>use_fast_cpp_protos</code> is in use, and
+protobuf extensions
+are involved, a well-known pitfall is that extensions are silently moved
+to the <code>proto2::UnknownFieldSet</code> when a message is deserialized in C++,
+but the <code>cc_proto_library</code> for the extensions is not linked in. The root
+cause is an asymmetry in the handling of Python protos vs C++
+protos:
+when a Python proto is deserialized, both the Python descriptor pool and the
+C++ descriptor pool are inspected, but when a C++ proto is deserialized, only
+the C++ descriptor pool is inspected. Until this asymmetry is resolved, the
+<code>cc_proto_library</code> for all extensions involved must be added to the <code>deps</code> of
+the relevant <code>pybind_library</code> or <code>pybind_extension</code>, or if this is impractial,
+<code>pybind11_protobuf::check_unknown_fields::ExtensionsWithUnknownFieldsPolicy::WeakEnableFallbackToSerializeParse</code>
+or <code>pybind11_protobuf::AllowUnknownFieldsFor</code> can be used.</p>
+<p dir="auto">The pitfall is sufficiently unobvious to be a setup for regular accidents,
+potentially with critical
+consequences.</p>
+<p dir="auto">To guard against the most common type of accident, native_proto_caster.h
+includes a safety mechanism that raises "Proto Message has an Unknown Field"
+in certain situations:</p>
+<ul dir="auto">
+<li>When <code>use_fast_cpp_protos</code> is in use,</li>
+<li>a protobuf message is returned from C++ to Python,</li>
+<li>the message involves protobuf extensions (recursively),</li>
+<li>and the <code>proto2::UnknownFieldSet</code> for the message or any of its submessages
+is not empty.</li>
+</ul>
+<p dir="auto"><code>pybind11_protobuf::check_unknown_fields::ExtensionsWithUnknownFieldsPolicy::WeakEnableFallbackToSerializeParse</code>
+is a <strong>global</strong> escape hatch trading off convenience and runtime overhead: the
+convenience is that it is not necessary to determine what <code>cc_proto_library</code>
+dependencies need to be added, the runtime overhead is that
+<code>SerializePartialToString</code>/<code>ParseFromString</code> is used for messages with unknown
+fields, instead of the much faster <code>CopyFrom</code>.</p>
+<p dir="auto">Another escape hatch is <code>pybind11_protobuf::AllowUnknownFieldsFor</code>, which
+simply disables the safety mechanism for <strong>specific message types</strong>, without
+a runtime overhead. This is useful for situations in which unknown fields
+are acceptable.</p>
+<p dir="auto">An example of a full error message generated by the safety mechanism
+(with lines breaks here for readability):</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="Proto Message of type pybind11.test.NestRepeated has an Unknown Field with
+parent of type pybind11.test.BaseMessage: base_msgs.1003
+(pybind11_protobuf/tests/extension_nest_repeated.proto,
+pybind11_protobuf/tests/extension.proto).
+Please add the required `cc_proto_library` `deps`.
+Only if there is no alternative to suppressing this error, use
+`pybind11_protobuf::AllowUnknownFieldsFor(&quot;pybind11.test.NestRepeated&quot;, &quot;base_msgs&quot;);`
+(Warning: suppressions may mask critical bugs.)"><pre class="notranslate"><code>Proto Message of type pybind11.test.NestRepeated has an Unknown Field with
+parent of type pybind11.test.BaseMessage: base_msgs.1003
+(pybind11_protobuf/tests/extension_nest_repeated.proto,
+pybind11_protobuf/tests/extension.proto).
+Please add the required `cc_proto_library` `deps`.
+Only if there is no alternative to suppressing this error, use
+`pybind11_protobuf::AllowUnknownFieldsFor("pybind11.test.NestRepeated", "base_msgs");`
+(Warning: suppressions may mask critical bugs.)
+</code></pre></div>
+<p dir="auto">Note that the current implementation of the safety mechanism is a compromise
+solution, trading off simplicity of implementation, runtime performance,
+and precision. Alerting developers of new code to unknown fields is assumed
+to be generally helpful, but the unknown fields detection is limited to
+messages with extensions, to avoid the runtime overhead for the presumably
+much more common case that no extensions are involved. Because of this,
+the runtime overhead for the safety mechanism is expected to be very small.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Enumerations</h3><a id="user-content-enumerations" class="anchor" aria-label="Permalink: Enumerations" href="#enumerations"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Enumerations are passed and returned as integers. You may use the enum values
+from the native python proto module to set and check the enum values used
+by a bound proto enum (see <code>tests/proto_enum_test.py</code> for an example).</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">In / Out Parameters</h3><a id="user-content-in--out-parameters" class="anchor" aria-label="Permalink: In / Out Parameters" href="#in--out-parameters"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">In cases where a protocol buffer is used as an in/out parameter in C++,
+additional logic will be required in the wrapper. For example:</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="#include &lt;pybind11/pybind11.h&gt;
+
+#include &quot;path/to/my/my_message.proto.h&quot;
+#include &quot;pybind11_protobuf/native_proto_caster.h&quot;
+
+void MutateMessage(MyMessage* in_out) { ... }
+
+PYBIND11_MODULE(my_module, m) {
+  pybind11_protobuf::ImportNativeProtoCasters();
+
+  m.def(&quot;mutate_message&quot;, [](MyMessage in) {
+    MutateMessage(&amp;in);
+    return in;
+  },
+  pybind11::arg(&quot;in&quot;));
+}"><pre>#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>pybind11/pybind11.h<span class="pl-pds">&gt;</span></span>
+
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">"</span>path/to/my/my_message.proto.h<span class="pl-pds">"</span></span>
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">"</span>pybind11_protobuf/native_proto_caster.h<span class="pl-pds">"</span></span>
+
+<span class="pl-k">void</span> <span class="pl-en">MutateMessage</span>(MyMessage* in_out) { ... }
+
+<span class="pl-en">PYBIND11_MODULE</span>(my_module, m) {
+  <span class="pl-c1">pybind11_protobuf::ImportNativeProtoCasters</span>();
+
+  m.<span class="pl-c1">def</span>(<span class="pl-s"><span class="pl-pds">"</span>mutate_message<span class="pl-pds">"</span></span>, [](MyMessage in) {
+    <span class="pl-c1">MutateMessage</span>(&amp;in);
+    <span class="pl-k">return</span> in;
+  },
+  <span class="pl-c1">pybind11::arg</span>(<span class="pl-s"><span class="pl-pds">"</span>in<span class="pl-pds">"</span></span>));
+}</pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto"><code>pybind11_protobuf/wrapped_proto_caster.h</code></h3><a id="user-content-pybind11_protobufwrapped_proto_casterh" class="anchor" aria-label="Permalink: pybind11_protobuf/wrapped_proto_caster.h" href="#pybind11_protobufwrapped_proto_casterh"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">TL;DR: Ignore <code>wrapped_proto_caster.h</code> if you can, this header was added as
+a migration aid before the removal of <code>proto_casters.h</code>.</p>
+<p dir="auto">Historic background: Due to the nature of pybind11, extension modules
+built using <code>native_proto_caster.h</code> could not interoperate with the
+older <code>proto_casters.h</code> bindings, as that would have led to C++ ODR
+violations. <code>wrapped_proto_caster.h</code> is a nearly-transparent wrapper for
+<code>native_proto_caster.h</code> to work around the ODR issue. With the migration to
+<code>native_proto_caster.h</code> now completed, <code>wrapped_proto_caster.h</code> is obsolete
+and will be removed in the future.</p>
+</article></div>
