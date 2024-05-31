@@ -9,11 +9,40 @@ These extensions can be used e.g. as a <code>data</code> dependency for a <code>
 </ul>
 <p dir="auto">Each target is given nanobind's specific build flags, optimizations and dependencies.</p>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Usage with bzlmod</h2><a id="user-content-usage-with-bzlmod" class="anchor" aria-label="Permalink: Usage with bzlmod" href="#usage-with-bzlmod"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<p dir="auto">This repo is published to the Bazel Central Registry (BCR). To use it, specify it as a <code>bazel_dep</code>:</p>
-<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="# the major version is equal to the major version of the internally used nanobind.
-bazel_dep(name = &quot;nanobind_bazel&quot;, version = &quot;1.0.0&quot;)"><pre class="notranslate"><code># the major version is equal to the major version of the internally used nanobind.
-bazel_dep(name = "nanobind_bazel", version = "1.0.0")
+<p dir="auto">nanobind-bazel is published to the Bazel Central Registry (BCR). To use it, specify it as a <code>bazel_dep</code>:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="# the major version of nanobind-bazel is equal to the major version of the internally used nanobind.
+# In this case, we are building bindings with nanobind@v2.
+bazel_dep(name = &quot;nanobind_bazel&quot;, version = &quot;2.0.0&quot;)"><pre class="notranslate"><code># the major version of nanobind-bazel is equal to the major version of the internally used nanobind.
+# In this case, we are building bindings with nanobind@v2.
+bazel_dep(name = "nanobind_bazel", version = "2.0.0")
 </code></pre></div>
+<p dir="auto">To instead use a development version, you can declare a <code>git_override()</code> dependency in your MODULE.bazel:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="bazel_dep(name = &quot;nanobind_bazel&quot;, version = &quot;&quot;)
+git_override(
+    module_name = &quot;nanobind_bazel&quot;,
+    commit = &quot;COMMIT_SHA&quot;, # replace this with the actual commit SHA you want.
+    remote = &quot;https://github.com/nicholasjng/nanobind-bazel&quot;,
+)"><pre class="notranslate"><code>bazel_dep(name = "nanobind_bazel", version = "")
+git_override(
+    module_name = "nanobind_bazel",
+    commit = "COMMIT_SHA", # replace this with the actual commit SHA you want.
+    remote = "https://github.com/nicholasjng/nanobind-bazel",
+)
+</code></pre></div>
+<p dir="auto">In local development scenarios, you can clone nanobind-bazel to your machine and then declare it as a <code>local_path_override()</code> like so:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="bazel_dep(name = &quot;nanobind_bazel&quot;, version = &quot;&quot;)
+local_path_override(
+    module_name = &quot;nanobind_bazel&quot;,
+    path = &quot;path/to/nanobind-bazel/&quot;, # replace this with the actual path.
+)"><pre class="notranslate"><code>bazel_dep(name = "nanobind_bazel", version = "")
+local_path_override(
+    module_name = "nanobind_bazel",
+    path = "path/to/nanobind-bazel/", # replace this with the actual path.
+)
+</code></pre></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Bazel versions</h2><a id="user-content-bazel-versions" class="anchor" aria-label="Permalink: Bazel versions" href="#bazel-versions"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">This library relies on the ability to pass inputs to the linker in <code>cc_library</code> targets, which became available starting in Bazel 6.4.0. For this reason, the minimum Bazel version compatible with this project is Bazel 6.4.0.</p>
+<p dir="auto">In general, since Bazel 7 enabled bzlmod by default, no more intentional development efforts are made to support the workspace system.</p>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Licenses and acknowledgements</h2><a id="user-content-licenses-and-acknowledgements" class="anchor" aria-label="Permalink: Licenses and acknowledgements" href="#licenses-and-acknowledgements"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">This library is heavily inspired by the <a href="https://github.com/pybind/pybind11_bazel">pybind11-bazel</a> project, which does the same thing for pybind11.
 As I have used some of the code from that repository, its <a href="pybind11_bazel.LICENSE">license</a> is included here, too.</p>
