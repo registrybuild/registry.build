@@ -755,6 +755,30 @@ GIT_BRANCH_NAME=<span class="pl-s"><span class="pl-pds">$(</span>git rev-parse -
 <li>from <code>deploy/monitoring-prod</code> to <code>master</code> including manifests for <code>prod-grafana</code> and <code>prod-prometheus</code></li>
 </ul>
 <p dir="auto">The GitOps pull request is only created (or new commits added) if the <code>gitops</code> target changes the state for the target deployment branch. The source pull request will remain open (and keep accumulation GitOps results) until the pull request is merged and source branch is deleted.</p>
+<p dir="auto">The <code>--stamp</code> parameter allows for the replacement of certain placeholders, but only when the <code>gitops</code> target changes the output's digest compared to the one already saved. The new digest of the unstamped data is also saved with the manifest. The digest is kept in a file in the same location as the YAML file, with a <code>.digest</code> extension added to its name. This is helpful when the manifests have volatile information that shouldn't be the only factor causing changes in the target deployment branch.</p>
+<p dir="auto">Here are the placeholders that can be replaced:</p>
+<table>
+<thead>
+<tr>
+<th>Placeholder</th>
+<th>Replacement</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>{{GIT_REVISION}}</code></td>
+<td>Result of <code>git rev-parse HEAD</code></td>
+</tr>
+<tr>
+<td><code>{{UTC_DATE}}</code></td>
+<td>Result of <code>date -u</code></td>
+</tr>
+<tr>
+<td><code>{{GIT_BRANCH}}</code></td>
+<td>The <code>branch_name</code> argument given to <code>create_gitops_prs</code></td>
+</tr>
+</tbody>
+</table>
 <p dir="auto"><code>--dry_run</code> parameter can be used to test the tool without creating any pull requests. The tool will print the list of the potential pull requests. It is recommended to run the tool in the dry run mode as a part of the CI test suite to verify that the tool is configured correctly.</p>
 <p dir="auto"><a name="user-content-multiple-release-branches-gitops-workflow"></a></p>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Multiple Release Branches GitOps Workflow</h2><a id="user-content-multiple-release-branches-gitops-workflow" class="anchor" aria-label="Permalink: Multiple Release Branches GitOps Workflow" href="#multiple-release-branches-gitops-workflow"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
