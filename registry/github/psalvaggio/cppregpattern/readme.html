@@ -1,0 +1,54 @@
+<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">C++ Registry Pattern</h1><a id="user-content-c-registry-pattern" class="anchor" aria-label="Permalink: C++ Registry Pattern" href="#c-registry-pattern"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">A self-registering map of functions, allowing for dynamic dispatching based
+on some identifier. Example usages may be constructing a subclass or using
+an appropriate I/O function based on an enum value or a string key. All
+functions in the map need to have the same signature in this implementation.
+Multiple threads can read from the map using Dispatch() at the same time,
+but do not call Register() and Dispatch() from different threads as the
+same time.</p>
+<p dir="auto">Since the Registry template instantiation can be quite verbose and
+registration is a bit of boilerplate, it is recommended that users create
+a type alias and a macro for registration. For example:</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="using BaseRegistry = Registry&lt;std::string,
+                              std::unique_ptr&lt;Base&gt;(int, double)&gt;;
+#define REGISTER_BASE_SUBCLASS(subclass)                         \
+    static bool _registered_##subclass = BaseRegistry::Register( \
+        #subclass, [](int a, double b) {                         \
+            return std::unique_ptr&lt;Base&gt;(new subclass(a, b));    \
+        });"><pre><span class="pl-k">using</span> BaseRegistry = Registry&lt;std::string,
+                              std::unique_ptr&lt;Base&gt;(<span class="pl-k">int</span>, <span class="pl-k">double</span>)&gt;;
+#<span class="pl-k">define</span> <span class="pl-en">REGISTER_BASE_SUBCLASS</span>(<span class="pl-v">subclass</span>)                         \
+    <span class="pl-k">static</span> <span class="pl-k">bool</span> _registered_##subclass = BaseRegistry::Register( \
+        #subclass, [](<span class="pl-k">int</span> a, <span class="pl-k">double</span> b) {                         \
+            <span class="pl-k">return</span> std::unique_ptr&lt;Base&gt;(<span class="pl-k">new</span> <span class="pl-c1">subclass</span>(a, b));    \
+        });</pre></div>
+<p dir="auto">The following policies for missing keys are supported:</p>
+<ol dir="auto">
+<li><code>MissingKeyPolicy::exception</code> - throws the <code>std::out_of_range</code> from
+<code>unordered_map</code>'s <code>at()</code> when the key does not exist.</li>
+<li><code>MissingKeyPolicy::default_construct</code> - returns a default-constructed
+object when the key does not exist.</li>
+<li><code>MissingKeyPolicy::optional</code> - <code>Dispatch</code> now returns a <code>std::optional</code>
+of <code>Func</code>'s return type. This is only supported when C++17 is enabled.</li>
+</ol>
+<p dir="auto"><em>NOTE:</em> If the registration is taking place in a STATIC library linked to the
+executable, then all of the headers with the registrations must be included
+or the library must be linked with with the platform-specific whole library
+flags, such as</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="-Wl,--whole-archive -lmylib -Wl,--no-whole-archive"><pre class="notranslate"><code>-Wl,--whole-archive -lmylib -Wl,--no-whole-archive
+</code></pre></div>
+<p dir="auto">on Max OS X, this is done with the flags</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="-Wl,-force_load -lmylib"><pre class="notranslate"><code>-Wl,-force_load -lmylib
+</code></pre></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Template Parameters</h2><a id="user-content-template-parameters" class="anchor" aria-label="Permalink: Template Parameters" href="#template-parameters"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li><code>Key</code> - The identifier type for the function map</li>
+<li><code>Func</code>- The function signature type for the function map</li>
+<li><code>MKP</code> - The behavior policy for what to do in the case of a missing key</li>
+<li><code>Hash</code> - The hash function to use for the function map</li>
+<li><code>KeyEqual</code> - The key equality function for the function map</li>
+<li><code>Allocator</code> - The allocator to use for the function map</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Examples</h2><a id="user-content-examples" class="anchor" aria-label="Permalink: Examples" href="#examples"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">See the examples directory for an example with CMake.</p>
+</article></div>
