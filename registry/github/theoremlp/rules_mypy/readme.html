@@ -1,0 +1,115 @@
+<div id="readme" class="md" data-path="readme.md"><article class="markdown-body entry-content container-lg" itemprop="text"><div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">rules_mypy</h1><a id="user-content-rules_mypy" class="anchor" aria-label="Permalink: rules_mypy" href="#rules_mypy"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">An aspect to instrument <code>py_*</code> targets with mypy type-checking.</p>
+<p dir="auto">Compared to <a href="https://github.com/bazel-contrib/bazel-mypy-integration">bazel-mypy-integration</a>, this ruleset aims to make a couple of improvements:</p>
+<ul dir="auto">
+<li>Propagation of the mypy cache between dependencies within a repository to avoid exponential type-checking work</li>
+<li>Robust (and automated) support for including 3rd party types/stubs packages</li>
+</ul>
+<div class="markdown-alert markdown-alert-warning" dir="auto"><p class="markdown-alert-title" dir="auto"><svg class="octicon octicon-alert mr-2" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="M6.457 1.047c.659-1.234 2.427-1.234 3.086 0l6.082 11.378A1.75 1.75 0 0 1 14.082 15H1.918a1.75 1.75 0 0 1-1.543-2.575Zm1.763.707a.25.25 0 0 0-.44 0L1.698 13.132a.25.25 0 0 0 .22.368h12.164a.25.25 0 0 0 .22-.368Zm.53 3.996v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 11a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"></path></svg>Warning</p><p dir="auto">rules_mypy's build actions produce mypy caches as outputs, and these may contain large file counts and that will only grow as a dependency chain grows. This may have an impact on the size and usage of build and/or remote caches.</p>
+</div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Usage</h2><a id="user-content-usage" class="anchor" aria-label="Permalink: Usage" href="#usage"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">This aspect will run over any <code>py_binary</code>, <code>py_library</code> or <code>py_test</code>.</p>
+<p dir="auto">Setup is significantly easier with bzlmod, we recommend and predominantly support bzlmod, though these rules should work without issue in non-bzlmod setups, albeit with more work to configure.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Bzlmod Setup</h3><a id="user-content-bzlmod-setup" class="anchor" aria-label="Permalink: Bzlmod Setup" href="#bzlmod-setup"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><strong>Add rules_mypy to your MODULE.bazel:</strong></p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel_dep(name = &quot;rules_mypy&quot;, version = &quot;0.0.0&quot;)"><pre><span class="pl-en">bazel_dep</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_mypy"</span>, <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"0.0.0"</span>)</pre></div>
+<p dir="auto"><strong>Optionally, configure a types repository:</strong></p>
+<p dir="auto">Many Python packages have separately published types/stubs packages. While mypy (and these rules) will work without including these types, this ruleset provides some utilities for leveraging these types to improve mypy's type checking.</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="types = use_extension(&quot;@rules_mypy//mypy:types.bzl&quot;, &quot;types&quot;)
+types.requirements(
+    name = &quot;pip_types&quot;,
+    # `@pip` in the next line corresponds to the `hub_name` when using
+    # rules_python's `pip.parse(...)`.
+    pip_requirements = &quot;@pip//:requirements.bzl&quot;,
+    # also legal to pass a `requirements.in` here
+    requirements_txt = &quot;//:requirements.txt&quot;,
+)
+use_repo(types, &quot;pip_types&quot;)"><pre><span class="pl-s1">types</span> <span class="pl-c1">=</span> <span class="pl-en">use_extension</span>(<span class="pl-s">"@rules_mypy//mypy:types.bzl"</span>, <span class="pl-s">"types"</span>)
+<span class="pl-s1">types</span>.<span class="pl-en">requirements</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"pip_types"</span>,
+    <span class="pl-c"># `@pip` in the next line corresponds to the `hub_name` when using</span>
+    <span class="pl-c"># rules_python's `pip.parse(...)`.</span>
+    <span class="pl-s1">pip_requirements</span> <span class="pl-c1">=</span> <span class="pl-s">"@pip//:requirements.bzl"</span>,
+    <span class="pl-c"># also legal to pass a `requirements.in` here</span>
+    <span class="pl-s1">requirements_txt</span> <span class="pl-c1">=</span> <span class="pl-s">"//:requirements.txt"</span>,
+)
+<span class="pl-en">use_repo</span>(<span class="pl-s1">types</span>, <span class="pl-s">"pip_types"</span>)</pre></div>
+<p dir="auto"><strong>Configure <code>mypy_aspect</code>.</strong></p>
+<p dir="auto">Define a new aspect in a <code>.bzl</code> file (such as <code>./tools/aspects.bzl</code>):</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@pip_types//:types.bzl&quot;, &quot;types&quot;)
+load(&quot;@rules_mypy//mypy:mypy.bzl&quot;, &quot;mypy&quot;)
+
+mypy_aspect = mypy(types = types)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@pip_types//:types.bzl"</span>, <span class="pl-s">"types"</span>)
+<span class="pl-en">load</span>(<span class="pl-s">"@rules_mypy//mypy:mypy.bzl"</span>, <span class="pl-s">"mypy"</span>)
+
+<span class="pl-s1">mypy_aspect</span> <span class="pl-c1">=</span> <span class="pl-en">mypy</span>(<span class="pl-s1">types</span> <span class="pl-c1">=</span> <span class="pl-s1">types</span>)</pre></div>
+<p dir="auto">Update your <code>.bazelrc</code> to include this new aspect:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="# register mypy_aspect with Bazel
+build --aspects //tools:aspects.bzl%mypy_aspect
+
+# optionally, default enable the mypy checks
+build --output_groups=+mypy"><pre><span class="pl-c"># register mypy_aspect with Bazel</span>
+<span class="pl-s1">build</span> <span class="pl-c1">-</span><span class="pl-c1">-</span><span class="pl-s1">aspects</span> <span class="pl-c1">//</span><span class="pl-s1">tools</span>:<span class="pl-s1">aspects</span>.<span class="pl-s1">bzl</span><span class="pl-c1">%</span><span class="pl-s1">mypy_aspect</span>
+
+<span class="pl-c"># optionally, default enable the mypy checks</span>
+<span class="pl-s1">build</span> <span class="pl-c1">-</span><span class="pl-c1">-</span><span class="pl-s1">output_groups</span><span class="pl-c1">=</span><span class="pl-c1">+</span><span class="pl-s1">mypy</span></pre></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Customizing mypy</h2><a id="user-content-customizing-mypy" class="anchor" aria-label="Permalink: Customizing mypy" href="#customizing-mypy"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">mypy's behavior may be customized using a <a href="https://mypy.readthedocs.io/en/stable/config_file.html" rel="nofollow">mypy config file</a> file. To use a mypy config file, pass a label for a valid config file to the <code>mypy</code> aspect factory:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="mypy_aspect = mypy(
+    mypy_ini = &quot;//:mypy.ini&quot;,
+    types = types,
+)"><pre><span class="pl-s1">mypy_aspect</span> <span class="pl-c1">=</span> <span class="pl-en">mypy</span>(
+    <span class="pl-s1">mypy_ini</span> <span class="pl-c1">=</span> <span class="pl-s">"//:mypy.ini"</span>,
+    <span class="pl-s1">types</span> <span class="pl-c1">=</span> <span class="pl-s1">types</span>,
+)</pre></div>
+<p dir="auto">To customize the version of mypy, use rules_python's requirements resolution and construct a custom mypy CLI:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="# in a BUILD file
+load(&quot;@pip//:requirements.bzl&quot;, &quot;requirements&quot;) # '@pip' must match configured pip hub_name
+load(&quot;@rules_mypy//mypy:mypy.bzl&quot;, &quot;mypy&quot;, &quot;mypy_cli&quot;)
+
+mypy_cli(
+    name = &quot;mypy_cli&quot;,
+    mypy_requirement = requirement(&quot;mypy&quot;),
+)"><pre><span class="pl-c"># in a BUILD file</span>
+<span class="pl-en">load</span>(<span class="pl-s">"@pip//:requirements.bzl"</span>, <span class="pl-s">"requirements"</span>) <span class="pl-c"># '@pip' must match configured pip hub_name</span>
+<span class="pl-en">load</span>(<span class="pl-s">"@rules_mypy//mypy:mypy.bzl"</span>, <span class="pl-s">"mypy"</span>, <span class="pl-s">"mypy_cli"</span>)
+
+<span class="pl-en">mypy_cli</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"mypy_cli"</span>,
+    <span class="pl-s1">mypy_requirement</span> <span class="pl-c1">=</span> <span class="pl-en">requirement</span>(<span class="pl-s">"mypy"</span>),
+)</pre></div>
+<p dir="auto">And in your <code>aspects.bzl</code> (or similar) file:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@rules_mypy//mypy:mypy.bzl&quot;, &quot;mypy&quot;)
+
+mypy_aspect = mypy(
+    mypy_cli = &quot;:mypy_cli&quot;,
+    types = types,
+)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@rules_mypy//mypy:mypy.bzl"</span>, <span class="pl-s">"mypy"</span>)
+
+<span class="pl-s1">mypy_aspect</span> <span class="pl-c1">=</span> <span class="pl-en">mypy</span>(
+    <span class="pl-s1">mypy_cli</span> <span class="pl-c1">=</span> <span class="pl-s">":mypy_cli"</span>,
+    <span class="pl-s1">types</span> <span class="pl-c1">=</span> <span class="pl-s1">types</span>,
+)</pre></div>
+<p dir="auto">Further, to use mypy plugins referenced in any config file, use the <code>deps</code> attribute of <code>mypy_cli</code>:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="# in a BUILD file
+load(&quot;@pip//:requirements.bzl&quot;, &quot;requirements&quot;) # '@pip' must match configured pip hub_name
+load(&quot;@rules_mypy//mypy:mypy.bzl&quot;, &quot;mypy&quot;, &quot;mypy_cli&quot;)
+
+mypy_cli(
+    name = &quot;mypy_cli&quot;,
+    mypy_requirement = requirement(&quot;mypy&quot;),
+    deps = [
+        requirement(&quot;pydantic&quot;),
+    ],
+)"><pre><span class="pl-c"># in a BUILD file</span>
+<span class="pl-en">load</span>(<span class="pl-s">"@pip//:requirements.bzl"</span>, <span class="pl-s">"requirements"</span>) <span class="pl-c"># '@pip' must match configured pip hub_name</span>
+<span class="pl-en">load</span>(<span class="pl-s">"@rules_mypy//mypy:mypy.bzl"</span>, <span class="pl-s">"mypy"</span>, <span class="pl-s">"mypy_cli"</span>)
+
+<span class="pl-en">mypy_cli</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"mypy_cli"</span>,
+    <span class="pl-s1">mypy_requirement</span> <span class="pl-c1">=</span> <span class="pl-en">requirement</span>(<span class="pl-s">"mypy"</span>),
+    <span class="pl-s1">deps</span> <span class="pl-c1">=</span> [
+        <span class="pl-en">requirement</span>(<span class="pl-s">"pydantic"</span>),
+    ],
+)</pre></div>
+</article></div>
