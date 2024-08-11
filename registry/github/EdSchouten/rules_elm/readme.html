@@ -7,6 +7,10 @@ applications using <a href="https://bazel.build/" rel="nofollow">the Bazel build
 rules depend on their own copy of the Elm compiler, meaning that Elm and
 any libraries used may be versioned as part of your Bazel project.</p>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Adding these rules to your project</h2><a id="user-content-adding-these-rules-to-your-project" class="anchor" aria-label="Permalink: Adding these rules to your project" href="#adding-these-rules-to-your-project"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">bzlmod migration status</h3><a id="user-content-bzlmod-migration-status" class="anchor" aria-label="Permalink: bzlmod migration status" href="#bzlmod-migration-status"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">This project is not fully ported to bzlmod, therefore some <code>WORKSPACE.bzlmod</code>
+entries are still required. See <a href="./examples">examples</a> for more info.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Legacy WORKSPACE</h3><a id="user-content-legacy-workspace" class="anchor" aria-label="Permalink: Legacy WORKSPACE" href="#legacy-workspace"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">Add the following declarations to your <code>WORKSPACE</code> file:</p>
 <div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@bazel_tools//tools/build_defs/repo:http.bzl&quot;, &quot;http_archive&quot;)
 
@@ -18,8 +22,9 @@ http_archive(
 )
 
 load(&quot;@com_github_edschouten_rules_elm//elm:deps.bzl&quot;, &quot;elm_register_toolchains&quot;)
-
-elm_register_toolchains()"><pre><span class="pl-en">load</span>(<span class="pl-s">"@bazel_tools//tools/build_defs/repo:http.bzl"</span>, <span class="pl-s">"http_archive"</span>)
+elm_register_toolchains()
+load(&quot;@com_github_edschouten_rules_elm_npm//:repositories.bzl&quot;, elm_npm_repositories = &quot;npm_repositories&quot;)
+elm_npm_repositories()"><pre><span class="pl-en">load</span>(<span class="pl-s">"@bazel_tools//tools/build_defs/repo:http.bzl"</span>, <span class="pl-s">"http_archive"</span>)
 
 <span class="pl-en">http_archive</span>(
     <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"com_github_edschouten_rules_elm"</span>,
@@ -29,12 +34,9 @@ elm_register_toolchains()"><pre><span class="pl-en">load</span>(<span class="pl-
 )
 
 <span class="pl-en">load</span>(<span class="pl-s">"@com_github_edschouten_rules_elm//elm:deps.bzl"</span>, <span class="pl-s">"elm_register_toolchains"</span>)
-
-<span class="pl-en">elm_register_toolchains</span>()</pre></div>
-<p dir="auto">As some of these rules depend on Node.js and UglifyJS, you should also
-add <a href="https://github.com/bazelbuild/rules_nodejs">rules_nodejs</a> to your
-<code>WORKSPACE</code> file, calling <code>yarn_install()</code> on a <code>yarn.lock</code> file that
-provides UglifyJS.</p>
+<span class="pl-en">elm_register_toolchains</span>()
+<span class="pl-en">load</span>(<span class="pl-s">"@com_github_edschouten_rules_elm_npm//:repositories.bzl"</span>, <span class="pl-s1">elm_npm_repositories</span> <span class="pl-c1">=</span> <span class="pl-s">"npm_repositories"</span>)
+<span class="pl-en">elm_npm_repositories</span>()</pre></div>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Examples on how to use these rules</h2><a id="user-content-examples-on-how-to-use-these-rules" class="anchor" aria-label="Permalink: Examples on how to use these rules" href="#examples-on-how-to-use-these-rules"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto"><a href="https://github.com/EdSchouten/bazel-elm-spa-example">The Bazel Elm SPA Example repository</a>
 contains a concrete example of how these rules may be used to build a
@@ -98,14 +100,19 @@ sufficient to use <code>elm_repository()</code>.</p>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto"><code>elm_proto_library()</code></h3><a id="user-content-elm_proto_library" class="anchor" aria-label="Permalink: elm_proto_library()" href="#elm_proto_library"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@com_github_edschouten_rules_elm//proto:def.bzl&quot;, &quot;elm_proto_library&quot;)
 
-elm_proto_library(name, proto, visibility)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@com_github_edschouten_rules_elm//proto:def.bzl"</span>, <span class="pl-s">"elm_proto_library"</span>)
+elm_proto_library(name, proto, deps, plugin_opt_json, plugin_opt_grpc, visibility)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@com_github_edschouten_rules_elm//proto:def.bzl"</span>, <span class="pl-s">"elm_proto_library"</span>)
 
-<span class="pl-en">elm_proto_library</span>(<span class="pl-s1">name</span>, <span class="pl-s1">proto</span>, <span class="pl-s1">visibility</span>)</pre></div>
+<span class="pl-en">elm_proto_library</span>(<span class="pl-s1">name</span>, <span class="pl-s1">proto</span>, <span class="pl-s1">deps</span>, <span class="pl-s1">plugin_opt_json</span>, <span class="pl-s1">plugin_opt_grpc</span>, <span class="pl-s1">visibility</span>)</pre></div>
 <p dir="auto"><strong>Purpose:</strong> generate Elm bindings for <a href="https://developers.google.com/protocol-buffers/" rel="nofollow">Protocol Buffers</a>
-definitions using <a href="https://github.com/tiziano88/elm-protobuf">tiziano88/elm-protobuf</a>
+definitions using <a href="https://www.npmjs.com/package/protoc-gen-elm" rel="nofollow">protoc-gen-elm</a>
 and package them as an <code>elm_library()</code>.</p>
 <ul dir="auto">
 <li><code>proto</code>: The <code>proto_library()</code> that should be converted to Elm.</li>
+<li><code>deps</code>: Elm deps required to compile generated code.</li>
+<li><code>plugin_opt_json</code>: One of {json, json=encode, json=decode},
+see <a href="https://www.npmjs.com/package/protoc-gen-elm" rel="nofollow">protoc-gen-elm docs</a></li>
+<li><code>plugin_opt_grpc</code>: One of {grpc, grpc=false, grpc=true},
+see <a href="https://www.npmjs.com/package/protoc-gen-elm" rel="nofollow">protoc-gen-elm docs</a></li>
 </ul>
 <p dir="auto"><strong>Note:</strong> This function is implemented using <a href="https://docs.bazel.build/versions/master/skylark/aspects.html" rel="nofollow">Bazel aspects</a>,
 meaning that it automatically instantiates build rules for all
