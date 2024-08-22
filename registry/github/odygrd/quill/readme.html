@@ -150,11 +150,23 @@ int main()
 the <a href="http://github.com/odygrd/quill#performance">Benchmarks</a>.</li>
 <li><strong>Asynchronous Efficiency</strong>: Offload formatting and I/O to a background thread, keeping your main thread efficient and
 responsive.</li>
+<li><strong>Minimal Header Includes</strong>:
+The library is designed with a clear separation between the Frontend and Backend components:
+<ul dir="auto">
+<li><strong>Frontend:</strong> To log messages, you only need to include <code>Logger.h</code> and <code>LogMacros.h</code> in your source files. These
+headers are lightweight and contain minimal dependencies.</li>
+<li><strong>Backend:</strong> The backend implementation is included in a single <code>.cpp</code> file. This design ensures that no backend
+code is injected into your other translation units, keeping compile times short and minimizing unnecessary
+dependencies.</li>
+</ul>
+</li>
+<li><strong>Compile-Time Optimization</strong>: Strip out specific log levels at compile time to reduce runtime overhead and enhance
+performance.</li>
 <li><strong>Customizable Formatters</strong>: Tailor your log output with user-defined formatting patterns. Explore the possibilities
 in <a href="https://quillcpp.readthedocs.io/en/latest/formatters.html" rel="nofollow">Formatters</a>.</li>
 <li><strong>Versatile Timestamps</strong>: Select from various timestamp generation methods. <code>rdtsc</code>, <code>chrono</code>, or
 even <code>custom clocks</code>, ideal for simulations and more.</li>
-<li><strong>Stack Trace Logging</strong>: Log messages can be stored in a ring buffer, ready to be displayed on demand or in response
+<li><strong>Backtrace Logging</strong>: Log messages can be stored in a ring buffer, ready to be displayed on demand or in response
 to critical errors. Learn more
 in <a href="https://quillcpp.readthedocs.io/en/latest/backtrace_logging.html" rel="nofollow">Backtrace Logging</a></li>
 <li><strong>Multiple Output Sinks</strong>: Direct logs to multiple targets, including:
@@ -174,18 +186,19 @@ the hot threads pause and wait when the queue is full until space becomes availa
 introducing potential latency. In <code>dropping</code> mode, log messages beyond the queue's capacity may be dropped to
 prioritize low latency. The library provides reports on dropped messages, queue reallocations, and blocked hot threads
 for monitoring purposes.</li>
+<li><strong>Support for Huge Pages (Linux)</strong>: Leverage huge pages on the hot path for improved performance and efficiency.</li>
+<li><strong>Build Without Exceptions</strong>:
+The library can be configured to build without exception handling. This flexibility allows you to compile with or
+without exception support based on your project's requirements</li>
 <li><strong>Wide Character Support</strong>: Wide strings compatible with ASCII encoding are supported, applicable to Windows only.
 Additionally, there is support for logging STL containers consisting of wide strings. Note that chaining STL types,
 such as <code>std::vector&lt;std::vector&lt;std::wstring&gt;&gt;</code> is not supported for wide strings.</li>
 <li><strong>Timestamp-Ordered Logs</strong>: Ensure logs are ordered by timestamp, even across different threads, simplifying the
 debugging of multithreaded applications.</li>
-<li><strong>Compile-Time Optimization</strong>: Strip out specific log levels at compile time to reduce runtime overhead and enhance
-performance.</li>
 <li><strong>Clean, Warning-Free Code</strong>: The codebase is meticulously maintained to be clean and free of compiler warnings, even
 with strict warning levels.</li>
 <li><strong>Crash Resilience</strong>: With built-in signal handler, the library is designed to handle unexpected crashes gracefully.</li>
 <li><strong>Type-Safe API</strong>: The API is type-safe, built on the robust <a href="http://github.com/fmtlib/fmt">{fmt}</a> library.</li>
-<li><strong>Support for Huge Pages</strong>: Leverage huge pages on the hot path for improved performance and efficiency.</li>
 </ul>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">🧩 Usage</h2><a id="user-content--usage" class="anchor" aria-label="Permalink: 🧩 Usage" href="#-usage"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="#include &quot;quill/Backend.h&quot;
@@ -401,8 +414,30 @@ my_build_target <span class="pl-k">=</span> <span class="pl-c1">executable</span
 <p dir="auto">For manual setup, add Quill to your <code>BUILD.bazel</code> file like this:</p>
 <div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="cc_binary(name = &quot;app&quot;, srcs = [&quot;main.cpp&quot;], deps = [&quot;//quill_path:quill&quot;])"><pre><span class="pl-en">cc_binary</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"app"</span>, <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> [<span class="pl-s">"main.cpp"</span>], <span class="pl-s1">deps</span> <span class="pl-c1">=</span> [<span class="pl-s">"//quill_path:quill"</span>])</pre></div>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">🚀 Performance</h2><a id="user-content--performance" class="anchor" aria-label="Permalink: 🚀 Performance" href="#-performance"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">System Configuration</h3><a id="user-content-system-configuration" class="anchor" aria-label="Permalink: System Configuration" href="#system-configuration"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li>
+<p dir="auto"><strong>OS:</strong> Linux RHEL 9.4</p>
+</li>
+<li>
+<p dir="auto"><strong>CPU:</strong> Intel Core i5-12600 (12th Gen) @ 4.8 GHz</p>
+</li>
+<li>
+<p dir="auto"><strong>Compiler:</strong> GCC 13.1</p>
+</li>
+<li>
+<p dir="auto"><strong>Benchmark-Tuned System:</strong> The system is specifically tuned for benchmarking.</p>
+</li>
+<li>
+<p dir="auto"><strong>Command Line Parameters:</strong></p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="$ cat /proc/cmdline
+BOOT_IMAGE=(hd0,gpt2)/vmlinuz-5.14.0-427.13.1.el9_4.x86_64 root=/dev/mapper/rhel-root ro crashkernel=1G-4G:192M,4G-64G:256M,64G-:512M resume=/dev/mapper/rhel-swap rd.lvm.lv=rhel/root rd.lvm.lv=rhel/swap rhgb quiet nohz=on nohz_full=1-5 rcu_nocbs=1-5 isolcpus=1-5 mitigations=off transparent_hugepage=never intel_pstate=disable nosoftlockup irqaffinity=0 processor.max_cstate=1 nosoftirqd sched_tick_offload=0 spec_store_bypass_disable=off spectre_v2=off iommu=pt"><pre>$ cat /proc/cmdline
+BOOT_IMAGE=(hd0,gpt2)/vmlinuz-5.14.0-427.13.1.el9_4.x86_64 root=/dev/mapper/rhel-root ro crashkernel=1G-4G:192M,4G-64G:256M,64G-:512M resume=/dev/mapper/rhel-swap rd.lvm.lv=rhel/root rd.lvm.lv=rhel/swap rhgb quiet nohz=on nohz_full=1-5 rcu_nocbs=1-5 isolcpus=1-5 mitigations=off transparent_hugepage=never intel_pstate=disable nosoftlockup irqaffinity=0 processor.max_cstate=1 nosoftirqd sched_tick_offload=0 spec_store_bypass_disable=off spectre_v2=off iommu=pt</pre></div>
+</li>
+</ul>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Latency</h3><a id="user-content-latency" class="anchor" aria-label="Permalink: Latency" href="#latency"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">The results presented in the tables below are measured in <code>nanoseconds (ns)</code>.</p>
+<p dir="auto">The tables are sorted by the 95th percentile</p>
 <div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Logging Numbers</h4><a id="user-content-logging-numbers" class="anchor" aria-label="Permalink: Logging Numbers" href="#logging-numbers"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto"><code>LOG_INFO(logger, "Logging int: {}, int: {}, double: {}", i, j, d)</code>.</p>
 <div class="markdown-heading" dir="auto"><h5 class="heading-element" dir="auto">1 Thread Logging</h5><a id="user-content-1-thread-logging" class="anchor" aria-label="Permalink: 1 Thread Logging" href="#1-thread-logging"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
@@ -421,93 +456,93 @@ my_build_target <span class="pl-k">=</span> <span class="pl-c1">executable</span
 <tbody>
 <tr>
 <td><a href="http://github.com/odygrd/quill">Quill Bounded Dropping Queue</a></td>
-<td align="center">6</td>
 <td align="center">7</td>
 <td align="center">8</td>
 <td align="center">8</td>
 <td align="center">9</td>
-<td align="center">10</td>
-</tr>
-<tr>
-<td><a href="http://github.com/odygrd/quill">Quill Unbounded Queue</a></td>
-<td align="center">8</td>
 <td align="center">9</td>
-<td align="center">9</td>
-<td align="center">9</td>
-<td align="center">10</td>
 <td align="center">11</td>
 </tr>
 <tr>
 <td><a href="http://github.com/MengRao/fmtlog">fmtlog</a></td>
-<td align="center">8</td>
+<td align="center">9</td>
 <td align="center">9</td>
 <td align="center">10</td>
 <td align="center">10</td>
-<td align="center">11</td>
+<td align="center">12</td>
 <td align="center">13</td>
 </tr>
 <tr>
-<td><a href="http://github.com/PlatformLab/NanoLog">PlatformLab NanoLog</a></td>
+<td><a href="http://github.com/odygrd/quill">Quill Unbounded Queue</a></td>
+<td align="center">10</td>
+<td align="center">10</td>
+<td align="center">10</td>
+<td align="center">10</td>
 <td align="center">12</td>
+<td align="center">14</td>
+</tr>
+<tr>
+<td><a href="http://github.com/PlatformLab/NanoLog">PlatformLab NanoLog</a></td>
 <td align="center">13</td>
+<td align="center">14</td>
 <td align="center">16</td>
 <td align="center">17</td>
-<td align="center">20</td>
+<td align="center">19</td>
 <td align="center">25</td>
 </tr>
 <tr>
 <td><a href="http://github.com/Morgan-Stanley/binlog">MS BinLog</a></td>
-<td align="center">19</td>
-<td align="center">19</td>
-<td align="center">19</td>
-<td align="center">20</td>
+<td align="center">21</td>
+<td align="center">21</td>
+<td align="center">22</td>
+<td align="center">22</td>
 <td align="center">56</td>
-<td align="center">83</td>
-</tr>
-<tr>
-<td><a href="http://github.com/mattiasflodin/reckless">Reckless</a></td>
-<td align="center">25</td>
-<td align="center">27</td>
-<td align="center">29</td>
-<td align="center">31</td>
-<td align="center">33</td>
-<td align="center">39</td>
+<td align="center">93</td>
 </tr>
 <tr>
 <td><a href="https://github.com/choll/xtr">XTR</a></td>
-<td align="center">6</td>
-<td align="center">6</td>
-<td align="center">39</td>
-<td align="center">42</td>
-<td align="center">47</td>
-<td align="center">59</td>
+<td align="center">7</td>
+<td align="center">7</td>
+<td align="center">29</td>
+<td align="center">30</td>
+<td align="center">33</td>
+<td align="center">53</td>
+</tr>
+<tr>
+<td><a href="http://github.com/mattiasflodin/reckless">Reckless</a></td>
+<td align="center">26</td>
+<td align="center">28</td>
+<td align="center">31</td>
+<td align="center">32</td>
+<td align="center">35</td>
+<td align="center">49</td>
 </tr>
 <tr>
 <td><a href="http://github.com/Iyengar111/NanoLog">Iyengar NanoLog</a></td>
-<td align="center">89</td>
-<td align="center">102</td>
-<td align="center">124</td>
-<td align="center">132</td>
-<td align="center">231</td>
-<td align="center">380</td>
+<td align="center">83</td>
+<td align="center">96</td>
+<td align="center">117</td>
+<td align="center">125</td>
+<td align="center">152</td>
+<td align="center">197</td>
 </tr>
 <tr>
 <td><a href="http://github.com/gabime/spdlog">spdlog</a></td>
+<td align="center">143</td>
 <td align="center">147</td>
-<td align="center">151</td>
-<td align="center">155</td>
+<td align="center">152</td>
 <td align="center">158</td>
-<td align="center">166</td>
-<td align="center">174</td>
+<td align="center">165</td>
+<td align="center">177</td>
 </tr>
 <tr>
 <td><a href="http://github.com/KjellKod/g3log">g3log</a></td>
-<td align="center">1167</td>
-<td align="center">1240</td>
-<td align="center">1311</td>
-<td align="center">1369</td>
-<td align="center">1593</td>
-<td align="center">1769</td>
+<td align="center">1161</td>
+<td align="center">1259</td>
+<td align="center">1329</td>
+<td align="center">1419</td>
+<td align="center">1602</td>
+<td align="center">1827</td>
 </tr>
 </tbody>
 </table></markdown-accessiblity-table>
@@ -527,21 +562,12 @@ my_build_target <span class="pl-k">=</span> <span class="pl-c1">executable</span
 <tbody>
 <tr>
 <td><a href="http://github.com/odygrd/quill">Quill Bounded Dropping Queue</a></td>
-<td align="center">7</td>
-<td align="center">8</td>
 <td align="center">8</td>
 <td align="center">9</td>
 <td align="center">10</td>
-<td align="center">11</td>
-</tr>
-<tr>
-<td><a href="https://github.com/choll/xtr">XTR</a></td>
-<td align="center">6</td>
-<td align="center">6</td>
-<td align="center">8</td>
-<td align="center">9</td>
-<td align="center">40</td>
-<td align="center">48</td>
+<td align="center">10</td>
+<td align="center">12</td>
+<td align="center">14</td>
 </tr>
 <tr>
 <td><a href="http://github.com/MengRao/fmtlog">fmtlog</a></td>
@@ -549,71 +575,80 @@ my_build_target <span class="pl-k">=</span> <span class="pl-c1">executable</span
 <td align="center">9</td>
 <td align="center">9</td>
 <td align="center">10</td>
-<td align="center">12</td>
-<td align="center">14</td>
+<td align="center">11</td>
+<td align="center">13</td>
+</tr>
+<tr>
+<td><a href="https://github.com/choll/xtr">XTR</a></td>
+<td align="center">7</td>
+<td align="center">8</td>
+<td align="center">9</td>
+<td align="center">11</td>
+<td align="center">31</td>
+<td align="center">38</td>
 </tr>
 <tr>
 <td><a href="http://github.com/odygrd/quill">Quill Unbounded Queue</a></td>
-<td align="center">9</td>
-<td align="center">9</td>
+<td align="center">10</td>
 <td align="center">11</td>
 <td align="center">11</td>
 <td align="center">12</td>
-<td align="center">14</td>
+<td align="center">13</td>
+<td align="center">15</td>
 </tr>
 <tr>
 <td><a href="http://github.com/PlatformLab/NanoLog">PlatformLab NanoLog</a></td>
-<td align="center">13</td>
 <td align="center">15</td>
-<td align="center">18</td>
-<td align="center">21</td>
-<td align="center">25</td>
-<td align="center">28</td>
+<td align="center">17</td>
+<td align="center">20</td>
+<td align="center">23</td>
+<td align="center">27</td>
+<td align="center">32</td>
 </tr>
 <tr>
 <td><a href="http://github.com/mattiasflodin/reckless">Reckless</a></td>
-<td align="center">17</td>
-<td align="center">21</td>
-<td align="center">24</td>
-<td align="center">25</td>
+<td align="center">19</td>
+<td align="center">23</td>
+<td align="center">26</td>
 <td align="center">28</td>
-<td align="center">47</td>
+<td align="center">34</td>
+<td align="center">55</td>
 </tr>
 <tr>
 <td><a href="http://github.com/Morgan-Stanley/binlog">MS BinLog</a></td>
-<td align="center">19</td>
-<td align="center">19</td>
-<td align="center">20</td>
 <td align="center">21</td>
-<td align="center">58</td>
-<td align="center">88</td>
+<td align="center">22</td>
+<td align="center">22</td>
+<td align="center">23</td>
+<td align="center">62</td>
+<td align="center">100</td>
 </tr>
 <tr>
 <td><a href="http://github.com/Iyengar111/NanoLog">Iyengar NanoLog</a></td>
-<td align="center">94</td>
-<td align="center">105</td>
-<td align="center">135</td>
-<td align="center">144</td>
-<td align="center">228</td>
-<td align="center">314</td>
+<td align="center">58</td>
+<td align="center">90</td>
+<td align="center">123</td>
+<td align="center">131</td>
+<td align="center">168</td>
+<td align="center">242</td>
 </tr>
 <tr>
 <td><a href="http://github.com/gabime/spdlog">spdlog</a></td>
-<td align="center">209</td>
-<td align="center">248</td>
-<td align="center">297</td>
-<td align="center">330</td>
-<td align="center">423</td>
-<td align="center">738</td>
+<td align="center">210</td>
+<td align="center">243</td>
+<td align="center">288</td>
+<td align="center">313</td>
+<td align="center">382</td>
+<td align="center">694</td>
 </tr>
 <tr>
 <td><a href="http://github.com/KjellKod/g3log">g3log</a></td>
-<td align="center">1253</td>
-<td align="center">1332</td>
-<td align="center">1393</td>
+<td align="center">1271</td>
+<td align="center">1337</td>
+<td align="center">1396</td>
 <td align="center">1437</td>
-<td align="center">1623</td>
-<td align="center">2063</td>
+<td align="center">1614</td>
+<td align="center">1899</td>
 </tr>
 </tbody>
 </table></markdown-accessiblity-table>
@@ -638,19 +673,19 @@ of <code>std::string</code>.</p>
 <tr>
 <td><a href="http://github.com/odygrd/quill">Quill Bounded Dropping Queue</a></td>
 <td align="center">11</td>
+<td align="center">13</td>
+<td align="center">13</td>
+<td align="center">14</td>
+<td align="center">15</td>
+<td align="center">16</td>
+</tr>
+<tr>
+<td><a href="http://github.com/MengRao/fmtlog">fmtlog</a></td>
+<td align="center">11</td>
 <td align="center">12</td>
 <td align="center">13</td>
 <td align="center">14</td>
 <td align="center">15</td>
-<td align="center">17</td>
-</tr>
-<tr>
-<td><a href="http://github.com/MengRao/fmtlog">fmtlog</a></td>
-<td align="center">10</td>
-<td align="center">12</td>
-<td align="center">13</td>
-<td align="center">14</td>
-<td align="center">16</td>
 <td align="center">17</td>
 </tr>
 <tr>
@@ -658,72 +693,72 @@ of <code>std::string</code>.</p>
 <td align="center">14</td>
 <td align="center">15</td>
 <td align="center">16</td>
-<td align="center">16</td>
+<td align="center">17</td>
 <td align="center">18</td>
 <td align="center">19</td>
 </tr>
 <tr>
-<td><a href="http://github.com/PlatformLab/NanoLog">PlatformLab NanoLog</a></td>
-<td align="center">15</td>
-<td align="center">18</td>
-<td align="center">22</td>
-<td align="center">25</td>
-<td align="center">29</td>
-<td align="center">34</td>
-</tr>
-<tr>
 <td><a href="http://github.com/Morgan-Stanley/binlog">MS BinLog</a></td>
-<td align="center">20</td>
-<td align="center">21</td>
 <td align="center">22</td>
 <td align="center">23</td>
-<td align="center">58</td>
-<td align="center">86</td>
+<td align="center">24</td>
+<td align="center">25</td>
+<td align="center">61</td>
+<td align="center">100</td>
+</tr>
+<tr>
+<td><a href="http://github.com/PlatformLab/NanoLog">PlatformLab NanoLog</a></td>
+<td align="center">15</td>
+<td align="center">17</td>
+<td align="center">21</td>
+<td align="center">27</td>
+<td align="center">33</td>
+<td align="center">39</td>
 </tr>
 <tr>
 <td><a href="https://github.com/choll/xtr">XTR</a></td>
 <td align="center">8</td>
-<td align="center">8</td>
+<td align="center">9</td>
 <td align="center">29</td>
-<td align="center">30</td>
-<td align="center">33</td>
-<td align="center">49</td>
+<td align="center">31</td>
+<td align="center">35</td>
+<td align="center">54</td>
 </tr>
 <tr>
 <td><a href="http://github.com/mattiasflodin/reckless">Reckless</a></td>
-<td align="center">89</td>
-<td align="center">108</td>
+<td align="center">91</td>
+<td align="center">107</td>
 <td align="center">115</td>
-<td align="center">117</td>
-<td align="center">123</td>
-<td align="center">141</td>
+<td align="center">118</td>
+<td align="center">124</td>
+<td align="center">135</td>
 </tr>
 <tr>
 <td><a href="http://github.com/Iyengar111/NanoLog">Iyengar NanoLog</a></td>
-<td align="center">94</td>
-<td align="center">106</td>
-<td align="center">125</td>
-<td align="center">133</td>
-<td align="center">240</td>
-<td align="center">388</td>
+<td align="center">86</td>
+<td align="center">97</td>
+<td align="center">119</td>
+<td align="center">128</td>
+<td align="center">159</td>
+<td align="center">268</td>
 </tr>
 <tr>
 <td><a href="http://github.com/gabime/spdlog">spdlog</a></td>
-<td align="center">123</td>
-<td align="center">126</td>
-<td align="center">130</td>
-<td align="center">133</td>
-<td align="center">140</td>
-<td align="center">148</td>
+<td align="center">120</td>
+<td align="center">124</td>
+<td align="center">128</td>
+<td align="center">132</td>
+<td align="center">141</td>
+<td align="center">151</td>
 </tr>
 <tr>
 <td><a href="http://github.com/KjellKod/g3log">g3log</a></td>
-<td align="center">890</td>
-<td align="center">966</td>
-<td align="center">1028</td>
-<td align="center">1119</td>
-<td align="center">1260</td>
-<td align="center">1463</td>
+<td align="center">881</td>
+<td align="center">956</td>
+<td align="center">1018</td>
+<td align="center">1089</td>
+<td align="center">1264</td>
+<td align="center">1494</td>
 </tr>
 </tbody>
 </table></markdown-accessiblity-table>
@@ -742,101 +777,100 @@ of <code>std::string</code>.</p>
 </thead>
 <tbody>
 <tr>
-<td><a href="http://github.com/odygrd/quill">Quill Bounded Dropping Queue</a></td>
-<td align="center">11</td>
-<td align="center">13</td>
-<td align="center">13</td>
-<td align="center">14</td>
-<td align="center">16</td>
-<td align="center">18</td>
-</tr>
-<tr>
 <td><a href="https://github.com/choll/xtr">XTR</a></td>
 <td align="center">9</td>
 <td align="center">11</td>
 <td align="center">13</td>
 <td align="center">14</td>
-<td align="center">31</td>
-<td align="center">39</td>
-</tr>
-<tr>
-<td><a href="http://github.com/odygrd/quill">Quill Unbounded Queue</a></td>
-<td align="center">14</td>
-<td align="center">16</td>
-<td align="center">16</td>
-<td align="center">16</td>
-<td align="center">19</td>
-<td align="center">21</td>
+<td align="center">32</td>
+<td align="center">40</td>
 </tr>
 <tr>
 <td><a href="http://github.com/MengRao/fmtlog">fmtlog</a></td>
+<td align="center">11</td>
 <td align="center">12</td>
 <td align="center">13</td>
+<td align="center">14</td>
 <td align="center">16</td>
+<td align="center">19</td>
+</tr>
+<tr>
+<td><a href="http://github.com/odygrd/quill">Quill Bounded Dropping Queue</a></td>
+<td align="center">13</td>
+<td align="center">14</td>
+<td align="center">15</td>
 <td align="center">16</td>
+<td align="center">17</td>
+<td align="center">19</td>
+</tr>
+<tr>
+<td><a href="http://github.com/odygrd/quill">Quill Unbounded Queue</a></td>
+<td align="center">15</td>
+<td align="center">16</td>
+<td align="center">17</td>
+<td align="center">18</td>
 <td align="center">19</td>
 <td align="center">21</td>
 </tr>
 <tr>
 <td><a href="http://github.com/Morgan-Stanley/binlog">MS BinLog</a></td>
-<td align="center">21</td>
-<td align="center">22</td>
 <td align="center">23</td>
 <td align="center">25</td>
-<td align="center">60</td>
-<td align="center">90</td>
+<td align="center">27</td>
+<td align="center">28</td>
+<td align="center">65</td>
+<td align="center">105</td>
 </tr>
 <tr>
 <td><a href="http://github.com/PlatformLab/NanoLog">PlatformLab NanoLog</a></td>
-<td align="center">19</td>
-<td align="center">24</td>
-<td align="center">33</td>
-<td align="center">36</td>
-<td align="center">42</td>
-<td align="center">49</td>
+<td align="center">16</td>
+<td align="center">20</td>
+<td align="center">32</td>
+<td align="center">38</td>
+<td align="center">44</td>
+<td align="center">51</td>
 </tr>
 <tr>
 <td><a href="http://github.com/mattiasflodin/reckless">Reckless</a></td>
-<td align="center">82</td>
-<td align="center">96</td>
+<td align="center">79</td>
+<td align="center">94</td>
 <td align="center">104</td>
-<td align="center">108</td>
-<td align="center">118</td>
-<td align="center">145</td>
+<td align="center">107</td>
+<td align="center">114</td>
+<td align="center">132</td>
 </tr>
 <tr>
 <td><a href="http://github.com/Iyengar111/NanoLog">Iyengar NanoLog</a></td>
-<td align="center">57</td>
-<td align="center">96</td>
-<td align="center">123</td>
-<td align="center">137</td>
-<td align="center">172</td>
-<td align="center">302</td>
+<td align="center">85</td>
+<td align="center">93</td>
+<td align="center">125</td>
+<td align="center">133</td>
+<td align="center">168</td>
+<td align="center">237</td>
 </tr>
 <tr>
 <td><a href="http://github.com/gabime/spdlog">spdlog</a></td>
-<td align="center">185</td>
-<td align="center">207</td>
-<td align="center">237</td>
-<td align="center">257</td>
-<td align="center">362</td>
-<td align="center">669</td>
+<td align="center">178</td>
+<td align="center">218</td>
+<td align="center">261</td>
+<td align="center">281</td>
+<td align="center">381</td>
+<td align="center">651</td>
 </tr>
 <tr>
 <td><a href="http://github.com/KjellKod/g3log">g3log</a></td>
-<td align="center">983</td>
-<td align="center">1046</td>
-<td align="center">1112</td>
-<td align="center">1171</td>
-<td align="center">1376</td>
-<td align="center">1774</td>
+<td align="center">992</td>
+<td align="center">1055</td>
+<td align="center">1121</td>
+<td align="center">1178</td>
+<td align="center">1360</td>
+<td align="center">1600</td>
 </tr>
 </tbody>
 </table></markdown-accessiblity-table>
 <div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Logging Complex Types</h4><a id="user-content-logging-complex-types" class="anchor" aria-label="Permalink: Logging Complex Types" href="#logging-complex-types"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto"><code>LOG_INFO(logger, "Logging int: {}, int: {}, vector: {}", i, j, v)</code>.</p>
-<p dir="auto">Logging <code>std::vector&lt;std::string&gt; v</code> containing 16 large strings, each ranging from 50 to 60 characters.
-The strings used in the log message are over 35 characters to prevent the short string optimization of <code>std::string</code>.</p>
+<p dir="auto">Logging <code>std::vector&lt;std::string&gt; v</code> containing 16 large strings, each ranging from 50 to 60 characters.</p>
 <div class="markdown-heading" dir="auto"><h5 class="heading-element" dir="auto">1 Thread Logging</h5><a id="user-content-1-thread-logging-2" class="anchor" aria-label="Permalink: 1 Thread Logging" href="#1-thread-logging-2"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <markdown-accessiblity-table><table>
 <thead>
@@ -853,57 +887,57 @@ The strings used in the log message are over 35 characters to prevent the short 
 <tbody>
 <tr>
 <td><a href="http://github.com/odygrd/quill">Quill Bounded Dropping Queue</a></td>
-<td align="center">49</td>
-<td align="center">51</td>
-<td align="center">54</td>
-<td align="center">56</td>
-<td align="center">95</td>
-<td align="center">123</td>
+<td align="center">48</td>
+<td align="center">50</td>
+<td align="center">53</td>
+<td align="center">55</td>
+<td align="center">58</td>
+<td align="center">62</td>
 </tr>
 <tr>
 <td><a href="http://github.com/odygrd/quill">Quill Unbounded Queue</a></td>
-<td align="center">50</td>
-<td align="center">52</td>
-<td align="center">55</td>
+<td align="center">54</td>
 <td align="center">56</td>
-<td align="center">59</td>
-<td align="center">63</td>
+<td align="center">57</td>
+<td align="center">58</td>
+<td align="center">61</td>
+<td align="center">66</td>
 </tr>
 <tr>
 <td><a href="http://github.com/Morgan-Stanley/binlog">MS BinLog</a></td>
-<td align="center">64</td>
-<td align="center">66</td>
-<td align="center">70</td>
-<td align="center">80</td>
-<td align="center">89</td>
-<td align="center">271</td>
+<td align="center">68</td>
+<td align="center">69</td>
+<td align="center">72</td>
+<td align="center">74</td>
+<td align="center">79</td>
+<td align="center">281</td>
 </tr>
 <tr>
 <td><a href="https://github.com/choll/xtr">XTR</a></td>
-<td align="center">282</td>
-<td align="center">290</td>
-<td align="center">338</td>
-<td align="center">343</td>
-<td align="center">350</td>
+<td align="center">284</td>
+<td align="center">294</td>
+<td align="center">340</td>
+<td align="center">346</td>
+<td align="center">356</td>
 <td align="center">575</td>
 </tr>
 <tr>
 <td><a href="http://github.com/MengRao/fmtlog">fmtlog</a></td>
-<td align="center">721</td>
-<td align="center">750</td>
-<td align="center">779</td>
-<td align="center">793</td>
-<td align="center">821</td>
-<td align="center">847</td>
+<td align="center">711</td>
+<td align="center">730</td>
+<td align="center">754</td>
+<td align="center">770</td>
+<td align="center">804</td>
+<td align="center">834</td>
 </tr>
 <tr>
 <td><a href="http://github.com/gabime/spdlog">spdlog</a></td>
-<td align="center">5881</td>
-<td align="center">5952</td>
-<td align="center">6026</td>
-<td align="center">6082</td>
-<td align="center">6342</td>
-<td align="center">6900</td>
+<td align="center">6191</td>
+<td align="center">6261</td>
+<td align="center">6330</td>
+<td align="center">6386</td>
+<td align="center">6633</td>
+<td align="center">7320</td>
 </tr>
 </tbody>
 </table></markdown-accessiblity-table>
@@ -923,63 +957,61 @@ The strings used in the log message are over 35 characters to prevent the short 
 <tbody>
 <tr>
 <td><a href="http://github.com/odygrd/quill">Quill Bounded Dropping Queue</a></td>
+<td align="center">50</td>
 <td align="center">52</td>
-<td align="center">57</td>
-<td align="center">70</td>
-<td align="center">74</td>
-<td align="center">87</td>
-<td align="center">95</td>
+<td align="center">54</td>
+<td align="center">56</td>
+<td align="center">60</td>
+<td align="center">82</td>
 </tr>
 <tr>
 <td><a href="http://github.com/Morgan-Stanley/binlog">MS BinLog</a></td>
-<td align="center">66</td>
-<td align="center">68</td>
-<td align="center">71</td>
-<td align="center">74</td>
-<td align="center">87</td>
-<td align="center">295</td>
+<td align="center">70</td>
+<td align="center">72</td>
+<td align="center">75</td>
+<td align="center">79</td>
+<td align="center">88</td>
+<td align="center">286</td>
 </tr>
 <tr>
 <td><a href="http://github.com/odygrd/quill">Quill Unbounded Queue</a></td>
-<td align="center">86</td>
-<td align="center">95</td>
-<td align="center">105</td>
-<td align="center">111</td>
-<td align="center">125</td>
-<td align="center">143</td>
+<td align="center">97</td>
+<td align="center">107</td>
+<td align="center">116</td>
+<td align="center">122</td>
+<td align="center">135</td>
+<td align="center">148</td>
 </tr>
 <tr>
 <td><a href="https://github.com/choll/xtr">XTR</a></td>
-<td align="center">535</td>
-<td align="center">730</td>
-<td align="center">786</td>
-<td align="center">819</td>
-<td align="center">885</td>
-<td align="center">971</td>
+<td align="center">512</td>
+<td align="center">711</td>
+<td align="center">761</td>
+<td align="center">791</td>
+<td align="center">865</td>
+<td align="center">945</td>
 </tr>
 <tr>
 <td><a href="http://github.com/MengRao/fmtlog">fmtlog</a></td>
-<td align="center">788</td>
-<td align="center">811</td>
-<td align="center">831</td>
-<td align="center">844</td>
-<td align="center">872</td>
-<td align="center">906</td>
+<td align="center">780</td>
+<td align="center">804</td>
+<td align="center">823</td>
+<td align="center">835</td>
+<td align="center">860</td>
+<td align="center">896</td>
 </tr>
 <tr>
 <td><a href="http://github.com/gabime/spdlog">spdlog</a></td>
-<td align="center">6090</td>
-<td align="center">6165</td>
-<td align="center">6246</td>
-<td align="center">6337</td>
-<td align="center">7351</td>
-<td align="center">9322</td>
+<td align="center">6469</td>
+<td align="center">6549</td>
+<td align="center">6641</td>
+<td align="center">6735</td>
+<td align="center">7631</td>
+<td align="center">9430</td>
 </tr>
 </tbody>
 </table></markdown-accessiblity-table>
-<p dir="auto">The benchmark was conducted on <code>Linux RHEL 9</code> with an <code>Intel Core i5-12600</code> at 4.8 GHz.
-The cpus are isolated on this system and each thread was pinned to a different CPU. <code>GCC 13.1</code> was used as the compiler.</p>
-<p dir="auto">The benchmark methodology involved logging 20 messages in a loop, calculating and storing the average latency for those
+<p dir="auto">The benchmark methodology involves logging 20 messages in a loop, calculating and storing the average latency for those
 20 messages, then waiting around ~2 milliseconds, and repeating this process for a specified number of iterations.</p>
 <p dir="auto"><em>In the <code>Quill Bounded Dropping</code> benchmarks, the dropping queue size is set to <code>262,144</code> bytes, which is double the
 default size of <code>131,072</code> bytes.</em></p>
@@ -993,7 +1025,7 @@ logging thread when formatting a log message consisting of an int and a double i
 multiple threads. The backend logging thread, responsible for formatting and ordering log messages from the frontend
 threads, ensures that all queues are emptied on a high priority basis. The backend thread internally buffers the log
 messages and then writes them later when the caller thread queues are empty or when a predefined limit,
-<code>backend_thread_transit_events_soft_limit</code>, is reached. This approach prevents the need for allocating new queues
+<code>BackendOptions::transit_events_soft_limit</code>, is reached. This approach prevents the need for allocating new queues
 or dropping messages on the hot path.</p>
 <p dir="auto">Comparing throughput with other logging libraries in an asynchronous logging scenario has proven challenging. Some
 libraries may drop log messages, resulting in smaller log files than expected, while others only offer asynchronous
