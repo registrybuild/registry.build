@@ -1,0 +1,520 @@
+<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">moodycamel::ConcurrentQueue</h1><a id="user-content-moodycamelconcurrentqueue" class="anchor" aria-label="Permalink: moodycamel::ConcurrentQueue" href="#moodycamelconcurrentqueue"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">An industrial-strength lock-free queue for C++.</p>
+<p dir="auto">Note: If all you need is a single-producer, single-consumer queue, I have <a href="https://github.com/cameron314/readerwriterqueue">one of those too</a>.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Features</h2><a id="user-content-features" class="anchor" aria-label="Permalink: Features" href="#features"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li>Knock-your-socks-off <a href="http://moodycamel.com/blog/2014/a-fast-general-purpose-lock-free-queue-for-c++#benchmarks" rel="nofollow">blazing fast performance</a>.</li>
+<li>Single-header implementation. Just drop it in your project.</li>
+<li>Fully thread-safe lock-free queue. Use concurrently from any number of threads.</li>
+<li>C++11 implementation -- elements are moved (instead of copied) where possible.</li>
+<li>Templated, obviating the need to deal exclusively with pointers -- memory is managed for you.</li>
+<li>No artificial limitations on element types or maximum count.</li>
+<li>Memory can be allocated once up-front, or dynamically as needed.</li>
+<li>Fully portable (no assembly; all is done through standard C++11 primitives).</li>
+<li>Supports super-fast bulk operations.</li>
+<li>Includes a low-overhead blocking version (BlockingConcurrentQueue).</li>
+<li>Exception safe.</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Reasons to use</h2><a id="user-content-reasons-to-use" class="anchor" aria-label="Permalink: Reasons to use" href="#reasons-to-use"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">There are not that many full-fledged lock-free queues for C++. Boost has one, but it's limited to objects with trivial
+assignment operators and trivial destructors, for example.
+Intel's TBB queue isn't lock-free, and requires trivial constructors too.
+There're many academic papers that implement lock-free queues in C++, but usable source code is
+hard to find, and tests even more so.</p>
+<p dir="auto">This queue not only has less limitations than others (for the most part), but <a href="http://moodycamel.com/blog/2014/a-fast-general-purpose-lock-free-queue-for-c++#benchmarks" rel="nofollow">it's also faster</a>.
+It's been fairly well-tested, and offers advanced features like <strong>bulk enqueueing/dequeueing</strong>
+(which, with my new design, is much faster than one element at a time, approaching and even surpassing
+the speed of a non-concurrent queue even under heavy contention).</p>
+<p dir="auto">In short, there was a lock-free queue shaped hole in the C++ open-source universe, and I set out
+to fill it with the fastest, most complete, and well-tested design and implementation I could.
+The result is <code>moodycamel::ConcurrentQueue</code> :-)</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Reasons <em>not</em> to use</h2><a id="user-content-reasons-not-to-use" class="anchor" aria-label="Permalink: Reasons not to use" href="#reasons-not-to-use"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The fastest synchronization of all is the kind that never takes place. Fundamentally,
+concurrent data structures require some synchronization, and that takes time. Every effort
+was made, of course, to minimize the overhead, but if you can avoid sharing data between
+threads, do so!</p>
+<p dir="auto">Why use concurrent data structures at all, then? Because they're gosh darn convenient! (And, indeed,
+sometimes sharing data concurrently is unavoidable.)</p>
+<p dir="auto">My queue is <strong>not linearizable</strong> (see the next section on high-level design). The foundations of
+its design assume that producers are independent; if this is not the case, and your producers
+co-ordinate amongst themselves in some fashion, be aware that the elements won't necessarily
+come out of the queue in the same order they were put in <em>relative to the ordering formed by that co-ordination</em>
+(but they will still come out in the order they were put in by any <em>individual</em> producer). If this affects
+your use case, you may be better off with another implementation; either way, it's an important limitation
+to be aware of.</p>
+<p dir="auto">My queue is also <strong>not NUMA aware</strong>, and does a lot of memory re-use internally, meaning it probably doesn't
+scale particularly well on NUMA architectures; however, I don't know of any other lock-free queue that <em>is</em>
+NUMA aware (except for <a href="http://webee.technion.ac.il/~idish/ftp/spaa049-gidron.pdf" rel="nofollow">SALSA</a>, which is very cool, but has no publicly available implementation that I know of).</p>
+<p dir="auto">Finally, the queue is <strong>not sequentially consistent</strong>; there <em>is</em> a happens-before relationship between when an element is put
+in the queue and when it comes out, but other things (such as pumping the queue until it's empty) require more thought
+to get right in all eventualities, because explicit memory ordering may have to be done to get the desired effect. In other words,
+it can sometimes be difficult to use the queue correctly. This is why it's a good idea to follow the <a href="https://github.com/cameron314/concurrentqueue/blob/master/samples.md">samples</a> where possible.
+On the other hand, the upside of this lack of sequential consistency is better performance.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">High-level design</h2><a id="user-content-high-level-design" class="anchor" aria-label="Permalink: High-level design" href="#high-level-design"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Elements are stored internally using contiguous blocks instead of linked lists for better performance.
+The queue is made up of a collection of sub-queues, one for each producer. When a consumer
+wants to dequeue an element, it checks all the sub-queues until it finds one that's not empty.
+All of this is largely transparent to the user of the queue, however -- it mostly just works<sup>TM</sup>.</p>
+<p dir="auto">One particular consequence of this design, however, (which seems to be non-intuitive) is that if two producers
+enqueue at the same time, there is no defined ordering between the elements when they're later dequeued.
+Normally this is fine, because even with a fully linearizable queue there'd be a race between the producer
+threads and so you couldn't rely on the ordering anyway. However, if for some reason you do extra explicit synchronization
+between the two producer threads yourself, thus defining a total order between enqueue operations, you might expect
+that the elements would come out in the same total order, which is a guarantee my queue does not offer. At that
+point, though, there semantically aren't really two separate producers, but rather one that happens to be spread
+across multiple threads. In this case, you can still establish a total ordering with my queue by creating
+a single producer token, and using that from both threads to enqueue (taking care to synchronize access to the token,
+of course, but there was already extra synchronization involved anyway).</p>
+<p dir="auto">I've written a more detailed <a href="http://moodycamel.com/blog/2014/a-fast-general-purpose-lock-free-queue-for-c++" rel="nofollow">overview of the internal design</a>, as well as <a href="http://moodycamel.com/blog/2014/detailed-design-of-a-lock-free-queue" rel="nofollow">the full
+nitty-gritty details of the design</a>, on my blog. Finally, the
+<a href="https://github.com/cameron314/concurrentqueue">source</a> itself is available for perusal for those interested in its implementation.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Basic use</h2><a id="user-content-basic-use" class="anchor" aria-label="Permalink: Basic use" href="#basic-use"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The entire queue's implementation is contained in <strong>one header</strong>, <a href="https://github.com/cameron314/concurrentqueue/blob/master/concurrentqueue.h"><code>concurrentqueue.h</code></a>.
+Simply download and include that to use the queue. The blocking version is in a separate header,
+<a href="https://github.com/cameron314/concurrentqueue/blob/master/blockingconcurrentqueue.h"><code>blockingconcurrentqueue.h</code></a>, that depends on <a href="https://github.com/cameron314/concurrentqueue/blob/master/concurrentqueue.h"><code>concurrentqueue.h</code></a> and
+<a href="https://github.com/cameron314/concurrentqueue/blob/master/lightweightsemaphore.h"><code>lightweightsemaphore.h</code></a>. The implementation makes use of certain key C++11 features,
+so it requires a relatively recent compiler (e.g. VS2012+ or g++ 4.8; note that g++ 4.6 has a known bug with <code>std::atomic</code>
+and is thus not supported). The algorithm implementations themselves are platform independent.</p>
+<p dir="auto">Use it like you would any other templated queue, with the exception that you can use
+it from many threads at once :-)</p>
+<p dir="auto">Simple example:</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="#include &quot;concurrentqueue.h&quot;
+
+moodycamel::ConcurrentQueue&lt;int&gt; q;
+q.enqueue(25);
+
+int item;
+bool found = q.try_dequeue(item);
+assert(found &amp;&amp; item == 25);"><pre>#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">"</span>concurrentqueue.h<span class="pl-pds">"</span></span>
+
+moodycamel::ConcurrentQueue&lt;<span class="pl-k">int</span>&gt; q;
+q.enqueue(<span class="pl-c1">25</span>);
+
+<span class="pl-k">int</span> item;
+<span class="pl-k">bool</span> found = q.try_dequeue(item);
+<span class="pl-en">assert</span>(found &amp;&amp; item == <span class="pl-c1">25</span>);</pre></div>
+<p dir="auto">Description of basic methods:</p>
+<ul dir="auto">
+<li><code>ConcurrentQueue(size_t initialSizeEstimate)</code>
+Constructor which optionally accepts an estimate of the number of elements the queue will hold</li>
+<li><code>enqueue(T&amp;&amp; item)</code>
+Enqueues one item, allocating extra space if necessary</li>
+<li><code>try_enqueue(T&amp;&amp; item)</code>
+Enqueues one item, but only if enough memory is already allocated</li>
+<li><code>try_dequeue(T&amp; item)</code>
+Dequeues one item, returning true if an item was found or false if the queue appeared empty</li>
+</ul>
+<p dir="auto">Note that it is up to the user to ensure that the queue object is completely constructed before
+being used by any other threads (this includes making the memory effects of construction
+visible, possibly via a memory barrier). Similarly, it's important that all threads have
+finished using the queue (and the memory effects have fully propagated) before it is
+destructed.</p>
+<p dir="auto">There's usually two versions of each method, one "explicit" version that takes a user-allocated per-producer or
+per-consumer token, and one "implicit" version that works without tokens. Using the explicit methods is almost
+always faster (though not necessarily by a huge factor). Apart from performance, the primary distinction between them
+is their sub-queue allocation behaviour for enqueue operations: Using the implicit enqueue methods causes an
+automatically-allocated thread-local producer sub-queue to be allocated.
+Explicit producers, on the other hand, are tied directly to their tokens' lifetimes (but are recycled internally).</p>
+<p dir="auto">In order to avoid the number of sub-queues growing without bound, implicit producers are marked for reuse once
+their thread exits. However, this is not supported on all platforms. If using the queue from short-lived threads,
+it is recommended to use explicit producer tokens instead.</p>
+<p dir="auto">Full API (pseudocode):</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="# Allocates more memory if necessary
+enqueue(item) : bool
+enqueue(prod_token, item) : bool
+enqueue_bulk(item_first, count) : bool
+enqueue_bulk(prod_token, item_first, count) : bool
+
+# Fails if not enough memory to enqueue
+try_enqueue(item) : bool
+try_enqueue(prod_token, item) : bool
+try_enqueue_bulk(item_first, count) : bool
+try_enqueue_bulk(prod_token, item_first, count) : bool
+
+# Attempts to dequeue from the queue (never allocates)
+try_dequeue(item&amp;) : bool
+try_dequeue(cons_token, item&amp;) : bool
+try_dequeue_bulk(item_first, max) : size_t
+try_dequeue_bulk(cons_token, item_first, max) : size_t
+
+# If you happen to know which producer you want to dequeue from
+try_dequeue_from_producer(prod_token, item&amp;) : bool
+try_dequeue_bulk_from_producer(prod_token, item_first, max) : size_t
+
+# A not-necessarily-accurate count of the total number of elements
+size_approx() : size_t"><pre class="notranslate"><code># Allocates more memory if necessary
+enqueue(item) : bool
+enqueue(prod_token, item) : bool
+enqueue_bulk(item_first, count) : bool
+enqueue_bulk(prod_token, item_first, count) : bool
+
+# Fails if not enough memory to enqueue
+try_enqueue(item) : bool
+try_enqueue(prod_token, item) : bool
+try_enqueue_bulk(item_first, count) : bool
+try_enqueue_bulk(prod_token, item_first, count) : bool
+
+# Attempts to dequeue from the queue (never allocates)
+try_dequeue(item&amp;) : bool
+try_dequeue(cons_token, item&amp;) : bool
+try_dequeue_bulk(item_first, max) : size_t
+try_dequeue_bulk(cons_token, item_first, max) : size_t
+
+# If you happen to know which producer you want to dequeue from
+try_dequeue_from_producer(prod_token, item&amp;) : bool
+try_dequeue_bulk_from_producer(prod_token, item_first, max) : size_t
+
+# A not-necessarily-accurate count of the total number of elements
+size_approx() : size_t
+</code></pre></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Blocking version</h2><a id="user-content-blocking-version" class="anchor" aria-label="Permalink: Blocking version" href="#blocking-version"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">As mentioned above, a full blocking wrapper of the queue is provided that adds
+<code>wait_dequeue</code> and <code>wait_dequeue_bulk</code> methods in addition to the regular interface.
+This wrapper is extremely low-overhead, but slightly less fast than the non-blocking
+queue (due to the necessary bookkeeping involving a lightweight semaphore).</p>
+<p dir="auto">There are also timed versions that allow a timeout to be specified (either in microseconds
+or with a <code>std::chrono</code> object).</p>
+<p dir="auto">The only major caveat with the blocking version is that you must be careful not to
+destroy the queue while somebody is waiting on it. This generally means you need to
+know for certain that another element is going to come along before you call one of
+the blocking methods. (To be fair, the non-blocking version cannot be destroyed while
+in use either, but it can be easier to coordinate the cleanup.)</p>
+<p dir="auto">Blocking example:</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="#include &quot;blockingconcurrentqueue.h&quot;
+
+moodycamel::BlockingConcurrentQueue&lt;int&gt; q;
+std::thread producer([&amp;]() {
+    for (int i = 0; i != 100; ++i) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(i % 10));
+        q.enqueue(i);
+    }
+});
+std::thread consumer([&amp;]() {
+    for (int i = 0; i != 100; ++i) {
+        int item;
+        q.wait_dequeue(item);
+        assert(item == i);
+        
+        if (q.wait_dequeue_timed(item, std::chrono::milliseconds(5))) {
+            ++i;
+            assert(item == i);
+        }
+    }
+});
+producer.join();
+consumer.join();
+
+assert(q.size_approx() == 0);"><pre>#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">"</span>blockingconcurrentqueue.h<span class="pl-pds">"</span></span>
+
+moodycamel::BlockingConcurrentQueue&lt;<span class="pl-k">int</span>&gt; q;
+std::thread <span class="pl-en">producer</span>([&amp;]() {
+    <span class="pl-k">for</span> (<span class="pl-k">int</span> i = <span class="pl-c1">0</span>; i != <span class="pl-c1">100</span>; ++i) {
+        <span class="pl-c1">std::this_thread::sleep_for</span>(<span class="pl-c1">std::chrono::milliseconds</span>(i % <span class="pl-c1">10</span>));
+        q.<span class="pl-c1">enqueue</span>(i);
+    }
+});
+std::thread <span class="pl-en">consumer</span>([&amp;]() {
+    <span class="pl-k">for</span> (<span class="pl-k">int</span> i = <span class="pl-c1">0</span>; i != <span class="pl-c1">100</span>; ++i) {
+        <span class="pl-k">int</span> item;
+        q.<span class="pl-c1">wait_dequeue</span>(item);
+        <span class="pl-c1">assert</span>(item == i);
+        
+        <span class="pl-k">if</span> (q.<span class="pl-c1">wait_dequeue_timed</span>(item, <span class="pl-c1">std::chrono::milliseconds</span>(<span class="pl-c1">5</span>))) {
+            ++i;
+            <span class="pl-c1">assert</span>(item == i);
+        }
+    }
+});
+producer.join();
+consumer.join();
+
+<span class="pl-en">assert</span>(q.size_approx() == 0);</pre></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Advanced features</h2><a id="user-content-advanced-features" class="anchor" aria-label="Permalink: Advanced features" href="#advanced-features"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Tokens</h4><a id="user-content-tokens" class="anchor" aria-label="Permalink: Tokens" href="#tokens"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The queue can take advantage of extra per-producer and per-consumer storage if
+it's available to speed up its operations. This takes the form of "tokens":
+You can create a consumer token and/or a producer token for each thread or task
+(tokens themselves are not thread-safe), and use the methods that accept a token
+as their first parameter:</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="moodycamel::ConcurrentQueue&lt;int&gt; q;
+
+moodycamel::ProducerToken ptok(q);
+q.enqueue(ptok, 17);
+
+moodycamel::ConsumerToken ctok(q);
+int item;
+q.try_dequeue(ctok, item);
+assert(item == 17);"><pre>moodycamel::ConcurrentQueue&lt;<span class="pl-k">int</span>&gt; q;
+
+moodycamel::ProducerToken <span class="pl-en">ptok</span>(q);
+q.enqueue(ptok, <span class="pl-c1">17</span>);
+
+moodycamel::ConsumerToken <span class="pl-en">ctok</span>(q);
+<span class="pl-k">int</span> item;
+q.try_dequeue(ctok, item);
+<span class="pl-en">assert</span>(item == <span class="pl-c1">17</span>);</pre></div>
+<p dir="auto">If you happen to know which producer you want to consume from (e.g. in
+a single-producer, multi-consumer scenario), you can use the <code>try_dequeue_from_producer</code>
+methods, which accept a producer token instead of a consumer token, and cut some overhead.</p>
+<p dir="auto">Note that tokens work with the blocking version of the queue too.</p>
+<p dir="auto">When producing or consuming many elements, the most efficient way is to:</p>
+<ol dir="auto">
+<li>Use the bulk methods of the queue with tokens</li>
+<li>Failing that, use the bulk methods without tokens</li>
+<li>Failing that, use the single-item methods with tokens</li>
+<li>Failing that, use the single-item methods without tokens</li>
+</ol>
+<p dir="auto">Having said that, don't create tokens willy-nilly -- ideally there would be
+one token (of each kind) per thread. The queue will work with what it is
+given, but it performs best when used with tokens.</p>
+<p dir="auto">Note that tokens aren't actually tied to any given thread; it's not technically
+required that they be local to the thread, only that they be used by a single
+producer/consumer at a time.</p>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Bulk operations</h4><a id="user-content-bulk-operations" class="anchor" aria-label="Permalink: Bulk operations" href="#bulk-operations"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Thanks to the <a href="http://moodycamel.com/blog/2014/a-fast-general-purpose-lock-free-queue-for-c++" rel="nofollow">novel design</a> of the queue, it's just as easy to enqueue/dequeue multiple
+items as it is to do one at a time. This means that overhead can be cut drastically for
+bulk operations. Example syntax:</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="moodycamel::ConcurrentQueue&lt;int&gt; q;
+
+int items[] = { 1, 2, 3, 4, 5 };
+q.enqueue_bulk(items, 5);
+
+int results[5];     // Could also be any iterator
+size_t count = q.try_dequeue_bulk(results, 5);
+for (size_t i = 0; i != count; ++i) {
+    assert(results[i] == items[i]);
+}"><pre>moodycamel::ConcurrentQueue&lt;<span class="pl-k">int</span>&gt; q;
+
+<span class="pl-k">int</span> items[] = { <span class="pl-c1">1</span>, <span class="pl-c1">2</span>, <span class="pl-c1">3</span>, <span class="pl-c1">4</span>, <span class="pl-c1">5</span> };
+q.enqueue_bulk(items, <span class="pl-c1">5</span>);
+
+<span class="pl-k">int</span> results[<span class="pl-c1">5</span>];     <span class="pl-c"><span class="pl-c">//</span> Could also be any iterator</span>
+<span class="pl-c1">size_t</span> count = q.try_dequeue_bulk(results, <span class="pl-c1">5</span>);
+<span class="pl-k">for</span> (<span class="pl-c1">size_t</span> i = <span class="pl-c1">0</span>; i != count; ++i) {
+    <span class="pl-c1">assert</span>(results[i] == items[i]);
+}</pre></div>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Preallocation (correctly using <code>try_enqueue</code>)</h4><a id="user-content-preallocation-correctly-using-try_enqueue" class="anchor" aria-label="Permalink: Preallocation (correctly using try_enqueue)" href="#preallocation-correctly-using-try_enqueue"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><code>try_enqueue</code>, unlike just plain <code>enqueue</code>, will never allocate memory. If there's not enough room in the
+queue, it simply returns false. The key to using this method properly, then, is to ensure enough space is
+pre-allocated for your desired maximum element count.</p>
+<p dir="auto">The constructor accepts a count of the number of elements that it should reserve space for. Because the
+queue works with blocks of elements, however, and not individual elements themselves, the value to pass
+in order to obtain an effective number of pre-allocated element slots is non-obvious.</p>
+<p dir="auto">First, be aware that the count passed is rounded up to the next multiple of the block size. Note that the
+default block size is 32 (this can be changed via the traits). Second, once a slot in a block has been
+enqueued to, that slot cannot be re-used until the rest of the block has been completely filled
+up and then completely emptied. This affects the number of blocks you need in order to account for the
+overhead of partially-filled blocks. Third, each producer (whether implicit or explicit) claims and recycles
+blocks in a different manner, which again affects the number of blocks you need to account for a desired number of
+usable slots.</p>
+<p dir="auto">Suppose you want the queue to be able to hold at least <code>N</code> elements at any given time. Without delving too
+deep into the rather arcane implementation details, here are some simple formulas for the number of elements
+to request for pre-allocation in such a case. Note the division is intended to be arithmetic division and not
+integer division (in order for <code>ceil()</code> to work).</p>
+<p dir="auto">For explicit producers (using tokens to enqueue):</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="(ceil(N / BLOCK_SIZE) + 1) * MAX_NUM_PRODUCERS * BLOCK_SIZE"><pre>(ceil(N / BLOCK_SIZE) + <span class="pl-c1">1</span>) * MAX_NUM_PRODUCERS * BLOCK_SIZE</pre></div>
+<p dir="auto">For implicit producers (no tokens):</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="(ceil(N / BLOCK_SIZE) - 1 + 2 * MAX_NUM_PRODUCERS) * BLOCK_SIZE"><pre>(ceil(N / BLOCK_SIZE) - <span class="pl-c1">1</span> + <span class="pl-c1">2</span> * MAX_NUM_PRODUCERS) * BLOCK_SIZE</pre></div>
+<p dir="auto">When using mixed producer types:</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="((ceil(N / BLOCK_SIZE) - 1) * (MAX_EXPLICIT_PRODUCERS + 1) + 2 * (MAX_IMPLICIT_PRODUCERS + MAX_EXPLICIT_PRODUCERS)) * BLOCK_SIZE"><pre>((ceil(N / BLOCK_SIZE) - <span class="pl-c1">1</span>) * (MAX_EXPLICIT_PRODUCERS + <span class="pl-c1">1</span>) + <span class="pl-c1">2</span> * (MAX_IMPLICIT_PRODUCERS + MAX_EXPLICIT_PRODUCERS)) * BLOCK_SIZE</pre></div>
+<p dir="auto">If these formulas seem rather inconvenient, you can use the constructor overload that accepts the minimum
+number of elements (<code>N</code>) and the maximum number of explicit and implicit producers directly, and let it do the
+computation for you.</p>
+<p dir="auto">In addition to blocks, there are other internal data structures that require allocating memory if they need to resize (grow).
+If using <code>try_enqueue</code> exclusively, the initial sizes may be exceeded, causing subsequent <code>try_enqueue</code> operations to fail.
+Specifically, the <code>INITIAL_IMPLICIT_PRODUCER_HASH_SIZE</code> trait limits the number of implicit producers that can be active at once
+before the internal hash needs resizing. Along the same lines, the <code>IMPLICIT_INITIAL_INDEX_SIZE</code> trait limits the number of
+unconsumed elements that an implicit producer can insert before its internal hash needs resizing. Similarly, the
+<code>EXPLICIT_INITIAL_INDEX_SIZE</code> trait limits the number of unconsumed elements that an explicit producer can insert before its
+internal hash needs resizing. In order to avoid hitting these limits when using <code>try_enqueue</code>, it is crucial to adjust the
+initial sizes in the traits appropriately, in addition to sizing the number of blocks properly as outlined above.</p>
+<p dir="auto">Finally, it's important to note that because the queue is only eventually consistent and takes advantage of
+weak memory ordering for speed, there's always a possibility that under contention <code>try_enqueue</code> will fail
+even if the queue is correctly pre-sized for the desired number of elements. (e.g. A given thread may think that
+the queue's full even when that's no longer the case.) So no matter what, you still need to handle the failure
+case (perhaps looping until it succeeds), unless you don't mind dropping elements.</p>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Exception safety</h4><a id="user-content-exception-safety" class="anchor" aria-label="Permalink: Exception safety" href="#exception-safety"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The queue is exception safe, and will never become corrupted if used with a type that may throw exceptions.
+The queue itself never throws any exceptions (operations fail gracefully (return false) if memory allocation
+fails instead of throwing <code>std::bad_alloc</code>).</p>
+<p dir="auto">It is important to note that the guarantees of exception safety only hold if the element type never throws
+from its destructor, and that any iterators passed into the queue (for bulk operations) never throw either.
+Note that in particular this means <code>std::back_inserter</code> iterators must be used with care, since the vector
+being inserted into may need to allocate and throw a <code>std::bad_alloc</code> exception from inside the iterator;
+so be sure to reserve enough capacity in the target container first if you do this.</p>
+<p dir="auto">The guarantees are presently as follows:</p>
+<ul dir="auto">
+<li>Enqueue operations are rolled back completely if an exception is thrown from an element's constructor.
+For bulk enqueue operations, this means that elements are copied instead of moved (in order to avoid
+having only some objects moved in the event of an exception). Non-bulk enqueues always use
+the move constructor if one is available.</li>
+<li>If the assignment operator throws during a dequeue operation (both single and bulk), the element(s) are
+considered dequeued regardless. In such a case, the dequeued elements are all properly destructed before
+the exception is propagated, but there's no way to get the elements themselves back.</li>
+<li>Any exception that is thrown is propagated up the call stack, at which point the queue is in a consistent
+state.</li>
+</ul>
+<p dir="auto">Note: If any of your type's copy constructors/move constructors/assignment operators don't throw, be sure
+to annotate them with <code>noexcept</code>; this will avoid the exception-checking overhead in the queue where possible
+(even with zero-cost exceptions, there's still a code size impact that has to be taken into account).</p>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Traits</h4><a id="user-content-traits" class="anchor" aria-label="Permalink: Traits" href="#traits"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The queue also supports a traits template argument which defines various types, constants,
+and the memory allocation and deallocation functions that are to be used by the queue. The typical pattern
+to providing your own traits is to create a class that inherits from the default traits
+and override only the values you wish to change. Example:</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="struct MyTraits : public moodycamel::ConcurrentQueueDefaultTraits
+{
+	static const size_t BLOCK_SIZE = 256;		// Use bigger blocks
+};
+
+moodycamel::ConcurrentQueue&lt;int, MyTraits&gt; q;"><pre><span class="pl-k">struct</span> <span class="pl-en">MyTraits</span> : <span class="pl-k">public</span> <span class="pl-en">moodycamel</span>::ConcurrentQueueDefaultTraits
+{
+	<span class="pl-k">static</span> <span class="pl-k">const</span> <span class="pl-c1">size_t</span> BLOCK_SIZE = <span class="pl-c1">256</span>;		<span class="pl-c"><span class="pl-c">//</span> Use bigger blocks</span>
+};
+
+moodycamel::ConcurrentQueue&lt;<span class="pl-k">int</span>, MyTraits&gt; q;</pre></div>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">How to dequeue types without calling the constructor</h4><a id="user-content-how-to-dequeue-types-without-calling-the-constructor" class="anchor" aria-label="Permalink: How to dequeue types without calling the constructor" href="#how-to-dequeue-types-without-calling-the-constructor"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The normal way to dequeue an item is to pass in an existing object by reference, which
+is then assigned to internally by the queue (using the move-assignment operator if possible).
+This can pose a problem for types that are
+expensive to construct or don't have a default constructor; fortunately, there is a simple
+workaround: Create a wrapper class that copies the memory contents of the object when it
+is assigned by the queue (a poor man's move, essentially). Note that this only works if
+the object contains no internal pointers. Example:</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="struct MyObjectMover {
+    inline void operator=(MyObject&amp;&amp; obj) {
+        std::memcpy(data, &amp;obj, sizeof(MyObject));
+        
+        // TODO: Cleanup obj so that when it's destructed by the queue
+        // it doesn't corrupt the data of the object we just moved it into
+    }
+
+    inline MyObject&amp; obj() { return *reinterpret_cast&lt;MyObject*&gt;(data); }
+
+private:
+    align(alignof(MyObject)) char data[sizeof(MyObject)];
+};"><pre><span class="pl-k">struct</span> <span class="pl-en">MyObjectMover</span> {
+    <span class="pl-k">inline</span> <span class="pl-k">void</span> <span class="pl-k">operator</span>=(MyObject&amp;&amp; obj) {
+        <span class="pl-c1">std::memcpy</span>(data, &amp;obj, <span class="pl-k">sizeof</span>(MyObject));
+        
+        <span class="pl-c"><span class="pl-c">//</span> TODO: Cleanup obj so that when it's destructed by the queue</span>
+        <span class="pl-c"><span class="pl-c">//</span> it doesn't corrupt the data of the object we just moved it into</span>
+    }
+
+    <span class="pl-k">inline</span> MyObject&amp; <span class="pl-en">obj</span>() { <span class="pl-k">return</span> *<span class="pl-k">reinterpret_cast</span>&lt;MyObject*&gt;(data); }
+
+<span class="pl-k">private:</span>
+    <span class="pl-en">align</span>(alignof(MyObject)) <span class="pl-k">char</span> data[<span class="pl-k">sizeof</span>(MyObject)];
+};</pre></div>
+<p dir="auto">A less dodgy alternative, if moves are cheap but default construction is not, is to use a
+wrapper that defers construction until the object is assigned, enabling use of the move
+constructor:</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="struct MyObjectMover {
+    inline void operator=(MyObject&amp;&amp; x) {
+        new (data) MyObject(std::move(x));
+        created = true;
+    }
+
+    inline MyObject&amp; obj() {
+        assert(created);
+        return *reinterpret_cast&lt;MyObject*&gt;(data);
+    }
+
+    ~MyObjectMover() {
+        if (created)
+            obj().~MyObject();
+    }
+
+private:
+    align(alignof(MyObject)) char data[sizeof(MyObject)];
+    bool created = false;
+};"><pre><span class="pl-k">struct</span> <span class="pl-en">MyObjectMover</span> {
+    <span class="pl-k">inline</span> <span class="pl-k">void</span> <span class="pl-k">operator</span>=(MyObject&amp;&amp; x) {
+        <span class="pl-k">new</span> (data) <span class="pl-c1">MyObject</span>(<span class="pl-c1">std::move</span>(x));
+        created = <span class="pl-c1">true</span>;
+    }
+
+    <span class="pl-k">inline</span> MyObject&amp; <span class="pl-en">obj</span>() {
+        <span class="pl-c1">assert</span>(created);
+        <span class="pl-k">return</span> *<span class="pl-k">reinterpret_cast</span>&lt;MyObject*&gt;(data);
+    }
+
+    <span class="pl-en">~MyObjectMover</span>() {
+        <span class="pl-k">if</span> (created)
+            <span class="pl-c1">obj</span>().<span class="pl-en">~MyObject</span>();
+    }
+
+<span class="pl-k">private:</span>
+    <span class="pl-en">align</span>(alignof(MyObject)) <span class="pl-k">char</span> data[<span class="pl-k">sizeof</span>(MyObject)];
+    <span class="pl-k">bool</span> created = <span class="pl-c1">false</span>;
+};</pre></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Samples</h2><a id="user-content-samples" class="anchor" aria-label="Permalink: Samples" href="#samples"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">There are some more detailed samples <a href="https://github.com/cameron314/concurrentqueue/blob/master/samples.md">here</a>. The source of
+the <a href="https://github.com/cameron314/concurrentqueue/tree/master/tests/unittests">unit tests</a> and <a href="https://github.com/cameron314/concurrentqueue/tree/master/benchmarks">benchmarks</a> are available for reference as well.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Benchmarks</h2><a id="user-content-benchmarks" class="anchor" aria-label="Permalink: Benchmarks" href="#benchmarks"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">See my blog post for some <a href="http://moodycamel.com/blog/2014/a-fast-general-purpose-lock-free-queue-for-c++#benchmarks" rel="nofollow">benchmark results</a> (including versus <code>boost::lockfree::queue</code> and <code>tbb::concurrent_queue</code>),
+or run the benchmarks yourself (requires MinGW and certain GnuWin32 utilities to build on Windows, or a recent
+g++ on Linux):</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="cd build
+make benchmarks
+bin/benchmarks"><pre><span class="pl-c1">cd</span> build
+make benchmarks
+bin/benchmarks</pre></div>
+<p dir="auto">The short version of the benchmarks is that it's so fast (especially the bulk methods), that if you're actually
+using the queue to <em>do</em> anything, the queue won't be your bottleneck.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Tests (and bugs)</h2><a id="user-content-tests-and-bugs" class="anchor" aria-label="Permalink: Tests (and bugs)" href="#tests-and-bugs"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">I've written quite a few unit tests as well as a randomized long-running fuzz tester. I also ran the
+core queue algorithm through the <a href="http://demsky.eecs.uci.edu/c11modelchecker.html" rel="nofollow">CDSChecker</a> C++11 memory model model checker. Some of the
+inner algorithms were tested separately using the <a href="http://www.1024cores.net/home/relacy-race-detector" rel="nofollow">Relacy</a> model checker, and full integration
+tests were also performed with Relacy.
+I've tested
+on Linux (Fedora 19) and Windows (7), but only on x86 processors so far (Intel and AMD). The code was
+written to be platform-independent, however, and should work across all processors and OSes.</p>
+<p dir="auto">Due to the complexity of the implementation and the difficult-to-test nature of lock-free code in general,
+there may still be bugs. If anyone is seeing buggy behaviour, I'd like to hear about it! (Especially if
+a unit test for it can be cooked up.) Just open an issue on GitHub.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Using vcpkg</h2><a id="user-content-using-vcpkg" class="anchor" aria-label="Permalink: Using vcpkg" href="#using-vcpkg"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">You can download and install <code>moodycamel::ConcurrentQueue</code> using the <a href="https://github.com/Microsoft/vcpkg">vcpkg</a> dependency manager:</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="git clone https://github.com/Microsoft/vcpkg.git
+cd vcpkg
+./bootstrap-vcpkg.sh
+./vcpkg integrate install
+vcpkg install concurrentqueue"><pre>git clone https://github.com/Microsoft/vcpkg.git
+<span class="pl-c1">cd</span> vcpkg
+./bootstrap-vcpkg.sh
+./vcpkg integrate install
+vcpkg install concurrentqueue</pre></div>
+<p dir="auto">The <code>moodycamel::ConcurrentQueue</code> port in vcpkg is kept up to date by Microsoft team members and community contributors. If the version is out of date, please <a href="https://github.com/Microsoft/vcpkg">create an issue or pull request</a> on the vcpkg repository.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">License</h2><a id="user-content-license" class="anchor" aria-label="Permalink: License" href="#license"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">I'm releasing the source of this repository (with the exception of third-party code, i.e. the Boost queue
+(used in the benchmarks for comparison), Intel's TBB library (ditto), CDSChecker, Relacy, and Jeff Preshing's
+cross-platform semaphore, which all have their own licenses)
+under a simplified BSD license. I'm also dual-licensing under the Boost Software License.
+See the <a href="https://github.com/cameron314/concurrentqueue/blob/master/LICENSE.md">LICENSE.md</a> file for more details.</p>
+<p dir="auto">Note that lock-free programming is a patent minefield, and this code may very
+well violate a pending patent (I haven't looked), though it does not to my present knowledge.
+I did design and implement this queue from scratch.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Diving into the code</h2><a id="user-content-diving-into-the-code" class="anchor" aria-label="Permalink: Diving into the code" href="#diving-into-the-code"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">If you're interested in the source code itself, it helps to have a rough idea of how it's laid out. This
+section attempts to describe that.</p>
+<p dir="auto">The queue is formed of several basic parts (listed here in roughly the order they appear in the source). There's the
+helper functions (e.g. for rounding to a power of 2). There's the default traits of the queue, which contain the
+constants and malloc/free functions used by the queue. There's the producer and consumer tokens. Then there's the queue's
+public API itself, starting with the constructor, destructor, and swap/assignment methods. There's the public enqueue methods,
+which are all wrappers around a small set of private enqueue methods found later on. There's the dequeue methods, which are
+defined inline and are relatively straightforward.</p>
+<p dir="auto">Then there's all the main internal data structures. First, there's a lock-free free list, used for recycling spent blocks (elements
+are enqueued to blocks internally). Then there's the block structure itself, which has two different ways of tracking whether
+it's fully emptied or not (remember, given two parallel consumers, there's no way to know which one will finish first) depending on where it's used.
+Then there's a small base class for the two types of internal SPMC producer queues (one for explicit producers that holds onto memory
+but attempts to be faster, and one for implicit ones which attempt to recycle more memory back into the parent but is a little slower).
+The explicit producer is defined first, then the implicit one. They both contain the same general four methods: One to enqueue, one to
+dequeue, one to enqueue in bulk, and one to dequeue in bulk. (Obviously they have constructors and destructors too, and helper methods.)
+The main difference between them is how the block handling is done (they both use the same blocks, but in different ways, and map indices
+to them in different ways).</p>
+<p dir="auto">Finally, there's the miscellaneous internal methods: There's the ones that handle the initial block pool (populated when the queue is constructed),
+and an abstract block pool that comprises the initial pool and any blocks on the free list. There's ones that handle the producer list
+(a lock-free add-only linked list of all the producers in the system). There's ones that handle the implicit producer lookup table (which
+is really a sort of specialized TLS lookup). And then there's some helper methods for allocating and freeing objects, and the data members
+of the queue itself, followed lastly by the free-standing swap functions.</p>
+</article></div>

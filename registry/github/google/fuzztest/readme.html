@@ -1,0 +1,65 @@
+<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">FuzzTest</h1><a id="user-content-fuzztest" class="anchor" aria-label="Permalink: FuzzTest" href="#fuzztest"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">What is FuzzTest?</h2><a id="user-content-what-is-fuzztest" class="anchor" aria-label="Permalink: What is FuzzTest?" href="#what-is-fuzztest"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">FuzzTest is a C++ testing framework for writing and executing <em>fuzz tests</em>,
+which are property-based tests executed using coverage-guided fuzzing under the
+hood. Fuzz tests are like regular unit tests, but more generic and more
+powerful. Instead of saying: "for this specific input, we expect this specific
+output", we can say: "for these types of input, we expect this generic property
+to be true". For example:</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="void MyApiAlwaysSucceedsOnPositiveIntegers(int i) {
+  bool success = MyApi(i);
+  EXPECT_TRUE(success);
+}
+FUZZ_TEST(MyApiTest, MyApiAlwaysSucceedsOnPositiveIntegers)
+    .WithDomains(/*i:*/fuzztest::Positive&lt;int&gt;());"><pre><span class="pl-k">void</span> <span class="pl-en">MyApiAlwaysSucceedsOnPositiveIntegers</span>(<span class="pl-k">int</span> i) {
+  <span class="pl-k">bool</span> success = <span class="pl-c1">MyApi</span>(i);
+  <span class="pl-c1">EXPECT_TRUE</span>(success);
+}
+<span class="pl-en">FUZZ_TEST</span>(MyApiTest, MyApiAlwaysSucceedsOnPositiveIntegers)
+    .WithDomains(<span class="pl-c"><span class="pl-c">/*</span>i:<span class="pl-c">*/</span></span>fuzztest::Positive&lt;<span class="pl-k">int</span>&gt;());</pre></div>
+<p dir="auto">It is our latest fuzz testing technology and the successor of previously used
+fuzzing tools, such as <a href="https://llvm.org/docs/LibFuzzer.html" rel="nofollow">libFuzzer</a>. It
+allows you to write powerful fuzz tests more easily than with previously used
+<a href="https://llvm.org/docs/LibFuzzer.html#fuzz-target" rel="nofollow">fuzz targets</a>. You can use it
+together with <a href="https://google.github.io/googletest/" rel="nofollow">GoogleTest</a>, or other unit
+testing frameworks, allowing you to write fuzz test side by side with regular
+unit tests, and just as easily.</p>
+<p dir="auto">It is a first-of-its-kind tool that bridges the gap between fuzzing and
+property-based testing, as it is both:</p>
+<ol dir="auto">
+<li>a testing framework with a rich <a href="doc/domains-reference.md">API</a> (akin to
+property-based testing libraries), and</li>
+<li>a coverage-guided fuzzing engine (akin to
+<a href="https://github.com/google/AFL">AFL</a> or
+<a href="https://llvm.org/docs/LibFuzzer.html" rel="nofollow">libFuzzer</a>).</li>
+</ol>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Who is it for?</h2><a id="user-content-who-is-it-for" class="anchor" aria-label="Permalink: Who is it for?" href="#who-is-it-for"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">FuzzTest is for <em>everyone</em> who writes C++ code. (Currently, only C++ is
+supported.) Fuzz testing is a proven testing technique that has found
+<a href="https://github.com/google/oss-fuzz#trophies">tens of thousands of bugs</a>. With
+the FuzzTest framework writing these tests becomes a breeze. Because fuzz tests
+are more generic, they are more powerful than regular unit tests. They can find
+tricky edge cases automatically for us, edge cases that most likely we would
+never think of.</p>
+<p dir="auto">You can write fuzz tests as easily as you write unit tests using GoogleTest for
+example. Simply use the <a href="doc/fuzz-test-macro.md"><code>FUZZ_TEST</code></a> macro like you
+would use GoogleTest's <code>TEST</code> macro.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Who uses it?</h2><a id="user-content-who-uses-it" class="anchor" aria-label="Permalink: Who uses it?" href="#who-uses-it"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">At Google, FuzzTest is widely used and software engineers love it. It has
+replaced the old style of writing
+<a href="https://llvm.org/docs/LibFuzzer.html#fuzz-target" rel="nofollow">fuzz targets</a>.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">How do I use it?</h2><a id="user-content-how-do-i-use-it" class="anchor" aria-label="Permalink: How do I use it?" href="#how-do-i-use-it"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">To get started, read the <a href="doc/quickstart-bazel.md">Quickstart with Bazel</a> or
+<a href="doc/quickstart-cmake.md">Quickstart with CMake</a>, then take a look at the
+<a href="doc/overview.md">Overview</a> and the <a href="doc/tutorial.md">Codelab</a>.</p>
+<p dir="auto">Once you have a high level understanding about fuzz tests, consider reading the
+rest of the documentation, including the:</p>
+<ul dir="auto">
+<li><a href="doc/use-cases.md">Use Cases</a></li>
+<li><a href="doc/fuzz-test-macro.md">FUZZ_TEST Macro Reference</a></li>
+<li><a href="doc/domains-reference.md">Domains Reference</a></li>
+</ul>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">I need help!</h2><a id="user-content-i-need-help" class="anchor" aria-label="Permalink: I need help!" href="#i-need-help"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">If you have a question or encounter a bug, please file an
+<a href="https://github.com/google/fuzztest/issues">issue on GitHub</a>.</p>
+</article></div>
