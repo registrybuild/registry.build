@@ -122,20 +122,20 @@ void TriggerBufferOverflow(const uint8_t *data, size_t size) {
 extern &quot;C&quot; int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
   TriggerBufferOverflow(data, size);
   return 0;
-}"><pre>#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>cstddef<span class="pl-pds">&gt;</span></span>
-#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>cstdint<span class="pl-pds">&gt;</span></span>
-#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>cstdio<span class="pl-pds">&gt;</span></span>
+}"><pre>#include &lt;cstddef&gt;
+#include &lt;cstdint&gt;
+#include &lt;cstdio&gt;
 
-<span class="pl-k">void</span> <span class="pl-en">TriggerBufferOverflow</span>(<span class="pl-k">const</span> <span class="pl-c1">uint8_t</span> *data, <span class="pl-c1">size_t</span> size) {
-  <span class="pl-k">if</span> (size &gt;= <span class="pl-c1">3</span> &amp;&amp; data[<span class="pl-c1">0</span>] == <span class="pl-s"><span class="pl-pds">'</span>F<span class="pl-pds">'</span></span> &amp;&amp; data[<span class="pl-c1">1</span>] == <span class="pl-s"><span class="pl-pds">'</span>U<span class="pl-pds">'</span></span> &amp;&amp; data[<span class="pl-c1">2</span>] == <span class="pl-s"><span class="pl-pds">'</span>Z<span class="pl-pds">'</span></span> &amp;&amp;
-      data[size] == <span class="pl-s"><span class="pl-pds">'</span>Z<span class="pl-pds">'</span></span>) {
-    <span class="pl-c1">fprintf</span>(stderr, <span class="pl-s"><span class="pl-pds">"</span>BUFFER OVERFLOW!<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>);
+void TriggerBufferOverflow(const uint8_t *data, size_t size) {
+  if (size &gt;= 3 &amp;&amp; data[0] == 'F' &amp;&amp; data[1] == 'U' &amp;&amp; data[2] == 'Z' &amp;&amp;
+      data[size] == 'Z') {
+    fprintf(stderr, "BUFFER OVERFLOW!\n");
   }
 }
 
-<span class="pl-k">extern</span> <span class="pl-s"><span class="pl-pds">"</span>C<span class="pl-pds">"</span></span> <span class="pl-k">int</span> <span class="pl-en">LLVMFuzzerTestOneInput</span>(<span class="pl-k">const</span> <span class="pl-c1">uint8_t</span> *data, <span class="pl-c1">size_t</span> size) {
-  <span class="pl-c1">TriggerBufferOverflow</span>(data, size);
-  <span class="pl-k">return</span> <span class="pl-c1">0</span>;
+extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
+  TriggerBufferOverflow(data, size);
+  return 0;
 }</pre></div>
 <p dir="auto">Let's now define its build target in the <code>BUILD</code> file:</p>
 <div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@rules_fuzzing//fuzzing:cc_defs.bzl&quot;, &quot;cc_fuzz_test&quot;)

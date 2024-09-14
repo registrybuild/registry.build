@@ -258,15 +258,15 @@ this:</p>
 
     CLI11_PARSE(app, argc, argv);
     return 0;
-}"><pre><span class="pl-k">int</span> <span class="pl-en">main</span>(<span class="pl-k">int</span> argc, <span class="pl-k">char</span>** argv) {
-    CLI::App app{<span class="pl-s"><span class="pl-pds">"</span>App description<span class="pl-pds">"</span></span>};
-    argv = app.<span class="pl-c1">ensure_utf8</span>(argv);
+}"><pre>int main(int argc, char** argv) {
+    <span class="pl-smi">CLI</span>::App app{"App description"};
+    argv = app.ensure_utf8(argv);
 
-    std::string filename = <span class="pl-s"><span class="pl-pds">"</span>default<span class="pl-pds">"</span></span>;
-    app.<span class="pl-c1">add_option</span>(<span class="pl-s"><span class="pl-pds">"</span>-f,--file<span class="pl-pds">"</span></span>, filename, <span class="pl-s"><span class="pl-pds">"</span>A help string<span class="pl-pds">"</span></span>);
+    std::string filename = "default";
+    app.add_option("-f,--file", filename, "A help string");
 
-    <span class="pl-c1">CLI11_PARSE</span>(app, argc, argv);
-    <span class="pl-k">return</span> <span class="pl-c1">0</span>;
+    CLI11_PARSE(app, argc, argv);
+    return 0;
 }</pre></div>
 <p dir="auto">For more information about 🆕<code>ensure_utf8</code> the section on
 <a href="#unicode-support">Unicode support</a> below. The 🆕<code>ensure_utf8</code> function is only
@@ -277,9 +277,9 @@ available in main currently and not in a release.</p>
 } catch (const CLI::ParseError &amp;e) {
     return app.exit(e);
 }"><pre><span class="pl-k">try</span> {
-    app.<span class="pl-c1">parse</span>(argc, argv);
-} <span class="pl-k">catch</span> (<span class="pl-k">const</span> CLI::ParseError &amp;e) {
-    <span class="pl-k">return</span> app.<span class="pl-c1">exit</span>(e);
+    app.parse(argc, argv);
+} <span class="pl-k">catch</span> (const <span class="pl-smi">CLI</span>::ParseError &amp;e) {
+    return app.exit(e);
 }</pre></div>
 <p dir="auto">The try/catch block ensures that <code>-h,--help</code> or a parse error will exit with the
 correct return code (selected from <code>CLI::ExitCodes</code>). (The return here should be
@@ -332,39 +332,39 @@ app.add_flag_callback(option_name,function&lt;void(void)&gt;,help_string=&quot;&
 // Add subcommands
 App* subcom = app.add_subcommand(name, description);
 
-Option_group *app.add_option_group(name,description);"><pre><span class="pl-c"><span class="pl-c">//</span> Add options</span>
-app.add_option(option_name, help_str=<span class="pl-s"><span class="pl-pds">"</span><span class="pl-pds">"</span></span>)
+Option_group *app.add_option_group(name,description);"><pre>// Add options
+app.add_option(option_name, help_str="")
 
 app.add_option(option_name,
-               variable_to_bind_to, <span class="pl-c"><span class="pl-c">//</span> bool, char(see note), int, float, vector, enum, std::atomic, or string-like, or anything with a defined conversion from a string or that takes an int, double, or string in a constructor. Also allowed are tuples, std::array or std::pair. Also supported are complex numbers, wrapper types, and containers besides vectors of any other supported type.</span>
-               help_string=<span class="pl-s"><span class="pl-pds">"</span><span class="pl-pds">"</span></span>)
+               variable_to_bind_to, // bool, char(see note), int, float, vector, enum, std::atomic, or string-like, or anything with a defined conversion from a string or that takes an int, double, or string in a constructor. Also allowed are tuples, std::array or std::pair. Also supported are complex numbers, wrapper types, and containers besides vectors of any other supported type.
+               help_string="")
 
-app.add_option_function&lt;type&gt;(option_name,
-               function &lt;<span class="pl-k">void</span>(<span class="pl-k">const</span> type &amp;value)&gt;, <span class="pl-c"><span class="pl-c">//</span> type can be any type supported by add_option</span>
-               help_string=<span class="pl-s"><span class="pl-pds">"</span><span class="pl-pds">"</span></span>)
+app.<span class="pl-en">add_option_function</span>&lt;type&gt;(option_name,
+               <span class="pl-en">function</span> &lt;void(const type &amp;value)&gt;, // type can be any type supported by add_option
+               help_string="")
 
-<span class="pl-c"><span class="pl-c">//</span> char as an option type is supported before 2.0 but in 2.0 it defaulted to allowing single non numerical characters in addition to the numeric values.</span>
+// char as an option type is supported before 2.0 but in 2.0 it defaulted to allowing single non numerical characters in addition to the numeric values.
 
-<span class="pl-c"><span class="pl-c">//</span> There is a template overload which takes two template parameters the first is the type of object to assign the value to, the second is the conversion type.  The conversion type should have a known way to convert from a string, such as any of the types that work in the non-template version.  If XC is a std::pair and T is some non pair type.  Then a two argument constructor for T is called to assign the value.  For tuples or other multi element types, XC must be a single type or a tuple like object of the same size as the assignment type</span>
-app.add_option&lt;<span class="pl-k">typename</span> T, <span class="pl-k">typename</span> XC&gt;(option_name,
-               T &amp;output, <span class="pl-c"><span class="pl-c">//</span> output must be assignable or constructible from a value of type XC</span>
-               help_string=<span class="pl-s"><span class="pl-pds">"</span><span class="pl-pds">"</span></span>)
+// There is a template overload which takes two template parameters the first is the type of object to assign the value to, the second is the conversion type.  The conversion type should have a known way to convert from a string, such as any of the types that work in the non-template version.  If XC is a std::pair and T is some non pair type.  Then a two argument constructor for T is called to assign the value.  For tuples or other multi element types, XC must be a single type or a tuple like object of the same size as the assignment type
+app.<span class="pl-en">add_option</span>&lt;<span class="pl-k">typename</span> T, <span class="pl-k">typename</span> XC&gt;(option_name,
+               T &amp;output, // output must be assignable or constructible from a value of type XC
+               help_string="")
 
-<span class="pl-c"><span class="pl-c">//</span> Add flags</span>
+// Add flags
 app.add_flag(option_name,
-             help_string=<span class="pl-s"><span class="pl-pds">"</span><span class="pl-pds">"</span></span>)
+             help_string="")
 
 app.add_flag(option_name,
-             variable_to_bind_to, <span class="pl-c"><span class="pl-c">//</span> bool, int, float, complex, containers, enum, std::atomic, or string-like, or any singular object with a defined conversion from a string like add_option</span>
-             help_string=<span class="pl-s"><span class="pl-pds">"</span><span class="pl-pds">"</span></span>)
+             variable_to_bind_to, // bool, int, float, complex, containers, enum, std::atomic, or string-like, or any singular object with a defined conversion from a string like add_option
+             help_string="")
 
 app.add_flag_function(option_name,
-             function &lt;<span class="pl-k">void</span>(std::<span class="pl-c1">int64_t</span> count)&gt;,
-             help_string=<span class="pl-s"><span class="pl-pds">"</span><span class="pl-pds">"</span></span>)
+             <span class="pl-en">function</span> &lt;void(std::int64_t count)&gt;,
+             help_string="")
 
-app.add_flag_callback(option_name,function&lt;<span class="pl-k">void</span>(<span class="pl-k">void</span>)&gt;,help_string=<span class="pl-s"><span class="pl-pds">"</span><span class="pl-pds">"</span></span>)
+app.add_flag_callback(option_name,<span class="pl-en">function</span>&lt;void(void)&gt;,help_string="")
 
-<span class="pl-c"><span class="pl-c">//</span> Add subcommands</span>
+// Add subcommands
 App* subcom = app.add_subcommand(name, description);
 
 Option_group *app.add_option_group(name,description);</pre></div>
@@ -385,19 +385,19 @@ possibly) if the value is not valid.</p>
 <p dir="auto">The two parameter template overload can be used in cases where you want to
 restrict the input such as</p>
 <div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="double val
-app.add_option&lt;double,unsigned int&gt;(&quot;-v&quot;,val);"><pre><span class="pl-k">double</span> val
-app.add_option&lt;<span class="pl-k">double</span>,<span class="pl-k">unsigned</span> <span class="pl-k">int</span>&gt;(<span class="pl-s"><span class="pl-pds">"</span>-v<span class="pl-pds">"</span></span>,val);</pre></div>
+app.add_option&lt;double,unsigned int&gt;(&quot;-v&quot;,val);"><pre>double <span class="pl-en">val</span>
+app.add_option&lt;double,unsigned int&gt;("-v",val);</pre></div>
 <p dir="auto">which would first verify the input is convertible to an <code>unsigned int</code> before
 assigning it. Or using some variant type</p>
 <div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="using vtype=std::variant&lt;int, double, std::string&gt;;
  vtype v1;
 app.add_option&lt;vtype,std:string&gt;(&quot;--vs&quot;,v1);
 app.add_option&lt;vtype,int&gt;(&quot;--vi&quot;,v1);
-app.add_option&lt;vtype,double&gt;(&quot;--vf&quot;,v1);"><pre><span class="pl-k">using</span> vtype=std::variant&lt;<span class="pl-k">int</span>, <span class="pl-k">double</span>, std::string&gt;;
+app.add_option&lt;vtype,double&gt;(&quot;--vf&quot;,v1);"><pre><span class="pl-k">using</span> vtype=std::variant&lt;int, double, std::string&gt;;
  vtype v1;
-app.add_option&lt;vtype,std:string&gt;(<span class="pl-s"><span class="pl-pds">"</span>--vs<span class="pl-pds">"</span></span>,v1);
-app.add_option&lt;vtype,<span class="pl-k">int</span>&gt;(<span class="pl-s"><span class="pl-pds">"</span>--vi<span class="pl-pds">"</span></span>,v1);
-app.add_option&lt;vtype,<span class="pl-k">double</span>&gt;(<span class="pl-s"><span class="pl-pds">"</span>--vf<span class="pl-pds">"</span></span>,v1);</pre></div>
+app.<span class="pl-en">add_option</span>&lt;vtype,std:string&gt;("--vs",v1);
+app.<span class="pl-en">add_option</span>&lt;vtype,int&gt;("--vi",v1);
+app.<span class="pl-en">add_option</span>&lt;vtype,double&gt;("--vf",v1);</pre></div>
 <p dir="auto">otherwise the output would default to a string. The <code>add_option</code> can be used
 with any integral or floating point types, enumerations, or strings. Or any type
 that takes an int, double, or std::string in an assignment operator or
@@ -412,8 +412,8 @@ purposes of CLI11 wrapper types are those which <code>value_type</code> definiti
 own converters for additional types.</p>
 <p dir="auto">Vector types can also be used in the two parameter template overload</p>
 <div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="std::vector&lt;double&gt; v1;
-app.add_option&lt;std::vector&lt;double&gt;,int&gt;(&quot;--vs&quot;,v1);"><pre>std::vector&lt;<span class="pl-k">double</span>&gt; v1;
-app.add_option&lt;std::vector&lt;<span class="pl-k">double</span>&gt;,<span class="pl-k">int</span>&gt;(<span class="pl-s"><span class="pl-pds">"</span>--vs<span class="pl-pds">"</span></span>,v1);</pre></div>
+app.add_option&lt;std::vector&lt;double&gt;,int&gt;(&quot;--vs&quot;,v1);"><pre>std::vector&lt;double&gt; v1;
+app.<span class="pl-en">add_option</span>&lt;std::vector&lt;double&gt;,int&gt;("--vs",v1);</pre></div>
 <p dir="auto">would load a vector of doubles but ensure all values can be represented as
 integers.</p>
 <p dir="auto">Automatic direct capture of the default string is disabled when using the two
@@ -423,7 +423,7 @@ function directly for these cases.</p>
 <p dir="auto">Flag options specified through the <code>add_flag*</code> functions allow a syntax for the
 option names to default particular options to a false value or any other value
 if some flags are passed. For example:</p>
-<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="app.add_flag(&quot;--flag,!--no-flag&quot;,result,&quot;help for flag&quot;);"><pre>app.add_flag(<span class="pl-s"><span class="pl-pds">"</span>--flag,!--no-flag<span class="pl-pds">"</span></span>,result,<span class="pl-s"><span class="pl-pds">"</span>help for flag<span class="pl-pds">"</span></span>);</pre></div>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="app.add_flag(&quot;--flag,!--no-flag&quot;,result,&quot;help for flag&quot;);"><pre>app.add_flag("--flag,!--no-flag",result,"help for flag");</pre></div>
 <p dir="auto">specifies that if <code>--flag</code> is passed on the command line result will be true or
 contain a value of 1. If <code>--no-flag</code> is passed <code>result</code> will contain false or -1
 if <code>result</code> is a signed integer type, or 0 if it is an unsigned type. An
@@ -436,7 +436,7 @@ given arguments and return the result. This can be modified if needed by
 changing the <code>multi_option_policy</code> on each flag (this is not inherited). The
 default value can be any value. For example if you wished to define a numerical
 flag:</p>
-<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="app.add_flag(&quot;-1{1},-2{2},-3{3}&quot;,result,&quot;numerical flag&quot;)"><pre>app.add_flag(<span class="pl-s"><span class="pl-pds">"</span>-1{1},-2{2},-3{3}<span class="pl-pds">"</span></span>,result,<span class="pl-s"><span class="pl-pds">"</span>numerical flag<span class="pl-pds">"</span></span>)</pre></div>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="app.add_flag(&quot;-1{1},-2{2},-3{3}&quot;,result,&quot;numerical flag&quot;)"><pre>app.add_flag("-1{1},-2{2},-3{3}",result,"numerical flag")</pre></div>
 <p dir="auto">Using any of those flags on the command line will result in the specified number
 in the output. Similar things can be done for string values, and enumerations,
 as long as the default value can be converted to the given type.</p>
@@ -662,12 +662,12 @@ conversion.</li>
 <p dir="auto">These Validators can be used by simply passing the name into the <code>check</code> or
 <code>transform</code> methods on an option</p>
 <div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="-&gt;check(CLI::ExistingFile);
--&gt;check(CLI::Range(0,10));"><pre>-&gt;<span class="pl-en">check</span>(CLI::ExistingFile);
--&gt;<span class="pl-en">check</span>(CLI::Range(<span class="pl-c1">0</span>,<span class="pl-c1">10</span>));</pre></div>
+-&gt;check(CLI::Range(0,10));"><pre>-&gt;check(<span class="pl-smi">CLI</span>::ExistingFile);
+-&gt;check(<span class="pl-smi">CLI</span>::<span class="pl-en">Range</span>(0,10));</pre></div>
 <p dir="auto">Validators can be merged using <code>&amp;</code> and <code>|</code> and inverted using <code>!</code>. For example:</p>
-<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="-&gt;check(CLI::Range(0,10)|CLI::Range(20,30));"><pre>-&gt;<span class="pl-en">check</span>(CLI::Range(<span class="pl-c1">0</span>,<span class="pl-c1">10</span>)|CLI::Range(<span class="pl-c1">20</span>,<span class="pl-c1">30</span>));</pre></div>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="-&gt;check(CLI::Range(0,10)|CLI::Range(20,30));"><pre>-&gt;check(<span class="pl-smi">CLI</span>::<span class="pl-en">Range</span>(0,10)|<span class="pl-smi">CLI</span>::<span class="pl-en">Range</span>(20,30));</pre></div>
 <p dir="auto">will produce a check to ensure a value is between 0 and 10 or 20 and 30.</p>
-<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="-&gt;check(!CLI::PositiveNumber);"><pre>-&gt;<span class="pl-en">check</span>(!CLI::PositiveNumber);</pre></div>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="-&gt;check(!CLI::PositiveNumber);"><pre>-&gt;check(!<span class="pl-smi">CLI</span>::PositiveNumber);</pre></div>
 <p dir="auto">will produce a check for a number less than or equal to 0.</p>
 <div class="markdown-heading" dir="auto"><h5 class="heading-element" dir="auto">Transforming Validators</h5><a id="user-content-transforming-validators" class="anchor" aria-label="Permalink: Transforming Validators" href="#transforming-validators"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">There are a few built in Validators that let you transform values if used with
@@ -779,29 +779,29 @@ positive integer while the second may need to be a valid file. The
 <code>.application_index(int)</code> function can specify this. It is zero based and
 negative indices apply to all values.</p>
 <div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="opt-&gt;check(CLI::Validator(CLI::PositiveNumber).application_index(0));
-opt-&gt;check(CLI::Validator(CLI::ExistingFile).application_index(1));"><pre>opt-&gt;<span class="pl-en">check</span>(CLI::Validator(CLI::PositiveNumber).application_index(<span class="pl-c1">0</span>));
-opt-&gt;<span class="pl-en">check</span>(CLI::Validator(CLI::ExistingFile).application_index(<span class="pl-c1">1</span>));</pre></div>
+opt-&gt;check(CLI::Validator(CLI::ExistingFile).application_index(1));"><pre>opt-&gt;check(<span class="pl-smi">CLI</span>::<span class="pl-en">Validator</span>(<span class="pl-smi">CLI</span>::PositiveNumber).application_index(0));
+opt-&gt;check(<span class="pl-smi">CLI</span>::<span class="pl-en">Validator</span>(<span class="pl-smi">CLI</span>::ExistingFile).application_index(1));</pre></div>
 <p dir="auto">All the validator operation functions return a Validator reference allowing them
 to be chained. For example</p>
-<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="opt-&gt;check(CLI::Range(10,20).description(&quot;range is limited to sensible values&quot;).active(false).name(&quot;range&quot;));"><pre>opt-&gt;<span class="pl-en">check</span>(CLI::Range(<span class="pl-c1">10</span>,<span class="pl-c1">20</span>).description(<span class="pl-s"><span class="pl-pds">"</span>range is limited to sensible values<span class="pl-pds">"</span></span>).active(<span class="pl-c1">false</span>).name(<span class="pl-s"><span class="pl-pds">"</span>range<span class="pl-pds">"</span></span>));</pre></div>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="opt-&gt;check(CLI::Range(10,20).description(&quot;range is limited to sensible values&quot;).active(false).name(&quot;range&quot;));"><pre>opt-&gt;check(<span class="pl-smi">CLI</span>::<span class="pl-en">Range</span>(10,20).description("range is limited to sensible values").active(false).name("range"));</pre></div>
 <p dir="auto">will specify a check on an option with a name "range", but deactivate it for the
 time being. The check can later be activated through</p>
-<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="opt-&gt;get_validator(&quot;range&quot;)-&gt;active();"><pre>opt-&gt;<span class="pl-en">get_validator</span>(<span class="pl-s"><span class="pl-pds">"</span>range<span class="pl-pds">"</span></span>)-&gt;active();</pre></div>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="opt-&gt;get_validator(&quot;range&quot;)-&gt;active();"><pre>opt-&gt;get_validator("range")-&gt;active();</pre></div>
 <div class="markdown-heading" dir="auto"><h5 class="heading-element" dir="auto">Custom Validators</h5><a id="user-content-custom-validators" class="anchor" aria-label="Permalink: Custom Validators" href="#custom-validators"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">A validator object with a custom function can be created via</p>
-<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="CLI::Validator(std::function&lt;std::string(std::string &amp;)&gt;,validator_description,validator_name=&quot;&quot;);"><pre><span class="pl-en">CLI::Validator</span>(std::function&lt;std::string(std::string &amp;)&gt;,validator_description,validator_name="");</pre></div>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="CLI::Validator(std::function&lt;std::string(std::string &amp;)&gt;,validator_description,validator_name=&quot;&quot;);"><pre><span class="pl-smi">CLI</span>::<span class="pl-en">Validator</span>(std::<span class="pl-en">function</span>&lt;std::string(std::string &amp;)&gt;,validator_description,validator_name="");</pre></div>
 <p dir="auto">or if the operation function is set later they can be created with</p>
-<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="CLI::Validator(validator_description);"><pre><span class="pl-en">CLI::Validator</span>(validator_description);</pre></div>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="CLI::Validator(validator_description);"><pre><span class="pl-smi">CLI</span>::<span class="pl-en">Validator</span>(validator_description);</pre></div>
 <p dir="auto">It is also possible to create a subclass of <code>CLI::Validator</code>, in which case it
 can also set a custom description function, and operation function.</p>
 <div class="markdown-heading" dir="auto"><h5 class="heading-element" dir="auto">Querying Validators</h5><a id="user-content-querying-validators" class="anchor" aria-label="Permalink: Querying Validators" href="#querying-validators"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">Once loaded into an Option, a pointer to a named Validator can be retrieved via</p>
-<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="opt-&gt;get_validator(name);"><pre>opt-&gt;<span class="pl-en">get_validator</span>(name);</pre></div>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="opt-&gt;get_validator(name);"><pre>opt-&gt;get_validator(name);</pre></div>
 <p dir="auto">This will retrieve a Validator with the given name or throw a
 <code>CLI::OptionNotFound</code> error. If no name is given or name is empty the first
 unnamed Validator will be returned or the first Validator if there is only one.</p>
 <p dir="auto">or</p>
-<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="opt-&gt;get_validator(index);"><pre>opt-&gt;<span class="pl-en">get_validator</span>(index);</pre></div>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="opt-&gt;get_validator(index);"><pre>opt-&gt;get_validator(index);</pre></div>
 <p dir="auto">Which will return a validator in the index it is applied which isn't necessarily
 the order in which was defined. The pointer can be <code>nullptr</code> if an invalid index
 is given. Validators have a few functions to query the current values:</p>
@@ -1084,8 +1084,8 @@ app.preparse_callback( pa);
 
 ... A bunch of other options"><pre>app.parse_complete_callback(ac1);
 app.final_callback(ac2);
-<span class="pl-k">auto</span> sub1=app.add_subcommand(<span class="pl-s"><span class="pl-pds">"</span>sub1<span class="pl-pds">"</span></span>)-&gt;<span class="pl-en">parse_complete_callback</span>(c1)-&gt;preparse_callback(pc1);
-<span class="pl-k">auto</span> sub2=app.add_subcommand(<span class="pl-s"><span class="pl-pds">"</span>sub2<span class="pl-pds">"</span></span>)-&gt;<span class="pl-en">final_callback</span>(c2)-&gt;preparse_callback(pc2);
+<span class="pl-smi">auto</span> sub1=app.add_subcommand("sub1")-&gt;parse_complete_callback(c1)-&gt;preparse_callback(pc1);
+<span class="pl-smi">auto</span> sub2=app.add_subcommand("sub2")-&gt;final_callback(c2)-&gt;preparse_callback(pc2);
 app.preparse_callback( pa);
 
 ... A bunch of other options</pre></div>
@@ -1134,13 +1134,13 @@ through. The name given in an option group must not contain newlines or null
 characters.</p>
 <div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="ogroup-&gt;add_option(option_pointer);
 ogroup-&gt;add_options(option_pointer);
-ogroup-&gt;add_options(option1,option2,option3,...);"><pre>ogroup-&gt;<span class="pl-en">add_option</span>(option_pointer);
-ogroup-&gt;<span class="pl-en">add_options</span>(option_pointer);
-ogroup-&gt;<span class="pl-en">add_options</span>(option1,option2,option3,...);</pre></div>
+ogroup-&gt;add_options(option1,option2,option3,...);"><pre>ogroup-&gt;add_option(option_pointer);
+ogroup-&gt;add_options(option_pointer);
+ogroup-&gt;add_options(option1,option2,option3,...);</pre></div>
 <p dir="auto">The option pointers used in this function must be options defined in the parent
 application of the option group otherwise an error will be generated.
 Subcommands can also be added via</p>
-<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="ogroup-&gt;add_subcommand(subcom_pointer);"><pre>ogroup-&gt;<span class="pl-en">add_subcommand</span>(subcom_pointer);</pre></div>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="ogroup-&gt;add_subcommand(subcom_pointer);"><pre>ogroup-&gt;add_subcommand(subcom_pointer);</pre></div>
 <p dir="auto">This results in the subcommand being moved from its parent into the option
 group.</p>
 <p dir="auto">Options in an option group are searched for a command line match after any
@@ -1158,8 +1158,8 @@ options within the group.</p>
 the use of options/subcommands from one group to trigger another group on or
 off.</p>
 <div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="CLI::TriggerOn(group1_pointer, triggered_group);
-CLI::TriggerOff(group2_pointer, disabled_group);"><pre><span class="pl-en">CLI::TriggerOn</span>(group1_pointer, triggered_group);
-<span class="pl-en">CLI::TriggerOff</span>(group2_pointer, disabled_group);</pre></div>
+CLI::TriggerOff(group2_pointer, disabled_group);"><pre><span class="pl-smi">CLI</span>::<span class="pl-en">TriggerOn</span>(group1_pointer, triggered_group);
+<span class="pl-smi">CLI</span>::<span class="pl-en">TriggerOff</span>(group2_pointer, disabled_group);</pre></div>
 <p dir="auto">These functions make use of <code>preparse_callback</code>, <code>enabled_by_default()</code> and
 <code>disabled_by_default</code>. The triggered group may be a vector of group pointers.
 These methods should only be used once per group and will override any previous
@@ -1169,25 +1169,25 @@ more.</p>
 <p dir="auto">Additional helper functions <code>deprecate_option</code> and <code>retire_option</code> are available
 to deprecate or retire options</p>
 <div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="CLI::deprecate_option(option *, replacement_name=&quot;&quot;);
-CLI::deprecate_option(App,option_name,replacement_name=&quot;&quot;);"><pre><span class="pl-en">CLI::deprecate_option</span>(option *, replacement_name=<span class="pl-s"><span class="pl-pds">"</span><span class="pl-pds">"</span></span>);
-<span class="pl-en">CLI::deprecate_option</span>(App,option_name,replacement_name=<span class="pl-s"><span class="pl-pds">"</span><span class="pl-pds">"</span></span>);</pre></div>
+CLI::deprecate_option(App,option_name,replacement_name=&quot;&quot;);"><pre><span class="pl-smi">CLI</span>::<span class="pl-en">deprecate_option</span>(option *, replacement_name="");
+<span class="pl-smi">CLI</span>::<span class="pl-en">deprecate_option</span>(App,option_name,replacement_name="");</pre></div>
 <p dir="auto">will specify that the option is deprecated which will display a message in the
 help and a warning on first usage. Deprecated options function normally but will
 add a message in the help and display a warning on first use.</p>
 <div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="CLI::retire_option(App,option *);
-CLI::retire_option(App,option_name);"><pre><span class="pl-en">CLI::retire_option</span>(App,option *);
-<span class="pl-en">CLI::retire_option</span>(App,option_name);</pre></div>
+CLI::retire_option(App,option_name);"><pre><span class="pl-smi">CLI</span>::<span class="pl-en">retire_option</span>(App,option *);
+<span class="pl-smi">CLI</span>::<span class="pl-en">retire_option</span>(App,option_name);</pre></div>
 <p dir="auto">will create an option that does nothing by default and will display a warning on
 first usage that the option is retired and has no effect. If the option exists
 it is replaces with a dummy option that takes the same arguments.</p>
 <p dir="auto">If an empty string is passed the option group name the entire group will be
 hidden in the help results. For example.</p>
-<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="auto hidden_group=app.add_option_group(&quot;&quot;);"><pre><span class="pl-k">auto</span> hidden_group=app.add_option_group(<span class="pl-s"><span class="pl-pds">"</span><span class="pl-pds">"</span></span>);</pre></div>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="auto hidden_group=app.add_option_group(&quot;&quot;);"><pre><span class="pl-smi">auto</span> hidden_group=app.add_option_group("");</pre></div>
 <p dir="auto">will create a group such that no options in that group are displayed in the help
 string. For the purposes of help display, if the option group name starts with a
 '+' it is treated as if it were not in a group for help and get_options. For
 example:</p>
-<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="auto added_group=app.add_option_group(&quot;+sub&quot;);"><pre><span class="pl-k">auto</span> added_group=app.add_option_group(<span class="pl-s"><span class="pl-pds">"</span>+sub<span class="pl-pds">"</span></span>);</pre></div>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="auto added_group=app.add_option_group(&quot;+sub&quot;);"><pre><span class="pl-smi">auto</span> added_group=app.add_option_group("+sub");</pre></div>
 <p dir="auto">In this case the help output will not reference the option group and options
 inside of it will be treated for most purposes as if they were part of the
 parent.</p>
@@ -1195,10 +1195,10 @@ parent.</p>
 <div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="app.set_config(option_name=&quot;&quot;,
                default_file_name=&quot;&quot;,
                help_string=&quot;Read an ini file&quot;,
-               required=false)"><pre>app.set_config(option_name=<span class="pl-s"><span class="pl-pds">"</span><span class="pl-pds">"</span></span>,
-               default_file_name=<span class="pl-s"><span class="pl-pds">"</span><span class="pl-pds">"</span></span>,
-               help_string=<span class="pl-s"><span class="pl-pds">"</span>Read an ini file<span class="pl-pds">"</span></span>,
-               required=<span class="pl-c1">false</span>)</pre></div>
+               required=false)"><pre>app.set_config(option_name="",
+               default_file_name="",
+               help_string="Read an ini file",
+               required=false)</pre></div>
 <p dir="auto">If this is called with no arguments, it will remove the configuration file
 option (like <code>set_help_flag</code>). Setting a configuration option is special. If it
 is present, it will be read along with the normal command line arguments. The
@@ -1282,7 +1282,7 @@ will include the app and option descriptions. See
 <a href="https://cliutils.github.io/CLI11/book/chapters/config.html" rel="nofollow">Config files</a> for
 some additional details and customization points.</p>
 <p dir="auto">If it is desired that multiple configuration be allowed. Use</p>
-<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="app.set_config(&quot;--config&quot;)-&gt;expected(1, X);"><pre>app.set_config(<span class="pl-s"><span class="pl-pds">"</span>--config<span class="pl-pds">"</span></span>)-&gt;<span class="pl-en">expected</span>(<span class="pl-c1">1</span>, X);</pre></div>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="app.set_config(&quot;--config&quot;)-&gt;expected(1, X);"><pre>app.set_config("--config")-&gt;expected(1, X);</pre></div>
 <p dir="auto">Where X is some positive number and will allow up to <code>X</code> configuration files to
 be specified by separate <code>--config</code> arguments. Value strings with quote
 characters in it will be printed with a single quote. All other arguments will
@@ -1297,7 +1297,7 @@ empty string.</p>
 set_config like any other option to validate the input if needed. It can also be
 used with the built in transform <code>CLI::FileOnDefaultPath</code> to look in a default
 path as well as the current one. For example</p>
-<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="app.set_config(&quot;--config&quot;)-&gt;transform(CLI::FileOnDefaultPath(&quot;/to/default/path/&quot;));"><pre>app.set_config(<span class="pl-s"><span class="pl-pds">"</span>--config<span class="pl-pds">"</span></span>)-&gt;<span class="pl-en">transform</span>(CLI::FileOnDefaultPath(<span class="pl-s"><span class="pl-pds">"</span>/to/default/path/<span class="pl-pds">"</span></span>));</pre></div>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="app.set_config(&quot;--config&quot;)-&gt;transform(CLI::FileOnDefaultPath(&quot;/to/default/path/&quot;));"><pre>app.set_config("--config")-&gt;transform(<span class="pl-smi">CLI</span>::<span class="pl-en">FileOnDefaultPath</span>("/to/default/path/"));</pre></div>
 <p dir="auto">See <a href="#transforming-validators">Transforming Validators</a> for additional details
 on this validator. Multiple transforms or validators can be used either by
 multiple calls or using <code>|</code> operations with the transform.</p>
@@ -1312,8 +1312,8 @@ well.</p>
 <code>ignore_case</code>, <code>ignore_underscore</code>, <code>delimiter</code>, and <code>disable_flag_override</code>. To
 set these defaults, you should set the <code>option_defaults()</code> object, for example:</p>
 <div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="app.option_defaults()-&gt;required();
-// All future options will be required"><pre>app.option_defaults()-&gt;<span class="pl-en">required</span>();
-<span class="pl-c"><span class="pl-c">//</span> All future options will be required</span></pre></div>
+// All future options will be required"><pre>app.option_defaults()-&gt;required();
+// All future options will be required</pre></div>
 <p dir="auto">The default settings for options are inherited to subcommands, as well.</p>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Formatting</h3><a id="user-content-formatting" class="anchor" aria-label="Permalink: Formatting" href="#formatting"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">The job of formatting help printouts is delegated to a formatter callable object
@@ -1377,9 +1377,9 @@ support all of the features of a standard <code>add_options</code> call are in
 <div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="app.add_option(&quot;--fancy-count&quot;, [](std::vector&lt;std::string&gt; val){
     std::cout &lt;&lt; &quot;This option was given &quot; &lt;&lt; val.size() &lt;&lt; &quot; times.&quot; &lt;&lt; std::endl;
     return true;
-    });"><pre>app.add_option(<span class="pl-s"><span class="pl-pds">"</span>--fancy-count<span class="pl-pds">"</span></span>, [](std::vector&lt;std::string&gt; val){
-    std::cout &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>This option was given <span class="pl-pds">"</span></span> &lt;&lt; val.<span class="pl-c1">size</span>() &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span> times.<span class="pl-pds">"</span></span> &lt;&lt; std::endl;
-    <span class="pl-k">return</span> <span class="pl-c1">true</span>;
+    });"><pre>app.add_option("--fancy-count", [](std::vector&lt;std::string&gt; val){
+    std::cout &lt;&lt; "This option was given " &lt;&lt; val.size() &lt;&lt; " times." &lt;&lt; std::endl;
+    return true;
     });</pre></div>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Unicode support</h3><a id="user-content-unicode-support" class="anchor" aria-label="Permalink: Unicode support" href="#unicode-support"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">CLI11 supports Unicode and wide strings as defined in the
@@ -1408,11 +1408,11 @@ API.</p>
     argv = app.ensure_utf8(argv);  // new argv memory is held by app
     // ...
     CLI11_PARSE(app, argc, argv);
-}"><pre><span class="pl-k">int</span> <span class="pl-en">main</span>(<span class="pl-k">int</span> argc, <span class="pl-k">char</span>** argv) {
-    CLI::App app;
-    argv = app.<span class="pl-c1">ensure_utf8</span>(argv);  <span class="pl-c"><span class="pl-c">//</span> new argv memory is held by app</span>
-    <span class="pl-c"><span class="pl-c">//</span> ...</span>
-    <span class="pl-c1">CLI11_PARSE</span>(app, argc, argv);
+}"><pre>int main(int argc, char** argv) {
+    <span class="pl-smi">CLI</span>::App app;
+    argv = app.ensure_utf8(argv);  // new argv memory is held by app
+    // ...
+    CLI11_PARSE(app, argc, argv);
 }</pre></div>
 <p dir="auto">Be sure you do not modify <code>argv</code> before this function call, as the correct
 values will be reconstructed using Windows APIs and produced by this call. It
@@ -1425,10 +1425,10 @@ convert wide strings to UTF-8 without losing information.</p>
     CLI::App app;
     // ...
     CLI11_PARSE(app, argc, argv);
-}"><pre><span class="pl-k">int</span> <span class="pl-en">wmain</span>(<span class="pl-k">int</span> argc, <span class="pl-c1">wchar_t</span> *argv[]) {
-    CLI::App app;
-    <span class="pl-c"><span class="pl-c">//</span> ...</span>
-    <span class="pl-c1">CLI11_PARSE</span>(app, argc, argv);
+}"><pre>int wmain(int argc, wchar_t *argv[]) {
+    <span class="pl-smi">CLI</span>::App app;
+    // ...
+    CLI11_PARSE(app, argc, argv);
 }</pre></div>
 <p dir="auto">3. Retrieve arguments yourself by using Windows APIs like
 <a href="https://learn.microsoft.com/en-us/windows/win32/api/shellapi/nf-shellapi-commandlinetoargvw" rel="nofollow"><code>CommandLineToArgvW</code></a>
@@ -1447,16 +1447,16 @@ and pass them to CLI. This is what the library is doing under the hood in
     std::wstring widen(const char *str);
     std::wstring widen(const char *str, std::size_t size);
     std::wstring widen(std::string_view str);  // C++17
-}"><pre><span class="pl-k">namespace</span> <span class="pl-en">CLI</span> {
-    std::string <span class="pl-en">narrow</span>(<span class="pl-k">const</span> std::wstring &amp;str);
-    std::string <span class="pl-en">narrow</span>(<span class="pl-k">const</span> <span class="pl-c1">wchar_t</span> *str);
-    std::string <span class="pl-en">narrow</span>(<span class="pl-k">const</span> <span class="pl-c1">wchar_t</span> *str, std::<span class="pl-c1">size_t</span> size);
-    std::string <span class="pl-en">narrow</span>(std::wstring_view str);  <span class="pl-c"><span class="pl-c">//</span> C++17</span>
+}"><pre><span class="pl-k">namespace</span> <span class="pl-smi">CLI</span> {
+    std::string narrow(const std::wstring &amp;str);
+    std::string narrow(const wchar_t *str);
+    std::string narrow(const wchar_t *str, std::size_t size);
+    std::string narrow(std::wstring_view str);  // C++17
 
-    std::wstring <span class="pl-en">widen</span>(<span class="pl-k">const</span> std::string &amp;str);
-    std::wstring <span class="pl-en">widen</span>(<span class="pl-k">const</span> <span class="pl-k">char</span> *str);
-    std::wstring <span class="pl-en">widen</span>(<span class="pl-k">const</span> <span class="pl-k">char</span> *str, std::<span class="pl-c1">size_t</span> size);
-    std::wstring <span class="pl-en">widen</span>(std::string_view str);  <span class="pl-c"><span class="pl-c">//</span> C++17</span>
+    std::wstring widen(const std::string &amp;str);
+    std::wstring widen(const char *str);
+    std::wstring widen(const char *str, std::size_t size);
+    std::wstring widen(std::string_view str);  // C++17
 }</pre></div>
 <div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Note on using Unicode paths</h4><a id="user-content-note-on-using-unicode-paths" class="anchor" aria-label="Permalink: Note on using Unicode paths" href="#note-on-using-unicode-paths"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">When creating a <code>filesystem::path</code> from a UTF-8 path on Windows, you need to
@@ -1466,11 +1466,11 @@ convert it to a wide string first. CLI11 provides a platform-independent
 
 std::filesystem::path p = CLI::to_path(utf8_name);
 std::ifstream stream(CLI::to_path(utf8_name));
-// etc."><pre>std::string utf8_name = <span class="pl-s"><span class="pl-pds">"</span>Hello Halló Привет 你好 👩‍🚀❤️.txt<span class="pl-pds">"</span></span>;
+// etc."><pre>std::string utf8_name = "Hello Halló Привет 你好 👩‍🚀❤️.txt";
 
-std::filesystem::path p = CLI::to_path(utf8_name);
-std::ifstream <span class="pl-en">stream</span>(CLI::to_path(utf8_name));
-<span class="pl-c"><span class="pl-c">//</span> etc.</span></pre></div>
+std::filesystem::path p = <span class="pl-smi">CLI</span>::<span class="pl-en">to_path</span>(utf8_name);
+std::ifstream stream(<span class="pl-smi">CLI</span>::to_path(utf8_name));
+// etc.</pre></div>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Utilities</h3><a id="user-content-utilities" class="anchor" aria-label="Permalink: Utilities" href="#utilities"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">There are a few other utilities that are often useful in CLI programming. These
 are in separate headers, and do not appear in <code>CLI11.hpp</code>, but are completely
@@ -1480,8 +1480,8 @@ to easily time a block of code, with custom print output.</p>
 CLI::AutoTimer timer {&quot;My Long Process&quot;, CLI::Timer::Big};
 some_long_running_process();
 }"><pre>{
-CLI::AutoTimer timer {<span class="pl-s"><span class="pl-pds">"</span>My Long Process<span class="pl-pds">"</span></span>, CLI::Timer::Big};
-<span class="pl-c1">some_long_running_process</span>();
+<span class="pl-smi">CLI</span>::AutoTimer timer {"My Long Process", <span class="pl-smi">CLI</span>::<span class="pl-smi">Timer</span>::Big};
+some_long_running_process();
 }</pre></div>
 <p dir="auto">This will create a timer with a title (default: <code>Timer</code>), and will customize the
 output using the predefined <code>Big</code> output (default: <code>Simple</code>). Because it is an
@@ -1499,12 +1499,12 @@ try {
 } catch (const CLI::ParseError &amp;e) {
     std::cout &lt;&lt; (e.get_exit_code()==0 ? rang::fg::blue : rang::fg::red);
     return app.exit(e);
-}"><pre><span class="pl-en">std::atexit</span>([](){std::cout &lt;&lt; rang::style::reset;});
+}"><pre>std::<span class="pl-en">atexit</span>([](){std::cout &lt;&lt; rang::style::reset;});
 <span class="pl-k">try</span> {
-    app.<span class="pl-c1">parse</span>(argc, argv);
-} <span class="pl-k">catch</span> (<span class="pl-k">const</span> CLI::ParseError &amp;e) {
-    std::cout &lt;&lt; (e.<span class="pl-c1">get_exit_code</span>()==<span class="pl-c1">0</span> ? rang::fg::blue : rang::fg::red);
-    <span class="pl-k">return</span> app.<span class="pl-c1">exit</span>(e);
+    app.parse(argc, argv);
+} <span class="pl-k">catch</span> (const <span class="pl-smi">CLI</span>::ParseError &amp;e) {
+    std::cout &lt;&lt; (e.get_exit_code()==0 ? rang::fg::blue : rang::fg::red);
+    return app.exit(e);
 }</pre></div>
 <p dir="auto">This will print help in blue, errors in red, and will reset before returning the
 terminal to the user.</p>
@@ -1515,11 +1515,11 @@ you can add:</p>
      std::cout &lt;&lt; std::endl &lt;&lt; rang::style::reset &lt;&lt; rang::fg::red &lt;&lt; rang::fg::bold;
      std::cout &lt;&lt; &quot;Control-C detected, exiting...&quot; &lt;&lt; rang::style::reset &lt;&lt; std::endl;
      std::exit(1); // will call the correct exit func, no unwinding of the stack though
- }"><pre> #<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>csignal<span class="pl-pds">&gt;</span></span>
- <span class="pl-k">void</span> <span class="pl-en">signal_handler</span>(<span class="pl-k">int</span> s) {
-     std::cout &lt;&lt; std::endl &lt;&lt; rang::style::reset &lt;&lt; rang::fg::red &lt;&lt; rang::fg::<span class="pl-c1">bold</span>;
-     std::cout &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>Control-C detected, exiting...<span class="pl-pds">"</span></span> &lt;&lt; rang::style::reset &lt;&lt; std::endl;
-     <span class="pl-c1">std::exit</span>(<span class="pl-c1">1</span>); <span class="pl-c"><span class="pl-c">//</span> will call the correct exit func, no unwinding of the stack though</span>
+ }"><pre> #include &lt;csignal&gt;
+ void signal_handler(int s) {
+     std::cout &lt;&lt; std::endl &lt;&lt; rang::style::reset &lt;&lt; rang::fg::red &lt;&lt; rang::fg::bold;
+     std::cout &lt;&lt; "Control-C detected, exiting..." &lt;&lt; rang::style::reset &lt;&lt; std::endl;
+     std::<span class="pl-en">exit</span>(1); // will call the correct exit func, no unwinding of the stack though
  }</pre></div>
 <p dir="auto">And, in your main function:</p>
 <div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="     // Nice Control-C
@@ -1527,12 +1527,12 @@ you can add:</p>
      sigIntHandler.sa_handler = signal_handler;
      sigemptyset(&amp;sigIntHandler.sa_mask);
      sigIntHandler.sa_flags = 0;
-     sigaction(SIGINT, &amp;sigIntHandler, nullptr);"><pre>     <span class="pl-c"><span class="pl-c">//</span> Nice Control-C</span>
-     <span class="pl-k">struct</span> <span class="pl-en">sigaction</span> sigIntHandler;
+     sigaction(SIGINT, &amp;sigIntHandler, nullptr);"><pre>     // Nice Control-C
+     struct sigaction sigIntHandler;
      sigIntHandler.sa_handler = signal_handler;
-     <span class="pl-en">sigemptyset</span>(&amp;sigIntHandler.sa_mask);
-     sigIntHandler.sa_flags = <span class="pl-c1">0</span>;
-     <span class="pl-en">sigaction</span>(SIGINT, &amp;sigIntHandler, <span class="pl-c1">nullptr</span>);</pre></div>
+     sigemptyset(&amp;sigIntHandler.sa_mask);
+     sigIntHandler.sa_flags = 0;
+     sigaction(SIGINT, &amp;sigIntHandler, <span class="pl-c1">nullptr</span>);</pre></div>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">API</h2><a id="user-content-api" class="anchor" aria-label="Permalink: API" href="#api"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">The API is <a href="https://CLIUtils.github.io/CLI11/index.html" rel="nofollow">documented here</a>. Also see the <a href="https://cliutils.github.io/CLI11/book/" rel="nofollow">CLI11 tutorial
 GitBook</a>.</p>
