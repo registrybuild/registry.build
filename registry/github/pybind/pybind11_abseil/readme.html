@@ -276,25 +276,25 @@ PYBIND11_MODULE(test_bindings, m) {
         &quot;Return a wrapped status object without raising an error.&quot;);
   m.def(&quot;status_handling_function&quot;, &amp;StatusHandlingFunction,
         &quot;Same effect as make_status, but cast is done internally.&quot;);
-};"><pre>#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">"</span>pybind11_abseil/status_casters.h<span class="pl-pds">"</span></span>
+};"><pre>#include "pybind11_abseil/status_casters.h"
 
-absl::Status <span class="pl-en">StatusReturningFunction</span>() {
-  <span class="pl-k">return</span> <span class="pl-c1">absl::Status</span>(...);
+absl::Status StatusReturningFunction() {
+  return absl::<span class="pl-en">Status</span>(...);
 }
 
-pybind11::object <span class="pl-en">StatusHandlingFunction</span>() {
-  <span class="pl-k">return</span> <span class="pl-c1">pybind11::cast</span>(<span class="pl-c1">pybind11::google::DoNotThrowStatus</span>(<span class="pl-c1">StatusReturningFunction</span>()));
+pybind11::object StatusHandlingFunction() {
+  return pybind11::<span class="pl-en">cast</span>(pybind11::google::DoNotThrowStatus(StatusReturningFunction()));
 }
 
-<span class="pl-en">PYBIND11_MODULE</span>(test_bindings, m) {
-  <span class="pl-c1">pybind11::google::ImportStatusModule</span>();
+PYBIND11_MODULE(test_bindings, m) {
+  pybind11::google::ImportStatusModule();
 
-  m.<span class="pl-c1">def</span>(<span class="pl-s"><span class="pl-pds">"</span>return_status<span class="pl-pds">"</span></span>, &amp;StatusReturningFunction,
-        <span class="pl-s"><span class="pl-pds">"</span>Return None if StatusCode is OK, otherwise raise an error.<span class="pl-pds">"</span></span>);
-  m.<span class="pl-c1">def</span>(<span class="pl-s"><span class="pl-pds">"</span>make_status<span class="pl-pds">"</span></span>, <span class="pl-c1">google::DoNotThrowStatus</span>(&amp;StatusReturningFunction),
-        <span class="pl-s"><span class="pl-pds">"</span>Return a wrapped status object without raising an error.<span class="pl-pds">"</span></span>);
-  m.<span class="pl-c1">def</span>(<span class="pl-s"><span class="pl-pds">"</span>status_handling_function<span class="pl-pds">"</span></span>, &amp;StatusHandlingFunction,
-        <span class="pl-s"><span class="pl-pds">"</span>Same effect as make_status, but cast is done internally.<span class="pl-pds">"</span></span>);
+  m.def("return_status", &amp;StatusReturningFunction,
+        "Return None if StatusCode is OK, otherwise raise an error.");
+  m.def("make_status", google::<span class="pl-en">DoNotThrowStatus</span>(&amp;StatusReturningFunction),
+        "Return a wrapped status object without raising an error.");
+  m.def("status_handling_function", &amp;StatusHandlingFunction,
+        "Same effect as make_status, but cast is done internally.");
 };</pre></div>
 <p dir="auto">Python:</p>
 <div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="from pybind11_abseil import status
