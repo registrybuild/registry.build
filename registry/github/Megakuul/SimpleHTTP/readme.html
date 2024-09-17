@@ -78,57 +78,57 @@ server.Route(&quot;GET&quot;, &quot;/get&quot;, [&amp;](Request &amp;req, Body &
   co_return true;
 });
 
-server.Serve();"><pre>#include "simplehttp/simplehttp.hpp"
+server.Serve();"><pre>#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">"</span>simplehttp/simplehttp.hpp<span class="pl-pds">"</span></span>
 
-<span class="pl-k">using</span> <span class="pl-k">namespace</span> SimpleHTTP;
+<span class="pl-k">using</span> <span class="pl-k">namespace</span> <span class="pl-en">SimpleHTTP</span><span class="pl-k">;</span>
 
 vector&lt;string&gt; list;
 
-Server server();
+Server <span class="pl-en">server</span>();
 
-server.Init("0.0.0.0", 8080);
+server.Init(<span class="pl-s"><span class="pl-pds">"</span>0.0.0.0<span class="pl-pds">"</span></span>, <span class="pl-c1">8080</span>);
 
-server.Route("POST", "/add", [&amp;](Request &amp;req, Body &amp;body, Response &amp;res) -&gt; Task&lt;bool&gt; {
-  <span class="pl-smi">auto</span> tokenHeader = req.getHeader("authorization");
-  if (!tokenHeader || *tokenHeader!=TOKEN) {
+server.Route(<span class="pl-s"><span class="pl-pds">"</span>POST<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>/add<span class="pl-pds">"</span></span>, [&amp;](Request &amp;req, Body &amp;body, Response &amp;res) -&gt; Task&lt;<span class="pl-k">bool</span>&gt; {
+  <span class="pl-k">auto</span> tokenHeader = req.<span class="pl-c1">getHeader</span>(<span class="pl-s"><span class="pl-pds">"</span>authorization<span class="pl-pds">"</span></span>);
+  <span class="pl-k">if</span> (!tokenHeader || *tokenHeader!=TOKEN) {
     res
-      .setStatusCode(401).setStatusReason("Unauthorized")
-      .setContentType("text/plain").setBody("Invalid authorization token provided!\n");
-    <span class="pl-k">co_return</span> true;
+      .<span class="pl-c1">setStatusCode</span>(<span class="pl-c1">401</span>).<span class="pl-c1">setStatusReason</span>(<span class="pl-s"><span class="pl-pds">"</span>Unauthorized<span class="pl-pds">"</span></span>)
+      .<span class="pl-c1">setContentType</span>(<span class="pl-s"><span class="pl-pds">"</span>text/plain<span class="pl-pds">"</span></span>).<span class="pl-c1">setBody</span>(<span class="pl-s"><span class="pl-pds">"</span>Invalid authorization token provided!<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>);
+    <span class="pl-k">co_return</span> <span class="pl-c1">true</span>;
   }
   
-  // Read all data from the body
-  vector&lt;unsigned char&gt; data = <span class="pl-k">co_await</span> body.readAll();
+  <span class="pl-c"><span class="pl-c">//</span> Read all data from the body</span>
+  vector&lt;<span class="pl-k">unsigned</span> <span class="pl-k">char</span>&gt; data = <span class="pl-k">co_await</span> body.<span class="pl-c1">readAll</span>();
   
-  // Insert data into the list
-  list.push_back(string(data.begin(), data.end()));
+  <span class="pl-c"><span class="pl-c">//</span> Insert data into the list</span>
+  list.<span class="pl-c1">push_back</span>(<span class="pl-c1">string</span>(data.<span class="pl-c1">begin</span>(), data.<span class="pl-c1">end</span>()));
 
-  res.setStatusCode(200).setStatusReason("OK");
-  <span class="pl-k">co_return</span> true;
+  res.<span class="pl-c1">setStatusCode</span>(<span class="pl-c1">200</span>).<span class="pl-c1">setStatusReason</span>(<span class="pl-s"><span class="pl-pds">"</span>OK<span class="pl-pds">"</span></span>);
+  <span class="pl-k">co_return</span> <span class="pl-c1">true</span>;
 });
 
-server.Route("GET", "/get", [&amp;](Request &amp;req, Body &amp;body, Response &amp;res) -&gt; Task&lt;bool&gt; {
+server.Route(<span class="pl-s"><span class="pl-pds">"</span>GET<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>/get<span class="pl-pds">"</span></span>, [&amp;](Request &amp;req, Body &amp;body, Response &amp;res) -&gt; Task&lt;<span class="pl-k">bool</span>&gt; {
   <span class="pl-k">try</span> {
-    <span class="pl-smi">auto</span> indexParam = req.getQueryParam("index");
-    if (!indexParam)
-      <span class="pl-k">throw</span> runtime_error("No element index parameter was specified!");
+    <span class="pl-k">auto</span> indexParam = req.<span class="pl-c1">getQueryParam</span>(<span class="pl-s"><span class="pl-pds">"</span>index<span class="pl-pds">"</span></span>);
+    <span class="pl-k">if</span> (!indexParam)
+      <span class="pl-k">throw</span> <span class="pl-smi">runtime_error</span>(<span class="pl-s"><span class="pl-pds">"</span>No element index parameter was specified!<span class="pl-pds">"</span></span>);
     
-    // Convert index string to integer
-    int index = stoi(*req.getQueryParam("index"));
+    <span class="pl-c"><span class="pl-c">//</span> Convert index string to integer</span>
+    <span class="pl-k">int</span> <span class="pl-c1">index</span> = <span class="pl-c1">stoi</span>(*req.<span class="pl-c1">getQueryParam</span>(<span class="pl-s"><span class="pl-pds">"</span>index<span class="pl-pds">"</span></span>));
       
-    // Obtain object from vector
-    string item = list.at(index);
+    <span class="pl-c"><span class="pl-c">//</span> Obtain object from vector</span>
+    string item = list.<span class="pl-c1">at</span>(<span class="pl-c1">index</span>);
       
     res
-      .setStatusCode(200).setStatusReason("OK")
-      .setContentType("text/plain").setBody(item+"\n");
+      .<span class="pl-c1">setStatusCode</span>(<span class="pl-c1">200</span>).<span class="pl-c1">setStatusReason</span>(<span class="pl-s"><span class="pl-pds">"</span>OK<span class="pl-pds">"</span></span>)
+      .<span class="pl-c1">setContentType</span>(<span class="pl-s"><span class="pl-pds">"</span>text/plain<span class="pl-pds">"</span></span>).<span class="pl-c1">setBody</span>(item+<span class="pl-s"><span class="pl-pds">"</span><span class="pl-cce">\n</span><span class="pl-pds">"</span></span>);
       
-  } <span class="pl-k">catch</span> (exception &amp;_) {
+  } <span class="pl-k">catch</span> (<span class="pl-c1">exception</span> &amp;_) {
     res
-      .setStatusCode(404).setStatusReason("Not Found")
-      .setContentType("text/plain").setBody("Element was not found!\n");
+      .<span class="pl-c1">setStatusCode</span>(<span class="pl-c1">404</span>).<span class="pl-c1">setStatusReason</span>(<span class="pl-s"><span class="pl-pds">"</span>Not Found<span class="pl-pds">"</span></span>)
+      .<span class="pl-c1">setContentType</span>(<span class="pl-s"><span class="pl-pds">"</span>text/plain<span class="pl-pds">"</span></span>).<span class="pl-c1">setBody</span>(<span class="pl-s"><span class="pl-pds">"</span>Element was not found!<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>);
   }
-  <span class="pl-k">co_return</span> true;
+  <span class="pl-k">co_return</span> <span class="pl-c1">true</span>;
 });
 
 server.Serve();</pre></div>

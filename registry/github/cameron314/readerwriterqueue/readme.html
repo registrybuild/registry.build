@@ -43,26 +43,26 @@ assert(*front == 18);
 succeeded = q.try_dequeue(number);
 assert(succeeded &amp;&amp; number == 18);
 front = q.peek(); 
-assert(front == nullptr);           // Returns nullptr if the queue was empty"><pre><span class="pl-k">using</span> <span class="pl-k">namespace</span> moodycamel;
+assert(front == nullptr);           // Returns nullptr if the queue was empty"><pre><span class="pl-k">using</span> <span class="pl-k">namespace</span> <span class="pl-en">moodycamel</span><span class="pl-k">;</span>
 
-ReaderWriterQueue&lt;int&gt; q(100);       // Reserve space for at least 100 elements up front
+ReaderWriterQueue&lt;<span class="pl-k">int</span>&gt; <span class="pl-en">q</span>(<span class="pl-c1">100</span>);       <span class="pl-c"><span class="pl-c">//</span> Reserve space for at least 100 elements up front</span>
 
-q.enqueue(17);                       // Will allocate memory if the queue is full
-bool succeeded = q.try_enqueue(18);  // Will only succeed if the queue has an empty slot (never allocates)
-assert(succeeded);
+q.enqueue(<span class="pl-c1">17</span>);                       <span class="pl-c"><span class="pl-c">//</span> Will allocate memory if the queue is full</span>
+<span class="pl-k">bool</span> succeeded = q.try_enqueue(<span class="pl-c1">18</span>);  <span class="pl-c"><span class="pl-c">//</span> Will only succeed if the queue has an empty slot (never allocates)</span>
+<span class="pl-en">assert</span>(succeeded);
 
-int number;
-succeeded = q.try_dequeue(number);  // Returns false if the queue was empty
+<span class="pl-k">int</span> number;
+succeeded = q.try_dequeue(number);  <span class="pl-c"><span class="pl-c">//</span> Returns false if the queue was empty</span>
 
-assert(succeeded &amp;&amp; number == 17);
+<span class="pl-en">assert</span>(succeeded &amp;&amp; number == <span class="pl-c1">17</span>);
 
-// You can also peek at the front item of the queue (consumer only)
-int* front = q.peek();
-assert(*front == 18);
+<span class="pl-c"><span class="pl-c">//</span> You can also peek at the front item of the queue (consumer only)</span>
+<span class="pl-k">int</span>* front = q.peek();
+<span class="pl-en">assert</span>(*front == <span class="pl-c1">18</span>);
 succeeded = q.try_dequeue(number);
-assert(succeeded &amp;&amp; number == 18);
+<span class="pl-en">assert</span>(succeeded &amp;&amp; number == <span class="pl-c1">18</span>);
 front = q.peek(); 
-assert(front == <span class="pl-c1">nullptr</span>);           // Returns nullptr if the queue was empty</pre></div>
+<span class="pl-en">assert</span>(front == <span class="pl-c1">nullptr</span>);           <span class="pl-c"><span class="pl-c">//</span> Returns nullptr if the queue was empty</span></pre></div>
 <p dir="auto">The blocking version has the exact same API, with the addition of <code>wait_dequeue</code> and
 <code>wait_dequeue_timed</code> methods:</p>
 <div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="BlockingReaderWriterQueue&lt;int&gt; q;
@@ -91,33 +91,33 @@ std::thread writer([&amp;]() {
 writer.join();
 reader.join();
 
-assert(q.size_approx() == 0);"><pre>BlockingReaderWriterQueue&lt;int&gt; q;
+assert(q.size_approx() == 0);"><pre>BlockingReaderWriterQueue&lt;<span class="pl-k">int</span>&gt; q;
 
-std::thread reader([&amp;]() {
-    int item;
-#if 1
-    for (int i = 0; i != 100; ++i) {
-        // Fully-blocking:
-        q.wait_dequeue(item);
+std::thread <span class="pl-en">reader</span>([&amp;]() {
+    <span class="pl-k">int</span> item;
+#<span class="pl-k">if</span> <span class="pl-c1">1</span>
+    <span class="pl-k">for</span> (<span class="pl-k">int</span> i = <span class="pl-c1">0</span>; i != <span class="pl-c1">100</span>; ++i) {
+        <span class="pl-c"><span class="pl-c">//</span> Fully-blocking:</span>
+        q.<span class="pl-c1">wait_dequeue</span>(item);
     }
-#else
-    for (int i = 0; i != 100; ) {
-        // Blocking with timeout
-        if (q.wait_dequeue_timed(item, std::chrono::milliseconds(5)))
-            ++i;
-    }
-#endif
+#<span class="pl-k">else</span><span class="pl-c"></span>
+<span class="pl-c">    for (int i = 0; i != 100; ) {</span>
+<span class="pl-c">        // Blocking with timeout</span>
+<span class="pl-c">        if (q.wait_dequeue_timed(item, std::chrono::milliseconds(5)))</span>
+<span class="pl-c">            ++i;</span>
+<span class="pl-c">    }</span>
+<span class="pl-c"></span>#<span class="pl-k">endif</span>
 });
-std::thread writer([&amp;]() {
-    for (int i = 0; i != 100; ++i) {
-        q.enqueue(i);
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+std::thread <span class="pl-en">writer</span>([&amp;]() {
+    <span class="pl-k">for</span> (<span class="pl-k">int</span> i = <span class="pl-c1">0</span>; i != <span class="pl-c1">100</span>; ++i) {
+        q.<span class="pl-c1">enqueue</span>(i);
+        <span class="pl-c1">std::this_thread::sleep_for</span>(<span class="pl-c1">std::chrono::milliseconds</span>(<span class="pl-c1">10</span>));
     }
 });
 writer.join();
 reader.join();
 
-assert(q.size_approx() == 0);</pre></div>
+<span class="pl-en">assert</span>(q.size_approx() == 0);</pre></div>
 <p dir="auto">Note that <code>wait_dequeue</code> will block indefinitely while the queue is empty; this
 means care must be taken to only call <code>wait_dequeue</code> if you're sure another element
 will come along eventually, or if the queue has a static lifetime. This is because
@@ -135,18 +135,18 @@ q.wait_enqueue(123);
 q.wait_dequeue(number);
 assert(number == 123);
 
-q.wait_dequeue_timed(number, std::chrono::milliseconds(10));"><pre>BlockingReaderWriterCircularBuffer&lt;int&gt; q(1024);  // pass initial capacity
+q.wait_dequeue_timed(number, std::chrono::milliseconds(10));"><pre>BlockingReaderWriterCircularBuffer&lt;<span class="pl-k">int</span>&gt; <span class="pl-en">q</span>(<span class="pl-c1">1024</span>);  <span class="pl-c"><span class="pl-c">//</span> pass initial capacity</span>
 
-q.try_enqueue(1);
-int number;
+q.try_enqueue(<span class="pl-c1">1</span>);
+<span class="pl-k">int</span> number;
 q.try_dequeue(number);
-assert(number == 1);
+<span class="pl-en">assert</span>(number == <span class="pl-c1">1</span>);
 
-q.wait_enqueue(123);
+q.wait_enqueue(<span class="pl-c1">123</span>);
 q.wait_dequeue(number);
-assert(number == 123);
+<span class="pl-en">assert</span>(number == <span class="pl-c1">123</span>);
 
-q.wait_dequeue_timed(number, std::chrono::milliseconds(10));</pre></div>
+q.wait_dequeue_timed(number, std::chrono::milliseconds(<span class="pl-c1">10</span>));</pre></div>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">CMake</h2><a id="user-content-cmake" class="anchor" aria-label="Permalink: CMake" href="#cmake"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Using targets in your project</h3><a id="user-content-using-targets-in-your-project" class="anchor" aria-label="Permalink: Using targets in your project" href="#using-targets-in-your-project"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">Using this project as a part of an existing CMake project is easy.</p>
@@ -181,11 +181,11 @@ target_link_libraries(my_target PUBLIC readerwriterqueue)
 int main()
 {
     moodycamel::ReaderWriterQueue&lt;int&gt; q(100);
-}"><pre>#include &lt;readerwriterqueue.h&gt;
+}"><pre>#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>readerwriterqueue.h<span class="pl-pds">&gt;</span></span>
 
-int main()
+<span class="pl-k">int</span> <span class="pl-en">main</span>()
 {
-    moodycamel::ReaderWriterQueue&lt;int&gt; q(100);
+    moodycamel::ReaderWriterQueue&lt;<span class="pl-k">int</span>&gt; <span class="pl-c1">q</span>(<span class="pl-c1">100</span>);
 }</pre></div>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Installing into system directories</h3><a id="user-content-installing-into-system-directories" class="anchor" aria-label="Permalink: Installing into system directories" href="#installing-into-system-directories"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">As an alternative to including the source files in your project directly,
