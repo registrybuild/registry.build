@@ -1,0 +1,177 @@
+<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">OpenSCAD Bazel Rules</h1><a id="user-content-openscad-bazel-rules" class="anchor" aria-label="Permalink: OpenSCAD Bazel Rules" href="#openscad-bazel-rules"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">This module contains a set of rules compile 3D models written in OpenSCAD code through the bazel build system, this module includes 3 unique rules</p>
+<ul dir="auto">
+<li><a href="#scad_library">scad_library</a>: Library to be used by <code>scad_object</code> rules to define the 3D model</li>
+<li><a href="#scad_object">scad_object</a>: Code that defines an specific 3D model. When built, this library generates an STL file</li>
+<li><a href="#scad_test">scad_test</a>: Unit-testing framework for libraries. Both compares the result of code using the library with golden STLs, but also ensures that invalid uses of the library assert out</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Prerequisites</h2><a id="user-content-prerequisites" class="anchor" aria-label="Permalink: Prerequisites" href="#prerequisites"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">These rules need OpenSCAD to be installed on your machine, and available within the path</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Setup</h2><a id="user-content-setup" class="anchor" aria-label="Permalink: Setup" href="#setup"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">In order to use these rules in your BUILD files you need to first add this module as a dependency on your <code>MODULES.bazel</code> file, and then add the rules to your <code>BUILD</code> file</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Modify your MODULE.bazel file</h3><a id="user-content-modify-your-modulebazel-file" class="anchor" aria-label="Permalink: Modify your MODULE.bazel file" href="#modify-your-modulebazel-file"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Just add the following line to your <code>MODULES.bazel</code> file</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="bazel_dep(name=&quot;rules_openscad&quot;, version=&quot;0.1&quot;)"><pre class="notranslate"><code>bazel_dep(name="rules_openscad", version="0.1")
+</code></pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Load the rule definitions on your BUILD files</h3><a id="user-content-load-the-rule-definitions-on-your-build-files" class="anchor" aria-label="Permalink: Load the rule definitions on your BUILD files" href="#load-the-rule-definitions-on-your-build-files"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Once you have added the dependency to your bazel module, you need to add the following code to the <code>BUILD</code> file on which you want to use the rules</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(
+    &quot;@rules_openscad//:scad.bzl&quot;,
+    &quot;scad_library&quot;,
+    &quot;scad_object&quot;,
+    &quot;scad_test&quot;,
+)"><pre class="notranslate"><code>load(
+    "@rules_openscad//:scad.bzl",
+    "scad_library",
+    "scad_object",
+    "scad_test",
+)
+</code></pre></div>
+<p dir="auto">You only need to load the specific rules that you want to use</p>
+<p dir="auto">After this, you can use the rules the same way that you would use any other Bazel rule</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Rules reference</h2><a id="user-content-rules-reference" class="anchor" aria-label="Permalink: Rules reference" href="#rules-reference"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">scad_library</h3><a id="user-content-scad_library" class="anchor" aria-label="Permalink: scad_library" href="#scad_library"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Create a 3D library to wrap OpenSCAD code to be linked by other libraries or objects</p>
+<markdown-accessiblity-table><table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>srcs</td>
+<td>list[file]</td>
+<td>List of files that compile to generate this library</td>
+</tr>
+<tr>
+<td>deps</td>
+<td>list[target]</td>
+<td>Other libraries this library depends on</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Example library</h4><a id="user-content-example-library" class="anchor" aria-label="Permalink: Example library" href="#example-library"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="scad_library(
+    name = &quot;hollow_cylinder&quot;,
+    srcs = [&quot;hollow_cylinder.scad&quot;],
+    deps = [
+        &quot;:some_library&quot;,
+    ],
+    visibility = [&quot;//visibility:public&quot;],
+)"><pre class="notranslate"><code>scad_library(
+    name = "hollow_cylinder",
+    srcs = ["hollow_cylinder.scad"],
+    deps = [
+        ":some_library",
+    ],
+    visibility = ["//visibility:public"],
+)
+</code></pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">scad_object</h3><a id="user-content-scad_object" class="anchor" aria-label="Permalink: scad_object" href="#scad_object"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Create a 3D object based on the provided code and libraries</p>
+<markdown-accessiblity-table><table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>srcs</td>
+<td>list[file]</td>
+<td>List of files that compile to generate this object</td>
+</tr>
+<tr>
+<td>deps</td>
+<td>list[target]</td>
+<td>List of libraries this object depends on</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Example object</h4><a id="user-content-example-object" class="anchor" aria-label="Permalink: Example object" href="#example-object"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="scad_object(
+    name = &quot;hollow_cylinder_obj&quot;,
+    srcs = [&quot;hollow_cylinder_obj.scad&quot;],
+    deps = [&quot;:hollow_cylinder&quot;],
+)"><pre class="notranslate"><code>scad_object(
+    name = "hollow_cylinder_obj",
+    srcs = ["hollow_cylinder_obj.scad"],
+    deps = [":hollow_cylinder"],
+)
+</code></pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">scad_test</h3><a id="user-content-scad_test" class="anchor" aria-label="Permalink: scad_test" href="#scad_test"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Test for 3D objects and libraries</p>
+<p dir="auto">The test works by compiling the code provided in the tests attribute, and
+comparing it with the provided golden STL file. If the 2 objects are equal then
+the test passes, if they aren't then the test fails. 2 objects (A and B) are
+defined equal if A-B is empty (B includes A) and B-A is empty (A includes B)</p>
+<p dir="auto">The test also checks that assertions are triggered for all the code provided in
+the assertions list</p>
+<markdown-accessiblity-table><table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>library_under_test</td>
+<td>label</td>
+<td>Library that will be imported when compiling any code under test</td>
+</tr>
+<tr>
+<td>tests</td>
+<td>dict[label][string]</td>
+<td>List of testcases. The key is the filename of the golden STL for this testcase, and the value is the code under test (which object will be compiled) without the library under test being imported (that's done by the framework)<br><br>The test will fail if any of the code snippets under test create a result that is different from the golden STL for that testcase<p dir="auto"></p></td>
+</tr>
+<tr>
+<td>assertions</td>
+<td>list[string]</td>
+<td>List of code snippets that are expected to fail an assertion. The test will fail if any of these fail to trigger an assertion</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Example test</h4><a id="user-content-example-test" class="anchor" aria-label="Permalink: Example test" href="#example-test"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="scad_test(
+    name = &quot;hollow_cylinder_test&quot;,
+    assertions = [
+        &quot;HollowCylinder(length=10,external_diameter=2,internal_diameter=5,wall_thickness=3)&quot;,
+        &quot;HollowCylinder(length=10,external_diameter=2)&quot;,
+        &quot;HollowCylinder(length=10,internal_diameter=5)&quot;,
+        &quot;HollowCylinder(length=10,wall_thickness=3)&quot;,
+        &quot;HollowCylinder(length=10)&quot;,
+    ],
+    library_under_test = &quot;:hollow_cylinder&quot;,
+    tests = {
+        &quot;testdata/hollow_cylinder/ed_id.stl&quot;: &quot;HollowCylinder(length=10,external_diameter=3,internal_diameter=1)&quot;,
+        &quot;testdata/hollow_cylinder/ed_wt.stl&quot;: &quot;HollowCylinder(length=10,external_diameter=3,wall_thickness=0.2)&quot;,
+        &quot;testdata/hollow_cylinder/id_wt.stl&quot;: &quot;HollowCylinder(length=10,internal_diameter=5,wall_thickness=3)&quot;,
+    },
+)"><pre class="notranslate"><code>scad_test(
+    name = "hollow_cylinder_test",
+    assertions = [
+        "HollowCylinder(length=10,external_diameter=2,internal_diameter=5,wall_thickness=3)",
+        "HollowCylinder(length=10,external_diameter=2)",
+        "HollowCylinder(length=10,internal_diameter=5)",
+        "HollowCylinder(length=10,wall_thickness=3)",
+        "HollowCylinder(length=10)",
+    ],
+    library_under_test = ":hollow_cylinder",
+    tests = {
+        "testdata/hollow_cylinder/ed_id.stl": "HollowCylinder(length=10,external_diameter=3,internal_diameter=1)",
+        "testdata/hollow_cylinder/ed_wt.stl": "HollowCylinder(length=10,external_diameter=3,wall_thickness=0.2)",
+        "testdata/hollow_cylinder/id_wt.stl": "HollowCylinder(length=10,internal_diameter=5,wall_thickness=3)",
+    },
+)
+</code></pre></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Usage</h2><a id="user-content-usage" class="anchor" aria-label="Permalink: Usage" href="#usage"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Render an object into an STL</h3><a id="user-content-render-an-object-into-an-stl" class="anchor" aria-label="Permalink: Render an object into an STL" href="#render-an-object-into-an-stl"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><code>bazel build //path/to:object</code> will render that object as an STL and store it in the <code>bazel-out</code> directory, at <code>bazel-out/k8-fastbuild/bin/path/to/object.stl</code></p>
+</article></div>
