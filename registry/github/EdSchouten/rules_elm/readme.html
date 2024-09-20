@@ -10,76 +10,7 @@ applications using <a href="https://bazel.build/" rel="nofollow">the Bazel build
 rules depend on their own copy of the Elm compiler, meaning that Elm and
 any libraries used may be versioned as part of your Bazel project.</p>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Adding these rules to your project</h2><a id="user-content-adding-these-rules-to-your-project" class="anchor" aria-label="Permalink: Adding these rules to your project" href="#adding-these-rules-to-your-project"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Using bzlmod with Bazel 6 or later:</h3><a id="user-content-using-bzlmod-with-bazel-6-or-later" class="anchor" aria-label="Permalink: Using bzlmod with Bazel 6 or later:" href="#using-bzlmod-with-bazel-6-or-later"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<p dir="auto">Add the following to your <code>MODULE.bazel</code> file:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel_dep(name = &quot;rules_elm&quot;)
-# not yet published to Bazel Central Registry
-git_override(
-  module_name = &quot;rules_elm&quot;,
-  remote = &quot;https://github.com/kczulko/rules_elm.git&quot;,
-  commit = &lt;arbitrary-commit-hash&gt;,
-)
-
-# adding external elm dependencies:
-elm = use_extension(&quot;@rules_elm//elm:extensions.bzl&quot;, &quot;elm&quot;)
-elm.repository(
-    name = &quot;elm_package_elm_core&quot;,
-    sha256 = &quot;6e37b11c88c89a68d19d0c7625f1ef39ed70c59e443def95e4de98d6748c80a7&quot;,
-    strip_prefix = &quot;core-1.0.5&quot;,
-    urls = [&quot;https://github.com/elm/core/archive/1.0.5.tar.gz&quot;],
-)
-use_repo(elm, &quot;elm_package_elm_core&quot;)"><pre><span class="pl-en">bazel_dep</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_elm"</span>)
-<span class="pl-c"># not yet published to Bazel Central Registry</span>
-<span class="pl-en">git_override</span>(
-  <span class="pl-s1">module_name</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_elm"</span>,
-  <span class="pl-s1">remote</span> <span class="pl-c1">=</span> <span class="pl-s">"https://github.com/kczulko/rules_elm.git"</span>,
-  <span class="pl-s1">commit</span> <span class="pl-c1">=</span> <span class="pl-c1">&lt;</span><span class="pl-s1">arbitrary</span><span class="pl-c1">-</span><span class="pl-s1">commit</span><span class="pl-c1">-</span><span class="pl-s1">hash</span><span class="pl-c1">&gt;</span>,
-)
-
-<span class="pl-c"># adding external elm dependencies:</span>
-<span class="pl-s1">elm</span> <span class="pl-c1">=</span> <span class="pl-en">use_extension</span>(<span class="pl-s">"@rules_elm//elm:extensions.bzl"</span>, <span class="pl-s">"elm"</span>)
-<span class="pl-s1">elm</span>.<span class="pl-en">repository</span>(
-    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"elm_package_elm_core"</span>,
-    <span class="pl-s1">sha256</span> <span class="pl-c1">=</span> <span class="pl-s">"6e37b11c88c89a68d19d0c7625f1ef39ed70c59e443def95e4de98d6748c80a7"</span>,
-    <span class="pl-s1">strip_prefix</span> <span class="pl-c1">=</span> <span class="pl-s">"core-1.0.5"</span>,
-    <span class="pl-s1">urls</span> <span class="pl-c1">=</span> [<span class="pl-s">"https://github.com/elm/core/archive/1.0.5.tar.gz"</span>],
-)
-<span class="pl-en">use_repo</span>(<span class="pl-s1">elm</span>, <span class="pl-s">"elm_package_elm_core"</span>)</pre></div>
-<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Legacy WORKSPACE</h3><a id="user-content-legacy-workspace" class="anchor" aria-label="Permalink: Legacy WORKSPACE" href="#legacy-workspace"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<p dir="auto">Add the following declarations to your <code>WORKSPACE</code> file:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@bazel_tools//tools/build_defs/repo:http.bzl&quot;, &quot;http_archive&quot;)
-
-http_archive(
-    name = &quot;rules_elm&quot;,
-    sha256 = &quot;0b8a4e288ce9fe255074adb07be443cdda3a9fa9667de775b01decb93507a6d7&quot;,
-    strip_prefix = &quot;rules_elm-0.3&quot;,
-    urls = [&quot;https://github.com/kczulko/rules_elm/archive/v0.3.tar.gz&quot;],
-)
-
-load(&quot;@rules_elm//elm:dependencies.bzl&quot;, &quot;elm_dependencies&quot;)
-elm_dependencies()
-load(&quot;@aspect_rules_js//js:repositories.bzl&quot;, &quot;rules_js_dependencies&quot;)
-rules_js_dependencies() # rules_elm depends on rules_js
-load(&quot;@rules_elm//elm:repositories.bzl&quot;, &quot;elm_register_toolchains&quot;)
-elm_register_toolchains()
-load(&quot;@rules_elm_npm//:repositories.bzl&quot;, elm_npm_repositories = &quot;npm_repositories&quot;)
-elm_npm_repositories()"><pre><span class="pl-en">load</span>(<span class="pl-s">"@bazel_tools//tools/build_defs/repo:http.bzl"</span>, <span class="pl-s">"http_archive"</span>)
-
-<span class="pl-en">http_archive</span>(
-    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_elm"</span>,
-    <span class="pl-s1">sha256</span> <span class="pl-c1">=</span> <span class="pl-s">"0b8a4e288ce9fe255074adb07be443cdda3a9fa9667de775b01decb93507a6d7"</span>,
-    <span class="pl-s1">strip_prefix</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_elm-0.3"</span>,
-    <span class="pl-s1">urls</span> <span class="pl-c1">=</span> [<span class="pl-s">"https://github.com/kczulko/rules_elm/archive/v0.3.tar.gz"</span>],
-)
-
-<span class="pl-en">load</span>(<span class="pl-s">"@rules_elm//elm:dependencies.bzl"</span>, <span class="pl-s">"elm_dependencies"</span>)
-<span class="pl-en">elm_dependencies</span>()
-<span class="pl-en">load</span>(<span class="pl-s">"@aspect_rules_js//js:repositories.bzl"</span>, <span class="pl-s">"rules_js_dependencies"</span>)
-<span class="pl-en">rules_js_dependencies</span>() <span class="pl-c"># rules_elm depends on rules_js</span>
-<span class="pl-en">load</span>(<span class="pl-s">"@rules_elm//elm:repositories.bzl"</span>, <span class="pl-s">"elm_register_toolchains"</span>)
-<span class="pl-en">elm_register_toolchains</span>()
-<span class="pl-en">load</span>(<span class="pl-s">"@rules_elm_npm//:repositories.bzl"</span>, <span class="pl-s1">elm_npm_repositories</span> <span class="pl-c1">=</span> <span class="pl-s">"npm_repositories"</span>)
-<span class="pl-en">elm_npm_repositories</span>()</pre></div>
+<p dir="auto">Check the <a href="https://github.com/kczulko/rules_elm/releases">releases</a> for detailed instructions.</p>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Examples on how to use these rules</h2><a id="user-content-examples-on-how-to-use-these-rules" class="anchor" aria-label="Permalink: Examples on how to use these rules" href="#examples-on-how-to-use-these-rules"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <ul dir="auto">
 <li><a href="./examples">examples directory</a> - contains several 'end to end' projects consuming
@@ -92,9 +23,9 @@ has been adjusted to be buildable using Bazel.</li>
 </ul>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Build rules provided by this project</h2><a id="user-content-build-rules-provided-by-this-project" class="anchor" aria-label="Permalink: Build rules provided by this project" href="#build-rules-provided-by-this-project"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto"><code>elm_binary()</code></h3><a id="user-content-elm_binary" class="anchor" aria-label="Permalink: elm_binary()" href="#elm_binary"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@rules_elm//elm:def.bzl&quot;, &quot;elm_binary&quot;)
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@rules_elm//elm:defs.bzl&quot;, &quot;elm_binary&quot;)
 
-elm_binary(name, main, deps, visibility)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@rules_elm//elm:def.bzl"</span>, <span class="pl-s">"elm_binary"</span>)
+elm_binary(name, main, deps, visibility)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@rules_elm//elm:defs.bzl"</span>, <span class="pl-s">"elm_binary"</span>)
 
 <span class="pl-en">elm_binary</span>(<span class="pl-s1">name</span>, <span class="pl-s1">main</span>, <span class="pl-s1">deps</span>, <span class="pl-s1">visibility</span>)</pre></div>
 <p dir="auto"><strong>Purpose:</strong> transpile an Elm application to Javascript. The resulting
@@ -110,9 +41,9 @@ resulting Javascript file will have the time traveling debugger enabled.
 When the compilation mode is <code>opt</code>, optimizations are performed and the
 resulting code is minified using UglifyJS.</p>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto"><code>elm_library()</code></h3><a id="user-content-elm_library" class="anchor" aria-label="Permalink: elm_library()" href="#elm_library"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@rules_elm//elm:def.bzl&quot;, &quot;elm_library&quot;)
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@rules_elm//elm:defs.bzl&quot;, &quot;elm_library&quot;)
 
-elm_library(name, srcs, deps, strip_import_prefix, visibility)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@rules_elm//elm:def.bzl"</span>, <span class="pl-s">"elm_library"</span>)
+elm_library(name, srcs, deps, strip_import_prefix, visibility)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@rules_elm//elm:defs.bzl"</span>, <span class="pl-s">"elm_library"</span>)
 
 <span class="pl-en">elm_library</span>(<span class="pl-s1">name</span>, <span class="pl-s1">srcs</span>, <span class="pl-s1">deps</span>, <span class="pl-s1">strip_import_prefix</span>, <span class="pl-s1">visibility</span>)</pre></div>
 <p dir="auto"><strong>Purpose:</strong> declare a collection of Elm source files that can be reused
@@ -128,9 +59,9 @@ be removed from pathname resolution. For example, if the source file
 resolution to work.</li>
 </ul>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto"><code>elm_package()</code></h3><a id="user-content-elm_package" class="anchor" aria-label="Permalink: elm_package()" href="#elm_package"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@rules_elm//elm:def.bzl&quot;, &quot;elm_package&quot;)
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@rules_elm//elm:defs.bzl&quot;, &quot;elm_package&quot;)
 
-elm_package(name, package_name, package_version, srcs, deps, visibility)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@rules_elm//elm:def.bzl"</span>, <span class="pl-s">"elm_package"</span>)
+elm_package(name, package_name, package_version, srcs, deps, visibility)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@rules_elm//elm:defs.bzl"</span>, <span class="pl-s">"elm_package"</span>)
 
 <span class="pl-en">elm_package</span>(<span class="pl-s1">name</span>, <span class="pl-s1">package_name</span>, <span class="pl-s1">package_version</span>, <span class="pl-s1">srcs</span>, <span class="pl-s1">deps</span>, <span class="pl-s1">visibility</span>)</pre></div>
 <p dir="auto"><strong>Purpose:</strong> make an off-the-shelf Elm package usable as a dependency.</p>
@@ -145,9 +76,9 @@ include <code>"elm.json"</code>.</li>
 <p dir="auto"><strong>Note:</strong> This function is typically not used directly; it is often
 sufficient to use <code>elm_repository()</code>.</p>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto"><code>elm_proto_library()</code></h3><a id="user-content-elm_proto_library" class="anchor" aria-label="Permalink: elm_proto_library()" href="#elm_proto_library"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@rules_elm//proto:def.bzl&quot;, &quot;elm_proto_library&quot;)
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@rules_elm//proto:defs.bzl&quot;, &quot;elm_proto_library&quot;)
 
-elm_proto_library(name, proto, deps, plugin_opt_json, plugin_opt_grpc, visibility)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@rules_elm//proto:def.bzl"</span>, <span class="pl-s">"elm_proto_library"</span>)
+elm_proto_library(name, proto, deps, plugin_opt_json, plugin_opt_grpc, visibility)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@rules_elm//proto:defs.bzl"</span>, <span class="pl-s">"elm_proto_library"</span>)
 
 <span class="pl-en">elm_proto_library</span>(<span class="pl-s1">name</span>, <span class="pl-s1">proto</span>, <span class="pl-s1">deps</span>, <span class="pl-s1">plugin_opt_json</span>, <span class="pl-s1">plugin_opt_grpc</span>, <span class="pl-s1">visibility</span>)</pre></div>
 <p dir="auto"><strong>Purpose:</strong> generate Elm bindings for <a href="https://developers.google.com/protocol-buffers/" rel="nofollow">Protocol Buffers</a>
@@ -183,9 +114,9 @@ the testing application depends.</li>
 </ul>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Repository rules provided by this project</h2><a id="user-content-repository-rules-provided-by-this-project" class="anchor" aria-label="Permalink: Repository rules provided by this project" href="#repository-rules-provided-by-this-project"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto"><code>elm_repository()</code></h3><a id="user-content-elm_repository" class="anchor" aria-label="Permalink: elm_repository()" href="#elm_repository"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@rules_elm//repository:def.bzl&quot;, &quot;elm_repository&quot;)
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@rules_elm//repository:defs.bzl&quot;, &quot;elm_repository&quot;)
 
-elm_repository(name, urls, sha256, strip_prefix, patches)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@rules_elm//repository:def.bzl"</span>, <span class="pl-s">"elm_repository"</span>)
+elm_repository(name, urls, sha256, strip_prefix, patches)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@rules_elm//repository:defs.bzl"</span>, <span class="pl-s">"elm_repository"</span>)
 
 <span class="pl-en">elm_repository</span>(<span class="pl-s1">name</span>, <span class="pl-s1">urls</span>, <span class="pl-s1">sha256</span>, <span class="pl-s1">strip_prefix</span>, <span class="pl-s1">patches</span>)</pre></div>
 <p dir="auto"><strong>Purpose:</strong> download an Elm package over HTTP, extract it and create a
