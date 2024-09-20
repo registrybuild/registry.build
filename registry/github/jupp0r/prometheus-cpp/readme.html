@@ -80,75 +80,76 @@ int main() {
   }
   return 0;
 }
-"><pre>#include &lt;prometheus/counter.h&gt;
-#include &lt;prometheus/exposer.h&gt;
-#include &lt;prometheus/registry.h&gt;
+"><pre>#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>prometheus/counter.h<span class="pl-pds">&gt;</span></span>
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>prometheus/exposer.h<span class="pl-pds">&gt;</span></span>
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>prometheus/registry.h<span class="pl-pds">&gt;</span></span>
 
-#include &lt;array&gt;
-#include &lt;chrono&gt;
-#include &lt;cstdlib&gt;
-#include &lt;memory&gt;
-#include &lt;string&gt;
-#include &lt;thread&gt;
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>array<span class="pl-pds">&gt;</span></span>
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>chrono<span class="pl-pds">&gt;</span></span>
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>cstdlib<span class="pl-pds">&gt;</span></span>
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>memory<span class="pl-pds">&gt;</span></span>
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>string<span class="pl-pds">&gt;</span></span>
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>thread<span class="pl-pds">&gt;</span></span>
 
-int main() {
-  <span class="pl-k">using</span> <span class="pl-k">namespace</span> prometheus;
+<span class="pl-k">int</span> <span class="pl-en">main</span>() {
+  <span class="pl-k">using</span> <span class="pl-k">namespace</span> <span class="pl-en">prometheus</span><span class="pl-k">;</span>
 
-  // create an http server running on port 8080
-  Exposer exposer{"127.0.0.1:8080"};
+  <span class="pl-c"><span class="pl-c">//</span> create an http server running on port 8080</span>
+  Exposer exposer{<span class="pl-s"><span class="pl-pds">"</span>127.0.0.1:8080<span class="pl-pds">"</span></span>};
 
-  // create a metrics registry
-  // @note it's the users responsibility to keep the object alive
-  <span class="pl-smi">auto</span> registry = std::<span class="pl-en">make_shared</span>&lt;Registry&gt;();
+  <span class="pl-c"><span class="pl-c">//</span> create a metrics registry</span>
+  <span class="pl-c"><span class="pl-c">//</span> @note it's the users responsibility to keep the object alive</span>
+  <span class="pl-k">auto</span> registry = std::make_shared&lt;Registry&gt;();
 
-  // add a new counter family to the registry (families combine values with the
-  // same name, but distinct label dimensions)
-  //
-  // @note please follow the metric-naming best-practices:
-  // https://prometheus.io/docs/practices/naming/
-  <span class="pl-smi">auto</span>&amp; packet_counter = BuildCounter()
-                             .Name("observed_packets_total")
-                             .Help("Number of observed packets")
-                             .Register(*registry);
+  <span class="pl-c"><span class="pl-c">//</span> add a new counter family to the registry (families combine values with the</span>
+  <span class="pl-c"><span class="pl-c">//</span> same name, but distinct label dimensions)</span>
+  <span class="pl-c"><span class="pl-c">//</span></span>
+  <span class="pl-c"><span class="pl-c">//</span> @note please follow the metric-naming best-practices:</span>
+  <span class="pl-c"><span class="pl-c">//</span> https://prometheus.io/docs/practices/naming/</span>
+  <span class="pl-k">auto</span>&amp; packet_counter = <span class="pl-c1">BuildCounter</span>()
+                             .<span class="pl-c1">Name</span>(<span class="pl-s"><span class="pl-pds">"</span>observed_packets_total<span class="pl-pds">"</span></span>)
+                             .<span class="pl-c1">Help</span>(<span class="pl-s"><span class="pl-pds">"</span>Number of observed packets<span class="pl-pds">"</span></span>)
+                             .<span class="pl-c1">Register</span>(*registry);
 
-  // add and remember dimensional data, incrementing those is very cheap
-  <span class="pl-smi">auto</span>&amp; tcp_rx_counter =
-      packet_counter.Add({{"protocol", "tcp"}, {"direction", "rx"}});
-  <span class="pl-smi">auto</span>&amp; tcp_tx_counter =
-      packet_counter.Add({{"protocol", "tcp"}, {"direction", "tx"}});
-  <span class="pl-smi">auto</span>&amp; udp_rx_counter =
-      packet_counter.Add({{"protocol", "udp"}, {"direction", "rx"}});
-  <span class="pl-smi">auto</span>&amp; udp_tx_counter =
-      packet_counter.Add({{"protocol", "udp"}, {"direction", "tx"}});
+  <span class="pl-c"><span class="pl-c">//</span> add and remember dimensional data, incrementing those is very cheap</span>
+  <span class="pl-k">auto</span>&amp; tcp_rx_counter =
+      packet_counter.<span class="pl-c1">Add</span>({{<span class="pl-s"><span class="pl-pds">"</span>protocol<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>tcp<span class="pl-pds">"</span></span>}, {<span class="pl-s"><span class="pl-pds">"</span>direction<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>rx<span class="pl-pds">"</span></span>}});
+  <span class="pl-k">auto</span>&amp; tcp_tx_counter =
+      packet_counter.<span class="pl-c1">Add</span>({{<span class="pl-s"><span class="pl-pds">"</span>protocol<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>tcp<span class="pl-pds">"</span></span>}, {<span class="pl-s"><span class="pl-pds">"</span>direction<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>tx<span class="pl-pds">"</span></span>}});
+  <span class="pl-k">auto</span>&amp; udp_rx_counter =
+      packet_counter.<span class="pl-c1">Add</span>({{<span class="pl-s"><span class="pl-pds">"</span>protocol<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>udp<span class="pl-pds">"</span></span>}, {<span class="pl-s"><span class="pl-pds">"</span>direction<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>rx<span class="pl-pds">"</span></span>}});
+  <span class="pl-k">auto</span>&amp; udp_tx_counter =
+      packet_counter.<span class="pl-c1">Add</span>({{<span class="pl-s"><span class="pl-pds">"</span>protocol<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>udp<span class="pl-pds">"</span></span>}, {<span class="pl-s"><span class="pl-pds">"</span>direction<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>tx<span class="pl-pds">"</span></span>}});
 
-  // add a counter whose dimensional data is not known at compile time
-  // nevertheless dimensional values should only occur in low cardinality:
-  // https://prometheus.io/docs/practices/naming/#labels
-  <span class="pl-smi">auto</span>&amp; http_requests_counter = BuildCounter()
-                                    .Name("http_requests_total")
-                                    .Help("Number of HTTP requests")
-                                    .Register(*registry);
+  <span class="pl-c"><span class="pl-c">//</span> add a counter whose dimensional data is not known at compile time</span>
+  <span class="pl-c"><span class="pl-c">//</span> nevertheless dimensional values should only occur in low cardinality:</span>
+  <span class="pl-c"><span class="pl-c">//</span> https://prometheus.io/docs/practices/naming/#labels</span>
+  <span class="pl-k">auto</span>&amp; http_requests_counter = <span class="pl-c1">BuildCounter</span>()
+                                    .<span class="pl-c1">Name</span>(<span class="pl-s"><span class="pl-pds">"</span>http_requests_total<span class="pl-pds">"</span></span>)
+                                    .<span class="pl-c1">Help</span>(<span class="pl-s"><span class="pl-pds">"</span>Number of HTTP requests<span class="pl-pds">"</span></span>)
+                                    .<span class="pl-c1">Register</span>(*registry);
 
-  // ask the exposer to scrape the registry on incoming HTTP requests
-  exposer.RegisterCollectable(registry);
+  <span class="pl-c"><span class="pl-c">//</span> ask the exposer to scrape the registry on incoming HTTP requests</span>
+  exposer.<span class="pl-c1">RegisterCollectable</span>(registry);
 
-  for (;;) {
-    std::this_thread::sleep_for(std::chrono::seconds(1));
-    const <span class="pl-smi">auto</span> random_value = std::<span class="pl-en">rand</span>();
+  <span class="pl-k">for</span> (;;) {
+    <span class="pl-c1">std::this_thread::sleep_for</span>(<span class="pl-c1">std::chrono::seconds</span>(<span class="pl-c1">1</span>));
+    <span class="pl-k">const</span> <span class="pl-k">auto</span> random_value = <span class="pl-c1">std::rand</span>();
 
-    if (random_value &amp; 1) tcp_rx_counter.Increment();
-    if (random_value &amp; 2) tcp_tx_counter.Increment();
-    if (random_value &amp; 4) udp_rx_counter.Increment();
-    if (random_value &amp; 8) udp_tx_counter.Increment();
+    <span class="pl-k">if</span> (random_value &amp; <span class="pl-c1">1</span>) tcp_rx_counter.<span class="pl-c1">Increment</span>();
+    <span class="pl-k">if</span> (random_value &amp; <span class="pl-c1">2</span>) tcp_tx_counter.<span class="pl-c1">Increment</span>();
+    <span class="pl-k">if</span> (random_value &amp; <span class="pl-c1">4</span>) udp_rx_counter.<span class="pl-c1">Increment</span>();
+    <span class="pl-k">if</span> (random_value &amp; <span class="pl-c1">8</span>) udp_tx_counter.<span class="pl-c1">Increment</span>();
 
-    const std::array&lt;std::string, 4&gt; methods = {"GET", "PUT", "POST", "HEAD"};
-    <span class="pl-smi">auto</span> method = methods.at(random_value % methods.size());
-    // dynamically calling Family&lt;T&gt;.Add() works but is slow and should be
-    // avoided
-    http_requests_counter.Add({{"method", method}}).Increment();
+    <span class="pl-k">const</span> std::array&lt;std::string, <span class="pl-c1">4</span>&gt; methods = {<span class="pl-s"><span class="pl-pds">"</span>GET<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>PUT<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>POST<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>HEAD<span class="pl-pds">"</span></span>};
+    <span class="pl-k">auto</span> method = methods.<span class="pl-c1">at</span>(random_value % methods.<span class="pl-c1">size</span>());
+    <span class="pl-c"><span class="pl-c">//</span> dynamically calling Family&lt;T&gt;.Add() works but is slow and should be</span>
+    <span class="pl-c"><span class="pl-c">//</span> avoided</span>
+    http_requests_counter.<span class="pl-c1">Add</span>({{<span class="pl-s"><span class="pl-pds">"</span>method<span class="pl-pds">"</span></span>, method}}).<span class="pl-c1">Increment</span>();
   }
-  return 0;
-}</pre></div>
+  <span class="pl-k">return</span> <span class="pl-c1">0</span>;
+}
+</pre></div>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Requirements</h2><a id="user-content-requirements" class="anchor" aria-label="Permalink: Requirements" href="#requirements"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">Using <code>prometheus-cpp</code> requires a C++11 compliant compiler. It has been successfully tested with GNU GCC 7.4 on Ubuntu Bionic (18.04) and Visual Studio 2017.</p>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Building</h2><a id="user-content-building" class="anchor" aria-label="Permalink: Building" href="#building"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
