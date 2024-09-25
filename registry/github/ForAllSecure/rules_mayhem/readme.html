@@ -1,10 +1,40 @@
 <div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">rules_mayhem</h1><a id="user-content-rules_mayhem" class="anchor" aria-label="Permalink: rules_mayhem" href="#rules_mayhem"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<p dir="auto">Generates a Mayhemfile and kicks off a Mayhem run.</p>
+<p dir="auto">Run Mayhem from your Bazel infrastructure.</p>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">To include</h2><a id="user-content-to-include" class="anchor" aria-label="Permalink: To include" href="#to-include"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">You can add the following snippet:</p>
 <div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="## MODULE.bazel
-bazel_dep(name = &quot;rules_mayhem&quot;, version = &quot;0.7.0&quot;)"><pre class="notranslate"><code>## MODULE.bazel
-bazel_dep(name = "rules_mayhem", version = "0.7.0")
+bazel_dep(name = &quot;rules_mayhem&quot;, version = &quot;0.7.3&quot;)
+rules_mayhem_extension = use_extension(&quot;@rules_mayhem//mayhem:extensions.bzl&quot;, &quot;rules_mayhem_extension&quot;)
+use_repo(rules_mayhem_extension, &quot;mayhem_cli_linux&quot;, &quot;mayhem_cli_windows&quot;, &quot;yq_cli_linux&quot;, &quot;yq_cli_osx&quot;, &quot;yq_cli_windows&quot;)"><pre class="notranslate"><code>## MODULE.bazel
+bazel_dep(name = "rules_mayhem", version = "0.7.3")
+rules_mayhem_extension = use_extension("@rules_mayhem//mayhem:extensions.bzl", "rules_mayhem_extension")
+use_repo(rules_mayhem_extension, "mayhem_cli_linux", "mayhem_cli_windows", "yq_cli_linux", "yq_cli_osx", "yq_cli_windows")
+</code></pre></div>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="## WORKSPACE
+load(&quot;@bazel_tools//tools/build_defs/repo:http.bzl&quot;, &quot;http_archive&quot;)
+
+http_archive(
+    name = &quot;rules_mayhem&quot;,
+    strip_prefix = &quot;rules_mayhem&quot;,
+    urls = [&quot;https://github.com/ForAllSecure/rules_mayhem/releases/download/0.7.3/rules_mayhem-0.7.3.tar.gz&quot;],
+    sha256 = &quot;911a861da6e053e3e4c32505a4b4bbaa7ca3404611570be8b16cd2dd6d13e039&quot;,
+)
+
+
+load(&quot;@rules_mayhem//mayhem:repositories.bzl&quot;, &quot;rules_mayhem_repositories&quot;)
+rules_mayhem_repositories(mayhem_url = &quot;https://app.mayhem.security&quot;) # or your own Mayhem instance"><pre class="notranslate"><code>## WORKSPACE
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
+http_archive(
+    name = "rules_mayhem",
+    strip_prefix = "rules_mayhem",
+    urls = ["https://github.com/ForAllSecure/rules_mayhem/releases/download/0.7.3/rules_mayhem-0.7.3.tar.gz"],
+    sha256 = "911a861da6e053e3e4c32505a4b4bbaa7ca3404611570be8b16cd2dd6d13e039",
+)
+
+
+load("@rules_mayhem//mayhem:repositories.bzl", "rules_mayhem_repositories")
+rules_mayhem_repositories(mayhem_url = "https://app.mayhem.security") # or your own Mayhem instance
 </code></pre></div>
 <blockquote>
 <p dir="auto"><em>Note: Please see the latest release notes for instructions on how to include the latest release of rules_mayhem into your environment.</em></p>
@@ -14,35 +44,29 @@ bazel_dep(name = "rules_mayhem", version = "0.7.0")
 <div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="# Enable bzlmod
 common --enable_bzlmod
 
-# Define MAYHEM_URL - you can (and should!) change this if you have your own instance
-build --define=MAYHEM_URL=app.mayhem.security
-
 # Spawn strategy - if this is not set, bazel tries to reference files that don't exist
 build --spawn_strategy=standalone"><pre class="notranslate"><code># Enable bzlmod
 common --enable_bzlmod
 
-# Define MAYHEM_URL - you can (and should!) change this if you have your own instance
-build --define=MAYHEM_URL=app.mayhem.security
-
 # Spawn strategy - if this is not set, bazel tries to reference files that don't exist
 build --spawn_strategy=standalone
 </code></pre></div>
-<p dir="auto">Or, you can pass it to bazel directly, with <code>bazel build --spawn-strategy=standalone [...]</code></p>
+<p dir="auto">For environment variables, you can pass it to bazel directly, with <code>bazel build --action_env=MAYHEM_URL=$MAYHEM_URL --action_env=MAYHEM_TOKEN=$MAYHEM_TOKEN [...]</code></p>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">To build a Mayhemfile</h2><a id="user-content-to-build-a-mayhemfile" class="anchor" aria-label="Permalink: To build a Mayhemfile" href="#to-build-a-mayhemfile"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">Create a BUILD file:</p>
-<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(&quot;//mayhem:mayhem.bzl&quot;, &quot;mayhemfile&quot;, &quot;mayhem_run&quot;, &quot;mayhem_package&quot;)
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(&quot;//mayhem:mayhem.bzl&quot;, &quot;mayhem_init&quot;, &quot;mayhem_run&quot;, &quot;mayhem_package&quot;)
 
 # Generates a minimal Mayhemfile
-mayhemfile(
+mayhem_init(
     name = &quot;factor_mayhemfile&quot;,
     project = &quot;bazel-rules&quot;,
     target = &quot;factor&quot;,
     cmd = &quot;/bin/factor&quot;,
     image = &quot;photon:latest&quot;,
-)"><pre class="notranslate"><code>load("//mayhem:mayhem.bzl", "mayhemfile", "mayhem_run", "mayhem_package")
+)"><pre class="notranslate"><code>load("//mayhem:mayhem.bzl", "mayhem_init", "mayhem_run", "mayhem_package")
 
 # Generates a minimal Mayhemfile
-mayhemfile(
+mayhem_init(
     name = "factor_mayhemfile",
     project = "bazel-rules",
     target = "factor",
@@ -69,7 +93,7 @@ INFO: Elapsed time: 0.128s, Critical Path: 0.00s
 INFO: 1 process: 1 internal.
 INFO: Build completed successfully, 1 total action
 </code></pre></div>
-<p dir="auto">Should produce valid Mayhemfile:</p>
+<p dir="auto">This should produce a valid Mayhemfile:</p>
 <div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="$ cat bazel-out/k8-fastbuild/bin/examples/factor_mayhemfile.mayhemfile
 
 # Mayhem by https://forallsecure.com
@@ -175,7 +199,7 @@ extensions: {}
 )
 </code></pre></div>
 <p dir="auto">Then build:</p>
-<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="bazel build //examples:run_factor
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="bazel build --action_env=MAYHEM_URL=$MAYHEM_URL --action_env=MAYHEM_TOKEN=$MAYHEM_TOKEN //examples:run_factor
 INFO: Analyzed target //examples:run_factor (0 packages loaded, 0 targets configured).
 INFO: From Starting Mayhem run from 'examples':
 WARNING /home/xansec/mayhem/github/mcode/rules_mayhem/examples/testsuite is not a file or directory, skipping
@@ -188,7 +212,7 @@ Target //examples:run_factor up-to-date:
   bazel-bin/examples/run_factor.mayhem_out
 INFO: Elapsed time: 22.883s, Critical Path: 22.75s
 INFO: 2 processes: 1 internal, 1 local.
-INFO: Build completed successfully, 2 total actions"><pre class="notranslate"><code>bazel build //examples:run_factor
+INFO: Build completed successfully, 2 total actions"><pre class="notranslate"><code>bazel build --action_env=MAYHEM_URL=$MAYHEM_URL --action_env=MAYHEM_TOKEN=$MAYHEM_TOKEN //examples:run_factor
 INFO: Analyzed target //examples:run_factor (0 packages loaded, 0 targets configured).
 INFO: From Starting Mayhem run from 'examples':
 WARNING /home/xansec/mayhem/github/mcode/rules_mayhem/examples/testsuite is not a file or directory, skipping
@@ -321,10 +345,15 @@ INFO: 3 processes: 2 internal, 1 local.
 INFO: Build completed successfully, 3 total actions
 </code></pre></div>
 <div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">To Do</h1><a id="user-content-to-do" class="anchor" aria-label="Permalink: To Do" href="#to-do"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<ul dir="auto">
-<li>Customizeable Mayhem CLI download URL</li>
-<li>Combine the <code>mayhem_run</code> targets into the <code>mayhemfile</code> and <code>mayhem_package</code> targets and execute with <code>bazel run</code></li>
-<li>Use output flag for <code>mayhem run</code> instead of custom wrapper script</li>
-<li>Tests are currently <code>sh_test</code> only and do not run on Windows</li>
+<ul class="contains-task-list">
+<li class="task-list-item"><input type="checkbox" id="" disabled="" class="task-list-item-checkbox" checked=""> Customizeable Mayhem CLI download URL</li>
+<li class="task-list-item"><input type="checkbox" id="" disabled="" class="task-list-item-checkbox" checked=""> Support for packaging binaries</li>
+<li class="task-list-item"><input type="checkbox" id="" disabled="" class="task-list-item-checkbox" checked=""> <code>wait</code> parameter to <code>mayhem_run()</code>: Support waiting for Mayhem run to complete</li>
+<li class="task-list-item"><input type="checkbox" id="" disabled="" class="task-list-item-checkbox" checked=""> <code>fail_on_defects</code> parameter to <code>mayhem_run()</code>: Return exit code 1 if Mayhem run finds defects</li>
+<li class="task-list-item"><input type="checkbox" id="" disabled="" class="task-list-item-checkbox" checked=""> <code>mayhem_download</code> rule to grab testsuite and coverage info</li>
+<li class="task-list-item"><input type="checkbox" id="" disabled="" class="task-list-item-checkbox"> Support MacOS (currently only Linux and Windows; MacOS requires binary signing and unpackaging)</li>
+<li class="task-list-item"><input type="checkbox" id="" disabled="" class="task-list-item-checkbox"> Run the <code>mayhem_run</code> targets with <code>bazel run</code> instead of <code>bazel build</code></li>
+<li class="task-list-item"><input type="checkbox" id="" disabled="" class="task-list-item-checkbox"> Use output flag for <code>mayhem run</code> instead of custom wrapper script</li>
+<li class="task-list-item"><input type="checkbox" id="" disabled="" class="task-list-item-checkbox"> Tests are currently <code>sh_test</code> only and do not run on Windows</li>
 </ul>
 </article></div>
