@@ -4,7 +4,8 @@
 The lower layer of <code>rules_python</code> is currently reused, dealing with the toolchain and dependencies.</p>
 <p dir="auto">However, this ruleset introduces a new implementation of <code>py_library</code>, <code>py_binary</code>, and <code>py_test</code>.
 Our philosophy is to behave more like idiomatic python ecosystem tools, where rules_python is closely
-tied to the way Google does Python development in their internal monorepo, google3.</p>
+tied to the way Google does Python development in their internal monorepo, google3.
+However we try to maintain compatibility with rules_python's rules for most use cases.</p>
 <markdown-accessiblity-table><table>
 <thead>
 <tr>
@@ -15,31 +16,32 @@ tied to the way Google does Python development in their internal monorepo, googl
 </thead>
 <tbody>
 <tr>
-<td>rules: BUILD file UI</td>
-<td>rules_python</td>
-<td><strong>rules_py</strong></td>
-</tr>
-<tr>
-<td>gazelle: generate BUILD files</td>
-<td>rules_python</td>
-<td>rules_python [1]</td>
-</tr>
-<tr>
-<td>pip_parse: fetch and install deps from pypi</td>
-<td>rules_python</td>
-<td>rules_python</td>
-</tr>
-<tr>
 <td>toolchain: fetch hermetic interpreter</td>
 <td>rules_python</td>
 <td>rules_python</td>
 </tr>
+<tr>
+<td>pip.parse: fetch and install deps from pypi</td>
+<td>rules_python</td>
+<td>rules_python</td>
+</tr>
+<tr>
+<td>gazelle: generate BUILD files</td>
+<td>rules_python</td>
+<td><a href="https://docs.aspect.build/cli/commands/aspect_configure" rel="nofollow"><code>aspect configure</code></a></td>
+</tr>
+<tr>
+<td>rules: user-facing implementations</td>
+<td>rules_python</td>
+<td><strong>rules_py</strong></td>
+</tr>
 </tbody>
 </table></markdown-accessiblity-table>
+<p dir="auto">Watch our video series for a quick tutorial on how rules_py makes it easy to do Python with Bazel:
+<a href="https://www.youtube.com/playlist?list=PLLU28e_DRwdu46fldnYzyFYvSJLjVFICd" rel="nofollow"><img src="https://camo.githubusercontent.com/b97b9900030534bf45db30236b08e576f294e7566a94befd179f0d8569ec193e/68747470733a2f2f692e7974696d672e636f6d2f76692f4d733971583059796e30732f687164656661756c742e6a7067" alt="youtube playlist" data-canonical-src="https://i.ytimg.com/vi/Ms9qX0Yyn0s/hqdefault.jpg" style="max-width: 100%;"></a></p>
 <p dir="auto"><em>Need help?</em> This ruleset has support provided by <a href="https://aspect.dev" rel="nofollow">https://aspect.dev</a>.</p>
-<p dir="auto">[1] we will likely fork the extension for performance, using TreeSitter to parse Python code rather than a Python program.</p>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Differences</h2><a id="user-content-differences" class="anchor" aria-label="Permalink: Differences" href="#differences"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<p dir="auto">We think you'll love rules_py because:</p>
+<p dir="auto">We think you'll love rules_py because it fixes many issues with rules_python's rule implementations:</p>
 <ul dir="auto">
 <li>The launcher uses the Bash toolchain rather than Python, so we have no dependency on a system interpreter. Fixes:
 <ul dir="auto">
@@ -59,9 +61,9 @@ tied to the way Google does Python development in their internal monorepo, googl
 </ul>
 </li>
 <li>We create a python-idiomatic virtualenv to run actions, which means better compatibility with userland implementations of <a href="https://docs.python.org/3/library/importlib.html" rel="nofollow">importlib</a>.</li>
-<li>Thanks to the virtualenv, you can open the project in an editor like PyCharm and have working auto-complete, jump-to-definition, etc. Fixes:
+<li>Thanks to the virtualenv, you can open the project in an editor like PyCharm or VSCode and have working auto-complete, jump-to-definition, etc.
 <ul dir="auto">
-<li><a href="https://github.com/bazelbuild/rules_python/issues/1401" data-hovercard-type="issue" data-hovercard-url="/bazelbuild/rules_python/issues/1401/hovercard">Smooth IDE support for python_rules</a></li>
+<li>Fixes <a href="https://github.com/bazelbuild/rules_python/issues/1401" data-hovercard-type="issue" data-hovercard-url="/bazelbuild/rules_python/issues/1401/hovercard">Smooth IDE support for python_rules</a></li>
 </ul>
 </li>
 </ul>
@@ -75,11 +77,26 @@ above due to the way the runtime is stubbed.</p>
 <p dir="auto">Follow instructions from the release you wish to use:
 <a href="https://github.com/aspect-build/rules_py/releases">https://github.com/aspect-build/rules_py/releases</a></p>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Using with Gazelle</h3><a id="user-content-using-with-gazelle" class="anchor" aria-label="Permalink: Using with Gazelle" href="#using-with-gazelle"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<p dir="auto">In any ancestor <code>BUILD</code> file of the Python code, add these lines to instruct <a href="https://github.com/bazelbuild/rules_python/blob/main/gazelle/README.md">Gazelle</a> to create rules_py variants of the <code>py_*</code> rules:</p>
+<p dir="auto">In any ancestor <code>BUILD</code> file of the Python code, add these lines to instruct <a href="https://github.com/bazelbuild/rules_python/blob/main/gazelle/README.md">Gazelle</a> to create <code>rules_py</code> variants of the <code>py_*</code> rules:</p>
 <div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="# gazelle:map_kind py_library py_library @aspect_rules_py//py:defs.bzl
 # gazelle:map_kind py_binary py_binary @aspect_rules_py//py:defs.bzl
 # gazelle:map_kind py_test py_test @aspect_rules_py//py:defs.bzl"><pre class="notranslate"><code># gazelle:map_kind py_library py_library @aspect_rules_py//py:defs.bzl
 # gazelle:map_kind py_binary py_binary @aspect_rules_py//py:defs.bzl
 # gazelle:map_kind py_test py_test @aspect_rules_py//py:defs.bzl
 </code></pre></div>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Public API</h1><a id="user-content-public-api" class="anchor" aria-label="Permalink: Public API" href="#public-api"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Executables</h2><a id="user-content-executables" class="anchor" aria-label="Permalink: Executables" href="#executables"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li><a href="docs/py_binary.md">py_binary</a> an executable Python program, used with <code>bazel run</code> or as a tool.</li>
+<li><a href="docs/py_test.md">py_test</a> a Python program that executes a test runner such as <code>unittest</code> or <code>pytest</code>, to be used with <code>bazel test</code>.</li>
+<li><a href="docs/venv.md">py_venv</a> create a virtualenv for a <code>py_binary</code> or <code>py_test</code> target for use outside Bazel, such as in an editor/IDE.</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Packaging</h2><a id="user-content-packaging" class="anchor" aria-label="Permalink: Packaging" href="#packaging"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li><a href="docs/pex.md">py_pex_binary</a> Create a zip file containing a full Python application.</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Packages</h2><a id="user-content-packages" class="anchor" aria-label="Permalink: Packages" href="#packages"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li><a href="docs/py_library.md">py_library</a> a unit of Python code, used as a dependency of other rules.</li>
+</ul>
 </article></div>
