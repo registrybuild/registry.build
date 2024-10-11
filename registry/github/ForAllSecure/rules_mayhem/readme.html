@@ -3,12 +3,14 @@
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">To include</h2><a id="user-content-to-include" class="anchor" aria-label="Permalink: To include" href="#to-include"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">You can add the following snippet:</p>
 <div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="## MODULE.bazel
-bazel_dep(name = &quot;rules_mayhem&quot;, version = &quot;0.7.3&quot;)
+bazel_dep(name = &quot;rules_mayhem&quot;, version = &quot;0.7.5&quot;)
+
 rules_mayhem_extension = use_extension(&quot;@rules_mayhem//mayhem:extensions.bzl&quot;, &quot;rules_mayhem_extension&quot;)
-use_repo(rules_mayhem_extension, &quot;mayhem_cli_linux&quot;, &quot;mayhem_cli_windows&quot;, &quot;yq_cli_linux&quot;, &quot;yq_cli_osx&quot;, &quot;yq_cli_windows&quot;)"><pre class="notranslate"><code>## MODULE.bazel
-bazel_dep(name = "rules_mayhem", version = "0.7.3")
+use_repo(rules_mayhem_extension, &quot;bazel_skylib&quot;, &quot;mayhem_cli_linux&quot;, &quot;mayhem_cli_windows&quot;, &quot;platforms&quot;, &quot;yq_cli_linux&quot;, &quot;yq_cli_osx&quot;, &quot;yq_cli_windows&quot;)"><pre class="notranslate"><code>## MODULE.bazel
+bazel_dep(name = "rules_mayhem", version = "0.7.5")
+
 rules_mayhem_extension = use_extension("@rules_mayhem//mayhem:extensions.bzl", "rules_mayhem_extension")
-use_repo(rules_mayhem_extension, "mayhem_cli_linux", "mayhem_cli_windows", "yq_cli_linux", "yq_cli_osx", "yq_cli_windows")
+use_repo(rules_mayhem_extension, "bazel_skylib", "mayhem_cli_linux", "mayhem_cli_windows", "platforms", "yq_cli_linux", "yq_cli_osx", "yq_cli_windows")
 </code></pre></div>
 <div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="## WORKSPACE
 load(&quot;@bazel_tools//tools/build_defs/repo:http.bzl&quot;, &quot;http_archive&quot;)
@@ -16,25 +18,23 @@ load(&quot;@bazel_tools//tools/build_defs/repo:http.bzl&quot;, &quot;http_archiv
 http_archive(
     name = &quot;rules_mayhem&quot;,
     strip_prefix = &quot;rules_mayhem&quot;,
-    urls = [&quot;https://github.com/ForAllSecure/rules_mayhem/releases/download/0.7.3/rules_mayhem-0.7.3.tar.gz&quot;],
-    sha256 = &quot;911a861da6e053e3e4c32505a4b4bbaa7ca3404611570be8b16cd2dd6d13e039&quot;,
+    urls = [&quot;https://github.com/ForAllSecure/rules_mayhem/releases/download/0.7.5/rules_mayhem-0.7.5.tar.gz&quot;],
+    sha256 = &quot;756ca3dd49ba5f73dc6f07a3e233d1f8918f0995cc828472051dc719f5fd9b2b&quot;,
 )
 
-
 load(&quot;@rules_mayhem//mayhem:repositories.bzl&quot;, &quot;rules_mayhem_repositories&quot;)
-rules_mayhem_repositories(mayhem_url = &quot;https://app.mayhem.security&quot;) # or your own Mayhem instance"><pre class="notranslate"><code>## WORKSPACE
+rules_mayhem_repositories()"><pre class="notranslate"><code>## WORKSPACE
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 http_archive(
     name = "rules_mayhem",
     strip_prefix = "rules_mayhem",
-    urls = ["https://github.com/ForAllSecure/rules_mayhem/releases/download/0.7.3/rules_mayhem-0.7.3.tar.gz"],
-    sha256 = "911a861da6e053e3e4c32505a4b4bbaa7ca3404611570be8b16cd2dd6d13e039",
+    urls = ["https://github.com/ForAllSecure/rules_mayhem/releases/download/0.7.5/rules_mayhem-0.7.5.tar.gz"],
+    sha256 = "756ca3dd49ba5f73dc6f07a3e233d1f8918f0995cc828472051dc719f5fd9b2b",
 )
 
-
 load("@rules_mayhem//mayhem:repositories.bzl", "rules_mayhem_repositories")
-rules_mayhem_repositories(mayhem_url = "https://app.mayhem.security") # or your own Mayhem instance
+rules_mayhem_repositories()
 </code></pre></div>
 <blockquote>
 <p dir="auto"><em>Note: Please see the latest release notes for instructions on how to include the latest release of rules_mayhem into your environment.</em></p>
@@ -202,11 +202,10 @@ extensions: {}
 <div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="bazel build --action_env=MAYHEM_URL=$MAYHEM_URL --action_env=MAYHEM_TOKEN=$MAYHEM_TOKEN //examples:run_factor
 INFO: Analyzed target //examples:run_factor (0 packages loaded, 0 targets configured).
 INFO: From Starting Mayhem run from 'examples':
-WARNING /home/xansec/mayhem/github/mcode/rules_mayhem/examples/testsuite is not a file or directory, skipping
 git version 2.46.0 found
 WARNING A default branch has not been configured for this target. Job differences will not be available in this report
-Run started: bazel-rules/factor/9
-Run URL: https://app.mayhem.security:443/xansec/bazel-rules/factor/9
+Run started: forallsecure-demo/bazel-rules/factor/9
+Run URL: https://app.mayhem.security:443/forallsecure-demo/bazel-rules/factor/9
 INFO: Found 1 target...
 Target //examples:run_factor up-to-date:
   bazel-bin/examples/run_factor.mayhem_out
@@ -215,11 +214,10 @@ INFO: 2 processes: 1 internal, 1 local.
 INFO: Build completed successfully, 2 total actions"><pre class="notranslate"><code>bazel build --action_env=MAYHEM_URL=$MAYHEM_URL --action_env=MAYHEM_TOKEN=$MAYHEM_TOKEN //examples:run_factor
 INFO: Analyzed target //examples:run_factor (0 packages loaded, 0 targets configured).
 INFO: From Starting Mayhem run from 'examples':
-WARNING /home/xansec/mayhem/github/mcode/rules_mayhem/examples/testsuite is not a file or directory, skipping
 git version 2.46.0 found
 WARNING A default branch has not been configured for this target. Job differences will not be available in this report
-Run started: bazel-rules/factor/9
-Run URL: https://app.mayhem.security:443/xansec/bazel-rules/factor/9
+Run started: forallsecure-demo/bazel-rules/factor/9
+Run URL: https://app.mayhem.security:443/forallsecure-demo/bazel-rules/factor/9
 INFO: Found 1 target...
 Target //examples:run_factor up-to-date:
   bazel-bin/examples/run_factor.mayhem_out
@@ -295,8 +293,8 @@ git version 2.46.0 found
 WARNING A default branch has not been configured for this target. Job differences will not be available in this report
 /tmp/tmp1rd5ih1v/root.tgz   0% |                     | ETA:  --:--:--   0.0 s/B
 /tmp/tmp1rd5ih1v/root.tgz 100% |###################| Time:  0:00:00   9.3 KiB/s
-Run started: mayhemit/mayhemit/11
-Run URL: https://app.mayhem.security:443/xansec/mayhemit/mayhemit/11
+Run started: forallsecure-demo/bazel-rules/mayhemit/11
+Run URL: https://app.mayhem.security:443/forallsecure-demo/bazel-rules/mayhemit/11
 INFO: Found 1 target...
 Target //examples:run_mayhemit up-to-date:
   bazel-bin/examples/run_mayhemit.mayhem_out
@@ -335,14 +333,197 @@ git version 2.46.0 found
 WARNING A default branch has not been configured for this target. Job differences will not be available in this report
 /tmp/tmp1rd5ih1v/root.tgz   0% |                     | ETA:  --:--:--   0.0 s/B
 /tmp/tmp1rd5ih1v/root.tgz 100% |###################| Time:  0:00:00   9.3 KiB/s
-Run started: mayhemit/mayhemit/11
-Run URL: https://app.mayhem.security:443/xansec/mayhemit/mayhemit/11
+Run started: forallsecure-demo/bazel-rules/mayhemit/11
+Run URL: https://app.mayhem.security:443/forallsecure-demo/bazel-rules/mayhemit/11
 INFO: Found 1 target...
 Target //examples:run_mayhemit up-to-date:
   bazel-bin/examples/run_mayhemit.mayhem_out
 INFO: Elapsed time: 6.567s, Critical Path: 6.50s
 INFO: 3 processes: 2 internal, 1 local.
 INFO: Build completed successfully, 3 total actions
+</code></pre></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Waiting and run reports</h2><a id="user-content-waiting-and-run-reports" class="anchor" aria-label="Permalink: Waiting and run reports" href="#waiting-and-run-reports"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">You can wait on a Mayhem run by adding the <code>wait = True</code> parameter to <code>mayhem_run()</code>:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="mayhem_run(
+    name = &quot;run_mayhemit&quot;,
+    image = &quot;ubuntu:latest&quot;,
+    target_path = &quot;:package_mayhemit&quot;,
+    wait = True,
+)"><pre class="notranslate"><code>mayhem_run(
+    name = "run_mayhemit",
+    image = "ubuntu:latest",
+    target_path = ":package_mayhemit",
+    wait = True,
+)
+</code></pre></div>
+<p dir="auto">You can tell Mayhem to return exit code 1 if defects are found. You can also specify to return either a JUnit or SARIF report:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="mayhem_run(
+    name = &quot;run_mayhemit&quot;,
+    image = &quot;ubuntu:latest&quot;,
+    target_path = &quot;:package_mayhemit&quot;,
+    wait = True,
+    fail_on_defects = True,
+    sarif = mayhemit.sarif,
+    junit = mayhemit.junit,
+)"><pre class="notranslate"><code>mayhem_run(
+    name = "run_mayhemit",
+    image = "ubuntu:latest",
+    target_path = ":package_mayhemit",
+    wait = True,
+    fail_on_defects = True,
+    sarif = mayhemit.sarif,
+    junit = mayhemit.junit,
+)
+</code></pre></div>
+<p dir="auto">Then build and run:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="bazel build --action_env=MAYHEM_URL=$MAYHEM_URL --action_env=MAYHEM_TOKEN=$MAYHEM_TOKEN //examples:run_mayhemit
+INFO: Analyzed target //examples:run_mayhemit (56 packages loaded, 239 targets configured).
+INFO: From Packaging target examples/mayhemit to 'bazel-out/k8-fastbuild/bin/examples/mayhemit-pkg'...:
+Packaging target: examples/mayhemit
+Packaging dependency: examples/mayhemit -&gt; bazel-out/k8-fastbuild/bin/examples/mayhemit
+Generating default configuration under: bazel-out/k8-fastbuild/bin/examples/mayhemit-pkg/Mayhemfile
+Packaging complete.
+To upload the package do: `mayhem run bazel-out/k8-fastbuild/bin/examples/mayhemit-pkg`.
+Before uploading, you may wish to edit the config file at 'bazel-out/k8-fastbuild/bin/examples/mayhemit-pkg/Mayhemfile'.
+bazel-out/k8-fastbuild/bin/examples/mayhemit-pkg
+INFO: From Starting Mayhem run...:
+git version 2.46.1 found
+WARNING A default branch has not been configured for this target. Job differences will not be available in this report
+/tmp/tmpz6srnoug/root.tgz   0% |                     | ETA:  --:--:--   0.0 s/B
+/tmp/tmpz6srnoug/root.tgz 100% |###################| Time:  0:00:00   6.1 KiB/s
+Run started: bazel-rules/mayhemit/9
+Run URL: https://app.mayhem.security:443/forallsecure-demo/bazel-rules/mayhemit/9
+INFO: From Waiting for Mayhem run to complete...:
+Generating JUnit XML report: mayhemit_junit.xml
+  Processing run forallsecure-demo/bazel-rules/mayhemit/9
+    Downloading testcase reports...
+    Processing 13 testcase reports...
+Writing JUnit report to mayhemit_junit.xml
+Generating SARIF JSON report: mayhemit_sarif.json
+  Processing run forallsecure-demo/bazel-rules/mayhemit/9
+    Downloading defect reports...
+    Processing 1 defect reports...
+Writing SARIF report to mayhemit_sarif.json
+ERROR Run completed, defects found
+Suggestion: Please review the generated testcase reports and correct the identified defects.
+Statistics for forallsecure-demo/bazel-rules/mayhemit/9
+    Status: coverage_analysis:running, dynamic_analysis:completed, regression_testing:completed, static_analysis:completed
+    Run started: Fri Oct 11 14:46:19 2024 -0400
+    Time elapsed: 0:01:14
+    Tests performed: 24610
+    Test reports: 13
+    Crash reports: 1
+    Defects: 1
+INFO: Found 1 target...
+Target //examples:run_mayhemit up-to-date:
+  bazel-bin/examples/run_mayhemit.out
+  bazel-bin/examples/run_mayhemit.wait.out
+INFO: Elapsed time: 87.843s, Critical Path: 87.58s
+INFO: 9 processes: 4 internal, 5 local.
+INFO: Build completed successfully, 9 total actions"><pre class="notranslate"><code>bazel build --action_env=MAYHEM_URL=$MAYHEM_URL --action_env=MAYHEM_TOKEN=$MAYHEM_TOKEN //examples:run_mayhemit
+INFO: Analyzed target //examples:run_mayhemit (56 packages loaded, 239 targets configured).
+INFO: From Packaging target examples/mayhemit to 'bazel-out/k8-fastbuild/bin/examples/mayhemit-pkg'...:
+Packaging target: examples/mayhemit
+Packaging dependency: examples/mayhemit -&gt; bazel-out/k8-fastbuild/bin/examples/mayhemit
+Generating default configuration under: bazel-out/k8-fastbuild/bin/examples/mayhemit-pkg/Mayhemfile
+Packaging complete.
+To upload the package do: `mayhem run bazel-out/k8-fastbuild/bin/examples/mayhemit-pkg`.
+Before uploading, you may wish to edit the config file at 'bazel-out/k8-fastbuild/bin/examples/mayhemit-pkg/Mayhemfile'.
+bazel-out/k8-fastbuild/bin/examples/mayhemit-pkg
+INFO: From Starting Mayhem run...:
+git version 2.46.1 found
+WARNING A default branch has not been configured for this target. Job differences will not be available in this report
+/tmp/tmpz6srnoug/root.tgz   0% |                     | ETA:  --:--:--   0.0 s/B
+/tmp/tmpz6srnoug/root.tgz 100% |###################| Time:  0:00:00   6.1 KiB/s
+Run started: bazel-rules/mayhemit/9
+Run URL: https://app.mayhem.security:443/forallsecure-demo/bazel-rules/mayhemit/9
+INFO: From Waiting for Mayhem run to complete...:
+Generating JUnit XML report: mayhemit_junit.xml
+  Processing run forallsecure-demo/bazel-rules/mayhemit/9
+    Downloading testcase reports...
+    Processing 13 testcase reports...
+Writing JUnit report to mayhemit_junit.xml
+Generating SARIF JSON report: mayhemit_sarif.json
+  Processing run forallsecure-demo/bazel-rules/mayhemit/9
+    Downloading defect reports...
+    Processing 1 defect reports...
+Writing SARIF report to mayhemit_sarif.json
+ERROR Run completed, defects found
+Suggestion: Please review the generated testcase reports and correct the identified defects.
+Statistics for forallsecure-demo/bazel-rules/mayhemit/9
+    Status: coverage_analysis:running, dynamic_analysis:completed, regression_testing:completed, static_analysis:completed
+    Run started: Fri Oct 11 14:46:19 2024 -0400
+    Time elapsed: 0:01:14
+    Tests performed: 24610
+    Test reports: 13
+    Crash reports: 1
+    Defects: 1
+INFO: Found 1 target...
+Target //examples:run_mayhemit up-to-date:
+  bazel-bin/examples/run_mayhemit.out
+  bazel-bin/examples/run_mayhemit.wait.out
+INFO: Elapsed time: 87.843s, Critical Path: 87.58s
+INFO: 9 processes: 4 internal, 5 local.
+INFO: Build completed successfully, 9 total actions
+</code></pre></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Downloading testsuite and coverage information</h2><a id="user-content-downloading-testsuite-and-coverage-information" class="anchor" aria-label="Permalink: Downloading testsuite and coverage information" href="#downloading-testsuite-and-coverage-information"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><code>rules_mayhem</code> supports downloading testsuite and coverage information. In your BUILD file:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="mayhem_download(
+    name = &quot;download_mayhemit&quot;,
+    owner = &quot;forallsecure-demo&quot;,
+    project = &quot;bazel-rules&quot;,
+    target = &quot;mayhemit&quot;,
+    output_dir = &quot;mayhemit_output&quot;,
+)"><pre class="notranslate"><code>mayhem_download(
+    name = "download_mayhemit",
+    owner = "forallsecure-demo",
+    project = "bazel-rules",
+    target = "mayhemit",
+    output_dir = "mayhemit_output",
+)
+</code></pre></div>
+<p dir="auto">Then build and run:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="bazel build --action_env=MAYHEM_URL=$MAYHEM_URL --action_env=MAYHEM_TOKEN=$MAYHEM_TOKEN //examples:download_mayhemit
+
+WARNING: Build option --action_env has changed, discarding analysis cache (this can be expensive, see https://bazel.build/advanced/performance/iteration-speed).
+INFO: Analyzed target //examples:download_mayhemit (6 packages loaded, 15 targets configured).
+INFO: From Downloading Mayhem artifacts for download_mayhemit...:
+Downloading target data from run forallsecure-demo/bazel-rules/mayhemit/5...
+Downloaded: Mayhemfile.
+Downloaded: root.tgz.
+Downloaded: coverage.tgz.
+Downloading testsuite.tar:   0.0 B |#         | Elapsed Time: 0:00:00   0.0 s/B
+Downloading testsuite.tar:   8.0 KiB |     #| Elapsed Time: 0:00:01   4.4 KiB/s
+Downloading testsuite.tar:  33.0 KiB |     #| Elapsed Time: 0:00:01  17.7 KiB/s
+Extracting tests 0 of 23 |                                     | ETA:  --:--:--
+Extracting tests 23 of 23 |####################################| Time:  0:00:00
+Target downloaded at: 'bazel-out/k8-fastbuild/bin/examples/mayhemit_output'.
+INFO: Found 1 target...
+Target //examples:download_mayhemit up-to-date:
+  bazel-bin/examples/mayhemit_output
+INFO: Elapsed time: 6.615s, Critical Path: 6.43s
+INFO: 2 processes: 1 internal, 1 local.
+INFO: Build completed successfully, 2 total actions"><pre class="notranslate"><code>bazel build --action_env=MAYHEM_URL=$MAYHEM_URL --action_env=MAYHEM_TOKEN=$MAYHEM_TOKEN //examples:download_mayhemit
+
+WARNING: Build option --action_env has changed, discarding analysis cache (this can be expensive, see https://bazel.build/advanced/performance/iteration-speed).
+INFO: Analyzed target //examples:download_mayhemit (6 packages loaded, 15 targets configured).
+INFO: From Downloading Mayhem artifacts for download_mayhemit...:
+Downloading target data from run forallsecure-demo/bazel-rules/mayhemit/5...
+Downloaded: Mayhemfile.
+Downloaded: root.tgz.
+Downloaded: coverage.tgz.
+Downloading testsuite.tar:   0.0 B |#         | Elapsed Time: 0:00:00   0.0 s/B
+Downloading testsuite.tar:   8.0 KiB |     #| Elapsed Time: 0:00:01   4.4 KiB/s
+Downloading testsuite.tar:  33.0 KiB |     #| Elapsed Time: 0:00:01  17.7 KiB/s
+Extracting tests 0 of 23 |                                     | ETA:  --:--:--
+Extracting tests 23 of 23 |####################################| Time:  0:00:00
+Target downloaded at: 'bazel-out/k8-fastbuild/bin/examples/mayhemit_output'.
+INFO: Found 1 target...
+Target //examples:download_mayhemit up-to-date:
+  bazel-bin/examples/mayhemit_output
+INFO: Elapsed time: 6.615s, Critical Path: 6.43s
+INFO: 2 processes: 1 internal, 1 local.
+INFO: Build completed successfully, 2 total actions
 </code></pre></div>
 <div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">To Do</h1><a id="user-content-to-do" class="anchor" aria-label="Permalink: To Do" href="#to-do"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <ul class="contains-task-list">
