@@ -242,29 +242,39 @@ dependencies)</li>
 </ul>
 <p dir="auto">Dependency options:</p>
 <ul dir="auto">
-<li><code>USE_SSH=type</code>: enables SSH support; <code>type</code> can be set to <code>libssh2</code>
-or <code>exec</code> (which will execute an external OpenSSH command)</li>
-<li><code>USE_HTTPS=type</code>: enables HTTPS support; <code>type</code> can be set to
-<code>OpenSSL</code>, <code>mbedTLS</code>, <code>SecureTransport</code>, <code>Schannel</code>, or <code>WinHTTP</code>;
-the default is <code>SecureTransport</code> on macOS, <code>WinHTTP</code> on Windows, and
-whichever of <code>OpenSSL</code> or <code>mbedTLS</code> is detected on other platforms.</li>
+<li><code>USE_SSH=type</code>: enables SSH support and optionally selects the provider;
+<code>type</code> can be set to <code>libssh2</code> or <code>exec</code> (which will execute an external
+OpenSSH command). <code>ON</code> implies <code>libssh2</code>; defaults to <code>OFF</code>.</li>
+<li><code>USE_HTTPS=type</code>: enables HTTPS support and optionally selects the
+provider; <code>type</code> can be set to <code>OpenSSL</code>, <code>OpenSSL-Dynamic</code> (to not
+link against OpenSSL, but load it dynamically), <code>SecureTransport</code>,
+<code>Schannel</code> or <code>WinHTTP</code>; the default is <code>SecureTransport</code> on macOS,
+<code>WinHTTP</code> on Windows, and whichever of <code>OpenSSL</code> or <code>mbedTLS</code> is
+detected on other platforms. Defaults to <code>ON</code>.</li>
 <li><code>USE_SHA1=type</code>: selects the SHA1 mechanism to use; <code>type</code> can be set
-to <code>CollisionDetection</code> (default), or <code>HTTPS</code> to use the HTTPS
-driver specified above as the hashing provider.</li>
+to <code>CollisionDetection</code>, <code>HTTPS</code> to use the system or HTTPS provider,
+or one of <code>OpenSSL</code>, <code>OpenSSL-Dynamic</code>, <code>OpenSSL-FIPS</code> (to use FIPS
+compliant routines in OpenSSL), <code>CommonCrypto</code>, or <code>Schannel</code>.
+Defaults to <code>CollisionDetection</code>. This option is retained for
+backward compatibility and should not be changed.</li>
 <li><code>USE_SHA256=type</code>: selects the SHA256 mechanism to use; <code>type</code> can be
-set to <code>HTTPS</code> (default) to use the HTTPS driver specified above as
-the hashing provider, or <code>Builtin</code>.</li>
+set to <code>HTTPS</code> to use the system or HTTPS driver, <code>builtin</code>, or one of
+<code>OpenSSL</code>, <code>OpenSSL-Dynamic</code>, <code>OpenSSL-FIPS</code> (to use FIPS compliant
+routines in OpenSSL), <code>CommonCrypto</code>, or <code>Schannel</code>. Defaults to <code>HTTPS</code>.</li>
 <li><code>USE_GSSAPI=&lt;on/off&gt;</code>: enables GSSAPI for SPNEGO authentication on
-Unix</li>
+Unix. Defaults to <code>OFF</code>.</li>
 <li><code>USE_HTTP_PARSER=type</code>: selects the HTTP Parser; either <code>http-parser</code>
 for an external
 <a href="https://github.com/nodejs/http-parser"><code>http-parser</code></a> dependency,
 <code>llhttp</code> for an external <a href="https://github.com/nodejs/llhttp"><code>llhttp</code></a>
-dependency, or <code>builtin</code></li>
+dependency, or <code>builtin</code>. Defaults to <code>builtin</code>.</li>
 <li><code>REGEX_BACKEND=type</code>: selects the regular expression backend to use;
-one of <code>regcomp_l</code>, <code>pcre2</code>, <code>pcre</code>, <code>regcomp</code>, or <code>builtin</code>.</li>
-<li><code>USE_BUNDLED_ZLIB=type</code>: selects the zlib dependency to use; one of
-<code>bundled</code> or <code>Chromium</code>.</li>
+one of <code>regcomp_l</code>, <code>pcre2</code>, <code>pcre</code>, <code>regcomp</code>, or <code>builtin</code>. The
+default is to use <code>regcomp_l</code> where available, PCRE if found, otherwise,
+to use the builtin.</li>
+<li><code>USE_BUNDLED_ZLIB=type</code>: selects the bundled zlib; either <code>ON</code> or <code>OFF</code>.
+Defaults to using the system zlib if available, falling back to the
+bundled zlib.</li>
 </ul>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Locating Dependencies</h2><a id="user-content-locating-dependencies" class="anchor" aria-label="Permalink: Locating Dependencies" href="#locating-dependencies"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">The <code>libgit2</code> project uses <code>cmake</code> since it helps with cross-platform
