@@ -49,7 +49,7 @@ rules_helm_transitive_dependencies()"><pre><span class="pl-en">load</span>(<span
 <li><a href="#helm_lint_test">helm_lint_test</a></li>
 <li><a href="#helm_package">helm_package</a></li>
 <li><a href="#helm_push">helm_push</a></li>
-<li><a href="#helm_push_registry">helm_push_registry</a></li>
+<li><a href="#helm_push_images">helm_push_images</a></li>
 <li><a href="#helm_register_toolchains">helm_register_toolchains</a></li>
 <li><a href="#helm_toolchain">helm_toolchain</a></li>
 <li><a href="#helm_uninstall">helm_uninstall</a></li>
@@ -185,7 +185,7 @@ rules_helm_transitive_dependencies()"><pre><span class="pl-en">load</span>(<span
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">helm_install</h2><a id="user-content-helm_install" class="anchor" aria-label="Permalink: helm_install" href="#helm_install"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <pre>helm_install(<a href="#helm_install-name">name</a>, <a href="#helm_install-data">data</a>, <a href="#helm_install-helm_opts">helm_opts</a>, <a href="#helm_install-install_name">install_name</a>, <a href="#helm_install-opts">opts</a>, <a href="#helm_install-package">package</a>)
 </pre>
-<p dir="auto">Produce a script for performing a helm install action</p>
+<p dir="auto">Produce an executable for performing a <code>helm install</code> operation.</p>
 <p dir="auto"><strong>ATTRIBUTES</strong></p>
 <markdown-accessiblity-table><table>
 <thead>
@@ -374,9 +374,9 @@ rules_helm_transitive_dependencies()"><pre><span class="pl-en">load</span>(<span
 </table></markdown-accessiblity-table>
 <p dir="auto"><a id="user-content-helm_push"></a></p>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">helm_push</h2><a id="user-content-helm_push" class="anchor" aria-label="Permalink: helm_push" href="#helm_push"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<pre>helm_push(<a href="#helm_push-name">name</a>, <a href="#helm_push-package">package</a>)
+<pre>helm_push(<a href="#helm_push-name">name</a>, <a href="#helm_push-include_images">include_images</a>, <a href="#helm_push-package">package</a>, <a href="#helm_push-registry_url">registry_url</a>)
 </pre>
-<p dir="auto">Produce a script for pushing all oci images used by a helm chart</p>
+<p dir="auto">Produce an executable for performing a helm push to a registry.</p>
 <p dir="auto"><strong>ATTRIBUTES</strong></p>
 <markdown-accessiblity-table><table>
 <thead>
@@ -397,7 +397,54 @@ rules_helm_transitive_dependencies()"><pre><span class="pl-en">load</span>(<span
 <td align="left"></td>
 </tr>
 <tr>
+<td align="left"><a id="user-content-helm_push-include_images"></a>include_images</td>
+<td align="left">If True, images depended on by <code>package</code> will be pushed as well.</td>
+<td align="left">Boolean</td>
+<td align="left">optional</td>
+<td align="left"><code>False</code></td>
+</tr>
+<tr>
 <td align="left"><a id="user-content-helm_push-package"></a>package</td>
+<td align="left">The helm package to push to the registry.</td>
+<td align="left"><a href="https://bazel.build/concepts/labels" rel="nofollow">Label</a></td>
+<td align="left">required</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-helm_push-registry_url"></a>registry_url</td>
+<td align="left">The URL of the registry.</td>
+<td align="left">String</td>
+<td align="left">required</td>
+<td align="left"></td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p dir="auto"><a id="user-content-helm_push_images"></a></p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">helm_push_images</h2><a id="user-content-helm_push_images" class="anchor" aria-label="Permalink: helm_push_images" href="#helm_push_images"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<pre>helm_push_images(<a href="#helm_push_images-name">name</a>, <a href="#helm_push_images-package">package</a>)
+</pre>
+<p dir="auto">Produce an executable for pushing all oci images used by a helm chart.</p>
+<p dir="auto"><strong>ATTRIBUTES</strong></p>
+<markdown-accessiblity-table><table>
+<thead>
+<tr>
+<th align="left">Name</th>
+<th align="left">Description</th>
+<th align="left">Type</th>
+<th align="left">Mandatory</th>
+<th align="left">Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left"><a id="user-content-helm_push_images-name"></a>name</td>
+<td align="left">A unique name for this target.</td>
+<td align="left"><a href="https://bazel.build/concepts/labels#target-names" rel="nofollow">Name</a></td>
+<td align="left">required</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-helm_push_images-package"></a>package</td>
 <td align="left">The helm package to upload images from.</td>
 <td align="left"><a href="https://bazel.build/concepts/labels" rel="nofollow">Label</a></td>
 <td align="left">required</td>
@@ -407,9 +454,9 @@ rules_helm_transitive_dependencies()"><pre><span class="pl-en">load</span>(<span
 </table></markdown-accessiblity-table>
 <p dir="auto"><a id="user-content-helm_push_registry"></a></p>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">helm_push_registry</h2><a id="user-content-helm_push_registry" class="anchor" aria-label="Permalink: helm_push_registry" href="#helm_push_registry"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<pre>helm_push_registry(<a href="#helm_push_registry-name">name</a>, <a href="#helm_push_registry-package">package</a>, <a href="#helm_push_registry-registry_url">registry_url</a>)
+<pre>helm_push_registry(<a href="#helm_push_registry-name">name</a>, <a href="#helm_push_registry-include_images">include_images</a>, <a href="#helm_push_registry-package">package</a>, <a href="#helm_push_registry-registry_url">registry_url</a>)
 </pre>
-<p dir="auto">Produce a script for performing a helm push to a registry</p>
+<p dir="auto">Produce an executable for performing a helm push to a registry.</p>
 <p dir="auto"><strong>ATTRIBUTES</strong></p>
 <markdown-accessiblity-table><table>
 <thead>
@@ -428,6 +475,13 @@ rules_helm_transitive_dependencies()"><pre><span class="pl-en">load</span>(<span
 <td align="left"><a href="https://bazel.build/concepts/labels#target-names" rel="nofollow">Name</a></td>
 <td align="left">required</td>
 <td align="left"></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-helm_push_registry-include_images"></a>include_images</td>
+<td align="left">If True, images depended on by <code>package</code> will be pushed as well.</td>
+<td align="left">Boolean</td>
+<td align="left">optional</td>
+<td align="left"><code>False</code></td>
 </tr>
 <tr>
 <td align="left"><a id="user-content-helm_push_registry-package"></a>package</td>
@@ -482,7 +536,7 @@ rules_helm_transitive_dependencies()"><pre><span class="pl-en">load</span>(<span
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">helm_uninstall</h2><a id="user-content-helm_uninstall" class="anchor" aria-label="Permalink: helm_uninstall" href="#helm_uninstall"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <pre>helm_uninstall(<a href="#helm_uninstall-name">name</a>, <a href="#helm_uninstall-data">data</a>, <a href="#helm_uninstall-helm_opts">helm_opts</a>, <a href="#helm_uninstall-install_name">install_name</a>, <a href="#helm_uninstall-opts">opts</a>)
 </pre>
-<p dir="auto">Produce a script for performing a helm uninstall action</p>
+<p dir="auto">Produce an executable for performing a <code>helm uninstall</code> operation.</p>
 <p dir="auto"><strong>ATTRIBUTES</strong></p>
 <markdown-accessiblity-table><table>
 <thead>
@@ -536,7 +590,7 @@ rules_helm_transitive_dependencies()"><pre><span class="pl-en">load</span>(<span
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">helm_upgrade</h2><a id="user-content-helm_upgrade" class="anchor" aria-label="Permalink: helm_upgrade" href="#helm_upgrade"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <pre>helm_upgrade(<a href="#helm_upgrade-name">name</a>, <a href="#helm_upgrade-data">data</a>, <a href="#helm_upgrade-helm_opts">helm_opts</a>, <a href="#helm_upgrade-install_name">install_name</a>, <a href="#helm_upgrade-opts">opts</a>, <a href="#helm_upgrade-package">package</a>)
 </pre>
-<p dir="auto">Produce a script for performing a helm upgrade action</p>
+<p dir="auto">Produce an executable for performing a <code>helm upgrade</code> operation.</p>
 <p dir="auto"><strong>ATTRIBUTES</strong></p>
 <markdown-accessiblity-table><table>
 <thead>
@@ -682,32 +736,44 @@ rules_helm_transitive_dependencies()"><pre><span class="pl-en">load</span>(<span
 <tr>
 <th>target</th>
 <th>rule</th>
+<th>condition</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><code>{name}</code></td>
 <td><a href="#helm_package">helm_package</a></td>
+<td><code>None</code></td>
 </tr>
 <tr>
-<td><code>{name}.push</code></td>
-<td><a href="#helm_push">helm_push</a></td>
+<td><code>{name}.push_images</code></td>
+<td><a href="#helm_push_images">helm_push_images</a></td>
+<td><code>None</code></td>
 </tr>
 <tr>
 <td><code>{name}.push_registry</code></td>
-<td><a href="#helm_push_registry">helm_push_registry</a></td>
+<td><a href="#helm_push">helm_push</a> (<code>include_images = False</code>)</td>
+<td><code>registry_url</code> is defined.</td>
+</tr>
+<tr>
+<td><code>{name}.push</code></td>
+<td><a href="#helm_push">helm_push</a> (<code>include_images = True</code>)</td>
+<td><code>registry_url</code> is defined.</td>
 </tr>
 <tr>
 <td><code>{name}.install</code></td>
 <td><a href="#helm_install">helm_install</a></td>
+<td><code>None</code></td>
 </tr>
 <tr>
 <td><code>{name}.uninstall</code></td>
 <td><a href="#helm_uninstall">helm_uninstall</a></td>
+<td><code>None</code></td>
 </tr>
 <tr>
 <td><code>{name}.upgrade</code></td>
 <td><a href="#helm_upgrade">helm_upgrade</a></td>
+<td><code>None</code></td>
 </tr>
 </tbody>
 </table></markdown-accessiblity-table>
