@@ -1,0 +1,1251 @@
+<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">JSONCONS</h1><a id="user-content-jsoncons" class="anchor" aria-label="Permalink: JSONCONS" href="#jsoncons"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">jsoncons is a C++, header-only library for constructing <a href="http://www.json.org" rel="nofollow">JSON</a> and JSON-like
+data formats such as <a href="http://cbor.io/" rel="nofollow">CBOR</a>. For each supported data format, it enables you
+to work with the data in a number of ways:</p>
+<ul dir="auto">
+<li>
+<p dir="auto">As a variant-like, allocator-aware, data structure, <a href="doc/ref/corelib/basic_json.md">basic_json</a></p>
+</li>
+<li>
+<p dir="auto">As a strongly typed C++ data structure that implements <a href="doc/ref/corelib/json_type_traits.md">json_type_traits</a></p>
+</li>
+<li>
+<p dir="auto">With cursor-level access to a stream of parse events, somewhat analogous to StAX pull parsing and push serializing
+in the XML world.</p>
+</li>
+</ul>
+<p dir="auto">Compared to other JSON libraries, jsoncons has been designed to handle very large JSON texts. At its heart are
+SAX-style parsers and serializers. It supports reading an entire JSON text in memory in a variant-like structure.
+But it also supports efficient access to the underlying data using StAX-style pull parsing and push serializing.
+And it supports incremental parsing into a user's preferred form, using
+information about user types provided by specializations of <a href="doc/ref/corelib/json_type_traits.md">json_type_traits</a>.</p>
+<p dir="auto">The <a href="doc/ref/corelib/data-model.md">jsoncons data model</a> supports the familiar JSON types - nulls,
+booleans, numbers, strings, arrays, objects - plus byte strings. In addition, jsoncons
+supports semantic tagging of datetimes, epoch times, big integers,
+big decimals, big floats and binary encodings. This allows it to preserve these type semantics when parsing
+JSON-like data formats such as CBOR that have them.</p>
+<p dir="auto">jsoncons is distributed under the <a href="http://www.boost.org/users/license.html" rel="nofollow">Boost Software License</a>.</p>
+<p dir="auto">jsoncons is free but welcomes support to sustain its development. If you find this library helpful, please consider making a <a href="https://paypal.me/jsoncons?locale.x=en_US" rel="nofollow">one time donation</a>
+or becoming a <a href="https://github.com/sponsors/danielaparker">❤️ sponsor</a>.</p>
+<p dir="auto">As the <code>jsoncons</code> library has evolved, names have sometimes changed. To ease transition, jsoncons deprecates the
+old names but continues to support many of them. The deprecated names can be suppressed by defining the macro
+<code>JSONCONS_NO_DEPRECATED</code>, and doing so is recommended for new code.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Extensions</h2><a id="user-content-extensions" class="anchor" aria-label="Permalink: Extensions" href="#extensions"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li><a href="doc/ref/bson/bson.md">bson</a> implements decode from and encode to the <a href="http://bsonspec.org/" rel="nofollow">Binary JSON</a> data format.</li>
+<li><a href="doc/ref/cbor/cbor.md">cbor</a> implements decode from and encode to the IETF standard <a href="http://cbor.io/" rel="nofollow">Concise Binary Object Representation</a> data format.
+In addition it supports tags for <a href="http://cbor.schmorp.de/stringref" rel="nofollow">stringref</a> and tags for <a href="https://tools.ietf.org/html/rfc8746" rel="nofollow">typed arrays</a>.</li>
+<li><a href="doc/ref/csv/csv.md">csv</a> implements decode from and encode to CSV files.</li>
+<li><a href="doc/ref/jmespath/jmespath.md">jmespath</a> implements <a href="https://jmespath.org/" rel="nofollow">JMESPath</a>, a query language for transforming JSON documents into other JSON documents.</li>
+<li><a href="doc/ref/jsonpatch/jsonpatch.md">jsonpatch</a> implements the IETF standard <a href="https://tools.ietf.org/html/rfc6902" rel="nofollow">JavaScript Object Notation (JSON) Patch</a></li>
+<li><a href="doc/ref/mergepatch/mergepatch.md">mergepatch</a> implements the IETF standard <a href="https://datatracker.ietf.org/doc/html/rfc7386" rel="nofollow">JSON Merge Patch</a></li>
+<li><a href="doc/ref/jsonpath/jsonpath.md">jsonpath</a> implements <a href="http://goessner.net/articles/JsonPath/" rel="nofollow">Stefan Goessner's JSONPath</a>.  It also supports search and replace using JSONPath expressions.</li>
+<li><a href="doc/ref/jsonpointer/jsonpointer.md">jsonpointer</a> implements the IETF standard <a href="https://tools.ietf.org/html/rfc6901" rel="nofollow">JavaScript Object Notation (JSON) Pointer</a></li>
+<li><a href="doc/ref/jsonschema/jsonschema.md">jsonschema</a> implements Drafts 4, 6, 7, 2019-9 and 2020-12 of the <a href="https://json-schema.org/specification" rel="nofollow">JSON Schema Specification</a> (since 0.174.0)</li>
+<li><a href="doc/ref/msgpack/msgpack.md">msgpack</a> implements decode from and encode to the <a href="http://msgpack.org/index.html" rel="nofollow">MessagePack</a> data format.</li>
+<li><a href="doc/ref/ubjson/ubjson.md">ubjson</a> implements decode from and encode to the <a href="http://ubjson.org/" rel="nofollow">Universal Binary JSON Specification</a> data format.</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">What users say</h2><a id="user-content-what-users-say" class="anchor" aria-label="Permalink: What users say" href="#what-users-say"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><em>"Apache Kvrocks consistently utilizes jsoncons to offer support for JSON data structures to users. We find the development experience with jsoncons outstanding!"</em></p>
+<p dir="auto"><em>"I have been using your library in my native language – R – and have created an R package making it easy for (a) JMESpath and JSONpath queries on JSON strings or R objects and (b) for other R developers to link to your library."</em></p>
+<p dir="auto"><em>"I’m using your library for an external interface to pass data, as well as using the conversions from csv to json, which are really helpful for converting data for use in javascript"</em></p>
+<p dir="auto"><em>"Verified that, for my needs in JSON and CBOR, it is working perfectly"</em></p>
+<p dir="auto"><em>"the JSONPath feature of this library, it's great"</em></p>
+<p dir="auto"><em>"We use JMESPath implementation quite extensively"</em></p>
+<p dir="auto"><em>"We love your JSON Schema validator. We are using it in ER/Studio our data modelling tool to parse JSON Schema files so we can create entity relations models from them."</em></p>
+<p dir="auto"><em>"the serialization lib of choice with its beautiful mappings and ease of use"</em></p>
+<p dir="auto"><em>"really good"</em> <em>"awesome project"</em> <em>"very solid and very dependable"</em> <em>"my team loves it"</em> <em>"Your repo rocks!!!!!"</em></p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Mentions on the web</h2><a id="user-content-mentions-on-the-web" class="anchor" aria-label="Permalink: Mentions on the web" href="#mentions-on-the-web"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><a href="https://docs.aws.amazon.com/healthimaging/latest/devguide/example_medical-imaging_Scenario_ImageSetsAndFrames_section.html" rel="nofollow">Get started with HealthImaging image sets and image frames using an AWS SDK</a></p>
+<p dir="auto"><a href="https://rubygems.org/gems/jsoncons/versions/0.1.3?locale=en" rel="nofollow">RubyGems.org</a>   <a href="https://cran.rstudio.com/web/packages/rjsoncons/index.html" rel="nofollow">rjsoncons</a>   <a href="https://manual.coppeliarobotics.com/en/zmqRemoteApiOverview.htm" rel="nofollow">coppeliarobotics</a></p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Get jsoncons</h2><a id="user-content-get-jsoncons" class="anchor" aria-label="Permalink: Get jsoncons" href="#get-jsoncons"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">You can use the <a href="https://github.com/Microsoft/vcpkg">vcpkg</a> platform library manager to install the <a href="https://github.com/microsoft/vcpkg/tree/master/ports/jsoncons">jsoncons package</a>.</p>
+<p dir="auto">Or, download the <a href="https://github.com/danielaparker/jsoncons/releases">latest release</a> and unpack the zip file. Copy the directory <code>include/jsoncons</code> to your <code>include</code> directory. If you wish to use extensions, copy <code>include/jsoncons_ext</code> as well.</p>
+<p dir="auto">Or, download the latest code on <a href="https://github.com/danielaparker/jsoncons/archive/main.zip">main</a>.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">How to use it</h2><a id="user-content-how-to-use-it" class="anchor" aria-label="Permalink: How to use it" href="#how-to-use-it"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li><a href="http://danielaparker.github.io/jsoncons" rel="nofollow">Quick guide</a></li>
+<li><a href="doc/Examples.md">Examples</a></li>
+<li><a href="doc/Reference.md">Reference</a></li>
+<li><a href="https://github.com/danielaparker/jsoncons/discussions">Ask questions and suggest ideas for new features</a></li>
+</ul>
+<p dir="auto">The library requires a C++ Compiler with C++11 support. In addition the library defines <code>jsoncons::endian</code>,
+<code>jsoncons::basic_string_view</code>, <code>jsoncons::optional</code>, and <code>jsoncons::span</code>, which will be typedefed to
+their standard library equivalents if detected. Otherwise they will be typedefed to internal, C++11 compatible, implementations.</p>
+<p dir="auto">The library uses exceptions and in some cases <a href="https://en.cppreference.com/w/cpp/error/error_code" rel="nofollow">std::error_code</a>'s to report errors. Apart from <code>jsoncons::assertion_error</code>,
+all jsoncons exception classes implement the <a href="doc/ref/corelib/json_error.md">jsoncons::json_error</a> interface.
+If exceptions are disabled or if the compile time macro <code>JSONCONS_NO_EXCEPTIONS</code> is defined, throws become calls to <code>std::terminate</code>.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Benchmarks</h2><a id="user-content-benchmarks" class="anchor" aria-label="Permalink: Benchmarks" href="#benchmarks"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><a href="https://github.com/danielaparker/json_benchmarks">json_benchmarks</a> provides some measurements about how <code>jsoncons</code> compares to other <code>json</code> libraries.</p>
+<ul dir="auto">
+<li>
+<p dir="auto"><a href="https://danielaparker.github.io/json_benchmarks/" rel="nofollow">JSONTestSuite and JSON_checker test suites</a></p>
+</li>
+<li>
+<p dir="auto"><a href="https://github.com/danielaparker/json_benchmarks/blob/master/report/performance.md">Performance benchmarks with text and integers</a></p>
+</li>
+<li>
+<p dir="auto"><a href="https://github.com/danielaparker/json_benchmarks/blob/master/report/performance_fp.md">Performance benchmarks with text and doubles</a></p>
+</li>
+</ul>
+<p dir="auto"><a href="https://cburgmer.github.io/json-path-comparison/" rel="nofollow">JSONPath Comparison</a> shows how jsoncons JsonPath compares with other implementations</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Examples</h2><a id="user-content-examples" class="anchor" aria-label="Permalink: Examples" href="#examples"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><a href="#E1">Working with JSON data</a></p>
+<p dir="auto"><a href="#E2">Working with CBOR data</a></p>
+<div id="user-content-e1" dir="auto"> 
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Working with JSON data</h3><a id="user-content-working-with-json-data" class="anchor" aria-label="Permalink: Working with JSON data" href="#working-with-json-data"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">For the examples below you need to include some header files and initialize a string of JSON data:</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="#include &lt;jsoncons/json.hpp&gt;
+#include &lt;jsoncons_ext/jsonpath/jsonpath.hpp&gt;
+#include &lt;iostream&gt;
+
+using namespace jsoncons; // for convenience
+
+std::string data = R&quot;(
+    {
+       &quot;application&quot;: &quot;hiking&quot;,
+       &quot;reputons&quot;: [
+       {
+           &quot;rater&quot;: &quot;HikingAsylum&quot;,
+           &quot;assertion&quot;: &quot;advanced&quot;,
+           &quot;rated&quot;: &quot;Marilyn C&quot;,
+           &quot;rating&quot;: 0.90,
+           &quot;generated&quot;: 1514862245
+         }
+       ]
+    }
+)&quot;;"><pre>#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>jsoncons/json.hpp<span class="pl-pds">&gt;</span></span>
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>jsoncons_ext/jsonpath/jsonpath.hpp<span class="pl-pds">&gt;</span></span>
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>iostream<span class="pl-pds">&gt;</span></span>
+
+<span class="pl-k">using</span> <span class="pl-k">namespace</span> <span class="pl-en">jsoncons</span><span class="pl-k">;</span> <span class="pl-c"><span class="pl-c">//</span> for convenience</span>
+
+std::string data = <span class="pl-s"><span class="pl-pds">R"(</span></span>
+<span class="pl-s">    {</span>
+<span class="pl-s">       "application": "hiking",</span>
+<span class="pl-s">       "reputons": [</span>
+<span class="pl-s">       {</span>
+<span class="pl-s">           "rater": "HikingAsylum",</span>
+<span class="pl-s">           "assertion": "advanced",</span>
+<span class="pl-s">           "rated": "Marilyn C",</span>
+<span class="pl-s">           "rating": 0.90,</span>
+<span class="pl-s">           "generated": 1514862245</span>
+<span class="pl-s">         }</span>
+<span class="pl-s">       ]</span>
+<span class="pl-s">    }</span>
+<span class="pl-s"><span class="pl-pds">)"</span></span>;</pre></div>
+<p dir="auto">jsoncons allows you to work with the data in a number of ways:</p>
+<ul dir="auto">
+<li>
+<p dir="auto">As a variant-like data structure, <a href="doc/ref/corelib/basic_json.md">basic_json</a></p>
+</li>
+<li>
+<p dir="auto">As a strongly typed C++ data structure that implements <a href="doc/ref/corelib/json_type_traits.md">json_type_traits</a></p>
+</li>
+<li>
+<p dir="auto">With <a href="doc/ref/corelib/basic_json_cursor.md">cursor-level access</a> to a stream of parse events</p>
+</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">As a variant-like data structure</h4><a id="user-content-as-a-variant-like-data-structure" class="anchor" aria-label="Permalink: As a variant-like data structure" href="#as-a-variant-like-data-structure"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="int main()
+{
+    // Parse the string of data into a json value
+    json j = json::parse(data);
+
+    // Does object member reputons exist?
+    std::cout &lt;&lt; &quot;(1) &quot; &lt;&lt; std::boolalpha &lt;&lt; j.contains(&quot;reputons&quot;) &lt;&lt; &quot;\n\n&quot;;
+
+    // Get a reference to reputons array 
+    const json&amp; v = j[&quot;reputons&quot;]; 
+
+    // Iterate over reputons array 
+    std::cout &lt;&lt; &quot;(2)\n&quot;;
+    for (const auto&amp; item : v.array_range())
+    {
+        // Access rated as string and rating as double
+        std::cout &lt;&lt; item[&quot;rated&quot;].as&lt;std::string&gt;() &lt;&lt; &quot;, &quot; &lt;&lt; item[&quot;rating&quot;].as&lt;double&gt;() &lt;&lt; &quot;\n&quot;;
+    }
+    std::cout &lt;&lt; &quot;\n&quot;;
+
+    // Select all &quot;rated&quot; with JSONPath
+    std::cout &lt;&lt; &quot;(3)\n&quot;;
+    json result = jsonpath::json_query(j,&quot;$..rated&quot;);
+    std::cout &lt;&lt; pretty_print(result) &lt;&lt; &quot;\n\n&quot;;
+
+    // Serialize back to JSON
+    std::cout &lt;&lt; &quot;(4)\n&quot; &lt;&lt; pretty_print(j) &lt;&lt; &quot;\n\n&quot;;
+}"><pre><span class="pl-k">int</span> <span class="pl-en">main</span>()
+{
+    <span class="pl-c"><span class="pl-c">//</span> Parse the string of data into a json value</span>
+    json j = <span class="pl-c1">json::parse</span>(data);
+
+    <span class="pl-c"><span class="pl-c">//</span> Does object member reputons exist?</span>
+    std::cout &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>(1) <span class="pl-pds">"</span></span> &lt;&lt; std::boolalpha &lt;&lt; j.<span class="pl-c1">contains</span>(<span class="pl-s"><span class="pl-pds">"</span>reputons<span class="pl-pds">"</span></span>) &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span><span class="pl-cce">\n\n</span><span class="pl-pds">"</span></span>;
+
+    <span class="pl-c"><span class="pl-c">//</span> Get a reference to reputons array </span>
+    <span class="pl-k">const</span> json&amp; v = j[<span class="pl-s"><span class="pl-pds">"</span>reputons<span class="pl-pds">"</span></span>]; 
+
+    <span class="pl-c"><span class="pl-c">//</span> Iterate over reputons array </span>
+    std::cout &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>(2)<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>;
+    <span class="pl-k">for</span> (<span class="pl-k">const</span> <span class="pl-k">auto</span>&amp; item : v.<span class="pl-c1">array_range</span>())
+    {
+        <span class="pl-c"><span class="pl-c">//</span> Access rated as string and rating as double</span>
+        std::cout &lt;&lt; item[<span class="pl-s"><span class="pl-pds">"</span>rated<span class="pl-pds">"</span></span>].<span class="pl-smi">as</span>&lt;std::string&gt;() &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>, <span class="pl-pds">"</span></span> &lt;&lt; item[<span class="pl-s"><span class="pl-pds">"</span>rating<span class="pl-pds">"</span></span>].<span class="pl-smi">as</span>&lt;<span class="pl-k">double</span>&gt;() &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span><span class="pl-cce">\n</span><span class="pl-pds">"</span></span>;
+    }
+    std::cout &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span><span class="pl-cce">\n</span><span class="pl-pds">"</span></span>;
+
+    <span class="pl-c"><span class="pl-c">//</span> Select all "rated" with JSONPath</span>
+    std::cout &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>(3)<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>;
+    json result = <span class="pl-c1">jsonpath::json_query</span>(j,<span class="pl-s"><span class="pl-pds">"</span>$..rated<span class="pl-pds">"</span></span>);
+    std::cout &lt;&lt; <span class="pl-c1">pretty_print</span>(result) &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span><span class="pl-cce">\n\n</span><span class="pl-pds">"</span></span>;
+
+    <span class="pl-c"><span class="pl-c">//</span> Serialize back to JSON</span>
+    std::cout &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>(4)<span class="pl-cce">\n</span><span class="pl-pds">"</span></span> &lt;&lt; <span class="pl-c1">pretty_print</span>(j) &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span><span class="pl-cce">\n\n</span><span class="pl-pds">"</span></span>;
+}</pre></div>
+<p dir="auto">Output:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="(1) true
+
+(2)
+Marilyn C, 0.9
+
+(3)
+[
+    &quot;Marilyn C&quot;
+]
+
+(4)
+{
+    &quot;application&quot;: &quot;hiking&quot;,
+    &quot;reputons&quot;: [
+        {
+            &quot;assertion&quot;: &quot;advanced&quot;,
+            &quot;generated&quot;: 1514862245,
+            &quot;rated&quot;: &quot;Marilyn C&quot;,
+            &quot;rater&quot;: &quot;HikingAsylum&quot;,
+            &quot;rating&quot;: 0.9
+        }
+    ]
+}"><pre class="notranslate"><code>(1) true
+
+(2)
+Marilyn C, 0.9
+
+(3)
+[
+    "Marilyn C"
+]
+
+(4)
+{
+    "application": "hiking",
+    "reputons": [
+        {
+            "assertion": "advanced",
+            "generated": 1514862245,
+            "rated": "Marilyn C",
+            "rater": "HikingAsylum",
+            "rating": 0.9
+        }
+    ]
+}
+</code></pre></div>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">As a strongly typed C++ data structure</h4><a id="user-content-as-a-strongly-typed-c-data-structure" class="anchor" aria-label="Permalink: As a strongly typed C++ data structure" href="#as-a-strongly-typed-c-data-structure"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">jsoncons supports transforming JSON texts into C++ data structures.
+The functions <a href="doc/ref/corelib/decode_json.md">decode_json</a> and <a href="doc/ref/corelib/encode_json.md">encode_json</a>
+convert strings or streams of JSON data to C++ data structures and back.
+Decode and encode work for all C++ classes that have
+<a href="doc/ref/corelib/json_type_traits.md">json_type_traits</a>
+defined. jsoncons already supports many types in the standard library,
+and your own types will be supported too if you specialize <code>json_type_traits</code>
+in the <code>jsoncons</code> namespace.</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="namespace ns {
+    enum class hiking_experience {beginner,intermediate,advanced};
+
+    class hiking_reputon
+    {
+        std::string rater_;
+        hiking_experience assertion_;
+        std::string rated_;
+        double rating_;
+        std::optional&lt;std::chrono::seconds&gt; generated_; // assumes C++17, if not use jsoncons::optional
+        std::optional&lt;std::chrono::seconds&gt; expires_;
+    public:
+        hiking_reputon(const std::string&amp; rater,
+                       hiking_experience assertion,
+                       const std::string&amp; rated,
+                       double rating,
+                       const std::optional&lt;std::chrono::seconds&gt;&amp; generated = 
+                           std::optional&lt;std::chrono::seconds&gt;(),
+                       const std::optional&lt;std::chrono::seconds&gt;&amp; expires = 
+                           std::optional&lt;std::chrono::seconds&gt;())
+            : rater_(rater), assertion_(assertion), rated_(rated), rating_(rating),
+              generated_(generated), expires_(expires)
+        {
+        }
+
+        const std::string&amp; rater() const {return rater_;}
+        hiking_experience assertion() const {return assertion_;}
+        const std::string&amp; rated() const {return rated_;}
+        double rating() const {return rating_;}
+        std::optional&lt;std::chrono::seconds&gt; generated() const {return generated_;}
+        std::optional&lt;std::chrono::seconds&gt; expires() const {return expires_;}
+
+        friend bool operator==(const hiking_reputon&amp; lhs, const hiking_reputon&amp; rhs)
+        {
+            return lhs.rater_ == rhs.rater_ &amp;&amp; lhs.assertion_ == rhs.assertion_ &amp;&amp; 
+                   lhs.rated_ == rhs.rated_ &amp;&amp; lhs.rating_ == rhs.rating_ &amp;&amp;
+                   lhs.confidence_ == rhs.confidence_ &amp;&amp; lhs.expires_ == rhs.expires_;
+        }
+
+        friend bool operator!=(const hiking_reputon&amp; lhs, const hiking_reputon&amp; rhs)
+        {
+            return !(lhs == rhs);
+        };
+    };
+
+    class hiking_reputation
+    {
+        std::string application_;
+        std::vector&lt;hiking_reputon&gt; reputons_;
+    public:
+        hiking_reputation(const std::string&amp; application, 
+                          const std::vector&lt;hiking_reputon&gt;&amp; reputons)
+            : application_(application), 
+              reputons_(reputons)
+        {}
+
+        const std::string&amp; application() const { return application_;}
+        const std::vector&lt;hiking_reputon&gt;&amp; reputons() const { return reputons_;}
+    };
+
+} // namespace ns
+
+// Declare the traits. Specify which data members need to be serialized.
+
+JSONCONS_ENUM_TRAITS(ns::hiking_experience, beginner, intermediate, advanced)
+// First four members listed are mandatory, generated and expires are optional
+JSONCONS_N_CTOR_GETTER_TRAITS(ns::hiking_reputon, 4, rater, assertion, rated, rating, 
+                              generated, expires)
+
+// All members are mandatory
+JSONCONS_ALL_CTOR_GETTER_TRAITS(ns::hiking_reputation, application, reputons)
+
+int main()
+{
+    // Decode the string of data into a c++ structure
+    ns::hiking_reputation v = decode_json&lt;ns::hiking_reputation&gt;(data);
+
+    // Iterate over reputons array value
+    std::cout &lt;&lt; &quot;(1)\n&quot;;
+    for (const auto&amp; item : v.reputons())
+    {
+        std::cout &lt;&lt; item.rated() &lt;&lt; &quot;, &quot; &lt;&lt; item.rating();
+        if (item.generated())
+        {
+            std::cout &lt;&lt; &quot;, &quot; &lt;&lt; (*item.generated()).count();
+        }
+        std::cout &lt;&lt; &quot;\n&quot;;
+    }
+
+    // Encode the c++ structure into a string
+    std::string s;
+    encode_json(v, s, indenting::indent);
+    std::cout &lt;&lt; &quot;(2)\n&quot;;
+    std::cout &lt;&lt; s &lt;&lt; &quot;\n&quot;;
+}"><pre><span class="pl-k">namespace</span> <span class="pl-en">ns</span> {
+    <span class="pl-k">enum</span> <span class="pl-k">class</span> <span class="pl-en">hiking_experience</span> {beginner,intermediate,advanced};
+
+    <span class="pl-k">class</span> <span class="pl-en">hiking_reputon</span>
+    {
+        std::string rater_;
+        hiking_experience assertion_;
+        std::string rated_;
+        <span class="pl-k">double</span> rating_;
+        std::optional&lt;std::chrono::seconds&gt; generated_; <span class="pl-c"><span class="pl-c">//</span> assumes C++17, if not use jsoncons::optional</span>
+        std::optional&lt;std::chrono::seconds&gt; expires_;
+    <span class="pl-k">public:</span>
+        <span class="pl-en">hiking_reputon</span>(<span class="pl-k">const</span> std::string&amp; rater,
+                       hiking_experience assertion,
+                       <span class="pl-k">const</span> std::string&amp; rated,
+                       <span class="pl-k">double</span> rating,
+                       <span class="pl-k">const</span> std::optional&lt;std::chrono::seconds&gt;&amp; generated = 
+                           std::optional&lt;std::chrono::seconds&gt;(),
+                       <span class="pl-k">const</span> std::optional&lt;std::chrono::seconds&gt;&amp; expires = 
+                           std::optional&lt;std::chrono::seconds&gt;())
+            : rater_(rater), assertion_(assertion), rated_(rated), rating_(rating),
+              <span class="pl-en">generated_</span>(generated), expires_(expires)
+        {
+        }
+
+        <span class="pl-k">const</span> std::string&amp; <span class="pl-en">rater</span>() <span class="pl-k">const</span> {<span class="pl-k">return</span> rater_;}
+        hiking_experience <span class="pl-en">assertion</span>() <span class="pl-k">const</span> {<span class="pl-k">return</span> assertion_;}
+        <span class="pl-k">const</span> std::string&amp; <span class="pl-en">rated</span>() <span class="pl-k">const</span> {<span class="pl-k">return</span> rated_;}
+        <span class="pl-k">double</span> <span class="pl-en">rating</span>() <span class="pl-k">const</span> {<span class="pl-k">return</span> rating_;}
+        std::optional&lt;std::chrono::seconds&gt; <span class="pl-en">generated</span>() <span class="pl-k">const</span> {<span class="pl-k">return</span> generated_;}
+        std::optional&lt;std::chrono::seconds&gt; <span class="pl-en">expires</span>() <span class="pl-k">const</span> {<span class="pl-k">return</span> expires_;}
+
+        <span class="pl-k">friend</span> <span class="pl-k">bool</span> <span class="pl-k">operator</span>==(<span class="pl-k">const</span> hiking_reputon&amp; lhs, <span class="pl-k">const</span> hiking_reputon&amp; rhs)
+        {
+            <span class="pl-k">return</span> lhs.<span class="pl-smi">rater_</span> == rhs.<span class="pl-smi">rater_</span> &amp;&amp; lhs.<span class="pl-smi">assertion_</span> == rhs.<span class="pl-smi">assertion_</span> &amp;&amp; 
+                   lhs.<span class="pl-smi">rated_</span> == rhs.<span class="pl-smi">rated_</span> &amp;&amp; lhs.<span class="pl-smi">rating_</span> == rhs.<span class="pl-smi">rating_</span> &amp;&amp;
+                   lhs.<span class="pl-smi">confidence_</span> == rhs.<span class="pl-smi">confidence_</span> &amp;&amp; lhs.<span class="pl-smi">expires_</span> == rhs.<span class="pl-smi">expires_</span>;
+        }
+
+        <span class="pl-k">friend</span> <span class="pl-k">bool</span> <span class="pl-k">operator</span>!=(<span class="pl-k">const</span> hiking_reputon&amp; lhs, <span class="pl-k">const</span> hiking_reputon&amp; rhs)
+        {
+            <span class="pl-k">return</span> !(lhs == rhs);
+        };
+    };
+
+    <span class="pl-k">class</span> <span class="pl-en">hiking_reputation</span>
+    {
+        std::string application_;
+        std::vector&lt;hiking_reputon&gt; reputons_;
+    <span class="pl-k">public:</span>
+        <span class="pl-en">hiking_reputation</span>(<span class="pl-k">const</span> std::string&amp; application, 
+                          <span class="pl-k">const</span> std::vector&lt;hiking_reputon&gt;&amp; reputons)
+            : application_(application), 
+              <span class="pl-en">reputons_</span>(reputons)
+        {}
+
+        <span class="pl-k">const</span> std::string&amp; <span class="pl-en">application</span>() <span class="pl-k">const</span> { <span class="pl-k">return</span> application_;}
+        <span class="pl-k">const</span> std::vector&lt;hiking_reputon&gt;&amp; <span class="pl-en">reputons</span>() <span class="pl-k">const</span> { <span class="pl-k">return</span> reputons_;}
+    };
+
+} <span class="pl-c"><span class="pl-c">//</span> namespace ns</span>
+
+<span class="pl-c"><span class="pl-c">//</span> Declare the traits. Specify which data members need to be serialized.</span>
+
+<span class="pl-en">JSONCONS_ENUM_TRAITS</span>(ns::hiking_experience, beginner, intermediate, advanced)
+<span class="pl-c"><span class="pl-c">//</span> First four members listed are mandatory, generated and expires are optional</span>
+JSONCONS_N_CTOR_GETTER_TRAITS(ns::hiking_reputon, <span class="pl-c1">4</span>, rater, assertion, rated, rating, 
+                              generated, expires)
+
+<span class="pl-c"><span class="pl-c">//</span> All members are mandatory</span>
+JSONCONS_ALL_CTOR_GETTER_TRAITS(ns::hiking_reputation, application, reputons)
+
+int main()
+{
+    <span class="pl-c"><span class="pl-c">//</span> Decode the string of data into a c++ structure</span>
+    ns::hiking_reputation v = decode_json&lt;ns::hiking_reputation&gt;(data);
+
+    <span class="pl-c"><span class="pl-c">//</span> Iterate over reputons array value</span>
+    std::cout &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>(1)<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>;
+    <span class="pl-k">for</span> (<span class="pl-k">const</span> <span class="pl-k">auto</span>&amp; item : v.<span class="pl-c1">reputons</span>())
+    {
+        std::cout &lt;&lt; item.<span class="pl-c1">rated</span>() &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>, <span class="pl-pds">"</span></span> &lt;&lt; item.<span class="pl-c1">rating</span>();
+        <span class="pl-k">if</span> (item.<span class="pl-c1">generated</span>())
+        {
+            std::cout &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>, <span class="pl-pds">"</span></span> &lt;&lt; (*item.<span class="pl-c1">generated</span>()).<span class="pl-c1">count</span>();
+        }
+        std::cout &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span><span class="pl-cce">\n</span><span class="pl-pds">"</span></span>;
+    }
+
+    <span class="pl-c"><span class="pl-c">//</span> Encode the c++ structure into a string</span>
+    std::string s;
+    <span class="pl-c1">encode_json</span>(v, s, indenting::indent);
+    std::cout &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>(2)<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>;
+    std::cout &lt;&lt; s &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span><span class="pl-cce">\n</span><span class="pl-pds">"</span></span>;
+}</pre></div>
+<p dir="auto">Output:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="(1)
+Marilyn C, 0.9, 1514862245
+(2)
+{
+    &quot;application&quot;: &quot;hiking&quot;,
+    &quot;reputons&quot;: [
+        {
+            &quot;assertion&quot;: &quot;advanced&quot;,
+            &quot;generated&quot;: 1514862245,
+            &quot;rated&quot;: &quot;Marilyn C&quot;,
+            &quot;rater&quot;: &quot;HikingAsylum&quot;,
+            &quot;rating&quot;: 0.9
+        }
+    ]
+}"><pre class="notranslate"><code>(1)
+Marilyn C, 0.9, 1514862245
+(2)
+{
+    "application": "hiking",
+    "reputons": [
+        {
+            "assertion": "advanced",
+            "generated": 1514862245,
+            "rated": "Marilyn C",
+            "rater": "HikingAsylum",
+            "rating": 0.9
+        }
+    ]
+}
+</code></pre></div>
+<p dir="auto">This example makes use of the convenience macros <code>JSONCONS_ENUM_TRAITS</code>,
+<code>JSONCONS_N_CTOR_GETTER_TRAITS</code>, and <code>JSONCONS_ALL_CTOR_GETTER_TRAITS</code> to specialize the
+<a href="doc/ref/corelib/json_type_traits.md">json_type_traits</a> for the enum type
+<code>ns::hiking_experience</code>, the class <code>ns::hiking_reputon</code> (with some non-mandatory members), and the class
+<code>ns::hiking_reputation</code> (with all mandatory members.)
+The macro <code>JSONCONS_ENUM_TRAITS</code> generates the code from
+the enum identifiers, and the macros <code>JSONCONS_N_CTOR_GETTER_TRAITS</code>
+and <code>JSONCONS_ALL_CTOR_GETTER_TRAITS</code>
+generate the code from the get functions and a constructor.
+These macro declarations must be placed outside any namespace blocks.</p>
+<p dir="auto">See <a href="doc/Examples.md#G0">examples</a> for other ways of specializing <code>json_type_traits</code>.</p>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">With cursor-level access</h4><a id="user-content-with-cursor-level-access" class="anchor" aria-label="Permalink: With cursor-level access" href="#with-cursor-level-access"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">A typical pull parsing application will repeatedly process the <code>current()</code>
+event and call <code>next()</code> to advance to the next event, until <code>done()</code>
+returns <code>true</code>.</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="int main()
+{
+    json_string_cursor cursor(data);
+    for (; !cursor.done(); cursor.next())
+    {
+        const auto&amp; event = cursor.current();
+        switch (event.event_type())
+        {
+            case staj_event_type::begin_array:
+                std::cout &lt;&lt; event.event_type() &lt;&lt; &quot; &quot; &lt;&lt; &quot;\n&quot;;
+                break;
+            case staj_event_type::end_array:
+                std::cout &lt;&lt; event.event_type() &lt;&lt; &quot; &quot; &lt;&lt; &quot;\n&quot;;
+                break;
+            case staj_event_type::begin_object:
+                std::cout &lt;&lt; event.event_type() &lt;&lt; &quot; &quot; &lt;&lt; &quot;\n&quot;;
+                break;
+            case staj_event_type::end_object:
+                std::cout &lt;&lt; event.event_type() &lt;&lt; &quot; &quot; &lt;&lt; &quot;\n&quot;;
+                break;
+            case staj_event_type::key:
+                // Or std::string_view, if supported
+                std::cout &lt;&lt; event.event_type() &lt;&lt; &quot;: &quot; &lt;&lt; event.get&lt;jsoncons::string_view&gt;() &lt;&lt; &quot;\n&quot;;
+                break;
+            case staj_event_type::string_value:
+                // Or std::string_view, if supported
+                std::cout &lt;&lt; event.event_type() &lt;&lt; &quot;: &quot; &lt;&lt; event.get&lt;jsoncons::string_view&gt;() &lt;&lt; &quot;\n&quot;;
+                break;
+            case staj_event_type::null_value:
+                std::cout &lt;&lt; event.event_type() &lt;&lt; &quot;\n&quot;;
+                break;
+            case staj_event_type::bool_value:
+                std::cout &lt;&lt; event.event_type() &lt;&lt; &quot;: &quot; &lt;&lt; std::boolalpha &lt;&lt; event.get&lt;bool&gt;() &lt;&lt; &quot;\n&quot;;
+                break;
+            case staj_event_type::int64_value:
+                std::cout &lt;&lt; event.event_type() &lt;&lt; &quot;: &quot; &lt;&lt; event.get&lt;int64_t&gt;() &lt;&lt; &quot;\n&quot;;
+                break;
+            case staj_event_type::uint64_value:
+                std::cout &lt;&lt; event.event_type() &lt;&lt; &quot;: &quot; &lt;&lt; event.get&lt;uint64_t&gt;() &lt;&lt; &quot;\n&quot;;
+                break;
+            case staj_event_type::double_value:
+                std::cout &lt;&lt; event.event_type() &lt;&lt; &quot;: &quot; &lt;&lt; event.get&lt;double&gt;() &lt;&lt; &quot;\n&quot;;
+                break;
+            default:
+                std::cout &lt;&lt; &quot;Unhandled event type: &quot; &lt;&lt; event.event_type() &lt;&lt; &quot; &quot; &lt;&lt; &quot;\n&quot;;
+                break;
+        }
+    }    
+}"><pre><span class="pl-k">int</span> <span class="pl-en">main</span>()
+{
+    json_string_cursor <span class="pl-smi">cursor</span>(data);
+    <span class="pl-k">for</span> (; !cursor.<span class="pl-c1">done</span>(); cursor.<span class="pl-c1">next</span>())
+    {
+        <span class="pl-k">const</span> <span class="pl-k">auto</span>&amp; event = cursor.<span class="pl-c1">current</span>();
+        <span class="pl-k">switch</span> (event.<span class="pl-c1">event_type</span>())
+        {
+            <span class="pl-k">case</span> staj_event_type::begin_array:
+                std::cout &lt;&lt; event.<span class="pl-c1">event_type</span>() &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span> <span class="pl-pds">"</span></span> &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span><span class="pl-cce">\n</span><span class="pl-pds">"</span></span>;
+                <span class="pl-k">break</span>;
+            <span class="pl-k">case</span> staj_event_type::end_array:
+                std::cout &lt;&lt; event.<span class="pl-c1">event_type</span>() &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span> <span class="pl-pds">"</span></span> &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span><span class="pl-cce">\n</span><span class="pl-pds">"</span></span>;
+                <span class="pl-k">break</span>;
+            <span class="pl-k">case</span> staj_event_type::begin_object:
+                std::cout &lt;&lt; event.<span class="pl-c1">event_type</span>() &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span> <span class="pl-pds">"</span></span> &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span><span class="pl-cce">\n</span><span class="pl-pds">"</span></span>;
+                <span class="pl-k">break</span>;
+            <span class="pl-k">case</span> staj_event_type::end_object:
+                std::cout &lt;&lt; event.<span class="pl-c1">event_type</span>() &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span> <span class="pl-pds">"</span></span> &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span><span class="pl-cce">\n</span><span class="pl-pds">"</span></span>;
+                <span class="pl-k">break</span>;
+            <span class="pl-k">case</span> staj_event_type::key:
+                <span class="pl-c"><span class="pl-c">//</span> Or std::string_view, if supported</span>
+                std::cout &lt;&lt; event.<span class="pl-c1">event_type</span>() &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>: <span class="pl-pds">"</span></span> &lt;&lt; event.<span class="pl-smi">get</span>&lt;jsoncons::string_view&gt;() &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span><span class="pl-cce">\n</span><span class="pl-pds">"</span></span>;
+                <span class="pl-k">break</span>;
+            <span class="pl-k">case</span> staj_event_type::string_value:
+                <span class="pl-c"><span class="pl-c">//</span> Or std::string_view, if supported</span>
+                std::cout &lt;&lt; event.<span class="pl-c1">event_type</span>() &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>: <span class="pl-pds">"</span></span> &lt;&lt; event.<span class="pl-smi">get</span>&lt;jsoncons::string_view&gt;() &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span><span class="pl-cce">\n</span><span class="pl-pds">"</span></span>;
+                <span class="pl-k">break</span>;
+            <span class="pl-k">case</span> staj_event_type::null_value:
+                std::cout &lt;&lt; event.<span class="pl-c1">event_type</span>() &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span><span class="pl-cce">\n</span><span class="pl-pds">"</span></span>;
+                <span class="pl-k">break</span>;
+            <span class="pl-k">case</span> staj_event_type::bool_value:
+                std::cout &lt;&lt; event.<span class="pl-c1">event_type</span>() &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>: <span class="pl-pds">"</span></span> &lt;&lt; std::boolalpha &lt;&lt; event.<span class="pl-smi">get</span>&lt;<span class="pl-k">bool</span>&gt;() &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span><span class="pl-cce">\n</span><span class="pl-pds">"</span></span>;
+                <span class="pl-k">break</span>;
+            <span class="pl-k">case</span> staj_event_type::int64_value:
+                std::cout &lt;&lt; event.<span class="pl-c1">event_type</span>() &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>: <span class="pl-pds">"</span></span> &lt;&lt; event.<span class="pl-smi">get</span>&lt;<span class="pl-c1">int64_t</span>&gt;() &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span><span class="pl-cce">\n</span><span class="pl-pds">"</span></span>;
+                <span class="pl-k">break</span>;
+            <span class="pl-k">case</span> staj_event_type::uint64_value:
+                std::cout &lt;&lt; event.<span class="pl-c1">event_type</span>() &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>: <span class="pl-pds">"</span></span> &lt;&lt; event.<span class="pl-smi">get</span>&lt;<span class="pl-c1">uint64_t</span>&gt;() &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span><span class="pl-cce">\n</span><span class="pl-pds">"</span></span>;
+                <span class="pl-k">break</span>;
+            <span class="pl-k">case</span> staj_event_type::double_value:
+                std::cout &lt;&lt; event.<span class="pl-c1">event_type</span>() &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>: <span class="pl-pds">"</span></span> &lt;&lt; event.<span class="pl-smi">get</span>&lt;<span class="pl-k">double</span>&gt;() &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span><span class="pl-cce">\n</span><span class="pl-pds">"</span></span>;
+                <span class="pl-k">break</span>;
+            <span class="pl-k">default</span>:
+                std::cout &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>Unhandled event type: <span class="pl-pds">"</span></span> &lt;&lt; event.<span class="pl-c1">event_type</span>() &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span> <span class="pl-pds">"</span></span> &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span><span class="pl-cce">\n</span><span class="pl-pds">"</span></span>;
+                <span class="pl-k">break</span>;
+        }
+    }    
+}</pre></div>
+<p dir="auto">Output:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="begin_object
+key: application
+string_value: hiking
+key: reputons
+begin_array
+begin_object
+key: rater
+string_value: HikingAsylum
+key: assertion
+string_value: advanced
+key: rated
+string_value: Marilyn C
+key: rating
+double_value: 0.9
+key: generated
+uint64_value: 1514862245
+end_object
+end_array
+end_object"><pre class="notranslate"><code>begin_object
+key: application
+string_value: hiking
+key: reputons
+begin_array
+begin_object
+key: rater
+string_value: HikingAsylum
+key: assertion
+string_value: advanced
+key: rated
+string_value: Marilyn C
+key: rating
+double_value: 0.9
+key: generated
+uint64_value: 1514862245
+end_object
+end_array
+end_object
+</code></pre></div>
+<p dir="auto">You can apply a filter to a cursor using the pipe syntax (e.g., <code>cursor | filter1 | filter2 | ...</code>)</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="int main()
+{
+    std::string name;
+    auto filter = [&amp;](const staj_event&amp; ev, const ser_context&amp;) -&gt; bool
+    {
+        if (ev.event_type() == staj_event_type::key)
+        {
+            name = ev.get&lt;std::string&gt;();
+            return false;
+        }
+        if (name == &quot;rated&quot;)
+        {
+            name.clear();
+            return true;
+        }
+        return false;
+    };
+
+    json_string_cursor cursor(data);
+    auto filtered_c = cursor | filter;
+
+    for (; !filtered_c.done(); filtered_c.next())
+    {
+        const auto&amp; event = filtered_c.current();
+        switch (event.event_type())
+        {
+            case staj_event_type::string_value:
+                // Or std::string_view, if C++17
+                std::cout &lt;&lt; event.event_type() &lt;&lt; &quot;: &quot; &lt;&lt; event.get&lt;jsoncons::string_view&gt;() &lt;&lt; &quot;\n&quot;;
+                break;
+            default:
+                std::cout &lt;&lt; &quot;Unhandled event type\n&quot;;
+                break;
+        }
+    }
+}    "><pre><span class="pl-k">int</span> <span class="pl-en">main</span>()
+{
+    std::string name;
+    <span class="pl-k">auto</span> filter = [&amp;](<span class="pl-k">const</span> staj_event&amp; ev, <span class="pl-k">const</span> ser_context&amp;) -&gt; <span class="pl-k">bool</span>
+    {
+        <span class="pl-k">if</span> (ev.<span class="pl-c1">event_type</span>() == staj_event_type::key)
+        {
+            name = ev.<span class="pl-smi">get</span>&lt;std::string&gt;();
+            <span class="pl-k">return</span> <span class="pl-c1">false</span>;
+        }
+        <span class="pl-k">if</span> (name == <span class="pl-s"><span class="pl-pds">"</span>rated<span class="pl-pds">"</span></span>)
+        {
+            name.<span class="pl-c1">clear</span>();
+            <span class="pl-k">return</span> <span class="pl-c1">true</span>;
+        }
+        <span class="pl-k">return</span> <span class="pl-c1">false</span>;
+    };
+
+    json_string_cursor <span class="pl-smi">cursor</span>(data);
+    <span class="pl-k">auto</span> filtered_c = cursor | filter;
+
+    <span class="pl-k">for</span> (; !filtered_c.<span class="pl-c1">done</span>(); filtered_c.<span class="pl-c1">next</span>())
+    {
+        <span class="pl-k">const</span> <span class="pl-k">auto</span>&amp; event = filtered_c.<span class="pl-c1">current</span>();
+        <span class="pl-k">switch</span> (event.<span class="pl-c1">event_type</span>())
+        {
+            <span class="pl-k">case</span> staj_event_type::string_value:
+                <span class="pl-c"><span class="pl-c">//</span> Or std::string_view, if C++17</span>
+                std::cout &lt;&lt; event.<span class="pl-c1">event_type</span>() &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>: <span class="pl-pds">"</span></span> &lt;&lt; event.<span class="pl-smi">get</span>&lt;jsoncons::string_view&gt;() &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span><span class="pl-cce">\n</span><span class="pl-pds">"</span></span>;
+                <span class="pl-k">break</span>;
+            <span class="pl-k">default</span>:
+                std::cout &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>Unhandled event type<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>;
+                <span class="pl-k">break</span>;
+        }
+    }
+}    </pre></div>
+<p dir="auto">Output:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="Marilyn C"><pre class="notranslate"><code>Marilyn C
+</code></pre></div>
+<div id="user-content-e2" dir="auto"> 
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Working with CBOR data</h3><a id="user-content-working-with-cbor-data" class="anchor" aria-label="Permalink: Working with CBOR data" href="#working-with-cbor-data"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">For the examples below you need to include some header files and initialize a buffer of CBOR data:</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="#include &lt;iomanip&gt;
+#include &lt;iostream&gt;
+#include &lt;jsoncons/json.hpp&gt;
+#include &lt;jsoncons_ext/cbor/cbor.hpp&gt;
+#include &lt;jsoncons_ext/jsonpath/jsonpath.hpp&gt;
+
+using namespace jsoncons; // for convenience
+
+const std::vector&lt;uint8_t&gt; data = {
+    0x9f, // Start indefinte length array
+      0x83, // Array of length 3
+        0x63, // String value of length 3
+          0x66,0x6f,0x6f, // &quot;foo&quot; 
+        0x44, // Byte string value of length 4
+          0x50,0x75,0x73,0x73, // 'P''u''s''s'
+        0xc5, // Tag 5 (bigfloat)
+          0x82, // Array of length 2
+            0x20, // -1
+            0x03, // 3   
+      0x83, // Another array of length 3
+        0x63, // String value of length 3
+          0x62,0x61,0x72, // &quot;bar&quot;
+        0xd6, // Expected conversion to base64
+        0x44, // Byte string value of length 4
+          0x50,0x75,0x73,0x73, // 'P''u''s''s'
+        0xc4, // Tag 4 (decimal fraction)
+          0x82, // Array of length 2
+            0x38, // Negative integer of length 1
+              0x1c, // -29
+            0xc2, // Tag 2 (positive bignum)
+              0x4d, // Byte string value of length 13
+                0x01,0x8e,0xe9,0x0f,0xf6,0xc3,0x73,0xe0,0xee,0x4e,0x3f,0x0a,0xd2,
+    0xff // &quot;break&quot;
+};"><pre>#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>iomanip<span class="pl-pds">&gt;</span></span>
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>iostream<span class="pl-pds">&gt;</span></span>
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>jsoncons/json.hpp<span class="pl-pds">&gt;</span></span>
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>jsoncons_ext/cbor/cbor.hpp<span class="pl-pds">&gt;</span></span>
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>jsoncons_ext/jsonpath/jsonpath.hpp<span class="pl-pds">&gt;</span></span>
+
+<span class="pl-k">using</span> <span class="pl-k">namespace</span> <span class="pl-en">jsoncons</span><span class="pl-k">;</span> <span class="pl-c"><span class="pl-c">//</span> for convenience</span>
+
+<span class="pl-k">const</span> std::vector&lt;<span class="pl-c1">uint8_t</span>&gt; data = {
+    <span class="pl-c1">0x9f</span>, <span class="pl-c"><span class="pl-c">//</span> Start indefinte length array</span>
+      <span class="pl-c1">0x83</span>, <span class="pl-c"><span class="pl-c">//</span> Array of length 3</span>
+        <span class="pl-c1">0x63</span>, <span class="pl-c"><span class="pl-c">//</span> String value of length 3</span>
+          <span class="pl-c1">0x66</span>,<span class="pl-c1">0x6f</span>,<span class="pl-c1">0x6f</span>, <span class="pl-c"><span class="pl-c">//</span> "foo" </span>
+        <span class="pl-c1">0x44</span>, <span class="pl-c"><span class="pl-c">//</span> Byte string value of length 4</span>
+          <span class="pl-c1">0x50</span>,<span class="pl-c1">0x75</span>,<span class="pl-c1">0x73</span>,<span class="pl-c1">0x73</span>, <span class="pl-c"><span class="pl-c">//</span> 'P''u''s''s'</span>
+        <span class="pl-c1">0xc5</span>, <span class="pl-c"><span class="pl-c">//</span> Tag 5 (bigfloat)</span>
+          <span class="pl-c1">0x82</span>, <span class="pl-c"><span class="pl-c">//</span> Array of length 2</span>
+            <span class="pl-c1">0x20</span>, <span class="pl-c"><span class="pl-c">//</span> -1</span>
+            <span class="pl-c1">0x03</span>, <span class="pl-c"><span class="pl-c">//</span> 3   </span>
+      <span class="pl-c1">0x83</span>, <span class="pl-c"><span class="pl-c">//</span> Another array of length 3</span>
+        <span class="pl-c1">0x63</span>, <span class="pl-c"><span class="pl-c">//</span> String value of length 3</span>
+          <span class="pl-c1">0x62</span>,<span class="pl-c1">0x61</span>,<span class="pl-c1">0x72</span>, <span class="pl-c"><span class="pl-c">//</span> "bar"</span>
+        <span class="pl-c1">0xd6</span>, <span class="pl-c"><span class="pl-c">//</span> Expected conversion to base64</span>
+        <span class="pl-c1">0x44</span>, <span class="pl-c"><span class="pl-c">//</span> Byte string value of length 4</span>
+          <span class="pl-c1">0x50</span>,<span class="pl-c1">0x75</span>,<span class="pl-c1">0x73</span>,<span class="pl-c1">0x73</span>, <span class="pl-c"><span class="pl-c">//</span> 'P''u''s''s'</span>
+        <span class="pl-c1">0xc4</span>, <span class="pl-c"><span class="pl-c">//</span> Tag 4 (decimal fraction)</span>
+          <span class="pl-c1">0x82</span>, <span class="pl-c"><span class="pl-c">//</span> Array of length 2</span>
+            <span class="pl-c1">0x38</span>, <span class="pl-c"><span class="pl-c">//</span> Negative integer of length 1</span>
+              <span class="pl-c1">0x1c</span>, <span class="pl-c"><span class="pl-c">//</span> -29</span>
+            <span class="pl-c1">0xc2</span>, <span class="pl-c"><span class="pl-c">//</span> Tag 2 (positive bignum)</span>
+              <span class="pl-c1">0x4d</span>, <span class="pl-c"><span class="pl-c">//</span> Byte string value of length 13</span>
+                <span class="pl-c1">0x01</span>,<span class="pl-c1">0x8e</span>,<span class="pl-c1">0xe9</span>,<span class="pl-c1">0x0f</span>,<span class="pl-c1">0xf6</span>,<span class="pl-c1">0xc3</span>,<span class="pl-c1">0x73</span>,<span class="pl-c1">0xe0</span>,<span class="pl-c1">0xee</span>,<span class="pl-c1">0x4e</span>,<span class="pl-c1">0x3f</span>,<span class="pl-c1">0x0a</span>,<span class="pl-c1">0xd2</span>,
+    <span class="pl-c1">0xff</span> <span class="pl-c"><span class="pl-c">//</span> "break"</span>
+};</pre></div>
+<p dir="auto">jsoncons allows you to work with the CBOR data similarly to JSON data:</p>
+<ul dir="auto">
+<li>
+<p dir="auto">As a variant-like data structure, <a href="doc/ref/corelib/basic_json.md">basic_json</a></p>
+</li>
+<li>
+<p dir="auto">As a strongly typed C++ data structure that implements <a href="doc/ref/corelib/json_type_traits.md">json_type_traits</a></p>
+</li>
+<li>
+<p dir="auto">With <a href="doc/ref/cbor/basic_cbor_cursor.md">cursor-level access</a> to a stream of parse events</p>
+</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">As a variant-like data structure</h4><a id="user-content-as-a-variant-like-data-structure-1" class="anchor" aria-label="Permalink: As a variant-like data structure" href="#as-a-variant-like-data-structure-1"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="int main()
+{
+    // Parse the CBOR data into a json value
+    json j = cbor::decode_cbor&lt;json&gt;(data);
+
+    // Pretty print
+    std::cout &lt;&lt; &quot;(1)\n&quot; &lt;&lt; pretty_print(j) &lt;&lt; &quot;\n\n&quot;;
+
+    // Iterate over rows
+    std::cout &lt;&lt; &quot;(2)\n&quot;;
+    for (const auto&amp; row : j.array_range())
+    {
+        std::cout &lt;&lt; row[1].as&lt;jsoncons::byte_string&gt;() &lt;&lt; &quot; (&quot; &lt;&lt; row[1].tag() &lt;&lt; &quot;)\n&quot;;
+    }
+    std::cout &lt;&lt; &quot;\n&quot;;
+
+    // Select the third column with JSONPath
+    std::cout &lt;&lt; &quot;(3)\n&quot;;
+    json result = jsonpath::json_query(j,&quot;$[*][2]&quot;);
+    std::cout &lt;&lt; pretty_print(result) &lt;&lt; &quot;\n\n&quot;;
+
+    // Serialize back to CBOR
+    std::vector&lt;uint8_t&gt; buffer;
+    cbor::encode_cbor(j, buffer);
+    std::cout &lt;&lt; &quot;(4)\n&quot; &lt;&lt; byte_string_view(buffer) &lt;&lt; &quot;\n\n&quot;;
+}"><pre><span class="pl-k">int</span> <span class="pl-en">main</span>()
+{
+    <span class="pl-c"><span class="pl-c">//</span> Parse the CBOR data into a json value</span>
+    json j = cbor::decode_cbor&lt;json&gt;(data);
+
+    <span class="pl-c"><span class="pl-c">//</span> Pretty print</span>
+    std::cout &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>(1)<span class="pl-cce">\n</span><span class="pl-pds">"</span></span> &lt;&lt; <span class="pl-c1">pretty_print</span>(j) &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span><span class="pl-cce">\n\n</span><span class="pl-pds">"</span></span>;
+
+    <span class="pl-c"><span class="pl-c">//</span> Iterate over rows</span>
+    std::cout &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>(2)<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>;
+    <span class="pl-k">for</span> (<span class="pl-k">const</span> <span class="pl-k">auto</span>&amp; row : j.<span class="pl-c1">array_range</span>())
+    {
+        std::cout &lt;&lt; row[<span class="pl-c1">1</span>].<span class="pl-smi">as</span>&lt;jsoncons::byte_string&gt;() &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span> (<span class="pl-pds">"</span></span> &lt;&lt; row[<span class="pl-c1">1</span>].<span class="pl-c1">tag</span>() &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>)<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>;
+    }
+    std::cout &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span><span class="pl-cce">\n</span><span class="pl-pds">"</span></span>;
+
+    <span class="pl-c"><span class="pl-c">//</span> Select the third column with JSONPath</span>
+    std::cout &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>(3)<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>;
+    json result = <span class="pl-c1">jsonpath::json_query</span>(j,<span class="pl-s"><span class="pl-pds">"</span>$[*][2]<span class="pl-pds">"</span></span>);
+    std::cout &lt;&lt; <span class="pl-c1">pretty_print</span>(result) &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span><span class="pl-cce">\n\n</span><span class="pl-pds">"</span></span>;
+
+    <span class="pl-c"><span class="pl-c">//</span> Serialize back to CBOR</span>
+    std::vector&lt;<span class="pl-c1">uint8_t</span>&gt; buffer;
+    <span class="pl-c1">cbor::encode_cbor</span>(j, buffer);
+    std::cout &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>(4)<span class="pl-cce">\n</span><span class="pl-pds">"</span></span> &lt;&lt; <span class="pl-c1">byte_string_view</span>(buffer) &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span><span class="pl-cce">\n\n</span><span class="pl-pds">"</span></span>;
+}</pre></div>
+<p dir="auto">Output:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="(1)
+[
+    [&quot;foo&quot;, &quot;UHVzcw&quot;, &quot;0x3p-1&quot;],
+    [&quot;bar&quot;, &quot;UHVzcw==&quot;, &quot;1.23456789012345678901234567890&quot;]
+]
+
+(2)
+50,75,73,73 (n/a)
+50,75,73,73 (base64)
+
+(3)
+[
+    &quot;0x3p-1&quot;,
+    &quot;1.23456789012345678901234567890&quot;
+]
+
+(4)
+82,83,63,66,6f,6f,44,50,75,73,73,c5,82,20,03,83,63,62,61,72,d6,44,50,75,73,73,c4,82,38,1c,c2,4d,01,8e,e9,0f,f6,c3,73,e0,ee,4e,3f,0a,d2"><pre class="notranslate"><code>(1)
+[
+    ["foo", "UHVzcw", "0x3p-1"],
+    ["bar", "UHVzcw==", "1.23456789012345678901234567890"]
+]
+
+(2)
+50,75,73,73 (n/a)
+50,75,73,73 (base64)
+
+(3)
+[
+    "0x3p-1",
+    "1.23456789012345678901234567890"
+]
+
+(4)
+82,83,63,66,6f,6f,44,50,75,73,73,c5,82,20,03,83,63,62,61,72,d6,44,50,75,73,73,c4,82,38,1c,c2,4d,01,8e,e9,0f,f6,c3,73,e0,ee,4e,3f,0a,d2
+</code></pre></div>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">As a strongly typed C++ data structure</h4><a id="user-content-as-a-strongly-typed-c-data-structure-1" class="anchor" aria-label="Permalink: As a strongly typed C++ data structure" href="#as-a-strongly-typed-c-data-structure-1"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="int main()
+{
+    // Parse the string of data into a std::vector&lt;std::tuple&lt;std::string,jsoncons::byte_string,std::string&gt;&gt; value
+    auto val = cbor::decode_cbor&lt;std::vector&lt;std::tuple&lt;std::string,jsoncons::byte_string,std::string&gt;&gt;&gt;(data);
+
+    std::cout &lt;&lt; &quot;(1)\n&quot;;
+    for (const auto&amp; row : val)
+    {
+        std::cout &lt;&lt; std::get&lt;0&gt;(row) &lt;&lt; &quot;, &quot; &lt;&lt; std::get&lt;1&gt;(row) &lt;&lt; &quot;, &quot; &lt;&lt; std::get&lt;2&gt;(row) &lt;&lt; &quot;\n&quot;;
+    }
+    std::cout &lt;&lt; &quot;\n&quot;;
+
+    // Serialize back to CBOR
+    std::vector&lt;uint8_t&gt; buffer;
+    cbor::encode_cbor(val, buffer);
+    std::cout &lt;&lt; &quot;(2)\n&quot; &lt;&lt; byte_string_view(buffer) &lt;&lt; &quot;\n\n&quot;;
+}"><pre><span class="pl-k">int</span> <span class="pl-en">main</span>()
+{
+    <span class="pl-c"><span class="pl-c">//</span> Parse the string of data into a std::vector&lt;std::tuple&lt;std::string,jsoncons::byte_string,std::string&gt;&gt; value</span>
+    <span class="pl-k">auto</span> val = cbor::decode_cbor&lt;std::vector&lt;std::tuple&lt;std::string,jsoncons::byte_string,std::string&gt;&gt;&gt;(data);
+
+    std::cout &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>(1)<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>;
+    <span class="pl-k">for</span> (<span class="pl-k">const</span> <span class="pl-k">auto</span>&amp; row : val)
+    {
+        std::cout &lt;&lt; std::get&lt;<span class="pl-c1">0</span>&gt;(row) &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>, <span class="pl-pds">"</span></span> &lt;&lt; std::get&lt;<span class="pl-c1">1</span>&gt;(row) &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>, <span class="pl-pds">"</span></span> &lt;&lt; std::get&lt;<span class="pl-c1">2</span>&gt;(row) &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span><span class="pl-cce">\n</span><span class="pl-pds">"</span></span>;
+    }
+    std::cout &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span><span class="pl-cce">\n</span><span class="pl-pds">"</span></span>;
+
+    <span class="pl-c"><span class="pl-c">//</span> Serialize back to CBOR</span>
+    std::vector&lt;<span class="pl-c1">uint8_t</span>&gt; buffer;
+    <span class="pl-c1">cbor::encode_cbor</span>(val, buffer);
+    std::cout &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>(2)<span class="pl-cce">\n</span><span class="pl-pds">"</span></span> &lt;&lt; <span class="pl-c1">byte_string_view</span>(buffer) &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span><span class="pl-cce">\n\n</span><span class="pl-pds">"</span></span>;
+}</pre></div>
+<p dir="auto">Output:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="(1)
+foo, 50,75,73,73, 0x3p-1
+bar, 50,75,73,73, 1.23456789012345678901234567890
+
+(2)
+82,9f,63,66,6f,6f,44,50,75,73,73,66,30,78,33,70,2d,31,ff,9f,63,62,61,72,44,50,75,73,73,78,1f,31,2e,32,33,34,35,36,37,38,39,30,31,32,33,34,35,36,37,38,39,30,31,32,33,34,35,36,37,38,39,30,ff"><pre class="notranslate"><code>(1)
+foo, 50,75,73,73, 0x3p-1
+bar, 50,75,73,73, 1.23456789012345678901234567890
+
+(2)
+82,9f,63,66,6f,6f,44,50,75,73,73,66,30,78,33,70,2d,31,ff,9f,63,62,61,72,44,50,75,73,73,78,1f,31,2e,32,33,34,35,36,37,38,39,30,31,32,33,34,35,36,37,38,39,30,31,32,33,34,35,36,37,38,39,30,ff
+</code></pre></div>
+<p dir="auto">Note that when decoding the bigfloat and decimal fraction into a <code>std::string</code>, we lose the semantic information
+that the variant like data structure preserved with a tag, so serializing back to CBOR produces a text string.</p>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">With cursor-level access</h4><a id="user-content-with-cursor-level-access-1" class="anchor" aria-label="Permalink: With cursor-level access" href="#with-cursor-level-access-1"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">A typical pull parsing application will repeatedly process the <code>current()</code>
+event and call <code>next()</code> to advance to the next event, until <code>done()</code>
+returns <code>true</code>.</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="int main()
+{
+    cbor::cbor_bytes_cursor cursor(data);
+    for (; !cursor.done(); cursor.next())
+    {
+        const auto&amp; event = cursor.current();
+        switch (event.event_type())
+        {
+            case staj_event_type::begin_array:
+                std::cout &lt;&lt; event.event_type() &lt;&lt; &quot; &quot; &lt;&lt; &quot;(&quot; &lt;&lt; event.tag() &lt;&lt; &quot;)\n&quot;;
+                break;
+            case staj_event_type::end_array:
+                std::cout &lt;&lt; event.event_type() &lt;&lt; &quot; &quot; &lt;&lt; &quot;(&quot; &lt;&lt; event.tag() &lt;&lt; &quot;)\n&quot;;
+                break;
+            case staj_event_type::begin_object:
+                std::cout &lt;&lt; event.event_type() &lt;&lt; &quot; &quot; &lt;&lt; &quot;(&quot; &lt;&lt; event.tag() &lt;&lt; &quot;)\n&quot;;
+                break;
+            case staj_event_type::end_object:
+                std::cout &lt;&lt; event.event_type() &lt;&lt; &quot; &quot; &lt;&lt; &quot;(&quot; &lt;&lt; event.tag() &lt;&lt; &quot;)\n&quot;;
+                break;
+            case staj_event_type::key:
+                // Or std::string_view, if supported
+                std::cout &lt;&lt; event.event_type() &lt;&lt; &quot;: &quot; &lt;&lt; event.get&lt;jsoncons::string_view&gt;() &lt;&lt; &quot; &quot; &lt;&lt; &quot;(&quot; &lt;&lt; event.tag() &lt;&lt; &quot;)\n&quot;;
+                break;
+            case staj_event_type::string_value:
+                // Or std::string_view, if supported
+                std::cout &lt;&lt; event.event_type() &lt;&lt; &quot;: &quot; &lt;&lt; event.get&lt;jsoncons::string_view&gt;() &lt;&lt; &quot; &quot; &lt;&lt; &quot;(&quot; &lt;&lt; event.tag() &lt;&lt; &quot;)\n&quot;;
+                break;
+            case staj_event_type::byte_string_value:
+                std::cout &lt;&lt; event.event_type() &lt;&lt; &quot;: &quot; &lt;&lt; event.get&lt;jsoncons::span&lt;const uint8_t&gt;&gt;() &lt;&lt; &quot; &quot; &lt;&lt; &quot;(&quot; &lt;&lt; event.tag() &lt;&lt; &quot;)\n&quot;;
+                break;
+            case staj_event_type::null_value:
+                std::cout &lt;&lt; event.event_type() &lt;&lt; &quot; &quot; &lt;&lt; &quot;(&quot; &lt;&lt; event.tag() &lt;&lt; &quot;)\n&quot;;
+                break;
+            case staj_event_type::bool_value:
+                std::cout &lt;&lt; event.event_type() &lt;&lt; &quot;: &quot; &lt;&lt; std::boolalpha &lt;&lt; event.get&lt;bool&gt;() &lt;&lt; &quot; &quot; &lt;&lt; &quot;(&quot; &lt;&lt; event.tag() &lt;&lt; &quot;)\n&quot;;
+                break;
+            case staj_event_type::int64_value:
+                std::cout &lt;&lt; event.event_type() &lt;&lt; &quot;: &quot; &lt;&lt; event.get&lt;int64_t&gt;() &lt;&lt; &quot; &quot; &lt;&lt; &quot;(&quot; &lt;&lt; event.tag() &lt;&lt; &quot;)\n&quot;;
+                break;
+            case staj_event_type::uint64_value:
+                std::cout &lt;&lt; event.event_type() &lt;&lt; &quot;: &quot; &lt;&lt; event.get&lt;uint64_t&gt;() &lt;&lt; &quot; &quot; &lt;&lt; &quot;(&quot; &lt;&lt; event.tag() &lt;&lt; &quot;)\n&quot;;
+                break;
+            case staj_event_type::half_value:
+            case staj_event_type::double_value:
+                std::cout &lt;&lt; event.event_type() &lt;&lt; &quot;: &quot;  &lt;&lt; event.get&lt;double&gt;() &lt;&lt; &quot; &quot; &lt;&lt; &quot;(&quot; &lt;&lt; event.tag() &lt;&lt; &quot;)\n&quot;;
+                break;
+            default:
+                std::cout &lt;&lt; &quot;Unhandled event type &quot; &lt;&lt; event.event_type() &lt;&lt; &quot; &quot; &lt;&lt; &quot;(&quot; &lt;&lt; event.tag() &lt;&lt; &quot;)\n&quot;;
+                break;
+        }
+    }
+}"><pre><span class="pl-k">int</span> <span class="pl-en">main</span>()
+{
+    cbor::cbor_bytes_cursor <span class="pl-smi">cursor</span>(data);
+    <span class="pl-k">for</span> (; !cursor.<span class="pl-c1">done</span>(); cursor.<span class="pl-c1">next</span>())
+    {
+        <span class="pl-k">const</span> <span class="pl-k">auto</span>&amp; event = cursor.<span class="pl-c1">current</span>();
+        <span class="pl-k">switch</span> (event.<span class="pl-c1">event_type</span>())
+        {
+            <span class="pl-k">case</span> staj_event_type::begin_array:
+                std::cout &lt;&lt; event.<span class="pl-c1">event_type</span>() &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span> <span class="pl-pds">"</span></span> &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>(<span class="pl-pds">"</span></span> &lt;&lt; event.<span class="pl-c1">tag</span>() &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>)<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>;
+                <span class="pl-k">break</span>;
+            <span class="pl-k">case</span> staj_event_type::end_array:
+                std::cout &lt;&lt; event.<span class="pl-c1">event_type</span>() &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span> <span class="pl-pds">"</span></span> &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>(<span class="pl-pds">"</span></span> &lt;&lt; event.<span class="pl-c1">tag</span>() &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>)<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>;
+                <span class="pl-k">break</span>;
+            <span class="pl-k">case</span> staj_event_type::begin_object:
+                std::cout &lt;&lt; event.<span class="pl-c1">event_type</span>() &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span> <span class="pl-pds">"</span></span> &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>(<span class="pl-pds">"</span></span> &lt;&lt; event.<span class="pl-c1">tag</span>() &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>)<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>;
+                <span class="pl-k">break</span>;
+            <span class="pl-k">case</span> staj_event_type::end_object:
+                std::cout &lt;&lt; event.<span class="pl-c1">event_type</span>() &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span> <span class="pl-pds">"</span></span> &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>(<span class="pl-pds">"</span></span> &lt;&lt; event.<span class="pl-c1">tag</span>() &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>)<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>;
+                <span class="pl-k">break</span>;
+            <span class="pl-k">case</span> staj_event_type::key:
+                <span class="pl-c"><span class="pl-c">//</span> Or std::string_view, if supported</span>
+                std::cout &lt;&lt; event.<span class="pl-c1">event_type</span>() &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>: <span class="pl-pds">"</span></span> &lt;&lt; event.<span class="pl-smi">get</span>&lt;jsoncons::string_view&gt;() &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span> <span class="pl-pds">"</span></span> &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>(<span class="pl-pds">"</span></span> &lt;&lt; event.<span class="pl-c1">tag</span>() &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>)<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>;
+                <span class="pl-k">break</span>;
+            <span class="pl-k">case</span> staj_event_type::string_value:
+                <span class="pl-c"><span class="pl-c">//</span> Or std::string_view, if supported</span>
+                std::cout &lt;&lt; event.<span class="pl-c1">event_type</span>() &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>: <span class="pl-pds">"</span></span> &lt;&lt; event.<span class="pl-smi">get</span>&lt;jsoncons::string_view&gt;() &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span> <span class="pl-pds">"</span></span> &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>(<span class="pl-pds">"</span></span> &lt;&lt; event.<span class="pl-c1">tag</span>() &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>)<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>;
+                <span class="pl-k">break</span>;
+            <span class="pl-k">case</span> staj_event_type::byte_string_value:
+                std::cout &lt;&lt; event.<span class="pl-c1">event_type</span>() &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>: <span class="pl-pds">"</span></span> &lt;&lt; event.<span class="pl-smi">get</span>&lt;jsoncons::span&lt;<span class="pl-k">const</span> <span class="pl-c1">uint8_t</span>&gt;&gt;() &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span> <span class="pl-pds">"</span></span> &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>(<span class="pl-pds">"</span></span> &lt;&lt; event.<span class="pl-c1">tag</span>() &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>)<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>;
+                <span class="pl-k">break</span>;
+            <span class="pl-k">case</span> staj_event_type::null_value:
+                std::cout &lt;&lt; event.<span class="pl-c1">event_type</span>() &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span> <span class="pl-pds">"</span></span> &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>(<span class="pl-pds">"</span></span> &lt;&lt; event.<span class="pl-c1">tag</span>() &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>)<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>;
+                <span class="pl-k">break</span>;
+            <span class="pl-k">case</span> staj_event_type::bool_value:
+                std::cout &lt;&lt; event.<span class="pl-c1">event_type</span>() &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>: <span class="pl-pds">"</span></span> &lt;&lt; std::boolalpha &lt;&lt; event.<span class="pl-smi">get</span>&lt;<span class="pl-k">bool</span>&gt;() &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span> <span class="pl-pds">"</span></span> &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>(<span class="pl-pds">"</span></span> &lt;&lt; event.<span class="pl-c1">tag</span>() &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>)<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>;
+                <span class="pl-k">break</span>;
+            <span class="pl-k">case</span> staj_event_type::int64_value:
+                std::cout &lt;&lt; event.<span class="pl-c1">event_type</span>() &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>: <span class="pl-pds">"</span></span> &lt;&lt; event.<span class="pl-smi">get</span>&lt;<span class="pl-c1">int64_t</span>&gt;() &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span> <span class="pl-pds">"</span></span> &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>(<span class="pl-pds">"</span></span> &lt;&lt; event.<span class="pl-c1">tag</span>() &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>)<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>;
+                <span class="pl-k">break</span>;
+            <span class="pl-k">case</span> staj_event_type::uint64_value:
+                std::cout &lt;&lt; event.<span class="pl-c1">event_type</span>() &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>: <span class="pl-pds">"</span></span> &lt;&lt; event.<span class="pl-smi">get</span>&lt;<span class="pl-c1">uint64_t</span>&gt;() &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span> <span class="pl-pds">"</span></span> &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>(<span class="pl-pds">"</span></span> &lt;&lt; event.<span class="pl-c1">tag</span>() &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>)<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>;
+                <span class="pl-k">break</span>;
+            <span class="pl-k">case</span> staj_event_type::half_value:
+            <span class="pl-k">case</span> staj_event_type::double_value:
+                std::cout &lt;&lt; event.<span class="pl-c1">event_type</span>() &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>: <span class="pl-pds">"</span></span>  &lt;&lt; event.<span class="pl-smi">get</span>&lt;<span class="pl-k">double</span>&gt;() &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span> <span class="pl-pds">"</span></span> &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>(<span class="pl-pds">"</span></span> &lt;&lt; event.<span class="pl-c1">tag</span>() &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>)<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>;
+                <span class="pl-k">break</span>;
+            <span class="pl-k">default</span>:
+                std::cout &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>Unhandled event type <span class="pl-pds">"</span></span> &lt;&lt; event.<span class="pl-c1">event_type</span>() &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span> <span class="pl-pds">"</span></span> &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>(<span class="pl-pds">"</span></span> &lt;&lt; event.<span class="pl-c1">tag</span>() &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>)<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>;
+                <span class="pl-k">break</span>;
+        }
+    }
+}</pre></div>
+<p dir="auto">Output:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="begin_array (n/a)
+begin_array (n/a)
+string_value: foo (n/a)
+byte_string_value: 50,75,73,73 (n/a)
+string_value: 0x3p-1 (bigfloat)
+end_array (n/a)
+begin_array (n/a)
+string_value: bar (n/a)
+byte_string_value: 50,75,73,73 (base64)
+string_value: 1.23456789012345678901234567890 (bigdec)
+end_array (n/a)
+end_array (n/a)"><pre class="notranslate"><code>begin_array (n/a)
+begin_array (n/a)
+string_value: foo (n/a)
+byte_string_value: 50,75,73,73 (n/a)
+string_value: 0x3p-1 (bigfloat)
+end_array (n/a)
+begin_array (n/a)
+string_value: bar (n/a)
+byte_string_value: 50,75,73,73 (base64)
+string_value: 1.23456789012345678901234567890 (bigdec)
+end_array (n/a)
+end_array (n/a)
+</code></pre></div>
+<p dir="auto">You can apply a filter to a cursor using the pipe syntax,</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="int main()
+{
+    auto filter = [&amp;](const staj_event&amp; ev, const ser_context&amp;) -&gt; bool
+    {
+        return (ev.tag() == semantic_tag::bigdec) || (ev.tag() == semantic_tag::bigfloat);  
+    };
+
+    cbor::cbor_bytes_cursor cursor(data);
+    auto filtered_c = cursor | filter;
+
+    for (; !filtered_c.done(); filtered_c.next())
+    {
+        const auto&amp; event = filtered_c.current();
+        switch (event.event_type())
+        {
+            case staj_event_type::string_value:
+                // Or std::string_view, if supported
+                std::cout &lt;&lt; event.event_type() &lt;&lt; &quot;: &quot; &lt;&lt; event.get&lt;jsoncons::string_view&gt;() &lt;&lt; &quot; &quot; &lt;&lt; &quot;(&quot; &lt;&lt; event.tag() &lt;&lt; &quot;)\n&quot;;
+                break;
+            default:
+                std::cout &lt;&lt; &quot;Unhandled event type &quot; &lt;&lt; event.event_type() &lt;&lt; &quot; &quot; &lt;&lt; &quot;(&quot; &lt;&lt; event.tag() &lt;&lt; &quot;)\n&quot;;
+                break;
+        }
+    }
+}"><pre><span class="pl-k">int</span> <span class="pl-en">main</span>()
+{
+    <span class="pl-k">auto</span> filter = [&amp;](<span class="pl-k">const</span> staj_event&amp; ev, <span class="pl-k">const</span> ser_context&amp;) -&gt; <span class="pl-k">bool</span>
+    {
+        <span class="pl-k">return</span> (ev.<span class="pl-c1">tag</span>() == semantic_tag::bigdec) || (ev.<span class="pl-c1">tag</span>() == semantic_tag::bigfloat);  
+    };
+
+    cbor::cbor_bytes_cursor <span class="pl-smi">cursor</span>(data);
+    <span class="pl-k">auto</span> filtered_c = cursor | filter;
+
+    <span class="pl-k">for</span> (; !filtered_c.<span class="pl-c1">done</span>(); filtered_c.<span class="pl-c1">next</span>())
+    {
+        <span class="pl-k">const</span> <span class="pl-k">auto</span>&amp; event = filtered_c.<span class="pl-c1">current</span>();
+        <span class="pl-k">switch</span> (event.<span class="pl-c1">event_type</span>())
+        {
+            <span class="pl-k">case</span> staj_event_type::string_value:
+                <span class="pl-c"><span class="pl-c">//</span> Or std::string_view, if supported</span>
+                std::cout &lt;&lt; event.<span class="pl-c1">event_type</span>() &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>: <span class="pl-pds">"</span></span> &lt;&lt; event.<span class="pl-smi">get</span>&lt;jsoncons::string_view&gt;() &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span> <span class="pl-pds">"</span></span> &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>(<span class="pl-pds">"</span></span> &lt;&lt; event.<span class="pl-c1">tag</span>() &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>)<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>;
+                <span class="pl-k">break</span>;
+            <span class="pl-k">default</span>:
+                std::cout &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>Unhandled event type <span class="pl-pds">"</span></span> &lt;&lt; event.<span class="pl-c1">event_type</span>() &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span> <span class="pl-pds">"</span></span> &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>(<span class="pl-pds">"</span></span> &lt;&lt; event.<span class="pl-c1">tag</span>() &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>)<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>;
+                <span class="pl-k">break</span>;
+        }
+    }
+}</pre></div>
+<p dir="auto">Output:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="string_value: 0x3p-1 (bigfloat)
+string_value: 1.23456789012345678901234567890 (bigdec)"><pre class="notranslate"><code>string_value: 0x3p-1 (bigfloat)
+string_value: 1.23456789012345678901234567890 (bigdec)
+</code></pre></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Supported compilers</h2><a id="user-content-supported-compilers" class="anchor" aria-label="Permalink: Supported compilers" href="#supported-compilers"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">jsoncons requires a compiler with minimally C++11 support. It is tested in continuous integration on <a href="https://github.com/danielaparker/jsoncons/actions">Github Actions</a> and <a href="https://app.circleci.com/pipelines/circleci/EFpnYcrBiZEvYvns3VF4vT" rel="nofollow">circleci</a>.
+<a href="http://clang.llvm.org/docs/UndefinedBehaviorSanitizer.html" rel="nofollow">UndefinedBehaviorSanitizer (UBSan)</a> diagnostics are enabled for selected gcc and clang builds.
+Since v0.151.0, it is integrated with <a href="https://github.com/google/oss-fuzz">Google OSS-fuzz</a>, with coverage for all parsers and encoders.</p>
+<markdown-accessiblity-table><table>
+<thead>
+<tr>
+<th>Compiler</th>
+<th>Version</th>
+<th>Standard</th>
+<th>Architecture</th>
+<th>Operating System</th>
+<th>CI Service</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Visual Studio</td>
+<td>vs2019</td>
+<td>default</td>
+<td>x86, x64</td>
+<td>Windows 11</td>
+<td>GitHub Actions</td>
+</tr>
+<tr>
+<td></td>
+<td>vs2022</td>
+<td>default</td>
+<td>x86, x64</td>
+<td>Windows 11</td>
+<td>GitHub Actions</td>
+</tr>
+<tr>
+<td>Visual Studio - clang</td>
+<td>vs2019</td>
+<td>default</td>
+<td>x86, x64</td>
+<td>Windows 11</td>
+<td>GitHub Actions</td>
+</tr>
+<tr>
+<td></td>
+<td>vs2022</td>
+<td>default</td>
+<td>x86, x64</td>
+<td>Windows 11</td>
+<td>GitHub Actions</td>
+</tr>
+<tr>
+<td>g++</td>
+<td>6, 7, 8, 9, 10, 11, 12</td>
+<td>default</td>
+<td>x64</td>
+<td>Ubuntu</td>
+<td>circleci</td>
+</tr>
+<tr>
+<td>g++</td>
+<td>12</td>
+<td>c++20</td>
+<td>x64</td>
+<td>Ubuntu</td>
+<td>GitHub Actions</td>
+</tr>
+<tr>
+<td>clang</td>
+<td>3.9, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15</td>
+<td>default</td>
+<td>x64</td>
+<td>Ubuntu</td>
+<td>circleci</td>
+</tr>
+<tr>
+<td>clang</td>
+<td>14</td>
+<td>c++20</td>
+<td>x64</td>
+<td>Ubuntu</td>
+<td>GitHub Actions</td>
+</tr>
+<tr>
+<td>clang xcode</td>
+<td>11, 12, 13</td>
+<td>default</td>
+<td>x64</td>
+<td>OSX 11</td>
+<td>GitHub Actions</td>
+</tr>
+<tr>
+<td>clang xcode</td>
+<td>13, 14</td>
+<td>default</td>
+<td>x64</td>
+<td>OSX 12</td>
+<td>GitHub Actions</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Building the test suite and examples with CMake</h2><a id="user-content-building-the-test-suite-and-examples-with-cmake" class="anchor" aria-label="Permalink: Building the test suite and examples with CMake" href="#building-the-test-suite-and-examples-with-cmake"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><a href="https://cmake.org/" rel="nofollow">CMake</a> is a cross-platform build tool that generates makefiles and solutions for the compiler environment of your choice. On Windows you can download a <a href="https://cmake.org/download/" rel="nofollow">Windows Installer package</a>. On Linux it is usually available as a package, e.g., on Ubuntu,</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="sudo apt-get install cmake"><pre class="notranslate"><code>sudo apt-get install cmake
+</code></pre></div>
+<p dir="auto">Once cmake is installed, you can build and run the unit tests from the jsoncons directory,</p>
+<p dir="auto">On Windows:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="&gt; mkdir build
+&gt; cd build
+&gt; cmake .. -DJSONCONS_BUILD_TESTS=On
+&gt; cmake --build .
+&gt; ctest -C Debug --output-on-failure"><pre class="notranslate"><code>&gt; mkdir build
+&gt; cd build
+&gt; cmake .. -DJSONCONS_BUILD_TESTS=On
+&gt; cmake --build .
+&gt; ctest -C Debug --output-on-failure
+</code></pre></div>
+<p dir="auto">On UNIX:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="$ mkdir build
+$ cd build
+$ cmake .. -DJSONCONS_BUILD_TESTS=On
+$ cmake --build .
+$ ctest --output-on-failure"><pre class="notranslate"><code>$ mkdir build
+$ cd build
+$ cmake .. -DJSONCONS_BUILD_TESTS=On
+$ cmake --build .
+$ ctest --output-on-failure
+</code></pre></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Acknowledgements</h2><a id="user-content-acknowledgements" class="anchor" aria-label="Permalink: Acknowledgements" href="#acknowledgements"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">jsoncons uses the PVS-Studio static analyzer, provided free for open source projects.</p>
+<p dir="auto">A big thanks to the comp.lang.c++ community for help with implementation details.</p>
+<p dir="auto">The jsoncons platform dependent binary configuration draws on to the excellent MIT licensed <a href="https://github.com/intel/tinycbor">tinycbor</a>.</p>
+<p dir="auto">Thanks to Milo Yip, author of <a href="http://rapidjson.org/" rel="nofollow">RapidJSON</a>, for raising the quality of JSON libraries across the board, by publishing <a href="https://github.com/miloyip/nativejson-benchmark">the benchmarks</a>, and contacting this project (among others) to share the results.</p>
+<p dir="auto">The jsoncons implementation of the Grisu3 algorithm for printing floating-point numbers follows Florian Loitsch's MIT licensed <a href="http://florian.loitsch.com/publications" rel="nofollow">grisu3_59_56 implementation</a>, with minor modifications.</p>
+<p dir="auto">The macro <code>JSONCONS_ALL_MEMBER_TRAITS</code> follows the approach taken by Martin York's <a href="https://github.com/Loki-Astari/ThorsSerializer">ThorsSerializer</a></p>
+<p dir="auto">The jsoncons implementations of BSON decimal128 to and from string,
+and ObjectId to and from string, are based on the Apache 2 licensed <a href="https://github.com/mongodb/mongo-c-driver/tree/master/src/libbson">libbson</a>.</p>
+<p dir="auto">Special thanks to our <a href="https://github.com/danielaparker/jsoncons/blob/master/acknowledgements.md">contributors</a></p>
+</div></div></article></div>
