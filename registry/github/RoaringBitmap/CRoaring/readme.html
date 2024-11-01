@@ -1,0 +1,1197 @@
+<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">CRoaring</h1><a id="user-content-croaring" class="anchor" aria-label="Permalink: CRoaring" href="#croaring"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><a href="https://github.com/RoaringBitmap/CRoaring/actions/workflows/ubuntu-noexcept-ci.yml"><img src="https://github.com/RoaringBitmap/CRoaring/actions/workflows/ubuntu-noexcept-ci.yml/badge.svg" alt="Ubuntu-CI" style="max-width: 100%;"></a> <a href="https://github.com/RoaringBitmap/CRoaring/actions/workflows/vs17-ci.yml"><img src="https://github.com/RoaringBitmap/CRoaring/actions/workflows/vs17-ci.yml/badge.svg" alt="VS17-CI" style="max-width: 100%;"></a>
+<a href="https://bugs.chromium.org/p/oss-fuzz/issues/list?sort=-opened&amp;can=1&amp;q=proj:croaring" rel="nofollow"><img src="https://camo.githubusercontent.com/2b9a5ec19a6b79f85b7bb5699cddd8791682668b2f25482a914710a9fb161547/68747470733a2f2f6f73732d66757a7a2d6275696c642d6c6f67732e73746f726167652e676f6f676c65617069732e636f6d2f6261646765732f63726f6172696e672e737667" alt="Fuzzing Status" data-canonical-src="https://oss-fuzz-build-logs.storage.googleapis.com/badges/croaring.svg" style="max-width: 100%;"></a></p>
+<p dir="auto"><a href="http://roaringbitmap.github.io/CRoaring/" rel="nofollow"><img src="https://camo.githubusercontent.com/8a5de105fe8b8429f39b77bb30e976ae428d4921f56ec60f0ed64121f788e62b/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f646f63732d646f787967656e2d677265656e2e737667" alt="Doxygen Documentation" data-canonical-src="https://img.shields.io/badge/docs-doxygen-green.svg" style="max-width: 100%;"></a></p>
+<p dir="auto">Portable Roaring bitmaps in C (and C++) with full support for your favorite compiler (GNU GCC, LLVM's clang, Visual Studio, Apple Xcode, Intel oneAPI). Included in the <a href="https://github.com/kozross/awesome-c">Awesome C</a> list of open source C software.</p>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Introduction</h1><a id="user-content-introduction" class="anchor" aria-label="Permalink: Introduction" href="#introduction"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Bitsets, also called bitmaps, are commonly used as fast data structures. Unfortunately, they can use too much memory.
+To compensate, we often use compressed bitmaps.</p>
+<p dir="auto">Roaring bitmaps are compressed bitmaps which tend to outperform conventional compressed bitmaps such as WAH, EWAH or Concise.
+They are used by several major systems such as <a href="https://lucene.apache.org/" rel="nofollow">Apache Lucene</a> and derivative systems such as <a href="https://lucene.apache.org/solr/" rel="nofollow">Solr</a> and
+<a href="https://www.elastic.co/products/elasticsearch" rel="nofollow">Elasticsearch</a>, <a href="http://druid.io/" rel="nofollow">Metamarkets' Druid</a>, <a href="http://github.com/linkedin/pinot/wiki">LinkedIn Pinot</a>, <a href="https://github.com/Netflix/atlas">Netflix Atlas</a>, <a href="https://spark.apache.org/" rel="nofollow">Apache Spark</a>, <a href="http://www.opensearchserver.com" rel="nofollow">OpenSearchServer</a>, <a href="https://github.com/jpillora/cloud-torrent">Cloud Torrent</a>, <a href="https://bitbucket.org/mchaput/whoosh/wiki/Home" rel="nofollow">Whoosh</a>, <a href="https://www.influxdata.com" rel="nofollow">InfluxDB</a>, <a href="https://www.pilosa.com/" rel="nofollow">Pilosa</a>, <a href="http://www.blevesearch.com" rel="nofollow">Bleve</a>, <a href="https://www.visualstudio.com/team-services/" rel="nofollow">Microsoft Visual Studio Team Services (VSTS)</a>, and eBay's <a href="http://kylin.apache.org/" rel="nofollow">Apache Kylin</a>. The CRoaring library is used in several systems such as <a href="http://doris.incubator.apache.org" rel="nofollow">Apache Doris</a>, <a href="https://github.com/ClickHouse/ClickHouse">ClickHouse</a>, <a href="https://github.com/redpanda-data/redpanda">Redpanda</a>, and <a href="https://github.com/StarRocks/starrocks">StarRocks</a>. The YouTube SQL Engine, <a href="https://research.google/pubs/pub48388/" rel="nofollow">Google Procella</a>, uses Roaring bitmaps for indexing.</p>
+<p dir="auto">We published a peer-reviewed article on the design and evaluation of this library:</p>
+<ul dir="auto">
+<li>Roaring Bitmaps: Implementation of an Optimized Software Library, Software: Practice and Experience 48 (4), 2018 <a href="https://arxiv.org/abs/1709.07821" rel="nofollow">arXiv:1709.07821</a></li>
+</ul>
+<p dir="auto">Roaring bitmaps are found to work well in many important applications:</p>
+<blockquote>
+<p dir="auto">Use Roaring for bitmap compression whenever possible. Do not use other bitmap compression methods (<a href="http://db.ucsd.edu/wp-content/uploads/2017/03/sidm338-wangA.pdf" rel="nofollow">Wang et al., SIGMOD 2017</a>)</p>
+</blockquote>
+<p dir="auto"><a href="https://github.com/RoaringBitmap/RoaringFormatSpec/">There is a serialized format specification for interoperability between implementations</a>. Hence, it is possible to serialize a Roaring Bitmap from C++, read it in Java, modify it, serialize it back and read it in Go and Python.</p>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Objective</h1><a id="user-content-objective" class="anchor" aria-label="Permalink: Objective" href="#objective"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The primary goal of the CRoaring is to provide a high performance low-level implementation that fully take advantage
+of the latest hardware. Roaring bitmaps are already available on a variety of platform through Java, Go, Rust... implementations. CRoaring is a library that seeks to achieve superior performance by staying close to the latest hardware.</p>
+<p dir="auto">(c) 2016-... The CRoaring authors.</p>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Requirements</h1><a id="user-content-requirements" class="anchor" aria-label="Permalink: Requirements" href="#requirements"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li>Linux, macOS, FreeBSD, Windows (MSYS2 and Microsoft Visual studio).</li>
+<li>We test the library with ARM, x64/x86 and POWER processors. We only support little endian systems (big endian systems are vanishingly rare).</li>
+<li>Recent C compiler supporting the C11 standard (GCC 7 or better, LLVM 8 or better (clang), Xcode 11 or better, Microsoft Visual Studio 2022 or better, Intel oneAPI Compiler 2023.2 or better), there is also an optional C++ class that requires a C++ compiler supporting the C++11 standard.</li>
+<li>CMake (to contribute to the project, users can rely on amalgamation/unity builds if they do not wish to use CMake).</li>
+<li>The CMake system assumes that git is available.</li>
+<li>Under x64 systems, the library provides runtime dispatch so that optimized functions are called based on the detected CPU features. It works with GCC, clang (version 9 and up) and Visual Studio (2017 and up). Other systems (e.g., ARM) do not need runtime dispatch.</li>
+</ul>
+<p dir="auto">Hardly anyone has access to an actual big-endian system. Nevertheless,
+We support big-endian systems such as IBM s390x through emulators---except for
+IO serialization which is only supported on little-endian systems (see <a href="https://github.com/RoaringBitmap/CRoaring/issues/423" data-hovercard-type="issue" data-hovercard-url="/RoaringBitmap/CRoaring/issues/423/hovercard">issue 423</a>).</p>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Quick Start</h1><a id="user-content-quick-start" class="anchor" aria-label="Permalink: Quick Start" href="#quick-start"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The CRoaring library can be amalgamated into a single source file that makes it easier
+for integration into other projects. Moreover, by making it possible to compile
+all the critical code into one compilation unit, it can improve the performance. For
+the rationale, please see the <a href="https://www.sqlite.org/amalgamation.html" rel="nofollow">SQLite documentation</a>,
+or the corresponding <a href="https://en.wikipedia.org/wiki/Single_Compilation_Unit" rel="nofollow">Wikipedia entry</a>.
+Users who choose this route, do not need to rely on CRoaring's build system (based on CMake).</p>
+<p dir="auto">We offer amalgamated files as part of each release.</p>
+<p dir="auto">Linux or macOS users might follow the following instructions if they have a recent C or C++ compiler installed and a standard utility (<code>wget</code>).</p>
+<ol dir="auto">
+<li>Pull the library in a directory
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="wget https://github.com/RoaringBitmap/CRoaring/releases/download/v2.1.0/roaring.c
+wget https://github.com/RoaringBitmap/CRoaring/releases/download/v2.1.0/roaring.h
+wget https://github.com/RoaringBitmap/CRoaring/releases/download/v2.1.0/roaring.hh"><pre class="notranslate"><code>wget https://github.com/RoaringBitmap/CRoaring/releases/download/v2.1.0/roaring.c
+wget https://github.com/RoaringBitmap/CRoaring/releases/download/v2.1.0/roaring.h
+wget https://github.com/RoaringBitmap/CRoaring/releases/download/v2.1.0/roaring.hh
+</code></pre></div>
+</li>
+<li>Create a new file named <code>demo.c</code> with this content:
+<div class="highlight highlight-source-c notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &quot;roaring.c&quot;
+int main() {
+    roaring_bitmap_t *r1 = roaring_bitmap_create();
+    for (uint32_t i = 100; i &lt; 1000; i++) roaring_bitmap_add(r1, i);
+    printf(&quot;cardinality = %d\n&quot;, (int) roaring_bitmap_get_cardinality(r1));
+    roaring_bitmap_free(r1);
+
+    bitset_t *b = bitset_create();
+    for (int k = 0; k &lt; 1000; ++k) {
+            bitset_set(b, 3 * k);
+    }
+    printf(&quot;%zu \n&quot;, bitset_count(b));
+    bitset_free(b);
+    return EXIT_SUCCESS;
+}"><pre><span class="pl-k">#include</span> <span class="pl-s">&lt;stdio.h&gt;</span>
+<span class="pl-k">#include</span> <span class="pl-s">&lt;stdlib.h&gt;</span>
+<span class="pl-k">#include</span> <span class="pl-s">"roaring.c"</span>
+<span class="pl-smi">int</span> <span class="pl-en">main</span>() {
+    <span class="pl-smi">roaring_bitmap_t</span> <span class="pl-c1">*</span><span class="pl-s1">r1</span> <span class="pl-c1">=</span> <span class="pl-en">roaring_bitmap_create</span>();
+    <span class="pl-k">for</span> (<span class="pl-smi">uint32_t</span> <span class="pl-s1">i</span> <span class="pl-c1">=</span> <span class="pl-c1">100</span>; <span class="pl-s1">i</span> <span class="pl-c1">&lt;</span> <span class="pl-c1">1000</span>; <span class="pl-s1">i</span><span class="pl-c1">++</span>) <span class="pl-en">roaring_bitmap_add</span>(<span class="pl-s1">r1</span>, <span class="pl-s1">i</span>);
+    <span class="pl-en">printf</span>(<span class="pl-s">"cardinality = %d\n"</span>, (<span class="pl-smi">int</span>) <span class="pl-en">roaring_bitmap_get_cardinality</span>(<span class="pl-s1">r1</span>));
+    <span class="pl-en">roaring_bitmap_free</span>(<span class="pl-s1">r1</span>);
+
+    <span class="pl-smi">bitset_t</span> <span class="pl-c1">*</span><span class="pl-s1">b</span> <span class="pl-c1">=</span> <span class="pl-en">bitset_create</span>();
+    <span class="pl-k">for</span> (<span class="pl-smi">int</span> <span class="pl-s1">k</span> <span class="pl-c1">=</span> <span class="pl-c1">0</span>; <span class="pl-s1">k</span> <span class="pl-c1">&lt;</span> <span class="pl-c1">1000</span>; <span class="pl-c1">++</span><span class="pl-s1">k</span>) {
+            <span class="pl-en">bitset_set</span>(<span class="pl-s1">b</span>, <span class="pl-c1">3</span> <span class="pl-c1">*</span> <span class="pl-s1">k</span>);
+    }
+    <span class="pl-en">printf</span>(<span class="pl-s">"%zu \n"</span>, <span class="pl-en">bitset_count</span>(<span class="pl-s1">b</span>));
+    <span class="pl-en">bitset_free</span>(<span class="pl-s1">b</span>);
+    <span class="pl-k">return</span> <span class="pl-c1">EXIT_SUCCESS</span>;
+}</pre></div>
+</li>
+<li>Create a new file named <code>demo.cpp</code> with this content:
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="#include &lt;iostream&gt;
+#include &quot;roaring.hh&quot; // the amalgamated roaring.hh includes roaring64map.hh
+#include &quot;roaring.c&quot;
+int main() {
+    roaring::Roaring r1;
+    for (uint32_t i = 100; i &lt; 1000; i++) {
+        r1.add(i);
+    }
+    std::cout &lt;&lt; &quot;cardinality = &quot; &lt;&lt; r1.cardinality() &lt;&lt; std::endl;
+
+    roaring::Roaring64Map r2;
+    for (uint64_t i = 18000000000000000100ull; i &lt; 18000000000000001000ull; i++) {
+        r2.add(i);
+    }
+    std::cout &lt;&lt; &quot;cardinality = &quot; &lt;&lt; r2.cardinality() &lt;&lt; std::endl;
+    return 0;
+}"><pre>#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>iostream<span class="pl-pds">&gt;</span></span>
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">"</span>roaring.hh<span class="pl-pds">"</span></span> <span class="pl-c"><span class="pl-c">//</span> the amalgamated roaring.hh includes roaring64map.hh</span>
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">"</span>roaring.c<span class="pl-pds">"</span></span>
+<span class="pl-k">int</span> <span class="pl-en">main</span>() {
+    roaring::Roaring r1;
+    <span class="pl-k">for</span> (<span class="pl-c1">uint32_t</span> i = <span class="pl-c1">100</span>; i &lt; <span class="pl-c1">1000</span>; i++) {
+        r1.<span class="pl-c1">add</span>(i);
+    }
+    std::cout &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>cardinality = <span class="pl-pds">"</span></span> &lt;&lt; r1.<span class="pl-c1">cardinality</span>() &lt;&lt; std::endl;
+
+    roaring::Roaring64Map r2;
+    <span class="pl-k">for</span> (<span class="pl-c1">uint64_t</span> i = <span class="pl-c1">18000000000000000100ull</span>; i &lt; <span class="pl-c1">18000000000000001000ull</span>; i++) {
+        r2.<span class="pl-c1">add</span>(i);
+    }
+    std::cout &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>cardinality = <span class="pl-pds">"</span></span> &lt;&lt; r2.<span class="pl-c1">cardinality</span>() &lt;&lt; std::endl;
+    <span class="pl-k">return</span> <span class="pl-c1">0</span>;
+}</pre></div>
+</li>
+<li>Compile
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="cc -o demo demo.c
+c++ -std=c++11 -o demopp demo.cpp"><pre class="notranslate"><code>cc -o demo demo.c
+c++ -std=c++11 -o demopp demo.cpp
+</code></pre></div>
+</li>
+<li><code>./demo</code>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="cardinality = 900
+1000"><pre class="notranslate"><code>cardinality = 900
+1000
+</code></pre></div>
+</li>
+<li><code>./demopp</code>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="cardinality = 900
+cardinality = 900"><pre class="notranslate"><code>cardinality = 900
+cardinality = 900
+</code></pre></div>
+</li>
+</ol>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Using Roaring as a CPM dependency</h1><a id="user-content-using-roaring-as-a-cpm-dependency" class="anchor" aria-label="Permalink: Using Roaring as a CPM dependency" href="#using-roaring-as-a-cpm-dependency"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">If you like CMake and CPM, you can add just a few lines in your <code>CMakeLists.txt</code> file to grab a <code>CRoaring</code> release. <a href="https://github.com/RoaringBitmap/CPMdemo">See our CPM demonstration for further details</a>.</p>
+<div class="highlight highlight-source-cmake notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="cmake_minimum_required(VERSION 3.10)
+project(roaring_demo
+  LANGUAGES CXX C
+)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_C_STANDARD 11)
+
+add_executable(hello hello.cpp)
+# You can add CPM.cmake like so:
+# mkdir -p cmake
+# wget -O cmake/CPM.cmake https://github.com/cpm-cmake/CPM.cmake/releases/latest/download/get_cpm.cmake
+include(cmake/CPM.cmake)
+CPMAddPackage(
+  NAME roaring
+  GITHUB_REPOSITORY &quot;RoaringBitmap/CRoaring&quot;
+  GIT_TAG v2.0.4
+  OPTIONS &quot;BUILD_TESTING OFF&quot;
+)
+
+target_link_libraries(hello roaring::roaring)"><pre><span class="pl-c1">cmake_minimum_required</span>(<span class="pl-k">VERSION</span> 3.10)
+<span class="pl-c1">project</span>(roaring_demo
+  <span class="pl-k">LANGUAGES</span> CXX C
+)
+<span class="pl-c1">set</span>(CMAKE_CXX_STANDARD 17)
+<span class="pl-c1">set</span>(CMAKE_C_STANDARD 11)
+
+<span class="pl-c1">add_executable</span>(hello hello.cpp)
+<span class="pl-c"><span class="pl-c">#</span> You can add CPM.cmake like so:</span>
+<span class="pl-c"><span class="pl-c">#</span> mkdir -p cmake</span>
+<span class="pl-c"><span class="pl-c">#</span> wget -O cmake/CPM.cmake https://github.com/cpm-cmake/CPM.cmake/releases/latest/download/get_cpm.cmake</span>
+<span class="pl-c1">include</span>(cmake/CPM.cmake)
+CPMAddPackage(
+  <span class="pl-k">NAME</span> roaring
+  GITHUB_REPOSITORY <span class="pl-s">"RoaringBitmap/CRoaring"</span>
+  GIT_TAG v2.0.4
+  <span class="pl-k">OPTIONS</span> <span class="pl-s">"BUILD_TESTING OFF"</span>
+)
+
+<span class="pl-c1">target_link_libraries</span>(hello roaring::roaring)</pre></div>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Using as a CMake dependency with FetchContent</h1><a id="user-content-using-as-a-cmake-dependency-with-fetchcontent" class="anchor" aria-label="Permalink: Using as a CMake dependency with FetchContent" href="#using-as-a-cmake-dependency-with-fetchcontent"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">If you like CMake, you can add just a few lines in your <code>CMakeLists.txt</code> file to grab a <code>CRoaring</code> release. <a href="https://github.com/RoaringBitmap/croaring_cmake_demo_single_file">See our demonstration for further details</a>.</p>
+<p dir="auto">If you installed the CRoaring library locally, you may use it with CMake's <code>find_package</code> function as in this example:</p>
+<div class="highlight highlight-source-cmake notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="cmake_minimum_required(VERSION 3.15)
+
+project(test_roaring_install VERSION 0.1.0 LANGUAGES CXX C)
+
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_STANDARD_REQUIRED ON)
+
+find_package(roaring REQUIRED)
+
+file(WRITE main.cpp &quot;
+#include &lt;iostream&gt;
+#include \&quot;roaring/roaring.hh\&quot;
+int main() {
+  roaring::Roaring r1;
+  for (uint32_t i = 100; i &lt; 1000; i++) {
+    r1.add(i);
+  }
+  std::cout &lt;&lt; \&quot;cardinality = \&quot; &lt;&lt; r1.cardinality() &lt;&lt; std::endl;
+  return 0;
+}&quot;)
+
+add_executable(repro main.cpp)
+target_link_libraries(repro PUBLIC roaring::roaring)"><pre><span class="pl-c1">cmake_minimum_required</span>(<span class="pl-k">VERSION</span> 3.15)
+
+<span class="pl-c1">project</span>(test_roaring_install <span class="pl-k">VERSION</span> 0.1.0 <span class="pl-k">LANGUAGES</span> CXX C)
+
+<span class="pl-c1">set</span>(CMAKE_CXX_STANDARD 11)
+<span class="pl-c1">set</span>(CMAKE_CXX_STANDARD_REQUIRED <span class="pl-k">ON</span>)
+
+
+<span class="pl-c1">set</span>(CMAKE_C_STANDARD 11)
+<span class="pl-c1">set</span>(CMAKE_C_STANDARD_REQUIRED <span class="pl-k">ON</span>)
+
+<span class="pl-c1">find_package</span>(roaring <span class="pl-k">REQUIRED</span>)
+
+<span class="pl-c1">file</span>(<span class="pl-k">WRITE</span> main.cpp <span class="pl-s">"</span>
+<span class="pl-s">#include &lt;iostream&gt;</span>
+<span class="pl-s">#include <span class="pl-cce">\"</span>roaring/roaring.hh<span class="pl-cce">\"</span></span>
+<span class="pl-s">int main() {</span>
+<span class="pl-s">  roaring::Roaring r1;</span>
+<span class="pl-s">  for (uint32_t i = 100; i &lt; 1000; i++) {</span>
+<span class="pl-s">    r1.add(i);</span>
+<span class="pl-s">  }</span>
+<span class="pl-s">  std::cout &lt;&lt; <span class="pl-cce">\"</span>cardinality = <span class="pl-cce">\"</span> &lt;&lt; r1.cardinality() &lt;&lt; std::endl;</span>
+<span class="pl-s">  return 0;</span>
+<span class="pl-s">}"</span>)
+
+<span class="pl-c1">add_executable</span>(repro main.cpp)
+<span class="pl-c1">target_link_libraries</span>(repro <span class="pl-k">PUBLIC</span> roaring::roaring)</pre></div>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Amalgamating</h1><a id="user-content-amalgamating" class="anchor" aria-label="Permalink: Amalgamating" href="#amalgamating"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">To generate the amalgamated files yourself, you can invoke a bash script...</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="./amalgamation.sh"><pre>./amalgamation.sh</pre></div>
+<p dir="auto">If you prefer a silent output, you can use the following command to redirect <code>stdout</code> :</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="./amalgamation.sh &gt; /dev/null"><pre>./amalgamation.sh <span class="pl-k">&gt;</span> /dev/null</pre></div>
+<p dir="auto">(Bash shells are standard under Linux and macOS. Bash shells are available under Windows as part of the  <a href="https://desktop.github.com/">GitHub Desktop</a> under the name <code>Git Shell</code>. So if you have cloned the <code>CRoaring</code> GitHub repository from within the GitHub Desktop, you can right-click on <code>CRoaring</code>, select <code>Git Shell</code> and then enter the above commands.)</p>
+<p dir="auto">It is not necessary to invoke the script in the CRoaring directory. You can invoke
+it from any directory where you want the amalgamation files to be written.</p>
+<p dir="auto">It will generate three files for C users: <code>roaring.h</code>, <code>roaring.c</code> and <code>amalgamation_demo.c</code>... as well as some brief instructions. The <code>amalgamation_demo.c</code> file is a short example, whereas <code>roaring.h</code> and <code>roaring.c</code> are "amalgamated" files (including all source and header files for the project). This means that you can simply copy the files <code>roaring.h</code> and <code>roaring.c</code> into your project and be ready to go! No need to produce a library! See the <code>amalgamation_demo.c</code> file.</p>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">API</h1><a id="user-content-api" class="anchor" aria-label="Permalink: API" href="#api"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The C interface is found in the files</p>
+<ul dir="auto">
+<li><a href="https://github.com/RoaringBitmap/CRoaring/blob/master/include/roaring/roaring.h">roaring.h</a>,</li>
+<li><a href="https://github.com/RoaringBitmap/CRoaring/blob/master/include/roaring/roaring64.h">roaring64.h</a>.</li>
+</ul>
+<p dir="auto">We also have a C++ interface:</p>
+<ul dir="auto">
+<li><a href="https://github.com/RoaringBitmap/CRoaring/blob/master/cpp/roaring.hh">roaring.hh</a>,</li>
+<li><a href="https://github.com/RoaringBitmap/CRoaring/blob/master/cpp/roaring64map.hh">roaring64map.hh</a>.</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Dealing with large volumes</h1><a id="user-content-dealing-with-large-volumes" class="anchor" aria-label="Permalink: Dealing with large volumes" href="#dealing-with-large-volumes"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Some users have to deal with large volumes of data. It  may be important for these users to be aware of the <code>addMany</code> (C++) <code>roaring_bitmap_or_many</code> (C) functions as it is much faster and economical to add values in batches when possible. Furthermore, calling periodically the <code>runOptimize</code> (C++) or <code>roaring_bitmap_run_optimize</code> (C) functions may help.</p>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Running microbenchmarks</h1><a id="user-content-running-microbenchmarks" class="anchor" aria-label="Permalink: Running microbenchmarks" href="#running-microbenchmarks"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">We have microbenchmarks constructed with the Google Benchmarks.
+Under Linux or macOS, you may run them as follows:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="cmake -B build -D ENABLE_ROARING_MICROBENCHMARKS=ON
+cmake --build build
+./build/microbenchmarks/bench"><pre class="notranslate"><code>cmake -B build -D ENABLE_ROARING_MICROBENCHMARKS=ON
+cmake --build build
+./build/microbenchmarks/bench
+</code></pre></div>
+<p dir="auto">By default, the benchmark tools picks one data set (e.g., <code>CRoaring/benchmarks/realdata/census1881</code>).
+We have several data sets and you may pick others:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="./build/microbenchmarks/bench benchmarks/realdata/wikileaks-noquotes"><pre class="notranslate"><code>./build/microbenchmarks/bench benchmarks/realdata/wikileaks-noquotes
+</code></pre></div>
+<p dir="auto">You may disable some functionality for the purpose of benchmarking. For example, assuming you
+have an x64 processor, you could benchmark the code without AVX-512 even if both your processor
+and compiler supports it:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="cmake -B buildnoavx512 -D ROARING_DISABLE_AVX512=ON -D ENABLE_ROARING_MICROBENCHMARKS=ON
+cmake --build buildnoavx512
+./buildnoavx512/microbenchmarks/bench"><pre class="notranslate"><code>cmake -B buildnoavx512 -D ROARING_DISABLE_AVX512=ON -D ENABLE_ROARING_MICROBENCHMARKS=ON
+cmake --build buildnoavx512
+./buildnoavx512/microbenchmarks/bench
+</code></pre></div>
+<p dir="auto">You can benchmark without AVX or AVX-512 as well:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="cmake -B buildnoavx -D ROARING_DISABLE_AVX=ON -D ENABLE_ROARING_MICROBENCHMARKS=ON
+cmake --build buildnoavx
+./buildnoavx/microbenchmarks/bench"><pre class="notranslate"><code>cmake -B buildnoavx -D ROARING_DISABLE_AVX=ON -D ENABLE_ROARING_MICROBENCHMARKS=ON
+cmake --build buildnoavx
+./buildnoavx/microbenchmarks/bench
+</code></pre></div>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Custom memory allocators</h1><a id="user-content-custom-memory-allocators" class="anchor" aria-label="Permalink: Custom memory allocators" href="#custom-memory-allocators"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">For general users, CRoaring would apply default allocator without extra codes. But global memory hook is also provided for those who want a custom memory allocator. Here is an example:</p>
+<div class="highlight highlight-source-c notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="#include &lt;roaring.h&gt;
+
+int main(){
+    // define with your own memory hook
+    roaring_memory_t my_hook{my_malloc, my_free ...};
+    // initialize global memory hook
+    roaring_init_memory_hook(my_hook);
+    // write you code here
+    ...
+}"><pre><span class="pl-k">#include</span> <span class="pl-s">&lt;roaring.h&gt;</span>
+
+<span class="pl-smi">int</span> <span class="pl-en">main</span>(){
+    <span class="pl-c">// define with your own memory hook</span>
+    <span class="pl-smi">roaring_memory_t</span> <span class="pl-s1">my_hook</span>{<span class="pl-s1">my_malloc</span>, <span class="pl-s1">my_free</span> ...};
+    <span class="pl-c">// initialize global memory hook</span>
+    <span class="pl-en">roaring_init_memory_hook</span>(<span class="pl-s1">my_hook</span>);
+    <span class="pl-c">// write you code here</span>
+    ...
+}</pre></div>
+<p dir="auto">By default we use:</p>
+<div class="highlight highlight-source-c notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="static roaring_memory_t global_memory_hook = {
+    .malloc = malloc,
+    .realloc = realloc,
+    .calloc = calloc,
+    .free = free,
+    .aligned_malloc = roaring_bitmap_aligned_malloc,
+    .aligned_free = roaring_bitmap_aligned_free,
+};"><pre><span class="pl-k">static</span> <span class="pl-smi">roaring_memory_t</span> <span class="pl-s1">global_memory_hook</span> <span class="pl-c1">=</span> {
+    .<span class="pl-c1">malloc</span> <span class="pl-c1">=</span> <span class="pl-s1">malloc</span>,
+    .<span class="pl-c1">realloc</span> <span class="pl-c1">=</span> <span class="pl-s1">realloc</span>,
+    .<span class="pl-c1">calloc</span> <span class="pl-c1">=</span> <span class="pl-s1">calloc</span>,
+    .<span class="pl-c1">free</span> <span class="pl-c1">=</span> <span class="pl-s1">free</span>,
+    .<span class="pl-c1">aligned_malloc</span> <span class="pl-c1">=</span> <span class="pl-s1">roaring_bitmap_aligned_malloc</span>,
+    .<span class="pl-c1">aligned_free</span> <span class="pl-c1">=</span> <span class="pl-s1">roaring_bitmap_aligned_free</span>,
+};</pre></div>
+<p dir="auto">We require that the <code>free</code>/<code>aligned_free</code> functions follow the C
+convention where <code>free(NULL)</code>/<code>aligned_free(NULL)</code> have no effect.</p>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Example (C)</h1><a id="user-content-example-c" class="anchor" aria-label="Permalink: Example (C)" href="#example-c"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">This example assumes that CRoaring has been build and that you are linking against the corresponding library. By default, CRoaring will install its header files in a <code>roaring</code> directory. If you are working from the amalgamation script, you may add the line <code>#include "roaring.c"</code> if you are not linking against a prebuilt CRoaring library and replace <code>#include &lt;roaring/roaring.h&gt;</code> by <code>#include "roaring.h"</code>.</p>
+<div class="highlight highlight-source-c notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="#include &lt;roaring/roaring.h&gt;
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;assert.h&gt;
+
+bool roaring_iterator_sumall(uint32_t value, void *param) {
+    *(uint32_t *)param += value;
+    return true;  // iterate till the end
+}
+
+int main() {
+    // create a new empty bitmap
+    roaring_bitmap_t *r1 = roaring_bitmap_create();
+    // then we can add values
+    for (uint32_t i = 100; i &lt; 1000; i++) roaring_bitmap_add(r1, i);
+    // check whether a value is contained
+    assert(roaring_bitmap_contains(r1, 500));
+    // compute how many bits there are:
+    uint32_t cardinality = roaring_bitmap_get_cardinality(r1);
+    printf(&quot;Cardinality = %d \n&quot;, cardinality);
+
+    // if your bitmaps have long runs, you can compress them by calling
+    // run_optimize
+    uint32_t expectedsizebasic = roaring_bitmap_portable_size_in_bytes(r1);
+    roaring_bitmap_run_optimize(r1);
+    uint32_t expectedsizerun = roaring_bitmap_portable_size_in_bytes(r1);
+    printf(&quot;size before run optimize %d bytes, and after %d bytes\n&quot;,
+           expectedsizebasic, expectedsizerun);
+
+    // create a new bitmap containing the values {1,2,3,5,6}
+    roaring_bitmap_t *r2 = roaring_bitmap_from(1, 2, 3, 5, 6);
+    roaring_bitmap_printf(r2);  // print it
+
+    // we can also create a bitmap from a pointer to 32-bit integers
+    uint32_t somevalues[] = {2, 3, 4};
+    roaring_bitmap_t *r3 = roaring_bitmap_of_ptr(3, somevalues);
+
+    // we can also go in reverse and go from arrays to bitmaps
+    uint64_t card1 = roaring_bitmap_get_cardinality(r1);
+    uint32_t *arr1 = (uint32_t *)malloc(card1 * sizeof(uint32_t));
+    assert(arr1 != NULL);
+    roaring_bitmap_to_uint32_array(r1, arr1);
+    roaring_bitmap_t *r1f = roaring_bitmap_of_ptr(card1, arr1);
+    free(arr1);
+    assert(roaring_bitmap_equals(r1, r1f));  // what we recover is equal
+    roaring_bitmap_free(r1f);
+
+    // we can go from arrays to bitmaps from &quot;offset&quot; by &quot;limit&quot;
+    size_t offset = 100;
+    size_t limit = 1000;
+    uint32_t *arr3 = (uint32_t *)malloc(limit * sizeof(uint32_t));
+    assert(arr3 != NULL);
+    roaring_bitmap_range_uint32_array(r1, offset, limit, arr3);
+    free(arr3);
+
+    // we can copy and compare bitmaps
+    roaring_bitmap_t *z = roaring_bitmap_copy(r3);
+    assert(roaring_bitmap_equals(r3, z));  // what we recover is equal
+    roaring_bitmap_free(z);
+
+    // we can compute union two-by-two
+    roaring_bitmap_t *r1_2_3 = roaring_bitmap_or(r1, r2);
+    roaring_bitmap_or_inplace(r1_2_3, r3);
+
+    // we can compute a big union
+    const roaring_bitmap_t *allmybitmaps[] = {r1, r2, r3};
+    roaring_bitmap_t *bigunion = roaring_bitmap_or_many(3, allmybitmaps);
+    assert(
+        roaring_bitmap_equals(r1_2_3, bigunion));  // what we recover is equal
+    // can also do the big union with a heap
+    roaring_bitmap_t *bigunionheap =
+        roaring_bitmap_or_many_heap(3, allmybitmaps);
+    assert(roaring_bitmap_equals(r1_2_3, bigunionheap));
+
+    roaring_bitmap_free(r1_2_3);
+    roaring_bitmap_free(bigunion);
+    roaring_bitmap_free(bigunionheap);
+
+    // we can compute intersection two-by-two
+    roaring_bitmap_t *i1_2 = roaring_bitmap_and(r1, r2);
+    roaring_bitmap_free(i1_2);
+
+    // we can write a bitmap to a pointer and recover it later
+    uint32_t expectedsize = roaring_bitmap_portable_size_in_bytes(r1);
+    char *serializedbytes = malloc(expectedsize);
+    // When serializing data to a file, we recommend that you also use
+    // checksums so that, at deserialization, you can be confident
+    // that you are recovering the correct data.
+    roaring_bitmap_portable_serialize(r1, serializedbytes);
+    // Note: it is expected that the input follows the specification
+    // https://github.com/RoaringBitmap/RoaringFormatSpec
+    // otherwise the result may be unusable.
+    // The 'roaring_bitmap_portable_deserialize_safe' function will not read
+    // beyond expectedsize bytes.
+    // We also recommend that you use checksums to check that serialized data corresponds
+    // to the serialized bitmap. The CRoaring library does not provide checksumming.
+    roaring_bitmap_t *t = roaring_bitmap_portable_deserialize_safe(serializedbytes, expectedsize);
+    if(t == NULL) { return EXIT_FAILURE; }
+    const char *reason = NULL;
+    // If your input came from an untrusted source, then you need to validate the
+    // resulting bitmap. Failing to do so could lead to undefined behavior, crashes and so forth.
+    if (!roaring_bitmap_internal_validate(t, &amp;reason)) {
+        return EXIT_FAILURE;
+    }
+    // At this point, the bitmap is safe.
+    assert(roaring_bitmap_equals(r1, t));  // what we recover is equal
+    roaring_bitmap_free(t);
+    // we can also check whether there is a bitmap at a memory location without
+    // reading it
+    size_t sizeofbitmap =
+        roaring_bitmap_portable_deserialize_size(serializedbytes, expectedsize);
+    assert(sizeofbitmap ==
+           expectedsize);  // sizeofbitmap would be zero if no bitmap were found
+    // We can also read the bitmap &quot;safely&quot; by specifying a byte size limit.
+    // The 'roaring_bitmap_portable_deserialize_safe' function will not read
+    // beyond expectedsize bytes.
+    // We also recommend that you use checksums to check that serialized data corresponds
+    // to the serialized bitmap. The CRoaring library does not provide checksumming.
+    t = roaring_bitmap_portable_deserialize_safe(serializedbytes, expectedsize);
+    if(t == NULL) {
+        printf(&quot;Problem during deserialization.\n&quot;);
+        // We could clear any memory and close any file here.
+        return EXIT_FAILURE;
+    }
+    // We can validate the bitmap we recovered to make sure it is proper.
+    // If the data came from an untrusted source, you should call
+    // roaring_bitmap_internal_validate.
+    const char *reason_failure = NULL;
+    if (!roaring_bitmap_internal_validate(t, &amp;reason_failure)) {
+        printf(&quot;safely deserialized invalid bitmap: %s\n&quot;, reason_failure);
+        // We could clear any memory and close any file here.
+        return EXIT_FAILURE;
+    }
+    assert(roaring_bitmap_equals(r1, t));  // what we recover is equal
+    roaring_bitmap_free(t);
+
+    free(serializedbytes);
+
+    // we can iterate over all values using custom functions
+    uint32_t counter = 0;
+    roaring_iterate(r1, roaring_iterator_sumall, &amp;counter);
+
+    // we can also create iterator structs
+    counter = 0;
+    roaring_uint32_iterator_t *i = roaring_iterator_create(r1);
+    while (i-&gt;has_value) {
+        counter++;  // could use    i-&gt;current_value
+        roaring_uint32_iterator_advance(i);
+    }
+    // you can skip over values and move the iterator with
+    // roaring_uint32_iterator_move_equalorlarger(i,someintvalue)
+
+    roaring_uint32_iterator_free(i);
+    // roaring_bitmap_get_cardinality(r1) == counter
+
+    // for greater speed, you can iterate over the data in bulk
+    i = roaring_iterator_create(r1);
+    uint32_t buffer[256];
+    while (1) {
+        uint32_t ret = roaring_uint32_iterator_read(i, buffer, 256);
+        for (uint32_t j = 0; j &lt; ret; j++) {
+            counter += buffer[j];
+        }
+        if (ret &lt; 256) {
+            break;
+        }
+    }
+    roaring_uint32_iterator_free(i);
+
+    roaring_bitmap_free(r1);
+    roaring_bitmap_free(r2);
+    roaring_bitmap_free(r3);
+    return EXIT_SUCCESS;
+}"><pre><span class="pl-k">#include</span> <span class="pl-s">&lt;roaring/roaring.h&gt;</span>
+<span class="pl-k">#include</span> <span class="pl-s">&lt;stdio.h&gt;</span>
+<span class="pl-k">#include</span> <span class="pl-s">&lt;stdlib.h&gt;</span>
+<span class="pl-k">#include</span> <span class="pl-s">&lt;assert.h&gt;</span>
+
+<span class="pl-smi">bool</span> <span class="pl-en">roaring_iterator_sumall</span>(<span class="pl-smi">uint32_t</span> <span class="pl-s1">value</span>, <span class="pl-smi">void</span> <span class="pl-c1">*</span><span class="pl-s1">param</span>) {
+    <span class="pl-c1">*</span>(<span class="pl-smi">uint32_t</span> <span class="pl-c1">*</span>)<span class="pl-s1">param</span> <span class="pl-c1">+=</span> <span class="pl-s1">value</span>;
+    <span class="pl-k">return</span> true;  <span class="pl-c">// iterate till the end</span>
+}
+
+<span class="pl-smi">int</span> <span class="pl-en">main</span>() {
+    <span class="pl-c">// create a new empty bitmap</span>
+    <span class="pl-smi">roaring_bitmap_t</span> <span class="pl-c1">*</span><span class="pl-s1">r1</span> <span class="pl-c1">=</span> <span class="pl-en">roaring_bitmap_create</span>();
+    <span class="pl-c">// then we can add values</span>
+    <span class="pl-k">for</span> (<span class="pl-smi">uint32_t</span> <span class="pl-s1">i</span> <span class="pl-c1">=</span> <span class="pl-c1">100</span>; <span class="pl-s1">i</span> <span class="pl-c1">&lt;</span> <span class="pl-c1">1000</span>; <span class="pl-s1">i</span><span class="pl-c1">++</span>) <span class="pl-en">roaring_bitmap_add</span>(<span class="pl-s1">r1</span>, <span class="pl-s1">i</span>);
+    <span class="pl-c">// check whether a value is contained</span>
+    <span class="pl-en">assert</span>(<span class="pl-en">roaring_bitmap_contains</span>(<span class="pl-s1">r1</span>, <span class="pl-c1">500</span>));
+    <span class="pl-c">// compute how many bits there are:</span>
+    <span class="pl-smi">uint32_t</span> <span class="pl-s1">cardinality</span> <span class="pl-c1">=</span> <span class="pl-en">roaring_bitmap_get_cardinality</span>(<span class="pl-s1">r1</span>);
+    <span class="pl-en">printf</span>(<span class="pl-s">"Cardinality = %d \n"</span>, <span class="pl-s1">cardinality</span>);
+
+    <span class="pl-c">// if your bitmaps have long runs, you can compress them by calling</span>
+    <span class="pl-c">// run_optimize</span>
+    <span class="pl-smi">uint32_t</span> <span class="pl-s1">expectedsizebasic</span> <span class="pl-c1">=</span> <span class="pl-en">roaring_bitmap_portable_size_in_bytes</span>(<span class="pl-s1">r1</span>);
+    <span class="pl-en">roaring_bitmap_run_optimize</span>(<span class="pl-s1">r1</span>);
+    <span class="pl-smi">uint32_t</span> <span class="pl-s1">expectedsizerun</span> <span class="pl-c1">=</span> <span class="pl-en">roaring_bitmap_portable_size_in_bytes</span>(<span class="pl-s1">r1</span>);
+    <span class="pl-en">printf</span>(<span class="pl-s">"size before run optimize %d bytes, and after %d bytes\n"</span>,
+           <span class="pl-s1">expectedsizebasic</span>, <span class="pl-s1">expectedsizerun</span>);
+
+    <span class="pl-c">// create a new bitmap containing the values {1,2,3,5,6}</span>
+    <span class="pl-smi">roaring_bitmap_t</span> <span class="pl-c1">*</span><span class="pl-s1">r2</span> <span class="pl-c1">=</span> <span class="pl-en">roaring_bitmap_from</span>(<span class="pl-c1">1</span>, <span class="pl-c1">2</span>, <span class="pl-c1">3</span>, <span class="pl-c1">5</span>, <span class="pl-c1">6</span>);
+    <span class="pl-en">roaring_bitmap_printf</span>(<span class="pl-s1">r2</span>);  <span class="pl-c">// print it</span>
+
+    <span class="pl-c">// we can also create a bitmap from a pointer to 32-bit integers</span>
+    <span class="pl-smi">uint32_t</span> <span class="pl-s1">somevalues</span>[] <span class="pl-c1">=</span> {<span class="pl-c1">2</span>, <span class="pl-c1">3</span>, <span class="pl-c1">4</span>};
+    <span class="pl-smi">roaring_bitmap_t</span> <span class="pl-c1">*</span><span class="pl-s1">r3</span> <span class="pl-c1">=</span> <span class="pl-en">roaring_bitmap_of_ptr</span>(<span class="pl-c1">3</span>, <span class="pl-s1">somevalues</span>);
+
+    <span class="pl-c">// we can also go in reverse and go from arrays to bitmaps</span>
+    <span class="pl-smi">uint64_t</span> <span class="pl-s1">card1</span> <span class="pl-c1">=</span> <span class="pl-en">roaring_bitmap_get_cardinality</span>(<span class="pl-s1">r1</span>);
+    <span class="pl-smi">uint32_t</span> <span class="pl-c1">*</span><span class="pl-s1">arr1</span> <span class="pl-c1">=</span> (<span class="pl-smi">uint32_t</span> <span class="pl-c1">*</span>)<span class="pl-en">malloc</span>(<span class="pl-s1">card1</span> <span class="pl-c1">*</span> <span class="pl-k">sizeof</span>(<span class="pl-smi">uint32_t</span>));
+    <span class="pl-en">assert</span>(<span class="pl-s1">arr1</span> <span class="pl-c1">!=</span> <span class="pl-c1">NULL</span>);
+    <span class="pl-en">roaring_bitmap_to_uint32_array</span>(<span class="pl-s1">r1</span>, <span class="pl-s1">arr1</span>);
+    <span class="pl-smi">roaring_bitmap_t</span> <span class="pl-c1">*</span><span class="pl-s1">r1f</span> <span class="pl-c1">=</span> <span class="pl-en">roaring_bitmap_of_ptr</span>(<span class="pl-s1">card1</span>, <span class="pl-s1">arr1</span>);
+    <span class="pl-en">free</span>(<span class="pl-s1">arr1</span>);
+    <span class="pl-en">assert</span>(<span class="pl-en">roaring_bitmap_equals</span>(<span class="pl-s1">r1</span>, <span class="pl-s1">r1f</span>));  <span class="pl-c">// what we recover is equal</span>
+    <span class="pl-en">roaring_bitmap_free</span>(<span class="pl-s1">r1f</span>);
+
+    <span class="pl-c">// we can go from arrays to bitmaps from "offset" by "limit"</span>
+    <span class="pl-smi">size_t</span> <span class="pl-s1">offset</span> <span class="pl-c1">=</span> <span class="pl-c1">100</span>;
+    <span class="pl-smi">size_t</span> <span class="pl-s1">limit</span> <span class="pl-c1">=</span> <span class="pl-c1">1000</span>;
+    <span class="pl-smi">uint32_t</span> <span class="pl-c1">*</span><span class="pl-s1">arr3</span> <span class="pl-c1">=</span> (<span class="pl-smi">uint32_t</span> <span class="pl-c1">*</span>)<span class="pl-en">malloc</span>(<span class="pl-s1">limit</span> <span class="pl-c1">*</span> <span class="pl-k">sizeof</span>(<span class="pl-smi">uint32_t</span>));
+    <span class="pl-en">assert</span>(<span class="pl-s1">arr3</span> <span class="pl-c1">!=</span> <span class="pl-c1">NULL</span>);
+    <span class="pl-en">roaring_bitmap_range_uint32_array</span>(<span class="pl-s1">r1</span>, <span class="pl-s1">offset</span>, <span class="pl-s1">limit</span>, <span class="pl-s1">arr3</span>);
+    <span class="pl-en">free</span>(<span class="pl-s1">arr3</span>);
+
+    <span class="pl-c">// we can copy and compare bitmaps</span>
+    <span class="pl-smi">roaring_bitmap_t</span> <span class="pl-c1">*</span><span class="pl-s1">z</span> <span class="pl-c1">=</span> <span class="pl-en">roaring_bitmap_copy</span>(<span class="pl-s1">r3</span>);
+    <span class="pl-en">assert</span>(<span class="pl-en">roaring_bitmap_equals</span>(<span class="pl-s1">r3</span>, <span class="pl-s1">z</span>));  <span class="pl-c">// what we recover is equal</span>
+    <span class="pl-en">roaring_bitmap_free</span>(<span class="pl-s1">z</span>);
+
+    <span class="pl-c">// we can compute union two-by-two</span>
+    <span class="pl-smi">roaring_bitmap_t</span> <span class="pl-c1">*</span><span class="pl-s1">r1_2_3</span> <span class="pl-c1">=</span> <span class="pl-en">roaring_bitmap_or</span>(<span class="pl-s1">r1</span>, <span class="pl-s1">r2</span>);
+    <span class="pl-en">roaring_bitmap_or_inplace</span>(<span class="pl-s1">r1_2_3</span>, <span class="pl-s1">r3</span>);
+
+    <span class="pl-c">// we can compute a big union</span>
+    <span class="pl-k">const</span> <span class="pl-smi">roaring_bitmap_t</span> <span class="pl-c1">*</span><span class="pl-s1">allmybitmaps</span>[] <span class="pl-c1">=</span> {<span class="pl-s1">r1</span>, <span class="pl-s1">r2</span>, <span class="pl-s1">r3</span>};
+    <span class="pl-smi">roaring_bitmap_t</span> <span class="pl-c1">*</span><span class="pl-s1">bigunion</span> <span class="pl-c1">=</span> <span class="pl-en">roaring_bitmap_or_many</span>(<span class="pl-c1">3</span>, <span class="pl-s1">allmybitmaps</span>);
+    <span class="pl-en">assert</span>(
+        <span class="pl-en">roaring_bitmap_equals</span>(<span class="pl-s1">r1_2_3</span>, <span class="pl-s1">bigunion</span>));  <span class="pl-c">// what we recover is equal</span>
+    <span class="pl-c">// can also do the big union with a heap</span>
+    <span class="pl-smi">roaring_bitmap_t</span> <span class="pl-c1">*</span><span class="pl-s1">bigunionheap</span> <span class="pl-c1">=</span>
+        <span class="pl-en">roaring_bitmap_or_many_heap</span>(<span class="pl-c1">3</span>, <span class="pl-s1">allmybitmaps</span>);
+    <span class="pl-en">assert</span>(<span class="pl-en">roaring_bitmap_equals</span>(<span class="pl-s1">r1_2_3</span>, <span class="pl-s1">bigunionheap</span>));
+
+    <span class="pl-en">roaring_bitmap_free</span>(<span class="pl-s1">r1_2_3</span>);
+    <span class="pl-en">roaring_bitmap_free</span>(<span class="pl-s1">bigunion</span>);
+    <span class="pl-en">roaring_bitmap_free</span>(<span class="pl-s1">bigunionheap</span>);
+
+    <span class="pl-c">// we can compute intersection two-by-two</span>
+    <span class="pl-smi">roaring_bitmap_t</span> <span class="pl-c1">*</span><span class="pl-s1">i1_2</span> <span class="pl-c1">=</span> <span class="pl-en">roaring_bitmap_and</span>(<span class="pl-s1">r1</span>, <span class="pl-s1">r2</span>);
+    <span class="pl-en">roaring_bitmap_free</span>(<span class="pl-s1">i1_2</span>);
+
+    <span class="pl-c">// we can write a bitmap to a pointer and recover it later</span>
+    <span class="pl-smi">uint32_t</span> <span class="pl-s1">expectedsize</span> <span class="pl-c1">=</span> <span class="pl-en">roaring_bitmap_portable_size_in_bytes</span>(<span class="pl-s1">r1</span>);
+    <span class="pl-smi">char</span> <span class="pl-c1">*</span><span class="pl-s1">serializedbytes</span> <span class="pl-c1">=</span> <span class="pl-en">malloc</span>(<span class="pl-s1">expectedsize</span>);
+    <span class="pl-c">// When serializing data to a file, we recommend that you also use</span>
+    <span class="pl-c">// checksums so that, at deserialization, you can be confident</span>
+    <span class="pl-c">// that you are recovering the correct data.</span>
+    <span class="pl-en">roaring_bitmap_portable_serialize</span>(<span class="pl-s1">r1</span>, <span class="pl-s1">serializedbytes</span>);
+    <span class="pl-c">// Note: it is expected that the input follows the specification</span>
+    <span class="pl-c">// https://github.com/RoaringBitmap/RoaringFormatSpec</span>
+    <span class="pl-c">// otherwise the result may be unusable.</span>
+    <span class="pl-c">// The 'roaring_bitmap_portable_deserialize_safe' function will not read</span>
+    <span class="pl-c">// beyond expectedsize bytes.</span>
+    <span class="pl-c">// We also recommend that you use checksums to check that serialized data corresponds</span>
+    <span class="pl-c">// to the serialized bitmap. The CRoaring library does not provide checksumming.</span>
+    <span class="pl-smi">roaring_bitmap_t</span> <span class="pl-c1">*</span><span class="pl-s1">t</span> <span class="pl-c1">=</span> <span class="pl-en">roaring_bitmap_portable_deserialize_safe</span>(<span class="pl-s1">serializedbytes</span>, <span class="pl-s1">expectedsize</span>);
+    <span class="pl-k">if</span>(<span class="pl-s1">t</span> <span class="pl-c1">==</span> <span class="pl-c1">NULL</span>) { <span class="pl-k">return</span> <span class="pl-c1">EXIT_FAILURE</span>; }
+    <span class="pl-k">const</span> <span class="pl-smi">char</span> <span class="pl-c1">*</span><span class="pl-s1">reason</span> <span class="pl-c1">=</span> <span class="pl-c1">NULL</span>;
+    <span class="pl-c">// If your input came from an untrusted source, then you need to validate the</span>
+    <span class="pl-c">// resulting bitmap. Failing to do so could lead to undefined behavior, crashes and so forth.</span>
+    <span class="pl-k">if</span> (!<span class="pl-en">roaring_bitmap_internal_validate</span>(<span class="pl-s1">t</span>, <span class="pl-c1">&amp;</span><span class="pl-s1">reason</span>)) {
+        <span class="pl-k">return</span> <span class="pl-c1">EXIT_FAILURE</span>;
+    }
+    <span class="pl-c">// At this point, the bitmap is safe.</span>
+    <span class="pl-en">assert</span>(<span class="pl-en">roaring_bitmap_equals</span>(<span class="pl-s1">r1</span>, <span class="pl-s1">t</span>));  <span class="pl-c">// what we recover is equal</span>
+    <span class="pl-en">roaring_bitmap_free</span>(<span class="pl-s1">t</span>);
+    <span class="pl-c">// we can also check whether there is a bitmap at a memory location without</span>
+    <span class="pl-c">// reading it</span>
+    <span class="pl-smi">size_t</span> <span class="pl-s1">sizeofbitmap</span> <span class="pl-c1">=</span>
+        <span class="pl-en">roaring_bitmap_portable_deserialize_size</span>(<span class="pl-s1">serializedbytes</span>, <span class="pl-s1">expectedsize</span>);
+    <span class="pl-en">assert</span>(<span class="pl-s1">sizeofbitmap</span> <span class="pl-c1">==</span>
+           <span class="pl-s1">expectedsize</span>);  <span class="pl-c">// sizeofbitmap would be zero if no bitmap were found</span>
+    <span class="pl-c">// We can also read the bitmap "safely" by specifying a byte size limit.</span>
+    <span class="pl-c">// The 'roaring_bitmap_portable_deserialize_safe' function will not read</span>
+    <span class="pl-c">// beyond expectedsize bytes.</span>
+    <span class="pl-c">// We also recommend that you use checksums to check that serialized data corresponds</span>
+    <span class="pl-c">// to the serialized bitmap. The CRoaring library does not provide checksumming.</span>
+    <span class="pl-s1">t</span> <span class="pl-c1">=</span> <span class="pl-en">roaring_bitmap_portable_deserialize_safe</span>(<span class="pl-s1">serializedbytes</span>, <span class="pl-s1">expectedsize</span>);
+    <span class="pl-k">if</span>(<span class="pl-s1">t</span> <span class="pl-c1">==</span> <span class="pl-c1">NULL</span>) {
+        <span class="pl-en">printf</span>(<span class="pl-s">"Problem during deserialization.\n"</span>);
+        <span class="pl-c">// We could clear any memory and close any file here.</span>
+        <span class="pl-k">return</span> <span class="pl-c1">EXIT_FAILURE</span>;
+    }
+    <span class="pl-c">// We can validate the bitmap we recovered to make sure it is proper.</span>
+    <span class="pl-c">// If the data came from an untrusted source, you should call</span>
+    <span class="pl-c">// roaring_bitmap_internal_validate.</span>
+    <span class="pl-k">const</span> <span class="pl-smi">char</span> <span class="pl-c1">*</span><span class="pl-s1">reason_failure</span> <span class="pl-c1">=</span> <span class="pl-c1">NULL</span>;
+    <span class="pl-k">if</span> (!<span class="pl-en">roaring_bitmap_internal_validate</span>(<span class="pl-s1">t</span>, <span class="pl-c1">&amp;</span><span class="pl-s1">reason_failure</span>)) {
+        <span class="pl-en">printf</span>(<span class="pl-s">"safely deserialized invalid bitmap: %s\n"</span>, <span class="pl-s1">reason_failure</span>);
+        <span class="pl-c">// We could clear any memory and close any file here.</span>
+        <span class="pl-k">return</span> <span class="pl-c1">EXIT_FAILURE</span>;
+    }
+    <span class="pl-en">assert</span>(<span class="pl-en">roaring_bitmap_equals</span>(<span class="pl-s1">r1</span>, <span class="pl-s1">t</span>));  <span class="pl-c">// what we recover is equal</span>
+    <span class="pl-en">roaring_bitmap_free</span>(<span class="pl-s1">t</span>);
+
+    <span class="pl-en">free</span>(<span class="pl-s1">serializedbytes</span>);
+
+    <span class="pl-c">// we can iterate over all values using custom functions</span>
+    <span class="pl-smi">uint32_t</span> <span class="pl-s1">counter</span> <span class="pl-c1">=</span> <span class="pl-c1">0</span>;
+    <span class="pl-en">roaring_iterate</span>(<span class="pl-s1">r1</span>, <span class="pl-s1">roaring_iterator_sumall</span>, <span class="pl-c1">&amp;</span><span class="pl-s1">counter</span>);
+
+    <span class="pl-c">// we can also create iterator structs</span>
+    <span class="pl-s1">counter</span> <span class="pl-c1">=</span> <span class="pl-c1">0</span>;
+    <span class="pl-smi">roaring_uint32_iterator_t</span> <span class="pl-c1">*</span><span class="pl-s1">i</span> <span class="pl-c1">=</span> <span class="pl-en">roaring_iterator_create</span>(<span class="pl-s1">r1</span>);
+    <span class="pl-k">while</span> (<span class="pl-s1">i</span><span class="pl-c1">-&gt;</span><span class="pl-c1">has_value</span>) {
+        <span class="pl-s1">counter</span><span class="pl-c1">++</span>;  <span class="pl-c">// could use    i-&gt;current_value</span>
+        <span class="pl-en">roaring_uint32_iterator_advance</span>(<span class="pl-s1">i</span>);
+    }
+    <span class="pl-c">// you can skip over values and move the iterator with</span>
+    <span class="pl-c">// roaring_uint32_iterator_move_equalorlarger(i,someintvalue)</span>
+
+    <span class="pl-en">roaring_uint32_iterator_free</span>(<span class="pl-s1">i</span>);
+    <span class="pl-c">// roaring_bitmap_get_cardinality(r1) == counter</span>
+
+    <span class="pl-c">// for greater speed, you can iterate over the data in bulk</span>
+    <span class="pl-s1">i</span> <span class="pl-c1">=</span> <span class="pl-en">roaring_iterator_create</span>(<span class="pl-s1">r1</span>);
+    <span class="pl-smi">uint32_t</span> <span class="pl-s1">buffer</span>[<span class="pl-c1">256</span>];
+    <span class="pl-k">while</span> (<span class="pl-c1">1</span>) {
+        <span class="pl-smi">uint32_t</span> <span class="pl-s1">ret</span> <span class="pl-c1">=</span> <span class="pl-en">roaring_uint32_iterator_read</span>(<span class="pl-s1">i</span>, <span class="pl-s1">buffer</span>, <span class="pl-c1">256</span>);
+        <span class="pl-k">for</span> (<span class="pl-smi">uint32_t</span> <span class="pl-s1">j</span> <span class="pl-c1">=</span> <span class="pl-c1">0</span>; <span class="pl-s1">j</span> <span class="pl-c1">&lt;</span> <span class="pl-s1">ret</span>; <span class="pl-s1">j</span><span class="pl-c1">++</span>) {
+            <span class="pl-s1">counter</span> <span class="pl-c1">+=</span> <span class="pl-s1">buffer</span>[<span class="pl-s1">j</span>];
+        }
+        <span class="pl-k">if</span> (<span class="pl-s1">ret</span> <span class="pl-c1">&lt;</span> <span class="pl-c1">256</span>) {
+            <span class="pl-k">break</span>;
+        }
+    }
+    <span class="pl-en">roaring_uint32_iterator_free</span>(<span class="pl-s1">i</span>);
+
+    <span class="pl-en">roaring_bitmap_free</span>(<span class="pl-s1">r1</span>);
+    <span class="pl-en">roaring_bitmap_free</span>(<span class="pl-s1">r2</span>);
+    <span class="pl-en">roaring_bitmap_free</span>(<span class="pl-s1">r3</span>);
+    <span class="pl-k">return</span> <span class="pl-c1">EXIT_SUCCESS</span>;
+}</pre></div>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Compressed 64-bit Roaring bitmaps (C)</h1><a id="user-content-compressed-64-bit-roaring-bitmaps-c" class="anchor" aria-label="Permalink: Compressed 64-bit Roaring bitmaps (C)" href="#compressed-64-bit-roaring-bitmaps-c"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">We also support efficient 64-bit compressed bitmaps in C:</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="  roaring64_bitmap_t *r2 = roaring64_bitmap_create();
+  for (uint64_t i = 100; i &lt; 1000; i++) roaring64_bitmap_add(r2, i);
+  printf(&quot;cardinality (64-bit) = %d\n&quot;, (int) roaring64_bitmap_get_cardinality(r2));
+  roaring64_bitmap_free(r2);"><pre>  <span class="pl-c1">roaring64_bitmap_t</span> *r2 = roaring64_bitmap_create();
+  <span class="pl-k">for</span> (<span class="pl-c1">uint64_t</span> i = <span class="pl-c1">100</span>; i &lt; <span class="pl-c1">1000</span>; i++) roaring64_bitmap_add(r2, i);
+  <span class="pl-en">printf</span>(<span class="pl-s"><span class="pl-pds">"</span>cardinality (64-bit) = %d<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>, (<span class="pl-k">int</span>) roaring64_bitmap_get_cardinality(r2));
+  <span class="pl-en">roaring64_bitmap_free</span>(r2);</pre></div>
+<p dir="auto">The API is similar to the conventional 32-bit bitmaps. Please see
+the header file <code>roaring64.h</code> (compare with <code>roaring.h</code>).</p>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Conventional bitsets (C)</h1><a id="user-content-conventional-bitsets-c" class="anchor" aria-label="Permalink: Conventional bitsets (C)" href="#conventional-bitsets-c"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">We support convention bitsets (uncompressed) as part of the library.</p>
+<p dir="auto">Simple example:</p>
+<div class="highlight highlight-source-c notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bitset_t * b = bitset_create();
+bitset_set(b,10);
+bitset_get(b,10);// returns true
+bitset_free(b); // frees memory"><pre><span class="pl-smi">bitset_t</span> <span class="pl-c1">*</span> <span class="pl-s1">b</span> <span class="pl-c1">=</span> <span class="pl-en">bitset_create</span>();
+<span class="pl-en">bitset_set</span>(<span class="pl-s1">b</span>,<span class="pl-c1">10</span>);
+<span class="pl-en">bitset_get</span>(<span class="pl-s1">b</span>,<span class="pl-c1">10</span>);<span class="pl-c">// returns true</span>
+<span class="pl-en">bitset_free</span>(<span class="pl-s1">b</span>); <span class="pl-c">// frees memory</span></pre></div>
+<p dir="auto">More advanced example:</p>
+<div class="highlight highlight-source-c notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bitset_t *b = bitset_create();
+for (int k = 0; k &lt; 1000; ++k) {
+    bitset_set(b, 3 * k);
+}
+// We have bitset_count(b) == 1000.
+// We have bitset_get(b, 3) is true
+// You can iterate through the values:
+size_t k = 0;
+for (size_t i = 0; bitset_next_set_bit(b, &amp;i); i++) {
+    // You will have i == k
+    k += 3;
+}
+// We support a wide range of operations on two bitsets such as
+// bitset_inplace_symmetric_difference(b1,b2);
+// bitset_inplace_symmetric_difference(b1,b2);
+// bitset_inplace_difference(b1,b2);// should make no difference
+// bitset_inplace_union(b1,b2);
+// bitset_inplace_intersection(b1,b2);
+// bitsets_disjoint
+// bitsets_intersect"><pre><span class="pl-smi">bitset_t</span> <span class="pl-c1">*</span><span class="pl-s1">b</span> <span class="pl-c1">=</span> <span class="pl-en">bitset_create</span>();
+<span class="pl-k">for</span> (<span class="pl-smi">int</span> <span class="pl-s1">k</span> <span class="pl-c1">=</span> <span class="pl-c1">0</span>; <span class="pl-s1">k</span> <span class="pl-c1">&lt;</span> <span class="pl-c1">1000</span>; <span class="pl-c1">++</span><span class="pl-s1">k</span>) {
+    <span class="pl-en">bitset_set</span>(<span class="pl-s1">b</span>, <span class="pl-c1">3</span> <span class="pl-c1">*</span> <span class="pl-s1">k</span>);
+}
+<span class="pl-c">// We have bitset_count(b) == 1000.</span>
+<span class="pl-c">// We have bitset_get(b, 3) is true</span>
+<span class="pl-c">// You can iterate through the values:</span>
+<span class="pl-smi">size_t</span> <span class="pl-s1">k</span> <span class="pl-c1">=</span> <span class="pl-c1">0</span>;
+<span class="pl-k">for</span> (<span class="pl-smi">size_t</span> <span class="pl-s1">i</span> <span class="pl-c1">=</span> <span class="pl-c1">0</span>; <span class="pl-en">bitset_next_set_bit</span>(<span class="pl-s1">b</span>, <span class="pl-c1">&amp;</span><span class="pl-s1">i</span>); <span class="pl-s1">i</span><span class="pl-c1">++</span>) {
+    <span class="pl-c">// You will have i == k</span>
+    <span class="pl-s1">k</span> <span class="pl-c1">+=</span> <span class="pl-c1">3</span>;
+}
+<span class="pl-c">// We support a wide range of operations on two bitsets such as</span>
+<span class="pl-c">// bitset_inplace_symmetric_difference(b1,b2);</span>
+<span class="pl-c">// bitset_inplace_symmetric_difference(b1,b2);</span>
+<span class="pl-c">// bitset_inplace_difference(b1,b2);// should make no difference</span>
+<span class="pl-c">// bitset_inplace_union(b1,b2);</span>
+<span class="pl-c">// bitset_inplace_intersection(b1,b2);</span>
+<span class="pl-c">// bitsets_disjoint</span>
+<span class="pl-c">// bitsets_intersect</span></pre></div>
+<p dir="auto">In some instances, you may want to convert a Roaring bitmap into a conventional (uncompressed) bitset.
+Indeed, bitsets have advantages such as higher query performances in some cases. The following code
+illustrates how you may do so:</p>
+<div class="highlight highlight-source-c notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="roaring_bitmap_t *r1 = roaring_bitmap_create();
+for (uint32_t i = 100; i &lt; 100000; i+= 1 + (i%5)) {
+     roaring_bitmap_add(r1, i);
+}
+for (uint32_t i = 100000; i &lt; 500000; i+= 100) {
+     roaring_bitmap_add(r1, i);
+}
+roaring_bitmap_add_range(r1, 500000, 600000);
+bitset_t * bitset = bitset_create();
+bool success = roaring_bitmap_to_bitset(r1, bitset);
+assert(success); // could fail due to memory allocation.
+assert(bitset_count(bitset) == roaring_bitmap_get_cardinality(r1));
+// You can then query the bitset:
+for (uint32_t i = 100; i &lt; 100000; i+= 1 + (i%5)) {
+    assert(bitset_get(bitset,i));
+}
+for (uint32_t i = 100000; i &lt; 500000; i+= 100) {
+    assert(bitset_get(bitset,i));
+}
+// you must free the memory:
+bitset_free(bitset);
+roaring_bitmap_free(r1);"><pre><span class="pl-smi">roaring_bitmap_t</span> <span class="pl-c1">*</span><span class="pl-s1">r1</span> <span class="pl-c1">=</span> <span class="pl-en">roaring_bitmap_create</span>();
+<span class="pl-k">for</span> (<span class="pl-smi">uint32_t</span> <span class="pl-s1">i</span> <span class="pl-c1">=</span> <span class="pl-c1">100</span>; <span class="pl-s1">i</span> <span class="pl-c1">&lt;</span> <span class="pl-c1">100000</span>; <span class="pl-s1">i</span><span class="pl-c1">+=</span> <span class="pl-c1">1</span> <span class="pl-c1">+</span> (<span class="pl-s1">i</span>%<span class="pl-c1">5</span>)) {
+     <span class="pl-en">roaring_bitmap_add</span>(<span class="pl-s1">r1</span>, <span class="pl-s1">i</span>);
+}
+<span class="pl-k">for</span> (<span class="pl-smi">uint32_t</span> <span class="pl-s1">i</span> <span class="pl-c1">=</span> <span class="pl-c1">100000</span>; <span class="pl-s1">i</span> <span class="pl-c1">&lt;</span> <span class="pl-c1">500000</span>; <span class="pl-s1">i</span><span class="pl-c1">+=</span> <span class="pl-c1">100</span>) {
+     <span class="pl-en">roaring_bitmap_add</span>(<span class="pl-s1">r1</span>, <span class="pl-s1">i</span>);
+}
+<span class="pl-en">roaring_bitmap_add_range</span>(<span class="pl-s1">r1</span>, <span class="pl-c1">500000</span>, <span class="pl-c1">600000</span>);
+<span class="pl-smi">bitset_t</span> <span class="pl-c1">*</span> <span class="pl-s1">bitset</span> <span class="pl-c1">=</span> <span class="pl-en">bitset_create</span>();
+<span class="pl-smi">bool</span> <span class="pl-s1">success</span> <span class="pl-c1">=</span> <span class="pl-en">roaring_bitmap_to_bitset</span>(<span class="pl-s1">r1</span>, <span class="pl-s1">bitset</span>);
+<span class="pl-en">assert</span>(<span class="pl-s1">success</span>); <span class="pl-c">// could fail due to memory allocation.</span>
+<span class="pl-en">assert</span>(<span class="pl-en">bitset_count</span>(<span class="pl-s1">bitset</span>) <span class="pl-c1">==</span> <span class="pl-en">roaring_bitmap_get_cardinality</span>(<span class="pl-s1">r1</span>));
+<span class="pl-c">// You can then query the bitset:</span>
+<span class="pl-k">for</span> (<span class="pl-smi">uint32_t</span> <span class="pl-s1">i</span> <span class="pl-c1">=</span> <span class="pl-c1">100</span>; <span class="pl-s1">i</span> <span class="pl-c1">&lt;</span> <span class="pl-c1">100000</span>; <span class="pl-s1">i</span><span class="pl-c1">+=</span> <span class="pl-c1">1</span> <span class="pl-c1">+</span> (<span class="pl-s1">i</span>%<span class="pl-c1">5</span>)) {
+    <span class="pl-en">assert</span>(<span class="pl-en">bitset_get</span>(<span class="pl-s1">bitset</span>,<span class="pl-s1">i</span>));
+}
+<span class="pl-k">for</span> (<span class="pl-smi">uint32_t</span> <span class="pl-s1">i</span> <span class="pl-c1">=</span> <span class="pl-c1">100000</span>; <span class="pl-s1">i</span> <span class="pl-c1">&lt;</span> <span class="pl-c1">500000</span>; <span class="pl-s1">i</span><span class="pl-c1">+=</span> <span class="pl-c1">100</span>) {
+    <span class="pl-en">assert</span>(<span class="pl-en">bitset_get</span>(<span class="pl-s1">bitset</span>,<span class="pl-s1">i</span>));
+}
+<span class="pl-c">// you must free the memory:</span>
+<span class="pl-en">bitset_free</span>(<span class="pl-s1">bitset</span>);
+<span class="pl-en">roaring_bitmap_free</span>(<span class="pl-s1">r1</span>);</pre></div>
+<p dir="auto">You should be aware that a convention bitset (<code>bitset_t *</code>) may use much more
+memory than a Roaring bitmap in some cases. You should run benchmarks to determine
+whether the conversion to a bitset has performance benefits in your case.</p>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Example (C++)</h1><a id="user-content-example-c-1" class="anchor" aria-label="Permalink: Example (C++)" href="#example-c-1"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">This example assumes that CRoaring has been build and that you are linking against the corresponding library. By default, CRoaring will install its header files in a <code>roaring</code> directory so you may need to replace <code>#include "roaring.hh"</code> by <code>#include &lt;roaring/roaring.hh&gt;</code>. If you are working from the amalgamation script, you may add the line <code>#include "roaring.c"</code> if you are not linking against a CRoaring prebuilt library.</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="#include &lt;iostream&gt;
+
+#include &quot;roaring.hh&quot;
+
+using namespace roaring;
+
+int main() {
+    Roaring r1;
+    for (uint32_t i = 100; i &lt; 1000; i++) {
+        r1.add(i);
+    }
+
+    // check whether a value is contained
+    assert(r1.contains(500));
+
+    // compute how many bits there are:
+    uint32_t cardinality = r1.cardinality();
+
+    // if your bitmaps have long runs, you can compress them by calling
+    // run_optimize
+    uint32_t size = r1.getSizeInBytes();
+    r1.runOptimize();
+
+    // you can enable &quot;copy-on-write&quot; for fast and shallow copies
+    r1.setCopyOnWrite(true);
+
+    uint32_t compact_size = r1.getSizeInBytes();
+    std::cout &lt;&lt; &quot;size before run optimize &quot; &lt;&lt; size &lt;&lt; &quot; bytes, and after &quot;
+              &lt;&lt; compact_size &lt;&lt; &quot; bytes.&quot; &lt;&lt; std::endl;
+
+    // create a new bitmap with varargs
+    Roaring r2 = Roaring::bitmapOf(5, 1, 2, 3, 5, 6);
+
+    r2.printf();
+    printf(&quot;\n&quot;);
+
+    // create a new bitmap with initializer list
+    Roaring r2i = Roaring::bitmapOfList({1, 2, 3, 5, 6});
+
+    assert(r2i == r2);
+
+    // we can also create a bitmap from a pointer to 32-bit integers
+    const uint32_t values[] = {2, 3, 4};
+    Roaring r3(3, values);
+
+    // we can also go in reverse and go from arrays to bitmaps
+    uint64_t card1 = r1.cardinality();
+    uint32_t *arr1 = new uint32_t[card1];
+    r1.toUint32Array(arr1);
+    Roaring r1f(card1, arr1);
+    delete[] arr1;
+
+    // bitmaps shall be equal
+    assert(r1 == r1f);
+
+    // we can copy and compare bitmaps
+    Roaring z(r3);
+    assert(r3 == z);
+
+    // we can compute union two-by-two
+    Roaring r1_2_3 = r1 | r2;
+    r1_2_3 |= r3;
+
+    // we can compute a big union
+    const Roaring *allmybitmaps[] = {&amp;r1, &amp;r2, &amp;r3};
+    Roaring bigunion = Roaring::fastunion(3, allmybitmaps);
+    assert(r1_2_3 == bigunion);
+
+    // we can compute intersection two-by-two
+    Roaring i1_2 = r1 &amp; r2;
+
+    // we can write a bitmap to a pointer and recover it later
+    uint32_t expectedsize = r1.getSizeInBytes();
+    char *serializedbytes = new char[expectedsize];
+    r1.write(serializedbytes);
+    // readSafe will not overflow, but the resulting bitmap
+    // is only valid and usable if the input follows the
+    // Roaring specification: https://github.com/RoaringBitmap/RoaringFormatSpec/
+    Roaring t = Roaring::readSafe(serializedbytes, expectedsize);
+    assert(r1 == t);
+    delete[] serializedbytes;
+
+    // we can iterate over all values using custom functions
+    uint32_t counter = 0;
+    r1.iterate(
+        [](uint32_t value, void *param) {
+            *(uint32_t *)param += value;
+            return true;
+        },
+        &amp;counter);
+
+    // we can also iterate the C++ way
+    counter = 0;
+    for (Roaring::const_iterator i = t.begin(); i != t.end(); i++) {
+        ++counter;
+    }
+    // counter == t.cardinality()
+
+    // we can move iterators to skip values
+    const uint32_t manyvalues[] = {2, 3, 4, 7, 8};
+    Roaring rogue(5, manyvalues);
+    Roaring::const_iterator j = rogue.begin();
+    j.equalorlarger(4);  // *j == 4
+    return EXIT_SUCCESS;
+}
+"><pre>#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>iostream<span class="pl-pds">&gt;</span></span>
+
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">"</span>roaring.hh<span class="pl-pds">"</span></span>
+
+<span class="pl-k">using</span> <span class="pl-k">namespace</span> <span class="pl-en">roaring</span><span class="pl-k">;</span>
+
+<span class="pl-k">int</span> <span class="pl-en">main</span>() {
+    Roaring r1;
+    <span class="pl-k">for</span> (<span class="pl-c1">uint32_t</span> i = <span class="pl-c1">100</span>; i &lt; <span class="pl-c1">1000</span>; i++) {
+        r1.<span class="pl-c1">add</span>(i);
+    }
+
+    <span class="pl-c"><span class="pl-c">//</span> check whether a value is contained</span>
+    <span class="pl-c1">assert</span>(r1.<span class="pl-c1">contains</span>(<span class="pl-c1">500</span>));
+
+    <span class="pl-c"><span class="pl-c">//</span> compute how many bits there are:</span>
+    <span class="pl-c1">uint32_t</span> cardinality = r1.<span class="pl-c1">cardinality</span>();
+
+    <span class="pl-c"><span class="pl-c">//</span> if your bitmaps have long runs, you can compress them by calling</span>
+    <span class="pl-c"><span class="pl-c">//</span> run_optimize</span>
+    <span class="pl-c1">uint32_t</span> size = r1.<span class="pl-c1">getSizeInBytes</span>();
+    r1.<span class="pl-c1">runOptimize</span>();
+
+    <span class="pl-c"><span class="pl-c">//</span> you can enable "copy-on-write" for fast and shallow copies</span>
+    r1.<span class="pl-c1">setCopyOnWrite</span>(<span class="pl-c1">true</span>);
+
+    <span class="pl-c1">uint32_t</span> compact_size = r1.<span class="pl-c1">getSizeInBytes</span>();
+    std::cout &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>size before run optimize <span class="pl-pds">"</span></span> &lt;&lt; size &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span> bytes, and after <span class="pl-pds">"</span></span>
+              &lt;&lt; compact_size &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span> bytes.<span class="pl-pds">"</span></span> &lt;&lt; std::endl;
+
+    <span class="pl-c"><span class="pl-c">//</span> create a new bitmap with varargs</span>
+    Roaring r2 = <span class="pl-c1">Roaring::bitmapOf</span>(<span class="pl-c1">5</span>, <span class="pl-c1">1</span>, <span class="pl-c1">2</span>, <span class="pl-c1">3</span>, <span class="pl-c1">5</span>, <span class="pl-c1">6</span>);
+
+    r2.<span class="pl-c1">printf</span>();
+    <span class="pl-c1">printf</span>(<span class="pl-s"><span class="pl-pds">"</span><span class="pl-cce">\n</span><span class="pl-pds">"</span></span>);
+
+    <span class="pl-c"><span class="pl-c">//</span> create a new bitmap with initializer list</span>
+    Roaring r2i = <span class="pl-c1">Roaring::bitmapOfList</span>({<span class="pl-c1">1</span>, <span class="pl-c1">2</span>, <span class="pl-c1">3</span>, <span class="pl-c1">5</span>, <span class="pl-c1">6</span>});
+
+    <span class="pl-c1">assert</span>(r2i == r2);
+
+    <span class="pl-c"><span class="pl-c">//</span> we can also create a bitmap from a pointer to 32-bit integers</span>
+    <span class="pl-k">const</span> <span class="pl-c1">uint32_t</span> values[] = {<span class="pl-c1">2</span>, <span class="pl-c1">3</span>, <span class="pl-c1">4</span>};
+    Roaring <span class="pl-smi">r3</span>(<span class="pl-c1">3</span>, values);
+
+    <span class="pl-c"><span class="pl-c">//</span> we can also go in reverse and go from arrays to bitmaps</span>
+    <span class="pl-c1">uint64_t</span> card1 = r1.<span class="pl-c1">cardinality</span>();
+    <span class="pl-c1">uint32_t</span> *arr1 = <span class="pl-k">new</span> <span class="pl-c1">uint32_t</span>[card1];
+    r1.<span class="pl-c1">toUint32Array</span>(arr1);
+    Roaring <span class="pl-smi">r1f</span>(card1, arr1);
+    <span class="pl-k">delete[]</span> arr1;
+
+    <span class="pl-c"><span class="pl-c">//</span> bitmaps shall be equal</span>
+    <span class="pl-c1">assert</span>(r1 == r1f);
+
+    <span class="pl-c"><span class="pl-c">//</span> we can copy and compare bitmaps</span>
+    Roaring <span class="pl-smi">z</span>(r3);
+    <span class="pl-c1">assert</span>(r3 == z);
+
+    <span class="pl-c"><span class="pl-c">//</span> we can compute union two-by-two</span>
+    Roaring r1_2_3 = r1 | r2;
+    r1_2_3 |= r3;
+
+    <span class="pl-c"><span class="pl-c">//</span> we can compute a big union</span>
+    <span class="pl-k">const</span> Roaring *allmybitmaps[] = {&amp;r1, &amp;r2, &amp;r3};
+    Roaring bigunion = <span class="pl-c1">Roaring::fastunion</span>(<span class="pl-c1">3</span>, allmybitmaps);
+    <span class="pl-c1">assert</span>(r1_2_3 == bigunion);
+
+    <span class="pl-c"><span class="pl-c">//</span> we can compute intersection two-by-two</span>
+    Roaring i1_2 = r1 &amp; r2;
+
+    <span class="pl-c"><span class="pl-c">//</span> we can write a bitmap to a pointer and recover it later</span>
+    <span class="pl-c1">uint32_t</span> expectedsize = r1.<span class="pl-c1">getSizeInBytes</span>();
+    <span class="pl-k">char</span> *serializedbytes = <span class="pl-k">new</span> <span class="pl-k">char</span>[expectedsize];
+    r1.<span class="pl-c1">write</span>(serializedbytes);
+    <span class="pl-c"><span class="pl-c">//</span> readSafe will not overflow, but the resulting bitmap</span>
+    <span class="pl-c"><span class="pl-c">//</span> is only valid and usable if the input follows the</span>
+    <span class="pl-c"><span class="pl-c">//</span> Roaring specification: https://github.com/RoaringBitmap/RoaringFormatSpec/</span>
+    Roaring t = <span class="pl-c1">Roaring::readSafe</span>(serializedbytes, expectedsize);
+    <span class="pl-c1">assert</span>(r1 == t);
+    <span class="pl-k">delete[]</span> serializedbytes;
+
+    <span class="pl-c"><span class="pl-c">//</span> we can iterate over all values using custom functions</span>
+    <span class="pl-c1">uint32_t</span> counter = <span class="pl-c1">0</span>;
+    r1.iterate(
+        [](<span class="pl-c1">uint32_t</span> value, <span class="pl-k">void</span> *param) {
+            *(<span class="pl-c1">uint32_t</span> *)param += value;
+            <span class="pl-k">return</span> <span class="pl-c1">true</span>;
+        },
+        &amp;counter);
+
+    <span class="pl-c"><span class="pl-c">//</span> we can also iterate the C++ way</span>
+    counter = <span class="pl-c1">0</span>;
+    <span class="pl-k">for</span> (Roaring::const_iterator i = t.<span class="pl-c1">begin</span>(); i != t.<span class="pl-c1">end</span>(); i++) {
+        ++counter;
+    }
+    <span class="pl-c"><span class="pl-c">//</span> counter == t.cardinality()</span>
+
+    <span class="pl-c"><span class="pl-c">//</span> we can move iterators to skip values</span>
+    <span class="pl-k">const</span> <span class="pl-c1">uint32_t</span> manyvalues[] = {<span class="pl-c1">2</span>, <span class="pl-c1">3</span>, <span class="pl-c1">4</span>, <span class="pl-c1">7</span>, <span class="pl-c1">8</span>};
+    Roaring <span class="pl-smi">rogue</span>(<span class="pl-c1">5</span>, manyvalues);
+    Roaring::const_iterator j = rogue.<span class="pl-c1">begin</span>();
+    j.<span class="pl-c1">equalorlarger</span>(<span class="pl-c1">4</span>);  <span class="pl-c"><span class="pl-c">//</span> *j == 4</span>
+    <span class="pl-k">return</span> EXIT_SUCCESS;
+}
+</pre></div>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Building with cmake (Linux and macOS, Visual Studio users should see below)</h1><a id="user-content-building-with-cmake-linux-and-macos-visual-studio-users-should-see-below" class="anchor" aria-label="Permalink: Building with cmake (Linux and macOS, Visual Studio users should see below)" href="#building-with-cmake-linux-and-macos-visual-studio-users-should-see-below"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">CRoaring follows the standard cmake workflow. Starting from the root directory of
+the project (CRoaring), you can do:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="mkdir -p build
+cd build
+cmake ..
+cmake --build .
+# follow by 'ctest' if you want to test.
+# you can also type 'make install' to install the library on your system
+# C header files typically get installed to /usr/local/include/roaring
+# whereas C++ header files get installed to /usr/local/include/roaring"><pre class="notranslate"><code>mkdir -p build
+cd build
+cmake ..
+cmake --build .
+# follow by 'ctest' if you want to test.
+# you can also type 'make install' to install the library on your system
+# C header files typically get installed to /usr/local/include/roaring
+# whereas C++ header files get installed to /usr/local/include/roaring
+</code></pre></div>
+<p dir="auto">(You can replace the <code>build</code> directory with any other directory name.)
+By default all tests are built on all platforms, to skip building and running tests add <code>-DENABLE_ROARING_TESTS=OFF</code> to the command line.</p>
+<p dir="auto">As with all <code>cmake</code> projects, you can specify the compilers you wish to use by adding (for example) <code>-DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++</code> to the <code>cmake</code> command line.</p>
+<p dir="auto">If you are using clang or gcc and you know your target architecture,  you can set the architecture by specifying <code>-DROARING_ARCH=arch</code>. For example, if you have many server but the oldest server is running the Intel <code>haswell</code> architecture, you can specify -<code>DROARING_ARCH=haswell</code>. In such cases, the produced binary will be optimized for processors having the characteristics of a haswell process and may not run on older architectures. You can find out the list of valid architecture values by typing <code>man gcc</code>.</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="mkdir -p build_haswell
+cd build_haswell
+cmake -DROARING_ARCH=haswell ..
+cmake --build ."><pre class="notranslate"><code>mkdir -p build_haswell
+cd build_haswell
+cmake -DROARING_ARCH=haswell ..
+cmake --build .
+</code></pre></div>
+<p dir="auto">For a debug release, starting from the root directory of the project (CRoaring), try</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="mkdir -p debug
+cd debug
+cmake -DCMAKE_BUILD_TYPE=Debug -DROARING_SANITIZE=ON ..
+ctest"><pre class="notranslate"><code>mkdir -p debug
+cd debug
+cmake -DCMAKE_BUILD_TYPE=Debug -DROARING_SANITIZE=ON ..
+ctest
+</code></pre></div>
+<p dir="auto">To check that your code abides by the style convention (make sure that <code>clang-format</code> is installed):</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="./tools/clang-format-check.sh"><pre class="notranslate"><code>./tools/clang-format-check.sh
+</code></pre></div>
+<p dir="auto">To reformat your code according to the style convention (make sure that <code>clang-format</code> is installed):</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="./tools/clang-format.sh"><pre class="notranslate"><code>./tools/clang-format.sh
+</code></pre></div>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Building (Visual Studio under Windows)</h1><a id="user-content-building-visual-studio-under-windows" class="anchor" aria-label="Permalink: Building (Visual Studio under Windows)" href="#building-visual-studio-under-windows"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">We are assuming that you have a common Windows PC with at least Visual Studio 2015, and an x64 processor.</p>
+<p dir="auto">To build with at least Visual Studio 2015 from the command line:</p>
+<ul dir="auto">
+<li>Grab the CRoaring code from GitHub, e.g., by cloning it using <a href="https://desktop.github.com/">GitHub Desktop</a>.</li>
+<li>Install <a href="https://cmake.org/download/" rel="nofollow">CMake</a>. When you install it, make sure to ask that <code>cmake</code> be made available from the command line.</li>
+<li>Create a subdirectory within CRoaring, such as <code>VisualStudio</code>.</li>
+<li>Using a shell, go to this newly created directory. For example, within GitHub Desktop, you can right-click on  <code>CRoaring</code> in your GitHub repository list, and select <code>Open in Git Shell</code>, then type <code>cd VisualStudio</code> in the newly created shell.</li>
+<li>Type <code>cmake -DCMAKE_GENERATOR_PLATFORM=x64 ..</code> in the shell while in the <code>VisualStudio</code> repository. (Alternatively, if you want to build a static library, you may use the command line <code>cmake -DCMAKE_GENERATOR_PLATFORM=x64 -DROARING_BUILD_STATIC=ON  ..</code>.)</li>
+<li>This last command created a Visual Studio solution file in the newly created directory (e.g., <code>RoaringBitmap.sln</code>). Open this file in Visual Studio. You should now be able to build the project and run the tests. For example, in the <code>Solution Explorer</code> window (available from the <code>View</code> menu), right-click <code>ALL_BUILD</code> and select <code>Build</code>. To test the code, still in the <code>Solution Explorer</code> window, select <code>RUN_TESTS</code> and select <code>Build</code>.</li>
+</ul>
+<p dir="auto">To build with at least Visual Studio 2017 directly in the IDE:</p>
+<ul dir="auto">
+<li>Grab the CRoaring code from GitHub, e.g., by cloning it using <a href="https://desktop.github.com/">GitHub Desktop</a>.</li>
+<li>Select the <code>Visual C++ tools for CMake</code> optional component when installing the C++ Development Workload within Visual Studio.</li>
+<li>Within Visual Studio use <code>File &gt; Open &gt; Folder...</code> to open the CRoaring folder.</li>
+<li>Right click on <code>CMakeLists.txt</code> in the parent directory within <code>Solution Explorer</code> and select <code>Build</code> to build the project.</li>
+<li>For testing, in the Standard toolbar, drop the <code>Select Startup Item...</code> menu and choose one of the tests. Run the test by pressing the button to the left of the dropdown.</li>
+</ul>
+<p dir="auto">We have optimizations specific to AVX2 and AVX-512 in the code, and they are turned dynamically based on the detected hardware at runtime.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Usage (Using <code>conan</code>)</h2><a id="user-content-usage-using-conan" class="anchor" aria-label="Permalink: Usage (Using conan)" href="#usage-using-conan"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">You can install pre-built binaries for <code>roaring</code> or build it from source using <a href="https://conan.io/" rel="nofollow">Conan</a>. Use the following command to install latest version:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="conan install --requires=&quot;roaring/[*]&quot; --build=missing"><pre class="notranslate"><code>conan install --requires="roaring/[*]" --build=missing
+</code></pre></div>
+<p dir="auto">For detailed instructions on how to use Conan, please refer to the <a href="https://docs.conan.io/2/" rel="nofollow">Conan documentation</a>.</p>
+<p dir="auto">The <code>roaring</code> Conan recipe is kept up to date by Conan maintainers and community contributors.
+If the version is out of date, please <a href="https://github.com/conan-io/conan-center-index">create an issue or pull request</a> on the ConanCenterIndex repository.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Usage (Using <code>vcpkg</code> on Windows, Linux and macOS)</h2><a id="user-content-usage-using-vcpkg-on-windows-linux-and-macos" class="anchor" aria-label="Permalink: Usage (Using vcpkg on Windows, Linux and macOS)" href="#usage-using-vcpkg-on-windows-linux-and-macos"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><a href="https://github.com/Microsoft/vcpkg">vcpkg</a> users on Windows, Linux and macOS can download and install <code>roaring</code> with one single command from their favorite shell.</p>
+<p dir="auto">On Linux and macOS:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="$ ./vcpkg install roaring"><pre class="notranslate"><code>$ ./vcpkg install roaring
+</code></pre></div>
+<p dir="auto">will build and install <code>roaring</code> as a static library.</p>
+<p dir="auto">On Windows (64-bit):</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content=".\vcpkg.exe install roaring:x64-windows"><pre class="notranslate"><code>.\vcpkg.exe install roaring:x64-windows
+</code></pre></div>
+<p dir="auto">will build and install <code>roaring</code> as a shared library.</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content=".\vcpkg.exe install roaring:x64-windows-static"><pre class="notranslate"><code>.\vcpkg.exe install roaring:x64-windows-static
+</code></pre></div>
+<p dir="auto">will build and install <code>roaring</code> as a static library.</p>
+<p dir="auto">These commands will also print out instructions on how to use the library from MSBuild or CMake-based projects.</p>
+<p dir="auto">If you find the version of <code>roaring</code> shipped with <code>vcpkg</code> is out-of-date, feel free to report it to <code>vcpkg</code> community either by submiting an issue or by creating a PR.</p>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">SIMD-related throttling</h1><a id="user-content-simd-related-throttling" class="anchor" aria-label="Permalink: SIMD-related throttling" href="#simd-related-throttling"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Our AVX2 code does not use floating-point numbers or multiplications, so it is not subject to turbo frequency throttling on many-core Intel processors.</p>
+<p dir="auto">Our AVX-512 code is only enabled on recent hardware (Intel Ice Lake or better and AMD Zen 4) where SIMD-specific frequency throttling is not observed.</p>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Thread safety</h1><a id="user-content-thread-safety" class="anchor" aria-label="Permalink: Thread safety" href="#thread-safety"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Like, for example, STL containers, the CRoaring library has no built-in thread support. Thus whenever you modify a bitmap in one thread, it is unsafe to query it in others. However, you can safely copy a bitmap and use both copies in concurrently.</p>
+<p dir="auto">If you use  "copy-on-write" (default to disabled), then you should pass copies to the different threads. They will create shared containers, and for shared containers, we use reference counting with an atomic counter.</p>
+<p dir="auto">To summarize:</p>
+<ul dir="auto">
+<li>If you do not use copy-on-write, you can access concurrent the same bitmap safely as long as you do not modify it. If you plan on modifying it, you should pass different copies to the different threads.</li>
+<li>If you use copy-on-write, you should always pass copies to the different threads. The copies and then lightweight (shared containers).</li>
+</ul>
+<p dir="auto">Thus the following pattern where you copy bitmaps and pass them to different threads is safe with or without COW:</p>
+<div class="highlight highlight-source-c notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="    roaring_bitmap_set_copy_on_write(r1, true);
+    roaring_bitmap_set_copy_on_write(r2, true);
+    roaring_bitmap_set_copy_on_write(r3, true);
+
+    roaring_bitmap_t * r1a = roaring_bitmap_copy(r1);
+    roaring_bitmap_t * r1b = roaring_bitmap_copy(r1);
+
+    roaring_bitmap_t * r2a = roaring_bitmap_copy(r2);
+    roaring_bitmap_t * r2b = roaring_bitmap_copy(r2);
+
+    roaring_bitmap_t * r3a = roaring_bitmap_copy(r3);
+    roaring_bitmap_t * r3b = roaring_bitmap_copy(r3);
+
+    roaring_bitmap_t *rarray1[3] = {r1a, r2a, r3a};
+    roaring_bitmap_t *rarray2[3] = {r1b, r2b, r3b};
+    std::thread thread1(run, rarray1);
+    std::thread thread2(run, rarray2);"><pre>    <span class="pl-en">roaring_bitmap_set_copy_on_write</span>(<span class="pl-s1">r1</span>, true);
+    <span class="pl-en">roaring_bitmap_set_copy_on_write</span>(<span class="pl-s1">r2</span>, true);
+    <span class="pl-en">roaring_bitmap_set_copy_on_write</span>(<span class="pl-s1">r3</span>, true);
+
+    <span class="pl-smi">roaring_bitmap_t</span> <span class="pl-c1">*</span> <span class="pl-s1">r1a</span> <span class="pl-c1">=</span> <span class="pl-en">roaring_bitmap_copy</span>(<span class="pl-s1">r1</span>);
+    <span class="pl-smi">roaring_bitmap_t</span> <span class="pl-c1">*</span> <span class="pl-s1">r1b</span> <span class="pl-c1">=</span> <span class="pl-en">roaring_bitmap_copy</span>(<span class="pl-s1">r1</span>);
+
+    <span class="pl-smi">roaring_bitmap_t</span> <span class="pl-c1">*</span> <span class="pl-s1">r2a</span> <span class="pl-c1">=</span> <span class="pl-en">roaring_bitmap_copy</span>(<span class="pl-s1">r2</span>);
+    <span class="pl-smi">roaring_bitmap_t</span> <span class="pl-c1">*</span> <span class="pl-s1">r2b</span> <span class="pl-c1">=</span> <span class="pl-en">roaring_bitmap_copy</span>(<span class="pl-s1">r2</span>);
+
+    <span class="pl-smi">roaring_bitmap_t</span> <span class="pl-c1">*</span> <span class="pl-s1">r3a</span> <span class="pl-c1">=</span> <span class="pl-en">roaring_bitmap_copy</span>(<span class="pl-s1">r3</span>);
+    <span class="pl-smi">roaring_bitmap_t</span> <span class="pl-c1">*</span> <span class="pl-s1">r3b</span> <span class="pl-c1">=</span> <span class="pl-en">roaring_bitmap_copy</span>(<span class="pl-s1">r3</span>);
+
+    <span class="pl-smi">roaring_bitmap_t</span> <span class="pl-c1">*</span><span class="pl-s1">rarray1</span>[<span class="pl-c1">3</span>] <span class="pl-c1">=</span> {<span class="pl-s1">r1a</span>, <span class="pl-s1">r2a</span>, <span class="pl-s1">r3a</span>};
+    <span class="pl-smi">roaring_bitmap_t</span> <span class="pl-c1">*</span><span class="pl-s1">rarray2</span>[<span class="pl-c1">3</span>] <span class="pl-c1">=</span> {<span class="pl-s1">r1b</span>, <span class="pl-s1">r2b</span>, <span class="pl-s1">r3b</span>};
+    std::<span class="pl-s1">thread</span> <span class="pl-en">thread1</span>(<span class="pl-s1">run</span>, <span class="pl-s1">rarray1</span>);
+    std::<span class="pl-s1">thread</span> <span class="pl-en">thread2</span>(<span class="pl-s1">run</span>, <span class="pl-s1">rarray2</span>);</pre></div>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">How to best aggregate bitmaps?</h1><a id="user-content-how-to-best-aggregate-bitmaps" class="anchor" aria-label="Permalink: How to best aggregate bitmaps?" href="#how-to-best-aggregate-bitmaps"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Suppose you want to compute the union (OR) of many bitmaps. How do you proceed? There are many
+different strategies.</p>
+<p dir="auto">You can use <code>roaring_bitmap_or_many(bitmapcount, bitmaps)</code> or <code>roaring_bitmap_or_many_heap(bitmapcount, bitmaps)</code> or you may
+even roll your own aggregation:</p>
+<div class="highlight highlight-source-c notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="roaring_bitmap_t *answer = roaring_bitmap_copy(bitmaps[0]);
+for (size_t i = 1; i &lt; bitmapcount; i++) {
+  roaring_bitmap_or_inplace(answer, bitmaps[i]);
+}"><pre><span class="pl-smi">roaring_bitmap_t</span> <span class="pl-c1">*</span><span class="pl-s1">answer</span> <span class="pl-c1">=</span> <span class="pl-en">roaring_bitmap_copy</span>(<span class="pl-s1">bitmaps</span>[<span class="pl-c1">0</span>]);
+<span class="pl-k">for</span> (<span class="pl-smi">size_t</span> <span class="pl-s1">i</span> <span class="pl-c1">=</span> <span class="pl-c1">1</span>; <span class="pl-s1">i</span> <span class="pl-c1">&lt;</span> <span class="pl-s1">bitmapcount</span>; <span class="pl-s1">i</span><span class="pl-c1">++</span>) {
+  <span class="pl-en">roaring_bitmap_or_inplace</span>(<span class="pl-s1">answer</span>, <span class="pl-s1">bitmaps</span>[<span class="pl-s1">i</span>]);
+}</pre></div>
+<p dir="auto">All of them will work but they have different performance characteristics. The <code>roaring_bitmap_or_many_heap</code> should
+probably only be used if, after benchmarking, you find that it is faster by a good margin: it uses more memory.</p>
+<p dir="auto">The <code>roaring_bitmap_or_many</code> is meant as a good default. It works by trying to delay work as much as possible.
+However, because it delays computations, it also does not optimize the format as the computation runs. It might
+thus fail to see some useful pattern in the data such as long consecutive values.</p>
+<p dir="auto">The approach based on repeated calls to <code>roaring_bitmap_or_inplace</code>
+is also fine, and might even be faster in some cases. You can expect it to be faster if, after
+a few calls, you get long sequences of consecutive values in the answer. That is, if the
+final answer is all integers in the range [0,1000000), and this is apparent quickly, then the
+later <code>roaring_bitmap_or_inplace</code> will be very fast.</p>
+<p dir="auto">You should benchmark these alternatives on your own data to decide what is best.</p>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Wrappers</h1><a id="user-content-wrappers" class="anchor" aria-label="Permalink: Wrappers" href="#wrappers"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Python</h2><a id="user-content-python" class="anchor" aria-label="Permalink: Python" href="#python"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Tom Cornebize wrote a Python wrapper available at <a href="https://github.com/Ezibenroc/PyRoaringBitMap">https://github.com/Ezibenroc/PyRoaringBitMap</a>
+Installing it is as easy as typing...</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="pip install pyroaring"><pre class="notranslate"><code>pip install pyroaring
+</code></pre></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">JavaScript</h2><a id="user-content-javascript" class="anchor" aria-label="Permalink: JavaScript" href="#javascript"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Salvatore Previti  wrote a Node/JavaScript wrapper available at <a href="https://github.com/SalvatorePreviti/roaring-node">https://github.com/SalvatorePreviti/roaring-node</a>
+Installing it is as easy as typing...</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="npm install roaring"><pre class="notranslate"><code>npm install roaring
+</code></pre></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Swift</h2><a id="user-content-swift" class="anchor" aria-label="Permalink: Swift" href="#swift"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Jérémie Piotte wrote a <a href="https://github.com/RoaringBitmap/SwiftRoaring">Swift wrapper</a>.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">C#</h2><a id="user-content-c" class="anchor" aria-label="Permalink: C#" href="#c"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Brandon Smith wrote a C# wrapper available at <a href="https://github.com/RogueException/CRoaring.Net">https://github.com/RogueException/CRoaring.Net</a> (works for Windows and Linux under x64 processors)</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Go (golang)</h2><a id="user-content-go-golang" class="anchor" aria-label="Permalink: Go (golang)" href="#go-golang"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">There is a Go (golang) wrapper available at <a href="https://github.com/RoaringBitmap/gocroaring">https://github.com/RoaringBitmap/gocroaring</a></p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Rust</h2><a id="user-content-rust" class="anchor" aria-label="Permalink: Rust" href="#rust"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Saulius Grigaliunas wrote a Rust wrapper available at <a href="https://github.com/saulius/croaring-rs">https://github.com/saulius/croaring-rs</a></p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">D</h2><a id="user-content-d" class="anchor" aria-label="Permalink: D" href="#d"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Yuce Tekol wrote a D wrapper available at <a href="https://github.com/yuce/droaring">https://github.com/yuce/droaring</a></p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Redis</h2><a id="user-content-redis" class="anchor" aria-label="Permalink: Redis" href="#redis"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Antonio Guilherme Ferreira Viggiano wrote a Redis Module available at <a href="https://github.com/aviggiano/redis-roaring">https://github.com/aviggiano/redis-roaring</a></p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Zig</h2><a id="user-content-zig" class="anchor" aria-label="Permalink: Zig" href="#zig"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Justin Whear wrote a Zig wrapper available at <a href="https://github.com/jwhear/roaring-zig">https://github.com/jwhear/roaring-zig</a></p>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Mailing list/discussion group</h1><a id="user-content-mailing-listdiscussion-group" class="anchor" aria-label="Permalink: Mailing list/discussion group" href="#mailing-listdiscussion-group"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><a href="https://groups.google.com/forum/#!forum/roaring-bitmaps" rel="nofollow">https://groups.google.com/forum/#!forum/roaring-bitmaps</a></p>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Contributing</h1><a id="user-content-contributing" class="anchor" aria-label="Permalink: Contributing" href="#contributing"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">When contributing a change to the project, please run <code>tools/clang-format.sh</code> after making any changes. A github action runs on all PRs to ensure formatting is consistent with this.</p>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">References about Roaring</h1><a id="user-content-references-about-roaring" class="anchor" aria-label="Permalink: References about Roaring" href="#references-about-roaring"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li>Daniel Lemire, Owen Kaser, Nathan Kurz, Luca Deri, Chris O'Hara, François Saint-Jacques, Gregory Ssi-Yan-Kai, Roaring Bitmaps: Implementation of an Optimized Software Library, Software: Practice and Experience Volume 48, Issue 4 April 2018 Pages 867-895 <a href="https://arxiv.org/abs/1709.07821" rel="nofollow">arXiv:1709.07821</a></li>
+<li>Samy Chambi, Daniel Lemire, Owen Kaser, Robert Godin,
+Better bitmap performance with Roaring bitmaps,
+Software: Practice and Experience Volume 46, Issue 5, pages 709–719, May 2016  <a href="http://arxiv.org/abs/1402.6407" rel="nofollow">arXiv:1402.6407</a></li>
+<li>Daniel Lemire, Gregory Ssi-Yan-Kai, Owen Kaser, Consistently faster and smaller compressed bitmaps with Roaring, Software: Practice and Experience Volume 46, Issue 11, pages 1547-1569, November 2016 <a href="http://arxiv.org/abs/1603.06549" rel="nofollow">arXiv:1603.06549</a></li>
+<li>Samy Chambi, Daniel Lemire, Robert Godin, Kamel Boukhalfa, Charles Allen, Fangjin Yang, Optimizing Druid with Roaring bitmaps, IDEAS 2016, 2016. <a href="http://r-libre.teluq.ca/950/" rel="nofollow">http://r-libre.teluq.ca/950/</a></li>
+</ul>
+</article></div>
