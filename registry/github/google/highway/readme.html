@@ -27,7 +27,8 @@ clouds or client devices, choosing the best available instruction set at
 runtime. Alternatively, developers may choose to target a single instruction set
 without any runtime overhead. In both cases, the application code is the same
 except for swapping <code>HWY_STATIC_DISPATCH</code> with <code>HWY_DYNAMIC_DISPATCH</code> plus one
-line of code.</p>
+line of code. See also @kfjahnke's
+<a href="https://github.com/kfjahnke/zimt/blob/multi_isa/examples/multi_isa_example/multi_simd_isa.md">introduction to dispatching</a>.</p>
 <p dir="auto"><strong>Suitable for a variety of domains</strong>: Highway provides an extensive set of
 operations, used for image processing (floating-point), compression, video
 analysis, linear algebra, cryptography, sorting and random generation. We
@@ -286,6 +287,9 @@ You can prevent this by calling the following before any invocation of
 <code>HWY_DYNAMIC_*</code>: <code>hwy::GetChosenTarget().Update(hwy::SupportedTargets());</code>.</p>
 </li>
 </ul>
+<p dir="auto">See also a separate
+<a href="https://github.com/kfjahnke/zimt/blob/multi_isa/examples/multi_isa_example/multi_simd_isa.md">introduction to dynamic dispatch</a>
+by @kfjahnke.</p>
 <p dir="auto">When using dynamic dispatch, <code>foreach_target.h</code> is included from translation
 units (.cc files), not headers. Headers containing vector code shared between
 several translation units require a special include guard, for example the
@@ -319,15 +323,15 @@ generally sufficient.</p>
 <p dir="auto">For MSVC, we recommend compiling with <code>/Gv</code> to allow non-inlined functions to
 pass vector arguments in registers. If intending to use the AVX2 target together
 with half-width vectors (e.g. for <code>PromoteTo</code>), it is also important to compile
-with <code>/arch:AVX2</code>. This seems to be the only way to reliably generate VEX-encoded
-SSE instructions on MSVC. Sometimes MSVC generates VEX-encoded SSE instructions,
-if they are mixed with AVX, but not always, see
+with <code>/arch:AVX2</code>. This seems to be the only way to reliably generate
+VEX-encoded SSE instructions on MSVC. Sometimes MSVC generates VEX-encoded SSE
+instructions, if they are mixed with AVX, but not always, see
 <a href="https://developercommunity.visualstudio.com/t/10618264" rel="nofollow">DevCom-10618264</a>.
 Otherwise, mixing VEX-encoded AVX2 instructions and non-VEX SSE may cause severe
-performance degradation. Unfortunately, with <code>/arch:AVX2</code> option, the
-resulting binary will then require AVX2. Note that no such flag is needed for
-clang and GCC because they support target-specific attributes, which we use to
-ensure proper VEX code generation for AVX2 targets.</p>
+performance degradation. Unfortunately, with <code>/arch:AVX2</code> option, the resulting
+binary will then require AVX2. Note that no such flag is needed for clang and
+GCC because they support target-specific attributes, which we use to ensure
+proper VEX code generation for AVX2 targets.</p>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Strip-mining loops</h2><a id="user-content-strip-mining-loops" class="anchor" aria-label="Permalink: Strip-mining loops" href="#strip-mining-loops"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">When vectorizing a loop, an important question is whether and how to deal with
 a number of iterations ('trip count', denoted <code>count</code>) that does not evenly
