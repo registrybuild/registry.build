@@ -1,2 +1,584 @@
-<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><p dir="auto">See <a href="https://github.com/bazelbuild/continuous-integration/blob/master/buildkite/README.md">https://github.com/bazelbuild/continuous-integration/blob/master/buildkite/README.md</a></p>
+<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Bazel Continuous Integration</h1><a id="user-content-bazel-continuous-integration" class="anchor" aria-label="Permalink: Bazel Continuous Integration" href="#bazel-continuous-integration"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">tl;dr:</p>
+<ul dir="auto">
+<li><em><strong>Want to test your project on Bazel CI? Simply file a request via <a href="https://github.com/bazelbuild/continuous-integration/issues/new?template=adding-your-project-to-bazel-ci.md&amp;title=Request+to+add+new+project+%5BPROJECT_NAME%5D&amp;labels=new-project">this link</a>!</strong></em></li>
+<li><em><strong>Want to see the CI results? Check out the dashboard here: <a href="https://buildkite.com/bazel" rel="nofollow">https://buildkite.com/bazel</a></strong></em></li>
+</ul>
+<p dir="auto">Bazel uses <a href="https://buildkite.com" rel="nofollow">Buildkite</a> for continuous integration. The user interface and the orchestration of CI
+builds is fully managed by Buildkite, but Bazel brings its own CI machines. The <a href="https://github.com/bazelbuild/continuous-integration/tree/master/buildkite">buildkite folder</a>
+contains all the scripts and configuration files necessary to setup Bazel's CI on Buildkite.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Reporting a Vulnerability</h2><a id="user-content-reporting-a-vulnerability" class="anchor" aria-label="Permalink: Reporting a Vulnerability" href="#reporting-a-vulnerability"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">To report a security issue, please email <a href="mailto:security@bazel.build">security@bazel.build</a> with a description
+of the issue, the steps you took to create the issue, affected versions, and, if
+known, mitigations for the issue. Our vulnerability management team will respond
+within 3 working days of your email. If the issue is confirmed as a
+vulnerability, we will open a Security Advisory. This project follows a 90 day
+disclosure timeline.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Bazel on Buildkite 101</h2><a id="user-content-bazel-on-buildkite-101" class="anchor" aria-label="Permalink: Bazel on Buildkite 101" href="#bazel-on-buildkite-101"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">When you first log into <a href="https://buildkite.com" rel="nofollow">Buildkite</a> you are presented with a list of pipelines. A pipeline is a
+template of steps that are executed either in sequence or in parallel and that all need to succeed in
+order for the pipeline to succeed. The Bazel organisation has dozens of pipelines. Here are a selected
+few:</p>
+<p dir="auto"><a target="_blank" rel="noopener noreferrer nofollow" href="https://raw.githubusercontent.com/bazelbuild/continuous-integration/master/buildkite/docs/assets/pipelines.png"><img src="https://raw.githubusercontent.com/bazelbuild/continuous-integration/master/buildkite/docs/assets/pipelines.png" alt="pipelines" style="max-width: 100%;"></a></p>
+<ul dir="auto">
+<li>The <em>bazel postsubmit</em> pipeline builds and tests each commit to Bazel's repository on all supported
+platforms.</li>
+<li>The <em>bazel presubmit</em> pipeline is triggered on every pull request to Bazel.</li>
+<li>The <em>rules_go postsubmit</em> pipeline is triggered on every commit to the <a href="https://github.com/bazelbuild/rules_go">rules_go</a> repository.</li>
+<li>The <em>TensorFlow</em> pipeline builds and tests TensorFlow at <code>HEAD</code> every four hours.</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Builds</h3><a id="user-content-builds" class="anchor" aria-label="Permalink: Builds" href="#builds"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">When you click on a pipeline you can see the last few builds of this pipeline. Clicking on a build
+then gives you access to the details of the build. For example, the below image shows a failed build
+step on Ubuntu 16.04.</p>
+<p dir="auto"><a target="_blank" rel="noopener noreferrer nofollow" href="https://raw.githubusercontent.com/bazelbuild/continuous-integration/master/buildkite/docs/assets/failed-build-step.png"><img src="https://raw.githubusercontent.com/bazelbuild/continuous-integration/master/buildkite/docs/assets/failed-build-step.png" alt="failed build step" style="max-width: 100%;"></a></p>
+<p dir="auto">One can see which tests failed by clicking on the <em>Test</em> section. In the below example, the
+<code>//src/test/shell/bazel:external_path_test</code> was flaky as it failed in 1 out of 5 runs.</p>
+<p dir="auto"><a target="_blank" rel="noopener noreferrer nofollow" href="https://raw.githubusercontent.com/bazelbuild/continuous-integration/master/buildkite/docs/assets/flaky-test.png"><img src="https://raw.githubusercontent.com/bazelbuild/continuous-integration/master/buildkite/docs/assets/flaky-test.png" alt="flaky test" style="max-width: 100%;"></a></p>
+<p dir="auto">You can view the failed test attempt's <code>test.log</code> file in the <em>Artifacts</em> tab.</p>
+<p dir="auto"><a target="_blank" rel="noopener noreferrer nofollow" href="https://raw.githubusercontent.com/bazelbuild/continuous-integration/master/buildkite/docs/assets/flaky-test-log.png"><img src="https://raw.githubusercontent.com/bazelbuild/continuous-integration/master/buildkite/docs/assets/flaky-test-log.png" alt="flaky test log" style="max-width: 100%;"></a></p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Useful Links</h3><a id="user-content-useful-links" class="anchor" aria-label="Permalink: Useful Links" href="#useful-links"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><a target="_blank" rel="noopener noreferrer nofollow" href="https://raw.githubusercontent.com/bazelbuild/continuous-integration/master/buildkite/docs/assets/buildkite-useful-buttons.png"><img src="https://raw.githubusercontent.com/bazelbuild/continuous-integration/master/buildkite/docs/assets/buildkite-useful-buttons.png" alt="buildkite useful buttons" style="max-width: 100%;"></a></p>
+<p dir="auto"><a target="_blank" rel="noopener noreferrer nofollow" href="https://raw.githubusercontent.com/bazelbuild/continuous-integration/master/buildkite/docs/assets/buildkite-testlog-buttons.png"><img src="https://raw.githubusercontent.com/bazelbuild/continuous-integration/master/buildkite/docs/assets/buildkite-testlog-buttons.png" alt="buildkite testlog buttons" style="max-width: 100%;"></a></p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Pull Requests</h2><a id="user-content-pull-requests" class="anchor" aria-label="Permalink: Pull Requests" href="#pull-requests"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Bazel accepts contributions via pull requests. Contributions by members of the <a href="https://github.com/bazelbuild/">bazelbuild</a>
+organisation as well as members of individual repositories (i.e. rule maintainers) are whitelisted
+automatically and will immediately be built and tested on <a href="https://buildkite.com" rel="nofollow">Buildkite</a>.</p>
+<p dir="auto">An external contribution, however, first needs to be verified by a project member and therefore will
+display a pending status named <em>Verify Pull Request</em>.</p>
+<p dir="auto"><a target="_blank" rel="noopener noreferrer nofollow" href="https://raw.githubusercontent.com/bazelbuild/continuous-integration/master/buildkite/docs/assets/status-verify-pull-request.png"><img src="https://raw.githubusercontent.com/bazelbuild/continuous-integration/master/buildkite/docs/assets/status-verify-pull-request.png" alt="status verify pull request" style="max-width: 100%;"></a></p>
+<p dir="auto">A member can verify a pull request by clicking on <em>Details</em>, followed by <em>Verify Pull Request</em>.</p>
+<p dir="auto"><a target="_blank" rel="noopener noreferrer nofollow" href="https://raw.githubusercontent.com/bazelbuild/continuous-integration/master/buildkite/docs/assets/buildkite-verify-pull-request.png"><img src="https://raw.githubusercontent.com/bazelbuild/continuous-integration/master/buildkite/docs/assets/buildkite-verify-pull-request.png" alt="buildkite verify pull request" style="max-width: 100%;"></a></p>
+<p dir="auto"><em>Please vet external contributions carefully as they can execute arbitrary code on our CI machines</em></p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Build and Test Results</h3><a id="user-content-build-and-test-results" class="anchor" aria-label="Permalink: Build and Test Results" href="#build-and-test-results"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">After a pull request has been built and tested, the results will be displayed as a status message on
+the pull request. A detailed view is available when clicking on the corresponding <em>Details</em>
+link. Click <a href="https://source.cloud.google.com/results/invocations/dc0510c0-afc6-42b3-8d2e-6d879dec526a/targets" rel="nofollow">here</a>
+for an example.</p>
+<p dir="auto"><a target="_blank" rel="noopener noreferrer nofollow" href="https://raw.githubusercontent.com/bazelbuild/continuous-integration/master/buildkite/docs/assets/pull-request-details.png"><img src="https://raw.githubusercontent.com/bazelbuild/continuous-integration/master/buildkite/docs/assets/pull-request-details.png" alt="pull request details" style="max-width: 100%;"></a></p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Configuring a Pipeline</h2><a id="user-content-configuring-a-pipeline" class="anchor" aria-label="Permalink: Configuring a Pipeline" href="#configuring-a-pipeline"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Each pipeline is configured via a Yaml file. This file either lives in <code>$PROJECT_DIR/.bazelci/presubmit.yml</code> (for presubmits) or in an arbitrary location whose path or URL is passed to the CI script (as configured in the Buildkite settings of the respective pipeline). Projects should store the postsubmit configuration in their own repository, but we keep some configurations for downstream projects in <a href="https://github.com/bazelbuild/continuous-integration/tree/master/buildkite/pipelines">https://github.com/bazelbuild/continuous-integration/tree/master/buildkite/pipelines</a>.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Basic Syntax</h3><a id="user-content-basic-syntax" class="anchor" aria-label="Permalink: Basic Syntax" href="#basic-syntax"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The most important piece of the configuration file is the <code>tasks</code> dictionary. Each task has a unique key, a platform and usually some build and/or test targets:</p>
+<div class="highlight highlight-source-yaml notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="---
+tasks:
+  ubuntu_build_only:
+    platform: ubuntu2004
+    build_targets:
+    - &quot;...&quot;
+  windows:
+    platform: windows
+    build_targets:
+    - &quot;...&quot;
+    test_targets:
+    - &quot;...&quot;"><pre>---
+<span class="pl-ent">tasks</span>:
+  <span class="pl-ent">ubuntu_build_only</span>:
+    <span class="pl-ent">platform</span>: <span class="pl-s">ubuntu2004</span>
+    <span class="pl-ent">build_targets</span>:
+    - <span class="pl-s"><span class="pl-pds">"</span>...<span class="pl-pds">"</span></span>
+  <span class="pl-ent">windows</span>:
+    <span class="pl-ent">platform</span>: <span class="pl-s">windows</span>
+    <span class="pl-ent">build_targets</span>:
+    - <span class="pl-s"><span class="pl-pds">"</span>...<span class="pl-pds">"</span></span>
+    <span class="pl-ent">test_targets</span>:
+    - <span class="pl-s"><span class="pl-pds">"</span>...<span class="pl-pds">"</span></span></pre></div>
+<p dir="auto">If there is exactly one task per platform, you can omit the <code>platform</code> field and use its value as task ID instead. The following code snippet is equivalent to the previous one:</p>
+<div class="highlight highlight-source-yaml notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="---
+tasks:
+  ubuntu2004:
+    build_targets:
+    - &quot;...&quot;
+  windows:
+    build_targets:
+    - &quot;...&quot;
+    test_targets:
+    - &quot;...&quot;"><pre>---
+<span class="pl-ent">tasks</span>:
+  <span class="pl-ent">ubuntu2004</span>:
+    <span class="pl-ent">build_targets</span>:
+    - <span class="pl-s"><span class="pl-pds">"</span>...<span class="pl-pds">"</span></span>
+  <span class="pl-ent">windows</span>:
+    <span class="pl-ent">build_targets</span>:
+    - <span class="pl-s"><span class="pl-pds">"</span>...<span class="pl-pds">"</span></span>
+    <span class="pl-ent">test_targets</span>:
+    - <span class="pl-s"><span class="pl-pds">"</span>...<span class="pl-pds">"</span></span></pre></div>
+<p dir="auto">The full list of supported platforms can be found in the PLATFORMS variable in <a href="./bazelci.py">bazelci.py</a>.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Setting Environment Variables</h3><a id="user-content-setting-environment-variables" class="anchor" aria-label="Permalink: Setting Environment Variables" href="#setting-environment-variables"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">You can set environment variables for each individual task via the <code>environment</code> field:</p>
+<div class="highlight highlight-source-yaml notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="---
+tasks:
+  ubuntu1804:
+    environment:
+      CC: clang
+    build_targets:
+    - &quot;...&quot;"><pre>---
+<span class="pl-ent">tasks</span>:
+  <span class="pl-ent">ubuntu1804</span>:
+    <span class="pl-ent">environment</span>:
+      <span class="pl-ent">CC</span>: <span class="pl-s">clang</span>
+    <span class="pl-ent">build_targets</span>:
+    - <span class="pl-s"><span class="pl-pds">"</span>...<span class="pl-pds">"</span></span></pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Running Commands, Shell Scripts or Binary Targets</h3><a id="user-content-running-commands-shell-scripts-or-binary-targets" class="anchor" aria-label="Permalink: Running Commands, Shell Scripts or Binary Targets" href="#running-commands-shell-scripts-or-binary-targets"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The presubmit configuration allows you to specify a list of shell commands that are executed at the beginning of every job.
+Simply add the <code>batch_commands</code> (Windows) or <code>shell_commands</code> field (all other platforms).</p>
+<p dir="auto">You can even run executable targets via the <code>run_targets</code> field.
+The following example demonstrates all of these features:</p>
+<div class="highlight highlight-source-yaml notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="---
+tasks:
+  ubuntu1804:
+    shell_commands:
+    - rm -f obsolete_file
+    run_targets:
+    - &quot;//whatever&quot;
+    build_targets:
+    - &quot;...&quot;
+  windows:
+    batch_commands:
+    - powershell -Command &quot;...&quot;
+    build_targets:
+    - &quot;...&quot;"><pre>---
+<span class="pl-ent">tasks</span>:
+  <span class="pl-ent">ubuntu1804</span>:
+    <span class="pl-ent">shell_commands</span>:
+    - <span class="pl-s">rm -f obsolete_file</span>
+    <span class="pl-ent">run_targets</span>:
+    - <span class="pl-s"><span class="pl-pds">"</span>//whatever<span class="pl-pds">"</span></span>
+    <span class="pl-ent">build_targets</span>:
+    - <span class="pl-s"><span class="pl-pds">"</span>...<span class="pl-pds">"</span></span>
+  <span class="pl-ent">windows</span>:
+    <span class="pl-ent">batch_commands</span>:
+    - <span class="pl-s">powershell -Command "..."</span>
+    <span class="pl-ent">build_targets</span>:
+    - <span class="pl-s"><span class="pl-pds">"</span>...<span class="pl-pds">"</span></span></pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Running Bazel coverage</h3><a id="user-content-running-bazel-coverage" class="anchor" aria-label="Permalink: Running Bazel coverage" href="#running-bazel-coverage"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The <code>coverage_targets</code> field allows you to specify a list of targets that will be run using <code>bazel coverage</code>:</p>
+<div class="highlight highlight-source-yaml notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="---
+tasks:
+  ubuntu2004:
+    coverage_targets:
+    - &quot;...&quot;"><pre>---
+<span class="pl-ent">tasks</span>:
+  <span class="pl-ent">ubuntu2004</span>:
+    <span class="pl-ent">coverage_targets</span>:
+    - <span class="pl-s"><span class="pl-pds">"</span>...<span class="pl-pds">"</span></span></pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Using Specific Build &amp; Test Flags</h3><a id="user-content-using-specific-build--test-flags" class="anchor" aria-label="Permalink: Using Specific Build &amp; Test Flags" href="#using-specific-build--test-flags"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The <code>build_flags</code> and <code>test_flags</code> fields contain lists of flags that should be used when building or testing (respectively):</p>
+<div class="highlight highlight-source-yaml notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="---
+tasks:
+  ubuntu1804:
+    build_flags:
+    - &quot;--define=ij_product=clion-latest&quot;
+    build_targets:
+    - &quot;...&quot;
+    test_flags:
+    - &quot;--define=ij_product=clion-latest&quot;
+    test_targets:
+    - &quot;:clwb_tests&quot;"><pre>---
+<span class="pl-ent">tasks</span>:
+  <span class="pl-ent">ubuntu1804</span>:
+    <span class="pl-ent">build_flags</span>:
+    - <span class="pl-s"><span class="pl-pds">"</span>--define=ij_product=clion-latest<span class="pl-pds">"</span></span>
+    <span class="pl-ent">build_targets</span>:
+    - <span class="pl-s"><span class="pl-pds">"</span>...<span class="pl-pds">"</span></span>
+    <span class="pl-ent">test_flags</span>:
+    - <span class="pl-s"><span class="pl-pds">"</span>--define=ij_product=clion-latest<span class="pl-pds">"</span></span>
+    <span class="pl-ent">test_targets</span>:
+    - <span class="pl-s"><span class="pl-pds">"</span>:clwb_tests<span class="pl-pds">"</span></span></pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Sharing Configuration Between Tasks</h3><a id="user-content-sharing-configuration-between-tasks" class="anchor" aria-label="Permalink: Sharing Configuration Between Tasks" href="#sharing-configuration-between-tasks"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">You can define common configurations and share them between tasks using <code>*aliases</code> and the <a href="https://yaml.org/type/merge.html" rel="nofollow"><code>&lt;&lt;:</code> merge key</a>. YAML allows merging maps and sets, but not lists; to merge flags or targets, instead of a list, represent them as a map from strings to null:</p>
+<div class="highlight highlight-source-yaml notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="# This is a map from strings to null, not a list, to allow merging into windows.build_flags and windows.test_flags
+.common_flags: &amp;common_flags
+  ? &quot;--incompatible_disable_starlark_host_transitions&quot;
+  ? &quot;--enable_bzlmod&quot;
+
+.common_task_config: &amp;common_task_config
+  build_flags: *common_flags
+  build_targets:
+    - &quot;//...&quot;
+  test_flags: *common_flags
+  test_targets:
+    - &quot;//tests/...&quot;
+
+tasks:
+  ubuntu1804:
+    &lt;&lt;: *common_task_config
+  ubuntu2004:
+    &lt;&lt;: *common_task_config
+  windows:
+    &lt;&lt;: *common_task_config
+    # These are maps from strings to null, not lists, to allow merging
+    build_flags:
+      &lt;&lt;: *common_flags
+      ? &quot;--noexperimental_repository_cache_hardlinks&quot;
+    test_flags:
+      &lt;&lt;: *common_flags
+      ? &quot;--noexperimental_repository_cache_hardlinks&quot;"><pre><span class="pl-c"><span class="pl-c">#</span> This is a map from strings to null, not a list, to allow merging into windows.build_flags and windows.test_flags</span>
+<span class="pl-ent">.common_flags</span>: <span class="pl-s">&amp;common_flags</span>
+  <span class="pl-s">? "--incompatible_disable_starlark_host_transitions"</span>
+  <span class="pl-s">? "--enable_bzlmod"</span>
+
+<span class="pl-ent">.common_task_config</span>: <span class="pl-s">&amp;common_task_config</span>
+  <span class="pl-ent">build_flags</span>: <span class="pl-s">*common_flags</span>
+  <span class="pl-ent">build_targets</span>:
+    - <span class="pl-s"><span class="pl-pds">"</span>//...<span class="pl-pds">"</span></span>
+  <span class="pl-ent">test_flags</span>: <span class="pl-s">*common_flags</span>
+  <span class="pl-ent">test_targets</span>:
+    - <span class="pl-s"><span class="pl-pds">"</span>//tests/...<span class="pl-pds">"</span></span>
+
+<span class="pl-ent">tasks</span>:
+  <span class="pl-ent">ubuntu1804</span>:
+    <span class="pl-ent">&lt;&lt;</span>: <span class="pl-s">*common_task_config</span>
+  <span class="pl-ent">ubuntu2004</span>:
+    <span class="pl-ent">&lt;&lt;</span>: <span class="pl-s">*common_task_config</span>
+  <span class="pl-ent">windows</span>:
+    <span class="pl-ent">&lt;&lt;</span>: <span class="pl-s">*common_task_config</span>
+    <span class="pl-c"><span class="pl-c">#</span> These are maps from strings to null, not lists, to allow merging</span>
+    <span class="pl-ent">build_flags</span>:
+      <span class="pl-ent">&lt;&lt;</span>: <span class="pl-s">*common_flags</span>
+      <span class="pl-s">? "--noexperimental_repository_cache_hardlinks"</span>
+    <span class="pl-ent">test_flags</span>:
+      <span class="pl-ent">&lt;&lt;</span>: <span class="pl-s">*common_flags</span>
+      <span class="pl-s">? "--noexperimental_repository_cache_hardlinks"</span></pre></div>
+<p dir="auto">Instead of a map from string to null, you could use a set (via <code>!!set</code>); however, sets are unordered, which makes them unsuitable for target lists that use the negation operator.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Specifying a Display Name</h3><a id="user-content-specifying-a-display-name" class="anchor" aria-label="Permalink: Specifying a Display Name" href="#specifying-a-display-name"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Each task may have an optional display name that can include Emojis. This feature is especially useful if you have several tasks that run on the same platform, but use different Bazel binaries.
+Simply set the <code>name</code> field:</p>
+<div class="highlight highlight-source-yaml notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="---
+tasks:
+  windows:
+    name: &quot;some :emoji:&quot;
+    build_targets:
+    - &quot;...&quot;"><pre>---
+<span class="pl-ent">tasks</span>:
+  <span class="pl-ent">windows</span>:
+    <span class="pl-ent">name</span>: <span class="pl-s"><span class="pl-pds">"</span>some :emoji:<span class="pl-pds">"</span></span>
+    <span class="pl-ent">build_targets</span>:
+    - <span class="pl-s"><span class="pl-pds">"</span>...<span class="pl-pds">"</span></span></pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Generating semantic information with Kythe</h3><a id="user-content-generating-semantic-information-with-kythe" class="anchor" aria-label="Permalink: Generating semantic information with Kythe" href="#generating-semantic-information-with-kythe"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">You can use <code>kythe_ubuntu2004</code> platform along with some <code>index_*</code> fields to create a task that generate semantic information of your code with <a href="https://kythe.io/" rel="nofollow">Kythe</a>.</p>
+<p dir="auto">The <code>index_targets</code> field contains list of targets that should be indexed.</p>
+<p dir="auto">The <code>index_targets_query</code> field contains a query string that is used to generate additional index targets by command <code>bazel query ${index_targets_query}</code>. The returned targets will be merged into <code>index_targets</code>.</p>
+<p dir="auto">The <code>index_flags</code> field contains list of build flags that should be used when indexing.</p>
+<p dir="auto">The <code>index_upload_policy</code> field is used to set policy for uploading generated files. Available values are:</p>
+<ul dir="auto">
+<li><code>Always</code>: Always upload generated files even build failed.</li>
+<li><code>IfBuildSuccess</code>: <strong>Default value</strong>. Only upload generated files if build succeed and raise error when build failed.</li>
+<li><code>Never</code>: Never upload index files and raise error when build failed.</li>
+</ul>
+<p dir="auto">If <code>index_upload_gcs</code> is <code>True</code>, the generated files will be uploaded to Google Cloud Storage.</p>
+<div class="highlight highlight-source-yaml notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="---
+tasks:
+  kythe_ubuntu2004:
+    index_targets:
+    - &quot;...&quot;
+    index_targets_query: &quot;kind(\&quot;java_(binary|import|library|plugin|test|proto_library) rule\&quot;, ...)&quot;
+    index_flags:
+    - &quot;--define=kythe_corpus=github.com/bazelbuild/bazel&quot;
+    index_upload_policy: &quot;IfBuildSuccess&quot;
+    index_upload_gcs: True"><pre>---
+<span class="pl-ent">tasks</span>:
+  <span class="pl-ent">kythe_ubuntu2004</span>:
+    <span class="pl-ent">index_targets</span>:
+    - <span class="pl-s"><span class="pl-pds">"</span>...<span class="pl-pds">"</span></span>
+    <span class="pl-ent">index_targets_query</span>: <span class="pl-s"><span class="pl-pds">"</span>kind(<span class="pl-cce">\"</span>java_(binary|import|library|plugin|test|proto_library) rule<span class="pl-cce">\"</span>, ...)<span class="pl-pds">"</span></span>
+    <span class="pl-ent">index_flags</span>:
+    - <span class="pl-s"><span class="pl-pds">"</span>--define=kythe_corpus=github.com/bazelbuild/bazel<span class="pl-pds">"</span></span>
+    <span class="pl-ent">index_upload_policy</span>: <span class="pl-s"><span class="pl-pds">"</span>IfBuildSuccess<span class="pl-pds">"</span></span>
+    <span class="pl-ent">index_upload_gcs</span>: <span class="pl-c1">True</span></pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Legacy Format</h3><a id="user-content-legacy-format" class="anchor" aria-label="Permalink: Legacy Format" href="#legacy-format"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Most existing configuration use the legacy format with a "platforms" dictionary:</p>
+<div class="highlight highlight-source-yaml notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="---
+platforms:
+  ubuntu1804:
+    build_targets:
+    - &quot;...&quot;
+    test_targets:
+    - &quot;...&quot;"><pre>---
+<span class="pl-ent">platforms</span>:
+  <span class="pl-ent">ubuntu1804</span>:
+    <span class="pl-ent">build_targets</span>:
+    - <span class="pl-s"><span class="pl-pds">"</span>...<span class="pl-pds">"</span></span>
+    <span class="pl-ent">test_targets</span>:
+    - <span class="pl-s"><span class="pl-pds">"</span>...<span class="pl-pds">"</span></span></pre></div>
+<p dir="auto">The new format expects a "tasks" dictionary instead:</p>
+<div class="highlight highlight-source-yaml notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="---
+tasks:
+  arbitrary_id:
+    platform: ubuntu1804
+    build_targets:
+    - &quot;...&quot;
+    test_targets:
+    - &quot;...&quot;"><pre>---
+<span class="pl-ent">tasks</span>:
+  <span class="pl-ent">arbitrary_id</span>:
+    <span class="pl-ent">platform</span>: <span class="pl-s">ubuntu1804</span>
+    <span class="pl-ent">build_targets</span>:
+    - <span class="pl-s"><span class="pl-pds">"</span>...<span class="pl-pds">"</span></span>
+    <span class="pl-ent">test_targets</span>:
+    - <span class="pl-s"><span class="pl-pds">"</span>...<span class="pl-pds">"</span></span></pre></div>
+<p dir="auto">In this case we can omit the <code>platform</code> field since there is a 1:1 mapping between tasks and platforms. Consequently, the format looks almost identical to the old one:</p>
+<div class="highlight highlight-source-yaml notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="---
+tasks:
+  ubuntu1804:
+    build_targets:
+    - &quot;...&quot;
+    test_targets:
+    - &quot;...&quot;"><pre>---
+<span class="pl-ent">tasks</span>:
+  <span class="pl-ent">ubuntu1804</span>:
+    <span class="pl-ent">build_targets</span>:
+    - <span class="pl-s"><span class="pl-pds">"</span>...<span class="pl-pds">"</span></span>
+    <span class="pl-ent">test_targets</span>:
+    - <span class="pl-s"><span class="pl-pds">"</span>...<span class="pl-pds">"</span></span></pre></div>
+<p dir="auto">The CI script still supports the legacy format, too.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Using a specific version of Bazel</h3><a id="user-content-using-a-specific-version-of-bazel" class="anchor" aria-label="Permalink: Using a specific version of Bazel" href="#using-a-specific-version-of-bazel"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The CI uses <a href="https://github.com/bazelbuild/bazelisk">Bazelisk</a> to support older versions of Bazel, too. You can specify a Bazel version for each pipeline (or even for individual platforms) in the pipeline Yaml configuration:</p>
+<div class="highlight highlight-source-yaml notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="---
+bazel: 0.20.0
+tasks:
+  windows:
+    build_targets:
+    - &quot;...&quot;
+  macos:
+    build_targets:
+    - &quot;...&quot;
+  ubuntu1804:
+    bazel: 0.18.0
+    build_targets:
+    - &quot;...&quot;
+[...]"><pre>---
+<span class="pl-ent">bazel</span>: <span class="pl-s">0.20.0</span>
+<span class="pl-ent">tasks</span>:
+  <span class="pl-ent">windows</span>:
+    <span class="pl-ent">build_targets</span>:
+    - <span class="pl-s"><span class="pl-pds">"</span>...<span class="pl-pds">"</span></span>
+  <span class="pl-ent">macos</span>:
+    <span class="pl-ent">build_targets</span>:
+    - <span class="pl-s"><span class="pl-pds">"</span>...<span class="pl-pds">"</span></span>
+  <span class="pl-ent">ubuntu1804</span>:
+    <span class="pl-ent">bazel</span>: <span class="pl-s">0.18.0</span>
+    <span class="pl-ent">build_targets</span>:
+    - <span class="pl-s"><span class="pl-pds">"</span>...<span class="pl-pds">"</span></span>
+<span class="pl-s">[...]</span></pre></div>
+<p dir="auto">In this example the jobs on Windows and MacOS would use 0.20.0, whereas the job on Ubuntu would run 0.18.0.</p>
+<p dir="auto">CI supports several magic version values such as <code>latest</code>, <code>last_green</code> and <code>last_downstream_green</code>.
+Please see the <a href="https://github.com/bazelbuild/bazelisk/blob/master/README.md#how-does-bazelisk-know-which-version-to-run">Bazelisk documentation</a> for more details.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Testing with incompatible flags</h3><a id="user-content-testing-with-incompatible-flags" class="anchor" aria-label="Permalink: Testing with incompatible flags" href="#testing-with-incompatible-flags"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Similar to the aforementioned downstream pipeline you can configure individual pipelines to run with
+<a href="https://github.com/bazelbuild/bazelisk#other-features"><code>bazelisk --migrate</code></a>. As a result, the pipeline
+runs your targets with all incompatible flags that will be flipped in the next major Bazel release and
+prints detailed information about which flags need to be migrated.</p>
+<p dir="auto">You can enable this feature by adding the following code to the top of the pipeline steps in Buildkite at <a href="https://buildkite.com/bazel/YOUR_PIPELINE_SLUG/settings" rel="nofollow">https://buildkite.com/bazel/YOUR_PIPELINE_SLUG/settings</a>, <strong>not</strong> in the pipeline configuration yaml file:</p>
+<div class="highlight highlight-source-yaml notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="---
+env:
+  USE_BAZELISK_MIGRATE: true"><pre>---
+<span class="pl-ent">env</span>:
+  <span class="pl-ent">USE_BAZELISK_MIGRATE</span>: <span class="pl-c1">true</span></pre></div>
+<p dir="auto">If you want your pipeline to fail if at least one flag needs migration, you need to add this code instead:</p>
+<div class="highlight highlight-source-yaml notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="---
+env:
+  USE_BAZELISK_MIGRATE: FAIL"><pre>---
+<span class="pl-ent">env</span>:
+  <span class="pl-ent">USE_BAZELISK_MIGRATE</span>: <span class="pl-s">FAIL</span></pre></div>
+<p dir="auto">If you want to enable this feature for a single build, but not for the entire pipeline,
+you can follow these steps instead:</p>
+<ol dir="auto">
+<li>Navigate to your pipeline in Buildkite.</li>
+<li>Click on the "New Build" button in the top right corner.</li>
+<li>Expand the pipeline options via a click on "Options".</li>
+<li>Enter <code>USE_BAZELISK_MIGRATE=FAIL</code> into the "Environment Variables" text field.</li>
+<li>Click on "Create Build".</li>
+</ol>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">macOS: Using a specific version of Xcode</h3><a id="user-content-macos-using-a-specific-version-of-xcode" class="anchor" aria-label="Permalink: macOS: Using a specific version of Xcode" href="#macos-using-a-specific-version-of-xcode"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">We upgrade the CI machines to the latest version of Xcode shortly after it is released and this
+version will then be used as the default Xcode version. If required, you can specify a fixed Xcode
+version to test against in your pipeline config.</p>
+<p dir="auto"><strong>Warning</strong>: We might have to run jobs that specify an explicit Xcode version on separate, slower machines, so we really advise you to not use this feature unless necessary.</p>
+<p dir="auto">The general policy is to <em>not</em> specify a fixed Xcode version number, so that we can update the
+default version more easily and don't have to update every single CI configuration file out there.</p>
+<p dir="auto">However, if you know that you need to test against multiple versions of Xcode or that newer versions
+frequently break you, you can use this feature.</p>
+<div class="highlight highlight-source-yaml notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="tasks:
+  # Test against the latest released Xcode version.
+  macos:
+    build_targets:
+    - &quot;...&quot;
+  # Ensure that we're still supporting Xcode 10.1.
+  macos_xcode_10_1:
+    platform: macos
+    xcode_version: &quot;10.1&quot;
+    build_targets:
+    - &quot;...&quot;"><pre><span class="pl-ent">tasks</span>:
+  <span class="pl-c"><span class="pl-c">#</span> Test against the latest released Xcode version.</span>
+  <span class="pl-ent">macos</span>:
+    <span class="pl-ent">build_targets</span>:
+    - <span class="pl-s"><span class="pl-pds">"</span>...<span class="pl-pds">"</span></span>
+  <span class="pl-c"><span class="pl-c">#</span> Ensure that we're still supporting Xcode 10.1.</span>
+  <span class="pl-ent">macos_xcode_10_1</span>:
+    <span class="pl-ent">platform</span>: <span class="pl-s">macos</span>
+    <span class="pl-ent">xcode_version</span>: <span class="pl-s"><span class="pl-pds">"</span>10.1<span class="pl-pds">"</span></span>
+    <span class="pl-ent">build_targets</span>:
+    - <span class="pl-s"><span class="pl-pds">"</span>...<span class="pl-pds">"</span></span></pre></div>
+<p dir="auto">Take care to quote the version number, otherwise YAML will interpret it as a floating point number.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Running Buildifier on CI</h3><a id="user-content-running-buildifier-on-ci" class="anchor" aria-label="Permalink: Running Buildifier on CI" href="#running-buildifier-on-ci"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">For each pipeline you can enable <a href="https://github.com/bazelbuild/buildtools/tree/master/buildifier">Buildifier</a> to check all WORKSPACE, BUILD, BUILD.bazel and .bzl files for lint warnings and formatting violations. Simply add the following code to the top of the particular pipeline configuration:</p>
+<div class="highlight highlight-source-yaml notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="---
+buildifier: latest
+[...]"><pre>---
+<span class="pl-ent">buildifier</span>: <span class="pl-s">latest</span>
+<span class="pl-s">[...]</span></pre></div>
+<p dir="auto">As a consequence, every future build for this pipeline will contain an additional "Buildifier" step that runs the latest version of Buildifier both in "lint" and "check" mode.
+Alternatively you can specify a particular Buildifier version such as "0.20.0".</p>
+<p dir="auto">There is also a more advanced syntax that allows you to specify which <a href="https://github.com/bazelbuild/buildtools/blob/master/WARNINGS.md">warnings</a> should be checked in <a href="https://github.com/bazelbuild/buildtools/tree/master/buildifier#linter">lint mode</a>:</p>
+<div class="highlight highlight-source-yaml notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="---
+buildifier:
+  version: latest
+  warnings: &quot;positional-args,duplicated-name&quot;
+[...]"><pre>---
+<span class="pl-ent">buildifier</span>:
+  <span class="pl-ent">version</span>: <span class="pl-s">latest</span>
+  <span class="pl-ent">warnings</span>: <span class="pl-s"><span class="pl-pds">"</span>positional-args,duplicated-name<span class="pl-pds">"</span></span>
+<span class="pl-s">[...]</span></pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Using multiple Workspaces in a single Pipeline</h3><a id="user-content-using-multiple-workspaces-in-a-single-pipeline" class="anchor" aria-label="Permalink: Using multiple Workspaces in a single Pipeline" href="#using-multiple-workspaces-in-a-single-pipeline"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Some projects may contain one or more <code>WORKSPACE</code> files in subdirectories, in addition to their top-level <code>WORKSPACE</code> file.
+All of these workspaces can be tested in a single pipeline by using the <code>working_directory</code> task property.
+Consider the configuration for a project that contains a second <code>WORKSPACE</code> file in the <code>examples_dir/</code> directory:</p>
+<div class="highlight highlight-source-yaml notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="---
+tasks:
+  production_code:
+    name: &quot;My Project&quot;
+    platform: ubuntu1804
+    test_targets:
+    - //...
+  examples:
+    name: Examples
+    platform: ubuntu1804
+    working_directory: examples_dir
+    test_targets:
+    - //..."><pre>---
+<span class="pl-ent">tasks</span>:
+  <span class="pl-ent">production_code</span>:
+    <span class="pl-ent">name</span>: <span class="pl-s"><span class="pl-pds">"</span>My Project<span class="pl-pds">"</span></span>
+    <span class="pl-ent">platform</span>: <span class="pl-s">ubuntu1804</span>
+    <span class="pl-ent">test_targets</span>:
+    - <span class="pl-s">//...</span>
+  <span class="pl-ent">examples</span>:
+    <span class="pl-ent">name</span>: <span class="pl-s">Examples</span>
+    <span class="pl-ent">platform</span>: <span class="pl-s">ubuntu1804</span>
+    <span class="pl-ent">working_directory</span>: <span class="pl-s">examples_dir</span>
+    <span class="pl-ent">test_targets</span>:
+    - <span class="pl-s">//...</span></pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Validating changes to pipeline configuration files</h3><a id="user-content-validating-changes-to-pipeline-configuration-files" class="anchor" aria-label="Permalink: Validating changes to pipeline configuration files" href="#validating-changes-to-pipeline-configuration-files"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">You can set the top-level <code>validate_config</code> option to ensure that changes to pipeline configuration files in the <code>.bazelci</code> directory will be validated.
+With this option, every build for a commit that touches a configuration file will contain an additional validation step for each modified configuration file.</p>
+<p dir="auto">Example usage:</p>
+<div class="highlight highlight-source-yaml notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="---
+validate_config: 1
+tasks:
+  macos:
+    build_targets:
+    - &quot;...&quot;"><pre>---
+<span class="pl-ent">validate_config</span>: <span class="pl-c1">1</span>
+<span class="pl-ent">tasks</span>:
+  <span class="pl-ent">macos</span>:
+    <span class="pl-ent">build_targets</span>:
+    - <span class="pl-s"><span class="pl-pds">"</span>...<span class="pl-pds">"</span></span></pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Exporting JSON profiles of builds and tests</h3><a id="user-content-exporting-json-profiles-of-builds-and-tests" class="anchor" aria-label="Permalink: Exporting JSON profiles of builds and tests" href="#exporting-json-profiles-of-builds-and-tests"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><a href="https://docs.bazel.build/versions/master/skylark/performance.html#json-profile" rel="nofollow">Bazel's JSON Profile</a> is a useful tool to investigate the performance of Bazel. You can configure your pipeline to export these JSON profiles on builds and tests using the <code>include_json_profile</code> option.</p>
+<p dir="auto">Example usage:</p>
+<div class="highlight highlight-source-yaml notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="---
+tasks:
+  ubuntu2004:
+    include_json_profile:
+    - build
+    - test
+    build_targets:
+    - &quot;...&quot;
+    test_targets:
+    - &quot;...&quot;"><pre>---
+<span class="pl-ent">tasks</span>:
+  <span class="pl-ent">ubuntu2004</span>:
+    <span class="pl-ent">include_json_profile</span>:
+    - <span class="pl-s">build</span>
+    - <span class="pl-s">test</span>
+    <span class="pl-ent">build_targets</span>:
+    - <span class="pl-s"><span class="pl-pds">"</span>...<span class="pl-pds">"</span></span>
+    <span class="pl-ent">test_targets</span>:
+    - <span class="pl-s"><span class="pl-pds">"</span>...<span class="pl-pds">"</span></span></pre></div>
+<p dir="auto">When <code>include_json_profile</code> is specified with <code>build</code>, the builds will be carried out with the extra JSON profile flags. Similarly for <code>test</code>. Other values will be ignored.</p>
+<p dir="auto">The exported JSON profiles are available as artifacts after each run.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Matrix Testing</h3><a id="user-content-matrix-testing" class="anchor" aria-label="Permalink: Matrix Testing" href="#matrix-testing"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Similar to Github Actions's <a href="https://docs.github.com/en/actions/learn-github-actions/workflow-syntax-for-github-actions#jobsjob_idstrategymatrix">matrix testing support</a>, you can specify a matrix to create multiple tasks by performing variable substitution in a single task configuration.</p>
+<p dir="auto">Example usage:</p>
+<div class="highlight highlight-source-yaml notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="---
+matrix:
+  bazel_version: [&quot;4.2.2&quot;, &quot;5.0.0&quot;]
+  unix_platform: [&quot;centos7&quot;, &quot;debian10&quot;, &quot;macos&quot;, &quot;ubuntu2004&quot;]
+  python: [&quot;python2&quot;, &quot;python3&quot;]
+  unix_compiler: [&quot;gcc&quot;, &quot;clang&quot;]
+  win_compiler: [&quot;msvc&quot;, &quot;clang&quot;]
+
+tasks:
+  unix_test:
+    name: &quot;Test my project on Unix systems&quot;
+    platform: ${{ unix_platform }}
+    compiler: ${{ unix_compiler }}
+    python: ${{ python }}
+    build_targets:
+    - &quot;//...&quot;
+    test_targets:
+    - &quot;//...&quot;
+  windows_test:
+    name: &quot;Test my project on Windows&quot;
+    platform: &quot;windows&quot;
+    bazel: ${{ bazel_version }}
+    compiler: ${{ win_compiler }}
+    python: ${{ python }}
+    build_targets:
+    - &quot;//...&quot;
+    test_targets:
+    - &quot;//...&quot;"><pre>---
+<span class="pl-ent">matrix</span>:
+  <span class="pl-ent">bazel_version</span>: <span class="pl-s">["4.2.2", "5.0.0"]</span>
+  <span class="pl-ent">unix_platform</span>: <span class="pl-s">["centos7", "debian10", "macos", "ubuntu2004"]</span>
+  <span class="pl-ent">python</span>: <span class="pl-s">["python2", "python3"]</span>
+  <span class="pl-ent">unix_compiler</span>: <span class="pl-s">["gcc", "clang"]</span>
+  <span class="pl-ent">win_compiler</span>: <span class="pl-s">["msvc", "clang"]</span>
+
+<span class="pl-ent">tasks</span>:
+  <span class="pl-ent">unix_test</span>:
+    <span class="pl-ent">name</span>: <span class="pl-s"><span class="pl-pds">"</span>Test my project on Unix systems<span class="pl-pds">"</span></span>
+    <span class="pl-ent">platform</span>: <span class="pl-s">${{ unix_platform }}</span>
+    <span class="pl-ent">compiler</span>: <span class="pl-s">${{ unix_compiler }}</span>
+    <span class="pl-ent">python</span>: <span class="pl-s">${{ python }}</span>
+    <span class="pl-ent">build_targets</span>:
+    - <span class="pl-s"><span class="pl-pds">"</span>//...<span class="pl-pds">"</span></span>
+    <span class="pl-ent">test_targets</span>:
+    - <span class="pl-s"><span class="pl-pds">"</span>//...<span class="pl-pds">"</span></span>
+  <span class="pl-ent">windows_test</span>:
+    <span class="pl-ent">name</span>: <span class="pl-s"><span class="pl-pds">"</span>Test my project on Windows<span class="pl-pds">"</span></span>
+    <span class="pl-ent">platform</span>: <span class="pl-s"><span class="pl-pds">"</span>windows<span class="pl-pds">"</span></span>
+    <span class="pl-ent">bazel</span>: <span class="pl-s">${{ bazel_version }}</span>
+    <span class="pl-ent">compiler</span>: <span class="pl-s">${{ win_compiler }}</span>
+    <span class="pl-ent">python</span>: <span class="pl-s">${{ python }}</span>
+    <span class="pl-ent">build_targets</span>:
+    - <span class="pl-s"><span class="pl-pds">"</span>//...<span class="pl-pds">"</span></span>
+    <span class="pl-ent">test_targets</span>:
+    - <span class="pl-s"><span class="pl-pds">"</span>//...<span class="pl-pds">"</span></span></pre></div>
+<p dir="auto">The <code>unix_test</code> task configuration will generate 16 tasks (4 * 2 * 2) for each <code>unix_platform</code>, <code>unix_compiler</code>, and <code>python</code> combination.</p>
+<p dir="auto">The <code>windows_test</code> task configuration will generate 8 tasks (2 * 2 * 2) for each <code>bazel_version</code>, <code>win_compiler</code> and <code>python</code> combination.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Downstream testing</h2><a id="user-content-downstream-testing" class="anchor" aria-label="Permalink: Downstream testing" href="#downstream-testing"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">For existing projects on Bazel CI, you can add your project to <a href="../docs/downstream-testing.md">Bazel's downstream testing pipeline</a> to catch breakages from Bazel@HEAD as soon as possible.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">FAQ</h2><a id="user-content-faq" class="anchor" aria-label="Permalink: FAQ" href="#faq"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">My tests fail on Bazel CI due to "Error downloading"</h3><a id="user-content-my-tests-fail-on-bazel-ci-due-to-error-downloading" class="anchor" aria-label="Permalink: My tests fail on Bazel CI due to &quot;Error downloading&quot;" href="#my-tests-fail-on-bazel-ci-due-to-error-downloading"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><strong>Q:</strong> I added or changed an external repository and now my test is failing on Bazel CI only with errors like this:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="WARNING: Download from https://github.com/bazelbuild/java_tools/releases/download/javac11-v11.0/java_tools_javac11_linux-v11.0.zip failed: class java.net.ConnectException Operation not permitted (connect failed)
+ERROR: An error occurred during the fetch of repository 'remote_java_tools_linux_beta':
+   java.io.IOException: Error downloading [https://github.com/bazelbuild/java_tools/releases/download/javac11-v11.0/java_tools_javac11_linux-v11.0.zip] to /private/var/tmp/_bazel_buildkite/c3a616e1648c5e14a8ab09d0d59696c2/sandbox/darwin-sandbox/3279/execroot/io_bazel/_tmp/58d272c7f3dd803b2bcb2fc7be47d391/root/fb8b458bcc92813a6fcf57a0dbe6e8bd/external/remote_java_tools_linux_beta/java_tools_javac11_linux-v11.0.zip: Operation not permitted (connect failed)"><pre class="notranslate"><code>WARNING: Download from https://github.com/bazelbuild/java_tools/releases/download/javac11-v11.0/java_tools_javac11_linux-v11.0.zip failed: class java.net.ConnectException Operation not permitted (connect failed)
+ERROR: An error occurred during the fetch of repository 'remote_java_tools_linux_beta':
+   java.io.IOException: Error downloading [https://github.com/bazelbuild/java_tools/releases/download/javac11-v11.0/java_tools_javac11_linux-v11.0.zip] to /private/var/tmp/_bazel_buildkite/c3a616e1648c5e14a8ab09d0d59696c2/sandbox/darwin-sandbox/3279/execroot/io_bazel/_tmp/58d272c7f3dd803b2bcb2fc7be47d391/root/fb8b458bcc92813a6fcf57a0dbe6e8bd/external/remote_java_tools_linux_beta/java_tools_javac11_linux-v11.0.zip: Operation not permitted (connect failed)
+</code></pre></div>
+<p dir="auto"><strong>A:</strong> We run most tests on CI without network access and instead inject the external repositories from the outside. This saves a lot of network traffic and I/O (because the Bazel integration tests don't have to extract the repository archives again and again).</p>
+<p dir="auto">In the code review of this PR, philwo@ explained how to fix test failures like this: <a class="issue-link js-issue-link" data-error-text="Failed to load title" data-id="620555893" data-permission-text="Title is private" data-url="https://github.com/bazelbuild/bazel/issues/11436" data-hovercard-type="pull_request" data-hovercard-url="/bazelbuild/bazel/pull/11436/hovercard" href="https://github.com/bazelbuild/bazel/pull/11436">bazelbuild/bazel#11436</a>.</p>
 </article></div>
