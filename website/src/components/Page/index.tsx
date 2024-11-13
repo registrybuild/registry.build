@@ -1,18 +1,17 @@
 import Link from "@docusaurus/Link";
-import { useLocation, useHistory } from "@docusaurus/router";
+import { DocSearch } from '@docsearch/react';
+import '@docsearch/css';
+
+import { useLocation } from "@docusaurus/router";
 import { popularity } from "@site/src/utils/sort";
 import { BookCopy, Flag, Github, HelpCircle, PlusCircle } from "lucide-react";
-import React, { useState } from "react";
+import React from "react";
 import Module from "../Module";
 import Modules from "../Modules";
 
 const Page = (props) => {
-  let history = useHistory();
   let location = useLocation();
-  let query = new URLSearchParams(location.search).get("search") || "";
-  let [selected, setSelected] = useState(-1);
-
-  let matches = props.data.name ? [] : getMatches(props.data, query);
+  let matches = props.data.name ? [] : getMatches(props.data);
   return (
     <div className="container" key={"container"}>
       <div className="content" key={"content"}>
@@ -22,64 +21,17 @@ const Page = (props) => {
             <div className="logo-build">BUILD</div>
             <div className="logo-registry">REGISTRY</div>
           </Link>
-          <div className="search" key={"search"}>
-            <input
-              id="search"
-              value={query}
-              autoComplete="off"
-              onKeyUp={(e) => {
-                if (e.keyCode == 13) {
-                  history.push(
-                    `/github/${
-                      matches[Math.min(selected, matches.length - 1)].repo
-                        .full_name
-                    }`
-                  );
-                }
-                if (e.keyCode == 39 || e.keyCode == 40) {
-                  // right or down
-                  setSelected(Math.min(selected + 1, matches.length - 1));
-                }
-                if (e.keyCode == 37 || e.keyCode == 38) {
-                  // left or up
-                  setSelected(Math.max(selected - 1, 0));
-                }
-              }}
-              onChange={(e) => {
-                history.push(
-                  e.target.value ? `/?search=${e.target.value}` : ""
-                );
-                if (e.target.value) {
-                  setSelected(0);
-                } else {
-                  setSelected(-1);
-                }
-                setTimeout(() => document.getElementById("search").focus(), 0);
-              }}
-              placeholder="Search the registry"
-              key={"search-input"}
-            />
-            <button
-              onClick={() => {
-                history.push(
-                  `/github/${
-                    matches[Math.min(selected, matches.length - 1)].repo
-                      .full_name
-                  }`
-                );
-              }}
-            >
-              Go
-            </button>
-          </div>
+          <DocSearch
+            appId="ZKJ8PC9OWF"
+            indexName="crawler_registry.build"
+            apiKey="9b295223ae28282aa0a17eefe8aace6a"
+          />
         </div>
         <div className="main">
           {location.pathname == "/" ? (
             <Modules
               data={props.data}
-              query={query}
               matches={matches}
-              selected={selected}
             />
           ) : (
             <Module data={props.data} />
@@ -113,21 +65,11 @@ const Page = (props) => {
   );
 };
 
-function getMatches(data, query) {
+function getMatches(data) {
   return data.name
     ? []
     : Object.values(data)
         .sort(popularity)
-        .filter(
-          (p) =>
-            p.name.includes(query) ||
-            p.repo.full_name.includes(query) ||
-            p.modules.find((m) => m?.name.includes(query))
-        );
 }
-
-// window.onload = () => {
-//   document.getElementById("search").focus();
-// };
 
 export default Page;
