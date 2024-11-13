@@ -120,9 +120,12 @@ function getMatches(data, query) {
         .sort(popularity)
         .filter(
           (p) =>
-            p.name.includes(query) ||
-            p.repo.full_name.includes(query) ||
-            p.modules.find((m) => m?.name.includes(query))
+            p.name.toLowerCase().includes(query.toLowerCase()) ||
+            p.repo.full_name.toLowerCase().includes(query.toLowerCase()) ||
+            p.modules.find((m) =>
+              m?.name.toLowerCase().includes(query.toLowerCase())
+            ) ||
+            p.repo.description.toLowerCase().includes(query.toLowerCase())
         );
 }
 
