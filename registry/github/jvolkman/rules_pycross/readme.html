@@ -43,4 +43,102 @@ operation.</li>
 provides it as a <code>py_library</code>.</li>
 </ol>
 <p dir="auto">See the <a href="docs">generated docs</a>.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Gazelle Plugin</h3><a id="user-content-gazelle-plugin" class="anchor" aria-label="Permalink: Gazelle Plugin" href="#gazelle-plugin"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><code>rules_pycross</code> is compatible with <code>rules_python_gazelle_plugin</code>, a plugin for <a href="https://github.com/bazelbuild/bazel-gazelle">Gazelle</a>
+that generates BUILD files content for <code>rules_python</code> rules, but requires additional configuration.</p>
+<p dir="auto"><code>rules_python_gazelle_plugin</code> is originally designed for <code>rules_python</code> rules that uses custom name normalization, whereas
+<code>rules_pycross</code> uses the Python <a href="https://packaging.python.org/en/latest/specifications/name-normalization/" rel="nofollow">name normalization</a>.</p>
+<p dir="auto">To switch name normalization, use the following Gazelle <a href="https://github.com/bazelbuild/rules_python/blob/main/gazelle/README.md#directives">directives</a>:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="# gazelle:python_label_convention :$distribution_name$
+# gazelle:python_label_normalization pep503"><pre class="notranslate"><code># gazelle:python_label_convention :$distribution_name$
+# gazelle:python_label_normalization pep503
+</code></pre></div>
+<p dir="auto">Other than these options, the configuration is identical to a setup with <code>rules_python</code>.
+Read more <a href="https://github.com/bazelbuild/rules_python/blob/main/gazelle/README.md#directives">here</a>.</p>
+<details>
+  <summary>Example BUILD.bazel</summary>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(&quot;@gazelle//:def.bzl&quot;, &quot;DEFAULT_LANGUAGES&quot;, &quot;gazelle&quot;, &quot;gazelle_binary&quot;)
+load(&quot;@pip//:requirements.bzl&quot;, &quot;all_whl_requirements&quot;)
+load(&quot;@rules_python_gazelle_plugin//manifest:defs.bzl&quot;, &quot;gazelle_python_manifest&quot;)
+load(&quot;@rules_python_gazelle_plugin//modules_mapping:def.bzl&quot;, &quot;modules_mapping&quot;)
+
+# gazelle:python_root
+# gazelle:python_label_convention :$distribution_name$
+# gazelle:python_label_normalization pep503
+gazelle_binary(
+    name = &quot;gazelle_bin&quot;,
+    languages = DEFAULT_LANGUAGES + [
+        &quot;@rules_python_gazelle_plugin//python&quot;,
+    ],
+)
+
+gazelle(
+    name = &quot;gazelle.update&quot;,
+    gazelle = &quot;:gazelle_bin&quot;,
+)
+
+gazelle(
+    name = &quot;gazelle.check&quot;,
+    args = [&quot;-mode=diff&quot;],
+    gazelle = &quot;:gazelle_bin&quot;,
+)
+
+modules_mapping(
+    name = &quot;gazelle.metadata&quot;,
+    tags = [&quot;manual&quot;],
+    wheels = all_whl_requirements,
+)
+
+gazelle_python_manifest(
+    name = &quot;gazelle.mapping&quot;,
+    modules_mapping = &quot;:gazelle.metadata&quot;,
+    pip_repository_name = &quot;pip&quot;,
+    tags = [&quot;manual&quot;],
+)"><pre class="notranslate"><code>load("@gazelle//:def.bzl", "DEFAULT_LANGUAGES", "gazelle", "gazelle_binary")
+load("@pip//:requirements.bzl", "all_whl_requirements")
+load("@rules_python_gazelle_plugin//manifest:defs.bzl", "gazelle_python_manifest")
+load("@rules_python_gazelle_plugin//modules_mapping:def.bzl", "modules_mapping")
+
+# gazelle:python_root
+# gazelle:python_label_convention :$distribution_name$
+# gazelle:python_label_normalization pep503
+gazelle_binary(
+    name = "gazelle_bin",
+    languages = DEFAULT_LANGUAGES + [
+        "@rules_python_gazelle_plugin//python",
+    ],
+)
+
+gazelle(
+    name = "gazelle.update",
+    gazelle = ":gazelle_bin",
+)
+
+gazelle(
+    name = "gazelle.check",
+    args = ["-mode=diff"],
+    gazelle = ":gazelle_bin",
+)
+
+modules_mapping(
+    name = "gazelle.metadata",
+    tags = ["manual"],
+    wheels = all_whl_requirements,
+)
+
+gazelle_python_manifest(
+    name = "gazelle.mapping",
+    modules_mapping = ":gazelle.metadata",
+    pip_repository_name = "pip",
+    tags = ["manual"],
+)
+</code></pre></div>
+<div class="markdown-heading" dir="auto"><h6 class="heading-element" dir="auto">Useful Commands</h6><a id="user-content-useful-commands" class="anchor" aria-label="Permalink: Useful Commands" href="#useful-commands"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="&gt; bazel run //:gazelle.update    # Update gazelle_python.yaml used by Gazelle
+&gt; bazel run //:gazelle.check     # Show changes needed to build scripts per Gazelle
+&gt; bazel run //:gazelle.update    # Apply changes needed to build scripts per Gazelle"><pre class="notranslate"><code>&gt; bazel run //:gazelle.update    # Update gazelle_python.yaml used by Gazelle
+&gt; bazel run //:gazelle.check     # Show changes needed to build scripts per Gazelle
+&gt; bazel run //:gazelle.update    # Apply changes needed to build scripts per Gazelle
+</code></pre></div>
+</details>
 </article></div>
