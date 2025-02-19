@@ -14,6 +14,8 @@ module.exports = async function modules(context, options) {
     async contentLoaded({ content, actions }) {
       let index = [];
 
+      let existingRoutes = new Set();
+
       for (let r of repos) {
         for (let release of r.releases) {
           let matches = [
@@ -75,14 +77,17 @@ module.exports = async function modules(context, options) {
             { path: path.substr(1), stars: r.repo.stargazers_count },
             r.repo.full_name
           );
-          actions.addRoute({
-            path: path,
-            component: "@site/src/components/Page",
-            modules: {
-              data: jsonPath,
-            },
-            exact: true,
-          });
+          if (!existingRoutes.has(path)) {
+            actions.addRoute({
+              path: path,
+              component: "@site/src/components/Page",
+              modules: {
+                data: jsonPath,
+              },
+              exact: true,
+            });
+            existingRoutes.add(path);
+          }
         }
 
         let path = `/github/${r.repo.full_name}`;
@@ -111,14 +116,18 @@ module.exports = async function modules(context, options) {
           { path: path.substr(1), stars: r.repo.stargazers_count },
           r.repo.full_name
         );
-        actions.addRoute({
-          path: `/github/${r.repo.full_name}`,
-          component: "@site/src/components/Page",
-          modules: {
-            data: jsonPath,
-          },
-          exact: true,
-        });
+        let repoPath = `/github/${r.repo.full_name}`;
+        if (!existingRoutes.has(repoPath)) {
+          actions.addRoute({
+            path: repoPath,
+            component: "@site/src/components/Page",
+            modules: {
+              data: jsonPath,
+            },
+            exact: true,
+          });
+          existingRoutes.add(repoPath);
+        }
 
         // Filter out duplicate release names
         let releases = r.releases.filter(function (item, pos) {
@@ -132,14 +141,18 @@ module.exports = async function modules(context, options) {
 
         for (let release of releases) {
           let v = release.tag_name.replace(/^v/, "");
-          actions.addRoute({
-            path: `/github/${r.repo.full_name}@${v}`,
-            component: "@site/src/components/Page",
-            modules: {
-              data: jsonPath,
-            },
-            exact: true,
-          });
+          let repoPath = `/github/${r.repo.full_name}@${v}`;
+          if (!existingRoutes.has(repoPath)) {
+            actions.addRoute({
+              path: repoPath,
+              component: "@site/src/components/Page",
+              modules: {
+                data: jsonPath,
+              },
+              exact: true,
+            });
+            existingRoutes.add(repoPath);
+          }
         }
 
         let module = {
