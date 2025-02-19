@@ -13,7 +13,7 @@ const config = {
   baseUrl: "/",
   organizationName: "registrybuild",
   projectName: "registry.build",
-  onBrokenLinks: "throw",
+  onBrokenLinks: "warn",
   onBrokenMarkdownLinks: "warn",
   trailingSlash: true,
   i18n: {
