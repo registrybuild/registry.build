@@ -1,0 +1,149 @@
+<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Swift System</h1><a id="user-content-swift-system" class="anchor" aria-label="Permalink: Swift System" href="#swift-system"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Swift System provides idiomatic interfaces to system calls and low-level currency types. Our vision is for System to act as the single home for low-level system interfaces for all supported Swift platforms.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">No Cross-platform Abstractions</h2><a id="user-content-no-cross-platform-abstractions" class="anchor" aria-label="Permalink: No Cross-platform Abstractions" href="#no-cross-platform-abstractions"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Swift System is not a cross-platform library. It provides a separate set of APIs and behaviors on every supported platform, closely reflecting the underlying OS interfaces. A single import will pull in the native platform interfaces specific for the targeted OS.</p>
+<p dir="auto">Our immediate goal is to simplify building cross-platform libraries and applications such as SwiftNIO and SwiftPM. It is not a design goal for System to eliminate the need for <code>#if os()</code> conditionals to implement cross-platform abstractions; rather, our goal is to make it safer and more expressive to fill out the platform-specific parts.</p>
+<p dir="auto">(That said, it is desirable to avoid unnecessary differences -- for example, when two operating systems share the same C name for a system call, ideally Swift System would expose them using the same Swift name. This is a particularly obvious expectation for system interfaces that implement an industry standard, such as POSIX.)</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Usage</h2><a id="user-content-usage" class="anchor" aria-label="Permalink: Usage" href="#usage"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="highlight highlight-source-swift notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="import SystemPackage
+
+let message: String = &quot;Hello, world!&quot; + &quot;\n&quot;
+let path: FilePath = &quot;/tmp/log&quot;
+let fd = try FileDescriptor.open(
+  path, .writeOnly, options: [.append, .create], permissions: .ownerReadWrite)
+try fd.closeAfter {
+  _ = try fd.writeAll(message.utf8)
+}"><pre><span class="pl-k">import</span> SystemPackage
+
+<span class="pl-k">let</span> <span class="pl-s1">message</span><span class="pl-kos">:</span> <span class="pl-smi">String</span> <span class="pl-c1">=</span> <span class="pl-s">"</span><span class="pl-s">Hello, world!</span><span class="pl-s">"</span> <span class="pl-c1">+</span> <span class="pl-s">"</span><span class="pl-s">\n</span><span class="pl-s">"</span>
+<span class="pl-k">let</span> <span class="pl-s1">path</span><span class="pl-kos">:</span> <span class="pl-smi">FilePath</span> <span class="pl-c1">=</span> <span class="pl-s">"</span><span class="pl-s">/tmp/log</span><span class="pl-s">"</span>
+<span class="pl-k">let</span> <span class="pl-s1">fd</span> <span class="pl-c1">=</span> <span class="pl-c1"><span class="pl-k">try</span></span> <span class="pl-smi">FileDescriptor</span><span class="pl-kos">.</span><span class="pl-en">open</span><span class="pl-kos">(</span>
+  path<span class="pl-kos">,</span> <span class="pl-kos">.</span>writeOnly<span class="pl-kos">,</span> options<span class="pl-kos">:</span> <span class="pl-kos">[</span><span class="pl-kos">.</span>append<span class="pl-kos">,</span> <span class="pl-kos">.</span>create<span class="pl-kos">]</span><span class="pl-kos">,</span> permissions<span class="pl-kos">:</span> <span class="pl-kos">.</span>ownerReadWrite<span class="pl-kos">)</span>
+<span class="pl-c1"><span class="pl-k">try</span></span> fd<span class="pl-kos">.</span><span class="pl-en">closeAfter</span> <span class="pl-kos">{</span>
+  _ <span class="pl-c1">=</span> <span class="pl-c1"><span class="pl-k">try</span></span> fd<span class="pl-kos">.</span><span class="pl-en">writeAll</span><span class="pl-kos">(</span>message<span class="pl-kos">.</span>utf8<span class="pl-kos">)</span>
+<span class="pl-kos">}</span></pre></div>
+<p dir="auto"><a href="https://swiftpackageindex.com/apple/swift-system/main/documentation/SystemPackage" rel="nofollow">API documentation</a></p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Adding <code>SystemPackage</code> as a Dependency</h2><a id="user-content-adding-systempackage-as-a-dependency" class="anchor" aria-label="Permalink: Adding SystemPackage as a Dependency" href="#adding-systempackage-as-a-dependency"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">To use the <code>SystemPackage</code> library in a SwiftPM project,
+add the following line to the dependencies in your <code>Package.swift</code> file:</p>
+<div class="highlight highlight-source-swift notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content=".package(url: &quot;https://github.com/apple/swift-system&quot;, from: &quot;1.4.0&quot;),"><pre><span class="pl-kos">.</span><span class="pl-k">package</span><span class="pl-kos">(</span>url<span class="pl-kos">:</span> <span class="pl-s">"</span><span class="pl-s">https://github.com/apple/swift-system</span><span class="pl-s">"</span><span class="pl-kos">,</span> from<span class="pl-kos">:</span> <span class="pl-s">"</span><span class="pl-s">1.4.0</span><span class="pl-s">"</span><span class="pl-kos">)</span><span class="pl-kos">,</span></pre></div>
+<p dir="auto">Finally, include <code>"SystemPackage"</code> as a dependency for your executable target:</p>
+<div class="highlight highlight-source-swift notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="let package = Package(
+    // name, platforms, products, etc.
+    dependencies: [
+        .package(url: &quot;https://github.com/apple/swift-system&quot;, from: &quot;1.4.0&quot;),
+        // other dependencies
+    ],
+    targets: [
+        .target(name: &quot;MyTarget&quot;, dependencies: [
+            .product(name: &quot;SystemPackage&quot;, package: &quot;swift-system&quot;),
+        ]),
+        // other targets
+    ]
+)"><pre><span class="pl-k">let</span> <span class="pl-s1"><span class="pl-k">package</span></span> <span class="pl-c1">=</span> <span class="pl-en">Package</span><span class="pl-kos">(</span>
+    // name, platforms, products, etc.
+    dependencies<span class="pl-kos">:</span> <span class="pl-kos">[</span>
+        <span class="pl-kos">.</span><span class="pl-k">package</span><span class="pl-kos">(</span>url<span class="pl-kos">:</span> <span class="pl-s">"</span><span class="pl-s">https://github.com/apple/swift-system</span><span class="pl-s">"</span><span class="pl-kos">,</span> from<span class="pl-kos">:</span> <span class="pl-s">"</span><span class="pl-s">1.4.0</span><span class="pl-s">"</span><span class="pl-kos">)</span><span class="pl-kos">,</span>
+        // other dependencies
+    <span class="pl-kos">]</span><span class="pl-kos">,</span>
+    targets<span class="pl-kos">:</span> <span class="pl-kos">[</span>
+        <span class="pl-kos">.</span>target<span class="pl-kos">(</span>name<span class="pl-kos">:</span> <span class="pl-s">"</span><span class="pl-s">MyTarget</span><span class="pl-s">"</span><span class="pl-kos">,</span> dependencies<span class="pl-kos">:</span> <span class="pl-kos">[</span>
+            <span class="pl-kos">.</span>product<span class="pl-kos">(</span>name<span class="pl-kos">:</span> <span class="pl-s">"</span><span class="pl-s">SystemPackage</span><span class="pl-s">"</span><span class="pl-kos">,</span> <span class="pl-k">package</span><span class="pl-kos">:</span> <span class="pl-s">"</span><span class="pl-s">swift-system</span><span class="pl-s">"</span><span class="pl-kos">)</span><span class="pl-kos">,</span>
+        <span class="pl-kos">]</span><span class="pl-kos">)</span><span class="pl-kos">,</span>
+        // other targets
+    <span class="pl-kos">]</span>
+<span class="pl-kos">)</span></pre></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Source Stability</h2><a id="user-content-source-stability" class="anchor" aria-label="Permalink: Source Stability" href="#source-stability"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">At this time, the Swift System package supports three types of operating systems: Darwin-based, POSIX-like, and Windows. The source-stability status of the package differs according to the platform:</p>
+<markdown-accessiblity-table><table>
+<thead>
+<tr>
+<th>Platform type</th>
+<th>Source Stability</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Darwin (macOS, iOS, etc.)</td>
+<td>Stable</td>
+</tr>
+<tr>
+<td>POSIX (Linux, WASI, etc.)</td>
+<td>Stable</td>
+</tr>
+<tr>
+<td>Windows</td>
+<td>Unstable</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p dir="auto">The package version numbers follow <a href="https://semver.org" rel="nofollow">Semantic Versioning</a> -- source breaking changes to source-stable public API can only land in a new major version. However, platforms for which support has not reached source stability may see source-breaking changes in a new minor version.</p>
+<p dir="auto">The public API of the swift-system package consists of non-underscored declarations that are marked <code>public</code> in the <code>SystemPackage</code> module.</p>
+<p dir="auto">By "underscored declarations" we mean declarations that have a leading underscore anywhere in their fully qualified name. For instance, here are some names that wouldn't be considered part of the public API, even if they were technically marked public:</p>
+<ul dir="auto">
+<li><code>FooModule.Bar._someMember(value:)</code> (underscored member)</li>
+<li><code>FooModule._Bar.someMember</code> (underscored type)</li>
+<li><code>_FooModule.Bar</code> (underscored module)</li>
+<li><code>FooModule.Bar.init(_value:)</code> (underscored initializer)</li>
+</ul>
+<p dir="auto">Interfaces that aren't part of the public API may continue to change in any release, including patch releases. If you have a use case that requires using non-public APIs, please submit a Feature Request describing it! We'd like the public interface to be as useful as possible -- although preferably without compromising safety or limiting future evolution.</p>
+<p dir="auto">Future minor versions of the package may update these rules as needed.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Toolchain Requirements</h2><a id="user-content-toolchain-requirements" class="anchor" aria-label="Permalink: Toolchain Requirements" href="#toolchain-requirements"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The following table maps existing package releases to their minimum required Swift toolchain release:</p>
+<markdown-accessiblity-table><table>
+<thead>
+<tr>
+<th>Package version</th>
+<th>Swift version</th>
+<th>Xcode release</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>swift-system 1.3.x</td>
+<td>&gt;= Swift 5.8</td>
+<td>&gt;= Xcode 14.3</td>
+</tr>
+<tr>
+<td>swift-system 1.4.x</td>
+<td>&gt;= Swift 5.9</td>
+<td>&gt;= Xcode 15.0</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p dir="auto">We'd like this package to quickly embrace Swift language and toolchain improvements that are relevant to its mandate. Accordingly, from time to time, new versions of this package require clients to upgrade to a more recent Swift toolchain release. (This allows the package to make use of new language/stdlib features, build on compiler bug fixes, and adopt new package manager functionality as soon as they are available.) Patch (i.e., bugfix) releases will not increase the required toolchain version, but any minor (i.e., new feature) release may do so.</p>
+<p dir="auto">(Note: the package has no minimum deployment target, so while it does require clients to use a recent Swift toolchain to build it, the code itself is able to run on any OS release that supports running Swift code.)</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Licensing</h2><a id="user-content-licensing" class="anchor" aria-label="Permalink: Licensing" href="#licensing"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">See <a href="LICENSE.txt">LICENSE</a> for license information.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Contributing</h2><a id="user-content-contributing" class="anchor" aria-label="Permalink: Contributing" href="#contributing"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Before contributing, please read <a href="CONTRIBUTING.md">CONTRIBUTING.md</a>.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Branching Strategy</h3><a id="user-content-branching-strategy" class="anchor" aria-label="Permalink: Branching Strategy" href="#branching-strategy"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">We maintain separate branches for each active minor version of the package:</p>
+<markdown-accessiblity-table><table>
+<thead>
+<tr>
+<th>Package version</th>
+<th>Branch</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>swift-system 1.3.x</td>
+<td>release/1.3</td>
+</tr>
+<tr>
+<td>swift-system 1.4.x (unreleased)</td>
+<td>release/1.4</td>
+</tr>
+<tr>
+<td>swift-system 1.5.x (unreleased)</td>
+<td>main</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p dir="auto">Changes must land on the branch corresponding to the earliest release that they will need to ship on. They are periodically propagated to subsequent branches, in the following direction:</p>
+<p dir="auto"><code>release/1.3</code> → <code>release/1.4</code> → <code>main</code></p>
+<p dir="auto">For example, anything landing on <code>release/1.3</code> will eventually appear on <code>release/1.4</code> and then <code>main</code> too; there is no need to file standalone PRs for each release line. (Change propagation currently requires manual work -- it is performed by project maintainers.)</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Code of Conduct</h3><a id="user-content-code-of-conduct" class="anchor" aria-label="Permalink: Code of Conduct" href="#code-of-conduct"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Like all Swift.org projects, we would like the Swift System project to foster a diverse and friendly community. We expect contributors to adhere to the <a href="https://swift.org/code-of-conduct/" rel="nofollow">Swift.org Code of Conduct</a>. A copy of this document is <a href="CODE_OF_CONDUCT.md">available in this repository</a>.</p>
+</article></div>

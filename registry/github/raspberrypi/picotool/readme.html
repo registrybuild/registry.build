@@ -1,9 +1,21 @@
 <div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Building</h2><a id="user-content-building" class="anchor" aria-label="Permalink: Building" href="#building"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<p dir="auto">You need to set PICO_SDK_PATH in the environment, or pass it to cmake.</p>
+<p dir="auto">You need to set PICO_SDK_PATH in the environment, or pass it to cmake with <code>-DPICO_SDK_PATH=/path/to/pico-sdk</code>. To use features such as signing or hashing, you will need to make sure the mbedtls submodule in the SDK is checked out - this can be done by running this from your SDK directory.</p>
+<div class="highlight highlight-text-shell-session notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="git submodule update --init lib/mbedtls"><pre><span class="pl-c1">git submodule update --init lib/mbedtls</span></pre></div>
 <p dir="auto">You also need to install <code>libusb-1.0</code>.</p>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Linux / macOS</h3><a id="user-content-linux--macos" class="anchor" aria-label="Permalink: Linux / macOS" href="#linux--macos"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">Use your favorite package tool to install dependencies. For example, on Ubuntu:</p>
 <div class="highlight highlight-text-shell-session notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="sudo apt install build-essential pkg-config libusb-1.0-0-dev cmake"><pre><span class="pl-c1">sudo apt install build-essential pkg-config libusb-1.0-0-dev cmake</span></pre></div>
+<blockquote>
+<p dir="auto">If libusb-1.0-0-dev is not installed, picotool still builds, but it omits all options that deal with managing a pico via USB (load, save, erase, verify, reboot). Builds that do not include USB support can be recognized because these commands also do not appear in the help command. The build output message 'libUSB is not found - no USB support will be built' also appears in the build logs.</p>
+</blockquote>
+<p dir="auto">Then simply build like a normal CMake project:</p>
+<div class="highlight highlight-text-shell-session notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="mkdir build
+cd build
+cmake ..
+make"><pre><span class="pl-c1">mkdir build</span>
+<span class="pl-c1">cd build</span>
+<span class="pl-c1">cmake ..</span>
+<span class="pl-c1">make</span></pre></div>
 <p dir="auto">On Linux you can add udev rules in order to run picotool without sudo:</p>
 <div class="highlight highlight-text-shell-session notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="sudo cp udev/99-picotool.rules /etc/udev/rules.d/"><pre><span class="pl-c1">sudo cp udev/99-picotool.rules /etc/udev/rules.d/</span></pre></div>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Windows</h3><a id="user-content-windows" class="anchor" aria-label="Permalink: Windows" href="#windows"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
@@ -32,112 +44,180 @@ make"><pre><span class="pl-c1">mkdir build</span>
 <div class="highlight highlight-text-shell-session notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="pacman -S $MINGW_PACKAGE_PREFIX-{toolchain,cmake,libusb}
 mkdir build
 cd build
-MSYS2_ARG_CONV_EXCL=- cmake .. -G&quot;MSYS Makefiles&quot; -DCMAKE_INSTALL_PREFIX=$MINGW_PREFIX
-make
-make install DESTDIR=/  # optional"><pre><span class="pl-c1">pacman -S $MINGW_PACKAGE_PREFIX-{toolchain,cmake,libusb}</span>
+cmake .. -DCMAKE_INSTALL_PREFIX=$MINGW_PREFIX
+cmake --build ."><pre><span class="pl-c1">pacman -S $MINGW_PACKAGE_PREFIX-{toolchain,cmake,libusb}</span>
 <span class="pl-c1">mkdir build</span>
 <span class="pl-c1">cd build</span>
-<span class="pl-c1">MSYS2_ARG_CONV_EXCL=- cmake .. -G"MSYS Makefiles" -DCMAKE_INSTALL_PREFIX=$MINGW_PREFIX</span>
-<span class="pl-c1">make</span>
-<span class="pl-c1">make install DESTDIR=/  # optional</span></pre></div>
+<span class="pl-c1">cmake .. -DCMAKE_INSTALL_PREFIX=$MINGW_PREFIX</span>
+<span class="pl-c1">cmake --build .</span></pre></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Usage by the Raspberry Pi Pico SDK</h2><a id="user-content-usage-by-the-raspberry-pi-pico-sdk" class="anchor" aria-label="Permalink: Usage by the Raspberry Pi Pico SDK" href="#usage-by-the-raspberry-pi-pico-sdk"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The Raspberry Pi Pico SDK (<a href="https://github.com/raspberrypi/pico-sdk">pico-sdk</a>) version 2.0.0 and above uses <code>picotool</code> to do the ELF-to-UF2 conversion previously handled by the <code>elf2uf2</code> tool in the SDK. The SDK also uses <code>picotool</code> to hash and sign binaries.</p>
+<p dir="auto">Whilst the SDK can download picotool on its own per project, if you have multiple projects or build configurations, it is preferable to install a single copy of <code>picotool</code> locally. This can be done most simply with <code>make install</code> or <code>cmake --install .</code>, using <code>sudo</code> if required; the SDK will use this installed version by default.</p>
+<blockquote>
+<p dir="auto">On some Linux systems, the <code>~/.local</code> prefix may be used for an install without <code>sudo</code>; from your build directory simply run</p>
+<div class="highlight highlight-text-shell-session notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="cmake -DCMAKE_INSTALL_PREFIX=~/.local ..
+make install"><pre><span class="pl-c1">cmake -DCMAKE_INSTALL_PREFIX=~/.local ..</span>
+<span class="pl-c1">make install</span></pre></div>
+<p dir="auto">This will only work if <code>~/.local</code> is included in your <code>PATH</code></p>
+</blockquote>
+<p dir="auto">Alternatively, you can install to a custom path via:</p>
+<div class="highlight highlight-text-shell-session notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="cmake -DCMAKE_INSTALL_PREFIX=$MY_INSTALL_DIR -DPICOTOOL_FLAT_INSTALL=1 ..
+make install"><pre><span class="pl-c1">cmake -DCMAKE_INSTALL_PREFIX=$MY_INSTALL_DIR -DPICOTOOL_FLAT_INSTALL=1 ..</span>
+<span class="pl-c1">make install</span></pre></div>
+<p dir="auto">In order for the SDK to find <code>picotool</code> in this custom folder, you will usually need to set the <code>picotool_DIR</code> variable in your project. This can be achieved either by setting the <code>picotool_DIR</code> environment variable to <code>$MY_INSTALL_DIR/picotool</code>, by passing <code>-Dpicotool_DIR=$MY_INSTALL_DIR/picotool</code> to your <code>cmake</code> command, or by adding <code>set(picotool_DIR $MY_INSTALL_DIR/picotool)</code> to your CMakeLists.txt file.</p>
+<blockquote>
+<p dir="auto">See the <a href="https://cmake.org/cmake/help/latest/command/find_package.html#config-mode-search-procedure" rel="nofollow">find_package documentation</a> for more details</p>
+</blockquote>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Overview</h2><a id="user-content-overview" class="anchor" aria-label="Permalink: Overview" href="#overview"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<p dir="auto"><code>picotool</code> is a tool for inspecting RP2040 binaries, and interacting with RP2040 devices when they are in BOOTSEL mode. (As of version 1.1 of <code>picotool</code> it is also possible to interact with RP2040 devices that are not in BOOTSEL mode, but are using USB stdio support from the Raspberry Pi Pico SDK by using the <code>-f</code> argument of <code>picotool</code>).</p>
+<p dir="auto"><code>picotool</code> is a tool for working with RP2040/RP2350 binaries, and interacting with RP2040/RP2350 devices when they are in BOOTSEL mode. (As of version 1.1 of <code>picotool</code> it is also possible to interact with devices that are not in BOOTSEL mode, but are using USB stdio support from the Raspberry Pi Pico SDK by using the <code>-f</code> argument of <code>picotool</code>).</p>
 <p dir="auto">Note for additional documentation see <a href="https://rptl.io/pico-get-started" rel="nofollow">https://rptl.io/pico-get-started</a></p>
 <div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="$ picotool help
 PICOTOOL:
-    Tool for interacting with a RP2040 device in BOOTSEL mode, or with a RP2040 binary
+    Tool for interacting with RP-series device(s) in BOOTSEL mode, or with an RP-series binary
 
 SYNOPSIS:
-    picotool info [-b] [-p] [-d] [-l] [-a] [--bus &lt;bus&gt;] [--address &lt;addr&gt;] [-f] [-F]
-    picotool info [-b] [-p] [-d] [-l] [-a] &lt;filename&gt; [-t &lt;type&gt;]
-    picotool load [-n] [-N] [-u] [-v] [-x] &lt;filename&gt; [-t &lt;type&gt;] [-o &lt;offset&gt;] [--bus &lt;bus&gt;] [--address &lt;addr&gt;] [-f] [-F]
-    picotool save [-p] [--bus &lt;bus&gt;] [--address &lt;addr&gt;] [-f] [-F] &lt;filename&gt; [-t &lt;type&gt;]
-    picotool save -a [--bus &lt;bus&gt;] [--address &lt;addr&gt;] [-f] [-F] &lt;filename&gt; [-t &lt;type&gt;]
-    picotool save -r &lt;from&gt; &lt;to&gt; [--bus &lt;bus&gt;] [--address &lt;addr&gt;] [-f] [-F] &lt;filename&gt; [-t &lt;type&gt;]
-    picotool verify [--bus &lt;bus&gt;] [--address &lt;addr&gt;] [-f] [-F] &lt;filename&gt; [-t &lt;type&gt;] [-r &lt;from&gt; &lt;to&gt;] [-o &lt;offset&gt;]
-    picotool reboot [-a] [-u] [--bus &lt;bus&gt;] [--address &lt;addr&gt;] [-f] [-F]
-    picotool version [-s]
+    picotool info [-b] [-m] [-p] [-d] [--debug] [-l] [-a] [device-selection]
+    picotool info [-b] [-m] [-p] [-d] [--debug] [-l] [-a] &lt;filename&gt; [-t &lt;type&gt;]
+    picotool config [-s &lt;key&gt; &lt;value&gt;] [-g &lt;group&gt;] [device-selection]
+    picotool config [-s &lt;key&gt; &lt;value&gt;] [-g &lt;group&gt;] &lt;filename&gt; [-t &lt;type&gt;]
+    picotool load [--ignore-partitions] [--family &lt;family_id&gt;] [-p &lt;partition&gt;] [-n] [-N] [-u] [-v] [-x] &lt;filename&gt; [-t &lt;type&gt;] [-o &lt;offset&gt;] [device-selection]
+    picotool encrypt [--quiet] [--verbose] [--hash] [--sign] &lt;infile&gt; [-t &lt;type&gt;] [-o &lt;offset&gt;] &lt;outfile&gt; [-t &lt;type&gt;] &lt;aes_key&gt; [-t &lt;type&gt;] [&lt;signing_key&gt;] [-t &lt;type&gt;]
+    picotool seal [--quiet] [--verbose] [--hash] [--sign] [--clear] &lt;infile&gt; [-t &lt;type&gt;] [-o &lt;offset&gt;] &lt;outfile&gt; [-t &lt;type&gt;] [&lt;key&gt;] [-t &lt;type&gt;] [&lt;otp&gt;] [-t &lt;type&gt;] [--major &lt;major&gt;] [--minor &lt;minor&gt;] [--rollback &lt;rollback&gt; [&lt;rows&gt;..]]
+    picotool link [--quiet] [--verbose] &lt;outfile&gt; [-t &lt;type&gt;] &lt;infile1&gt; [-t &lt;type&gt;] &lt;infile2&gt; [-t &lt;type&gt;] [&lt;infile3&gt;] [-t &lt;type&gt;] [-p] &lt;pad&gt;
+    picotool save [-p] [-v] [--family &lt;family_id&gt;] [device-selection]
+    picotool save -a [-v] [--family &lt;family_id&gt;] [device-selection]
+    picotool save -r &lt;from&gt; &lt;to&gt; [-v] [--family &lt;family_id&gt;] [device-selection]
+    picotool erase [-a] [device-selection]
+    picotool erase -p &lt;partition&gt; [device-selection]
+    picotool erase -r &lt;from&gt; &lt;to&gt; [device-selection]
+    picotool verify [device-selection]
+    picotool reboot [-a] [-u] [-g &lt;partition&gt;] [-c &lt;cpu&gt;] [device-selection]
+    picotool otp list|get|set|load|dump|permissions|white-label
+    picotool partition info|create
+    picotool uf2 info|convert
+    picotool version [-s] [&lt;version&gt;]
+    picotool coprodis [--quiet] [--verbose] &lt;infile&gt; [-t &lt;type&gt;] &lt;outfile&gt; [-t &lt;type&gt;]
     picotool help [&lt;cmd&gt;]
 
 COMMANDS:
-    info      Display information from the target device(s) or file.
-              Without any arguments, this will display basic information for all connected RP2040 devices in BOOTSEL mode
-    load      Load the program / memory range stored in a file onto the device.
-    save      Save the program / memory stored in flash on the device to a file.
-    verify    Check that the device contents match those in the file.
-    reboot    Reboot the device
-    version   Display picotool version
-    help      Show general help or help for a specific command
+    info        Display information from the target device(s) or file.
+                Without any arguments, this will display basic information for all connected RP-series devices in BOOTSEL mode
+    config      Display or change program configuration settings from the target device(s) or file.
+    load        Load the program / memory range stored in a file onto the device.
+    encrypt     Encrypt the program.
+    seal        Add final metadata to a binary, optionally including a hash and/or signature.
+    link        Link multiple binaries into one block loop.
+    save        Save the program / memory stored in flash on the device to a file.
+    erase       Erase the program / memory stored in flash on the device.
+    verify      Check that the device contents match those in the file.
+    reboot      Reboot the device
+    otp         Commands related to the RP2350 OTP (One-Time-Programmable) Memory
+    partition   Commands related to RP2350 Partition Tables
+    uf2         Commands related to UF2 creation and status
+    version     Display picotool version
+    coprodis    Post-process coprocessor instructions in disassembly files.
+    help        Show general help or help for a specific command
 
 Use &quot;picotool help &lt;cmd&gt;&quot; for more info"><pre lang="text" class="notranslate"><code>$ picotool help
 PICOTOOL:
-    Tool for interacting with a RP2040 device in BOOTSEL mode, or with a RP2040 binary
+    Tool for interacting with RP-series device(s) in BOOTSEL mode, or with an RP-series binary
 
 SYNOPSIS:
-    picotool info [-b] [-p] [-d] [-l] [-a] [--bus &lt;bus&gt;] [--address &lt;addr&gt;] [-f] [-F]
-    picotool info [-b] [-p] [-d] [-l] [-a] &lt;filename&gt; [-t &lt;type&gt;]
-    picotool load [-n] [-N] [-u] [-v] [-x] &lt;filename&gt; [-t &lt;type&gt;] [-o &lt;offset&gt;] [--bus &lt;bus&gt;] [--address &lt;addr&gt;] [-f] [-F]
-    picotool save [-p] [--bus &lt;bus&gt;] [--address &lt;addr&gt;] [-f] [-F] &lt;filename&gt; [-t &lt;type&gt;]
-    picotool save -a [--bus &lt;bus&gt;] [--address &lt;addr&gt;] [-f] [-F] &lt;filename&gt; [-t &lt;type&gt;]
-    picotool save -r &lt;from&gt; &lt;to&gt; [--bus &lt;bus&gt;] [--address &lt;addr&gt;] [-f] [-F] &lt;filename&gt; [-t &lt;type&gt;]
-    picotool verify [--bus &lt;bus&gt;] [--address &lt;addr&gt;] [-f] [-F] &lt;filename&gt; [-t &lt;type&gt;] [-r &lt;from&gt; &lt;to&gt;] [-o &lt;offset&gt;]
-    picotool reboot [-a] [-u] [--bus &lt;bus&gt;] [--address &lt;addr&gt;] [-f] [-F]
-    picotool version [-s]
+    picotool info [-b] [-m] [-p] [-d] [--debug] [-l] [-a] [device-selection]
+    picotool info [-b] [-m] [-p] [-d] [--debug] [-l] [-a] &lt;filename&gt; [-t &lt;type&gt;]
+    picotool config [-s &lt;key&gt; &lt;value&gt;] [-g &lt;group&gt;] [device-selection]
+    picotool config [-s &lt;key&gt; &lt;value&gt;] [-g &lt;group&gt;] &lt;filename&gt; [-t &lt;type&gt;]
+    picotool load [--ignore-partitions] [--family &lt;family_id&gt;] [-p &lt;partition&gt;] [-n] [-N] [-u] [-v] [-x] &lt;filename&gt; [-t &lt;type&gt;] [-o &lt;offset&gt;] [device-selection]
+    picotool encrypt [--quiet] [--verbose] [--hash] [--sign] &lt;infile&gt; [-t &lt;type&gt;] [-o &lt;offset&gt;] &lt;outfile&gt; [-t &lt;type&gt;] &lt;aes_key&gt; [-t &lt;type&gt;] [&lt;signing_key&gt;] [-t &lt;type&gt;]
+    picotool seal [--quiet] [--verbose] [--hash] [--sign] [--clear] &lt;infile&gt; [-t &lt;type&gt;] [-o &lt;offset&gt;] &lt;outfile&gt; [-t &lt;type&gt;] [&lt;key&gt;] [-t &lt;type&gt;] [&lt;otp&gt;] [-t &lt;type&gt;] [--major &lt;major&gt;] [--minor &lt;minor&gt;] [--rollback &lt;rollback&gt; [&lt;rows&gt;..]]
+    picotool link [--quiet] [--verbose] &lt;outfile&gt; [-t &lt;type&gt;] &lt;infile1&gt; [-t &lt;type&gt;] &lt;infile2&gt; [-t &lt;type&gt;] [&lt;infile3&gt;] [-t &lt;type&gt;] [-p] &lt;pad&gt;
+    picotool save [-p] [-v] [--family &lt;family_id&gt;] [device-selection]
+    picotool save -a [-v] [--family &lt;family_id&gt;] [device-selection]
+    picotool save -r &lt;from&gt; &lt;to&gt; [-v] [--family &lt;family_id&gt;] [device-selection]
+    picotool erase [-a] [device-selection]
+    picotool erase -p &lt;partition&gt; [device-selection]
+    picotool erase -r &lt;from&gt; &lt;to&gt; [device-selection]
+    picotool verify [device-selection]
+    picotool reboot [-a] [-u] [-g &lt;partition&gt;] [-c &lt;cpu&gt;] [device-selection]
+    picotool otp list|get|set|load|dump|permissions|white-label
+    picotool partition info|create
+    picotool uf2 info|convert
+    picotool version [-s] [&lt;version&gt;]
+    picotool coprodis [--quiet] [--verbose] &lt;infile&gt; [-t &lt;type&gt;] &lt;outfile&gt; [-t &lt;type&gt;]
     picotool help [&lt;cmd&gt;]
 
 COMMANDS:
-    info      Display information from the target device(s) or file.
-              Without any arguments, this will display basic information for all connected RP2040 devices in BOOTSEL mode
-    load      Load the program / memory range stored in a file onto the device.
-    save      Save the program / memory stored in flash on the device to a file.
-    verify    Check that the device contents match those in the file.
-    reboot    Reboot the device
-    version   Display picotool version
-    help      Show general help or help for a specific command
+    info        Display information from the target device(s) or file.
+                Without any arguments, this will display basic information for all connected RP-series devices in BOOTSEL mode
+    config      Display or change program configuration settings from the target device(s) or file.
+    load        Load the program / memory range stored in a file onto the device.
+    encrypt     Encrypt the program.
+    seal        Add final metadata to a binary, optionally including a hash and/or signature.
+    link        Link multiple binaries into one block loop.
+    save        Save the program / memory stored in flash on the device to a file.
+    erase       Erase the program / memory stored in flash on the device.
+    verify      Check that the device contents match those in the file.
+    reboot      Reboot the device
+    otp         Commands related to the RP2350 OTP (One-Time-Programmable) Memory
+    partition   Commands related to RP2350 Partition Tables
+    uf2         Commands related to UF2 creation and status
+    version     Display picotool version
+    coprodis    Post-process coprocessor instructions in disassembly files.
+    help        Show general help or help for a specific command
 
 Use "picotool help &lt;cmd&gt;" for more info
 </code></pre></div>
-<p dir="auto">Note commands that aren't acting on files require an RP2040 device in BOOTSEL mode to be connected.</p>
+<p dir="auto">Note commands that aren't acting on files require a device in BOOTSEL mode to be connected.</p>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">info</h2><a id="user-content-info" class="anchor" aria-label="Permalink: info" href="#info"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<p dir="auto">So there is now <em>Binary Information</em> support in the SDK which allows for easily storing compact information that <code>picotool</code>
+<p dir="auto">There is <em>Binary Information</em> support in the SDK which allows for easily storing compact information that <code>picotool</code>
 can find (See Binary Info section below). The info command is for reading this information.</p>
-<p dir="auto">The information can be either read from one or more connected RP2040 devices in BOOTSEL mode, or from
+<p dir="auto">The information can be either read from one or more connected devices in BOOTSEL mode, or from
 a file. This file can be an ELF, a UF2 or a BIN file.</p>
 <div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="$ picotool help info
 INFO:
     Display information from the target device(s) or file.
-    Without any arguments, this will display basic information for all connected RP2040 devices in BOOTSEL mode
+    Without any arguments, this will display basic information for all connected RP-series devices in BOOTSEL mode
 
 SYNOPSIS:
-    picotool info [-b] [-p] [-d] [-l] [-a] [--bus &lt;bus&gt;] [--address &lt;addr&gt;] [-f] [-F]
-    picotool info [-b] [-p] [-d] [-l] [-a] &lt;filename&gt; [-t &lt;type&gt;]
+    picotool info [-b] [-m] [-p] [-d] [--debug] [-l] [-a] [device-selection]
+    picotool info [-b] [-m] [-p] [-d] [--debug] [-l] [-a] &lt;filename&gt; [-t &lt;type&gt;]
 
 OPTIONS:
     Information to display
         -b, --basic
             Include basic information. This is the default
+        -m, --metadata
+            Include all metadata blocks
         -p, --pins
             Include pin information
         -d, --device
             Include device information
+        --debug
+            Include device debug information
         -l, --build
             Include build attributes
         -a, --all
             Include all information
 
 TARGET SELECTION:
-    To target one or more connected RP2040 device(s) in BOOTSEL mode (the default)
+    To target one or more connected RP-series device(s) in BOOTSEL mode (the default)
         --bus &lt;bus&gt;
             Filter devices by USB bus number
         --address &lt;addr&gt;
             Filter devices by USB device address
+        --vid &lt;vid&gt;
+            Filter by vendor id
+        --pid &lt;pid&gt;
+            Filter by product id
+        --ser &lt;ser&gt;
+            Filter by serial number
         -f, --force
-            Force a device not in BOOTSEL mode but running compatible code to reset so the command can be executed. After executing
-            the command (unless the command itself is a 'reboot') the device will be rebooted back to application mode
+            Force a device not in BOOTSEL mode but running compatible code to reset so the command can be executed. After executing the
+            command (unless the command itself is a 'reboot') the device will be rebooted back to application mode
         -F, --force-no-reboot
-            Force a device not in BOOTSEL mode but running compatible code to reset so the command can be executed. After executing
-            the command (unless the command itself is a 'reboot') the device will be left connected and accessible to picotool, but
-            without the RPI-RP2 drive mounted
+            Force a device not in BOOTSEL mode but running compatible code to reset so the command can be executed. After executing the
+            command (unless the command itself is a 'reboot') the device will be left connected and accessible to picotool, but without the
+            RPI-RP2 drive mounted
     To target a file
         &lt;filename&gt;
             The file name
@@ -145,38 +225,48 @@ TARGET SELECTION:
             Specify file type (uf2 | elf | bin) explicitly, ignoring file extension"><pre lang="text" class="notranslate"><code>$ picotool help info
 INFO:
     Display information from the target device(s) or file.
-    Without any arguments, this will display basic information for all connected RP2040 devices in BOOTSEL mode
+    Without any arguments, this will display basic information for all connected RP-series devices in BOOTSEL mode
 
 SYNOPSIS:
-    picotool info [-b] [-p] [-d] [-l] [-a] [--bus &lt;bus&gt;] [--address &lt;addr&gt;] [-f] [-F]
-    picotool info [-b] [-p] [-d] [-l] [-a] &lt;filename&gt; [-t &lt;type&gt;]
+    picotool info [-b] [-m] [-p] [-d] [--debug] [-l] [-a] [device-selection]
+    picotool info [-b] [-m] [-p] [-d] [--debug] [-l] [-a] &lt;filename&gt; [-t &lt;type&gt;]
 
 OPTIONS:
     Information to display
         -b, --basic
             Include basic information. This is the default
+        -m, --metadata
+            Include all metadata blocks
         -p, --pins
             Include pin information
         -d, --device
             Include device information
+        --debug
+            Include device debug information
         -l, --build
             Include build attributes
         -a, --all
             Include all information
 
 TARGET SELECTION:
-    To target one or more connected RP2040 device(s) in BOOTSEL mode (the default)
+    To target one or more connected RP-series device(s) in BOOTSEL mode (the default)
         --bus &lt;bus&gt;
             Filter devices by USB bus number
         --address &lt;addr&gt;
             Filter devices by USB device address
+        --vid &lt;vid&gt;
+            Filter by vendor id
+        --pid &lt;pid&gt;
+            Filter by product id
+        --ser &lt;ser&gt;
+            Filter by serial number
         -f, --force
-            Force a device not in BOOTSEL mode but running compatible code to reset so the command can be executed. After executing
-            the command (unless the command itself is a 'reboot') the device will be rebooted back to application mode
+            Force a device not in BOOTSEL mode but running compatible code to reset so the command can be executed. After executing the
+            command (unless the command itself is a 'reboot') the device will be rebooted back to application mode
         -F, --force-no-reboot
-            Force a device not in BOOTSEL mode but running compatible code to reset so the command can be executed. After executing
-            the command (unless the command itself is a 'reboot') the device will be left connected and accessible to picotool, but
-            without the RPI-RP2 drive mounted
+            Force a device not in BOOTSEL mode but running compatible code to reset so the command can be executed. After executing the
+            command (unless the command itself is a 'reboot') the device will be left connected and accessible to picotool, but without the
+            RPI-RP2 drive mounted
     To target a file
         &lt;filename&gt;
             The file name
@@ -275,23 +365,156 @@ Fixed Pin Information
 Build Information
  build date:  Dec 31 2020
 </code></pre></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">config</h2><a id="user-content-config" class="anchor" aria-label="Permalink: config" href="#config"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Config allows you to configure the binary info on a device, if it is configurable. Specifically, you can configure <code>bi_ptr_int32</code> and <code>bi_ptr_string</code>.</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="$ picotool help config
+CONFIG:
+    Display or change program configuration settings from the target device(s) or file.
+
+SYNOPSIS:
+    picotool config [-s &lt;key&gt; &lt;value&gt;] [-g &lt;group&gt;] [device-selection]
+    picotool config [-s &lt;key&gt; &lt;value&gt;] [-g &lt;group&gt;] &lt;filename&gt; [-t &lt;type&gt;]
+
+OPTIONS:
+        &lt;key&gt;
+            Variable name
+        &lt;value&gt;
+            New value
+        -g &lt;group&gt;
+            Filter by feature group
+
+TARGET SELECTION:
+    To target one or more connected RP-series device(s) in BOOTSEL mode (the default)
+        --bus &lt;bus&gt;
+            Filter devices by USB bus number
+        --address &lt;addr&gt;
+            Filter devices by USB device address
+        --vid &lt;vid&gt;
+            Filter by vendor id
+        --pid &lt;pid&gt;
+            Filter by product id
+        --ser &lt;ser&gt;
+            Filter by serial number
+        -f, --force
+            Force a device not in BOOTSEL mode but running compatible code to reset so the command can be executed. After executing the
+            command (unless the command itself is a 'reboot') the device will be rebooted back to application mode
+        -F, --force-no-reboot
+            Force a device not in BOOTSEL mode but running compatible code to reset so the command can be executed. After executing the
+            command (unless the command itself is a 'reboot') the device will be left connected and accessible to picotool, but without the
+            RPI-RP2 drive mounted
+    To target a file
+        &lt;filename&gt;
+            The file name
+        -t &lt;type&gt;
+            Specify file type (uf2 | elf | bin) explicitly, ignoring file extension"><pre lang="text" class="notranslate"><code>$ picotool help config
+CONFIG:
+    Display or change program configuration settings from the target device(s) or file.
+
+SYNOPSIS:
+    picotool config [-s &lt;key&gt; &lt;value&gt;] [-g &lt;group&gt;] [device-selection]
+    picotool config [-s &lt;key&gt; &lt;value&gt;] [-g &lt;group&gt;] &lt;filename&gt; [-t &lt;type&gt;]
+
+OPTIONS:
+        &lt;key&gt;
+            Variable name
+        &lt;value&gt;
+            New value
+        -g &lt;group&gt;
+            Filter by feature group
+
+TARGET SELECTION:
+    To target one or more connected RP-series device(s) in BOOTSEL mode (the default)
+        --bus &lt;bus&gt;
+            Filter devices by USB bus number
+        --address &lt;addr&gt;
+            Filter devices by USB device address
+        --vid &lt;vid&gt;
+            Filter by vendor id
+        --pid &lt;pid&gt;
+            Filter by product id
+        --ser &lt;ser&gt;
+            Filter by serial number
+        -f, --force
+            Force a device not in BOOTSEL mode but running compatible code to reset so the command can be executed. After executing the
+            command (unless the command itself is a 'reboot') the device will be rebooted back to application mode
+        -F, --force-no-reboot
+            Force a device not in BOOTSEL mode but running compatible code to reset so the command can be executed. After executing the
+            command (unless the command itself is a 'reboot') the device will be left connected and accessible to picotool, but without the
+            RPI-RP2 drive mounted
+    To target a file
+        &lt;filename&gt;
+            The file name
+        -t &lt;type&gt;
+            Specify file type (uf2 | elf | bin) explicitly, ignoring file extension
+</code></pre></div>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="$ picotool config
+n = 5
+name = &quot;Billy&quot;
+nonconst_pins:
+ default_pin = 3
+ default_name = &quot;My First Pin&quot;"><pre lang="text" class="notranslate"><code>$ picotool config
+n = 5
+name = "Billy"
+nonconst_pins:
+ default_pin = 3
+ default_name = "My First Pin"
+</code></pre></div>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="$ picotool config -g nonconst_pins
+nonconst_pins:
+ default_pin = 3
+ default_name = &quot;My First Pin&quot;"><pre lang="text" class="notranslate"><code>$ picotool config -g nonconst_pins
+nonconst_pins:
+ default_pin = 3
+ default_name = "My First Pin"
+</code></pre></div>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="$ picotool config -s name Jane
+name = &quot;Billy&quot;
+setting name -&gt; &quot;Jane&quot;
+
+$ picotool config
+n = 5
+name = &quot;Jane&quot;
+nonconst_pins:
+ default_pin = 3
+ default_name = &quot;My First Pin&quot;"><pre lang="text" class="notranslate"><code>$ picotool config -s name Jane
+name = "Billy"
+setting name -&gt; "Jane"
+
+$ picotool config
+n = 5
+name = "Jane"
+nonconst_pins:
+ default_pin = 3
+ default_name = "My First Pin"
+</code></pre></div>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">load</h2><a id="user-content-load" class="anchor" aria-label="Permalink: load" href="#load"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<p dir="auto">Load allows you to write data from a file into flash</p>
+<p dir="auto"><code>load</code> allows you to write data from a file onto the device (either writing to flash, or to RAM)</p>
 <div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="$ picotool help load
 LOAD:
     Load the program / memory range stored in a file onto the device.
 
 SYNOPSIS:
-    picotool load [-n] [-N] [-u] [-v] [-x] &lt;filename&gt; [-t &lt;type&gt;] [-o &lt;offset&gt;] [--bus &lt;bus&gt;] [--address &lt;addr&gt;] [-f] [-F]
+    picotool load [--ignore-partitions] [--family &lt;family_id&gt;] [-p &lt;partition&gt;] [-n] [-N] [-u] [-v] [-x] &lt;filename&gt; [-t &lt;type&gt;] [-o
+                &lt;offset&gt;] [device-selection]
 
 OPTIONS:
     Post load actions
+        --ignore-partitions
+            When writing flash data, ignore the partition table and write to absolute space
+        --family
+            Specify the family ID of the file to load
+        &lt;family_id&gt;
+            family ID to use for load
+        -p, --partition
+            Specify the partition to load into
+        &lt;partition&gt;
+            partition to load into
         -n, --no-overwrite
-            When writing flash data, do not overwrite an existing program in flash. If picotool cannot determine the size/presence
-            of the program in flash, the command fails
+            When writing flash data, do not overwrite an existing program in flash. If picotool cannot determine the size/presence of the
+            program in flash, the command fails
         -N, --no-overwrite-unsafe
-            When writing flash data, do not overwrite an existing program in flash. If picotool cannot determine the size/presence
-            of the program in flash, the load continues anyway
+            When writing flash data, do not overwrite an existing program in flash. If picotool cannot determine the size/presence of the
+            program in flash, the load continues anyway
         -u, --update
             Skip writing flash sectors that already contain identical data
         -v, --verify
@@ -313,27 +536,44 @@ OPTIONS:
             Filter devices by USB bus number
         --address &lt;addr&gt;
             Filter devices by USB device address
+        --vid &lt;vid&gt;
+            Filter by vendor id
+        --pid &lt;pid&gt;
+            Filter by product id
+        --ser &lt;ser&gt;
+            Filter by serial number
         -f, --force
-            Force a device not in BOOTSEL mode but running compatible code to reset so the command can be executed. After executing
-            the command (unless the command itself is a 'reboot') the device will be rebooted back to application mode
+            Force a device not in BOOTSEL mode but running compatible code to reset so the command can be executed. After executing the
+            command (unless the command itself is a 'reboot') the device will be rebooted back to application mode
         -F, --force-no-reboot
-            Force a device not in BOOTSEL mode but running compatible code to reset so the command can be executed. After executing
-            the command (unless the command itself is a 'reboot') the device will be left connected and accessible to picotool, but
-            without the RPI-RP2 drive mounted"><pre lang="text" class="notranslate"><code>$ picotool help load
+            Force a device not in BOOTSEL mode but running compatible code to reset so the command can be executed. After executing the
+            command (unless the command itself is a 'reboot') the device will be left connected and accessible to picotool, but without the
+            RPI-RP2 drive mounted"><pre lang="text" class="notranslate"><code>$ picotool help load
 LOAD:
     Load the program / memory range stored in a file onto the device.
 
 SYNOPSIS:
-    picotool load [-n] [-N] [-u] [-v] [-x] &lt;filename&gt; [-t &lt;type&gt;] [-o &lt;offset&gt;] [--bus &lt;bus&gt;] [--address &lt;addr&gt;] [-f] [-F]
+    picotool load [--ignore-partitions] [--family &lt;family_id&gt;] [-p &lt;partition&gt;] [-n] [-N] [-u] [-v] [-x] &lt;filename&gt; [-t &lt;type&gt;] [-o
+                &lt;offset&gt;] [device-selection]
 
 OPTIONS:
     Post load actions
+        --ignore-partitions
+            When writing flash data, ignore the partition table and write to absolute space
+        --family
+            Specify the family ID of the file to load
+        &lt;family_id&gt;
+            family ID to use for load
+        -p, --partition
+            Specify the partition to load into
+        &lt;partition&gt;
+            partition to load into
         -n, --no-overwrite
-            When writing flash data, do not overwrite an existing program in flash. If picotool cannot determine the size/presence
-            of the program in flash, the command fails
+            When writing flash data, do not overwrite an existing program in flash. If picotool cannot determine the size/presence of the
+            program in flash, the command fails
         -N, --no-overwrite-unsafe
-            When writing flash data, do not overwrite an existing program in flash. If picotool cannot determine the size/presence
-            of the program in flash, the load continues anyway
+            When writing flash data, do not overwrite an existing program in flash. If picotool cannot determine the size/presence of the
+            program in flash, the load continues anyway
         -u, --update
             Skip writing flash sectors that already contain identical data
         -v, --verify
@@ -355,13 +595,19 @@ OPTIONS:
             Filter devices by USB bus number
         --address &lt;addr&gt;
             Filter devices by USB device address
+        --vid &lt;vid&gt;
+            Filter by vendor id
+        --pid &lt;pid&gt;
+            Filter by product id
+        --ser &lt;ser&gt;
+            Filter by serial number
         -f, --force
-            Force a device not in BOOTSEL mode but running compatible code to reset so the command can be executed. After executing
-            the command (unless the command itself is a 'reboot') the device will be rebooted back to application mode
+            Force a device not in BOOTSEL mode but running compatible code to reset so the command can be executed. After executing the
+            command (unless the command itself is a 'reboot') the device will be rebooted back to application mode
         -F, --force-no-reboot
-            Force a device not in BOOTSEL mode but running compatible code to reset so the command can be executed. After executing
-            the command (unless the command itself is a 'reboot') the device will be left connected and accessible to picotool, but
-            without the RPI-RP2 drive mounted
+            Force a device not in BOOTSEL mode but running compatible code to reset so the command can be executed. After executing the
+            command (unless the command itself is a 'reboot') the device will be left connected and accessible to picotool, but without the
+            RPI-RP2 drive mounted
 </code></pre></div>
 <p dir="auto">e.g.</p>
 <div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="$ picotool load blink.uf2
@@ -369,15 +615,15 @@ Loading into Flash: [==============================]  100%"><pre lang="text" cla
 Loading into Flash: [==============================]  100%
 </code></pre></div>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">save</h2><a id="user-content-save" class="anchor" aria-label="Permalink: save" href="#save"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<p dir="auto">Save allows you to save a range of memory or a program or the whole of flash from the device to a BIN file or a UF2 file</p>
+<p dir="auto"><code>save</code> allows you to save a range of RAM, the program in flash, or an explicit range of flash from the device to a BIN file or a UF2 file.</p>
 <div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="$ picotool help save
 SAVE:
     Save the program / memory stored in flash on the device to a file.
 
 SYNOPSIS:
-    picotool save [-p] [--bus &lt;bus&gt;] [--address &lt;addr&gt;] [-f] [-F] &lt;filename&gt; [-t &lt;type&gt;]
-    picotool save -a [--bus &lt;bus&gt;] [--address &lt;addr&gt;] [-f] [-F] &lt;filename&gt; [-t &lt;type&gt;]
-    picotool save -r &lt;from&gt; &lt;to&gt; [--bus &lt;bus&gt;] [--address &lt;addr&gt;] [-f] [-F] &lt;filename&gt; [-t &lt;type&gt;]
+    picotool save [-p] [-v] [--family &lt;family_id&gt;] [device-selection]
+    picotool save -a [-v] [--family &lt;family_id&gt;] [device-selection]
+    picotool save -r &lt;from&gt; &lt;to&gt; [-v] [--family &lt;family_id&gt;] [device-selection]
 
 OPTIONS:
     Selection of data to save
@@ -386,24 +632,37 @@ OPTIONS:
         -a, --all
             Save all of flash memory
         -r, --range
-            Save a range of memory. Note that UF2s always store complete 256 byte-aligned blocks of 256 bytes, and the range is
-            expanded accordingly
+            Save a range of memory. Note that UF2s always store complete 256 byte-aligned blocks of 256 bytes, and the range is expanded
+            accordingly
         &lt;from&gt;
             The lower address bound in hex
         &lt;to&gt;
             The upper address bound in hex
+    Other
+        -v, --verify
+            Verify the data was saved correctly
+        --family
+            Specify the family ID to save the file as
+        &lt;family_id&gt;
+            family id to save file as
     Source device selection
         --bus &lt;bus&gt;
             Filter devices by USB bus number
         --address &lt;addr&gt;
             Filter devices by USB device address
+        --vid &lt;vid&gt;
+            Filter by vendor id
+        --pid &lt;pid&gt;
+            Filter by product id
+        --ser &lt;ser&gt;
+            Filter by serial number
         -f, --force
-            Force a device not in BOOTSEL mode but running compatible code to reset so the command can be executed. After executing
-            the command (unless the command itself is a 'reboot') the device will be rebooted back to application mode
+            Force a device not in BOOTSEL mode but running compatible code to reset so the command can be executed. After executing the
+            command (unless the command itself is a 'reboot') the device will be rebooted back to application mode
         -F, --force-no-reboot
-            Force a device not in BOOTSEL mode but running compatible code to reset so the command can be executed. After executing
-            the command (unless the command itself is a 'reboot') the device will be left connected and accessible to picotool, but
-            without the RPI-RP2 drive mounted
+            Force a device not in BOOTSEL mode but running compatible code to reset so the command can be executed. After executing the
+            command (unless the command itself is a 'reboot') the device will be left connected and accessible to picotool, but without the
+            RPI-RP2 drive mounted
     File to save to
         &lt;filename&gt;
             The file name
@@ -413,9 +672,9 @@ SAVE:
     Save the program / memory stored in flash on the device to a file.
 
 SYNOPSIS:
-    picotool save [-p] [--bus &lt;bus&gt;] [--address &lt;addr&gt;] [-f] [-F] &lt;filename&gt; [-t &lt;type&gt;]
-    picotool save -a [--bus &lt;bus&gt;] [--address &lt;addr&gt;] [-f] [-F] &lt;filename&gt; [-t &lt;type&gt;]
-    picotool save -r &lt;from&gt; &lt;to&gt; [--bus &lt;bus&gt;] [--address &lt;addr&gt;] [-f] [-F] &lt;filename&gt; [-t &lt;type&gt;]
+    picotool save [-p] [-v] [--family &lt;family_id&gt;] [device-selection]
+    picotool save -a [-v] [--family &lt;family_id&gt;] [device-selection]
+    picotool save -r &lt;from&gt; &lt;to&gt; [-v] [--family &lt;family_id&gt;] [device-selection]
 
 OPTIONS:
     Selection of data to save
@@ -424,31 +683,44 @@ OPTIONS:
         -a, --all
             Save all of flash memory
         -r, --range
-            Save a range of memory. Note that UF2s always store complete 256 byte-aligned blocks of 256 bytes, and the range is
-            expanded accordingly
+            Save a range of memory. Note that UF2s always store complete 256 byte-aligned blocks of 256 bytes, and the range is expanded
+            accordingly
         &lt;from&gt;
             The lower address bound in hex
         &lt;to&gt;
             The upper address bound in hex
+    Other
+        -v, --verify
+            Verify the data was saved correctly
+        --family
+            Specify the family ID to save the file as
+        &lt;family_id&gt;
+            family id to save file as
     Source device selection
         --bus &lt;bus&gt;
             Filter devices by USB bus number
         --address &lt;addr&gt;
             Filter devices by USB device address
+        --vid &lt;vid&gt;
+            Filter by vendor id
+        --pid &lt;pid&gt;
+            Filter by product id
+        --ser &lt;ser&gt;
+            Filter by serial number
         -f, --force
-            Force a device not in BOOTSEL mode but running compatible code to reset so the command can be executed. After executing
-            the command (unless the command itself is a 'reboot') the device will be rebooted back to application mode
+            Force a device not in BOOTSEL mode but running compatible code to reset so the command can be executed. After executing the
+            command (unless the command itself is a 'reboot') the device will be rebooted back to application mode
         -F, --force-no-reboot
-            Force a device not in BOOTSEL mode but running compatible code to reset so the command can be executed. After executing
-            the command (unless the command itself is a 'reboot') the device will be left connected and accessible to picotool, but
-            without the RPI-RP2 drive mounted
+            Force a device not in BOOTSEL mode but running compatible code to reset so the command can be executed. After executing the
+            command (unless the command itself is a 'reboot') the device will be left connected and accessible to picotool, but without the
+            RPI-RP2 drive mounted
     File to save to
         &lt;filename&gt;
             The file name
         -t &lt;type&gt;
             Specify file type (uf2 | elf | bin) explicitly, ignoring file extension
 </code></pre></div>
-<p dir="auto">e.g.</p>
+<p dir="auto">e.g. first looking at what is on the device...</p>
 <div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="$ picotool info
 Program Information
 name:      lcd_1602_i2c
@@ -457,12 +729,14 @@ Program Information
 name:      lcd_1602_i2c
 web site:  https://github.com/raspberrypi/pico-examples/tree/HEAD/i2c/lcd_1602_i2c
 </code></pre></div>
+<p dir="auto">... saving it to a file ...</p>
 <div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="$ picotool save spoon.uf2
 Saving file: [==============================]  100%
 Wrote 51200 bytes to spoon.uf2"><pre lang="text" class="notranslate"><code>$ picotool save spoon.uf2
 Saving file: [==============================]  100%
 Wrote 51200 bytes to spoon.uf2
 </code></pre></div>
+<p dir="auto">... and looking at the file:</p>
 <div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="$ picotool info spoon.uf2
 File spoon.uf2:
 Program Information
@@ -472,6 +746,958 @@ File spoon.uf2:
 Program Information
 name:      lcd_1602_i2c
 web site:  https://github.com/raspberrypi/pico-examples/tree/HEAD/i2c/lcd_1602_i2c
+</code></pre></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">erase</h2><a id="user-content-erase" class="anchor" aria-label="Permalink: erase" href="#erase"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><code>erase</code> allows you to erase all of flash, a partition of flash, or an explicit range of flash on the device.
+It defaults to erasing all of flash.</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="$ picotool help erase
+ERASE:
+    Erase the program / memory stored in flash on the device.
+
+SYNOPSIS:
+    picotool erase [-a] [device-selection]
+    picotool erase [-p &lt;partition&gt;] [device-selection]
+    picotool erase -r &lt;from&gt; &lt;to&gt; [device-selection]
+
+OPTIONS:
+    Selection of data to erase
+        -a, --all
+            Erase all of flash memory. This is the default
+        -p, --partition
+            Erase a partition
+        &lt;partition&gt;
+            Partition number to erase
+        -r, --range
+            Erase a range of memory. Note that erases must be 4096 byte-aligned, so the range is expanded accordingly
+        &lt;from&gt;
+            The lower address bound in hex
+        &lt;to&gt;
+            The upper address bound in hex
+    Source device selection
+        --bus &lt;bus&gt;
+            Filter devices by USB bus number
+        --address &lt;addr&gt;
+            Filter devices by USB device address
+        --vid &lt;vid&gt;
+            Filter by vendor id
+        --pid &lt;pid&gt;
+            Filter by product id
+        --ser &lt;ser&gt;
+            Filter by serial number
+        -f, --force
+            Force a device not in BOOTSEL mode but running compatible code to reset so the command can be executed. After executing the
+            command (unless the command itself is a 'reboot') the device will be rebooted back to application mode
+        -F, --force-no-reboot
+            Force a device not in BOOTSEL mode but running compatible code to reset so the command can be executed. After executing the
+            command (unless the command itself is a 'reboot') the device will be left connected and accessible to picotool, but without the
+            RPI-RP2 drive mounted"><pre lang="text" class="notranslate"><code>$ picotool help erase
+ERASE:
+    Erase the program / memory stored in flash on the device.
+
+SYNOPSIS:
+    picotool erase [-a] [device-selection]
+    picotool erase [-p &lt;partition&gt;] [device-selection]
+    picotool erase -r &lt;from&gt; &lt;to&gt; [device-selection]
+
+OPTIONS:
+    Selection of data to erase
+        -a, --all
+            Erase all of flash memory. This is the default
+        -p, --partition
+            Erase a partition
+        &lt;partition&gt;
+            Partition number to erase
+        -r, --range
+            Erase a range of memory. Note that erases must be 4096 byte-aligned, so the range is expanded accordingly
+        &lt;from&gt;
+            The lower address bound in hex
+        &lt;to&gt;
+            The upper address bound in hex
+    Source device selection
+        --bus &lt;bus&gt;
+            Filter devices by USB bus number
+        --address &lt;addr&gt;
+            Filter devices by USB device address
+        --vid &lt;vid&gt;
+            Filter by vendor id
+        --pid &lt;pid&gt;
+            Filter by product id
+        --ser &lt;ser&gt;
+            Filter by serial number
+        -f, --force
+            Force a device not in BOOTSEL mode but running compatible code to reset so the command can be executed. After executing the
+            command (unless the command itself is a 'reboot') the device will be rebooted back to application mode
+        -F, --force-no-reboot
+            Force a device not in BOOTSEL mode but running compatible code to reset so the command can be executed. After executing the
+            command (unless the command itself is a 'reboot') the device will be left connected and accessible to picotool, but without the
+            RPI-RP2 drive mounted
+</code></pre></div>
+<p dir="auto">e.g. first looking at what is on the device...</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="$ picotool info
+Partition 0
+ Program Information
+  none
+
+Partition 1
+ Program Information
+  name:          blink
+  web site:      https://github.com/raspberrypi/pico-examples/tree/HEAD/blink
+  features:      UART stdin / stdout
+  binary start:  0x10000000
+  binary end:    0x1000a934
+  target chip:   RP2350
+  image type:    ARM Secure"><pre lang="text" class="notranslate"><code>$ picotool info
+Partition 0
+ Program Information
+  none
+
+Partition 1
+ Program Information
+  name:          blink
+  web site:      https://github.com/raspberrypi/pico-examples/tree/HEAD/blink
+  features:      UART stdin / stdout
+  binary start:  0x10000000
+  binary end:    0x1000a934
+  target chip:   RP2350
+  image type:    ARM Secure
+</code></pre></div>
+<p dir="auto">... then erase partition 1 ...</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="$ picotool erase -p 1
+Erasing partition 1:
+  0007f000-&gt;000fc000
+Erasing: [==============================]  100%
+Erased 512000 bytes"><pre lang="text" class="notranslate"><code>$ picotool erase -p 1
+Erasing partition 1:
+  0007f000-&gt;000fc000
+Erasing: [==============================]  100%
+Erased 512000 bytes
+</code></pre></div>
+<p dir="auto">... and looking at the device again:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="$ picotool info
+Partition 0
+ Program Information
+  none
+
+Partition 1
+ Program Information
+  none"><pre lang="text" class="notranslate"><code>$ picotool info
+Partition 0
+ Program Information
+  none
+
+Partition 1
+ Program Information
+  none
+</code></pre></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">seal</h2><a id="user-content-seal" class="anchor" aria-label="Permalink: seal" href="#seal"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><code>seal</code> allows you to sign and/or hash a binary to run on RP2350.</p>
+<p dir="auto">By default, it will just sign the binary, but this can be configured with the <code>--hash</code> and <code>--no-sign</code> arguments.</p>
+<p dir="auto">Your signing key must be for the <em>secp256k1</em> curve, in PEM format. You can create a .PEM file with:</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="openssl ecparam -name secp256k1 -genkey -out private.pem"><pre>openssl ecparam -name secp256k1 -genkey -out private.pem</pre></div>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="$ picotool help seal
+SEAL:
+    Add final metadata to a binary, optionally including a hash and/or signature.
+
+SYNOPSIS:
+    picotool seal [--quiet] [--verbose] [--hash] [--sign] [--clear] &lt;infile&gt; [-t &lt;type&gt;] [-o &lt;offset&gt;] &lt;outfile&gt; [-t &lt;type&gt;] [&lt;key&gt;] [-t
+                &lt;type&gt;] [&lt;otp&gt;] [-t &lt;type&gt;] [--major &lt;major&gt;] [--minor &lt;minor&gt;] [--rollback &lt;rollback&gt; [&lt;rows&gt;..]]
+
+OPTIONS:
+        --quiet
+            Don't print any output
+        --verbose
+            Print verbose output
+        --major &lt;major&gt;
+            Add Major Version
+        --minor &lt;minor&gt;
+            Add Minor Version
+        --rollback &lt;rollback&gt; [&lt;rows&gt;..]
+            Add Rollback Version
+    Configuration
+        --hash
+            Hash the file
+        --sign
+            Sign the file
+        --clear
+            Clear all of SRAM on load
+    File to load from
+        &lt;infile&gt;
+            The file name
+        -t &lt;type&gt;
+            Specify file type (uf2 | elf | bin) explicitly, ignoring file extension
+    BIN file options
+        -o, --offset
+            Specify the load address for a BIN file
+        &lt;offset&gt;
+            Load offset (memory address; default 0x10000000)
+    File to save to
+        &lt;outfile&gt;
+            The file name
+        -t &lt;type&gt;
+            Specify file type (uf2 | elf | bin) explicitly, ignoring file extension
+    Key file
+        &lt;key&gt;
+            The file name
+        -t &lt;type&gt;
+            Specify file type (pem) explicitly, ignoring file extension
+    File to save OTP to (will edit existing file if it exists)
+        &lt;otp&gt;
+            The file name
+        -t &lt;type&gt;
+            Specify file type (json) explicitly, ignoring file extension"><pre lang="text" class="notranslate"><code>$ picotool help seal
+SEAL:
+    Add final metadata to a binary, optionally including a hash and/or signature.
+
+SYNOPSIS:
+    picotool seal [--quiet] [--verbose] [--hash] [--sign] [--clear] &lt;infile&gt; [-t &lt;type&gt;] [-o &lt;offset&gt;] &lt;outfile&gt; [-t &lt;type&gt;] [&lt;key&gt;] [-t
+                &lt;type&gt;] [&lt;otp&gt;] [-t &lt;type&gt;] [--major &lt;major&gt;] [--minor &lt;minor&gt;] [--rollback &lt;rollback&gt; [&lt;rows&gt;..]]
+
+OPTIONS:
+        --quiet
+            Don't print any output
+        --verbose
+            Print verbose output
+        --major &lt;major&gt;
+            Add Major Version
+        --minor &lt;minor&gt;
+            Add Minor Version
+        --rollback &lt;rollback&gt; [&lt;rows&gt;..]
+            Add Rollback Version
+    Configuration
+        --hash
+            Hash the file
+        --sign
+            Sign the file
+        --clear
+            Clear all of SRAM on load
+    File to load from
+        &lt;infile&gt;
+            The file name
+        -t &lt;type&gt;
+            Specify file type (uf2 | elf | bin) explicitly, ignoring file extension
+    BIN file options
+        -o, --offset
+            Specify the load address for a BIN file
+        &lt;offset&gt;
+            Load offset (memory address; default 0x10000000)
+    File to save to
+        &lt;outfile&gt;
+            The file name
+        -t &lt;type&gt;
+            Specify file type (uf2 | elf | bin) explicitly, ignoring file extension
+    Key file
+        &lt;key&gt;
+            The file name
+        -t &lt;type&gt;
+            Specify file type (pem) explicitly, ignoring file extension
+    File to save OTP to (will edit existing file if it exists)
+        &lt;otp&gt;
+            The file name
+        -t &lt;type&gt;
+            Specify file type (json) explicitly, ignoring file extension
+</code></pre></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">encrypt</h2><a id="user-content-encrypt" class="anchor" aria-label="Permalink: encrypt" href="#encrypt"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><code>encrypt</code> allows you to encrypt and sign a binary for use on the RP2350. By default, it will sign the encrypted binary, but that can be configured similarly to <code>picotool sign</code>.</p>
+<p dir="auto">The encrypted binary will have the following structure:</p>
+<ul dir="auto">
+<li>First metadata block (5 words)</li>
+<li>IV (4 words)</li>
+<li>Encrypted Binary</li>
+<li>Padding to ensure the encrypted length is a multiple of 4 words</li>
+<li>Signature metadata block</li>
+</ul>
+<p dir="auto">The AES key must be provided as a .bin file of the 256 bit AES key to be used for encryption.</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="$ picotool help encrypt
+ENCRYPT:
+    Encrypt the program.
+
+SYNOPSIS:
+    picotool encrypt [--quiet] [--verbose] [--hash] [--sign] &lt;infile&gt; [-t &lt;type&gt;] [-o &lt;offset&gt;] &lt;outfile&gt; [-t &lt;type&gt;] &lt;aes_key&gt; [-t &lt;type&gt;]
+                [&lt;signing_key&gt;] [-t &lt;type&gt;]
+
+OPTIONS:
+        --quiet
+            Don't print any output
+        --verbose
+            Print verbose output
+    Signing Configuration
+        --hash
+            Hash the encrypted file
+        --sign
+            Sign the encrypted file
+    File to load from
+        &lt;infile&gt;
+            The file name
+        -t &lt;type&gt;
+            Specify file type (uf2 | elf | bin) explicitly, ignoring file extension
+    BIN file options
+        -o, --offset
+            Specify the load address for a BIN file
+        &lt;offset&gt;
+            Load offset (memory address; default 0x10000000)
+    File to save to
+        &lt;outfile&gt;
+            The file name
+        -t &lt;type&gt;
+            Specify file type (uf2 | elf | bin) explicitly, ignoring file extension
+    AES Key
+        &lt;aes_key&gt;
+            The file name
+        -t &lt;type&gt;
+            Specify file type (bin) explicitly, ignoring file extension
+    Signing Key file
+        &lt;signing_key&gt;
+            The file name
+        -t &lt;type&gt;
+            Specify file type (pem) explicitly, ignoring file extension"><pre lang="text" class="notranslate"><code>$ picotool help encrypt
+ENCRYPT:
+    Encrypt the program.
+
+SYNOPSIS:
+    picotool encrypt [--quiet] [--verbose] [--hash] [--sign] &lt;infile&gt; [-t &lt;type&gt;] [-o &lt;offset&gt;] &lt;outfile&gt; [-t &lt;type&gt;] &lt;aes_key&gt; [-t &lt;type&gt;]
+                [&lt;signing_key&gt;] [-t &lt;type&gt;]
+
+OPTIONS:
+        --quiet
+            Don't print any output
+        --verbose
+            Print verbose output
+    Signing Configuration
+        --hash
+            Hash the encrypted file
+        --sign
+            Sign the encrypted file
+    File to load from
+        &lt;infile&gt;
+            The file name
+        -t &lt;type&gt;
+            Specify file type (uf2 | elf | bin) explicitly, ignoring file extension
+    BIN file options
+        -o, --offset
+            Specify the load address for a BIN file
+        &lt;offset&gt;
+            Load offset (memory address; default 0x10000000)
+    File to save to
+        &lt;outfile&gt;
+            The file name
+        -t &lt;type&gt;
+            Specify file type (uf2 | elf | bin) explicitly, ignoring file extension
+    AES Key
+        &lt;aes_key&gt;
+            The file name
+        -t &lt;type&gt;
+            Specify file type (bin) explicitly, ignoring file extension
+    Signing Key file
+        &lt;signing_key&gt;
+            The file name
+        -t &lt;type&gt;
+            Specify file type (pem) explicitly, ignoring file extension
+</code></pre></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">partition</h2><a id="user-content-partition" class="anchor" aria-label="Permalink: partition" href="#partition"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The <code>partition</code> commands allow you to interact with the partition tables on RP2350 devices, and also create them.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">info</h3><a id="user-content-info-1" class="anchor" aria-label="Permalink: info" href="#info-1"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="$ picotool help partition info
+PARTITION INFO:
+    Print the device's partition table.
+
+SYNOPSIS:
+    picotool partition info -m &lt;family_id&gt; [device-selection]
+
+OPTIONS:
+        -m &lt;family_id&gt; [device-selection]"><pre lang="text" class="notranslate"><code>$ picotool help partition info
+PARTITION INFO:
+    Print the device's partition table.
+
+SYNOPSIS:
+    picotool partition info -m &lt;family_id&gt; [device-selection]
+
+OPTIONS:
+        -m &lt;family_id&gt; [device-selection]
+</code></pre></div>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="$ picotool partition info
+un-partitioned_space :  S(rw) NSBOOT(rw) NS(rw), uf2 { absolute }
+partitions:
+  0(A)       00002000-&gt;00201000 S(rw) NSBOOT(rw) NS(rw), id=0000000000000000, &quot;A&quot;, uf2 { rp2350-arm-s, rp2350-riscv }, arm_boot 1, riscv_boot 1
+  1(B w/ 0)  00201000-&gt;00400000 S(rw) NSBOOT(rw) NS(rw), id=0000000000000001, &quot;B&quot;, uf2 { rp2350-arm-s, rp2350-riscv }, arm_boot 1, riscv_boot 1"><pre lang="text" class="notranslate"><code>$ picotool partition info
+un-partitioned_space :  S(rw) NSBOOT(rw) NS(rw), uf2 { absolute }
+partitions:
+  0(A)       00002000-&gt;00201000 S(rw) NSBOOT(rw) NS(rw), id=0000000000000000, "A", uf2 { rp2350-arm-s, rp2350-riscv }, arm_boot 1, riscv_boot 1
+  1(B w/ 0)  00201000-&gt;00400000 S(rw) NSBOOT(rw) NS(rw), id=0000000000000001, "B", uf2 { rp2350-arm-s, rp2350-riscv }, arm_boot 1, riscv_boot 1
+</code></pre></div>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="$ picotool partition info -m rp2350-arm-s
+un-partitioned_space :  S(rw) NSBOOT(rw) NS(rw), uf2 { absolute }
+partitions:
+  0(A)       00002000-&gt;00201000 S(rw) NSBOOT(rw) NS(rw), id=0000000000000000, &quot;A&quot;, uf2 { rp2350-arm-s, rp2350-riscv }, arm_boot 1, riscv_boot 1
+  1(B w/ 0)  00201000-&gt;00400000 S(rw) NSBOOT(rw) NS(rw), id=0000000000000001, &quot;B&quot;, uf2 { rp2350-arm-s, rp2350-riscv }, arm_boot 1, riscv_boot 1
+Family ID 'rp2350-arm-s' can be downloaded in partition 0:
+  00002000-&gt;00201000"><pre lang="text" class="notranslate"><code>$ picotool partition info -m rp2350-arm-s
+un-partitioned_space :  S(rw) NSBOOT(rw) NS(rw), uf2 { absolute }
+partitions:
+  0(A)       00002000-&gt;00201000 S(rw) NSBOOT(rw) NS(rw), id=0000000000000000, "A", uf2 { rp2350-arm-s, rp2350-riscv }, arm_boot 1, riscv_boot 1
+  1(B w/ 0)  00201000-&gt;00400000 S(rw) NSBOOT(rw) NS(rw), id=0000000000000001, "B", uf2 { rp2350-arm-s, rp2350-riscv }, arm_boot 1, riscv_boot 1
+Family ID 'rp2350-arm-s' can be downloaded in partition 0:
+  00002000-&gt;00201000
+</code></pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">create</h3><a id="user-content-create" class="anchor" aria-label="Permalink: create" href="#create"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">This command allows you to create partition tables, and additionally embed them into the block loop of ELF files (for example, for bootloaders).
+By default, all partition tables are hashed, and you can also sign them. The schema for this JSON file is <a href="json/schemas/partition-table-schema.json">here</a>.</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="$ picotool help partition create
+PARTITION CREATE:
+    Create a partition table from json
+
+SYNOPSIS:
+    picotool partition create [--quiet] [--verbose] &lt;infile&gt; [-t &lt;type&gt;] &lt;outfile&gt; [-t &lt;type&gt;] [[-o &lt;offset&gt;] [--family &lt;family_id&gt;]]
+                [&lt;bootloader&gt;] [-t &lt;type&gt;] [[--sign &lt;keyfile&gt;] [-t &lt;type&gt;] [--no-hash] [--singleton]] [[--abs-block] [&lt;abs_block_loc&gt;]]
+
+OPTIONS:
+        --quiet
+            Don't print any output
+        --verbose
+            Print verbose output
+    partition table JSON
+        &lt;infile&gt;
+            The file name
+        -t &lt;type&gt;
+            Specify file type (json) explicitly, ignoring file extension
+    output file
+        &lt;outfile&gt;
+            The file name
+        -t &lt;type&gt;
+            Specify file type (uf2 | elf | bin) explicitly, ignoring file extension
+    UF2 output options
+        -o, --offset
+            Specify the load address for UF2 file output
+        &lt;offset&gt;
+            Load offset (memory address; default 0x10000000)
+        --family
+            Specify the family if for UF2 file output
+        &lt;family_id&gt;
+            family ID for UF2 (default absolute)
+    embed partition table into bootloader ELF
+        &lt;bootloader&gt;
+            The file name
+        -t &lt;type&gt;
+            Specify file type (elf) explicitly, ignoring file extension
+    Partition Table Options
+        --sign &lt;keyfile&gt;
+            The file name
+        -t &lt;type&gt;
+            Specify file type (pem) explicitly, ignoring file extension
+        --no-hash
+            Don't hash the partition table
+        --singleton
+            Singleton partition table
+    Errata RP2350-E10 Fix
+        --abs-block
+            Enforce support for an absolute block
+        &lt;abs_block_loc&gt;
+            absolute block location (default to 0x10ffff00)"><pre lang="text" class="notranslate"><code>$ picotool help partition create
+PARTITION CREATE:
+    Create a partition table from json
+
+SYNOPSIS:
+    picotool partition create [--quiet] [--verbose] &lt;infile&gt; [-t &lt;type&gt;] &lt;outfile&gt; [-t &lt;type&gt;] [[-o &lt;offset&gt;] [--family &lt;family_id&gt;]]
+                [&lt;bootloader&gt;] [-t &lt;type&gt;] [[--sign &lt;keyfile&gt;] [-t &lt;type&gt;] [--no-hash] [--singleton]] [[--abs-block] [&lt;abs_block_loc&gt;]]
+
+OPTIONS:
+        --quiet
+            Don't print any output
+        --verbose
+            Print verbose output
+    partition table JSON
+        &lt;infile&gt;
+            The file name
+        -t &lt;type&gt;
+            Specify file type (json) explicitly, ignoring file extension
+    output file
+        &lt;outfile&gt;
+            The file name
+        -t &lt;type&gt;
+            Specify file type (uf2 | elf | bin) explicitly, ignoring file extension
+    UF2 output options
+        -o, --offset
+            Specify the load address for UF2 file output
+        &lt;offset&gt;
+            Load offset (memory address; default 0x10000000)
+        --family
+            Specify the family if for UF2 file output
+        &lt;family_id&gt;
+            family ID for UF2 (default absolute)
+    embed partition table into bootloader ELF
+        &lt;bootloader&gt;
+            The file name
+        -t &lt;type&gt;
+            Specify file type (elf) explicitly, ignoring file extension
+    Partition Table Options
+        --sign &lt;keyfile&gt;
+            The file name
+        -t &lt;type&gt;
+            Specify file type (pem) explicitly, ignoring file extension
+        --no-hash
+            Don't hash the partition table
+        --singleton
+            Singleton partition table
+    Errata RP2350-E10 Fix
+        --abs-block
+            Enforce support for an absolute block
+        &lt;abs_block_loc&gt;
+            absolute block location (default to 0x10ffff00)
+</code></pre></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">uf2</h2><a id="user-content-uf2" class="anchor" aria-label="Permalink: uf2" href="#uf2"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The <code>uf2</code> commands allow for creation of UF2s, and can provide information if a UF2 download has failed.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">convert</h3><a id="user-content-convert" class="anchor" aria-label="Permalink: convert" href="#convert"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">This command replaces the elf2uf2 functionality that was previously in the Raspberry Pi Pico SDK. It will attempt to auto-detect the family ID, but if this fails you can specify one manually with the <code>--family</code> argument.</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="picotool help uf2 convert
+UF2 CONVERT:
+    Convert ELF/BIN to UF2.
+
+SYNOPSIS:
+    picotool uf2 convert [--quiet] [--verbose] &lt;infile&gt; [-t &lt;type&gt;] &lt;outfile&gt; [-t &lt;type&gt;] [-o &lt;offset&gt;] [--family &lt;family_id&gt;]
+                [[--abs-block] [&lt;abs_block_loc&gt;]]
+
+OPTIONS:
+        --quiet
+            Don't print any output
+        --verbose
+            Print verbose output
+    File to load from
+        &lt;infile&gt;
+            The file name
+        -t &lt;type&gt;
+            Specify file type (uf2 | elf | bin) explicitly, ignoring file extension
+    File to save UF2 to
+        &lt;outfile&gt;
+            The file name
+        -t &lt;type&gt;
+            Specify file type (uf2) explicitly, ignoring file extension
+    Packaging Options
+        -o, --offset
+            Specify the load address
+        &lt;offset&gt;
+            Load offset (memory address; default 0x10000000 for BIN file)
+    UF2 Family options
+        &lt;family_id&gt;
+            family ID for UF2
+    Errata RP2350-E10 Fix
+        --abs-block
+            Add an absolute block
+        &lt;abs_block_loc&gt;
+            absolute block location (default to 0x10ffff00)"><pre lang="text" class="notranslate"><code>picotool help uf2 convert
+UF2 CONVERT:
+    Convert ELF/BIN to UF2.
+
+SYNOPSIS:
+    picotool uf2 convert [--quiet] [--verbose] &lt;infile&gt; [-t &lt;type&gt;] &lt;outfile&gt; [-t &lt;type&gt;] [-o &lt;offset&gt;] [--family &lt;family_id&gt;]
+                [[--abs-block] [&lt;abs_block_loc&gt;]]
+
+OPTIONS:
+        --quiet
+            Don't print any output
+        --verbose
+            Print verbose output
+    File to load from
+        &lt;infile&gt;
+            The file name
+        -t &lt;type&gt;
+            Specify file type (uf2 | elf | bin) explicitly, ignoring file extension
+    File to save UF2 to
+        &lt;outfile&gt;
+            The file name
+        -t &lt;type&gt;
+            Specify file type (uf2) explicitly, ignoring file extension
+    Packaging Options
+        -o, --offset
+            Specify the load address
+        &lt;offset&gt;
+            Load offset (memory address; default 0x10000000 for BIN file)
+    UF2 Family options
+        &lt;family_id&gt;
+            family ID for UF2
+    Errata RP2350-E10 Fix
+        --abs-block
+            Add an absolute block
+        &lt;abs_block_loc&gt;
+            absolute block location (default to 0x10ffff00)
+</code></pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">info</h3><a id="user-content-info-2" class="anchor" aria-label="Permalink: info" href="#info-2"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">This command reads the information on a device about why a UF2 download has failed. It will only give information if the most recent download has failed.</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="$ picotool help uf2 info
+UF2 INFO:
+    Print info about UF2 download.
+
+SYNOPSIS:
+    picotool uf2 info [device-selection]
+
+OPTIONS:
+    Target device selection
+        --bus &lt;bus&gt;
+            Filter devices by USB bus number
+        --address &lt;addr&gt;
+            Filter devices by USB device address
+        --vid &lt;vid&gt;
+            Filter by vendor id
+        --pid &lt;pid&gt;
+            Filter by product id
+        --ser &lt;ser&gt;
+            Filter by serial number
+        -f, --force
+            Force a device not in BOOTSEL mode but running compatible code to reset so the command can be executed. After executing the
+            command (unless the command itself is a 'reboot') the device will be rebooted back to application mode
+        -F, --force-no-reboot
+            Force a device not in BOOTSEL mode but running compatible code to reset so the command can be executed. After executing the
+            command (unless the command itself is a 'reboot') the device will be left connected and accessible to picotool, but without the
+            RPI-RP2 drive mounted
+"><pre lang="text" class="notranslate"><code>$ picotool help uf2 info
+UF2 INFO:
+    Print info about UF2 download.
+
+SYNOPSIS:
+    picotool uf2 info [device-selection]
+
+OPTIONS:
+    Target device selection
+        --bus &lt;bus&gt;
+            Filter devices by USB bus number
+        --address &lt;addr&gt;
+            Filter devices by USB device address
+        --vid &lt;vid&gt;
+            Filter by vendor id
+        --pid &lt;pid&gt;
+            Filter by product id
+        --ser &lt;ser&gt;
+            Filter by serial number
+        -f, --force
+            Force a device not in BOOTSEL mode but running compatible code to reset so the command can be executed. After executing the
+            command (unless the command itself is a 'reboot') the device will be rebooted back to application mode
+        -F, --force-no-reboot
+            Force a device not in BOOTSEL mode but running compatible code to reset so the command can be executed. After executing the
+            command (unless the command itself is a 'reboot') the device will be left connected and accessible to picotool, but without the
+            RPI-RP2 drive mounted
+
+</code></pre></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">otp</h2><a id="user-content-otp" class="anchor" aria-label="Permalink: otp" href="#otp"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The <code>otp</code> commands are for interacting with the RP2350 OTP Memory. They are not available on  RP2040 devices, as RP2040 has no OTP.</p>
+<p dir="auto">Note that the OTP Memory is One-Time-Programmable, which means that once a bit has been changed from 0 to 1, it cannot be changed back.
+Therefore, caution should be used when using these commands, as they risk bricking your RP2350 device. For example, if you set SECURE_BOOT_ENABLE but don't set a boot key, and disable the PICOBOOT interface, then your device will be unusable.</p>
+<p dir="auto">For the <code>list</code>, <code>set</code>, <code>get</code> and <code>load</code> commands, you can define your own OTP layout in a JSON file and pass that in with the <code>-i</code> argument. These rows will be added to the default rows when parsing. The schema for this JSON file is <a href="json/schemas/otp-contents-schema.json">here</a></p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="$ picotool help otp
+OTP:
+    Commands related to the RP2350 OTP (One-Time-Programmable) Memory
+
+SYNOPSIS:
+    picotool otp list [-p] [-n] [-f] [-i &lt;filename&gt;] [&lt;selector&gt;..]
+    picotool otp get [-c &lt;copies&gt;] [-r] [-e] [-n] [-i &lt;filename&gt;] [device-selection] [-z] [&lt;selector&gt;..]
+    picotool otp set [-c &lt;copies&gt;] [-r] [-e] [-s] [-i &lt;filename&gt;] [-z] &lt;selector&gt; &lt;value&gt; [device-selection]
+    picotool otp load [-r] [-e] [-s &lt;row&gt;] [-i &lt;filename&gt;] &lt;filename&gt; [-t &lt;type&gt;] [device-selection]
+    picotool otp dump [-r] [-e] [device-selection]
+    picotool otp permissions &lt;filename&gt; [-t &lt;type&gt;] [--led &lt;pin&gt;] [--hash] [--sign] [&lt;key&gt;] [-t &lt;type&gt;] [device-selection]
+    picotool otp white-label -s &lt;row&gt; &lt;filename&gt; [-t &lt;type&gt;] [device-selection]
+
+SUB COMMANDS:
+    list          List matching known registers/fields
+    get           Get the value of one or more OTP registers/fields (RP2350 only)
+    set           Set the value of an OTP row/field (RP2350 only)
+    load          Load the row range stored in a file into OTP and verify. Data is 2 bytes/row for ECC, 4 bytes/row for raw. (RP2350 only)
+    dump          Dump entire OTP (RP2350 only)
+    permissions   Set the OTP access permissions (RP2350 only)
+    white-label   Set the white labelling values in OTP (RP2350 only)
+"><pre lang="text" class="notranslate"><code>$ picotool help otp
+OTP:
+    Commands related to the RP2350 OTP (One-Time-Programmable) Memory
+
+SYNOPSIS:
+    picotool otp list [-p] [-n] [-f] [-i &lt;filename&gt;] [&lt;selector&gt;..]
+    picotool otp get [-c &lt;copies&gt;] [-r] [-e] [-n] [-i &lt;filename&gt;] [device-selection] [-z] [&lt;selector&gt;..]
+    picotool otp set [-c &lt;copies&gt;] [-r] [-e] [-s] [-i &lt;filename&gt;] [-z] &lt;selector&gt; &lt;value&gt; [device-selection]
+    picotool otp load [-r] [-e] [-s &lt;row&gt;] [-i &lt;filename&gt;] &lt;filename&gt; [-t &lt;type&gt;] [device-selection]
+    picotool otp dump [-r] [-e] [device-selection]
+    picotool otp permissions &lt;filename&gt; [-t &lt;type&gt;] [--led &lt;pin&gt;] [--hash] [--sign] [&lt;key&gt;] [-t &lt;type&gt;] [device-selection]
+    picotool otp white-label -s &lt;row&gt; &lt;filename&gt; [-t &lt;type&gt;] [device-selection]
+
+SUB COMMANDS:
+    list          List matching known registers/fields
+    get           Get the value of one or more OTP registers/fields (RP2350 only)
+    set           Set the value of an OTP row/field (RP2350 only)
+    load          Load the row range stored in a file into OTP and verify. Data is 2 bytes/row for ECC, 4 bytes/row for raw. (RP2350 only)
+    dump          Dump entire OTP (RP2350 only)
+    permissions   Set the OTP access permissions (RP2350 only)
+    white-label   Set the white labelling values in OTP (RP2350 only)
+
+</code></pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">set/get</h3><a id="user-content-setget" class="anchor" aria-label="Permalink: set/get" href="#setget"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">These commands will set/get specific rows of OTP. By default, they will write/read all redundant rows, but this can be overridden with the <code>-c</code> argument</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">load</h3><a id="user-content-load-1" class="anchor" aria-label="Permalink: load" href="#load-1"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">This command allows loading of a range of OTP rows onto the device. The source can be a binary file, or a JSON file such as the one output by <code>picotool sign</code>. The schema for this JSON file is <a href="json/schemas/otp-schema.json">here</a>
+For example, if you wish to sign a binary and then test secure boot with it, you can run the following set of commands:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="$ picotool sign hello_world.elf hello_world.signed.elf private.pem otp.json
+$ picotool load hello_world.signed.elf
+$ picotool otp load otp.json
+$ picotool reboot"><pre lang="text" class="notranslate"><code>$ picotool sign hello_world.elf hello_world.signed.elf private.pem otp.json
+$ picotool load hello_world.signed.elf
+$ picotool otp load otp.json
+$ picotool reboot
+</code></pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">white-label</h3><a id="user-content-white-label" class="anchor" aria-label="Permalink: white-label" href="#white-label"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">This command allows for OTP white-labelling, which sets the USB configuration used by the device in BOOTSEL mode.
+This can be configured from a JSON file, an example of which is in <a href="json/sample-wl.json">sample-wl.json</a>. The schema for this JSON file is <a href="json/schemas/whitelabel-schema.json">here</a></p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="$ picotool help otp white-label
+OTP WHITE-LABEL:
+    Set the white labelling values in OTP
+
+SYNOPSIS:
+    picotool otp white-label -s &lt;row&gt; &lt;filename&gt; [-t &lt;type&gt;] [device-selection]
+
+OPTIONS:
+    File with white labelling values
+        &lt;filename&gt;
+            The file name
+        -t &lt;type&gt;
+            Specify file type (json) explicitly, ignoring file extension
+    Target device selection
+        --bus &lt;bus&gt;
+            Filter devices by USB bus number
+        --address &lt;addr&gt;
+            Filter devices by USB device address
+        --vid &lt;vid&gt;
+            Filter by vendor id
+        --pid &lt;pid&gt;
+            Filter by product id
+        --ser &lt;ser&gt;
+            Filter by serial number
+        -f, --force
+            Force a device not in BOOTSEL mode but running compatible code to reset so the command can be executed. After executing the
+            command (unless the command itself is a 'reboot') the device will be rebooted back to application mode
+        -F, --force-no-reboot
+            Force a device not in BOOTSEL mode but running compatible code to reset so the command can be executed. After executing the
+            command (unless the command itself is a 'reboot') the device will be left connected and accessible to picotool, but without the
+            RPI-RP2 drive mounted
+"><pre lang="text" class="notranslate"><code>$ picotool help otp white-label
+OTP WHITE-LABEL:
+    Set the white labelling values in OTP
+
+SYNOPSIS:
+    picotool otp white-label -s &lt;row&gt; &lt;filename&gt; [-t &lt;type&gt;] [device-selection]
+
+OPTIONS:
+    File with white labelling values
+        &lt;filename&gt;
+            The file name
+        -t &lt;type&gt;
+            Specify file type (json) explicitly, ignoring file extension
+    Target device selection
+        --bus &lt;bus&gt;
+            Filter devices by USB bus number
+        --address &lt;addr&gt;
+            Filter devices by USB device address
+        --vid &lt;vid&gt;
+            Filter by vendor id
+        --pid &lt;pid&gt;
+            Filter by product id
+        --ser &lt;ser&gt;
+            Filter by serial number
+        -f, --force
+            Force a device not in BOOTSEL mode but running compatible code to reset so the command can be executed. After executing the
+            command (unless the command itself is a 'reboot') the device will be rebooted back to application mode
+        -F, --force-no-reboot
+            Force a device not in BOOTSEL mode but running compatible code to reset so the command can be executed. After executing the
+            command (unless the command itself is a 'reboot') the device will be left connected and accessible to picotool, but without the
+            RPI-RP2 drive mounted
+
+</code></pre></div>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="$ picotool otp white-label -s 0x100 sample-wl.json 
+Setting attributes 20e0
+0x2e8b, 0x000e, 0x0215, 0x0c09, 0x1090, 0x200c, 0x2615, 0x20e0, 0x310b, 0x3706, 0x3a04, 0x3c04, 0x3e21, 0x4f15, 0x5a0a, 0x5f0a, 0x007a, 0x00df, 0x6c34, 0xd83c, 0xdf4c, 0x0020, 0x0054, 0x0065, 0x0073, 0x0074, 0x0027, 0x0073,
+0x0020, 0x0050, 0x0069, 0x0073, 0x6554, 0x7473, 0x5220, 0x3250, 0x3533, 0x3f30, 0x6f6e, 0x6e74, 0x6365, 0x7365, 0x6173, 0x6972, 0x796c, 0x6e61, 0x6d75, 0x6562, 0x0072, 0x6554, 0x7473, 0x6950, 0x4220, 0x6f6f, 0x0074, 0x6554,
+0x7473, 0x6950, 0x794d, 0x6950, 0x3876, 0x3739, 0x7468, 0x7074, 0x3a73, 0x2f2f, 0x7777, 0x2e77, 0x6172, 0x7073, 0x6562, 0x7272, 0x7079, 0x2e69, 0x6f63, 0x2f6d, 0x656e, 0x7377, 0x002f, 0x6f53, 0x656d, 0x4e20, 0x7765, 0x2073,
+0x6241, 0x756f, 0x2074, 0x7453, 0x6675, 0x0066, 0x794d, 0x5420, 0x7365, 0x2074, 0x6950, 0x5054, 0x2d49, 0x5052, 0x3332, 0x3035,
+$ picotool reboot -u
+$ lsusb -v -s 1:102
+Bus 001 Device 102: ID 2e8b:000e zß水🍌 Test's Pis Test RP2350?
+Device Descriptor:
+  bLength                18
+  bDescriptorType         1
+  bcdUSB               2.10
+  bDeviceClass            0 
+  bDeviceSubClass         0 
+  bDeviceProtocol         0 
+  bMaxPacketSize0        64
+  idVendor           0x2e8b 
+  idProduct          0x000e 
+  bcdDevice            2.15
+  iManufacturer           1 zß水🍌 Test's Pis
+  iProduct                2 Test RP2350?
+  iSerial                 3 notnecessarilyanumber
+  bNumConfigurations      1
+  Configuration Descriptor:
+    bLength                 9
+    bDescriptorType         2
+    wTotalLength       0x0037
+    bNumInterfaces          2
+    bConfigurationValue     1
+    iConfiguration          0 
+    bmAttributes         0xc0
+      Self Powered
+    MaxPower               64mA
+..."><pre lang="text" class="notranslate"><code>$ picotool otp white-label -s 0x100 sample-wl.json 
+Setting attributes 20e0
+0x2e8b, 0x000e, 0x0215, 0x0c09, 0x1090, 0x200c, 0x2615, 0x20e0, 0x310b, 0x3706, 0x3a04, 0x3c04, 0x3e21, 0x4f15, 0x5a0a, 0x5f0a, 0x007a, 0x00df, 0x6c34, 0xd83c, 0xdf4c, 0x0020, 0x0054, 0x0065, 0x0073, 0x0074, 0x0027, 0x0073,
+0x0020, 0x0050, 0x0069, 0x0073, 0x6554, 0x7473, 0x5220, 0x3250, 0x3533, 0x3f30, 0x6f6e, 0x6e74, 0x6365, 0x7365, 0x6173, 0x6972, 0x796c, 0x6e61, 0x6d75, 0x6562, 0x0072, 0x6554, 0x7473, 0x6950, 0x4220, 0x6f6f, 0x0074, 0x6554,
+0x7473, 0x6950, 0x794d, 0x6950, 0x3876, 0x3739, 0x7468, 0x7074, 0x3a73, 0x2f2f, 0x7777, 0x2e77, 0x6172, 0x7073, 0x6562, 0x7272, 0x7079, 0x2e69, 0x6f63, 0x2f6d, 0x656e, 0x7377, 0x002f, 0x6f53, 0x656d, 0x4e20, 0x7765, 0x2073,
+0x6241, 0x756f, 0x2074, 0x7453, 0x6675, 0x0066, 0x794d, 0x5420, 0x7365, 0x2074, 0x6950, 0x5054, 0x2d49, 0x5052, 0x3332, 0x3035,
+$ picotool reboot -u
+$ lsusb -v -s 1:102
+Bus 001 Device 102: ID 2e8b:000e zß水🍌 Test's Pis Test RP2350?
+Device Descriptor:
+  bLength                18
+  bDescriptorType         1
+  bcdUSB               2.10
+  bDeviceClass            0 
+  bDeviceSubClass         0 
+  bDeviceProtocol         0 
+  bMaxPacketSize0        64
+  idVendor           0x2e8b 
+  idProduct          0x000e 
+  bcdDevice            2.15
+  iManufacturer           1 zß水🍌 Test's Pis
+  iProduct                2 Test RP2350?
+  iSerial                 3 notnecessarilyanumber
+  bNumConfigurations      1
+  Configuration Descriptor:
+    bLength                 9
+    bDescriptorType         2
+    wTotalLength       0x0037
+    bNumInterfaces          2
+    bConfigurationValue     1
+    iConfiguration          0 
+    bmAttributes         0xc0
+      Self Powered
+    MaxPower               64mA
+...
+</code></pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">permissions</h3><a id="user-content-permissions" class="anchor" aria-label="Permalink: permissions" href="#permissions"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">This command will run a binary on your device in order to set the OTP permissions, as these are not directly accessible from <code>picotool</code> on due to the default permissions settings required to fix  errata XXX on RP2350.
+Because it runs a binary, the binary needs to be sign it if secure boot is enabled. The binary will print what it is doing over uart, which
+can be configured using the UART Configuration arguments. You can define your OTP permissions in a json file, an example of which
+is in <a href="json/sample-permissions.json">sample-permissions.json</a>. The schema for this JSON file is <a href="json/schemas/permissions-schema.json">here</a></p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="$ picotool help otp permissions
+OTP PERMISSIONS:
+    Set the OTP access permissions
+
+SYNOPSIS:
+    picotool otp permissions &lt;filename&gt; [-t &lt;type&gt;] [--led &lt;pin&gt;] [--hash] [--sign] [&lt;key&gt;] [-t &lt;type&gt;] [device-selection]
+
+OPTIONS:
+    File to load permissions from
+        &lt;filename&gt;
+            The file name
+        -t &lt;type&gt;
+            Specify file type (json) explicitly, ignoring file extension
+        --led &lt;pin&gt;
+            LED Pin to flash; default 25
+    Signing Configuration
+        --hash
+            Hash the executable
+        --sign
+            Sign the executable
+    Key file
+        &lt;key&gt;
+            The file name
+        -t &lt;type&gt;
+            Specify file type (pem) explicitly, ignoring file extension
+    Target device selection
+        --bus &lt;bus&gt;
+            Filter devices by USB bus number
+        --address &lt;addr&gt;
+            Filter devices by USB device address
+        --vid &lt;vid&gt;
+            Filter by vendor id
+        --pid &lt;pid&gt;
+            Filter by product id
+        --ser &lt;ser&gt;
+            Filter by serial number
+        -f, --force
+            Force a device not in BOOTSEL mode but running compatible code to reset so the command can be executed. After executing the
+            command (unless the command itself is a 'reboot') the device will be rebooted back to application mode
+        -F, --force-no-reboot
+            Force a device not in BOOTSEL mode but running compatible code to reset so the command can be executed. After executing the
+            command (unless the command itself is a 'reboot') the device will be left connected and accessible to picotool, but without the
+            RPI-RP2 drive mounted"><pre lang="text" class="notranslate"><code>$ picotool help otp permissions
+OTP PERMISSIONS:
+    Set the OTP access permissions
+
+SYNOPSIS:
+    picotool otp permissions &lt;filename&gt; [-t &lt;type&gt;] [--led &lt;pin&gt;] [--hash] [--sign] [&lt;key&gt;] [-t &lt;type&gt;] [device-selection]
+
+OPTIONS:
+    File to load permissions from
+        &lt;filename&gt;
+            The file name
+        -t &lt;type&gt;
+            Specify file type (json) explicitly, ignoring file extension
+        --led &lt;pin&gt;
+            LED Pin to flash; default 25
+    Signing Configuration
+        --hash
+            Hash the executable
+        --sign
+            Sign the executable
+    Key file
+        &lt;key&gt;
+            The file name
+        -t &lt;type&gt;
+            Specify file type (pem) explicitly, ignoring file extension
+    Target device selection
+        --bus &lt;bus&gt;
+            Filter devices by USB bus number
+        --address &lt;addr&gt;
+            Filter devices by USB device address
+        --vid &lt;vid&gt;
+            Filter by vendor id
+        --pid &lt;pid&gt;
+            Filter by product id
+        --ser &lt;ser&gt;
+            Filter by serial number
+        -f, --force
+            Force a device not in BOOTSEL mode but running compatible code to reset so the command can be executed. After executing the
+            command (unless the command itself is a 'reboot') the device will be rebooted back to application mode
+        -F, --force-no-reboot
+            Force a device not in BOOTSEL mode but running compatible code to reset so the command can be executed. After executing the
+            command (unless the command itself is a 'reboot') the device will be left connected and accessible to picotool, but without the
+            RPI-RP2 drive mounted
+</code></pre></div>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="$ picotool otp permissions --sign private.pem --tx 46 sample-permissions.json 
+Picking file ./xip_ram_perms.elf
+page10
+page10 = 0
+setting page10 -&gt; 4063233
+page11
+page11 = 0
+setting page11 -&gt; 4128781
+page12
+page12 = 0
+setting page12 -&gt; 4128781
+tx_pin = 0
+setting tx_pin -&gt; 46
+Loading into XIP RAM: [==============================]  100%
+&gt;&gt;&gt; using flash update boot of 13ffc000
+
+The device was rebooted to start the application."><pre lang="text" class="notranslate"><code>$ picotool otp permissions --sign private.pem --tx 46 sample-permissions.json 
+Picking file ./xip_ram_perms.elf
+page10
+page10 = 0
+setting page10 -&gt; 4063233
+page11
+page11 = 0
+setting page11 -&gt; 4128781
+page12
+page12 = 0
+setting page12 -&gt; 4128781
+tx_pin = 0
+setting tx_pin -&gt; 46
+Loading into XIP RAM: [==============================]  100%
+&gt;&gt;&gt; using flash update boot of 13ffc000
+
+The device was rebooted to start the application.
 </code></pre></div>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Binary Information</h2><a id="user-content-binary-information" class="anchor" aria-label="Permalink: Binary Information" href="#binary-information"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">Binary information is machine locatable and generally machine consumable. I say generally because anyone can
@@ -521,8 +1747,16 @@ Fixed Pin Information
 20:     UART1 TX
 21:     UART1 RX
 </code></pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Configuration</h3><a id="user-content-configuration" class="anchor" aria-label="Permalink: Configuration" href="#configuration"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">This is very handy if you want to be able to modify parameters in a binary, without having to recompile it.</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="$ picotool config -s name Jane
+name = &quot;Billy&quot;
+setting name -&gt; &quot;Jane&quot;"><pre lang="text" class="notranslate"><code>$ picotool config -s name Jane
+name = "Billy"
+setting name -&gt; "Jane"
+</code></pre></div>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Including Binary information</h3><a id="user-content-including-binary-information" class="anchor" aria-label="Permalink: Including Binary information" href="#including-binary-information"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<p dir="auto">Binary information is declared in the program by macros (vile warped macros); for the previous example:</p>
+<p dir="auto">Binary information is declared in the program by macros (vile warped macros); for the pins example:</p>
 <div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="$ picotool info --pins sprite_demo.elf
 File sprite_demo.elf:
 
@@ -555,9 +1789,14 @@ Fixed Pin Information
 The <code>bi_decl_if_func_used</code> makes sure the binary information is only included if the containing function is called.</p>
 <p dir="auto">Equally, the video code contains a few lines like this:</p>
 <div class="highlight highlight-source-c notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bi_decl_if_func_used(bi_pin_mask_with_name(0x1f &lt;&lt; (PICO_SCANVIDEO_COLOR_PIN_BASE + PICO_SCANVIDEO_DPI_PIXEL_RSHIFT), &quot;Red 0-4&quot;));"><pre><span class="pl-en">bi_decl_if_func_used</span>(<span class="pl-en">bi_pin_mask_with_name</span>(<span class="pl-c1">0x1f</span> &lt;&lt; (<span class="pl-c1">PICO_SCANVIDEO_COLOR_PIN_BASE</span> <span class="pl-c1">+</span> <span class="pl-c1">PICO_SCANVIDEO_DPI_PIXEL_RSHIFT</span>), <span class="pl-s">"Red 0-4"</span>));</pre></div>
+<p dir="auto">For the configuration example, you put the line</p>
+<div class="highlight highlight-source-c notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bi_decl(bi_ptr_string(0x1111, 0x3333, name, &quot;Billy&quot;, 128));"><pre><span class="pl-en">bi_decl</span>(<span class="pl-en">bi_ptr_string</span>(<span class="pl-c1">0x1111</span>, <span class="pl-c1">0x3333</span>, <span class="pl-s1">name</span>, <span class="pl-s">"Billy"</span>, <span class="pl-c1">128</span>));</pre></div>
+<p dir="auto">into your code, which will then create the name variable for you to subsequently print.
+The parameters are the tag, the ID, variable name, default value, and maximum string length.</p>
+<div class="highlight highlight-source-c notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="printf(&quot;Name is %s\n&quot;, name);"><pre><span class="pl-en">printf</span>(<span class="pl-s">"Name is %s\n"</span>, <span class="pl-s1">name</span>);</pre></div>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Details</h3><a id="user-content-details" class="anchor" aria-label="Permalink: Details" href="#details"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<p dir="auto">Things are designed to waste as little space as possible, but you can turn everything off with preprocessor var <code>PICO_NO_BINARY_INFO=1</code>. Additionally
-any SDK code that inserts binary info can be separately excluded by its own preprocesor var.</p>
+<p dir="auto">Things are designed to waste as little space as possible, but you can turn everything off with preprocessor variable <code>PICO_NO_BINARY_INFO=1</code>. Additionally,
+any SDK code that inserts binary info can be separately excluded by its own preprocessor variable.</p>
 <p dir="auto">You need</p>
 <div class="highlight highlight-source-c notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="#include &quot;pico/binary_info.h&quot;"><pre><span class="pl-k">#include</span> <span class="pl-s">"pico/binary_info.h"</span></pre></div>
 <p dir="auto">Basically you either use <code>bi_decl(bi_blah(...))</code> for unconditional inclusion of the binary info blah, or
@@ -623,7 +1862,7 @@ to make the build fail with a <em>somewhat</em> helpful error message if you do 
 <div class="highlight highlight-source-cmake notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="pico_set_program_name(foo &quot;not foo&quot;) # as &quot;foo&quot; would be the default
 pico_set_program_description(foo &quot;this is a foo&quot;)
 pico_set_program_version(foo &quot;0.00001a&quot;)
-pico_set_program_url(foo &quot;www.plinth.com/foo&quot;)"><pre>pico_set_program_name(foo <span class="pl-s">"not foo"</span>) <span class="pl-c"><span class="pl-c">#</span> as "foo" would be the default</span>
+pico_set_program_url(foo &quot;www.plinth.com/foo&quot;)"><pre>pico_set_program_name(foo <span class="pl-s">"not foo"</span>) <span class="pl-c"># as "foo" would be the default</span>
 pico_set_program_description(foo <span class="pl-s">"this is a foo"</span>)
 pico_set_program_version(foo <span class="pl-s">"0.00001a"</span>)
 pico_set_program_url(foo <span class="pl-s">"www.plinth.com/foo"</span>)</pre></div>
@@ -673,10 +1912,18 @@ in the future might be interesting.</p>
     <span class="pl-c1">BINARY_INFO_BLOCK_DEV_FLAG_PT_GPT</span> <span class="pl-c1">=</span> <span class="pl-c1">2</span> &lt;&lt; <span class="pl-c1">4</span>, <span class="pl-c">// expect GPT</span>
     <span class="pl-c1">BINARY_INFO_BLOCK_DEV_FLAG_PT_NONE</span> <span class="pl-c1">=</span> <span class="pl-c1">3</span> &lt;&lt; <span class="pl-c1">4</span>, <span class="pl-c">// no partition table</span>
 };</pre></div>
-<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">USB device descriptors</h3><a id="user-content-usb-device-descriptors" class="anchor" aria-label="Permalink: USB device descriptors" href="#usb-device-descriptors"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<p dir="auto">Seems like tagging these might be nice (we just need to store the pointer to it assuming - as is often the case -
-the descriptor is just a linear chunk of memory) ... I assume there is a tool out there to prettify such a thing if picotool dumps the descriptor
-in binary.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Forced Reboots</h3><a id="user-content-forced-reboots" class="anchor" aria-label="Permalink: Forced Reboots" href="#forced-reboots"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Running commands with <code>-f/F</code> requires compatible code to be running on the device. The definition of compatible code for the
+purposes of binaries compiled using the <a href="https://github.com/raspberrypi/pico-sdk">pico-sdk</a> is code that</p>
+<ul dir="auto">
+<li>Is still running -
+If your code has returned then rebooting with <code>-f/F</code> will not work - instead you can set the compile definition <code>PICO_ENTER_USB_BOOT_ON_EXIT</code>
+to reboot and be accessible to picotool once your code has finished execution, for example with
+<code>target_compile_definitions(&lt;yourTargetName&gt; PRIVATE PICO_ENTER_USB_BOOT_ON_EXIT=1)</code></li>
+<li>Uses stdio_usb -
+If your binary calls <code>stdio_init_all()</code> and you have <code>pico_enable_stdio_usb(&lt;yourTargetName&gt; 1)</code> in your CMakeLists.txt file then you meet
+this requirement (see the <a href="https://github.com/raspberrypi/pico-examples/tree/master/hello_world/usb">hello_usb</a> example)</li>
+</ul>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Issues</h3><a id="user-content-issues" class="anchor" aria-label="Permalink: Issues" href="#issues"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">If you ctrl+c out of the middle of a long operation, then libusb seems to get a bit confused, which means we aren't able
 to unlock our lockout of USB MSD writes (we have turned them off so the user doesn't step on their own toes). Simply running
