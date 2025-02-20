@@ -6,8 +6,23 @@ is narrow and it's very difficult to get anyone's attention to review PRs there.
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Installation</h2><a id="user-content-installation" class="anchor" aria-label="Permalink: Installation" href="#installation"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">Installation instructions are included on each release:
 <a href="https://github.com/bazel-contrib/bazel-lib/releases">https://github.com/bazel-contrib/bazel-lib/releases</a></p>
-<p dir="auto">To use a commit rather than a release, you can point at any SHA of the repo.</p>
-<p dir="auto">For example to use commit <code>abc123</code>:</p>
+<p dir="auto">To use a commit rather than a release, you can point at any SHA of the repo.
+However, this adds more "dev dependencies", as you'll have to build our helper programs (such as <code>copy_to_directory</code>, <code>expand_template</code>) from their Go sources rather than
+download pre-built binaries.</p>
+<p dir="auto">For example to use commit <code>abc123</code> in <code>MODULE.bazel</code>:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="# Automatically picks up new Go dev dependencies
+git_override(
+    module_name = &quot;aspect_bazel_lib&quot;,
+    commit = &quot;abc123&quot;,
+    remote = &quot;git@github.com:aspect-build/bazel-lib.git&quot;,
+)"><pre class="notranslate"><code># Automatically picks up new Go dev dependencies
+git_override(
+    module_name = "aspect_bazel_lib",
+    commit = "abc123",
+    remote = "git@github.com:aspect-build/bazel-lib.git",
+)
+</code></pre></div>
+<p dir="auto">Or in <code>WORKSPACE</code>:</p>
 <ol dir="auto">
 <li>Replace <code>url = "https://github.com/bazel-contrib/bazel-lib/releases/download/v0.1.0/bazel-lib-v0.1.0.tar.gz"</code>
 with a GitHub-provided source archive like
@@ -15,6 +30,7 @@ with a GitHub-provided source archive like
 <li>Replace <code>strip_prefix = "bazel-lib-0.1.0"</code> with <code>strip_prefix = "bazel-lib-abc123"</code></li>
 <li>Update the <code>sha256</code>. The easiest way to do this is to comment out the line, then Bazel will
 print a message with the correct value.</li>
+<li><code>load("@aspect_bazel_lib//:deps.bzl", "go_dependencies")</code> and then call <code>go_dependencies()</code></li>
 </ol>
 <blockquote>
 <p dir="auto">Note that GitHub source archives don't have a strong guarantee on the sha256 stability, see

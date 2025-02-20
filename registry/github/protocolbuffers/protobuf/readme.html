@@ -19,6 +19,66 @@ occasionally be broken by source-incompatible changes and insufficiently-tested
 of your project, you should pin to a release commit on a release branch.</p>
 <p dir="auto">This is because even release branches can experience some instability in between
 release commits.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Bazel with Bzlmod</h3><a id="user-content-bazel-with-bzlmod" class="anchor" aria-label="Permalink: Bazel with Bzlmod" href="#bazel-with-bzlmod"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Protobuf supports
+<a href="https://bazel.build/external/module" rel="nofollow">Bzlmod</a> with Bazel 7 +.
+Users should specify a dependency on protobuf in their MODULE.bazel file as
+follows.</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="bazel_dep(name = &quot;protobuf&quot;, version = &lt;VERSION&gt;)"><pre class="notranslate"><code>bazel_dep(name = "protobuf", version = &lt;VERSION&gt;)
+</code></pre></div>
+<p dir="auto">Users can optionally override the repo name, such as for compatibility with
+WORKSPACE.</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="bazel_dep(name = &quot;protobuf&quot;, version = &lt;VERSION&gt;, repo_name = &quot;com_google_protobuf&quot;)"><pre class="notranslate"><code>bazel_dep(name = "protobuf", version = &lt;VERSION&gt;, repo_name = "com_google_protobuf")
+</code></pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Bazel with WORKSPACE</h3><a id="user-content-bazel-with-workspace" class="anchor" aria-label="Permalink: Bazel with WORKSPACE" href="#bazel-with-workspace"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Users can also add the following to their legacy
+<a href="https://bazel.build/external/overview#workspace-system" rel="nofollow">WORKSPACE</a> file.</p>
+<p dir="auto">Note that with the release of 30.x there are a few more load statements to
+properly set up rules_java and rules_python.</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="http_archive(
+    name = &quot;com_google_protobuf&quot;,
+    strip_prefix = &quot;protobuf-VERSION&quot;,
+    sha256 = ...,
+    url = ...,
+)
+
+load(&quot;@com_google_protobuf//:protobuf_deps.bzl&quot;, &quot;protobuf_deps&quot;)
+
+protobuf_deps()
+
+load(&quot;@rules_java//java:rules_java_deps.bzl&quot;, &quot;rules_java_dependencies&quot;)
+
+rules_java_dependencies()
+
+load(&quot;@rules_java//java:repositories.bzl&quot;, &quot;rules_java_toolchains&quot;)
+
+rules_java_toolchains()
+
+load(&quot;@rules_python//python:repositories.bzl&quot;, &quot;py_repositories&quot;)
+
+py_repositories()"><pre class="notranslate"><code>http_archive(
+    name = "com_google_protobuf",
+    strip_prefix = "protobuf-VERSION",
+    sha256 = ...,
+    url = ...,
+)
+
+load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
+
+protobuf_deps()
+
+load("@rules_java//java:rules_java_deps.bzl", "rules_java_dependencies")
+
+rules_java_dependencies()
+
+load("@rules_java//java:repositories.bzl", "rules_java_toolchains")
+
+rules_java_toolchains()
+
+load("@rules_python//python:repositories.bzl", "py_repositories")
+
+py_repositories()
+</code></pre></div>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Protobuf Compiler Installation</h2><a id="user-content-protobuf-compiler-installation" class="anchor" aria-label="Permalink: Protobuf Compiler Installation" href="#protobuf-compiler-installation"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">The protobuf compiler is written in C++. If you are using C++, please follow
 the <a href="src/README.md">C++ Installation Instructions</a> to install protoc along
