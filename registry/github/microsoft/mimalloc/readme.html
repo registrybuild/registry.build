@@ -6,15 +6,15 @@
 is a general purpose allocator with excellent <a href="#performance">performance</a> characteristics.
 Initially developed by Daan Leijen for the runtime systems of the
 <a href="https://koka-lang.github.io" rel="nofollow">Koka</a> and <a href="https://github.com/leanprover/lean">Lean</a> languages.</p>
-<p dir="auto">Latest release tag: <code>v2.1.7</code> (2024-05-21).<br>
-Latest v1 tag: <code>v1.8.7</code> (2024-05-21).</p>
+<p dir="auto">Latest release tag: <code>v2.1.9</code> (2025-01-03).<br>
+Latest v1 tag: <code>v1.8.9</code> (2024-01-03).</p>
 <p dir="auto">mimalloc is a drop-in replacement for <code>malloc</code> and can be used in other programs
 without code changes, for example, on dynamically linked ELF-based systems (Linux, BSD, etc.) you can use it as:</p>
 <div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="&gt; LD_PRELOAD=/usr/lib/libmimalloc.so  myprogram"><pre class="notranslate"><code>&gt; LD_PRELOAD=/usr/lib/libmimalloc.so  myprogram
 </code></pre></div>
 <p dir="auto">It also includes a robust way to override the default allocator in <a href="#override_on_windows">Windows</a>. Notable aspects of the design include:</p>
 <ul dir="auto">
-<li><strong>small and consistent</strong>: the library is about 8k LOC using simple and
+<li><strong>small and consistent</strong>: the library is about 10k LOC using simple and
 consistent data structures. This makes it very suitable
 to integrate and adapt in other projects. For runtime systems it
 provides hooks for a monotonic <em>heartbeat</em> and deferred freeing (for
@@ -60,17 +60,25 @@ You can read more on the design of <em>mimalloc</em> in the <a href="https://www
 <p dir="auto">Enjoy!</p>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Branches</h3><a id="user-content-branches" class="anchor" aria-label="Permalink: Branches" href="#branches"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <ul dir="auto">
-<li><code>master</code>: latest stable release (based on <code>dev-slice</code>).</li>
+<li><code>master</code>: latest stable release (based on <code>dev2</code>).</li>
 <li><code>dev</code>: development branch for mimalloc v1. Use this branch for submitting PR's.</li>
-<li><code>dev-slice</code>: development branch for mimalloc v2. This branch is downstream of <code>dev</code> (and is essentially equal to <code>dev</code> except for
-<code>src/segment.c</code>)</li>
+<li><code>dev2</code>: development branch for mimalloc v2. This branch is downstream of <code>dev</code>
+(and is essentially equal to <code>dev</code> except for <code>src/segment.c</code>). Uses larger sliced segments to manage
+mimalloc pages what can reduce fragmentation.</li>
+<li><code>dev3</code>: development branch for mimalloc v3-alpha. This branch is downstream of <code>dev</code>. This is still experimental,
+but simplifies previous versions by having no segments any more. This improves sharing of memory
+between threads, and on certain large workloads uses less memory with less fragmentation.</li>
 </ul>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Releases</h3><a id="user-content-releases" class="anchor" aria-label="Permalink: Releases" href="#releases"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<p dir="auto">Note: the <code>v2.x</code> version has a different algorithm for managing internal mimalloc pages (as slices) that tends to use reduce
-memory usage
-and fragmentation compared to mimalloc <code>v1.x</code> (especially for large workloads). Should otherwise have similar performance
-(see <a href="#performance">below</a>); please report if you observe any significant performance regression.</p>
 <ul dir="auto">
+<li>
+<p dir="auto">2025-01-03, <code>v1.8.9</code>, <code>v2.1.9</code>, <code>v3.0.1-alpha</code>: Interim release. Support Windows arm64. New <a href="#guarded">guarded</a> build that can place OS
+guard pages behind objects to catch buffer overflows as they occur.
+Many small fixes: build on Windows arm64, cygwin, riscV, and dragonfly; fix Windows static library initialization to account for
+thread local destructors (in Rust/C++); macOS tag change; macOS TLS slot fix; improve stats;
+consistent mimalloc.dll on Windows (instead of mimalloc-override.dll); fix mimalloc-redirect on Win11 H2;
+add 0-byte to canary; upstream CPython fixes; reduce .bss size; allow fixed TLS slot on Windows for improved performance.</p>
+</li>
 <li>
 <p dir="auto">2024-05-21, <code>v1.8.7</code>, <code>v2.1.7</code>: Fix build issues on less common platforms. Started upstreaming patches
 from the CPython <a href="https://github.com/python/cpython/issues/113141#issuecomment-2119255217" data-hovercard-type="issue" data-hovercard-url="/python/cpython/issues/113141/hovercard">integration</a>. Upstream <code>vcpkg</code> patches.</p>
@@ -112,7 +120,7 @@ Various small bug fixes.</p>
 <li>
 <p dir="auto">2022-11-03, <code>v1.7.7</code>, <code>v2.0.7</code>: Initial support for <a href="#valgrind">Valgrind</a> for leak testing and heap block overflow
 detection. Initial
-support for attaching heaps to a speficic memory area (only in v2). Fix <code>realloc</code> behavior for zero size blocks, remove restriction to integral multiple of the alignment in <code>alloc_align</code>, improved aligned allocation performance, reduced contention with many threads on few processors (thank you @dposluns!), vs2022 support, support <code>pkg-config</code>, .</p>
+support for attaching heaps to a specific memory area (only in v2). Fix <code>realloc</code> behavior for zero size blocks, remove restriction to integral multiple of the alignment in <code>alloc_align</code>, improved aligned allocation performance, reduced contention with many threads on few processors (thank you @dposluns!), vs2022 support, support <code>pkg-config</code>, .</p>
 </li>
 <li>
 <p dir="auto">2022-04-14, <code>v1.7.6</code>, <code>v2.0.6</code>: fix fallback path for aligned OS allocation on Windows, improve Windows aligned allocation
@@ -154,11 +162,11 @@ uses mimalloc internally.</li>
 <div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Building</h1><a id="user-content-building" class="anchor" aria-label="Permalink: Building" href="#building"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Windows</h2><a id="user-content-windows" class="anchor" aria-label="Permalink: Windows" href="#windows"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">Open <code>ide/vs2022/mimalloc.sln</code> in Visual Studio 2022 and build.
-The <code>mimalloc</code> project builds a static library (in <code>out/msvc-x64</code>), while the
-<code>mimalloc-override</code> project builds a DLL for overriding malloc
+The <code>mimalloc-lib</code> project builds a static library (in <code>out/msvc-x64</code>), while the
+<code>mimalloc-override-dll</code> project builds a DLL for overriding malloc
 in the entire program.</p>
-<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">macOS, Linux, BSD, etc.</h2><a id="user-content-macos-linux-bsd-etc" class="anchor" aria-label="Permalink: macOS, Linux, BSD, etc." href="#macos-linux-bsd-etc"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<p dir="auto">We use <a href="https://cmake.org" rel="nofollow"><code>cmake</code></a><sup>1</sup> as the build system:</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Linux, macOS, BSD, etc.</h2><a id="user-content-linux-macos-bsd-etc" class="anchor" aria-label="Permalink: Linux, macOS, BSD, etc." href="#linux-macos-bsd-etc"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">We use <a href="https://cmake.org" rel="nofollow"><code>cmake</code></a> as the build system:</p>
 <div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="&gt; mkdir -p out/release
 &gt; cd out/release
 &gt; cmake ../..
@@ -182,8 +190,7 @@ maintains detailed statistics as:</p>
 &gt; make
 </code></pre></div>
 <p dir="auto">This will name the shared library as <code>libmimalloc-debug.so</code>.</p>
-<p dir="auto">Finally, you can build a <em>secure</em> version that uses guard pages, encrypted
-free lists, etc., as:</p>
+<p dir="auto">Finally, you can build a <em>secure</em> version that uses guard pages, encrypted free lists, etc., as:</p>
 <div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="&gt; mkdir -p out/secure
 &gt; cd out/secure
 &gt; cmake -DMI_SECURE=ON ../..
@@ -193,13 +200,23 @@ free lists, etc., as:</p>
 &gt; make
 </code></pre></div>
 <p dir="auto">This will name the shared library as <code>libmimalloc-secure.so</code>.
-Use <code>ccmake</code><sup>2</sup> instead of <code>cmake</code>
-to see and customize all the available build options.</p>
-<p dir="auto">Notes:</p>
-<ol dir="auto">
-<li>Install CMake: <code>sudo apt-get install cmake</code></li>
-<li>Install CCMake: <code>sudo apt-get install cmake-curses-gui</code></li>
-</ol>
+Use <code>cmake ../.. -LH</code> to see all the available build options.</p>
+<p dir="auto">The examples use the default compiler. If you like to use another, use:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="&gt; CC=clang CXX=clang++ cmake ../.."><pre class="notranslate"><code>&gt; CC=clang CXX=clang++ cmake ../..
+</code></pre></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Cmake with Visual Studio</h2><a id="user-content-cmake-with-visual-studio" class="anchor" aria-label="Permalink: Cmake with Visual Studio" href="#cmake-with-visual-studio"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">You can also use cmake on Windows. Open a Visual Studio 2022 development prompt
+and invoke <code>cmake</code> with the right <a href="https://cmake.org/cmake/help/latest/generator/Visual%20Studio%2017%202022.html" rel="nofollow">generator</a>
+and architecture, like:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="&gt; cmake ..\.. -G &quot;Visual Studio 17 2022&quot; -A x64 -DMI_OVERRIDE=ON"><pre class="notranslate"><code>&gt; cmake ..\.. -G "Visual Studio 17 2022" -A x64 -DMI_OVERRIDE=ON
+</code></pre></div>
+<p dir="auto">The cmake build type is specified when actually building, for example:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="&gt; cmake --build . --config=Release"><pre class="notranslate"><code>&gt; cmake --build . --config=Release
+</code></pre></div>
+<p dir="auto">You can also install the <a href="https://learn.microsoft.com/en-us/cpp/build/clang-support-msbuild?view=msvc-170#install-1" rel="nofollow">LLVM toolset</a>
+on Windows to build with the <code>clang-cl</code> compiler directly:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="&gt; cmake ../.. -G &quot;Visual Studio 17 2022&quot; -T ClangCl"><pre class="notranslate"><code>&gt; cmake ../.. -G "Visual Studio 17 2022" -T ClangCl
+</code></pre></div>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Single source</h2><a id="user-content-single-source" class="anchor" aria-label="Permalink: Single source" href="#single-source"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">You can also directly build the single <code>src/static.c</code> file as part of your project without
 needing <code>cmake</code> at all. Make sure to also add the mimalloc <code>include</code> directory to the include path.</p>
@@ -211,7 +228,7 @@ the shared- or static library, and using the <code>mi_malloc</code> API exclusiv
 <p dir="auto">mimalloc uses only safe OS calls (<code>mmap</code> and <code>VirtualAlloc</code>) and can co-exist
 with other allocators linked to the same program.
 If you use <code>cmake</code>, you can simply use:</p>
-<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="find_package(mimalloc 1.4 REQUIRED)"><pre class="notranslate"><code>find_package(mimalloc 1.4 REQUIRED)
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="find_package(mimalloc 1.8 REQUIRED)"><pre class="notranslate"><code>find_package(mimalloc 1.8 REQUIRED)
 </code></pre></div>
 <p dir="auto">in your <code>CMakeLists.txt</code> to find a locally installed mimalloc. Then use either:</p>
 <div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="target_link_libraries(myapp PUBLIC mimalloc)"><pre class="notranslate"><code>target_link_libraries(myapp PUBLIC mimalloc)
@@ -222,7 +239,7 @@ If you use <code>cmake</code>, you can simply use:</p>
 <p dir="auto">to link with the static library. See <code>test\CMakeLists.txt</code> for an example.</p>
 <p dir="auto">For best performance in C++ programs, it is also recommended to override the
 global <code>new</code> and <code>delete</code> operators. For convenience, mimalloc provides
-<a href="https://github.com/microsoft/mimalloc/blob/master/include/mimalloc-new-delete.h"><code>mimalloc-new-delete.h</code></a> which does this for you -- just include it in a single(!) source file in your project.
+<a href="include/mimalloc-new-delete.h"><code>mimalloc-new-delete.h</code></a> which does this for you -- just include it in a single(!) source file in your project.
 In C++, mimalloc also provides the <code>mi_stl_allocator</code> struct which implements the <code>std::allocator</code>
 interface.</p>
 <p dir="auto">You can pass environment variables to print verbose messages (<code>MIMALLOC_VERBOSE=1</code>)
@@ -326,9 +343,10 @@ address ranges and decommits within those ranges (to make the underlying physica
 at runtime. Setting <code>N</code> to 1 may avoid problems in some virtual environments. Also, setting it to a lower number than
 the actual NUMA nodes is fine and will only cause threads to potentially allocate more memory across actual NUMA
 nodes (but this can happen in any case as NUMA local allocation is always a best effort but not guaranteed).</li>
-<li><code>MIMALLOC_ALLOW_LARGE_OS_PAGES=1</code>: use large OS pages (2 or 4MiB) when available; for some workloads this can significantly
-improve performance. When this option is disabled, it also disables transparent huge pages (THP) for the process
-(on Linux and Android). Use <code>MIMALLOC_VERBOSE</code> to check if the large OS pages are enabled -- usually one needs
+<li><code>MIMALLOC_ALLOW_LARGE_OS_PAGES=0</code>: Set to 1 to use large OS pages (2 or 4MiB) when available; for some workloads this can significantly
+improve performance. When this option is disabled (default), it also disables transparent huge pages (THP) for the process
+(on Linux and Android). On Linux the default setting is 2 -- this enables the use of large pages through THP only.
+Use <code>MIMALLOC_VERBOSE</code> to check if the large OS pages are enabled -- usually one needs
 to explicitly give permissions for large OS pages (as on <a href="https://docs.microsoft.com/en-us/sql/database-engine/configure-windows/enable-the-lock-pages-in-memory-option-windows?view=sql-server-2017" rel="nofollow">Windows</a> and <a href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/5/html/tuning_and_optimizing_red_hat_enterprise_linux_for_oracle_9i_and_10g_databases/sect-oracle_9i_and_10g_tuning_guide-large_memory_optimization_big_pages_and_huge_pages-configuring_huge_pages_in_red_hat_enterprise_linux_4_or_5" rel="nofollow">Linux</a>). However, sometimes
 the OS is very slow to reserve contiguous physical memory for large OS pages so use with care on systems that
 can have fragmented memory (for that reason, we generally recommend to use <code>MIMALLOC_RESERVE_HUGE_OS_PAGES</code> instead whenever possible).</li>
@@ -367,12 +385,42 @@ from the OS are also address randomized.</li>
 </ul>
 <p dir="auto">As always, evaluate with care as part of an overall security strategy as all of the above are mitigations but not guarantees.</p>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Debug Mode</h2><a id="user-content-debug-mode" class="anchor" aria-label="Permalink: Debug Mode" href="#debug-mode"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<p dir="auto">When <em>mimalloc</em> is built using debug mode, various checks are done at runtime to catch development errors.</p>
+<p dir="auto">When <em>mimalloc</em> is built using debug mode, (<code>-DCMAKE_BUILD_TYPE=Debug</code>),
+various checks are done at runtime to catch development errors.</p>
 <ul dir="auto">
 <li>Statistics are maintained in detail for each object size. They can be shown using <code>MIMALLOC_SHOW_STATS=1</code> at runtime.</li>
 <li>All objects have padding at the end to detect (byte precise) heap block overflows.</li>
 <li>Double free's, and freeing invalid heap pointers are detected.</li>
 <li>Corrupted free-lists and some forms of use-after-free are detected.</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Guarded Mode</h2><a id="user-content-guarded-mode" class="anchor" aria-label="Permalink: Guarded Mode" href="#guarded-mode"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><span id="user-content-guarded"><em>mimalloc</em> can be build in guarded mode using the <code>-DMI_GUARDED=ON</code> flags in <code>cmake</code>.</span>
+This enables placing OS guard pages behind certain object allocations to catch buffer overflows as they occur.
+This can be invaluable to catch buffer-overflow bugs in large programs. However, it also means that any object
+allocated with a guard page takes at least 8 KiB memory for the guard page and its alignment. As such, allocating
+a guard page for every allocation may be too expensive both in terms of memory, and in terms of performance with
+many system calls. Therefore, there are various environment variables (and options) to tune this:</p>
+<ul dir="auto">
+<li>
+<p dir="auto"><code>MIMALLOC_GUARDED_SAMPLE_RATE=N</code>: Set the sample rate to <code>N</code> (by default 4000). This mode places a guard page
+behind every <code>N</code> suitable object allocations (per thread). Since the performance in guarded mode without placing
+guard pages is close to release mode, this can be used to enable guard pages even in production to catch latent
+buffer overflow bugs. Set the sample rate to <code>1</code> to guard every object, and to <code>0</code> to place no guard pages at all.</p>
+</li>
+<li>
+<p dir="auto"><code>MIMALLOC_GUARDED_SAMPLE_SEED=N</code>: Start sampling at <code>N</code> (by default random). Can be used to reproduce a buffer
+overflow if needed.</p>
+</li>
+<li>
+<p dir="auto"><code>MIMALLOC_GUARDED_MIN=N</code>, <code>MIMALLOC_GUARDED_MAX=N</code>: Minimal and maximal <em>rounded</em> object sizes for which a guard
+page is considered (<code>0</code> and <code>1GiB</code> respectively). If you suspect a buffer overflow occurs with an object of size
+141, set the minimum and maximum to <code>148</code> and the sample rate to <code>1</code> to have all of those guarded.</p>
+</li>
+<li>
+<p dir="auto"><code>MIMALLOC_GUARDED_PRECISE=1</code>: If we have an object of size 13, we would usually place it an aligned 16 bytes in
+front of the guard page. Using <code>MIMALLOC_GUARDED_PRECISE</code> places it exactly 13 bytes before a page so that even
+a 1 byte overflow is detected. This violates the C/C++ minimal alignment guarantees though so use with care.</p>
+</li>
 </ul>
 <div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Overriding Standard Malloc</h1><a id="user-content-overriding-standard-malloc" class="anchor" aria-label="Permalink: Overriding Standard Malloc" href="#overriding-standard-malloc"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">Overriding the standard <code>malloc</code> (and <code>new</code>) can be done either <em>dynamically</em> or <em>statically</em>.</p>
@@ -399,40 +447,47 @@ resolved to the <em>mimalloc</em> library.</p>
 </code></pre></div>
 <p dir="auto">Note that certain security restrictions may apply when doing this from
 the <a href="https://stackoverflow.com/questions/43941322/dyld-insert-libraries-ignored-when-calling-application-through-bash" rel="nofollow">shell</a>.</p>
-<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Dynamic Override on Windows</h3><a id="user-content-dynamic-override-on-windows" class="anchor" aria-label="Permalink: Dynamic Override on Windows" href="#dynamic-override-on-windows"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<p dir="auto"><span id="user-content-override_on_windows">Dynamically overriding on mimalloc on Windows</span>
-is robust and has the particular advantage to be able to redirect all malloc/free calls that go through
-the (dynamic) C runtime allocator, including those from other DLL's or libraries.
-As it intercepts all allocation calls on a low level, it can be used reliably
-on large programs that include other 3rd party components.
-There are four requirements to make the overriding work robustly:</p>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Windows Override</h1><a id="user-content-windows-override" class="anchor" aria-label="Permalink: Windows Override" href="#windows-override"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><span id="user-content-override_on_windows">We use a separate redirection DLL to override mimalloc on Windows</span>
+such that we redirect all malloc/free calls that go through the (dynamic) C runtime allocator,
+including those from other DLL's or libraries. As it intercepts all allocation calls on a low level,
+it can be used reliably on large programs that include other 3rd party components.
+There are four requirements to make the overriding work well:</p>
 <ol dir="auto">
-<li>Use the C-runtime library as a DLL (using the <code>/MD</code> or <code>/MDd</code> switch).</li>
-<li>Link your program explicitly with <code>mimalloc-override.dll</code> library.
-To ensure the <code>mimalloc-override.dll</code> is loaded at run-time it is easiest to insert some
-call to the mimalloc API in the <code>main</code> function, like <code>mi_version()</code>
-(or use the <code>/INCLUDE:mi_version</code> switch on the linker). See the <code>mimalloc-override-test</code> project
-for an example on how to use this.</li>
-<li>The <a href="bin"><code>mimalloc-redirect.dll</code></a> (or <code>mimalloc-redirect32.dll</code>) must be put
-in the same folder as the main <code>mimalloc-override.dll</code> at runtime (as it is a dependency of that DLL).
-The redirection DLL ensures that all calls to the C runtime malloc API get redirected to
-mimalloc functions (which reside in <code>mimalloc-override.dll</code>).</li>
-<li>Ensure the <code>mimalloc-override.dll</code> comes as early as possible in the import
-list of the final executable (so it can intercept all potential allocations).</li>
+<li>
+<p dir="auto">Use the C-runtime library as a DLL (using the <code>/MD</code> or <code>/MDd</code> switch).</p>
+</li>
+<li>
+<p dir="auto">Link your program explicitly with the <code>mimalloc.dll.lib</code> export library for the <code>mimalloc.dll</code>.
+(which must be compiled with <code>-DMI_OVERRIDE=ON</code>, which is the default though).
+To ensure the <code>mimalloc.dll</code> is actually loaded at run-time it is easiest
+to insert some call to the mimalloc API in the <code>main</code> function, like <code>mi_version()</code>
+(or use the <code>/include:mi_version</code> switch on the linker command, or
+similarly, <code>#pragma comment(linker, "/include:mi_version")</code> in some source file).
+See the <code>mimalloc-test-override</code> project for an example on how to use this.</p>
+</li>
+<li>
+<p dir="auto">The <code>mimalloc-redirect.dll</code> must be put in the same directory as the main
+<code>mimalloc.dll</code> at runtime (as it is a dependency of that DLL).
+The redirection DLL ensures that all calls to the C runtime malloc API get
+redirected to mimalloc functions (which reside in <code>mimalloc.dll</code>).</p>
+</li>
+<li>
+<p dir="auto">Ensure the <code>mimalloc.dll</code> comes as early as possible in the import
+list of the final executable (so it can intercept all potential allocations).
+You can use <code>minject -l &lt;exe&gt;</code> to check this if needed.</p>
+</li>
 </ol>
-<p dir="auto">For best performance on Windows with C++, it
-is also recommended to also override the <code>new</code>/<code>delete</code> operations (by including
-<a href="include/mimalloc-new-delete.h"><code>mimalloc-new-delete.h</code></a>
+<p dir="auto">For best performance on Windows with C++, it is also recommended to also override
+the <code>new</code>/<code>delete</code> operations (by including <a href="include/mimalloc-new-delete.h"><code>mimalloc-new-delete.h</code></a>
 a single(!) source file in your project).</p>
 <p dir="auto">The environment variable <code>MIMALLOC_DISABLE_REDIRECT=1</code> can be used to disable dynamic
-overriding at run-time. Use <code>MIMALLOC_VERBOSE=1</code> to check if mimalloc was successfully redirected.</p>
-<p dir="auto">We cannot always re-link an executable with <code>mimalloc-override.dll</code>, and similarly, we cannot always
-ensure the the DLL comes first in the import table of the final executable.
-In many cases though we can patch existing executables without any recompilation
-if they are linked with the dynamic C runtime (<code>ucrtbase.dll</code>) -- just put the <code>mimalloc-override.dll</code>
-into the import table (and put <code>mimalloc-redirect.dll</code> in the same folder)
-Such patching can be done for example with <a href="https://ntcore.com/?page_id=388" rel="nofollow">CFF Explorer</a> or
-the <a href="bin"><code>minject</code></a> program.</p>
+overriding at run-time. Use <code>MIMALLOC_VERBOSE=1</code> to check if mimalloc was successfully
+redirected.</p>
+<p dir="auto">For different platforms than x64, you may need a specific <a href="bin">redirection dll</a>.
+Furthermore, we cannot always re-link an executable or ensure <code>mimalloc.dll</code> comes
+first in the import table. In such cases the <a href="bin"><code>minject</code></a> tool can be used
+to patch the executable's import tables.</p>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Static override</h2><a id="user-content-static-override" class="anchor" aria-label="Permalink: Static override" href="#static-override"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">On Unix-like systems, you can also statically link with <em>mimalloc</em> to override the standard
 malloc interface. The recommended way is to link the final program with the
@@ -446,7 +501,8 @@ object file. For example:</p>
 <p dir="auto">Another way to override statically that works on all platforms, is to
 link statically to mimalloc (as shown in the introduction) and include a
 header file in each source file that re-defines <code>malloc</code> etc. to <code>mi_malloc</code>.
-This is provided by <a href="https://github.com/microsoft/mimalloc/blob/master/include/mimalloc-override.h"><code>mimalloc-override.h</code></a>. This only works reliably though if all sources are
+This is provided by <a href="include/mimalloc-override.h"><code>mimalloc-override.h</code></a>. This only works
+reliably though if all sources are
 under your control or otherwise mixing of pointers from different heaps may occur!</p>
 <div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Tools</h1><a id="user-content-tools" class="anchor" aria-label="Permalink: Tools" href="#tools"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">Generally, we recommend using the standard allocator with memory tracking tools, but mimalloc
@@ -468,10 +524,11 @@ you also need to tell <code>valgrind</code> to not intercept those calls itself,
 </code></pre></div>
 <p dir="auto">By setting the <code>MIMALLOC_SHOW_STATS</code> environment variable you can check that mimalloc is indeed
 used and not the standard allocator. Even though the <a href="https://valgrind.org/docs/manual/manual-core.html#opt.soname-synonyms" rel="nofollow">Valgrind option</a>
-is called <code>--soname-synonyms</code>, this also
-works when overriding with a static library or object file. Unfortunately, it is not possible to
-dynamically override mimalloc using <code>LD_PRELOAD</code> together with <code>valgrind</code>.
-See also the <code>test/test-wrong.c</code> file to test with <code>valgrind</code>.</p>
+is called <code>--soname-synonyms</code>, this also works when overriding with a static library or object file.
+To dynamically override mimalloc using <code>LD_PRELOAD</code> together with <code>valgrind</code>, use:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="&gt; valgrind --trace-children=yes --soname-synonyms=somalloc=*mimalloc* /usr/bin/env LD_PRELOAD=/usr/lib/libmimalloc.so -- &lt;myprogram&gt;"><pre class="notranslate"><code>&gt; valgrind --trace-children=yes --soname-synonyms=somalloc=*mimalloc* /usr/bin/env LD_PRELOAD=/usr/lib/libmimalloc.so -- &lt;myprogram&gt;
+</code></pre></div>
+<p dir="auto">See also the <code>test/test-wrong.c</code> file to test with <code>valgrind</code>.</p>
 <p dir="auto">Valgrind support is in its initial development -- please report any issues.</p>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">ASAN</h2><a id="user-content-asan" class="anchor" aria-label="Permalink: ASAN" href="#asan"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">To build with the address sanitizer, use the <code>-DMI_TRACK_ASAN=ON</code> cmake option:</p>
@@ -488,7 +545,7 @@ For example, assuming you build mimalloc in <code>out/debug</code>:</p>
 </code></pre></div>
 <p dir="auto">Since the address sanitizer redirects the standard allocation functions, on some platforms (macOSX for example)
 it is required to compile mimalloc with <code>-DMI_OVERRIDE=OFF</code>.
-Adress sanitizer support is in its initial development -- please report any issues.</p>
+Address sanitizer support is in its initial development -- please report any issues.</p>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">ETW</h2><a id="user-content-etw" class="anchor" aria-label="Permalink: ETW" href="#etw"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">Event tracing for Windows (<a href="https://learn.microsoft.com/en-us/windows-hardware/test/wpt/event-tracing-for-windows" rel="nofollow">ETW</a>) provides a high performance way to capture all allocations though
 mimalloc and analyze them later. To build with ETW support, use the <code>-DMI_TRACK_ETW=ON</code> cmake option.</p>

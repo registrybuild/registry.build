@@ -1,0 +1,108 @@
+<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Carvel ytt rules for Bazel</h1><a id="user-content-carvel-ytt-rules-for-bazel" class="anchor" aria-label="Permalink: Carvel ytt rules for Bazel" href="#carvel-ytt-rules-for-bazel"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Setup</h2><a id="user-content-setup" class="anchor" aria-label="Permalink: Setup" href="#setup"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">See <a href="https://github.com/ekhabarov/rules_ytt/releases">releases</a>.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Usage</h2><a id="user-content-usage" class="anchor" aria-label="Permalink: Usage" href="#usage"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Add to <code>BUILD</code> file:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@rules_ytt//:defs.bzl&quot;, &quot;ytt&quot;)
+
+# Build an image with rules_docker
+
+load(&quot;@io_bazel_rules_docker//container:container.bzl&quot;, &quot;container_image&quot;)
+
+container_image(
+    name = &quot;image&quot;,
+    ...
+)
+
+# or with rules_oci
+
+load(&quot;@rules_oci//oci:defs.bzl&quot;, &quot;oci_image&quot;)
+
+oci_image(
+    name = &quot;image&quot;,
+    ...
+)
+
+# Generate YAML manifests
+
+ytt(
+    name = &quot;manifests&quot;,
+    srcs = [
+        &quot;:base.yaml&quot;,
+        &quot;:defaults.yaml&quot;,
+        &quot;:values.yaml&quot;,
+        &quot;:image.digest&quot;,
+    ],
+    # or
+    # srcs = glob([&quot;*.yaml&quot;]) + [&quot;:image.digest&quot;],
+)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@rules_ytt//:defs.bzl"</span>, <span class="pl-s">"ytt"</span>)
+
+<span class="pl-c"># Build an image with rules_docker</span>
+
+<span class="pl-en">load</span>(<span class="pl-s">"@io_bazel_rules_docker//container:container.bzl"</span>, <span class="pl-s">"container_image"</span>)
+
+<span class="pl-en">container_image</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"image"</span>,
+    ...
+)
+
+<span class="pl-c"># or with rules_oci</span>
+
+<span class="pl-en">load</span>(<span class="pl-s">"@rules_oci//oci:defs.bzl"</span>, <span class="pl-s">"oci_image"</span>)
+
+<span class="pl-en">oci_image</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"image"</span>,
+    ...
+)
+
+<span class="pl-c"># Generate YAML manifests</span>
+
+<span class="pl-en">ytt</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"manifests"</span>,
+    <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> [
+        <span class="pl-s">":base.yaml"</span>,
+        <span class="pl-s">":defaults.yaml"</span>,
+        <span class="pl-s">":values.yaml"</span>,
+        <span class="pl-s">":image.digest"</span>,
+    ],
+    <span class="pl-c"># or</span>
+    <span class="pl-c"># srcs = glob(["*.yaml"]) + [":image.digest"],</span>
+)</pre></div>
+<p dir="auto">Which is equivalent to</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="ytt \
+    -f base.yaml \
+    -f defaults.yaml \
+    -f values.yaml \
+    -f image.json.sha256, # file created by &quot;image.digest&quot; target
+    --dangerous-allow-all-symlink-destinations"><pre>ytt \
+    -f base.yaml \
+    -f defaults.yaml \
+    -f values.yaml \
+    -f image.json.sha256, <span class="pl-c"><span class="pl-c">#</span> file created by "image.digest" target</span>
+    --dangerous-allow-all-symlink-destinations</pre></div>
+<p dir="auto">Inside YAML template digest can be used like this:</p>
+<div class="highlight highlight-source-yaml notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="#@ load(&quot;@ytt:data&quot;, &quot;data&quot;)
+---
+image: #@ &quot;repo/image@&quot; + data.read(&quot;image.json.sha256&quot;).strip()"><pre><span class="pl-c"><span class="pl-c">#</span>@ load("@ytt:data", "data")</span>
+---
+<span class="pl-ent">image</span>: <span class="pl-c"><span class="pl-c">#</span>@ "repo/image@" + data.read("image.json.sha256").strip()</span></pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Commands</h3><a id="user-content-commands" class="anchor" aria-label="Permalink: Commands" href="#commands"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li><code>bazel build //:manifests</code> - generates YAML files and retains them in cache.</li>
+<li><code>bazel run //:manifests</code> - prints generated YAML files to stdout.</li>
+<li><code>bazel run //:manifests | kubectl -n &lt;namespace&gt; -f -</code> - applies generated manifests to k8s cluster.</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">LICENSE</h2><a id="user-content-license" class="anchor" aria-label="Permalink: LICENSE" href="#license"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Copyright 2023 eBay Inc. Developer: Evgeny Khabarov</p>
+<p dir="auto">Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="   http://www.apache.org/licenses/LICENSE-2.0"><pre class="notranslate"><code>   http://www.apache.org/licenses/LICENSE-2.0
+</code></pre></div>
+<p dir="auto">Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.</p>
+<p dir="auto">See <a href="./LICENSE">LICENSE</a> for more details.</p>
+</article></div>
