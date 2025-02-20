@@ -1,0 +1,343 @@
+<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">tweag-credential-helper</h1><a id="user-content-tweag-credential-helper" class="anchor" aria-label="Permalink: tweag-credential-helper" href="#tweag-credential-helper"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><em>A credential-helper framework and agent for <a href="https://bazel.build/" rel="nofollow">Bazel</a> and similar tools implementing the <a href="https://github.com/EngFlow/credential-helper-spec">credential-helper spec</a>.</em></p>
+<p dir="auto">Many build tools need access to external resources—such as tarballs from a Git forge, container images, prebuilt artifacts, and large datasets.
+Tools like Bazel often require authentication with HTTP servers to download these files.
+This project provides a credential helper that automatically injects authentication headers based on the request URI, simplifying the process of securing your build dependencies:
+Instead of configuring credentials in your code, a credential helper decouples the authentication of requests from the configuration of external dependencies.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Key Features</h2><a id="user-content-key-features" class="anchor" aria-label="Permalink: Key Features" href="#key-features"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li>Credential Agent: An agent (similar to ssh-agent) that starts automatically on first use, caching credentials securely in memory for fast retrieval.</li>
+<li>Smart caching: Reuses cached credentials where possible instead of generating fresh credentials for each URI.</li>
+<li>Batteries Included: Support for popular services out of the box while being easily extensible.</li>
+<li>Framework for Credential Helpers: A Go-based framework to create and manage credential helpers for commonly used cloud services and APIs.</li>
+<li>Cross Platform: Works out of the box on Linux, macOS and Windows (other platforms are untested).</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Architecture</h2><a id="user-content-architecture" class="anchor" aria-label="Permalink: Architecture" href="#architecture"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<section class="js-render-needs-enrichment render-needs-enrichment position-relative" data-identity="e52f8b53-10be-4e77-9959-9649a626ae3c" data-host="https://viewscreen.githubusercontent.com" data-src="https://viewscreen.githubusercontent.com/markdown/mermaid?docs_host=https%3A%2F%2Fdocs.github.com" data-type="mermaid" aria-label="mermaid rendered output container">
+  <div class="js-render-enrichment-target" data-json="{&quot;data&quot;:&quot;graph LR\n    Bazel &amp;lt;--&amp;gt;|\&quot;std{in|out}\&quot;| Helper\n    Helper --&amp;gt;|Check cached credentials| Agent\n\n    Agent --&amp;gt;|Cached credentials or cache miss| Helper\n\nBazel[Bazel process]\nHelper[Credential Helper Process]\nAgent[\&quot;Agent (listens on socket)\&quot;]\n&quot;}" data-plain="graph LR
+    Bazel &lt;--&gt;|&quot;std{in|out}&quot;| Helper
+    Helper --&gt;|Check cached credentials| Agent
+
+    Agent --&gt;|Cached credentials or cache miss| Helper
+
+Bazel[Bazel process]
+Helper[Credential Helper Process]
+Agent[&quot;Agent (listens on socket)&quot;]
+" dir="auto">
+    <div class="render-plaintext-hidden" dir="auto">
+      <pre lang="mermaid" aria-label="Raw mermaid code">graph LR
+    Bazel &lt;--&gt;|"std{in|out}"| Helper
+    Helper --&gt;|Check cached credentials| Agent
+
+    Agent --&gt;|Cached credentials or cache miss| Helper
+
+Bazel[Bazel process]
+Helper[Credential Helper Process]
+Agent["Agent (listens on socket)"]
+</pre>
+    </div>
+  </div>
+  <span class="js-render-enrichment-loader d-flex flex-justify-center flex-items-center width-full" style="min-height:100px" role="presentation">
+    <span data-view-component="true">
+  <svg style="box-sizing: content-box; color: var(--color-icon-primary);" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" data-view-component="true" class="octospinner mx-auto anim-rotate">
+    <circle cx="8" cy="8" r="7" stroke="currentColor" stroke-opacity="0.25" stroke-width="2" vector-effect="non-scaling-stroke" fill="none"></circle>
+    <path d="M15 8a7.002 7.002 0 00-7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" vector-effect="non-scaling-stroke"></path>
+</svg>    <span class="sr-only">Loading</span>
+</span>
+  </span>
+</section>
+
+<p dir="auto">The credential helper follows a simple architecture:</p>
+<ul dir="auto">
+<li>Bazel invokes a new instance of the credential helper process for each request. The process will receive one request, determine the credentials, write them to stdout and terminate</li>
+<li>In the background, the credential helper spawns a long-running agent process. The agent listens on a unix domain socket and caches credentials in memory.</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Life of a helper request</h3><a id="user-content-life-of-a-helper-request" class="anchor" aria-label="Permalink: Life of a helper request" href="#life-of-a-helper-request"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<section class="js-render-needs-enrichment render-needs-enrichment position-relative" data-identity="882b4ff5-2b84-49b8-8f39-d0aa21453356" data-host="https://viewscreen.githubusercontent.com" data-src="https://viewscreen.githubusercontent.com/markdown/mermaid?docs_host=https%3A%2F%2Fdocs.github.com" data-type="mermaid" aria-label="mermaid rendered output container">
+  <div class="js-render-enrichment-target" data-json="{&quot;data&quot;:&quot;sequenceDiagram\n    Bazel -&amp;gt;&amp;gt; Helper: req(uri)\n    Helper -&amp;gt;&amp;gt; Agent: retrieve(cacheKey)\n    Agent -&amp;gt;&amp;gt; Helper: credentials | cache miss\n    Helper -&amp;gt;&amp;gt; Helper: generate fresh credentials on cache miss\n    Helper -&amp;gt;&amp;gt; Agent: store(cacheKey, credentials)\n    Helper -&amp;gt;&amp;gt; Bazel: credentials\n&quot;}" data-plain="sequenceDiagram
+    Bazel -&gt;&gt; Helper: req(uri)
+    Helper -&gt;&gt; Agent: retrieve(cacheKey)
+    Agent -&gt;&gt; Helper: credentials | cache miss
+    Helper -&gt;&gt; Helper: generate fresh credentials on cache miss
+    Helper -&gt;&gt; Agent: store(cacheKey, credentials)
+    Helper -&gt;&gt; Bazel: credentials
+" dir="auto">
+    <div class="render-plaintext-hidden" dir="auto">
+      <pre lang="mermaid" aria-label="Raw mermaid code">sequenceDiagram
+    Bazel -&gt;&gt; Helper: req(uri)
+    Helper -&gt;&gt; Agent: retrieve(cacheKey)
+    Agent -&gt;&gt; Helper: credentials | cache miss
+    Helper -&gt;&gt; Helper: generate fresh credentials on cache miss
+    Helper -&gt;&gt; Agent: store(cacheKey, credentials)
+    Helper -&gt;&gt; Bazel: credentials
+</pre>
+    </div>
+  </div>
+  <span class="js-render-enrichment-loader d-flex flex-justify-center flex-items-center width-full" style="min-height:100px" role="presentation">
+    <span data-view-component="true">
+  <svg style="box-sizing: content-box; color: var(--color-icon-primary);" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" data-view-component="true" class="octospinner mx-auto anim-rotate">
+    <circle cx="8" cy="8" r="7" stroke="currentColor" stroke-opacity="0.25" stroke-width="2" vector-effect="non-scaling-stroke" fill="none"></circle>
+    <path d="M15 8a7.002 7.002 0 00-7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" vector-effect="non-scaling-stroke"></path>
+</svg>    <span class="sr-only">Loading</span>
+</span>
+  </span>
+</section>
+
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Supported providers</h2><a id="user-content-supported-providers" class="anchor" aria-label="Permalink: Supported providers" href="#supported-providers"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The following providers are supported as of today:</p>
+<ul dir="auto">
+<li><a href="/docs/providers/s3.md">AWS S3</a></li>
+<li><a href="/docs/providers/r2.md">Cloudflare R2</a></li>
+<li><a href="/docs/providers/gcs.md">Google Cloud Storage (GCS)</a></li>
+<li><a href="/docs/providers/github.md">GitHub</a></li>
+<li><a href="/docs/providers/oci.md">Container Registries</a></li>
+</ul>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Installation and usage</h2><a id="user-content-installation-and-usage" class="anchor" aria-label="Permalink: Installation and usage" href="#installation-and-usage"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">You can either manually install a binary of the credential helper on your system (into <code>$PATH</code> or to a well-known absolute path) or use the Bazel module.
+Prebuilt artifacts can be found in the <a href="https://github.com/tweag/credential-helper/releases">GitHub releases</a>.
+If you want to manually install the helper, skip ahead to the <a href="#configuration">configuration</a> after installing the binary yourself.</p>
+<p dir="auto">Add the following to your <code>MODULE.bazel</code> if you want to perform the recommended installation.
+The latest release can always be found on the <a href="https://registry.bazel.build/modules/tweag-credential-helper" rel="nofollow">Bazel Central Registry</a>:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel_dep(name = &quot;tweag-credential-helper&quot;, version = &quot;0.0.1&quot;)"><pre><span class="pl-en">bazel_dep</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"tweag-credential-helper"</span>, <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"0.0.1"</span>)</pre></div>
+<p dir="auto">Then add the shell stub to your own workspace.</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="mkdir -p tools
+wget -O tools/credential-helper https://raw.githubusercontent.com/tweag/credential-helper/main/tools/credential-helper
+chmod +x tools/credential-helper"><pre lang="shell-session" class="notranslate"><code>mkdir -p tools
+wget -O tools/credential-helper https://raw.githubusercontent.com/tweag/credential-helper/main/tools/credential-helper
+chmod +x tools/credential-helper
+</code></pre></div>
+<p dir="auto">Next configure Bazel to use the credential helper by adding the following to your <code>.bazelrc</code>:</p>
+<details>
+<summary>Configuration for Unix only (Linux, macOS)</summary>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="# GitHub
+common --credential_helper=github.com=%workspace%/tools/credential-helper
+common --credential_helper=raw.githubusercontent.com=%workspace%/tools/credential-helper
+# GCS
+common --credential_helper=storage.googleapis.com=%workspace%/tools/credential-helper
+# S3
+common --credential_helper=s3.amazonaws.com=%workspace%/tools/credential-helper
+common --credential_helper=*.s3.amazonaws.com=%workspace%/tools/credential-helper
+# Cloudflare R2
+common --credential_helper=*.r2.cloudflarestorage.com=%workspace%/tools/credential-helper"><pre class="notranslate"><code># GitHub
+common --credential_helper=github.com=%workspace%/tools/credential-helper
+common --credential_helper=raw.githubusercontent.com=%workspace%/tools/credential-helper
+# GCS
+common --credential_helper=storage.googleapis.com=%workspace%/tools/credential-helper
+# S3
+common --credential_helper=s3.amazonaws.com=%workspace%/tools/credential-helper
+common --credential_helper=*.s3.amazonaws.com=%workspace%/tools/credential-helper
+# Cloudflare R2
+common --credential_helper=*.r2.cloudflarestorage.com=%workspace%/tools/credential-helper
+</code></pre></div>
+</details>
+<details>
+<summary>Configuration for Linux, macOS, and Windows</summary>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="# allow the use of different credential helpers on Unix and Windows
+common --enable_platform_specific_config
+common:macos --config=unix
+common:linux --config=unix
+common:freebsd --config=unix
+common:openbsd --config=unix
+
+# GitHub (Unix)
+common:unix --credential_helper=github.com=%workspace%/tools/credential-helper
+common:unix --credential_helper=raw.githubusercontent.com=%workspace%/tools/credential-helper
+# GitHub (Windows)
+common:windows --credential_helper=github.com=%workspace%/tools/credential-helper.exe
+common:windows --credential_helper=raw.githubusercontent.com=%workspace%/tools/credential-helper.exe
+
+# Google Cloud Storage / GCS (Unix)
+common:unix --credential_helper=storage.googleapis.com=%workspace%/tools/credential-helper
+# Google Cloud Storage / GCS (Windows)
+common:windows --credential_helper=storage.googleapis.com=%workspace%/tools/credential-helper.exe
+
+# S3 (Unix)
+common:unix --credential_helper=s3.amazonaws.com=%workspace%/tools/credential-helper
+common:unix --credential_helper=*.s3.amazonaws.com=%workspace%/tools/credential-helper
+# S3 (Windows)
+common:windows --credential_helper=s3.amazonaws.com=%workspace%/tools/credential-helper.exe
+common:windows --credential_helper=*.s3.amazonaws.com=%workspace%/tools/credential-helper.exe
+
+# Cloudflare R2 (Unix)
+common:unix --credential_helper=*.r2.cloudflarestorage.com=%workspace%/tools/credential-helper
+# Cloudflare R2 (Windows)
+common:windows --credential_helper=*.r2.cloudflarestorage.com=%workspace%/tools/credential-helper.exe"><pre class="notranslate"><code># allow the use of different credential helpers on Unix and Windows
+common --enable_platform_specific_config
+common:macos --config=unix
+common:linux --config=unix
+common:freebsd --config=unix
+common:openbsd --config=unix
+
+# GitHub (Unix)
+common:unix --credential_helper=github.com=%workspace%/tools/credential-helper
+common:unix --credential_helper=raw.githubusercontent.com=%workspace%/tools/credential-helper
+# GitHub (Windows)
+common:windows --credential_helper=github.com=%workspace%/tools/credential-helper.exe
+common:windows --credential_helper=raw.githubusercontent.com=%workspace%/tools/credential-helper.exe
+
+# Google Cloud Storage / GCS (Unix)
+common:unix --credential_helper=storage.googleapis.com=%workspace%/tools/credential-helper
+# Google Cloud Storage / GCS (Windows)
+common:windows --credential_helper=storage.googleapis.com=%workspace%/tools/credential-helper.exe
+
+# S3 (Unix)
+common:unix --credential_helper=s3.amazonaws.com=%workspace%/tools/credential-helper
+common:unix --credential_helper=*.s3.amazonaws.com=%workspace%/tools/credential-helper
+# S3 (Windows)
+common:windows --credential_helper=s3.amazonaws.com=%workspace%/tools/credential-helper.exe
+common:windows --credential_helper=*.s3.amazonaws.com=%workspace%/tools/credential-helper.exe
+
+# Cloudflare R2 (Unix)
+common:unix --credential_helper=*.r2.cloudflarestorage.com=%workspace%/tools/credential-helper
+# Cloudflare R2 (Windows)
+common:windows --credential_helper=*.r2.cloudflarestorage.com=%workspace%/tools/credential-helper.exe
+</code></pre></div>
+</details>
+<p dir="auto">Simply remove a line if you do not want the credential helper to be used for that service.
+You can also configure the helper to be used for every domain (<code>--credential_helper=%workspace%/tools/credential-helper</code>).</p>
+<p dir="auto">Now is a good time to install the credential helper. Simply run <code>bazel run @tweag-credential-helper//installer</code> to add the binary to your system. This step needs to be performed once per user.
+Alternatively, you can <a href="/docs/plugins.md">write custom plugins that are part of your own Bazel workspace and build your own helper</a>.</p>
+<p dir="auto">Follow the <a href="/docs/providers/">provider-specific documentation</a> to ensure you can authenticate to the service.</p>
+<p dir="auto">You can also look at the <a href="/examples/full/">example project</a> to see how everything works together.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Configuration</h2><a id="user-content-configuration" class="anchor" aria-label="Permalink: Configuration" href="#configuration"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The credential helper has sensible defaults out of the box. If needed, you can use environment variables or a configuration file to change settings.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Config file</h2><a id="user-content-config-file" class="anchor" aria-label="Permalink: Config file" href="#config-file"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">By default, the configuration file is located in the workspace directory (the directory where your MODULE.bazel is located or your current working directory) and is named <code>.tweag-credential-helper.json</code>.
+You can override the config file location using the <code>$CREDENTIAL_HELPER_CONFIG_FILE</code> environment variable.</p>
+<ul dir="auto">
+<li><code>.urls</code>: list of configurations to apply to different patterns of urls. Each element contains <code>scheme</code>, <code>host</code>, and <code>path</code> as a way to decide if the entry matches the requested url.</li>
+<li><code>.urls[].scheme</code>: Scheme of the url. Matches any scheme when empty and checks for equality otherwise.</li>
+<li><code>.urls[].host</code>: Host of the url. Matches any host when empty and uses globbing otherwise (a <code>*</code> matches any characters).</li>
+<li><code>.urls[].path</code>: Path of the url. Matches any path when empty and uses globbing otherwise (a <code>*</code> matches any characters).</li>
+<li><code>.urls[].helper</code>: Helper to use for this url. Can be one of <code>s3</code>, <code>gcs</code>, <code>github</code>, <code>oci</code> or <code>null</code>.</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Example</h3><a id="user-content-example" class="anchor" aria-label="Permalink: Example" href="#example"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><code>.tweag-credential-helper.json</code>:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="{
+  &quot;urls&quot;: [
+    {
+      &quot;scheme&quot;: &quot;https&quot;,
+      &quot;host&quot;: &quot;github.com&quot;,
+      &quot;path&quot;: &quot;/tweag/*&quot;,
+      &quot;helper&quot;: &quot;github&quot;
+    },
+    {
+      &quot;scheme&quot;: &quot;https&quot;,
+      &quot;host&quot;: &quot;files.acme.corp&quot;,
+      &quot;path&quot;: &quot;*.tar.gz&quot;
+      &quot;helper&quot;: &quot;s3&quot;
+    },
+    {
+      &quot;host&quot;: &quot;*.oci.acme.corp&quot;,
+      &quot;helper&quot;: &quot;oci&quot;
+    }
+  ]
+}"><pre class="notranslate"><code>{
+  "urls": [
+    {
+      "scheme": "https",
+      "host": "github.com",
+      "path": "/tweag/*",
+      "helper": "github"
+    },
+    {
+      "scheme": "https",
+      "host": "files.acme.corp",
+      "path": "*.tar.gz"
+      "helper": "s3"
+    },
+    {
+      "host": "*.oci.acme.corp",
+      "helper": "oci"
+    }
+  ]
+}
+</code></pre></div>
+<p dir="auto">In this example requests to any path below <code>https://github.com/tweag/</code> would use the GitHub helper, any requests to <code>https://files.acme.corp</code> that end in <code>.tar.gz</code> would use the S3 helper, while any requests to a subdomain of <code>oci.acme.corp</code> would use the oci helper.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Environment variables</h2><a id="user-content-environment-variables" class="anchor" aria-label="Permalink: Environment variables" href="#environment-variables"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">You can also use environment variables to configure the helper.
+This works by either changing the environment Bazel is started with or by adding the values to the shell stub (that is only available on Linux and macOS).</p>
+<p dir="auto">The following options exist:</p>
+<ul dir="auto">
+<li><code>$CREDENTIAL_HELPER_STANDALONE</code>:
+If set to 1, the credential helper will run in standalone mode, which means it will not start or connect to the agent process.</li>
+<li><code>$CREDENTIAL_HELPER_BIN</code>:
+Path of the credential helper binary. If not set, the helper will be searched in <code>${HOME}/.cache/tweag-credential-helper/&lt;HASH&gt;/bin/credential-helper</code></li>
+<li><code>$CREDENTIAL_HELPER_AGENT_SOCKET</code>
+Path of the agent socket. Subject to <a href="#prefix-expansion">prefix expansion</a>. If not set, the helper will use the default path <code>${HOME}/.cache/tweag-credential-helper/&lt;HASH&gt;/run/agent.sock</code>.</li>
+<li><code>$CREDENTIAL_HELPER_AGENT_PID</code>:
+Path of the agent pid file. Subject to <a href="#prefix-expansion">prefix expansion</a>. If not set, the helper will use the default path <code>${HOME}/.cache/tweag-credential-helper/&lt;HASH&gt;/run/agent.pid</code></li>
+<li><code>$CREDENTIAL_HELPER_LOGGING=off|basic|debug</code>
+Log level of the credential helper. Debug may expose sensitive information. Default is off.</li>
+<li><code>$CREDENTIAL_HELPER_IDLE_TIMEOUT</code>:
+Idle timeout of the agent in <a href="https://pkg.go.dev/time#ParseDuration" rel="nofollow">Go duration format</a>. The agent will run in the background and wait for connections until the idle timeout is reached. Defaults to 3h. A negative value disables idle shutdowns.</li>
+<li><code>$CREDENTIAL_HELPER_PRUNE_INTERVAL</code>:
+Duration between cache prunes in <a href="https://pkg.go.dev/time#ParseDuration" rel="nofollow">Go duration format</a>. Defaults to 1m. A negative value disables cache pruning.</li>
+<li><code>$CREDENTIAL_HELPER_GUESS_OCI_REGISTRY</code>:
+If set to 1, the credential helper will allow any uri that looks like a container registry to obtain authentication tokens from the docker <code>config.json</code>. If turned off, only a well-known subset of registries is supported.</li>
+<li><code>$CREDENTIAL_HELPER_CONFIG_FILE</code>:
+Path of the optional configuration file. Subject to <a href="#prefix-expansion">prefix expansion</a>. If not set, the helper will use the default path <code>%workspace%/.tweag-credential-helper.json</code>.</li>
+</ul>
+<p dir="auto">Additionally, you can configure how the installer behaves by adding any of the following settings to your <code>.bazelrc</code>:</p>
+<ul dir="auto">
+<li><code>--@tweag-credential-helper//bzl/config:helper_build_mode={auto,from_source,prebuilt}</code>:
+Configures how the credential helper is built and whether or not a Go toolchain is required. The <code>prebuilt</code> setting only allows downloading a preregistered and prebuilt helper binary. This is fast and doesn't require a Go toolchain, but may fail if no prebuilt binary for your host platform is available. <code>from_source</code> forces building the <code>go_binary</code> from source and requires registering a Go toolchain. <code>auto</code> (the default) prefers the use of a prebuilt, but allows falling back to building from source.</li>
+<li><code>--@tweag-credential-helper//bzl/config:default_install_destination_unix=&lt;path&gt;</code>:
+Configures the install destination of the credential helper on Unix (Linux, macOS). Subject to <a href="#prefix-expansion">prefix expansion</a>. Defaults to <code>%workdir%/bin/credential-helper</code>, which is the path used by the shell wrapper. If you set this to a workspace relative path like <code>%workspace%/tools/my-helper-binary</code>, (add that path to <code>.gitignore</code>) and point <code>--credential_helper</code> to the same path, you can avoid using the shell wrapper but modify the source tree instead.</li>
+<li><code>--@tweag-credential-helper//bzl/config:default_install_destination_windows=&lt;path&gt;</code>:
+Configures the install destination of the credential helper on Windows. Subject to <a href="#prefix-expansion">prefix expansion</a>. Defaults to <code>%workspace%\tools\credential-helper.exe</code>, which is the path used in <code>.bazelrc</code> by default.
+Windows cannot make use of the shell wrapper, so this binary is copied to the source tree instead of a path relative to the workdir.</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto"><a name="user-content-prefix-expansion"></a> Prefix Expansion</h3><a id="user-content--prefix-expansion" class="anchor" aria-label="Permalink:  Prefix Expansion" href="#-prefix-expansion"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Configuration options (including environment variables and Bazel flags) that refer to paths are subject to prefix expansion. Special prefixes listed below will be replaced by concrete paths at runtime.</p>
+<ul dir="auto">
+<li><code>%workdir%</code>: the working directory of the agent process:
+<code>${XDG_CACHE_HOME}/tweag-credential-helper/&lt;HASH&gt;</code> (where <code>$XDG_CACHE_HOME</code> defaults to <code>${HOME}/.cache</code> on Linux and <code>&lt;HASH&gt;</code> is the md5 sum of the absolute dirname of the directory containing <code>MODULE.bazel</code>).</li>
+<li><code>%workspace%</code>: the root of the Bazel workspace (absolute dirname of the directory containing <code>MODULE.bazel</code>).</li>
+<li><code>%tmp%</code>: either <code>$TEST_TMPDIR</code>, <code>$TMPDIR</code>, or <code>/tmp</code> in that order of preference.</li>
+<li><code>%cache%</code>: <code>$XDG_CACHE_HOME</code> (which defaults to <code>${HOME}/.cache</code> on Linux).</li>
+<li><code>~</code>: <code>$HOME</code> (the home directory of the current user).</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Troubleshooting</h2><a id="user-content-troubleshooting" class="anchor" aria-label="Permalink: Troubleshooting" href="#troubleshooting"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ol dir="auto">
+<li>Stop the agent (if it is running in the background)
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="tools/credential-helper agent-shutdown"><pre class="notranslate"><code>tools/credential-helper agent-shutdown
+</code></pre></div>
+</li>
+<li>Start the agent in a separate terminal
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="CREDENTIAL_HELPER_LOGGING=debug tools/credential-helper agent-launch"><pre class="notranslate"><code>CREDENTIAL_HELPER_LOGGING=debug tools/credential-helper agent-launch
+</code></pre></div>
+</li>
+<li>Run Bazel with the <code>CREDENTIAL_HELPER_LOGGING</code> environment variable
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="export CREDENTIAL_HELPER_LOGGING=debug
+bazel ..."><pre class="notranslate"><code>export CREDENTIAL_HELPER_LOGGING=debug
+bazel ...
+</code></pre></div>
+</li>
+<li>Alternatively, you can also pipe a raw request to the agent
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="echo '{&quot;uri&quot;: &quot;https://example.com/foo&quot;}' | CREDENTIAL_HELPER_LOGGING=debug tools/credential-helper get"><pre class="notranslate"><code>echo '{"uri": "https://example.com/foo"}' | CREDENTIAL_HELPER_LOGGING=debug tools/credential-helper get
+</code></pre></div>
+</li>
+</ol>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Hacking &amp; Contributing</h2><a id="user-content-hacking--contributing" class="anchor" aria-label="Permalink: Hacking &amp; Contributing" href="#hacking--contributing"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">We invite external contributions and are eager to work together with the build systems community.
+Please refer to the <a href="/docs/CONTRIBUTING.md">CONTRIBUTING</a> guide to learn more.
+If you want to check out the code and run a development version, follow the <a href="/docs/HACKING.md">HACKING</a> guide to get started.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Security Considerations</h2><a id="user-content-security-considerations" class="anchor" aria-label="Permalink: Security Considerations" href="#security-considerations"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">In most circumstances, a credential helper improves security by decoupling resource configuration from the credentials required to access them. This reduces the need for hardcoded credentials stored in source code, minimizing potential security vulnerabilities.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Credential Handling</h3><a id="user-content-credential-handling" class="anchor" aria-label="Permalink: Credential Handling" href="#credential-handling"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The credential helper spawns two processes:</p>
+<ol dir="auto">
+<li><strong>A short-lived client process</strong> that communicates with the caller via standard input and output.</li>
+<li><strong>An agent process</strong> that caches credentials and implements a JSON-RPC protocol via Unix domain sockets.</li>
+</ol>
+<p dir="auto">Credentials are cached only in memory (never written to disk). The client process exists only for the duration of a single request (e.g., obtaining credentials for a specific URI). Meanwhile, the agent process runs in the background and idles for up to three hours before automatically shutting down.</p>
+<p dir="auto">The agent evicts expired credentials from the cache once per minute but does not guarantee the secure scrubbing of memory. As a result, while expired credentials are no longer accessible through the agent socket, they may still reside in physical memory for some time before being reclaimed by garbage collection or the operating system.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Attack Surface</h3><a id="user-content-attack-surface" class="anchor" aria-label="Permalink: Attack Surface" href="#attack-surface"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Both processes run with the same privileges as the user who starts Bazel (or similar tools). Any credentials derived by the helper are also accessible to that user through environment variables, configuration files, the system keyring, or similar sources.</p>
+<p dir="auto">Any information retrievable by the user running the helper process does not constitute a disclosure of sensitive information. Instead, this section focuses on the attack surface exposed to other users on the same system.</p>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">JSON-RPC via Unix Domain Socket</h4><a id="user-content-json-rpc-via-unix-domain-socket" class="anchor" aria-label="Permalink: JSON-RPC via Unix Domain Socket" href="#json-rpc-via-unix-domain-socket"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The caching agent implements a simple RPC protocol that is accessible via a socket.
+The socket’s access permissions are configured to restrict connections only to the user running the agent. This is enforced by setting a <code>umask</code> on the agent process before creating the socket.</p>
+<p dir="auto">The agent does not implement additional countermeasures. Consequently, access to the socket provides full read and write permissions for cached credentials.</p>
+</article></div>

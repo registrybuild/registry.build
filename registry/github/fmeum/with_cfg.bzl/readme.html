@@ -12,7 +12,7 @@ load(&quot;@with_cfg.bzl&quot;, &quot;with_cfg&quot;)
 opt_filegroup, _opt_filegroup_internal = with_cfg(native.filegroup).set(&quot;compilation_mode&quot;, &quot;opt&quot;).build()"><pre><span class="pl-c"># opt_filegroup.bzl</span>
 <span class="pl-en">load</span>(<span class="pl-s">"@with_cfg.bzl"</span>, <span class="pl-s">"with_cfg"</span>)
 
-<span class="pl-s1">opt_filegroup</span>, <span class="pl-s1">_opt_filegroup_internal</span> <span class="pl-c1">=</span> <span class="pl-en">with_cfg</span>(<span class="pl-s1">native</span>.<span class="pl-s1">filegroup</span>).<span class="pl-en">set</span>(<span class="pl-s">"compilation_mode"</span>, <span class="pl-s">"opt"</span>).<span class="pl-en">build</span>()</pre></div>
+<span class="pl-s1">opt_filegroup</span>, <span class="pl-s1">_opt_filegroup_internal</span> <span class="pl-c1">=</span> <span class="pl-en">with_cfg</span>(<span class="pl-s1">native</span>.<span class="pl-c1">filegroup</span>).<span class="pl-c1">set</span>(<span class="pl-s">"compilation_mode"</span>, <span class="pl-s">"opt"</span>).<span class="pl-c1">build</span>()</pre></div>
 <p dir="auto">Since the <code>filegroup</code> rule is used in a <code>.bzl</code> file, not a <code>BUILD</code> file, it has to be qualified with <code>native.</code>.
 The second return value of <code>build()</code> has to be assigned to a variable, here called <code>_opt_filegroup_internal</code>, due to restrictions on rule definitions enforced by Bazel, but can otherwise be ignored.
 The <code>opt_filegroup</code> rule can now be used just like <code>filegroup</code>.</p>
@@ -43,16 +43,16 @@ original_settings(
 )"><pre><span class="pl-c"># cc_asan_test.bzl</span>
 <span class="pl-en">load</span>(<span class="pl-s">"@with_cfg.bzl"</span>, <span class="pl-s">"with_cfg"</span>)
 
-<span class="pl-s1">_builder</span> <span class="pl-c1">=</span> <span class="pl-en">with_cfg</span>(<span class="pl-s1">native</span>.<span class="pl-s1">cc_test</span>)
-<span class="pl-s1">_builder</span>.<span class="pl-en">extend</span>(<span class="pl-s">"copt"</span>, [<span class="pl-s">"-fsanitize=address"</span>])
-<span class="pl-s1">_builder</span>.<span class="pl-en">extend</span>(<span class="pl-s">"linkopt"</span>, <span class="pl-en">select</span>({
+<span class="pl-s1">_builder</span> <span class="pl-c1">=</span> <span class="pl-en">with_cfg</span>(<span class="pl-s1">native</span>.<span class="pl-c1">cc_test</span>)
+<span class="pl-s1">_builder</span>.<span class="pl-c1">extend</span>(<span class="pl-s">"copt"</span>, [<span class="pl-s">"-fsanitize=address"</span>])
+<span class="pl-s1">_builder</span>.<span class="pl-c1">extend</span>(<span class="pl-s">"linkopt"</span>, <span class="pl-en">select</span>({
     <span class="pl-c"># link.exe doesn't require or recognize -fsanitize=address and would emit a warning.</span>
     <span class="pl-s">"@rules_cc//cc/compiler:msvc-cl"</span>: [],
     <span class="pl-s">"//conditions:default"</span>: [<span class="pl-s">"-fsanitize=address"</span>],
 }))
-<span class="pl-s1">_builder</span>.<span class="pl-en">resettable</span>(<span class="pl-v">Label</span>(<span class="pl-s">":cc_asan_test_original_settings"</span>))
-<span class="pl-s1">_builder</span>.<span class="pl-en">reset_on_attrs</span>(<span class="pl-s">"data"</span>, <span class="pl-s">"srcs"</span>)
-<span class="pl-s1">cc_asan_test</span>, <span class="pl-s1">cc_asan_test_reset</span> <span class="pl-c1">=</span> <span class="pl-s1">_builder</span>.<span class="pl-en">build</span>()
+<span class="pl-s1">_builder</span>.<span class="pl-c1">resettable</span>(<span class="pl-en">Label</span>(<span class="pl-s">":cc_asan_test_original_settings"</span>))
+<span class="pl-s1">_builder</span>.<span class="pl-c1">reset_on_attrs</span>(<span class="pl-s">"data"</span>, <span class="pl-s">"srcs"</span>)
+<span class="pl-s1">cc_asan_test</span>, <span class="pl-s1">cc_asan_test_reset</span> <span class="pl-c1">=</span> <span class="pl-s1">_builder</span>.<span class="pl-c1">build</span>()
 
 <span class="pl-c"># BUILD.bazel</span>
 <span class="pl-en">load</span>(<span class="pl-s">"@with_cfg.bzl"</span>, <span class="pl-s">"original_settings"</span>)
