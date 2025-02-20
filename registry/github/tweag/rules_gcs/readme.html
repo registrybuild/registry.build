@@ -6,12 +6,18 @@
 <li>Can fetch large amounts of objects lazily from a bucket using the <code>gcs_bucket</code> module extension</li>
 <li>Supports fetching from private buckets using a credential helper</li>
 <li>Uses Bazel's downloader and the repository cache</li>
-<li>No dependencies like <code>gsutil</code> need to be installed<sup><a href="#user-content-fn-1-23e011325c186824631fe72e72959685" id="user-content-fnref-1-23e011325c186824631fe72e72959685" data-footnote-ref="" aria-describedby="footnote-label">1</a></sup></li>
+<li>No dependencies like <code>gsutil</code> need to be installed<sup><a href="#user-content-fn-1-97af9a16d0f12c2d9dd1775c75ab4372" id="user-content-fnref-1-97af9a16d0f12c2d9dd1775c75ab4372" data-footnote-ref="" aria-describedby="footnote-label">1</a></sup></li>
 </ul>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Installation</h2><a id="user-content-installation" class="anchor" aria-label="Permalink: Installation" href="#installation"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">You can find the latest version of <a href="https://registry.bazel.build/modules/rules_gcs" rel="nofollow"><code>rules_gcs</code> on the Bazel Central Registry</a>. Installation works by adding a <code>bazel_dep</code> line to <code>MODULE.bazel</code>.</p>
 <div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel_dep(name = &quot;rules_gcs&quot;, version = &quot;1.0.0&quot;)"><pre><span class="pl-en">bazel_dep</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_gcs"</span>, <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"1.0.0"</span>)</pre></div>
-<p dir="auto">Additionally, you need to vendor the credential helper in your own repository or install it in the <code>$PATH</code>:</p>
+<p dir="auto">Additionally, you need to configure a credential helper for <code>storage.googleapis.com</code>. We give you two options:</p>
+<p dir="auto">The recommended credential helper is <a href="https://github.com/tweag/credential-helper"><code>tweag-credential-helper</code></a>. The project README will guide you through the required setup. An example is also provided <a href="/examples/tweag-credential-helper">here</a>.</p>
+<details>
+<summary>
+Alternatively, you can use a small bash script that depends on <code>gcloud</code>. Please note that this method can lead to individual downloads taking a long time, since <code>gcloud</code> will not cache credentials on its own (and some authentication flows are slow).
+</summary>
+<p dir="auto">Add the credential helper shell script to your own repository or install it in the <code>$PATH</code>:</p>
 <div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="mkdir -p tools
 wget -O tools/credential-helper https://raw.githubusercontent.com/tweag/rules_gcs/main/tools/credential-helper
 chmod +x tools/credential-helper"><pre>mkdir -p tools
@@ -27,6 +33,7 @@ common --experimental_repository_cache_hardlinks"><pre class="notranslate"><code
 common --experimental_repository_cache_hardlinks
 </code></pre></div>
 <p dir="auto">It is important to limit the scope of the credential helper to that domain, since it does not yet support parsing of the requested uri.</p>
+</details>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Usage</h2><a id="user-content-usage" class="anchor" aria-label="Permalink: Usage" href="#usage"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto"><code>rules_gcs</code> offers two repository rules <a href="#gcs_file"><code>gcs_file</code></a> and <a href="#gcs_archive"><code>gcs_archive</code></a> for fetching individual objects.
 If you need to download multiple objects from a bucket, use the <a href="#gcs_bucket"><code>gcs_bucket</code></a> module extension instead.</p>
@@ -336,7 +343,7 @@ gcs_bucket.from_file(
     bucket = &quot;my_org_assets&quot;,
     lockfile = &quot;@//:gcs_lock.json&quot;,
 )"><pre><span class="pl-s1">gcs_bucket</span> <span class="pl-c1">=</span> <span class="pl-en">use_extension</span>(<span class="pl-s">"@rules_gcs//gcs:extensions.bzl"</span>, <span class="pl-s">"gcs_bucket"</span>)
-<span class="pl-s1">gcs_bucket</span>.<span class="pl-en">from_file</span>(
+<span class="pl-s1">gcs_bucket</span>.<span class="pl-c1">from_file</span>(
     <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"trainingdata"</span>,
     <span class="pl-s1">bucket</span> <span class="pl-c1">=</span> <span class="pl-s">"my_org_assets"</span>,
     <span class="pl-s1">lockfile</span> <span class="pl-c1">=</span> <span class="pl-s">"@//:gcs_lock.json"</span>,
@@ -400,7 +407,7 @@ gcs_bucket.from_file(
 <p dir="auto">Credential helper not found</p>
 <div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="WARNING: Error retrieving auth headers, continuing without: Failed to get credentials for 'https://storage.googleapis.com/broad-public-datasets/intervals_hg38.list' from helper 'tools/credential-helper': Cannot run program &quot;tools/credential-helper&quot; (in directory &quot;...&quot;): error=2, No such file or directory"><pre class="notranslate"><code>WARNING: Error retrieving auth headers, continuing without: Failed to get credentials for 'https://storage.googleapis.com/broad-public-datasets/intervals_hg38.list' from helper 'tools/credential-helper': Cannot run program "tools/credential-helper" (in directory "..."): error=2, No such file or directory
 </code></pre></div>
-<p dir="auto">You need to install download and vendor the <a href="/tools/credential-helper">credential helper script</a> as explained <a href="#installation">above</a>.</p>
+<p dir="auto">You need to install a credential helper (either <a href="https://github.com/tweag/credential-helper"><code>tweag-credential-helper</code></a>, the <a href="/tools/credential-helper">shell script</a>, or your own) as explained <a href="#installation">above</a>.</p>
 </li>
 <li>
 <p dir="auto">Credential helper not working</p>
@@ -425,8 +432,8 @@ gcs_bucket.from_file(
 <p dir="auto"><em><code>rules_gcs</code> was initially developed by <a href="https://www.imax.com/en/us/sct" rel="nofollow">IMAX</a> and is maintained by Tweag.</em></p>
 <section data-footnotes="" class="footnotes"><h2 id="footnote-label" class="sr-only" dir="auto">Footnotes</h2>
 <ol dir="auto">
-<li id="user-content-fn-1-23e011325c186824631fe72e72959685">
-<p dir="auto">The <code>gcloud</code> CLI tool is still required to obtain authentication tokens in the credential helper. <a href="#user-content-fnref-1-23e011325c186824631fe72e72959685" data-footnote-backref="" aria-label="Back to reference 1" class="data-footnote-backref">↩</a></p>
+<li id="user-content-fn-1-97af9a16d0f12c2d9dd1775c75ab4372">
+<p dir="auto">The <code>gcloud</code> CLI tool is still required to obtain authentication tokens when using the provided shell script as a credential helper. We recommend <a href="https://github.com/tweag/credential-helper"><code>tweag-credential-helper</code></a>, which doesn't depend on <code>gcloud</code>. <a href="#user-content-fnref-1-97af9a16d0f12c2d9dd1775c75ab4372" data-footnote-backref="" aria-label="Back to reference 1" class="data-footnote-backref">↩</a></p>
 </li>
 </ol>
 </section>

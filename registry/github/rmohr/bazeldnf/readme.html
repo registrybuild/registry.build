@@ -1,0 +1,311 @@
+<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">bazeldnf</h1><a id="user-content-bazeldnf" class="anchor" aria-label="Permalink: bazeldnf" href="#bazeldnf"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Bazel library which allows dealing with the whole RPM dependency lifecycle
+solely with pure go rules and a static go binary.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Bazel rules</h2><a id="user-content-bazel-rules" class="anchor" aria-label="Permalink: Bazel rules" href="#bazel-rules"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">rpm rule</h3><a id="user-content-rpm-rule" class="anchor" aria-label="Permalink: rpm rule" href="#rpm-rule"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The <code>rpm</code> rule represents a pure RPM dependency. This dependency is not
+processed in any way.  They can be added to your <code>WORKSPACE</code> file like this:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@bazeldnf//bazeldnf:deps.bzl&quot;, &quot;rpm&quot;)
+
+rpm(
+    name = &quot;libvirt-devel-11.0.0-1.fc42.x86_64.rpm&quot;,
+    sha256 = &quot;aac272a2ace134b5ef60a41e6624deb24331e79c76699ef6cef0dca22d94ac7e&quot;,
+    urls = [
+        &quot;https://kojipkgs.fedoraproject.org//packages/libvirt/11.0.0/1.fc42/x86_64/libvirt-libs-11.0.0-1.fc42.x86_64.rpm&quot;,
+    ],
+)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@bazeldnf//bazeldnf:deps.bzl"</span>, <span class="pl-s">"rpm"</span>)
+
+<span class="pl-en">rpm</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"libvirt-devel-11.0.0-1.fc42.x86_64.rpm"</span>,
+    <span class="pl-s1">sha256</span> <span class="pl-c1">=</span> <span class="pl-s">"aac272a2ace134b5ef60a41e6624deb24331e79c76699ef6cef0dca22d94ac7e"</span>,
+    <span class="pl-s1">urls</span> <span class="pl-c1">=</span> [
+        <span class="pl-s">"https://kojipkgs.fedoraproject.org//packages/libvirt/11.0.0/1.fc42/x86_64/libvirt-libs-11.0.0-1.fc42.x86_64.rpm"</span>,
+    ],
+)</pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">rpmtree</h3><a id="user-content-rpmtree" class="anchor" aria-label="Permalink: rpmtree" href="#rpmtree"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><code>rpmtree</code> Takes a list of <code>rpm</code> dependencies and merges them into a single
+<code>tar</code> package.  <code>rpmtree</code> rules can be added like this to your <code>BUILD</code> files:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@bazeldnf//bazeldnf:defs.bzl&quot;, &quot;rpmtree&quot;)
+
+rpmtree(
+    name = &quot;rpmarchive&quot;,
+    rpms = [
+        &quot;@libvirt-libs-11.0.0-1.fc42.x86_64.rpm//rpm&quot;,
+        &quot;@libvirt-devel-11.0.0-1.fc42.x86_64.rpm//rpm&quot;,
+    ],
+)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@bazeldnf//bazeldnf:defs.bzl"</span>, <span class="pl-s">"rpmtree"</span>)
+
+<span class="pl-en">rpmtree</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"rpmarchive"</span>,
+    <span class="pl-s1">rpms</span> <span class="pl-c1">=</span> [
+        <span class="pl-s">"@libvirt-libs-11.0.0-1.fc42.x86_64.rpm//rpm"</span>,
+        <span class="pl-s">"@libvirt-devel-11.0.0-1.fc42.x86_64.rpm//rpm"</span>,
+    ],
+)</pre></div>
+<p dir="auto">Since <code>rpmarchive</code> is just a tar archive, it can be put into a container
+immediately:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="container_layer(
+    name = &quot;gcloud-layer&quot;,
+    tars = [
+        &quot;:rpmarchive&quot;,
+    ],
+)"><pre><span class="pl-en">container_layer</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"gcloud-layer"</span>,
+    <span class="pl-s1">tars</span> <span class="pl-c1">=</span> [
+        <span class="pl-s">":rpmarchive"</span>,
+    ],
+)</pre></div>
+<p dir="auto">rpmtrees allow injecting relative symlinks (<code>pkg_tar</code> can only inject absolute
+symlinks) and xattrs <code>capabilities</code>.  The following example adds a relative
+link and gives one binary the <code>cap_net_bind_service</code> capability to connect to
+privileged ports:</p>
+<div class="highlight highlight-source-yaml notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="rpmtree(
+    name = &quot;rpmarchive&quot;,
+    rpms = [
+        &quot;@libvirt-libs-11.0.0-1.fc42.x86_64.rpm//rpm&quot;,
+        &quot;@libvirt-devel-11.0.0-1.fc42.x86_64.rpm//rpm&quot;,
+    ],
+    symlinks = {
+        &quot;/var/run&quot;: &quot;../run&quot;,
+    },
+    capabilities = {
+        &quot;/usr/libexec/qemu-kvm&quot;: [
+            &quot;cap_net_bind_service&quot;,
+        ],
+    },
+)"><pre><span class="pl-s">rpmtree(</span>
+    <span class="pl-s">name = "rpmarchive",</span>
+    <span class="pl-s">rpms = [</span>
+        <span class="pl-s"><span class="pl-pds">"</span>@libvirt-libs-11.0.0-1.fc42.x86_64.rpm//rpm<span class="pl-pds">"</span></span><span class="pl-s">,</span>
+        <span class="pl-s"><span class="pl-pds">"</span>@libvirt-devel-11.0.0-1.fc42.x86_64.rpm//rpm<span class="pl-pds">"</span></span><span class="pl-s">,</span>
+    <span class="pl-s">],</span>
+    <span class="pl-s">symlinks = {</span>
+        <span class="pl-s"><span class="pl-pds">"</span><span class="pl-ent">/var/run</span><span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>../run<span class="pl-pds">"</span></span><span class="pl-s">,</span>
+    <span class="pl-s">},</span>
+    <span class="pl-s">capabilities = {</span>
+        <span class="pl-s"><span class="pl-pds">"</span><span class="pl-ent">/usr/libexec/qemu-kvm</span><span class="pl-pds">"</span></span>: <span class="pl-s">[</span>
+            <span class="pl-s"><span class="pl-pds">"</span>cap_net_bind_service<span class="pl-pds">"</span></span><span class="pl-s">,</span>
+        <span class="pl-s">],</span>
+    <span class="pl-s">},</span>
+<span class="pl-s">)</span></pre></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Running bazeldnf with bazel</h2><a id="user-content-running-bazeldnf-with-bazel" class="anchor" aria-label="Permalink: Running bazeldnf with bazel" href="#running-bazeldnf-with-bazel"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The bazeldnf repository needs to be added  to your <code>WORKSPACE</code>:</p>
+
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@bazel_tools//tools/build_defs/repo:http.bzl&quot;, &quot;http_archive&quot;)
+
+http_archive(
+    name = &quot;bazeldnf&quot;,
+    sha256 = &quot;fb24d80ad9edad0f7bd3000e8cffcfbba89cc07e495c47a7d3b1f803bd527a40&quot;,
+    urls = [
+        &quot;https://github.com/rmohr/bazeldnf/releases/download/v0.5.9/bazeldnf-v0.5.9.tar.gz&quot;,
+    ],
+)
+
+load(&quot;@bazeldnf//bazeldnf:deps.bzl&quot;, &quot;bazeldnf_dependencies&quot;)
+
+bazeldnf_dependencies()"><pre><span class="pl-en">load</span>(<span class="pl-s">"@bazel_tools//tools/build_defs/repo:http.bzl"</span>, <span class="pl-s">"http_archive"</span>)
+
+<span class="pl-en">http_archive</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"bazeldnf"</span>,
+    <span class="pl-s1">sha256</span> <span class="pl-c1">=</span> <span class="pl-s">"fb24d80ad9edad0f7bd3000e8cffcfbba89cc07e495c47a7d3b1f803bd527a40"</span>,
+    <span class="pl-s1">urls</span> <span class="pl-c1">=</span> [
+        <span class="pl-s">"https://github.com/rmohr/bazeldnf/releases/download/v0.5.9/bazeldnf-v0.5.9.tar.gz"</span>,
+    ],
+)
+
+<span class="pl-en">load</span>(<span class="pl-s">"@bazeldnf//bazeldnf:deps.bzl"</span>, <span class="pl-s">"bazeldnf_dependencies"</span>)
+
+<span class="pl-en">bazeldnf_dependencies</span>()</pre></div>
+
+<p dir="auto">Define the <code>bazeldnf</code> executable rule in your <code>BUILD.bazel</code> file:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@bazeldnf//bazeldnf:defs.bzl&quot;, &quot;bazeldnf&quot;)
+
+bazeldnf(name = &quot;bazeldnf&quot;)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@bazeldnf//bazeldnf:defs.bzl"</span>, <span class="pl-s">"bazeldnf"</span>)
+
+<span class="pl-en">bazeldnf</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"bazeldnf"</span>)</pre></div>
+<p dir="auto">After adding this code, you can run bazeldnf with Bazel:</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel run //:bazeldnf -- --help"><pre>bazel run //:bazeldnf -- --help</pre></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Libraries and Headers</h2><a id="user-content-libraries-and-headers" class="anchor" aria-label="Permalink: Libraries and Headers" href="#libraries-and-headers"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">One important use-case is to expose headers and libraries inside the RPMs to build targets in bazel.
+If we would just blindly expose all libraries to build targets, bazel would try to link any one of them to our binary.
+This would obviously not work. Therefore we need a mediator
+between <code>cc_library</code> and <code>rpmtree</code>. This mediator is the <code>tar2files</code> target. This target allows extracting
+a subset of libraries and headers and providing them to <code>cc_library</code> targets.</p>
+<p dir="auto">An example:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@bazeldnf//bazeldnf:defs.bzl&quot;, &quot;rpm&quot;, &quot;rpmtree&quot;, &quot;tar2files&quot;)
+
+tar2files(
+    name = &quot;libvirt-libs&quot;,
+    files = {
+        &quot;/usr/include/libvirt&quot;: [
+            &quot;libvirt-admin.h&quot;,
+            &quot;libvirt-common.h&quot;,
+            &quot;libvirt-domain-checkpoint.h&quot;,
+            &quot;libvirt-domain-snapshot.h&quot;,
+            &quot;libvirt-domain.h&quot;,
+            &quot;libvirt-event.h&quot;,
+        ],
+        &quot;/usr/lib64&quot;: [
+            &quot;libacl.so.1&quot;,
+            &quot;libacl.so.1.1.2253&quot;,
+            &quot;libattr.so.1&quot;,
+        ],
+    },
+    tar = &quot;:libvirt-devel&quot;,
+    visibility = [&quot;//visibility:public&quot;],
+)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@bazeldnf//bazeldnf:defs.bzl"</span>, <span class="pl-s">"rpm"</span>, <span class="pl-s">"rpmtree"</span>, <span class="pl-s">"tar2files"</span>)
+
+<span class="pl-en">tar2files</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"libvirt-libs"</span>,
+    <span class="pl-s1">files</span> <span class="pl-c1">=</span> {
+        <span class="pl-s">"/usr/include/libvirt"</span>: [
+            <span class="pl-s">"libvirt-admin.h"</span>,
+            <span class="pl-s">"libvirt-common.h"</span>,
+            <span class="pl-s">"libvirt-domain-checkpoint.h"</span>,
+            <span class="pl-s">"libvirt-domain-snapshot.h"</span>,
+            <span class="pl-s">"libvirt-domain.h"</span>,
+            <span class="pl-s">"libvirt-event.h"</span>,
+        ],
+        <span class="pl-s">"/usr/lib64"</span>: [
+            <span class="pl-s">"libacl.so.1"</span>,
+            <span class="pl-s">"libacl.so.1.1.2253"</span>,
+            <span class="pl-s">"libattr.so.1"</span>,
+        ],
+    },
+    <span class="pl-s1">tar</span> <span class="pl-c1">=</span> <span class="pl-s">":libvirt-devel"</span>,
+    <span class="pl-s1">visibility</span> <span class="pl-c1">=</span> [<span class="pl-s">"//visibility:public"</span>],
+)</pre></div>
+<p dir="auto"><code>tar</code> can take any input which is a tar archive. Conveniently this is what <code>rpmtree</code> creates as the default target.
+So any <code>rpmtree</code> can be used here.
+The <code>files</code> section contains then files per folder which one wants to expose to <code>cc_library</code>:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="cc_library(
+    name = &quot;rpmlibs&quot;,
+    srcs = [
+        &quot;:libvirt-libs/usr/lib64&quot;,
+    ],
+    hdrs = [
+        &quot;:libvirt-libs/usr/include/libvirt&quot;,
+    ],
+    strip_include_prefix=&quot;/libvirt-libs/&quot;,
+    prefix= &quot;libvirt&quot;,
+)"><pre><span class="pl-en">cc_library</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"rpmlibs"</span>,
+    <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> [
+        <span class="pl-s">":libvirt-libs/usr/lib64"</span>,
+    ],
+    <span class="pl-s1">hdrs</span> <span class="pl-c1">=</span> [
+        <span class="pl-s">":libvirt-libs/usr/include/libvirt"</span>,
+    ],
+    <span class="pl-s1">strip_include_prefix</span><span class="pl-c1">=</span><span class="pl-s">"/libvirt-libs/"</span>,
+    <span class="pl-s1">prefix</span><span class="pl-c1">=</span> <span class="pl-s">"libvirt"</span>,
+)</pre></div>
+<p dir="auto">At this point source code linking to these libraries can be compiled, but unit tests would only work if we would manually
+list any transitive library. This would be tedious and error prone. However bazeldnf can introspect for you shared libraries
+and create <code>tar2files</code> rules for you, based on a provided set of libraries.</p>
+<p dir="auto">First define a target like this:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@bazeldnf//bazeldnf:defs.bzl&quot;, &quot;bazeldnf&quot;, &quot;rpm&quot;, &quot;rpmtree&quot;, &quot;tar2files&quot;)
+
+bazeldnf(
+    name = &quot;ldd&quot;,
+    command = &quot;ldd&quot;,
+    libs = [
+        &quot;/usr/lib64/libvirt-lxc.so.0&quot;,
+        &quot;/usr/lib64/libvirt-qemu.so.0&quot;,
+        &quot;/usr/lib64/libvirt.so.0&quot;,
+    ],
+    rpmtree = &quot;:libvirt-devel&quot;,
+    rulename = &quot;libvirt-libs&quot;,
+)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@bazeldnf//bazeldnf:defs.bzl"</span>, <span class="pl-s">"bazeldnf"</span>, <span class="pl-s">"rpm"</span>, <span class="pl-s">"rpmtree"</span>, <span class="pl-s">"tar2files"</span>)
+
+<span class="pl-en">bazeldnf</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"ldd"</span>,
+    <span class="pl-s1">command</span> <span class="pl-c1">=</span> <span class="pl-s">"ldd"</span>,
+    <span class="pl-s1">libs</span> <span class="pl-c1">=</span> [
+        <span class="pl-s">"/usr/lib64/libvirt-lxc.so.0"</span>,
+        <span class="pl-s">"/usr/lib64/libvirt-qemu.so.0"</span>,
+        <span class="pl-s">"/usr/lib64/libvirt.so.0"</span>,
+    ],
+    <span class="pl-s1">rpmtree</span> <span class="pl-c1">=</span> <span class="pl-s">":libvirt-devel"</span>,
+    <span class="pl-s1">rulename</span> <span class="pl-c1">=</span> <span class="pl-s">"libvirt-libs"</span>,
+)</pre></div>
+<p dir="auto"><code>rulename</code> containes the <code>tar2files</code> target name, <code>rpmtree</code> references a given <code>rpmtree</code> and <code>libs</code> contains
+libraries which one wants to link. When now executing the target like this:</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel run //:ldd"><pre>bazel run //:ldd</pre></div>
+<p dir="auto">the <code>tar2files</code> target will be updated with all transitive library dependencies for  the specified libraries.
+In addition, all header directories are updated too for convenience.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Dependency resolution</h2><a id="user-content-dependency-resolution" class="anchor" aria-label="Permalink: Dependency resolution" href="#dependency-resolution"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">One key part of managing RPM dependencies and RPM repository updates via bazel
+is the ability to resolve RPM dependencies from repos without external tools
+like <code>dnf</code> or <code>yum</code> and write the resolved dependencies to your <code>WORKSPACE</code>.</p>
+<p dir="auto">Here an example on how to add libvirt and bash to your WORKSPACE and BUILD
+files.</p>
+<p dir="auto">First write the <code>repo.yaml</code> file which contains some basic rpm repos to query:</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazeldnf init --fc 32 # write a repo.yaml file containing the usual release and update repos for fc32"><pre>bazeldnf init --fc 32 <span class="pl-c"><span class="pl-c">#</span> write a repo.yaml file containing the usual release and update repos for fc32</span></pre></div>
+<p dir="auto">Then write a <code>rpmtree</code> rule called <code>libvirttree</code> to your BUILD file and all
+corresponding RPM dependencies into your WORKSPACE for libvirt:</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazeldnf rpmtree --workspace /my/WORKSPACE --buildfile /my/BUILD.bazel --name libvirttree libvirt"><pre>bazeldnf rpmtree --workspace /my/WORKSPACE --buildfile /my/BUILD.bazel --name libvirttree libvirt</pre></div>
+<p dir="auto">Do the same for bash with a <code>bashrpmtree</code> target:</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazeldnf rpmtree --workspace /my/WORKSPACE --buildfile /my/BUILD.bazel --name bashtree bash"><pre>bazeldnf rpmtree --workspace /my/WORKSPACE --buildfile /my/BUILD.bazel --name bashtree bash</pre></div>
+<p dir="auto">Finally prune all unreferenced old RPM files:</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazeldnf prune --workspace /my/WORKSPACE --buildfile /my/BUILD.bazel"><pre>bazeldnf prune --workspace /my/WORKSPACE --buildfile /my/BUILD.bazel</pre></div>
+<p dir="auto">By default <code>bazeldnf rpmtree</code> will try to find a solution which only contains
+the newest packages of all involved repositories. The only exception are pinned
+versions themselves. If pinned version require other outdated packages,
+the <code>--nobest</code> option can be supplied. With this option all packages are
+considered. Newest packages will have the higest weight but it may not always be
+able to choose them and older packages may be pulled in instead.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Lock files</h3><a id="user-content-lock-files" class="anchor" aria-label="Permalink: Lock files" href="#lock-files"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">bazeldnf can use lock files as the source of RPMs in lieu of using the WORKSPACE file. These
+can be hand written or generated with <code>bazeldnf rpmtree</code> similarly to how WORKSPACE files work.
+Lock files can <em>only</em> be used when working in bzlmod mode, not in workspace mode.</p>
+<p dir="auto">To generate lock files you can run the following:</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazeldnf rpmtree --lockfile rpms.json --configname myrpms --name libvirttree libvirt"><pre>bazeldnf rpmtree --lockfile rpms.json --configname myrpms --name libvirttree libvirt</pre></div>
+<p dir="auto">The lock file JSON format is as follows:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="{
+    &quot;name&quot;: &quot;bazeldnf-rpms&quot;,
+    &quot;rpms&quot;: [
+        {
+            &quot;name&quot;: &quot;libvirt-libs&quot;,
+            &quot;sha256&quot;: &quot;aac272a2ace134b5ef60a41e6624deb24331e79c76699ef6cef0dca22d94ac7e&quot;,
+            &quot;urls&quot;: [
+                &quot;https://kojipkgs.fedoraproject.org//packages/libvirt/11.0.0/1.fc42/x86_64/libvirt-libs-11.0.0-1.fc42.x86_64.rpm&quot;
+            ]
+        }
+    ]
+}
+"><pre class="notranslate"><code>{
+    "name": "bazeldnf-rpms",
+    "rpms": [
+        {
+            "name": "libvirt-libs",
+            "sha256": "aac272a2ace134b5ef60a41e6624deb24331e79c76699ef6cef0dca22d94ac7e",
+            "urls": [
+                "https://kojipkgs.fedoraproject.org//packages/libvirt/11.0.0/1.fc42/x86_64/libvirt-libs-11.0.0-1.fc42.x86_64.rpm"
+            ]
+        }
+    ]
+}
+
+</code></pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Authentication</h3><a id="user-content-authentication" class="anchor" aria-label="Permalink: Authentication" href="#authentication"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">During the build, downloading the resolved rpm files is handled by Bazel and authentication is also handled by Bazel.
+By default, Bazel will read the <code>.netrc</code> file, but more advanced mechanisms, such as the credential helper are also
+available.</p>
+<p dir="auto">During dependency resolution authentication is handled by the bazeldnf command. At the moment only <code>.netrc</code> basic auth
+is supported. Credentials will be read from the file indicated by the <code>NETRC</code> environment variable if it is set,
+otherwise the <code>~/.netrc</code> file will be read.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Dependency resolution limitations</h3><a id="user-content-dependency-resolution-limitations" class="anchor" aria-label="Permalink: Dependency resolution limitations" href="#dependency-resolution-limitations"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="markdown-heading" dir="auto"><h5 class="heading-element" dir="auto">Missing features</h5><a id="user-content-missing-features" class="anchor" aria-label="Permalink: Missing features" href="#missing-features"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li>Resolving <code>requires</code> entries which contain boolean logic like <code>(gcc if something)</code></li>
+</ul>
+<div class="markdown-heading" dir="auto"><h5 class="heading-element" dir="auto">Deliberately not supported</h5><a id="user-content-deliberately-not-supported" class="anchor" aria-label="Permalink: Deliberately not supported" href="#deliberately-not-supported"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The goal is to build minimal containers with RPMs based on scratch containers.
+Therefore the following RPM repository hints will be ignored:</p>
+<ul dir="auto">
+<li><code>recommends</code></li>
+<li><code>supplements</code></li>
+<li><code>suggests</code></li>
+<li><code>enhances</code></li>
+</ul>
+</article></div>

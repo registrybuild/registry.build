@@ -13,62 +13,28 @@
 <p dir="auto">To use <code>rules_elisp</code>, you need <a href="https://bazel.build/" rel="nofollow">Bazel</a>.  For
   installation instructions, see <a href="https://bazel.build/install" rel="nofollow">Installing
   Bazel</a>.  This repository supports all full Bazel releases starting with Bazel
-  6.4.0.  You’ll also need a recent C/C++ compiler (GCC or Clang on GNU/Linux and
-  macOS, Visual C++ 2019 on Windows) and at least Python 3.10.  For further
+  7.2.1.  You’ll also need a recent C/C++ compiler (GCC or Clang on GNU/Linux and
+  macOS, Visual C++ 2019 on Windows) and at least Python 3.12.  For further
   instructions how to use Bazel on Windows, see
   <a href="https://bazel.build/install/windows" rel="nofollow">Installing Bazel on Windows</a>.</p>
 <p dir="auto">This repository generally supports the two most recent major versions of Emacs.
   Currently, the supported versions are Emacs 28 and Emacs 29.  Once Emacs 30 is
   released, support for Emacs 28 will be dropped.</p>
 <div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Usage</h1><a id="user-content-usage" class="anchor" aria-label="Permalink: Usage" href="#usage"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<p dir="auto">If you’re using Bzlmod, add a snippet like the following to your <code>MODULE.bazel</code>
-  file:</p>
+<p dir="auto">Add a snippet like the following to your <code>MODULE.bazel</code> file:</p>
 <pre lang="bazel-module">bazel_dep(name = "phst_rules_elisp")
 git_override(
     module_name = "phst_rules_elisp",
     remote = "https://github.com/phst/rules_elisp.git",
-    commit = "30e571b6e69be2dcc782325834792d79c245d30d",
+    commit = "10054ee512b7087eb53d92f4f85857b778e53357",
 )
 </pre>
 <p dir="auto">See <a href="https://bazel.build/external/overview#bzlmod" rel="nofollow">the Bzlmod documentation</a>
-  for background information.</p>
-<p dir="auto">Alternatively, if you’re not using Bzlmod, add a snippet like the following to
-  your Bazel <code>WORKSPACE</code> file:</p>
-<pre lang="bazel-workspace">load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
-
-http_archive(
-    name = "phst_rules_elisp",
-    integrity = "sha384-QVJcZ4h8j8t9fjaddWCGssqBjUexRReKR53Th9XG1xPYXN/2eiWP1Is5pIfElsA5",
-    strip_prefix = "rules_elisp-30e571b6e69be2dcc782325834792d79c245d30d",
-    urls = [
-        "https://github.com/phst/rules_elisp/archive/30e571b6e69be2dcc782325834792d79c245d30d.zip",  # 2024-02-04
-    ],
-)
-
-load(
-    "@phst_rules_elisp//elisp:repositories.bzl",
-    "rules_elisp_dependencies",
-    "rules_elisp_toolchains",
-)
-
-rules_elisp_dependencies()
-
-rules_elisp_toolchains()
-
-load("@bazel_features//:deps.bzl", "bazel_features_deps")
-
-bazel_features_deps()
-</pre>
-<p dir="auto">See <a href="https://bazel.build/external/overview#workspace-system" rel="nofollow">the Bazel
-  documentation on WORKSPACE dependencies</a> for background information.  Since
-  <code>rules_elisp</code> depends on <code>rules_python</code>, you’ll also need to add a dependency on
-  the latter.  See
-  <a href="https://rules-python.readthedocs.io/en/latest/getting-started.html#using-a-workspace-file" rel="nofollow">the
-  <code>rules_python</code> documentation</a>.</p>
-<p dir="auto">Then you can use the <code>elisp_library</code>, <code>elisp_binary</code>, and <code>elisp_test</code> rules.
-  See <a href="*Symbols defined in =//emacs:defs.bzl=">*Symbols defined in =//emacs:defs.bzl=</a> and the examples in the
-  <code>examples</code> directory for details.  Note that the C++ code used by <code>rules_elisp</code>
-  requires at least C++17, but Bazel still compiles with C++11 by default.  See
+  for background information.  Then you can use the <code>elisp_library</code>,
+  <code>elisp_cc_module</code>, <code>elisp_binary</code>, and <code>elisp_test</code> rules.  See the rule
+  documentation below and the examples in the <code>examples</code> directory for details.
+  Note that the C++ code used by <code>rules_elisp</code> requires at least C++17, but Bazel
+  still compiles with C++11 by default.  See
   <a href="https://github.com/abseil/abseil-cpp/blob/master/FAQ.md#how-to-i-set-the-c-dialect-used-to-build-abseil">the
   Abseil FAQ</a> how to correctly change the C++ standard for your project.</p>
 <div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Load path management</h1><a id="user-content-load-path-management" class="anchor" aria-label="Permalink: Load path management" href="#load-path-management"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
@@ -102,10 +68,14 @@ bazel_features_deps()
   the name of the <code>proto_library</code> rule ends in <code>_proto</code>, and the name of the
   corresponding <code>elisp_proto_library</code> rule has the same prefix and ends in
   <code>_elisp_proto</code>.  For example:</p>
-<pre lang="bazel-build">proto_library(
+<pre lang="bazel-build">load("@phst_rules_elisp//elisp/proto:elisp_proto_library.bzl", "elisp_proto_library")
+load("@protobuf//bazel:proto_library.bzl", "proto_library")
+
+proto_library(
     name = "my_proto",
     srcs = ["my.proto"],
 )
+
 elisp_proto_library(
     name = "my_elisp_proto",
     deps = [":my_proto"],
@@ -263,11 +233,22 @@ elisp_proto_library(
   remaining subarray starting at that index.  These are exactly the same
   conventions that the functions <code>substring</code> and <code>seq-subseq</code> use.  See
   info:elisp#Creating Strings, and see info:elisp#Sequence Functions.</p>
-<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Starlark symbol reference</h1><a id="user-content-starlark-symbol-reference" class="anchor" aria-label="Permalink: Starlark symbol reference" href="#starlark-symbol-reference"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Symbols defined in <code>//elisp:defs.bzl</code></h2><a id="user-content-symbols-defined-in-elispdefsbzl" class="anchor" aria-label="Permalink: Symbols defined in //elisp:defs.bzl" href="#symbols-defined-in-elispdefsbzl"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Symbols defined in <code>//elisp:repositories.bzl</code></h2><a id="user-content-symbols-defined-in-elisprepositoriesbzl" class="anchor" aria-label="Permalink: Symbols defined in //elisp:repositories.bzl" href="#symbols-defined-in-elisprepositoriesbzl"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Symbols defined in <code>//elisp:extensions.bzl</code></h2><a id="user-content-symbols-defined-in-elispextensionsbzl" class="anchor" aria-label="Permalink: Symbols defined in //elisp:extensions.bzl" href="#symbols-defined-in-elispextensionsbzl"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Symbols defined in <code>//emacs:defs.bzl</code></h2><a id="user-content-symbols-defined-in-emacsdefsbzl" class="anchor" aria-label="Permalink: Symbols defined in //emacs:defs.bzl" href="#symbols-defined-in-emacsdefsbzl"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Building manuals</h1><a id="user-content-building-manuals" class="anchor" aria-label="Permalink: Building manuals" href="#building-manuals"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">You can use the <code>elisp_manual</code> rule to generate a Texinfo manual from an
+  Org-mode file.  See info:texinfo#Top, and see info:org#Top.</p>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Depending on external libraries</h1><a id="user-content-depending-on-external-libraries" class="anchor" aria-label="Permalink: Depending on external libraries" href="#depending-on-external-libraries"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><code>rules_elisp</code> provides a module extension to make it easier to depend on
+  external Emacs Lisp libraries that don’t bring their own Bazel support.</p>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Starlark infrastructure</h1><a id="user-content-starlark-infrastructure" class="anchor" aria-label="Permalink: Starlark infrastructure" href="#starlark-infrastructure"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The <code>emacs_library</code>, <code>emacs_cc_module</code>, and <code>emacs_proto_library</code> return the
+  <code>EmacsLispInfo</code> provider to transport information about Emacs Lisp libraries
+  across target boundaries.  See
+  <a href="https://bazel.build/extending/rules#providers" rel="nofollow">Providers</a> for more
+  information about providers.</p>
+<p dir="auto">To compile Emacs Lisp source files and runs tests, <code>rules_elisp</code> registers the
+  toolchains of type <code>@phst_rules_elisp//elisp:toolchain_type</code>; see
+  <a href="https://bazel.build/extending/toolchains" rel="nofollow">Toolchains</a>.  Emacs Lisp toolchains
+  are created using the `elisp_toolchain` rule.</p>
 <div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Indices</h1><a id="user-content-indices" class="anchor" aria-label="Permalink: Indices" href="#indices"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Concept index</h2><a id="user-content-concept-index" class="anchor" aria-label="Permalink: Concept index" href="#concept-index"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Symbol index</h2><a id="user-content-symbol-index" class="anchor" aria-label="Permalink: Symbol index" href="#symbol-index"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
