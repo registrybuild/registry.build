@@ -1,0 +1,87 @@
+<div id="readme" class="md" data-path="readme.md"><article class="markdown-body entry-content container-lg" itemprop="text"><div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">rules_pydeps</h1><a id="user-content-rules_pydeps" class="anchor" aria-label="Permalink: rules_pydeps" href="#rules_pydeps"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">An aspect to enforce correct dependencies for <code>py_*</code> targets.</p>
+<p dir="auto">This aspect inspects Python sources to discover imports, and then verifies that imports are either local to the target or come from a declared dependency.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Usage</h2><a id="user-content-usage" class="anchor" aria-label="Permalink: Usage" href="#usage"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">This aspect will run over any <code>py_binary</code>, <code>py_library</code> or <code>py_test</code> target.</p>
+<p dir="auto">Presently, only bzlmod setup is supported.</p>
+<p dir="auto"><strong>Add rules_pydeps to your MODULE.bazel:</strong></p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel_dep(name = &quot;rules_pydeps&quot;, version = &quot;0.0.0&quot;)"><pre><span class="pl-en">bazel_dep</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_pydeps"</span>, <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"0.0.0"</span>)</pre></div>
+<p dir="auto"><strong>Configure the external deps analyzer:</strong></p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="reqs = use_extension(&quot;@rules_pydeps//pydeps:reqs.bzl&quot;, &quot;reqs&quot;)
+reqs.requirements(
+    requirements_in = &quot;//:requirements.in&quot;,
+    pip_requirements = &quot;@pip//:requirements.bzl&quot;,
+)
+use_repo(reqs, &quot;reqs&quot;)"><pre><span class="pl-s1">reqs</span> <span class="pl-c1">=</span> <span class="pl-en">use_extension</span>(<span class="pl-s">"@rules_pydeps//pydeps:reqs.bzl"</span>, <span class="pl-s">"reqs"</span>)
+<span class="pl-s1">reqs</span>.<span class="pl-c1">requirements</span>(
+    <span class="pl-s1">requirements_in</span> <span class="pl-c1">=</span> <span class="pl-s">"//:requirements.in"</span>,
+    <span class="pl-s1">pip_requirements</span> <span class="pl-c1">=</span> <span class="pl-s">"@pip//:requirements.bzl"</span>,
+)
+<span class="pl-en">use_repo</span>(<span class="pl-s1">reqs</span>, <span class="pl-s">"reqs"</span>)</pre></div>
+<p dir="auto"><strong>Configure deps_enforcer aspect:</strong></p>
+<p dir="auto">Define a new aspect in a <code>.bzl</code> file (such as <code>./tools/aspects.bzl</code>):</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@rules_pydeps//pydeps:pydeps.bzl&quot;, &quot;deps_enforcer_aspect_factory&quot;)
+
+deps_enforcer = deps_enforcer_aspect_factory(
+    pip_deps_index = Label(&quot;@reqs//:pip_deps_index&quot;),
+)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@rules_pydeps//pydeps:pydeps.bzl"</span>, <span class="pl-s">"deps_enforcer_aspect_factory"</span>)
+
+<span class="pl-s1">deps_enforcer</span> <span class="pl-c1">=</span> <span class="pl-en">deps_enforcer_aspect_factory</span>(
+    <span class="pl-s1">pip_deps_index</span> <span class="pl-c1">=</span> <span class="pl-en">Label</span>(<span class="pl-s">"@reqs//:pip_deps_index"</span>),
+)</pre></div>
+<p dir="auto">Update your <code>.bazelrc</code> to include this new aspect:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="# register deps_enforcer aspect with Bazel
+build --aspects //tools:aspects.bzl%deps_enforcer
+
+# optionally, default enable enforcement
+build --output_groups=+pydeps"><pre><span class="pl-c"># register deps_enforcer aspect with Bazel</span>
+<span class="pl-s1">build</span> <span class="pl-c1">-</span><span class="pl-c1">-</span><span class="pl-s1">aspects</span> <span class="pl-c1">//</span><span class="pl-s1">tools</span>:<span class="pl-s1">aspects</span>.<span class="pl-c1">bzl</span><span class="pl-c1">%</span><span class="pl-s1">deps_enforcer</span>
+
+<span class="pl-c"># optionally, default enable enforcement</span>
+<span class="pl-s1">build</span> <span class="pl-c1">-</span><span class="pl-c1">-</span><span class="pl-s1">output_groups</span><span class="pl-c1">=</span><span class="pl-c1">+</span><span class="pl-s1">pydeps</span></pre></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Skipping Targets</h2><a id="user-content-skipping-targets" class="anchor" aria-label="Permalink: Skipping Targets" href="#skipping-targets"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Label any target with the tag <code>no-deps-enforcer</code>, or customize suppression tags:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="deps_enforcer = deps_enforcer_aspect_factory(
+    pip_deps_index = Label(&quot;@reqs//:pip_deps_index&quot;),
+    suppression_tags = [&quot;no-lint&quot;],
+)"><pre><span class="pl-s1">deps_enforcer</span> <span class="pl-c1">=</span> <span class="pl-en">deps_enforcer_aspect_factory</span>(
+    <span class="pl-s1">pip_deps_index</span> <span class="pl-c1">=</span> <span class="pl-en">Label</span>(<span class="pl-s">"@reqs//:pip_deps_index"</span>),
+    <span class="pl-s1">suppression_tags</span> <span class="pl-c1">=</span> [<span class="pl-s">"no-lint"</span>],
+)</pre></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Customizing OutputGroupInfo</h2><a id="user-content-customizing-outputgroupinfo" class="anchor" aria-label="Permalink: Customizing OutputGroupInfo" href="#customizing-outputgroupinfo"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">To make it easier to manage your aspects, it's possible to set an additional OutputGroupInfo name:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="deps_enforcer = deps_enforcer_aspect_factory(
+    pip_deps_index = Label(&quot;@reqs//:pip_deps_index&quot;),
+    output_groups = [&quot;lint&quot;],
+)"><pre><span class="pl-s1">deps_enforcer</span> <span class="pl-c1">=</span> <span class="pl-en">deps_enforcer_aspect_factory</span>(
+    <span class="pl-s1">pip_deps_index</span> <span class="pl-c1">=</span> <span class="pl-en">Label</span>(<span class="pl-s">"@reqs//:pip_deps_index"</span>),
+    <span class="pl-s1">output_groups</span> <span class="pl-c1">=</span> [<span class="pl-s">"lint"</span>],
+)</pre></div>
+<p dir="auto">This may assist in configuring aspects to run together in your .bazelrc.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Non-imported/Runtime Dependencies</h2><a id="user-content-non-importedruntime-dependencies" class="anchor" aria-label="Permalink: Non-imported/Runtime Dependencies" href="#non-importedruntime-dependencies"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Some Python libraries dynamically load dependencies based on what's on PYTHONPATH (such as <code>pyxlsb</code> for <code>pandas</code>). It may be necessary to import these dependencies, but the deps enforcer will detect these as extra imports.</p>
+<p dir="auto">To overcome this, add a tag to your target of the form <code>'runtime:requirement("dep")'</code> or <code>runtime://my/internal:dep</code>.</p>
+<p dir="auto">As an example:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="py_library(
+    name = &quot;example&quot;,
+    srcs = [&quot;example.py&quot;]
+    deps = [
+        requirement(&quot;pandas&quot;),
+        requirement(&quot;pyxlsb&quot;),
+    ],
+    tags = [
+        'runtime:requirement(&quot;pyxlsb&quot;)',
+    ],
+)"><pre><span class="pl-en">py_library</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"example"</span>,
+    <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> [<span class="pl-s">"example.py"</span>]
+    <span class="pl-s1">deps</span> <span class="pl-c1">=</span> [
+        <span class="pl-en">requirement</span>(<span class="pl-s">"pandas"</span>),
+        <span class="pl-en">requirement</span>(<span class="pl-s">"pyxlsb"</span>),
+    ],
+    <span class="pl-s1">tags</span> <span class="pl-c1">=</span> [
+        <span class="pl-s">'runtime:requirement("pyxlsb")'</span>,
+    ],
+)</pre></div>
+<p dir="auto">It may be simpler to define a macro to handle this for you.</p>
+</article></div>
