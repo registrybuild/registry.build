@@ -257,6 +257,9 @@ But depending on exact architecture and compiler, a jump might provide slightly 
 But one-shot hashing (like <code>XXH32()</code>) or streaming using statically allocated states
 still work as expected.
 This build flag is useful for embedded environments without dynamic allocation.</li>
+<li><code>XXH_memcpy</code>, <code>XXH_memset</code>, <code>XXH_memcmp</code> : redirect <code>memcpy()</code>, <code>memset()</code> and <code>memcmp()</code> to some user-selected symbol at compile time.
+Redirecting all 3 removes the need to include <code>&lt;string.h&gt;</code> standard library.</li>
+<li><code>XXH_NO_EXTERNC_GUARD</code>: When <code>xxhash.h</code> is compiled in C++ mode, removes the <code>extern "C" { .. }</code> block guard.</li>
 <li><code>XXH_DEBUGLEVEL</code> : When set to any value &gt;= 1, enables <code>assert()</code> statements.
 This (slightly) slows down execution, but may help finding bugs during debugging sessions.</li>
 </ul>
@@ -274,7 +277,7 @@ Useful for targets (architectures and compilers) without 64-bit support.</li>
 Defining this macro to 1 will mark all internal functions as <code>static</code>, allowing the compiler to decide whether to inline a function or not.
 This is very useful when optimizing for smallest binary size,
 and is automatically defined when compiling with <code>-O0</code>, <code>-Os</code>, <code>-Oz</code>, or <code>-fno-inline</code> on GCC and Clang.
-This might also increase performance depending on compiler and architecture.</li>
+It may also be required to successfully compile using <code>-Og</code>, depending on compiler version.</li>
 <li><code>XXH_SIZE_OPT</code>: <code>0</code>: default, optimize for speed
 <code>1</code>: default for <code>-Os</code> and <code>-Oz</code>: disables some speed hacks for size optimization
 <code>2</code>: makes code as small as possible, performance may cry</li>
@@ -288,7 +291,8 @@ This might also increase performance depending on compiler and architecture.</li
 <div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Makefile variables</h4><a id="user-content-makefile-variables" class="anchor" aria-label="Permalink: Makefile variables" href="#makefile-variables"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">When compiling the Command Line Interface <code>xxhsum</code> using <code>make</code>, the following environment variables can also be set :</p>
 <ul dir="auto">
-<li><code>DISPATCH=1</code> : use <code>xxh_x86dispatch.c</code>, to automatically select between <code>scalar</code>, <code>sse2</code>, <code>avx2</code> or <code>avx512</code> instruction set <em>at runtime</em>, depending on local host. This option is only valid for <code>x86</code>/<code>x64</code> systems.</li>
+<li><code>DISPATCH=1</code> : use <code>xxh_x86dispatch.c</code>, select at runtime between <code>scalar</code>, <code>sse2</code>, <code>avx2</code> or <code>avx512</code> instruction set. This option is only valid for <code>x86</code>/<code>x64</code> systems. It is enabled by default when target <code>x86</code>/<code>x64</code> is detected. It can be forcefully turned off using <code>DISPATCH=0</code>.</li>
+<li><code>LIBXXH_DISPATCH=1</code> : same idea, implemented a runtime vector extension detector, but within <code>libxxhash</code>. This parameter is disabled by default. When enabled (only valid for <code>x86</code>/<code>x64</code> systems), new symbols published in <code>xxh_x86dispatch.h</code> become accessible. At the time of this writing, it's required to include <code>xxh_x86dispatch.h</code> in order to access the symbols with runtime vector extension detection.</li>
 <li><code>XXH_1ST_SPEED_TARGET</code> : select an initial speed target, expressed in MB/s, for the first speed test in benchmark mode. Benchmark will adjust the target at subsequent iterations, but the first test is made "blindly" by targeting this speed. Currently conservatively set to 10 MB/s, to support very slow (emulated) platforms.</li>
 <li><code>NODE_JS=1</code> : When compiling <code>xxhsum</code> for Node.js with Emscripten, this links the <code>NODERAWFS</code> library for unrestricted filesystem access and patches <code>isatty</code> to make the command line utility correctly detect the terminal. This does make the binary specific to Node.js.</li>
 </ul>
@@ -381,7 +385,7 @@ XXH64_hash_t calcul_hash_streaming(FileHandler fh)
     (...)
 
     <span class="pl-c">/* Produce the final hash value */</span>
-    <span class="pl-smi">XXH64_hash_t</span> <span class="pl-k">const</span> <span class="pl-s1">hash</span> <span class="pl-c1">=</span> <span class="pl-en">XXH64_digest</span>(<span class="pl-s1">state</span>);
+    <span class="pl-s1">XXH64_hash_t</span> <span class="pl-s1">const</span> <span class="pl-s1">hash</span> <span class="pl-c1">=</span> <span class="pl-en">XXH64_digest</span>(<span class="pl-s1">state</span>);
 
     <span class="pl-c">/* State could be re-used; but in this example, it is simply freed  */</span>
     <span class="pl-en">free</span>(<span class="pl-s1">buffer</span>);
