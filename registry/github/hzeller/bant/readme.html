@@ -1,0 +1,445 @@
+<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><p dir="auto"><a href="https://www.gnu.org/licenses/gpl-3.0.html" rel="nofollow"><img src="https://camo.githubusercontent.com/bfe240cec1b9232b0647c84936b906b2f2dd32526f7edc0bfd714f509f75626a/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f4c6963656e73652d47504c5f76332d626c75652e737667" alt="License: GPL v3" data-canonical-src="https://img.shields.io/badge/License-GPL_v3-blue.svg" style="max-width: 100%;"></a>
+<a href="https://github.com/hzeller/bant/actions/workflows/ci.yml"><img src="https://github.com/hzeller/bant/workflows/ci/badge.svg" alt="Continuous Integration" style="max-width: 100%;"></a></p>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">bant - Build Analysis and Navigation Tool</h1><a id="user-content-bant---build-analysis-and-navigation-tool" class="anchor" aria-label="Permalink: bant - Build Analysis and Navigation Tool" href="#bant---build-analysis-and-navigation-tool"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Utility to support projects using the <a href="https://bazel.build/" rel="nofollow">bazel</a> build system, in particular C++
+projects.</p>
+<p dir="auto">Bant</p>
+<ul dir="auto">
+<li>Helps <a href="#dwyu--depend-on-what-you-use">cleaning up BUILD dependencies</a> by
+adding missing, and removing superfluous, dependencies ("<code>build_cleaner</code>").
+Emits a <code>buildozer</code> script that can be applied to the project.</li>
+<li>Has a feature to create a <a href="#compilation-db">compilation DB</a> which should
+work for most medium-complex C++ projects.</li>
+<li>Helps printing targets <a href="#print">with "grep" feature</a> that emits the full
+syntax-highlighted rule that matches the regex.</li>
+<li>Extracts interesting project information such as
+the <a href="#dependency-graph">dependency graph</a>,
+<a href="#lib-headers">headers provided by which libraries</a> etc., and presents
+them for easy post-proccessing (outputs simple tables for <code>grep</code> or <code>awk</code>,
+but as well CSV, JSON and S-Expressions).</li>
+<li><a href="#canonicalize">Canonicalizes</a> targets.</li>
+<li>Is available in the <a href="https://registry.bazel.build/modules/bant" rel="nofollow">Bazel Central Registry</a> for easy
+<a href="#in-projects">integration in projects</a> to provide build-cleaner
+or compilation db features.</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Commands</h2><a id="user-content-commands" class="anchor" aria-label="Permalink: Commands" href="#commands"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Bant is invoked with a command and a bazel-like pattern such as <code>...</code> or
+<code>//foo/bar:all</code></p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="bant [options] &lt;command&gt; [bazel-target-pattern...]"><pre class="notranslate"><code>bant [options] &lt;command&gt; [bazel-target-pattern...]
+</code></pre></div>
+<p dir="auto">See <code>bant -h</code> for general <a href="#synopsis">Synopsis</a> and available commands.
+Commands can be shortened as long as they are unique, e.g. <code>lib</code> is
+sufficient to invoke <code>lib-headers</code>.</p>
+<p dir="auto">Play around with the various <code>-f</code> output formats of <code>workspace</code>,
+<code>list-packages</code> etc. for your preferred post-processing tools (default is
+just a plain table easy to process with e.g. <code>awk</code> and <code>grep</code>, but
+s-expressions and json are structured outputs interesting in other contexts).</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">dwyu : Depend-on What You Use</h3><a id="user-content-dwyu--depend-on-what-you-use" class="anchor" aria-label="Permalink: dwyu : Depend-on What You Use" href="#dwyu--depend-on-what-you-use"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><strong><code>dwyu</code></strong> Depend on What You Use (DWYU)<sup><a href="#user-content-fn-1-c9a70fc61b12951e4b95b95917e6aefa" id="user-content-fnref-1-c9a70fc61b12951e4b95b95917e6aefa" data-footnote-ref="" aria-describedby="footnote-label">1</a></sup>: Determine which dependencies
+are needed in <code>cc_library()</code>, <code>cc_binary()</code>, and <code>cc_test()</code> targets.</p>
+<p dir="auto">If a source file <code>#include</code>s a header, DWYU determines if the library
+that provides that header is mentioned in the <code>deps = [ ... ]</code>.</p>
+<p dir="auto">For that, <code>bant</code> greps through a target's declared sources to find which
+headers they include. Uses the information from <code>lib-headers</code> to determine
+which libraries these sources thus need to depend on.
+Emits <a href="https://github.com/bazelbuild/buildtools/blob/master/buildozer/README.md">buildozer</a> commands to 'add' or 'remove' dependencies.
+If unclear if a library can be removed, it is conservatively <em>not</em>
+suggested for removal.</p>
+<p dir="auto">You can use this to clean up existing builds, or keep your BUILD files
+up-to-date in development.
+I usually just don't even add <code>deps = [...]</code> manually anymore but just
+let <code>bant dwyu</code> do the work.</p>
+<p dir="auto">The following auto-fixes all dependencies of the project:</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content=". &lt;(bant dwyu ...)   # source the buildozer calls in shell"><pre><span class="pl-c1">.</span> <span class="pl-s"><span class="pl-pds">&lt;(</span>bant dwyu ...<span class="pl-pds">)</span></span>   <span class="pl-c"><span class="pl-c">#</span> source the buildozer calls in shell</span></pre></div>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Features</h4><a id="user-content-features" class="anchor" aria-label="Permalink: Features" href="#features"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">If there is a dependency that <code>bant</code> would like to remove, but it is needed
+for some reason that can't be derived from the include files it provides
+(and you can't correctly mark it as <code>alwayslink</code> because it is coming
+from some external project for instance), you can add a comment that
+contains the word 'keep' in the line in question.</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="cc_library(
+  deps = [
+    &quot;:foo&quot;  # build_cleaner keep
+  ]
+)"><pre><span class="pl-en">cc_library</span>(
+  <span class="pl-s1">deps</span> <span class="pl-c1">=</span> [
+    <span class="pl-s">":foo"</span>  <span class="pl-c"># build_cleaner keep</span>
+  ]
+)</pre></div>
+<p dir="auto">Note, a well-defined project should not need this. This feature provides
+an escape hatch if needed. With <code>-k</code>, <code>bant</code> will be
+strict and ignore <code># keep</code> comments and emit the removal edit anyway.</p>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Caveats</h4><a id="user-content-caveats" class="anchor" aria-label="Permalink: Caveats" href="#caveats"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li>Does not understand package groups in visibility yet; these will be
+considered <code>//visibility:public</code> and might result in adding
+dependencies that bazel would not allow.</li>
+<li>Will remove dependencies if they provide headers that are not needed
+by the sources of a target. If you want to keep them linked, you need to
+declare them as <code>alwayslink</code> (libraries that are linked to targets but
+do <em>not</em> provide any headerss are considered alwayslink implicitly).
+(this is not really a caveat, it just emphasizes that it is important to
+properly declare the intent in BUILD files).</li>
+</ul>
+<p dir="auto">The <code>dwyu</code> command is essentially a <a href="https://github.com/bazelbuild/bazel/issues/6871" data-hovercard-type="issue" data-hovercard-url="/bazelbuild/bazel/issues/6871/hovercard"><code>build_cleaner</code></a> for
+C++ targets.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">compilation-db</h3><a id="user-content-compilation-db" class="anchor" aria-label="Permalink: compilation-db" href="#compilation-db"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Creates a compilation db that can be used by <code>clang-tidy</code> or <code>clangd</code>.
+<strong>Experimental</strong> right now. It is not exactly emitting all the options bazel
+would use, and is missing virtual includes (provided by <code>cc_library()</code> with
+<code>include_prefix</code>) so less accurate than tools that make use of bazel actions,
+but should work pretty well for a typical bazel project already.</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="  bant compilation-db -o compile_commands.json
+  # or
+  bant compile-flags -o compile_flags.txt"><pre>  bant compilation-db -o compile_commands.json
+  <span class="pl-c"><span class="pl-c">#</span> or</span>
+  bant compile-flags -o compile_flags.txt</pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Print</h3><a id="user-content-print" class="anchor" aria-label="Permalink: Print" href="#print"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><strong><code>print</code></strong> is useful to print a particular rule or rules matching a pattern
+<code>bant print //foo/bar:baz</code> (it is re-created from the AST, so you see
+exactly what <code>bant</code> sees). In general this is much faster than manually
+finding and opening the file, in particular when it is in some external
+project where it is harder to even find the right file; consider</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bant print @googletest//:gtest"><pre>bant print @googletest//:gtest</pre></div>
+<p dir="auto">You see that <code>gtest</code> has some files <code>glob()</code>'d and other expressions
+that make that rule, which we want to see evaluated.
+With the <code>-e</code> option (for <code>e</code>laborate), bant can do some basic evaluation
+of these and print the final form - here you see the filenames are now expanded:</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bant print -e @googletest//:gtest"><pre>bant print -e @googletest//:gtest</pre></div>
+<p dir="auto">The <code>-g</code> option allows to 'grep' for targets where the rule-name or any of the
+strings in the AST of a rule matches a pattern.</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bant print ... -g &quot;scan.*test&quot;"><pre>bant print ... -g <span class="pl-s"><span class="pl-pds">"</span>scan.*test<span class="pl-pds">"</span></span></pre></div>
+<p dir="auto"><a target="_blank" rel="noopener noreferrer" href="img/grep-print.png"><img src="img/grep-print.png" alt="print grep output" style="max-width: 100%;"></a></p>
+<p dir="auto">Evaluation of <a href="https://bazel.build/docs/configurable-attributes#custom-flags" rel="nofollow">custom flags</a> in <code>select()</code> also works (partially: see note in
+<a href="#synopsis">synopsis</a> output), and similar to
+<code>bazel</code>, you pass these options with <code>--//...</code> to bant; let's use that
+to evaluate the effective content of the following rule:</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bant -e --//bant:static_linked_executables print bant:bant"><pre>bant -e --//bant:static_linked_executables print bant:bant</pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Workspace</h3><a id="user-content-workspace" class="anchor" aria-label="Permalink: Workspace" href="#workspace"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><strong><code>workspace</code></strong> prints all the external projects found in the workspace.</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bant workspace   # All external projects referenced in this workspace"><pre>bant workspace   <span class="pl-c"><span class="pl-c">#</span> All external projects referenced in this workspace</span></pre></div>
+<p dir="auto">If you give a pattern, it will only print external projects used
+by targets matching the pattern:</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bant workspace ...        # Print projects referenced in your project
+bant workspace @re2//...  # Print projects referenced by re2"><pre>bant workspace ...        <span class="pl-c"><span class="pl-c">#</span> Print projects referenced in your project</span>
+bant workspace @re2//...  <span class="pl-c"><span class="pl-c">#</span> Print projects referenced by re2</span></pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">list-targets</h3><a id="user-content-list-targets" class="anchor" aria-label="Permalink: list-targets" href="#list-targets"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">If you want to find the file quickly, <code>bant list-target //foo/bar:baz</code>
+will output the filename and exact line/column range where the target
+resides.</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bant list-targets //...     # list all targets of current project
+bant list-targets -r //...  # also recursively following all dependencies"><pre>bant list-targets //...     <span class="pl-c"><span class="pl-c">#</span> list all targets of current project</span>
+bant list-targets -r //...  <span class="pl-c"><span class="pl-c">#</span> also recursively following all dependencies</span></pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Dependency Graph</h3><a id="user-content-dependency-graph" class="anchor" aria-label="Permalink: Dependency Graph" href="#dependency-graph"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The commands <code>depends-on</code> and <code>has-dependent</code> allow to extract the forward and
+reverse dependency-edges of build targets in the dependency graph.</p>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">depends-on</h4><a id="user-content-depends-on" class="anchor" aria-label="Permalink: depends-on" href="#depends-on"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">All direct dependencies a target depends on; here as example output as
+s-expressions (check out which formats <code>-f</code> has to offer)</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="$ bant depends-on bant/frontend:parser -fs
+((&quot;//bant/frontend:parser&quot; (&quot;//bant/frontend:linecolumn-map&quot;
+                            &quot;//bant/frontend:named-content&quot;
+                            &quot;//bant/util:memory&quot;
+                            &quot;@abseil-cpp//absl/log:check&quot;
+                            &quot;@abseil-cpp//absl/strings&quot;
+                            &quot;@re2&quot;)))"><pre class="notranslate"><code>$ bant depends-on bant/frontend:parser -fs
+(("//bant/frontend:parser" ("//bant/frontend:linecolumn-map"
+                            "//bant/frontend:named-content"
+                            "//bant/util:memory"
+                            "@abseil-cpp//absl/log:check"
+                            "@abseil-cpp//absl/strings"
+                            "@re2")))
+</code></pre></div>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">has-dependent</h4><a id="user-content-has-dependent" class="anchor" aria-label="Permalink: has-dependent" href="#has-dependent"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">... and the reverse: all targets that directly depend on the given target.</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="$ bant has-dependent bant/frontend:parser -fs
+((&quot;//bant/frontend:parser&quot; (&quot;//bant:workspace&quot;
+                            &quot;//bant/explore:query-utils&quot;
+                            &quot;//bant/frontend:scanner_test&quot;
+                            &quot;//bant/frontend:parser_test&quot;
+                            &quot;//bant/frontend:parsed-project&quot;
+                            &quot;//bant/frontend:elaboration&quot;
+                            &quot;//bant/tool:dwyu&quot;)))"><pre class="notranslate"><code>$ bant has-dependent bant/frontend:parser -fs
+(("//bant/frontend:parser" ("//bant:workspace"
+                            "//bant/explore:query-utils"
+                            "//bant/frontend:scanner_test"
+                            "//bant/frontend:parser_test"
+                            "//bant/frontend:parsed-project"
+                            "//bant/frontend:elaboration"
+                            "//bant/tool:dwyu")))
+</code></pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">lib-headers</h3><a id="user-content-lib-headers" class="anchor" aria-label="Permalink: lib-headers" href="#lib-headers"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Use <strong><code>lib-headers</code></strong> if you want to know the library to depend on
+for a particular header file. Or, automatically update your BUILD
+files with <code>dwyu</code>.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Canonicalize</h3><a id="user-content-canonicalize" class="anchor" aria-label="Permalink: Canonicalize" href="#canonicalize"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><strong><code>canonicalize</code></strong> emits edits to canonicalize targets, e.g.</p>
+<ul dir="auto">
+<li><code>//foo/bar:baz</code> when already in package <code>//foo/bar</code> becomes <code>:baz</code></li>
+<li><code>//foo:foo</code> becomes <code>//foo</code></li>
+<li><code>@foo//:foo</code> becomes <code>@foo</code></li>
+<li><code>foo</code> without <code>:</code> prefix becomes <code>:foo</code></li>
+</ul>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Use</h2><a id="user-content-use" class="anchor" aria-label="Permalink: Use" href="#use"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Note, <code>bant</code> can only find external projects if <code>bazel</code> has set up the
+workspace, and fetched, unpacked, and made visible these into
+<code>bazel-out/../../../external</code>.</p>
+<p dir="auto">Bant never does any fetching, it just observes the existing workspace. This
+means you need to run a <code>bazel build ...</code> and possibly <code>bazel test</code> before
+to have the entire workspace set up. Given that you do that during development
+anyway, this is typically not an issue.</p>
+<p dir="auto">Typically it is a good to at the least run everything that generates files; we
+can use <code>bant</code> itself to find rules tha generate files to be passed to
+bazel, e.g.</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel build $(bant list-targets | awk '/genrule|cc_proto_library/ {print $3}')"><pre>bazel build <span class="pl-s"><span class="pl-pds">$(</span>bant list-targets <span class="pl-k">|</span> awk <span class="pl-s"><span class="pl-pds">'</span>/genrule|cc_proto_library/ {print $3}<span class="pl-pds">'</span></span><span class="pl-pds">)</span></span></pre></div>
+<p dir="auto">(but of course there might be other bazel rules beside obvious genrules that
+create artifacts, so global <code>bazel build ...</code> will catch these as well)</p>
+<p dir="auto">Given that <code>bazel</code> adapts the visible external projects depending on what
+targets are used, it might be worthwhile running a bazel build that needs all
+of them, e.g. <code>bazel test ...</code></p>
+<p dir="auto">With <code>bant workspace</code>, you can see what external projects <code>bant</code> is aware of.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">In Projects</h3><a id="user-content-in-projects" class="anchor" aria-label="Permalink: In Projects" href="#in-projects"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Bant is <a href="https://registry.bazel.build/modules/bant" rel="nofollow">available</a> on the bazel central registry, so you can add <code>bant</code>
+as dev_dependency in your MODULE.bazel and write scripts for e.g.
+build cleaning and compilation DB that compiles <code>bant</code> without the need for
+it to be installed locally.</p>
+<p dir="auto">Here is an example in a project, that imports bant in their MODULE.bazel, and
+has two scripts <a href="https://github.com/chipsalliance/verible/blob/master/.github/bin/make-compilation-db.sh">make-compilation-db.sh</a> and
+<a href="https://github.com/chipsalliance/verible/blob/master/.github/bin/run-build-cleaner.sh">run-build-cleaner.sh</a> to enhance the developer
+experience.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">In continuous integration</h3><a id="user-content-in-continuous-integration" class="anchor" aria-label="Permalink: In continuous integration" href="#in-continuous-integration"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">If the projects don't have specific scripts to run, the release of a static
+binary allows to easily use it any environment, such as in a continuous
+integration.
+Some examples how to use bant in GitHub CI you find for these projects:</p>
+<ul dir="auto">
+<li><a href="https://github.com/hzeller/bant/blob/5a921ba8528ddda8d77a6295eb23dee5166df998/.github/workflows/ci.yml#L87-L113">bant</a> itself.</li>
+<li><a href="https://github.com/chipsalliance/verible/blob/27720255a19b7684dd23639e5e5999281657d407/.github/workflows/verible-ci.yml#L118-L151">Verible</a></li>
+</ul>
+<p dir="auto">Right now, these just report with the exit code of <code>dwyu</code>, that changes are needed. Nice-to-have would be an integration that sends actionable diffs right into
+PR comments. And in general a nicer action integration. PRs welcome.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Slow file system OS pre-warm</h3><a id="user-content-slow-file-system-os-pre-warm" class="anchor" aria-label="Permalink: Slow file system OS pre-warm" href="#slow-file-system-os-pre-warm"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">If you work on a slow network file system or operate on some cold storage, it
+might add IO-latency for bant to follow directories in <code>glob()</code>-ing patterns.</p>
+<p dir="auto">In that case, it might be beneficial to pre-warm the OS file system cache with
+accesses <code>bant</code> remembers from last time it ran. If a <code>~/.cache/bant/</code> directory
+exists, bant will use it for this purpose (So create the directory if you
+want this feature to be active; if you're on a fast SSD, no need for it).</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Synopsis</h3><a id="user-content-synopsis" class="anchor" aria-label="Permalink: Synopsis" href="#synopsis"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="bant v0.1.14 &lt;http://bant.build/&gt;
+Copyright (c) 2024-2025 Henner Zeller. This program is free software; GPL 3.0.
+Usage: bant [options] &lt;command&gt; [bazel-target-pattern...]
+Options
+    -C &lt;directory&gt; : Change to this project directory first (default = '.')
+    -q             : Quiet: don't print info messages to stderr.
+    -o &lt;filename&gt;  : Instead of stdout, emit command primary output to file.
+    -f &lt;format&gt;    : Output format, support depends on command. One of
+                   : native (default), s-expr, plist, json, csv
+                     Unique prefix ok, so -fs , -fp, -fj or -fc is sufficient.
+    -r             : Follow dependencies recursively starting from pattern.
+                     Without parameter, follows dependencies to the end.
+                     An optional parameter allows to limit the nesting depth,
+                     e.g. -r2 just follows two levels after the toplevel
+                     pattern. -r0 is equivalent to not providing -r.
+    -v             : Verbose; print some stats. Multiple times: more verbose.
+    -h             : This help.
+    --//&lt;option&gt;   : configurable flag attribute to be used in select() and
+                     picked up by elaboration (-e) (experimental; does not yet
+                     read config_setting(), but flag value is used directly).
+
+Commands (unique prefix sufficient):
+    == Parsing ==
+    print          : Print AST matching pattern. -E : only files w/ parse errors
+                      -e : elaborate; light eval: expand variables, concat etc.
+                      -g &lt;regex&gt; : 'grep' - only print targets where any string
+                                    matches regex.
+                      -i If '-g' is given: case insensitive
+    parse          : Parse all BUILD files from pattern. Follow deps with -r
+                     Emit parse errors. Silent otherwise: No news are good news.
+                      -v : some stats.
+
+    == Extract facts == (Use -f to choose output format) ==
+    workspace      : Print external projects found in WORKSPACE/MODULE.bazel
+                     Without pattern: All external projects.
+                     With pattern   : Subset referenced by matching targets.
+                     → 3 column table: (project, version, path)
+
+    -- Given '-r', the following also follow dependencies recursively --
+    list-packages  : List all BUILD files and the package they define
+                     → 2 column table: (buildfile, package)
+    list-targets   : List BUILD file locations of rules with matching targets
+                     → 3 column table: (buildfile:location, ruletype, target)
+    aliased-by     : List targets and the various aliases pointing to it.
+                     → 2 column table: (actual, alias*)
+    depends-on     : List cc library targets and the libraries they depend on
+                     → 2 column table: (target, dependency*)
+    has-dependent  : List cc library targets and the libraries that depend on it
+                     → 2 column table: (target, dependent*)
+    lib-headers    : Print headers provided by cc_library()s matching pattern.
+                     → 2 column table: (header-filename, cc-library-target)
+    genrule-outputs: Print generated files by genrule()s matching pattern.
+                     → 2 column table: (filename, genrule-target)
+
+    == Tools ==
+    dwyu           : DWYU: Depend on What You Use (emit buildozer edit script)
+                      -k strict: emit remove even if # keep comment in line.
+    canonicalize   : Emit rename edits to canonicalize targets.
+    compile-flags  : (experimental) Emit compile flags. Redirect or output with
+                     -o compile_flags.txt
+    compilation-db : (experimental) Emit compilation db. Redirect or output with
+                     -o compile_commands.json"><pre class="notranslate"><code>bant v0.1.14 &lt;http://bant.build/&gt;
+Copyright (c) 2024-2025 Henner Zeller. This program is free software; GPL 3.0.
+Usage: bant [options] &lt;command&gt; [bazel-target-pattern...]
+Options
+    -C &lt;directory&gt; : Change to this project directory first (default = '.')
+    -q             : Quiet: don't print info messages to stderr.
+    -o &lt;filename&gt;  : Instead of stdout, emit command primary output to file.
+    -f &lt;format&gt;    : Output format, support depends on command. One of
+                   : native (default), s-expr, plist, json, csv
+                     Unique prefix ok, so -fs , -fp, -fj or -fc is sufficient.
+    -r             : Follow dependencies recursively starting from pattern.
+                     Without parameter, follows dependencies to the end.
+                     An optional parameter allows to limit the nesting depth,
+                     e.g. -r2 just follows two levels after the toplevel
+                     pattern. -r0 is equivalent to not providing -r.
+    -v             : Verbose; print some stats. Multiple times: more verbose.
+    -h             : This help.
+    --//&lt;option&gt;   : configurable flag attribute to be used in select() and
+                     picked up by elaboration (-e) (experimental; does not yet
+                     read config_setting(), but flag value is used directly).
+
+Commands (unique prefix sufficient):
+    == Parsing ==
+    print          : Print AST matching pattern. -E : only files w/ parse errors
+                      -e : elaborate; light eval: expand variables, concat etc.
+                      -g &lt;regex&gt; : 'grep' - only print targets where any string
+                                    matches regex.
+                      -i If '-g' is given: case insensitive
+    parse          : Parse all BUILD files from pattern. Follow deps with -r
+                     Emit parse errors. Silent otherwise: No news are good news.
+                      -v : some stats.
+
+    == Extract facts == (Use -f to choose output format) ==
+    workspace      : Print external projects found in WORKSPACE/MODULE.bazel
+                     Without pattern: All external projects.
+                     With pattern   : Subset referenced by matching targets.
+                     → 3 column table: (project, version, path)
+
+    -- Given '-r', the following also follow dependencies recursively --
+    list-packages  : List all BUILD files and the package they define
+                     → 2 column table: (buildfile, package)
+    list-targets   : List BUILD file locations of rules with matching targets
+                     → 3 column table: (buildfile:location, ruletype, target)
+    aliased-by     : List targets and the various aliases pointing to it.
+                     → 2 column table: (actual, alias*)
+    depends-on     : List cc library targets and the libraries they depend on
+                     → 2 column table: (target, dependency*)
+    has-dependent  : List cc library targets and the libraries that depend on it
+                     → 2 column table: (target, dependent*)
+    lib-headers    : Print headers provided by cc_library()s matching pattern.
+                     → 2 column table: (header-filename, cc-library-target)
+    genrule-outputs: Print generated files by genrule()s matching pattern.
+                     → 2 column table: (filename, genrule-target)
+
+    == Tools ==
+    dwyu           : DWYU: Depend on What You Use (emit buildozer edit script)
+                      -k strict: emit remove even if # keep comment in line.
+    canonicalize   : Emit rename edits to canonicalize targets.
+    compile-flags  : (experimental) Emit compile flags. Redirect or output with
+                     -o compile_flags.txt
+    compilation-db : (experimental) Emit compilation db. Redirect or output with
+                     -o compile_commands.json
+</code></pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Usage examples</h3><a id="user-content-usage-examples" class="anchor" aria-label="Permalink: Usage examples" href="#usage-examples"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content=" bant parse -C ~/src/verible -v  # Read project in given directory.
+ bant print ... -g scan.*cc   # print out all targets that contain given regex
+ bant print @googletest//:gtest -e  # parse and expression-eval given target
+                                    # (test without -e to see the difference)
+ bant print //foo:bar   # Print specific target AST matching pattern
+ bant print //foo/...   # Print all build files matching recursive pattern.
+ bant workspace         # List _all_ the external projects listed in workspace.
+ bant workspace ...     # List only targets needed in the root workspace
+ bant workspace @googletest//...  # List workspace deps needed by given project
+ bant list-packages -r  # List all the build files, follow dependencies
+ bant list-targets ...  # List all targets in the root project
+ bant list-targets ... | grep cc_binary   # find all binaries build by project
+ bant lib-headers       # For each header found in project, print exporting lib
+ bant dwyu ...         # Look which headers are used and suggest add/remove deps
+ bant print bant/tool:*_test  # Print all targets ending with _test
+ . &lt;(bant dwyu foo/...)  # YOLO oneliner: build_clean deps in package foo/...
+                         # by sourcing the emitted buildozer edit script."><pre> bant parse -C <span class="pl-k">~</span>/src/verible -v  <span class="pl-c"><span class="pl-c">#</span> Read project in given directory.</span>
+ bant print ... -g scan.<span class="pl-k">*</span>cc   <span class="pl-c"><span class="pl-c">#</span> print out all targets that contain given regex</span>
+ bant print @googletest//:gtest -e  <span class="pl-c"><span class="pl-c">#</span> parse and expression-eval given target</span>
+                                    <span class="pl-c"><span class="pl-c">#</span> (test without -e to see the difference)</span>
+ bant print //foo:bar   <span class="pl-c"><span class="pl-c">#</span> Print specific target AST matching pattern</span>
+ bant print //foo/...   <span class="pl-c"><span class="pl-c">#</span> Print all build files matching recursive pattern.</span>
+ bant workspace         <span class="pl-c"><span class="pl-c">#</span> List _all_ the external projects listed in workspace.</span>
+ bant workspace ...     <span class="pl-c"><span class="pl-c">#</span> List only targets needed in the root workspace</span>
+ bant workspace @googletest//...  <span class="pl-c"><span class="pl-c">#</span> List workspace deps needed by given project</span>
+ bant list-packages -r  <span class="pl-c"><span class="pl-c">#</span> List all the build files, follow dependencies</span>
+ bant list-targets ...  <span class="pl-c"><span class="pl-c">#</span> List all targets in the root project</span>
+ bant list-targets ... <span class="pl-k">|</span> grep cc_binary   <span class="pl-c"><span class="pl-c">#</span> find all binaries build by project</span>
+ bant lib-headers       <span class="pl-c"><span class="pl-c">#</span> For each header found in project, print exporting lib</span>
+ bant dwyu ...         <span class="pl-c"><span class="pl-c">#</span> Look which headers are used and suggest add/remove deps</span>
+ bant print bant/tool:<span class="pl-k">*</span>_test  <span class="pl-c"><span class="pl-c">#</span> Print all targets ending with _test</span>
+ <span class="pl-c1">.</span> <span class="pl-s"><span class="pl-pds">&lt;(</span>bant dwyu foo/...<span class="pl-pds">)</span></span>  <span class="pl-c"><span class="pl-c">#</span> YOLO oneliner: build_clean deps in package foo/...</span>
+                         <span class="pl-c"><span class="pl-c">#</span> by sourcing the emitted buildozer edit script.</span></pre></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Compile/Installation</h2><a id="user-content-compileinstallation" class="anchor" aria-label="Permalink: Compile/Installation" href="#compileinstallation"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">To compile</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel build -c opt //bant"><pre>bazel build -c opt //bant</pre></div>
+<p dir="auto">Resulting binary will be <code>bazel-bin/bant/bant</code></p>
+<p dir="auto">To install, use your systems <code>install</code> command (or simply copy):</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="# To some writable directory that does not require root access
+bazel build -c opt //bant &amp;&amp; install -D --strip bazel-bin/bant/bant ~/bin/bant
+
+# For a system directory that requires root-access
+sudo install -D --strip bazel-bin/bant/bant /usr/local/bin/bant"><pre><span class="pl-c"><span class="pl-c">#</span> To some writable directory that does not require root access</span>
+bazel build -c opt //bant <span class="pl-k">&amp;&amp;</span> install -D --strip bazel-bin/bant/bant <span class="pl-k">~</span>/bin/bant
+
+<span class="pl-c"><span class="pl-c">#</span> For a system directory that requires root-access</span>
+sudo install -D --strip bazel-bin/bant/bant /usr/local/bin/bant</pre></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Development</h2><a id="user-content-development" class="anchor" aria-label="Permalink: Development" href="#development"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Environment</h3><a id="user-content-environment" class="anchor" aria-label="Permalink: Environment" href="#environment"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Compiled using <code>bazel</code> &gt;= 6 (also 7 and 8, but compatible with bazel 6 until
+its EOL).
+Relevant dependencies are already in the <code>shell.nix</code> so you can set up
+your environment <a href="https://nixos.wiki/wiki/Development_environment_with_nix-shell" rel="nofollow">with that automatically</a>.</p>
+<p dir="auto">To get a useful compilation database for <code>clangd</code> to be happy, run</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="scripts/make-compilation-db.sh"><pre>scripts/make-compilation-db.sh</pre></div>
+<p dir="auto">Before submit, run <code>scripts/before-submit.sh</code> ... and fix potential
+<code>clang-tidy</code> issues (or update <code>.clang-tidy</code> if it is not useful).</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Current status</h3><a id="user-content-current-status" class="anchor" aria-label="Permalink: Current status" href="#current-status"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Goals</h4><a id="user-content-goals" class="anchor" aria-label="Permalink: Goals" href="#goals"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li><strong>Goal</strong>: Reading bazel-like BUILD files and doing useful things with
+content.</li>
+<li><strong>Non-Goal</strong>: parse full starlark (e.g. *.bzl files with rule
+<code>def</code>-initions)</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Status</h4><a id="user-content-status" class="anchor" aria-label="Permalink: Status" href="#status"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li>Parses BUILD/BUILD.bazel files correctly (tested for various projects),
+and builds an AST used by all bant features.</li>
+<li>Some evaluation, like variable expansion, list and string concatenation
+and <code>glob()</code> calls. No list comprehension yet.</li>
+<li>Very useful in daily life to navigate around a project (very useful
+<code>bant print</code> with <code>-g</code> and/or <code>-e</code>). As well as keeping projects clean with
+<code>bant dwyu</code> which reliably adds neccessary dependencies but also reliably
+don't mess them up.</li>
+<li>Outputs in the <code>list-*</code> type features provide a neat interface for
+scripting.</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Nice-to-have/next steps/TODO</h3><a id="user-content-nice-to-havenext-stepstodo" class="anchor" aria-label="Permalink: Nice-to-have/next steps/TODO" href="#nice-to-havenext-stepstodo"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li>expand list-comprehensions</li>
+<li>language server for BUILD files.</li>
+<li>...</li>
+</ul>
+<section data-footnotes="" class="footnotes"><h2 id="footnote-label" class="sr-only" dir="auto">Footnotes</h2>
+<ol dir="auto">
+<li id="user-content-fn-1-c9a70fc61b12951e4b95b95917e6aefa">
+<p dir="auto">Build-dependency analog to what <a href="https://include-what-you-use.org/">Include What You Use</a> is for source files. <a href="#user-content-fnref-1-c9a70fc61b12951e4b95b95917e6aefa" data-footnote-backref="" aria-label="Back to reference 1" class="data-footnote-backref">↩</a></p>
+</li>
+</ol>
+</section>
+</article></div>
