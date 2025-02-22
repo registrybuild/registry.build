@@ -11,20 +11,21 @@ http_archive(
     strip_prefix = &quot;rules_cuda-{git_commit_hash}&quot;,
     urls = [&quot;https://github.com/bazel-contrib/rules_cuda/archive/{git_commit_hash}.tar.gz&quot;],
 )
-load(&quot;@rules_cuda//cuda:repositories.bzl&quot;, &quot;register_detected_cuda_toolchains&quot;, &quot;rules_cuda_dependencies&quot;)
+load(&quot;@rules_cuda//cuda:repositories.bzl&quot;, &quot;rules_cuda_dependencies&quot;, &quot;rules_cuda_toolchains&quot;)
 rules_cuda_dependencies()
-register_detected_cuda_toolchains()"><pre><span class="pl-en">load</span>(<span class="pl-s">"@bazel_tools//tools/build_defs/repo:http.bzl"</span>, <span class="pl-s">"http_archive"</span>)
+rules_cuda_toolchains(register_toolchains = True)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@bazel_tools//tools/build_defs/repo:http.bzl"</span>, <span class="pl-s">"http_archive"</span>)
 <span class="pl-en">http_archive</span>(
     <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_cuda"</span>,
     <span class="pl-s1">sha256</span> <span class="pl-c1">=</span> <span class="pl-s">"{sha256_to_replace}"</span>,
     <span class="pl-s1">strip_prefix</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_cuda-{git_commit_hash}"</span>,
     <span class="pl-s1">urls</span> <span class="pl-c1">=</span> [<span class="pl-s">"https://github.com/bazel-contrib/rules_cuda/archive/{git_commit_hash}.tar.gz"</span>],
 )
-<span class="pl-en">load</span>(<span class="pl-s">"@rules_cuda//cuda:repositories.bzl"</span>, <span class="pl-s">"register_detected_cuda_toolchains"</span>, <span class="pl-s">"rules_cuda_dependencies"</span>)
+<span class="pl-en">load</span>(<span class="pl-s">"@rules_cuda//cuda:repositories.bzl"</span>, <span class="pl-s">"rules_cuda_dependencies"</span>, <span class="pl-s">"rules_cuda_toolchains"</span>)
 <span class="pl-en">rules_cuda_dependencies</span>()
-<span class="pl-en">register_detected_cuda_toolchains</span>()</pre></div>
-<p dir="auto"><strong>NOTE</strong>: the use of <code>register_detected_cuda_toolchains</code> depends on the environment variable <code>CUDA_PATH</code>. You must also
-ensure the host compiler is available. On Windows, this means that you will also need to set the environment variable
+<span class="pl-en">rules_cuda_toolchains</span>(<span class="pl-s1">register_toolchains</span> <span class="pl-c1">=</span> <span class="pl-c1">True</span>)</pre></div>
+<p dir="auto"><strong>NOTE</strong>: <code>rules_cuda_toolchains</code> implicitly calls to <code>register_detected_cuda_toolchains</code>, and the use of
+<code>register_detected_cuda_toolchains</code> depends on the environment variable <code>CUDA_PATH</code>. You must also ensure the
+host compiler is available. On Windows, this means that you will also need to set the environment variable
 <code>BAZEL_VC</code> properly.</p>
 <p dir="auto"><a href="https://github.com/bazel-contrib/rules_cuda/blob/5633f0c0f7/cuda/private/repositories.bzl#L28-L58"><code>detect_cuda_toolkit</code></a>
 and <a href="https://github.com/bazel-contrib/rules_cuda/blob/5633f0c0f7/cuda/private/repositories.bzl#L143-L166"><code>detect_clang</code></a>
@@ -42,7 +43,7 @@ archive_override(
 )
 
 cuda = use_extension(&quot;@rules_cuda//cuda:extensions.bzl&quot;, &quot;toolchain&quot;)
-cuda.local_toolchain(
+cuda.toolkit(
     name = &quot;local_cuda&quot;,
     toolkit_path = &quot;&quot;,
 )
@@ -57,7 +58,7 @@ use_repo(cuda, &quot;local_cuda&quot;)"><pre><span class="pl-en">bazel_dep</span
 )
 
 <span class="pl-s1">cuda</span> <span class="pl-c1">=</span> <span class="pl-en">use_extension</span>(<span class="pl-s">"@rules_cuda//cuda:extensions.bzl"</span>, <span class="pl-s">"toolchain"</span>)
-<span class="pl-s1">cuda</span>.<span class="pl-c1">local_toolchain</span>(
+<span class="pl-s1">cuda</span>.<span class="pl-c1">toolkit</span>(
     <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"local_cuda"</span>,
     <span class="pl-s1">toolkit_path</span> <span class="pl-c1">=</span> <span class="pl-s">""</span>,
 )
