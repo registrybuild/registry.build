@@ -1,0 +1,433 @@
+<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">MBO, a C++20 library</h1><a id="user-content-mbo-a-c20-library" class="anchor" aria-label="Permalink: MBO, a C++20 library" href="#mbo-a-c20-library"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">This C++20 library provides some general useful building blocks and integrates
+with <a href="https://abseil.io/" rel="nofollow">Google's Abseil library</a>.</p>
+<p dir="auto">The library is tested with Clang and GCC on Ubuntu and MacOS (arm) using continuous integration: <a href="https://github.com/helly25/mbo/actions/workflows/main.yml"><img src="https://github.com/helly25/mbo/actions/workflows/main.yml/badge.svg" alt="Test" style="max-width: 100%;"></a>.</p>
+<p dir="auto">The C++ library is organized in functional groups each residing in their own directory.</p>
+<ul dir="auto">
+<li>Config
+<ul dir="auto">
+<li><code>namespace mbo::config</code></li>
+<li>mbo/config:config_cc, mbo/config/config.h
+<ul dir="auto">
+<li>Custom Bazel flag <code>--//mbo/config:limited_ordered_max_unroll_capacity</code> which controls the maximum unroll size for <code>LimitedOrdered</code> and thus <code>LimitedMap</code> and <code>LimitedSet</code>.</li>
+<li>Custom Bazel flag <code>--//mbo/config:require_throws</code> which controls whether <code>MBO_CONFIG_REQUIRE</code> throw exceptions or use crash logging (the default <code>False</code> or <code>0</code>). This mostly affects containers.</li>
+</ul>
+</li>
+<li>mbo/config:require_cc, mbo/config/require.h
+<ul dir="auto">
+<li>Marcos <code>MBO_CONFIG_REQUIRE(condition, message)</code> which allows to check a <code>condition</code> and either throw an exception or crash with Abseil FATAL logging. The behavior is controlled by <code>--//mbo/config:require_throws</code>.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Container
+<ul dir="auto">
+<li><code>namespace mbo::container</code></li>
+<li>mbo/container:any_scan_cc, mbo/container/any_scan.h
+<ul dir="auto">
+<li>class <code>AnyScan</code>: A container type independent iteration view - or scan over the container.</li>
+<li>class <code>ConstScan</code>: A container type independent iteration view for const value_types.</li>
+<li>class <code>ConvertingScan</code>: A container scanner that allows for conversions.</li>
+<li>function <code>MakeAnyScan</code>: Helper function to create <code>AnyScan</code> instances.</li>
+<li>function <code>MakeConstScan</code>: Helper function to create <code>ConstScan</code> instances.</li>
+<li>function <code>MakeConvertingScan</code>: Helper function to create <code>ConvertingScan</code> instances.</li>
+</ul>
+</li>
+<li>mbo/container:convert_container_cc, mbo/container/convert_container.h
+<ul dir="auto">
+<li>conversion struct <code>ConvertContainer</code> simplifies copying containers to value convertible containers.</li>
+</ul>
+</li>
+<li>mbo/container:limited_map_cc, mbo/container/limited_map.h
+<ul dir="auto">
+<li>class <code>LimitedMap</code>: A space limited, constexpr compliant <code>map</code>.</li>
+</ul>
+</li>
+<li>mbo/container:limited_options_cc, mbo/container/limited_options.h
+<ul dir="auto">
+<li>class <code>LimitedOptions</code>: A compile time configuration option for <code>LimitedSet</code> and <code>LimitedMap</code>.</li>
+</ul>
+</li>
+<li>mbo/container:limited_set_cc, mbo/container/limited_set.h
+<ul dir="auto">
+<li>class <code>LimitedSet</code>: A space limited, constexpr compliant <code>set</code>.</li>
+</ul>
+</li>
+<li>mbo/container:limited_vector_cc, mbo/container/limited_vector.h
+<ul dir="auto">
+<li>class <code>LimitedVector</code>: A space limited, constexpr compliant <code>vector</code>.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Diff
+<ul dir="auto">
+<li><code>namespace mbo::diff</code></li>
+<li>mbo/diff:unified_dff_cc, mbo/diff/unified_diff.h
+<ul dir="auto">
+<li>class <code>UnifiedDiff</code>: A class that implements unified-diffing.</li>
+</ul>
+</li>
+<li>mbo/diff:unified_diff
+<ul dir="auto">
+<li>binary <code>unfied_diff</code>: A binary that performs a unified-diff on two files.</li>
+</ul>
+</li>
+<li>mbo/diff:diff_bzl, mbo/diff/diff.bzl
+<ul dir="auto">
+<li>bzl-macro <code>difftest</code>: A test rule that compares an output versus a golden file.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Files
+<ul dir="auto">
+<li><code>namespace mbo::files</code></li>
+<li>mbo/file:artefact_cc, mbo/file/artefact.h
+<ul dir="auto">
+<li>struct <code>Artefact</code>: Holds information about a file (its data content, name, and modified time).</li>
+</ul>
+</li>
+<li>mbo/file:file_cc, mbo/file/file.h
+<ul dir="auto">
+<li>function <code>GetContents</code>: Reads a file and returns its contents or an absl::Status error.</li>
+<li>function <code>GetMTime</code>: Returns the last update/modified time of a file or an absl::Status error.</li>
+<li>function <code>GetMaxLines</code>: Reads at most given number of text lines from a file or returns absl::Status error.</li>
+<li>function <code>IsAbsolutePath</code>: Returns whether a given path is absolute.</li>
+<li>function <code>JoinPaths</code>: Join multiple path elements.</li>
+<li>function <code>JoinPathsRespectAbsolute</code>: Join multiple path elements respecting absolute path elements.</li>
+<li>function <code>NormalizePath</code>: Normalizes a path.</li>
+<li>function <code>Readable</code>: Returns whether a file is readable or an absl::Status error.</li>
+<li>function <code>SetContents</code>: Writes contents to a file.</li>
+</ul>
+</li>
+<li>mbo/file:glob_cc, mbo/file/glob.h
+<ul dir="auto">
+<li>struct <code>mbo::file::Glob2Re2Options</code>: Control conversion of a <a href="https://man7.org/linux/man-pages/man7/glob.7.html" rel="nofollow">glob pattern</a> into a <a href="https://github.com/google/re2/wiki/Syntax">RE2 pattern</a>.</li>
+<li>struct <code>mbo::file::GlobEntry</code>: Stores data for a single globbed entry (file, dir, etc.).</li>
+<li>struct <code>mbo::file::GlobOptions</code>: Options for functions <code>Glob2Re2</code> and <code>Glob2Re2Expression</code>.</li>
+<li>enum <code>mbo::file::GlobEntryAction</code>: Allows GlobEntryFunc to control further glob progression.</li>
+<li>type <code>mbo::file::GlobEntryFunc</code>: Callback for acceptable glob entries.</li>
+<li>function <code>mbo::file::GlobRe2</code>: Performs recursive glob functionality using a RE2 pattern.</li>
+<li>function <code>mbo::file::Glob</code>: Performs recursive glob functionality using a <code>fnmatch</code> style pattern.</li>
+<li>program <code>glob</code>: A recursive glob, see <code>glob --help</code>.</li>
+</ul>
+</li>
+<li>mbo/file/ini:ini_file_cc, mbo/file/ini/ini_file.h
+<ul dir="auto">
+<li>class <code>IniFile</code>: A simple INI file reader.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Hash
+<ul dir="auto">
+<li><code>namespace mbo::hash</code></li>
+<li>mbo/hash:hash_cc, mbo/hash/hash.h
+<ul dir="auto">
+<li>function <code>simple::GetHash(std::string_view)</code>: A constexpr capable hash function.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Log
+<ul dir="auto">
+<li><code>namespace mbo::log</code></li>
+<li>mbo/log:log_timing_cc, mbo/log/log_timing.h
+<ul dir="auto">
+<li>functoin <code>mbo::log::LogTiming([args])</code> a simple timing logger.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Mope
+<ul dir="auto">
+<li><code>namespace mbo::mope</code></li>
+<li>The <code>MOPE</code> templating engine. Run <code>bazel run //mbo/mope -- --help</code> for detailed documentation.</li>
+<li>mbo/mope
+<ul dir="auto">
+<li>binary <code>mope</code>.</li>
+</ul>
+</li>
+<li>mbo/mope:mope_cc, mbo/mope/mope.h
+<ul dir="auto">
+<li>class <code>Template</code>: The mope template engine and data holder.</li>
+</ul>
+</li>
+<li>mbo/mope:ini_cc, mbo/mope/ini.h
+<ul dir="auto">
+<li>function <code>ReadIniToTemplate</code>: Helper to initialize a mope Template from an INI file.</li>
+</ul>
+</li>
+<li>mbo/mope:mope_bzl, mbo/mope/mope.bzl
+<ul dir="auto">
+<li>bzl-rule <code>mope</code>: A rule that expands a mope template file.</li>
+<li>bzl-macro <code>mope_test</code>: A test rule that compares mope template expansion against golden files. This
+supports <code>clang-format</code> and thus can be used for source-code generation and verification.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Status
+<ul dir="auto">
+<li><code>namespace mbo::status</code></li>
+<li>mbo/status:status_builder_cc, mbo/status/status_builder.h
+<ul dir="auto">
+<li>class <code>StatusBuilder</code> which allows to extend the message of an <code>absl::Status</code>.</li>
+</ul>
+</li>
+<li>mbo/status:status_cc, mbo/status/status.h
+<ul dir="auto">
+<li>function <code>GetStatus</code> allows to convert types to an <code>absl::Status</code>.</li>
+</ul>
+</li>
+<li>mbo/status:status_macros_cc, mbo/status/status_macros.h
+<ul dir="auto">
+<li>macro <code>MBO_ASSIGN_OR_RETURN</code>: Macro that simplifies handling functions returning <code>absl::StatusOr&lt;T&gt;</code>.</li>
+<li>macro <code>MBO_MOVE_TO_OR_RETURN</code>: Macro that simplifies handling functions returning <code>absl::StatusOr&lt;T&gt;</code> where the result requires commas, in particular structured bindings.</li>
+<li>macro <code>MBO_RETURN_IF_ERROR</code>: Macro that simplifies handling functions returning <code>absl::Status</code> or <code>absl::StausOr&lt;T&gt;</code>.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Strings
+<ul dir="auto">
+<li><code>namespace mbo::strings</code></li>
+<li>mbo/strings:indent_cc, mbo/strings/indent.h
+<ul dir="auto">
+<li>function <code>DropIndent</code>: Converts a raw-string text block as if it had no indent.</li>
+<li>function <code>DropIndentAndSplit</code>: Variant of <code>DropIndent</code> that returns the result as lines.</li>
+</ul>
+</li>
+<li>mbo/strings:numbers_cc, mbo/strings/numbers.h
+<ul dir="auto">
+<li>Added function <code>mbo::strings::BigNumber</code>: Convert integral number to string with thousands separator.</li>
+<li>Added function <code>mbo::strings::BigNumberLen</code>: Calculate required string length for <code>BigNumer</code>.</li>
+</ul>
+</li>
+<li>mbo/strings:parse_cc, mbo/strings/parse.h
+<ul dir="auto">
+<li>function <code>ParseString</code>: Parses strings respecting C++ and custom escapes as well as quotes (all configurable).</li>
+<li>function <code>ParseStringList</code>: Parses and splits strings respecting C++ and custom escapes as well as quotes (all configurable).</li>
+</ul>
+</li>
+<li>mbo/strings:split_cc, mbo/strings/split.h
+<ul dir="auto">
+<li>struct <code>mbo::strings::AtLast</code>: Allows `absl::StrSplit' to split on the last occurrence of a separator.</li>
+</ul>
+</li>
+<li>mbo/strings:strip_cc, mbo/strings/strip.h
+<ul dir="auto">
+<li>struct <code>StripCommentsArgs</code>: Arguments for <code>StripComments</code> and <code>StripLineComments</code>.</li>
+<li>function <code>StripComments</code>: Strips comments from lines.</li>
+<li>function <code>StripLineComments</code>: Strips comments from a single line.</li>
+<li>struct <code>StripParsedCommentsArgs</code>: Arguments for <code>StripParsedComments</code> and <code>StripParsedLineComments</code>.</li>
+<li>function <code>StripParsedComments</code>: Strips comments from parsed lines.</li>
+<li>function <code>StripLineParsedComments</code>: Strips comments from a single parsed line.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Testing
+<ul dir="auto">
+<li><code>namespace mbo::testing</code></li>
+<li>mbo/testing:matchers_cc, mbo/testing/matchers.h
+<ul dir="auto">
+<li>gMock-Matcher <code>CapacityIs</code> which checks the capacity of a container.</li>
+<li>gmock-matcher <code>WhenTransformedBy</code> which allows to compare containers after transforming them. This sometimes allows for much more concise comparisons where a golden expectation is already available that only differs in a simple transformation.</li>
+</ul>
+</li>
+<li>mbo/testing:status_cc, mbo/testing/status.h
+<ul dir="auto">
+<li>gMock-matcher <code>IsOk</code>: Tests whether an <code>absl::Status</code> or <code>absl::StatusOr</code> is <code>absl::OkStatus</code>.</li>
+<li>gMock-matcher <code>IsOkAndHolds</code>: Tests an <code>absl::StatusOr</code> for <code>absl::OkStatus</code> and contents.</li>
+<li>gMock-matcher <code>StatusIs</code>: Tests an <code>absl::Status</code> or <code>absl::StatusOr</code> against a specific status code and message.</li>
+<li>gmock-matcher <code>StatusHasPayload</code>: Tests whether an <code>absl::Status</code> or <code>absl::StatusOr</code> payload map has any payload, a specific payload url, or a payload url with specific content.</li>
+<li>gmock-matcher <code>StatusPayloads</code> Tests whether an <code>absl::Status</code> or <code>absl::StatusOr</code> payload map matches.</li>
+<li>macro <code>MBO_ASSERT_OK_AND_ASSIGN</code>: Simplifies testing with functions that return <code>absl::StatusOr&lt;T&gt;</code>.</li>
+<li>macro <code>MBO_ASSERT_OK_AND_MOVE_TO</code>: Simplifies testing with functions that return <code>absl::StatusOr&lt;T&gt;</code> where the result requires commas, in particular structured bindings.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Types
+<ul dir="auto">
+<li><code>namespace mbo::types</code></li>
+<li>mbo/types:cases_cc, mbo/types/cases.h
+<ul dir="auto">
+<li>meta-type <code>Cases</code>: Allows to switch types based on conditions.</li>
+<li>meta-type <code>CaseIndex</code>: Evaluates the first non zero case (1-based, 0 if all zero).</li>
+<li>meta-type <code>IfThen</code>: Helper type to generate if-then <code>Cases</code> types.</li>
+<li>meta-type <code>IfElse</code>: Helper type to generate else <code>Cases</code> which are always true and must go last.</li>
+<li>meta-type <code>IfFalseThenVoid</code>: Helper type that can be used to skip a case.</li>
+<li>meta-type <code>IfTrueThenVoid</code>: Helper type to inject default cases and to ensure the required type expansion is always possible.</li>
+</ul>
+</li>
+<li>mbo/types:compare_cc, mbo/types/compare.h
+<ul dir="auto">
+<li>comparator <code>mbo::types::CompareLess</code> which is compatible to std::Less but allows container optimizations.</li>
+</ul>
+</li>
+<li>mbo/types:container_proxy_cc, mbo/types/container_proxy.h
+<ul dir="auto">
+<li>struct <code>mbo::types::ContainerProxy</code> which allows to add container access to other types including smart pointers of containers.</li>
+</ul>
+</li>
+<li>mbo/types:extend_cc, mbo/types/extend.h
+<ul dir="auto">
+<li>crtp-struct <code>Extend</code>: Enables extending of struct/class types with basic functionality.</li>
+<li>crtp-struct <code>ExtendNoDefault</code> Like <code>Extend</code> but without default extender functionality.</li>
+<li>crtp-struct <code>ExtendNoPrint</code> Like <code>Extend</code> but without <code>Printable</code> and <code>Streamable</code> extender functionality.</li>
+<li><code>namespace extender</code>
+<ul dir="auto">
+<li>extender-struct <code>AbslStringify</code>: Extender that injects functionality to make an <code>Extend</code>ed type work with abseil format/print functions. See <code>Stringify</code> for various API extension points.</li>
+<li>extender-struct <code>AbslHashable</code>: Extender that injects functionality to make an <code>Extend</code>ed type work with abseil hashing (and also <code>std::hash</code>).</li>
+<li>extender-struct <code>Comparable</code>: Extender that injects functionality to make an <code>Extend</code>ed type comparable. All comparators will be injected: <code>&lt;=&gt;</code>, <code>==</code>, <code>!=</code>, <code>&lt;</code>, <code>&lt;=</code>, <code>&gt;</code>, <code>&gt;=</code>.</li>
+<li>extender-struct <code>Printable</code>:
+<ul dir="auto">
+<li>Extender that injects functionality to make an <code>Extend</code>ed type get a <code>std::string ToString() const</code> function which can be used to convert a type into a <code>std::string</code>.</li>
+<li>The output is a comma separated list of field values, e.g. <code>{ 25, 42 }</code>.</li>
+<li>If available (Clang 16+) this function prints field names <code>{ .first = 25, .second = 42 }</code>.</li>
+</ul>
+</li>
+<li>extender-struct <code>Streamable</code>: Extender that injects functionality to make an <code>Extend</code>ed type streamable. This allows the type to be used directly with <code>std::ostream</code>s.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>mbo/types:no_destruct_cc, mbo/types/no_destruct.h
+<ul dir="auto">
+<li>struct <code>NoDestruct&lt;T&gt;</code>: Implements a type that allows to use any type as a static constant.</li>
+<li>Mainly, this prevents calling the destructor and thus prevents termination issues (initialization order fiasco).</li>
+</ul>
+</li>
+<li>mbo/types:opaque_cc, mbo/types/opaque.h
+<ul dir="auto">
+<li>struct <code>mbo::types::OpaquePtr</code> an opaque alternative to <code>std::unique_ptr</code> which works with forward declared types.</li>
+<li>struct <code>mbo::types::OpaqueValue</code> an <code>OpaquePtr</code> with direct access, comparison and hashing which will not allow a nullptr.</li>
+<li>struct <code>mbo::types::OpaqueContainer</code> an <code>OpaqueValue</code> with direct container access.</li>
+</ul>
+</li>
+<li>mbo/types:ref_wrap_cc, mbo/types/ref_wrap.h
+<ul dir="auto">
+<li>template-type <code>RefWrap&lt;T&gt;</code>: similar to <code>std::reference_wrapper</code> but supports operators <code>-&gt;</code> and <code>*</code>.</li>
+</ul>
+</li>
+<li>mbo/types:required_cc, mbo/types/required.h
+<ul dir="auto">
+<li>template-type <code>Required&lt;T&gt;</code>: similar to <code>RefWrap</code> but stores the actual type (and unlike <code>std::optional</code> cannot be reset).</li>
+</ul>
+</li>
+<li>mbo/types:stringify_cc, mbo/types/stringify.h
+<ul dir="auto">
+<li>class <code>Stringify</code> a utility to convert structs into strings.</li>
+<li>function <code>StringifyWithFieldNames</code> a format control adapter for <code>Stringify</code>.</li>
+<li>struct <code>StringifyOptions</code> which can be used to control <code>Stringify</code> formatting.</li>
+<li>API extension point type <code>MboTypesStringifySupport</code> which enables <code>Stringify</code> support even if not otherwise enabled (disables Abseil stringify support in <code>Stringify</code>).</li>
+<li>API extension point type <code>MboTypesStringifyDisable</code> which disables <code>Stringify</code> support. This allows to prevent
+complex classes (and more importantly fields of complex types) from being printed/streamed using <code>Stringify</code></li>
+<li>API extension point type <code>MboTypesStringifyDoNotPrintFieldNames</code> which if present disables field names in <code>Stringify</code>.</li>
+<li>API extension point function <code>MboTypesStringifyFieldNames</code> which adds field names to <code>Stringify</code>.</li>
+<li>API extension point function <code>MboTypesStringifyOptions</code> which adds full format control to <code>Stringify</code>.</li>
+</ul>
+</li>
+<li>mbo/types:stringify_ostream_cc, mbo/types/stringify_ostream.h
+<ul dir="auto">
+<li>operator <code>std::ostream&amp; operator&lt;&lt;(std::ostream&amp;, const MboTypesStringifySupport auto&amp; v)</code> - conditioanl automatic ostream support for structs using <code>Stringify</code>.</li>
+</ul>
+</li>
+<li>mbo/types:traits_cc, mbo/types/traits.h
+<ul dir="auto">
+<li>type alias <code>ContainerConstIteratorValueType</code> returned the value-type of the const_iterator of a container.</li>
+<li>concept <code>ContainerIsForwardIteratable</code> determines whether a types can be used in forward iteration.</li>
+<li>concept <code>ContainerHasEmplace</code> determines whether a container has <code>emplace</code>.</li>
+<li>concept <code>ContainerHasEmplaceBack</code> determines whether a container has <code>emplace_back</code>.</li>
+<li>concept <code>ContainerHasInsert</code> determines whether a container has <code>insert</code>.</li>
+<li>concept <code>ContainerHasPushBack</code> determines whether a container has <code>push_back</code>.</li>
+<li>concept <code>ContainerHasForwardIterator</code> determines whether a container has <code>begin</code>, <code>end</code> and <code>std::forward_iterator</code> compliant iterators.</li>
+<li>concept <code>ContainerHasInputIterator</code> determines whether a container has <code>begin</code>, <code>end</code> and <code>std::input_iterator</code> compliant iterators.</li>
+<li>type alias <code>GetDifferenceType</code> is either set to the type's <code>difference_type</code> or <code>std::ptrdiff_t</code>.</li>
+<li>concept <code>HasDifferenceType</code> determines whether a type has a <code>difference_type</code>.</li>
+<li>concept <code>IsAggregate</code> determines whether a type is an aggregate.</li>
+<li>concept <code>IsCharArray</code> determines whether a type is a <code>char*</code> or <code>char[]</code> related type.</li>
+<li>concept <code>IsDecomposable</code> determines whether a type can be used in static-bindings.</li>
+<li>concept <code>IsInitializerList</code> determines whether a type is `std::initializer type.</li>
+<li>concept <code>IsBracesConstructibleV</code> determines whether a type can be constructe from given argument types.</li>
+<li>concept <code>IsOptional</code> determines whether a type is a <code>std::optional</code> type.</li>
+<li>concept <code>IsPair</code> determines whether a type is a <code>std::pair</code> type.</li>
+<li>concept <code>IsSet</code> determines whether a type is a <code>std::set</code> type.</li>
+<li>concept <code>IsSameAsAnyOfRaw</code> / <code>NotSameAsAnyOfRaw</code> which determine whether type is one of a list of types.</li>
+<li>concept <code>IsSmartPtr</code> determines whether a type is a <code>std::shared_ptr</code>, <code>std::unique_ptr</code> or <code>std::weak_ptr</code>.
+<ul dir="auto">
+<li>Can be extended with other smart pointers through <code>IsSmartPtrImpl</code>.</li>
+</ul>
+</li>
+<li>concept <code>IsTuple</code> determines whether a type is a <code>std::tuple</code> type.</li>
+<li>concept <code>IsVariant</code> determines whether a type is a <code>std::variant</code> type.</li>
+<li>concept <code>IsVector</code> determines whether a type is a <code>std::vector</code> type.</li>
+</ul>
+</li>
+<li>mbo/types:template_search_cc, mbo/types/template_search.h:
+<ul dir="auto">
+<li>template struct <code>BinarySearch</code> implements templated binary search algorithm.</li>
+<li>template struct <code>LinearSearch</code> implements templated linear search algorithm.</li>
+<li>template struct <code>ReverseSearch</code> implements templated reverse linear search algorithm.</li>
+<li>template struct <code>MaxSearch</code> implements templated linear search for last match algorithm.</li>
+</ul>
+</li>
+<li>mbo/types:tstring_cc, mbo/types/tstring.h
+<ul dir="auto">
+<li>struct <code>tstring</code>: Implements type <code>tstring</code> a compile time string-literal type.</li>
+<li>operator <code>operator"" _ts</code>: String literal support for Clang, GCC and derived compilers.</li>
+</ul>
+</li>
+<li>mbo/types:tuple_cc, mbo/types/tuple.h
+<ul dir="auto">
+<li>template struct <code>mbo::types::TupleCat</code> which concatenates tuple types.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p dir="auto">In addition some Bazel macros are implemented that are not direct part of the library:</p>
+<ul dir="auto">
+<li>bzl:archive.bzl
+<ul dir="auto">
+<li><code>http_archive</code>: Simple wrapper that tests whether the archive was already loaded.</li>
+<li><code>github_archive</code>: Specialized archive wrapper that supports github that supports <code>tagged</code> releases or commits.</li>
+</ul>
+</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Installation and requirements</h1><a id="user-content-installation-and-requirements" class="anchor" aria-label="Permalink: Installation and requirements" href="#installation-and-requirements"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">This repository requires a C++20 compiler (in case of MacOS XCode 15 is needed).</p>
+<p dir="auto">This is done so that newer features like <code>std::source_location</code> can be used.</p>
+<p dir="auto">The project only comes with a Bazel BUILD.bazel file and can be added to other Bazel projects. Checkout <a href="https://github.com/helly25/mbo/releases">Releases</a> or use head ref as follows:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(&quot;@bazel_tools//tools/build_defs/repo:http.bzl&quot;, &quot;http_archive&quot;)
+
+http_archive(
+  name = &quot;com_helly25_mbo&quot;,
+  url = &quot;https://github.com/helly25/mbo/archive/refs/heads/main.tar.gz&quot;,
+  # See https://github.com/helly25/mbo/releases for releases.
+)"><pre class="notranslate"><code>load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
+http_archive(
+  name = "com_helly25_mbo",
+  url = "https://github.com/helly25/mbo/archive/refs/heads/main.tar.gz",
+  # See https://github.com/helly25/mbo/releases for releases.
+)
+</code></pre></div>
+<p dir="auto">The project is formatted with specific clang-format settings which require clang 16+ (in case of MacOs LLVM 16+ can be installed using brew).</p>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Presentations</h1><a id="user-content-presentations" class="anchor" aria-label="Permalink: Presentations" href="#presentations"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Practical Production-proven Constexpr API Elements</h2><a id="user-content-practical-production-proven-constexpr-api-elements" class="anchor" aria-label="Permalink: Practical Production-proven Constexpr API Elements" href="#practical-production-proven-constexpr-api-elements"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Presented at <a href="https://cpponsea.uk/2024/session/practical-production-proven-constexpr-api-elements" rel="nofollow">C++ On Sea 2024</a>, this presentation covers the theory behind:</p>
+<ul dir="auto">
+<li><code>mbo::hash::simple::GetHash</code>,</li>
+<li><code>mbo::container::LimitedVector</code>,</li>
+<li><code>mbo::container::LimitedMap</code>, and</li>
+<li><code>mbo::container::LimitedSet</code>.</li>
+</ul>
+<p dir="auto">Slides are available at:
+<br>
+<br>
+<a href="https://helly25.com/practical-production-proven-constexpr-api-elements/" rel="nofollow"><img src="https://camo.githubusercontent.com/9e3cb58aaea14fdf43175e4c8c5d0d3a4780b2e1ed3f958b793f15aa87872260/68747470733a2f2f68656c6c7932352e636f6d2f77702d636f6e74656e742f75706c6f6164732f323032342f30372f50726163746963616c2d50726f64756374696f6e2d70726f76656e2d436f6e7374657870722d4150492d456c656d656e74735f5469746c65436172642d636f70792d393830783535312e706e67" data-canonical-src="https://helly25.com/wp-content/uploads/2024/07/Practical-Production-proven-Constexpr-API-Elements_TitleCard-copy-980x551.png" style="max-width: 100%;"></a></p>
+</article></div>
