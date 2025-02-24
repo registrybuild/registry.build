@@ -48,8 +48,8 @@ x86, ARM, RISC-V, POWER, S390X; many others known to work
 </table></markdown-accessiblity-table>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Quickstart</h2><a id="user-content-quickstart" class="anchor" aria-label="Permalink: Quickstart" href="#quickstart"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <themed-picture data-catalyst-inline="true"><picture>
-  <source media="(prefers-color-scheme: dark)" width="787px" srcset="https://github.com/user-attachments/assets/1886bc4b-2e05-4827-af83-e4ed45f25ab1">
-  <img alt="Recording of a terminal session showing the PCRE2 quickstart; reproduced in text form below" width="787px" src="https://github.com/user-attachments/assets/7b90180e-276e-4202-b590-b72871cff91a">
+  <source media="(prefers-color-scheme: dark)" width="787px" srcset="https://github.com/user-attachments/assets/f38bd06c-abda-44bf-a3b1-3f9b59d3a287">
+  <img alt="Recording of a terminal session showing the PCRE2 quickstart; reproduced in text form below" width="787px" src="https://github.com/user-attachments/assets/9d3e9d99-96e3-430a-83c1-e08024d83d27">
 </picture></themed-picture>
 <details>
 <summary>Show script</summary>
@@ -59,9 +59,13 @@ git clone https://github.com/PCRE2Project/pcre2.git ./pcre2 \
     --branch pcre2-$PCRE2_VERSION \
     -c advice.detachedHead=false --depth 1
 
+# If using the JIT, remember to fetch the Git submodule:
+(cd ./pcre2; git submodule update --init)
+
 # Now let's build PCRE2:
 (cd ./pcre2; \
-    cmake -G Ninja -DCMAKE_BUILD_TYPE=Debug -B build; \
+    cmake -G Ninja -DCMAKE_BUILD_TYPE=Debug \
+        -DPCRE2_SUPPORT_JIT=ON -B build; \
     cmake --build build/)
 
 # Great, PCRE2 is built.
@@ -82,9 +86,13 @@ git clone https://github.com/PCRE2Project/pcre2.git ./pcre2 \
     --branch pcre2-<span class="pl-smi">$PCRE2_VERSION</span> \
     -c advice.detachedHead=false --depth 1
 
+<span class="pl-c"><span class="pl-c">#</span> If using the JIT, remember to fetch the Git submodule:</span>
+(cd ./pcre2<span class="pl-k">;</span> git submodule update --init)
+
 <span class="pl-c"><span class="pl-c">#</span> Now let's build PCRE2:</span>
 (cd ./pcre2<span class="pl-k">;</span> \
-    cmake -G Ninja -DCMAKE_BUILD_TYPE=Debug -B build<span class="pl-k">;</span> \
+    cmake -G Ninja -DCMAKE_BUILD_TYPE=Debug \
+        -DPCRE2_SUPPORT_JIT=ON -B build<span class="pl-k">;</span> \
     cmake --build build/)
 
 <span class="pl-c"><span class="pl-c">#</span> Great, PCRE2 is built.</span>
@@ -128,7 +136,7 @@ int main(int argc, char* argv[]) {
         &amp;error_offset,         /* for error offset */
         NULL);                 /* use default compile context */
     if (re == NULL) {
-        fprintf(stderr, &quot;Invalid pattern: %s\n&quot;, argv[1]);
+        fprintf(stderr, &quot;Invalid pattern: %s\n&quot;, pattern);
         return 1;
     }
 
@@ -185,7 +193,7 @@ int main(int argc, char* argv[]) {
         <span class="pl-c1">&amp;</span><span class="pl-s1">error_offset</span>,         <span class="pl-c">/* for error offset */</span>
         <span class="pl-c1">NULL</span>);                 <span class="pl-c">/* use default compile context */</span>
     <span class="pl-k">if</span> (<span class="pl-s1">re</span> <span class="pl-c1">==</span> <span class="pl-c1">NULL</span>) {
-        <span class="pl-en">fprintf</span>(<span class="pl-s1">stderr</span>, <span class="pl-s">"Invalid pattern: %s\n"</span>, <span class="pl-s1">argv</span>[<span class="pl-c1">1</span>]);
+        <span class="pl-en">fprintf</span>(<span class="pl-s1">stderr</span>, <span class="pl-s">"Invalid pattern: %s\n"</span>, <span class="pl-s1">pattern</span>);
         <span class="pl-k">return</span> <span class="pl-c1">1</span>;
     }
 
@@ -225,6 +233,9 @@ int main(int argc, char* argv[]) {
 <div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="git clone https://github.com/PCRE2Project/pcre2.git"><pre class="notranslate"><code>git clone https://github.com/PCRE2Project/pcre2.git
 </code></pre></div>
 <p dir="auto">Please use a release tag in production, not the development branch!</p>
+<p dir="auto">Because PCRE2's JIT uses code from a Git submodule, you must check this out after a fresh clone:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="git submodule update --init"><pre class="notranslate"><code>git submodule update --init
+</code></pre></div>
 </li>
 <li>
 <p dir="auto">Via download of the <a href="https://github.com/PCRE2Project/pcre2/releases/latest">release tarball</a>.</p>
