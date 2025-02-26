@@ -27,6 +27,7 @@ helped make the concept of using Zig with Bazel a reality; now we all can
 benefit from it.</strong></p>
 </blockquote>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Usage</h2><a id="user-content-usage" class="anchor" aria-label="Permalink: Usage" href="#usage"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">WORKSPACE</h3><a id="user-content-workspace" class="anchor" aria-label="Permalink: WORKSPACE" href="#workspace"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">Add this to your <code>WORKSPACE</code>:</p>
 <div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@bazel_tools//tools/build_defs/repo:http.bzl&quot;, &quot;http_archive&quot;)
 
@@ -65,6 +66,24 @@ zig_toolchains()"><pre><span class="pl-en">load</span>(<span class="pl-s">"@baze
 <span class="pl-c"># toolchain/defs.bzl:toolchains on how to change the Zig SDK version and</span>
 <span class="pl-c"># download URL.</span>
 <span class="pl-en">zig_toolchains</span>()</pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">MODULE.bazel</h3><a id="user-content-modulebazel" class="anchor" aria-label="Permalink: MODULE.bazel" href="#modulebazel"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Add this to your <code>MODULE.bazel</code>:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel_dep(name = &quot;hermetic_cc_toolchain&quot;, version = &quot;3.1.0&quot;)
+
+toolchains = use_extension(&quot;@hermetic_cc_toolchain//toolchain:ext.bzl&quot;, &quot;toolchains&quot;)
+use_repo(toolchains, &quot;zig_sdk&quot;)
+
+register_toolchains(
+    &quot;@zig_sdk//toolchain/...&quot;,
+    &quot;@zig_sdk//libc_aware/toolchain/...&quot;,"><pre><span class="pl-en">bazel_dep</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"hermetic_cc_toolchain"</span>, <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"3.1.0"</span>)
+
+<span class="pl-s1">toolchains</span> <span class="pl-c1">=</span> <span class="pl-en">use_extension</span>(<span class="pl-s">"@hermetic_cc_toolchain//toolchain:ext.bzl"</span>, <span class="pl-s">"toolchains"</span>)
+<span class="pl-en">use_repo</span>(<span class="pl-s1">toolchains</span>, <span class="pl-s">"zig_sdk"</span>)
+
+<span class="pl-s1">register_toolchains</span>(
+    <span class="pl-s">"@zig_sdk//toolchain/..."</span>,
+    <span class="pl-s">"@zig_sdk//libc_aware/toolchain/..."</span>,</pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Configuration file</h3><a id="user-content-configuration-file" class="anchor" aria-label="Permalink: Configuration file" href="#configuration-file"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">And this to <code>.bazelrc</code> on a Unix-y systems:</p>
 <div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="common --enable_platform_specific_config
 build:linux --sandbox_add_mount_pair=/tmp
@@ -90,6 +109,91 @@ wants to use <code>hermetic_cc_toolchain</code>. The descriptions below is a gen
 introduction to C++ toolchains from "user's perspective" too.</p>
 <p dir="auto">See <a href="https://github.com/uber/hermetic_cc_toolchain/tree/main/examples">examples</a> for some other recommended <code>.bazelrc</code> flags, as well
 as how to use <code>hermetic_cc_toolchain</code> with bzlmod.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Repositories</h3><a id="user-content-repositories" class="anchor" aria-label="Permalink: Repositories" href="#repositories"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><code>hermetic_cc_toolchain</code> creates few repositories to work with:</p>
+<ul dir="auto">
+<li><code>@zig_sdk</code> - platform, constraint and toolchain definitions for supported platforms</li>
+<li><code>@zig_config</code> - internal config targets for HOST platform (not visible to main repository)</li>
+<li><code>@zig_config-{os}-{arch}</code> - internal config targets for supported platforms when explicitly provided to <a href="toolchain/defs.bzl#62">toolchains()</a> macro (not visible to main repository)</li>
+</ul>
+<p dir="auto">By default <code>hermetic_cc_toolchain</code> creates toolchains just for the HOST execution
+platform. To create toolchains for other execution platforms than HOST, those need
+to be explicitly specified within <a href="toolchain/defs.bzl#62">toolchains()</a> macro call.
+The dictionary argument of <a href="toolchain/defs.bzl#L67">exec_platforms</a>, specifies additional execution platforms and has to conform Bazel's
+<a href="https://bazel.build/rules/lib/toplevel/attr#string_dict" rel="nofollow">attr.string_dict()</a>, e.g.:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="_EXEC_PLATFORMS = {
+    &quot;linux&quot;: [&quot;arm64&quot;],
+    &quot;macos&quot;: [&quot;amd64&quot;, &quot;arm64&quot;],
+    &quot;windows&quot;: [&quot;amd64&quot;],
+}"><pre><span class="pl-s1">_EXEC_PLATFORMS</span> <span class="pl-c1">=</span> {
+    <span class="pl-s">"linux"</span>: [<span class="pl-s">"arm64"</span>],
+    <span class="pl-s">"macos"</span>: [<span class="pl-s">"amd64"</span>, <span class="pl-s">"arm64"</span>],
+    <span class="pl-s">"windows"</span>: [<span class="pl-s">"amd64"</span>],
+}</pre></div>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">WORKSPACE</h4><a id="user-content-workspace-1" class="anchor" aria-label="Permalink: WORKSPACE" href="#workspace-1"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">If toolchains for other than HOST execution platforms are needed, pass them to <code>zig_toolchains()</code>:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(&quot;@hermetic_cc_toolchain//toolchain:defs.bzl&quot;, zig_toolchains = &quot;toolchains&quot;)
+
+_MACOS_EXEC_PLATFORMS = {
+    &quot;macos&quot;: [&quot;amd64&quot;, &quot;arm64&quot;],
+}
+
+zig_toolchains(
+  exec_platforms = _MACOS_EXEC_PLATFORMS
+)"><pre class="notranslate"><code>load("@hermetic_cc_toolchain//toolchain:defs.bzl", zig_toolchains = "toolchains")
+
+_MACOS_EXEC_PLATFORMS = {
+    "macos": ["amd64", "arm64"],
+}
+
+zig_toolchains(
+  exec_platforms = _MACOS_EXEC_PLATFORMS
+)
+</code></pre></div>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">MODULE.bazel</h4><a id="user-content-modulebazel-1" class="anchor" aria-label="Permalink: MODULE.bazel" href="#modulebazel-1"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><a href="toolchain/ext.bzl#40">toolchains</a> module extension provides <a href="toolchain/ext.bzl#4">exec_platform</a>
+tag class, which allows to specify additional execution platforms.
+To add toolchains for <code>windows-amd64</code> execution platform (additionally to HOST execution
+platform), call <code>toolchains.exec_platform()</code>:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="toolchains = use_extension(&quot;//toolchain:ext.bzl&quot;, &quot;toolchains&quot;)
+toolchains.exec_platform(
+    os = &quot;windows&quot;,
+    arch = &quot;amd64&quot;,
+)
+use_repo(toolchains, &quot;zig_sdk&quot;)"><pre><span class="pl-s1">toolchains</span> <span class="pl-c1">=</span> <span class="pl-en">use_extension</span>(<span class="pl-s">"//toolchain:ext.bzl"</span>, <span class="pl-s">"toolchains"</span>)
+<span class="pl-s1">toolchains</span>.<span class="pl-c1">exec_platform</span>(
+    <span class="pl-s1">os</span> <span class="pl-c1">=</span> <span class="pl-s">"windows"</span>,
+    <span class="pl-s1">arch</span> <span class="pl-c1">=</span> <span class="pl-s">"amd64"</span>,
+)
+<span class="pl-en">use_repo</span>(<span class="pl-s1">toolchains</span>, <span class="pl-s">"zig_sdk"</span>)</pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Toolchains</h3><a id="user-content-toolchains" class="anchor" aria-label="Permalink: Toolchains" href="#toolchains"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">All toolchain definitions for the HOST execution platform are defined in:</p>
+<ul dir="auto">
+<li><code>@zig_sdk//toolchain/...</code>
+<ul dir="auto">
+<li>unaware of <code>libc</code> constraint (<code>"@zig_sdk//libc:variant"</code>)</li>
+</ul>
+</li>
+<li><code>@zig_sdk//libc_aware/toolchain/...</code>
+<ul dir="auto">
+<li><code>libc</code> version aware e.g. <code>@zig_sdk//libc_aware/toolchain:linux_arm64_gnu.2.31</code></li>
+</ul>
+</li>
+</ul>
+<p dir="auto">In case of additional execution platforms, toolchains are placed with the same rule
+as for the HOST but with an additional platform <em>subpackage</em> of <code>"{os}-{arch}"</code> i.e.:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="@zig_sdk//toolchain/{os}-{arch}/...
+@zig_sdk//libc_aware/toolchain/{os}-{arch}/..."><pre><span class="pl-en">@<span class="pl-s1">zig_sdk</span><span class="pl-c1">//</span><span class="pl-s1">toolchain</span><span class="pl-c1">/</span>{<span class="pl-s1">os</span>}<span class="pl-c1">-</span>{<span class="pl-s1">arch</span>}<span class="pl-c1">/</span>...</span>
+<span class="pl-en">@<span class="pl-s1">zig_sdk</span><span class="pl-c1">//</span><span class="pl-s1">libc_aware</span><span class="pl-c1">/</span><span class="pl-s1">toolchain</span><span class="pl-c1">/</span>{<span class="pl-s1">os</span>}<span class="pl-c1">-</span>{<span class="pl-s1">arch</span>}<span class="pl-c1">/</span>...</span></pre></div>
+<p dir="auto">Having a <code>x86_64-linux-musl</code> toolchain for <code>@zig_sdk//platform:windows_amd64</code> execution platform will have full label of:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="@zig_sdk//toolchain/windows-amd64:x86_64-linux-musl
+                    ~~~~~~~~~~~~~
+                    ^
+                    os = `windows`, arch = `x86_64`"><pre class="notranslate"><code>@zig_sdk//toolchain/windows-amd64:x86_64-linux-musl
+                    ~~~~~~~~~~~~~
+                    ^
+                    os = `windows`, arch = `x86_64`
+</code></pre></div>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Use case: manually build a single target with a specific zig cc toolchain</h3><a id="user-content-use-case-manually-build-a-single-target-with-a-specific-zig-cc-toolchain" class="anchor" aria-label="Permalink: Use case: manually build a single target with a specific zig cc toolchain" href="#use-case-manually-build-a-single-target-with-a-specific-zig-cc-toolchain"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">This option is least disruptive to the workflow compared to no hermetic C++
 toolchain, and works best when trying out or getting started with
@@ -126,31 +230,40 @@ platform(
 <p dir="auto"><code>constraint_values</code> instructs Bazel to be looking for a <strong>toolchain</strong> that is
 compatible with (in Bazelspeak, <code>target_compatible_with</code>) <strong>all of the</strong>
 <code>["@platforms//os:linux", "@platforms//cpu:aarch64"]</code>.</p>
-<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Option <code>--toolchains=@zig_sdk//toolchain:linux_arm64_musl</code></h4><a id="user-content-option---toolchainszig_sdktoolchainlinux_arm64_musl" class="anchor" aria-label="Permalink: Option --toolchains=@zig_sdk//toolchain:linux_arm64_musl" href="#option---toolchainszig_sdktoolchainlinux_arm64_musl"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<p dir="auto">Inspect first (<code>@platforms//cpu:aarch64</code> is an alias to
-<code>@platforms//cpu:arm64</code>):</p>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Option <code>--extra_toolchains=@zig_sdk//toolchain:linux_arm64_musl</code></h4><a id="user-content-option---extra_toolchainszig_sdktoolchainlinux_arm64_musl" class="anchor" aria-label="Permalink: Option --extra_toolchains=@zig_sdk//toolchain:linux_arm64_musl" href="#option---extra_toolchainszig_sdktoolchainlinux_arm64_musl"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Inspect first (<code>@platforms//cpu:aarch64</code> is an alias to <code>@platforms//cpu:arm64</code>):</p>
 <div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="$ bazel query --output=build @zig_sdk//toolchain:linux_arm64_musl
 toolchain(
   name = &quot;linux_arm64_musl&quot;,
   generator_name = &quot;linux_arm64_musl&quot;,
   generator_function = &quot;declare_toolchains&quot;,
-  generator_location = &quot;toolchain/BUILD:7:19&quot;,
+  generator_location = &quot;toolchains~zig_sdk/toolchain/BUILD:7:19&quot;,
   toolchain_type = &quot;@bazel_tools//tools/cpp:toolchain_type&quot;,
+  exec_compatible_with = [&quot;@@_main~toolchains~zig_config//:exec_os&quot;, &quot;@@_main~toolchains~zig_config//:exec_cpu&quot;],
   target_compatible_with = [&quot;@platforms//os:linux&quot;, &quot;@platforms//cpu:aarch64&quot;, &quot;@zig_sdk//libc:unconstrained&quot;],
-  toolchain = &quot;@zig_sdk//:aarch64-linux-musl_cc&quot;,
+  toolchain = &quot;@@_main~toolchains~zig_config//:aarch64-linux-musl_cc&quot;,
 )"><pre class="notranslate"><code>$ bazel query --output=build @zig_sdk//toolchain:linux_arm64_musl
 toolchain(
   name = "linux_arm64_musl",
   generator_name = "linux_arm64_musl",
   generator_function = "declare_toolchains",
-  generator_location = "toolchain/BUILD:7:19",
+  generator_location = "toolchains~zig_sdk/toolchain/BUILD:7:19",
   toolchain_type = "@bazel_tools//tools/cpp:toolchain_type",
+  exec_compatible_with = ["@@_main~toolchains~zig_config//:exec_os", "@@_main~toolchains~zig_config//:exec_cpu"],
   target_compatible_with = ["@platforms//os:linux", "@platforms//cpu:aarch64", "@zig_sdk//libc:unconstrained"],
-  toolchain = "@zig_sdk//:aarch64-linux-musl_cc",
+  toolchain = "@@_main~toolchains~zig_config//:aarch64-linux-musl_cc",
 )
 </code></pre></div>
+<p dir="auto">Toolchain is compatible with an execution platform who satisfies
+<code>constraint_value</code>s of:</p>
+<ul dir="auto">
+<li><code>@zig_config//:exec_os</code></li>
+<li><code>@zig_config//:exec_cpu</code></li>
+</ul>
+<p dir="auto">Both are aliases to actual <code>os</code> and <code>cpu</code> of HOST platform (here <code>@platforms//os:linux</code>
+and <code>@platforms//cpu:x86_64</code> respectively).</p>
 <p dir="auto">For a platform to pick up the right toolchain, the platform's
-<code>constraint_values</code> must be a subset<sup><a href="#user-content-fn-1-b88d921076c898e5661953182e36839e" id="user-content-fnref-1-b88d921076c898e5661953182e36839e" data-footnote-ref="" aria-describedby="footnote-label">1</a></sup> of the toolchain's
+<code>constraint_values</code> must be a subset<sup><a href="#user-content-fn-1-d5a4f830ee1b0fbd0bb6cee452f08144" id="user-content-fnref-1-d5a4f830ee1b0fbd0bb6cee452f08144" data-footnote-ref="" aria-describedby="footnote-label">1</a></sup> of the toolchain's
 <code>target_compatible_with</code>. Since the platform is a subset (therefore,
 toolchain's <code>@zig_sdk//libc:unconstrained</code> does not matter), this toolchain is
 selected for this platform. As a result, <code>--platforms @zig_sdk//platform:linux_amd64</code> causes Bazel to select a toolchain
@@ -169,8 +282,47 @@ build:linux_arm64 --extra_toolchains @zig_sdk//toolchain:linux_arm64_musl
 </code></pre></div>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Use case: always compile with zig cc</h3><a id="user-content-use-case-always-compile-with-zig-cc" class="anchor" aria-label="Permalink: Use case: always compile with zig cc" href="#use-case-always-compile-with-zig-cc"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">Instead of adding the toolchains to <code>.bazelrc</code>, they can be added
-unconditionally. Append this to <code>WORKSPACE</code> after <code>zig_toolchains(...)</code>:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="register_toolchains(
+unconditionally.</p>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">MODULE.bazel</h4><a id="user-content-modulebazel-2" class="anchor" aria-label="Permalink: MODULE.bazel" href="#modulebazel-2"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="register_toolchains(
+    # execution HOST platform
+    &quot;@zig_sdk//toolchain:aarch64-linux-musl&quot;,
+    &quot;@zig_sdk//libc_aware/toolchain:linux_arm64_gnu.2.31&quot;,
+
+    # toolchains for libc-aware platforms, will be used for amd64 / arm64
+    &quot;@zig_sdk//libc_aware/toolchain:linux_amd64_gnu.2.28&quot;,
+    &quot;@zig_sdk//libc_aware/toolchain:linux_arm64_gnu.2.28&quot;,
+
+    # toolchains for darwin, will be used for amd64 / arm64
+    &quot;@zig_sdk//toolchain:darwin_amd64&quot;,
+    &quot;@zig_sdk//toolchain:darwin_arm64&quot;,
+
+    # wasm/wasi toolchains
+    &quot;@zig_sdk//toolchain:wasip1_wasm&quot;,
+)"><pre class="notranslate"><code>register_toolchains(
+    # execution HOST platform
+    "@zig_sdk//toolchain:aarch64-linux-musl",
+    "@zig_sdk//libc_aware/toolchain:linux_arm64_gnu.2.31",
+
+    # toolchains for libc-aware platforms, will be used for amd64 / arm64
+    "@zig_sdk//libc_aware/toolchain:linux_amd64_gnu.2.28",
+    "@zig_sdk//libc_aware/toolchain:linux_arm64_gnu.2.28",
+
+    # toolchains for darwin, will be used for amd64 / arm64
+    "@zig_sdk//toolchain:darwin_amd64",
+    "@zig_sdk//toolchain:darwin_arm64",
+
+    # wasm/wasi toolchains
+    "@zig_sdk//toolchain:wasip1_wasm",
+)
+</code></pre></div>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">WORKSPACE</h4><a id="user-content-workspace-2" class="anchor" aria-label="Permalink: WORKSPACE" href="#workspace-2"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Append this to <code>WORKSPACE</code> after <code>zig_toolchains()</code>:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@hermetic_cc_toolchain//toolchain:defs.bzl&quot;, zig_toolchains = &quot;toolchains&quot;)
+
+zig_toolchains()
+
+register_toolchains(
     &quot;@zig_sdk//toolchain:linux_amd64_gnu.2.28&quot;,
     &quot;@zig_sdk//toolchain:linux_arm64_gnu.2.28&quot;,
     &quot;@zig_sdk//toolchain:darwin_amd64&quot;,
@@ -178,7 +330,11 @@ unconditionally. Append this to <code>WORKSPACE</code> after <code>zig_toolchain
     &quot;@zig_sdk//toolchain:windows_amd64&quot;,
     &quot;@zig_sdk//toolchain:windows_arm64&quot;,
     &quot;@zig_sdk//toolchain:wasip1_wasm&quot;,
-)"><pre><span class="pl-en">register_toolchains</span>(
+)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@hermetic_cc_toolchain//toolchain:defs.bzl"</span>, <span class="pl-s1">zig_toolchains</span> <span class="pl-c1">=</span> <span class="pl-s">"toolchains"</span>)
+
+<span class="pl-en">zig_toolchains</span>()
+
+<span class="pl-en">register_toolchains</span>(
     <span class="pl-s">"@zig_sdk//toolchain:linux_amd64_gnu.2.28"</span>,
     <span class="pl-s">"@zig_sdk//toolchain:linux_arm64_gnu.2.28"</span>,
     <span class="pl-s">"@zig_sdk//toolchain:darwin_amd64"</span>,
@@ -187,6 +343,10 @@ unconditionally. Append this to <code>WORKSPACE</code> after <code>zig_toolchain
     <span class="pl-s">"@zig_sdk//toolchain:windows_arm64"</span>,
     <span class="pl-s">"@zig_sdk//toolchain:wasip1_wasm"</span>,
 )</pre></div>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">All toolchains at once</h4><a id="user-content-all-toolchains-at-once" class="anchor" aria-label="Permalink: All toolchains at once" href="#all-toolchains-at-once"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">To register all available toolchains one can simply call:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="register_toolchains(&quot;@zig_sdk//...&quot;)"><pre><span class="pl-en">register_toolchains</span>(<span class="pl-s">"@zig_sdk//..."</span>)</pre></div>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">No local toolchains</h4><a id="user-content-no-local-toolchains" class="anchor" aria-label="Permalink: No local toolchains" href="#no-local-toolchains"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">Append this to <code>.bazelrc</code>:</p>
 <div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="build --action_env BAZEL_DO_NOT_DETECT_CPP_TOOLCHAIN=1"><pre class="notranslate"><code>build --action_env BAZEL_DO_NOT_DETECT_CPP_TOOLCHAIN=1
 </code></pre></div>
@@ -215,13 +375,13 @@ when building for a specific libc. For example, in <code>WORKSPACE</code>:</p>
     <span class="pl-s">"@zig_sdk//libc_aware/toolchain:x86_64-linux-musl"</span>,
 )</pre></div>
 <p dir="auto">What does <code>@zig_sdk//libc_aware/toolchain:linux_amd64_gnu.2.19</code> mean?</p>
-<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="$ bazel query --output=build @zig_sdk//libc_aware/toolchain:linux_amd64_gnu.2.19 |&amp; grep target
-  target_compatible_with = [&quot;@platforms//os:linux&quot;, &quot;@platforms//cpu:x86_64&quot;, &quot;@zig_sdk//libc:gnu.2.19&quot;],"><pre class="notranslate"><code>$ bazel query --output=build @zig_sdk//libc_aware/toolchain:linux_amd64_gnu.2.19 |&amp; grep target
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="$ bazel query --output=build @zig_sdk//libc_aware/toolchain:linux_amd64_gnu.2.19 | grep target
+  target_compatible_with = [&quot;@platforms//os:linux&quot;, &quot;@platforms//cpu:x86_64&quot;, &quot;@zig_sdk//libc:gnu.2.19&quot;],"><pre class="notranslate"><code>$ bazel query --output=build @zig_sdk//libc_aware/toolchain:linux_amd64_gnu.2.19 | grep target
   target_compatible_with = ["@platforms//os:linux", "@platforms//cpu:x86_64", "@zig_sdk//libc:gnu.2.19"],
 </code></pre></div>
 <p dir="auto">To see how this relates to the platform:</p>
-<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="$ bazel query --output=build @zig_sdk//libc_aware/platform:linux_amd64_gnu.2.19 |&amp; grep constraint
-  constraint_values = [&quot;@platforms//os:linux&quot;, &quot;@platforms//cpu:x86_64&quot;, &quot;@zig_sdk//libc:gnu.2.19&quot;],"><pre class="notranslate"><code>$ bazel query --output=build @zig_sdk//libc_aware/platform:linux_amd64_gnu.2.19 |&amp; grep constraint
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="$ bazel query --output=build @zig_sdk//libc_aware/platform:linux_amd64_gnu.2.19 | grep constraint
+  constraint_values = [&quot;@platforms//os:linux&quot;, &quot;@platforms//cpu:x86_64&quot;, &quot;@zig_sdk//libc:gnu.2.19&quot;],"><pre class="notranslate"><code>$ bazel query --output=build @zig_sdk//libc_aware/platform:linux_amd64_gnu.2.19 | grep constraint
   constraint_values = ["@platforms//os:linux", "@platforms//cpu:x86_64", "@zig_sdk//libc:gnu.2.19"],
 </code></pre></div>
 <p dir="auto">In this case, the platform's <code>constraint_values</code> and toolchain's
@@ -229,23 +389,19 @@ when building for a specific libc. For example, in <code>WORKSPACE</code>:</p>
 toolchain for the requested platform. With these toolchains registered, one can
 build a project for a specific libc-aware platform; it will select the
 appropriate toolchain:</p>
-<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="$ bazel run --platforms @zig_sdk//libc_aware/platform:linux_amd64_gnu.2.19 //test/c:which_libc
-glibc_2.19
-$ bazel run --platforms @zig_sdk//libc_aware/platform:linux_amd64_gnu.2.28 //test/c:which_libc
-glibc_2.28
-$ bazel run --platforms @zig_sdk//libc_aware/platform:linux_amd64_musl //test/c:which_libc
-non_glibc
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="$ bazel run --platforms @zig_sdk//libc_aware/platform:linux_amd64_gnu.2.28 //test/c:which_libc_linux_amd64_gnu.2.28
+linux glibc_2.28
+$ bazel run --platforms @zig_sdk//libc_aware/platform:linux_amd64_musl //test/c:which_libc_linux_amd64_musl
+linux non-glibc
 $ bazel run --run_under=file --platforms @zig_sdk//libc_aware/platform:linux_arm64_gnu.2.28 //test/c:which_libc
-which_libc: ELF 64-bit LSB executable, ARM aarch64, version 1 (SYSV), dynamically linked, interpreter /lib/ld-linux-aarch64.so.1, for GNU/Linux 2.0.0, stripped"><pre class="notranslate"><code>$ bazel run --platforms @zig_sdk//libc_aware/platform:linux_amd64_gnu.2.19 //test/c:which_libc
-glibc_2.19
-$ bazel run --platforms @zig_sdk//libc_aware/platform:linux_amd64_gnu.2.28 //test/c:which_libc
-glibc_2.28
-$ bazel run --platforms @zig_sdk//libc_aware/platform:linux_amd64_musl //test/c:which_libc
-non_glibc
+which_libc: ELF 64-bit LSB executable, ARM aarch64, version 1 (SYSV), dynamically linked, interpreter /lib/ld-linux-aarch64.so.1, for GNU/Linux 2.0.0, stripped"><pre class="notranslate"><code>$ bazel run --platforms @zig_sdk//libc_aware/platform:linux_amd64_gnu.2.28 //test/c:which_libc_linux_amd64_gnu.2.28
+linux glibc_2.28
+$ bazel run --platforms @zig_sdk//libc_aware/platform:linux_amd64_musl //test/c:which_libc_linux_amd64_musl
+linux non-glibc
 $ bazel run --run_under=file --platforms @zig_sdk//libc_aware/platform:linux_arm64_gnu.2.28 //test/c:which_libc
 which_libc: ELF 64-bit LSB executable, ARM aarch64, version 1 (SYSV), dynamically linked, interpreter /lib/ld-linux-aarch64.so.1, for GNU/Linux 2.0.0, stripped
 </code></pre></div>
-<p dir="auto">To the list of libc aware toolchains and platforms:</p>
+<p dir="auto">To list libc aware toolchains and platforms:</p>
 <div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="$ bazel query @zig_sdk//libc_aware/toolchain/...
 $ bazel query @zig_sdk//libc_aware/platform/..."><pre class="notranslate"><code>$ bazel query @zig_sdk//libc_aware/toolchain/...
 $ bazel query @zig_sdk//libc_aware/platform/...
@@ -306,6 +462,16 @@ Go, the following Go-style toolchain aliases are created:</p>
 <code>x86_64-linux-gnu.2.28</code>. To find out which toolchains can be registered or
 used, run:</p>
 <div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="$ bazel query @zig_sdk//toolchain/..."><pre class="notranslate"><code>$ bazel query @zig_sdk//toolchain/...
+</code></pre></div>
+<blockquote>
+<p dir="auto"><strong>For execution platform other than HOST toolchains subpackage of
+<code>@zig_sdk</code> repository uses only <code>go</code> names:</strong></p>
+</blockquote>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="$ bazel query @zig_sdk//toolchain/linux-arm64/...
+                                  ~~~~~~~~~~~
+                                  execution platform os = linux, arch = arm64"><pre class="notranslate"><code>$ bazel query @zig_sdk//toolchain/linux-arm64/...
+                                  ~~~~~~~~~~~
+                                  execution platform os = linux, arch = arm64
 </code></pre></div>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Incompatibilities with clang and gcc</h2><a id="user-content-incompatibilities-with-clang-and-gcc" class="anchor" aria-label="Permalink: Incompatibilities with clang and gcc" href="#incompatibilities-with-clang-and-gcc"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto"><code>zig cc</code> is <em>almost</em> a drop-in replacement for clang/gcc. This section lists
@@ -385,7 +551,7 @@ mutt -R -f mailing-list-archive.mbox
 <li><a href="https://github.com/motiejus">@motiejus</a></li>
 <li><a href="https://github.com/sywhang">@sywhang</a></li>
 </ul>
-<p dir="auto">Guidelines for maintainers<sup><a href="#user-content-fn-2-b88d921076c898e5661953182e36839e" id="user-content-fnref-2-b88d921076c898e5661953182e36839e" data-footnote-ref="" aria-describedby="footnote-label">2</a></sup>:</p>
+<p dir="auto">Guidelines for maintainers<sup><a href="#user-content-fn-2-d5a4f830ee1b0fbd0bb6cee452f08144" id="user-content-fnref-2-d5a4f830ee1b0fbd0bb6cee452f08144" data-footnote-ref="" aria-describedby="footnote-label">2</a></sup>:</p>
 <ul dir="auto">
 <li>Communicate intent precisely.</li>
 <li>Edge cases matter.</li>
@@ -415,11 +581,11 @@ validate it before cutting the release.</li>
 </ul>
 <section data-footnotes="" class="footnotes"><h2 id="footnote-label" class="sr-only" dir="auto">Footnotes</h2>
 <ol dir="auto">
-<li id="user-content-fn-1-b88d921076c898e5661953182e36839e">
-<p dir="auto">a <a href="https://en.wikipedia.org/wiki/Subset">mathematical subset</a>: both can be equal. <a href="#user-content-fnref-1-b88d921076c898e5661953182e36839e" data-footnote-backref="" aria-label="Back to reference 1" class="data-footnote-backref">↩</a></p>
+<li id="user-content-fn-1-d5a4f830ee1b0fbd0bb6cee452f08144">
+<p dir="auto">a <a href="https://en.wikipedia.org/wiki/Subset">mathematical subset</a>: both can be equal. <a href="#user-content-fnref-1-d5a4f830ee1b0fbd0bb6cee452f08144" data-footnote-backref="" aria-label="Back to reference 1" class="data-footnote-backref">↩</a></p>
 </li>
-<li id="user-content-fn-2-b88d921076c898e5661953182e36839e">
-<p dir="auto">Credit: <code>zig zen</code> <a href="#user-content-fnref-2-b88d921076c898e5661953182e36839e" data-footnote-backref="" aria-label="Back to reference 2" class="data-footnote-backref">↩</a></p>
+<li id="user-content-fn-2-d5a4f830ee1b0fbd0bb6cee452f08144">
+<p dir="auto">Credit: <code>zig zen</code> <a href="#user-content-fnref-2-d5a4f830ee1b0fbd0bb6cee452f08144" data-footnote-backref="" aria-label="Back to reference 2" class="data-footnote-backref">↩</a></p>
 </li>
 </ol>
 </section>
