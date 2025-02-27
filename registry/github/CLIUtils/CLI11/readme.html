@@ -226,6 +226,9 @@ argparse because of this perceived design flaw (recent versions do have an
 option to disable it).</li>
 <li>Autocomplete: This might eventually be added to both Plumbum and CLI11, but it
 is not supported yet.</li>
+<li>While not recommended, CLI11 does now support non standard option names such
+as <code>-option</code>. 🆕. This is enabled through <code>allow_non_standard_option_names()</code>
+modifier on an app.</li>
 </ul>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Install</h2><a id="user-content-install" class="anchor" aria-label="Permalink: Install" href="#install"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">To use, the most common methods are described here additional methods and
@@ -266,9 +269,8 @@ this:</p>
     <span class="pl-c1">CLI11_PARSE</span>(app, argc, argv);
     <span class="pl-k">return</span> <span class="pl-c1">0</span>;
 }</pre></div>
-<p dir="auto">For more information about 🆕<code>ensure_utf8</code> the section on
-<a href="#unicode-support">Unicode support</a> below. The 🆕<code>ensure_utf8</code> function is only
-available in main currently and not in a release.</p>
+<p dir="auto">For more information about <code>ensure_utf8</code> the section on
+<a href="#unicode-support">Unicode support</a> below.</p>
 <details><summary>Note: If you don't like macros, this is what that macro expands to: (click to expand)</summary><p dir="auto">
 </p><div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="try {
     app.parse(argc, argv);
@@ -480,7 +482,7 @@ the name of the option</li>
 option. Options can be removed from the excludes list with
 <code>-&gt;remove_excludes(opt)</code></li>
 <li><code>-&gt;envname(name)</code>: Gets the value from the environment if present and not
-passed on the command line. 🆕 The value must also pass any validators to be
+passed on the command line. The value must also pass any validators to be
 used.</li>
 <li><code>-&gt;group(name)</code>: The help group to put the option in. No effect for positional
 options. Defaults to <code>"Options"</code>. Options given an empty string will not show
@@ -516,7 +518,7 @@ This equivalent to calling <code>-&gt;delimiter(delim)</code> and <code>-&gt;joi
 are <code>CLI::MultiOptionPolicy::Throw</code>, <code>CLI::MultiOptionPolicy::Throw</code>,
 <code>CLI::MultiOptionPolicy::TakeLast</code>, <code>CLI::MultiOptionPolicy::TakeFirst</code>,
 <code>CLI::MultiOptionPolicy::Join</code>, <code>CLI::MultiOptionPolicy::TakeAll</code>,
-<code>CLI::MultiOptionPolicy::Sum</code>, and <code>CLI::MultiOptionPolicy::Reverse</code> 🆕.</li>
+<code>CLI::MultiOptionPolicy::Sum</code>, and <code>CLI::MultiOptionPolicy::Reverse</code>.</li>
 <li><code>-&gt;check(std::string(const std::string &amp;), validator_name="",validator_description="")</code>:
 Define a check function. The function should return a non empty string with
 the error message if the check fails</li>
@@ -752,8 +754,8 @@ is returned normally but this can be disabled using
 be chained using multiple transform calls.</p>
 </li>
 <li>
-<p dir="auto"><code>CLI::EscapedString</code>: 🆕 can be used to process an escaped string. The
-processing is equivalent to that used for TOML config files, see
+<p dir="auto"><code>CLI::EscapedString</code>: can be used to process an escaped string. The processing
+is equivalent to that used for TOML config files, see
 <a href="https://toml.io/en/v1.0.0#string" rel="nofollow">TOML strings</a>. With 2 notable exceptions.
 ` can also be used as a literal string notation, and it also allows binary
 string notation see
@@ -873,7 +875,9 @@ triggered once unless the <code>.immediate_callback()</code> flag is set or the 
 specified through the <code>parse_complete_callback()</code> function. The
 <code>final_callback()</code> is triggered only once. In which case the callback executes
 on completion of the subcommand arguments but after the arguments for that
-subcommand have been parsed, and can be triggered multiple times.</p>
+subcommand have been parsed, and can be triggered multiple times. Note that the
+<code>parse_complete_callback()</code> is executed prior to processing any config files.
+The <code>final_callback()</code> is executed after config file processing.</p>
 <p dir="auto">Subcommands may also have an empty name either by calling <code>add_subcommand</code> with
 an empty string for the name or with no arguments. Nameless subcommands function
 a similarly to groups in the main <code>App</code>. See <a href="#option-groups">Option groups</a> to
@@ -885,7 +889,7 @@ components and merged into a main <code>App</code>, or possibly multiple <code>A
 nameless subcommands are allowed. Callbacks for nameless subcommands are only
 triggered if any options from the subcommand were parsed. Subcommand names given
 through the <code>add_subcommand</code> method have the same restrictions as option names.</p>
-<p dir="auto">🆕 Options or flags in a subcommand may be directly specified using dot notation</p>
+<p dir="auto">Options or flags in a subcommand may be directly specified using dot notation</p>
 <ul dir="auto">
 <li><code>--subcommand.long=val</code> (long subcommand option)</li>
 <li><code>--subcommand.long val</code> (long subcommand option)</li>
@@ -897,8 +901,8 @@ through the <code>add_subcommand</code> method have the same restrictions as opt
 <p dir="auto">The use of dot notation in this form is equivalent <code>--subcommand.long &lt;args&gt;</code> =&gt;
 <code>subcommand --long &lt;args&gt; ++</code>. Nested subcommands also work <code>sub1.subsub</code> would
 trigger the subsub subcommand in <code>sub1</code>. This is equivalent to "sub1 subsub".
-Quotes around the subcommand names are permitted 🆕 following the TOML standard
-for such specification. This includes allowing escape sequences. For example
+Quotes around the subcommand names are permitted following the TOML standard for
+such specification. This includes allowing escape sequences. For example
 <code>"subcommand".'f'</code> or <code>"subcommand.with.dots".arg1 = value</code>.</p>
 <div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Subcommand options</h4><a id="user-content-subcommand-options" class="anchor" aria-label="Permalink: Subcommand options" href="#subcommand-options"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">There are several options that are supported on the main app and subcommands and
@@ -912,7 +916,7 @@ Inherited by added subcommands, so is usually used on the main <code>App</code>.
 the form of <code>/s /long /file:file_name.ext</code> This option does not change how
 options are specified in the <code>add_option</code> calls or the ability to process
 options in the form of <code>-s --long --file=file_name.ext</code>.</li>
-<li><code>.allow_non_standard_option_names()</code>:🚧 Allow specification of single <code>-</code> long
+<li><code>.allow_non_standard_option_names()</code>:🆕 Allow specification of single <code>-</code> long
 form option names. This is not recommended but is available to enable
 reworking of existing interfaces. If this modifier is enabled on an app or
 subcommand, options or flags can be specified like normal but instead of
@@ -924,8 +928,8 @@ not allowed in the same application.</li>
 through" and be matched on a parent option. Subcommands by default are allowed
 to "fall through" as in they will first attempt to match on the current
 subcommand and if they fail will progressively check parents for matching
-subcommands. This can be disabled through <code>subcommand_fallthrough(false)</code> 🚧.</li>
-<li><code>.subcommand_fallthrough()</code>: 🚧 Allow subcommands to "fall through" and be
+subcommands. This can be disabled through <code>subcommand_fallthrough(false)</code> 🆕.</li>
+<li><code>.subcommand_fallthrough()</code>: 🆕 Allow subcommands to "fall through" and be
 matched on a parent option. Disabling this prevents additional subcommands at
 the same level from being matched. It can be useful in certain circumstances
 where there might be ambiguity between subcommands and positionals. The
@@ -1037,10 +1041,10 @@ arguments and throw an error if an unexpected positional is encountered.</li>
 the first unrecognized item. All subsequent arguments are placed in the
 remaining_arg list. It is ideal for allowing your app or subcommand to be a
 "prefix" to calling another app.</li>
-<li><code>.usage(message)</code>: 🆕 Replace text to appear at the start of the help string
+<li><code>.usage(message)</code>: Replace text to appear at the start of the help string
 after description.</li>
-<li><code>.usage(std::string())</code>: 🆕 Set a callback to generate a string that will
-appear at the start of the help string after description.</li>
+<li><code>.usage(std::string())</code>: Set a callback to generate a string that will appear
+at the start of the help string after description.</li>
 <li><code>.footer(message)</code>: Set text to appear at the bottom of the help string.</li>
 <li><code>.footer(std::string())</code>: Set a callback to generate a string that will appear
 at the end of the help string.</li>
@@ -1120,8 +1124,8 @@ executed.</li>
 met.</p>
 <ol dir="auto">
 <li>There are no more arguments to process</li>
-<li>Another subcommand is encountered that would not fit in an optional slot of
-the subcommand</li>
+<li>Another subcommand is encountered that would not fit in an optional
+positional slot of the subcommand</li>
 <li>The <code>positional_mark</code> (<code>--</code>) is encountered and there are no available
 positional slots in the subcommand.</li>
 <li>The <code>subcommand_terminator</code> mark (<code>++</code>) is encountered</li>
@@ -1218,11 +1222,11 @@ is present, it will be read along with the normal command line arguments. The
 file will be read if it exists, and does not throw an error unless <code>required</code> is
 <code>true</code>. Configuration files are in <a href="https://toml.io" rel="nofollow">TOML</a> format by default, though the
 default reader can also accept files in INI format as well. The config reader
-can read most aspects of TOML files including strings both literal 🆕 and with
-potential escape sequences 🆕, digit separators 🆕, and multi-line strings 🆕,
-and run them through the CLI11 parser. Other formats can be added by an adept
-user, some variations are available through customization points in the default
-formatter. An example of a TOML file:</p>
+can read most aspects of TOML files including strings both literal and with
+potential escape sequences, digit separators, and multi-line strings, and run
+them through the CLI11 parser. Other formats can be added by an adept user, some
+variations are available through customization points in the default formatter.
+An example of a TOML file:</p>
 <div class="highlight highlight-source-toml notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="# Comments are supported, using a #
 # The default section is [default], case-insensitive
 
@@ -1666,10 +1670,11 @@ thanks to all the contributors
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/jgerityneurala"><img src="https://avatars2.githubusercontent.com/u/57360646?v=4?s=100" width="100px;" alt="James Gerity" style="max-width: 100%;"><br><sub><b>James Gerity</b></sub></a><br><a href="https://github.com/CLIUtils/CLI11/commits?author=jgerityneurala" title="Documentation">📖</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/jbriales"><img src="https://avatars1.githubusercontent.com/u/6850478?v=4?s=100" width="100px;" alt="Jesus Briales" style="max-width: 100%;"><br><sub><b>Jesus Briales</b></sub></a><br><a href="https://github.com/CLIUtils/CLI11/commits?author=jbriales" title="Code">💻</a> <a href="https://github.com/CLIUtils/CLI11/issues?q=author%3Ajbriales" title="Bug reports">🐛</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/SkyToGround"><img src="https://avatars1.githubusercontent.com/u/58835?v=4?s=100" width="100px;" alt="Jonas Nilsson" style="max-width: 100%;"><br><sub><b>Jonas Nilsson</b></sub></a><br><a href="https://github.com/CLIUtils/CLI11/issues?q=author%3ASkyToGround" title="Bug reports">🐛</a> <a href="https://github.com/CLIUtils/CLI11/commits?author=SkyToGround" title="Code">💻</a></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/j-rivero"><img src="https://avatars.githubusercontent.com/u/2098802?v=4?s=100" width="100px;" alt="Jose Luis Rivero" style="max-width: 100%;"><br><sub><b>Jose Luis Rivero</b></sub></a><br><a href="https://github.com/CLIUtils/CLI11/commits?author=j-rivero" title="Code">💻</a></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/jsoref"><img src="https://avatars0.githubusercontent.com/u/2119212?v=4?s=100" width="100px;" alt="Josh Soref" style="max-width: 100%;"><br><sub><b>Josh Soref</b></sub></a><br><a href="#tool-jsoref" title="Tools">🔧</a> <a href="https://github.com/CLIUtils/CLI11/commits?author=jsoref" title="Documentation">📖</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/j-rivero"><img src="https://avatars.githubusercontent.com/u/2098802?v=4?s=100" width="100px;" alt="Jose Luis Rivero" style="max-width: 100%;"><br><sub><b>Jose Luis Rivero</b></sub></a><br><a href="https://github.com/CLIUtils/CLI11/commits?author=j-rivero" title="Code">💻</a> <a href="#platform-j-rivero" title="Packaging/porting to new platform">📦</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/jsoref"><img src="https://avatars0.githubusercontent.com/u/2119212?v=4?s=100" width="100px;" alt="Josh Soref" style="max-width: 100%;"><br><sub><b>Josh Soref</b></sub></a><br><a href="#tool-jsoref" title="Tools">🔧</a><a href="https://github.com/CLIUtils/CLI11/commits?author=jsoref" title="Documentation">📖</a></td>
     </tr>
     <tr>
+      <td align="center" valign="top" width="14.28%"><a href="http://www.effibem.com" rel="nofollow"><img src="https://avatars.githubusercontent.com/u/5479063?v=4?s=100" width="100px;" alt="Julien Marrec" style="max-width: 100%;"><br><sub><b>Julien Marrec</b></sub></a><br><a href="https://github.com/CLIUtils/CLI11/commits?author=jmarrec" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/KOLANICH"><img src="https://avatars1.githubusercontent.com/u/240344?v=4?s=100" width="100px;" alt="KOLANICH" style="max-width: 100%;"><br><sub><b>KOLANICH</b></sub></a><br><a href="#platform-KOLANICH" title="Packaging/porting to new platform">📦</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/skannan89"><img src="https://avatars0.githubusercontent.com/u/11918764?v=4?s=100" width="100px;" alt="Kannan" style="max-width: 100%;"><br><sub><b>Kannan</b></sub></a><br><a href="https://github.com/CLIUtils/CLI11/issues?q=author%3Askannan89" title="Bug reports">🐛</a> <a href="https://github.com/CLIUtils/CLI11/commits?author=skannan89" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="http://himvis.com" rel="nofollow"><img src="https://avatars3.githubusercontent.com/u/465279?v=4?s=100" width="100px;" alt="Khem Raj" style="max-width: 100%;"><br><sub><b>Khem Raj</b></sub></a><br><a href="https://github.com/CLIUtils/CLI11/commits?author=kraj" title="Code">💻</a></td>
@@ -1730,6 +1735,7 @@ thanks to all the contributors
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/geir-t"><img src="https://avatars3.githubusercontent.com/u/35292136?v=4?s=100" width="100px;" alt="geir-t" style="max-width: 100%;"><br><sub><b>geir-t</b></sub></a><br><a href="#platform-geir-t" title="Packaging/porting to new platform">📦</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/gostefan"><img src="https://avatars.githubusercontent.com/u/2479455?v=4?s=100" width="100px;" alt="gostefan" style="max-width: 100%;"><br><sub><b>gostefan</b></sub></a><br><a href="https://github.com/CLIUtils/CLI11/commits?author=gostefan" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/ncihnegn"><img src="https://avatars3.githubusercontent.com/u/12021721?v=4?s=100" width="100px;" alt="ncihnegn" style="max-width: 100%;"><br><sub><b>ncihnegn</b></sub></a><br><a href="https://github.com/CLIUtils/CLI11/commits?author=ncihnegn" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/nshaheed"><img src="https://avatars.githubusercontent.com/u/6963603?v=4?s=100" width="100px;" alt="nshaheed" style="max-width: 100%;"><br><sub><b>nshaheed</b></sub></a><br><a href="#platform-nshaheed" title="Packaging/porting to new platform">📦</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/nurelin"><img src="https://avatars3.githubusercontent.com/u/5276274?v=4?s=100" width="100px;" alt="nurelin" style="max-width: 100%;"><br><sub><b>nurelin</b></sub></a><br><a href="https://github.com/CLIUtils/CLI11/commits?author=nurelin" title="Code">💻</a></td>
     </tr>
     <tr>
