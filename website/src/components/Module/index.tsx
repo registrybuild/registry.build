@@ -157,7 +157,7 @@ const Module = (props) => {
             {versionData && (
               <div className="package-compatability">
                 <Milestone className="package-icon" />
-                Compatability level{" "}
+                Compatibility level{" "}
                 {[
                   ...versionData.module.matchAll(
                     /compatibility_level.*?([0-9]+).*?/g
