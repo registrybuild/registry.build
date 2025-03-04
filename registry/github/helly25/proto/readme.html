@@ -1,0 +1,338 @@
+<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><p dir="auto">This package contains a collection of utilities around Google's <a href="https://github.com/protocolbuffers/protobuf">Protocolbuffer</a>. The functions offered in this packages are widely used across Google's C++ code base and have saved tens of thousands of engineering hours.</p>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Parse Proto</h1><a id="user-content-parse-proto" class="anchor" aria-label="Permalink: Parse Proto" href="#parse-proto"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li>
+<p dir="auto">rule: <code>@com_helly25_proto//mbo/proto:parse_text_proto_cc</code></p>
+</li>
+<li>
+<p dir="auto">namespace: <code>mbo::proto</code></p>
+</li>
+<li>
+<p dir="auto"><code>ParseTextProtoOrDie</code>(<code>text_proto</code> [, <code>std::source_location</code>])</p>
+<ul dir="auto">
+<li><code>text_proto</code> is a text proto best identified as a raw-string with marker <code>pb</code> or <code>proto</code>.</li>
+<li>If <code>text_proto</code> cannot be parsed into the receiving proto type, then the function will fail.</li>
+<li>Prefer this function over template function <code>ParseTextOrDie</code>.</li>
+</ul>
+</li>
+<li>
+<p dir="auto"><code>ParseTextOrDie</code>&lt;<code>Proto</code>&gt;(<code>text_proto</code> [, <code>std::source_location</code>])</p>
+<ul dir="auto">
+<li><code>text_proto</code> is a text proto best identified as a raw-string with marker <code>pb</code> or <code>proto</code>.</li>
+<li><code>Proto</code> is the type to produce.</li>
+<li>If <code>text_proto</code> cannot be parsed as a <code>Proto</code>, then the function will fail.</li>
+<li>Use this only if the <code>Proto</code> type cannot be inferred by <code>ParserTextProtoOrDie</code>.</li>
+</ul>
+</li>
+<li>
+<p dir="auto"><code>ParseTest</code>&lt;<code>Proto</code>&gt;(<code>text_proto</code> [, <code>std::source_location</code>]) -&gt; <code>absl::StatusOr</code>&lt;<code>Proto</code>&gt;</p>
+<ul dir="auto">
+<li><code>text_proto</code> is a text proto best identified as a raw-string with marker <code>pb</code> or <code>proto</code>.</li>
+<li><code>Proto</code> is the type to produce.</li>
+<li>If <code>text_proto</code> cannot be parse as a <code>Proto</code>, then the function returns a non-<code>absl::OkStatus</code>.</li>
+<li>Use this function in cases where errors are expected.</li>
+</ul>
+</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Usage</h2><a id="user-content-usage" class="anchor" aria-label="Permalink: Usage" href="#usage"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">BUILD.bazel:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="cc_test(
+    name = &quot;test&quot;,
+    srcs = [&quot;test.cc&quot;],
+    deps = [&quot;@com_helly25_proto//mbo/proto:parse_text_proto&quot;,]
+)"><pre class="notranslate"><code>cc_test(
+    name = "test",
+    srcs = ["test.cc"],
+    deps = ["@com_helly25_proto//mbo/proto:parse_text_proto",]
+)
+</code></pre></div>
+<p dir="auto">Source test.cc:</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="#include &quot;mbo/proto/parse_text_proto.h&quot;
+
+using ::mbo::proto::ParseTextProtoOrDie;
+
+TEST(Foo, Test) {
+    MyProto msg = ParseTextProtoOrDie(R&quot;pb(
+      field: &quot;name&quot;
+      what: &quot;Just dump the plain text-proto as C++ raw-string.&quot;
+      )pb&quot;);
+    // ...
+}"><pre>#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">"</span>mbo/proto/parse_text_proto.h<span class="pl-pds">"</span></span>
+
+<span class="pl-k">using</span> ::mbo::proto::ParseTextProtoOrDie;
+
+<span class="pl-en">TEST</span>(Foo, Test) {
+    MyProto msg = <span class="pl-c1">ParseTextProtoOrDie</span>(<span class="pl-s"><span class="pl-pds">R"pb(</span></span>
+<span class="pl-s">      field: "name"</span>
+<span class="pl-s">      what: "Just dump the plain text-proto as C++ raw-string."</span>
+<span class="pl-s">      <span class="pl-pds">)pb"</span></span>);
+    <span class="pl-c"><span class="pl-c">//</span> ...</span>
+}</pre></div>
+<p dir="auto">Note:</p>
+<ul dir="auto">
+<li>In the above example the proto is not manually constructed field by field.</li>
+<li>Instead the text-proto output is directly used as a C++ raw-string.</li>
+<li>Further the C++ raw-string is enclosed in <code>pb</code> markers which some tidy tools identify and use to correctly format the text-proto.</li>
+<li>One of the biggest advantages of these parse function is that their result can be assigned into a const variable.</li>
+</ul>
+<p dir="auto">The <code>ParseTextProtoOrDie</code> function dies if the input text-proto is not valid. That is done because the function emulates type safety this way. That is the author will likely only have to fix this once while many people will read the code. Further, this is test input that is supposed to be correct as is. If the input is of dynamic nature, then <code>ParseText&lt;ProtoType&gt;(std::string_view)</code> has to be used.</p>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Proto Matchers</h1><a id="user-content-proto-matchers" class="anchor" aria-label="Permalink: Proto Matchers" href="#proto-matchers"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li>
+<p dir="auto">rule: <code>@com_helly25_proto//mbo/proto:matchers_cc</code></p>
+</li>
+<li>
+<p dir="auto">namespace: <code>mbo::proto</code></p>
+</li>
+<li>
+<p dir="auto"><code>EqualsProto</code>(<code>msg</code>)</p>
+<ul dir="auto">
+<li><code>msg</code>: protocolbuffer Message or string</li>
+<li>Checks whether <code>msg</code> and the argument are the same proto.</li>
+<li>If a string is used it is advisable to format the string as a raw-string
+with 'pb' marker as demonstrated above.</li>
+</ul>
+</li>
+<li>
+<p dir="auto"><code>EqualsProto</code>()</p>
+<ul dir="auto">
+<li>2-tuple polymorphic matcher that can be used for container comparisons.</li>
+</ul>
+</li>
+<li>
+<p dir="auto"><code>EquivToProto</code>(<code>msg</code>)</p>
+<ul dir="auto">
+<li><code>msg</code>: protocolbuffer Message or string</li>
+<li>Similar to <code>EqualsProto</code> but checks whether <code>msg</code> and the argument are equivalent.</li>
+<li>Equivalent means that if one side sets a field to the default value and the other side does not
+have that field specified, then they are equivalent.</li>
+</ul>
+</li>
+<li>
+<p dir="auto"><code>EquivToProto</code>()</p>
+<ul dir="auto">
+<li>2-tuple polymorphic matcher that can be used for container comparisons.</li>
+</ul>
+</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Proto Matcher Wrappers</h2><a id="user-content-proto-matcher-wrappers" class="anchor" aria-label="Permalink: Proto Matcher Wrappers" href="#proto-matcher-wrappers"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li>
+<p dir="auto"><code>Approximately</code>(<code>matcher</code> [, <code>margin</code> [, <code>fraction</code>]])</p>
+<ul dir="auto">
+<li><code>matcher</code> wrapper that allows to compare <code>double</code> and <code>float</code> values with a margin of error.</li>
+<li>optional <code>margin</code> of error and a relative <code>fraction</code> of error which will make values match if
+satisfied.</li>
+</ul>
+</li>
+<li>
+<p dir="auto"><code>TreatingNaNsAsEqual</code>(<code>matcher</code>)</p>
+<ul dir="auto">
+<li><code>matcher</code> wrapper that compares floating-point fields such that NaNs are equal</li>
+</ul>
+</li>
+<li>
+<p dir="auto"><code>IgnoringFields</code>(<code>ignore_fields</code>, <code>matcher</code>)</p>
+<ul dir="auto">
+<li><code>matcher</code> wrapper that allows to ignore fields with different values.</li>
+<li><code>ignore_fields</code> list of fields to ignore. Fields are specified by their fully qualified names,
+i.e., the names corresponding to FieldDescriptor.full_name(). (e.g.
+testing.internal.FooProto2.member).</li>
+</ul>
+</li>
+<li>
+<p dir="auto"><code>IgnoringFieldPaths</code>(<code>ignore_field_paths</code>, <code>matcher</code>)</p>
+<ul dir="auto">
+<li><code>matcher</code> wrapper that allows to ignore fields with different values by their paths.</li>
+<li><code>ignore_field_paths</code> list of paths to ignore (e.g. 'field.sub_field.terminal_field').</li>
+</ul>
+</li>
+<li>
+<p dir="auto"><code>IgnoringRepeatedFieldOrdering</code>(<code>matcher</code>)</p>
+<ul dir="auto">
+<li><code>matcher</code> wrapper that allows to ignore the order in which repeated fields are presented.</li>
+<li>E.g.: <code>IgnoringRepeatedFieldOrdering(EqualsProto(R"pb(x: 1 x: 2)pb"))</code>: While the provided
+proto has the repeated field <code>x</code> specified in the order <code>[1, 2]</code>, the matcher will also match
+if the argument proto has the order reversed.</li>
+</ul>
+</li>
+<li>
+<p dir="auto"><code>Partially</code>(<code>matcher</code>)</p>
+<ul dir="auto">
+<li><code>matcher</code> wrapper that compares only fields present in the expected protobuf. For example,</li>
+<li><code>Partially(EqualsProto(p))</code> will ignore any field that is not set in p when comparing the
+protobufs.</li>
+</ul>
+</li>
+<li>
+<p dir="auto"><code>WhenDeserialized</code>(<code>matcher</code>)</p>
+<ul dir="auto">
+<li><code>matcher</code> wrapper that matches a string that can be deserialized as a protobuf that matches
+<code>matcher</code>.</li>
+</ul>
+</li>
+<li>
+<p dir="auto"><code>WhenDeserializedAs</code>&lt;<code>Proto</code>&gt;(<code>matcher</code>)</p>
+<ul dir="auto">
+<li><code>matcher</code> wrapper that matches a string that can be deserialized as a protobuf of type <code>Proto</code>
+that matches <code>matcher</code>.</li>
+</ul>
+</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Usage</h2><a id="user-content-usage-1" class="anchor" aria-label="Permalink: Usage" href="#usage-1"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">BUILD.bazel:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="cc_test(
+    name = &quot;test&quot;,
+    srcs = [&quot;test.cc&quot;],
+    deps = [&quot;@com_helly25_proto//mbo/proto:matchers&quot;],
+)"><pre class="notranslate"><code>cc_test(
+    name = "test",
+    srcs = ["test.cc"],
+    deps = ["@com_helly25_proto//mbo/proto:matchers"],
+)
+</code></pre></div>
+<p dir="auto">Source test.cc:</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="#include &quot;gmock/gmock.h&quot;
+#include &quot;gtest/gtest.h&quot;
+#include &quot;mbo/proto/matchers.h&quot;
+
+using ::mbo::proto::EqualsProto;
+using ::mbo::proto::IgnoringRepeatedFieldOrdering;
+
+TEST(Foo, EqualsProto) {
+    MyProto msg;
+    msg.set_field(&quot;name&quot;);
+    EXPECT_THAT(msg, EqualsProto(R&quot;pb(
+      field: &quot;name&quot;
+      )pb&quot;));
+}"><pre>#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">"</span>gmock/gmock.h<span class="pl-pds">"</span></span>
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">"</span>gtest/gtest.h<span class="pl-pds">"</span></span>
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">"</span>mbo/proto/matchers.h<span class="pl-pds">"</span></span>
+
+<span class="pl-k">using</span> ::mbo::proto::EqualsProto;
+<span class="pl-k">using</span> ::mbo::proto::IgnoringRepeatedFieldOrdering;
+
+<span class="pl-en">TEST</span>(Foo, EqualsProto) {
+    MyProto msg;
+    msg.<span class="pl-c1">set_field</span>(<span class="pl-s"><span class="pl-pds">"</span>name<span class="pl-pds">"</span></span>);
+    <span class="pl-c1">EXPECT_THAT</span>(msg, <span class="pl-c1">EqualsProto</span>(<span class="pl-s"><span class="pl-pds">R"pb(</span></span>
+<span class="pl-s">      field: "name"</span>
+<span class="pl-s">      <span class="pl-pds">)pb"</span></span>));
+}</pre></div>
+<p dir="auto">In the above example <code>EqualsProto</code> takes the text-proto as a C++ raw-string.</p>
+<p dir="auto">The matchers can of course be combined with the parse functions. The below shows how a <code>FunctionUnderTest</code> can be tested. It receives the proto input directly from the parse function and the matcher compares it directly to the expected golden result text-proto. Note how there is no field-by-field processing anywhere. No dstraction from what is being tested and what the expectations are. Or in other words the test avoids misleading and error prone in-test logic. And becasue the function-under-test is called inside the EXPECT_THAT macro the gtest failure messages will show what actually failed (and not something like "Input: temp_var").</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="#include &quot;gmock/gmock.h&quot;
+#include &quot;gtest/gtest.h&quot;
+#include &quot;mbo/proto/matchers.h&quot;
+#include &quot;mbo/proto/parse_text_proto.h&quot;
+
+using ::mbo::proto::EqualsProto;
+using ::mbo::proto::IgnoringRepeatedFieldOrdering;
+using ::mbo::proto::ParseTextProtoOrDie;
+
+MyProto FunctionUnderTest(const MyProto&amp; proto) {
+  return proto;
+}
+
+TEST(Foo, Wrapper) {
+    const MyProto input = ParseTextProtoOrDie(R&quot;pb(
+      number: 1
+      number: 2
+      number: 3
+    )pb&quot;);
+    EXPECT_THAT(
+      FunctionUnderTest(input),
+      IgnoringRepeatedFieldOrdering(EqualsProto(R&quot;pb(
+        number: 1
+        number: 2
+        number: 3
+      )pb&quot;)));
+}"><pre>#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">"</span>gmock/gmock.h<span class="pl-pds">"</span></span>
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">"</span>gtest/gtest.h<span class="pl-pds">"</span></span>
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">"</span>mbo/proto/matchers.h<span class="pl-pds">"</span></span>
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">"</span>mbo/proto/parse_text_proto.h<span class="pl-pds">"</span></span>
+
+<span class="pl-k">using</span> ::mbo::proto::EqualsProto;
+<span class="pl-k">using</span> ::mbo::proto::IgnoringRepeatedFieldOrdering;
+<span class="pl-k">using</span> ::mbo::proto::ParseTextProtoOrDie;
+
+MyProto <span class="pl-en">FunctionUnderTest</span>(<span class="pl-k">const</span> MyProto&amp; proto) {
+  <span class="pl-k">return</span> proto;
+}
+
+<span class="pl-en">TEST</span>(Foo, Wrapper) {
+    <span class="pl-k">const</span> MyProto input = <span class="pl-c1">ParseTextProtoOrDie</span>(<span class="pl-s"><span class="pl-pds">R"pb(</span></span>
+<span class="pl-s">      number: 1</span>
+<span class="pl-s">      number: 2</span>
+<span class="pl-s">      number: 3</span>
+<span class="pl-s">    <span class="pl-pds">)pb"</span></span>);
+    <span class="pl-c1">EXPECT_THAT</span>(
+      <span class="pl-c1">FunctionUnderTest</span>(input),
+      <span class="pl-c1">IgnoringRepeatedFieldOrdering</span>(<span class="pl-c1">EqualsProto</span>(<span class="pl-s"><span class="pl-pds">R"pb(</span></span>
+<span class="pl-s">        number: 1</span>
+<span class="pl-s">        number: 2</span>
+<span class="pl-s">        number: 3</span>
+<span class="pl-s">      <span class="pl-pds">)pb"</span></span>)));
+}</pre></div>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Installation and requirements</h1><a id="user-content-installation-and-requirements" class="anchor" aria-label="Permalink: Installation and requirements" href="#installation-and-requirements"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">This repository requires a C++20 compiler (in case of MacOS XCode 15 is needed). The project's CI test a combination of Clang and GCC compilers on Linux/Ubuntu and MacOS.</p>
+<p dir="auto">The reliance on a C++20 compiler is because it uses <code>std::source_location</code> since Google's Abseil's <code>SourceLocation</code> has not been open sourced.</p>
+<p dir="auto">The project only comes with a Bazel BUILD.bazel file and can be added to other Bazel projects.</p>
+<p dir="auto">The project is formatted with specific clang-format settings which require clang 16+ (in case of MacOs LLVM 16+ can be installed using brew). For simplicity in dev mode the project pulls the appropriate clang tools and can be compiled with those tools using <code>bazel [build|test] --config=clang ...</code>.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">WORKSPACE</h2><a id="user-content-workspace" class="anchor" aria-label="Permalink: WORKSPACE" href="#workspace"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Checkout <a href="https://github.com/helly25/proto/releases">Releases</a> or use head ref as follows:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(&quot;@bazel_tools//tools/build_defs/repo:http.bzl&quot;, &quot;http_archive&quot;)
+
+http_archive(
+  name = &quot;com_helly25_proto&quot;,
+  url = &quot;https://github.com/helly25/proto/archive/refs/heads/main.tar.gz&quot;,
+  # See https://github.com/helly25/proto/releases for releases.
+)"><pre class="notranslate"><code>load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
+http_archive(
+  name = "com_helly25_proto",
+  url = "https://github.com/helly25/proto/archive/refs/heads/main.tar.gz",
+  # See https://github.com/helly25/proto/releases for releases.
+)
+</code></pre></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">MODULES.bazel</h2><a id="user-content-modulesbazel" class="anchor" aria-label="Permalink: MODULES.bazel" href="#modulesbazel"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Check <a href="https://github.com/helly25/proto/releases">Releases</a> for details. All that is needed is a <code>bazel_dep</code> instruction with the correct version.</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="bazel_dep(name = &quot;helly25_proto&quot;, version = &quot;0.0.0&quot;, repo_name = &quot;com_helly25_proto&quot;)"><pre class="notranslate"><code>bazel_dep(name = "helly25_proto", version = "0.0.0", repo_name = "com_helly25_proto")
+</code></pre></div>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Clone</h1><a id="user-content-clone" class="anchor" aria-label="Permalink: Clone" href="#clone"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The clone was made from Google's <a href="https://github.com/google/cpp-proto-builder">CPP-proto-builder</a>, of which the project lead is the original author and lead for over a decade. That includes in particular the parse_proto components which were invented in their original form around 2012 and used widely throughout Google.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Parse Proto</h2><a id="user-content-parse-proto-1" class="anchor" aria-label="Permalink: Parse Proto" href="#parse-proto-1"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The following files were cloned:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="cp ../cpp-proto-builder/proto_builder/oss/parse_proto_text.* proto/mbo/proto
+cp ../cpp-proto-builder/proto_builder/oss/parse_proto_text_test.cc proto/mbo/proto
+cp ../cpp-proto-builder/proto_builder/oss/tests/simple_message.proto proto/mbo/proto
+patch &lt;proto/mbo/proto/parse_proto_text.diff"><pre class="notranslate"><code>cp ../cpp-proto-builder/proto_builder/oss/parse_proto_text.* proto/mbo/proto
+cp ../cpp-proto-builder/proto_builder/oss/parse_proto_text_test.cc proto/mbo/proto
+cp ../cpp-proto-builder/proto_builder/oss/tests/simple_message.proto proto/mbo/proto
+patch &lt;proto/mbo/proto/parse_proto_text.diff
+</code></pre></div>
+<p dir="auto">The diff files are available in the repository history.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Proto Matchers</h2><a id="user-content-proto-matchers-1" class="anchor" aria-label="Permalink: Proto Matchers" href="#proto-matchers-1"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The matchers are part of Google's <a href="https://github.com/google/cpp-proto-builder">CPP-proto-builder</a>, (see above).
+Alternatively this could have been done from:</p>
+<ul dir="auto">
+<li><a href="https://github.com/google/fhir">FHIR</a>,</li>
+<li><a href="https://github.com/google/nucleus">nucleus</a>,</li>
+<li><a href="https://github.com/inazarenko/protobuf-matchers">inazarenko's clone</a>.</li>
+</ul>
+<p dir="auto">The FHIR sources are stripped and the nucleus sources are older and finally inazarenko's clone was
+modified to remove other Google dependencies which creates the issue that the GoogleTest docs do not
+apply as for instance the regular expression library is different.</p>
+<p dir="auto">The following files were cloned:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="cp ../cpp-proto-builder/proto_builder/oss/testing/proto_test_util.* proto/mbo/testing/proto
+patch &lt;proto/mbo/testing/proto_test_util.diff"><pre class="notranslate"><code>cp ../cpp-proto-builder/proto_builder/oss/testing/proto_test_util.* proto/mbo/testing/proto
+patch &lt;proto/mbo/testing/proto_test_util.diff
+</code></pre></div>
+<p dir="auto">The diff files are available in the repository history.</p>
+<p dir="auto">The include guards were updated and the namespace changed to <code>testing::proto</code> which allows to
+import the whole namespace easily. Further logging was switched directly to
+<a href="https://abseil.io/docs/cpp/guides/logging" rel="nofollow">Abseil logging</a> (this was not an option when I wrote
+the proto Builder or when it was open sourced).</p>
+<p dir="auto">This clone was established 2023.07.15. The source has since been moved and modified but remains as
+close to the original source as possible.</p>
+</article></div>
