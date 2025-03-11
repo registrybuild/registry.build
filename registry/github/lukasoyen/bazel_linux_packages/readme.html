@@ -1,0 +1,105 @@
+<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Bazel Extension for downloading and extracting Debian/Ubuntu packages.</h1><a id="user-content-bazel-extension-for-downloading-and-extracting-debianubuntu-packages" class="anchor" aria-label="Permalink: Bazel Extension for downloading and extracting Debian/Ubuntu packages." href="#bazel-extension-for-downloading-and-extracting-debianubuntu-packages"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">This <code>bazel</code> extension enables downloading and extracting <code>*.deb</code> into a <code>bazel</code>
+repository. This can be used to run binaries packaged as <code>*.deb</code> packages or
+create compiler toolchains and sysroots.</p>
+<div class="markdown-alert markdown-alert-important" dir="auto"><p class="markdown-alert-title" dir="auto"><svg class="octicon octicon-report mr-2" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="M0 1.75C0 .784.784 0 1.75 0h12.5C15.216 0 16 .784 16 1.75v9.5A1.75 1.75 0 0 1 14.25 13H8.06l-2.573 2.573A1.458 1.458 0 0 1 3 14.543V13H1.75A1.75 1.75 0 0 1 0 11.25Zm1.75-.25a.25.25 0 0 0-.25.25v9.5c0 .138.112.25.25.25h2a.75.75 0 0 1 .75.75v2.19l2.72-2.72a.749.749 0 0 1 .53-.22h6.5a.25.25 0 0 0 .25-.25v-9.5a.25.25 0 0 0-.25-.25Zm7 2.25v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 9a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"></path></svg>Important</p><p dir="auto">This is not a ruleset to create <code>*.deb</code> ore other Linux distribution packages.</p>
+</div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Usage</h2><a id="user-content-usage" class="anchor" aria-label="Permalink: Usage" href="#usage"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Place the following in your <code>MODULE.bazel</code>. Then:</p>
+<ul dir="auto">
+<li>run <code>bazel run @busybox//:lock</code> to create a lockfile and</li>
+<li>run <code>bazel run @busybox//:bin/busybox</code> to download/extract the package and run the binary.</li>
+</ul>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="apt = use_extension(&quot;@bazel_linux_packages//apt:extensions.bzl&quot;, &quot;apt&quot;)
+apt.source(
+    architectures = [&quot;amd64&quot;],
+    components = [&quot;main&quot;],
+    suites = [&quot;focal&quot;],
+    uri = &quot;https://snapshot.ubuntu.com/ubuntu/20250219T154000Z&quot;,
+)
+apt.download(
+    lockfile = &quot;//:focal.lock.json&quot;,
+    packages = [&quot;busybox&quot;],
+)
+apt.install(name = &quot;busybox&quot;)
+use_repo(apt, &quot;busybox&quot;)"><pre><span class="pl-s1">apt</span> <span class="pl-c1">=</span> <span class="pl-en">use_extension</span>(<span class="pl-s">"@bazel_linux_packages//apt:extensions.bzl"</span>, <span class="pl-s">"apt"</span>)
+<span class="pl-s1">apt</span>.<span class="pl-c1">source</span>(
+    <span class="pl-s1">architectures</span> <span class="pl-c1">=</span> [<span class="pl-s">"amd64"</span>],
+    <span class="pl-s1">components</span> <span class="pl-c1">=</span> [<span class="pl-s">"main"</span>],
+    <span class="pl-s1">suites</span> <span class="pl-c1">=</span> [<span class="pl-s">"focal"</span>],
+    <span class="pl-s1">uri</span> <span class="pl-c1">=</span> <span class="pl-s">"https://snapshot.ubuntu.com/ubuntu/20250219T154000Z"</span>,
+)
+<span class="pl-s1">apt</span>.<span class="pl-c1">download</span>(
+    <span class="pl-s1">lockfile</span> <span class="pl-c1">=</span> <span class="pl-s">"//:focal.lock.json"</span>,
+    <span class="pl-s1">packages</span> <span class="pl-c1">=</span> [<span class="pl-s">"busybox"</span>],
+)
+<span class="pl-s1">apt</span>.<span class="pl-c1">install</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"busybox"</span>)
+<span class="pl-en">use_repo</span>(<span class="pl-s1">apt</span>, <span class="pl-s">"busybox"</span>)</pre></div>
+<p dir="auto">See <a href="e2e/README.md">e2e/</a> for end to end tests and
+<a href="docs/extensions.md">the extension docs</a> for more details:</p>
+<ul dir="auto">
+<li><a href="docs/extensions.md#source"><code>apt.source()</code></a></li>
+<li><a href="docs/extensions.md#download"><code>apt.download()</code></a></li>
+<li><a href="docs/extensions.md#install"><code>apt.install()</code></a></li>
+</ul>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Handle Library Paths</h2><a id="user-content-handle-library-paths" class="anchor" aria-label="Permalink: Handle Library Paths" href="#handle-library-paths"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li>
+<p dir="auto">As packages are installed in a non-standard location, binaries might not
+find their required libraries. Additionally, as the packages are pulled for
+a Debian/Ubuntu distribution that is based on a specific <code>glibc</code> version,
+incompatibilities can result in errors. The created repository will contain
+the correct <code>glibc</code> version. There are two strategies to handle these:</p>
+<ol dir="auto">
+<li>
+<p dir="auto">Set <a href="docs/extensions.md#apt.install-fix_rpath_with_patchelf"><code>fix_rpath_with_patchelf = True</code></a> for
+<a href="docs/extensions.md#install"><code>apt.install()</code></a>. This will use
+<a href="https://github.com/NixOS/patchelf"><code>patchelf</code></a> to modify the executables
+and binaries to add library search directories to <code>RUNPATH</code>. See also
+<code>fix_absolute_interpreter_with_patchelf</code>,
+<code>fix_relative_interpreter_with_patchelf</code>, and <code>extra_patchelf_dirs</code>.</p>
+</li>
+<li>
+<p dir="auto">The systems' loader will be used to load required libraries and will search
+system-wide. <code>LD_LIBRARY_PATH</code> can be used to set directories to search.
+<code>LD_DEBUG</code> can be used to debug missing library issues. The generated
+repository exposes <code>with_repository_prefix()</code> that returns the <code>exec</code>-root
+relative path to it. It can be used like:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@my_repository//:defs.bzl&quot;, &quot;with_repository_prefix&quot;)
+
+my_rule(
+    [...]
+    env = {&quot;LD_LIBRARY_PATH&quot;: with_repository_prefix(&quot;usr/lib/x86_64-linux-gnu&quot;)},
+)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@my_repository//:defs.bzl"</span>, <span class="pl-s">"with_repository_prefix"</span>)
+
+<span class="pl-en">my_rule</span>(
+    [...]
+    <span class="pl-s1">env</span> <span class="pl-c1">=</span> {<span class="pl-s">"LD_LIBRARY_PATH"</span>: <span class="pl-en">with_repository_prefix</span>(<span class="pl-s">"usr/lib/x86_64-linux-gnu"</span>)},
+)</pre></div>
+</li>
+</ol>
+</li>
+<li>
+<p dir="auto">The <code>glibc</code> version from the extracted packages might be compiled against
+a newer Linux kernel than you are running and error out. Use
+<code>file path/to/your/binary</code> to check which kernel version is the minimum required.</p>
+</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Related</h2><a id="user-content-related" class="anchor" aria-label="Permalink: Related" href="#related"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li><a href="https://github.com/shabanzd/debian_dependency_bazelizer">debian_dependency_bazelizer</a>
+does something in the same area, but differently</li>
+<li><a href="https://github.com/keith/bazel-cc-sysroot-generator">bazel-cc-sysroot-generator</a>
+creates a sysroot archive outside of <code>bazel</code></li>
+</ul>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Credit</h2><a id="user-content-credit" class="anchor" aria-label="Permalink: Credit" href="#credit"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li><a href="https://github.com/keith/bazel-cc-sysroot-generator">https://github.com/keith/bazel-cc-sysroot-generator</a> inspired the idea</li>
+<li><a href="https://github.com/GoogleContainerTools/rules_distroless">https://github.com/GoogleContainerTools/rules_distroless</a> was forked and reworked
+<ul dir="auto">
+<li>ideas from <a class="issue-link js-issue-link" data-error-text="Failed to load title" data-id="2718468412" data-permission-text="Title is private" data-url="https://github.com/GoogleContainerTools/rules_distroless/issues/123" data-hovercard-type="issue" data-hovercard-url="/GoogleContainerTools/rules_distroless/issues/123/hovercard" href="https://github.com/GoogleContainerTools/rules_distroless/issues/123">GoogleContainerTools/rules_distroless#123</a> were used</li>
+<li><a class="issue-link js-issue-link" data-error-text="Failed to load title" data-id="2718529945" data-permission-text="Title is private" data-url="https://github.com/GoogleContainerTools/rules_distroless/issues/124" data-hovercard-type="issue" data-hovercard-url="/GoogleContainerTools/rules_distroless/issues/124/hovercard" href="https://github.com/GoogleContainerTools/rules_distroless/issues/124">GoogleContainerTools/rules_distroless#124</a> is the same idea</li>
+</ul>
+</li>
+</ul>
+</article></div>
