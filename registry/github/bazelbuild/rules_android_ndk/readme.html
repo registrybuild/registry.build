@@ -1,42 +1,174 @@
 <div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Android NDK Bazel Rules</h1><a id="user-content-android-ndk-bazel-rules" class="anchor" aria-label="Permalink: Android NDK Bazel Rules" href="#android-ndk-bazel-rules"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Overview</h2><a id="user-content-overview" class="anchor" aria-label="Permalink: Overview" href="#overview"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">This repository contains Starlark rules for integrating Bazel with the
-Android NDK. These rules currently work with Android NDK version 25b.</p>
-<p dir="auto">NOTE: This is a development preview of the Starlark Android NDK Bazel
-rules. These rules are not guaranteed to be complete or work for every
-NDK use case. Bazel versions up to and including 7.0.0 contain a
-built-in ("native") version of <code>android_ndk_repository</code> described at
-<a href="https://bazel.build/reference/be/android#android_ndk_repository" rel="nofollow">https://bazel.build/reference/be/android#android_ndk_repository</a>. Over
-time, these Starlark rules will replace the native version of
-<code>android_ndk_repository</code>.</p>
+Android NDK. These rules currently work with Android NDK version 25b or later.</p>
+<p dir="auto">The recommended Bazel version for these rules is <strong>7.4.0 or later</strong>.</p>
+<p dir="auto">For use cases where an older NDK or older Bazel version is required, the legacy
+Android native rules in Bazel 7 or earlier are a suitable alternative.</p>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Getting Started</h2><a id="user-content-getting-started" class="anchor" aria-label="Permalink: Getting Started" href="#getting-started"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<p dir="auto">To use the Android NDK rules, add the following to your <code>WORKSPACE</code> file:</p>
-<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="# Or a later commit
-RULES_ANDROID_NDK_COMMIT= &quot;81ec8b79dc50ee97e336a25724fdbb28e33b8d41&quot;
-RULES_ANDROID_NDK_SHA = &quot;b29409496439cdcdb50a8e161c4953ca78a548e16d3ee729a1b5cd719ffdacbf&quot;
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Bzlmod setup (recommended)</h3><a id="user-content-bzlmod-setup-recommended" class="anchor" aria-label="Permalink: Bzlmod setup (recommended)" href="#bzlmod-setup-recommended"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">To use the Android NDK rules, add the following to your <code>MODULE.bazel</code> file:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="# Or a later version of the following bazel_dep()s
+bazel_dep(name = &quot;platforms&quot;, version = &quot;0.0.10&quot;)
+bazel_dep(name = &quot;rules_cc&quot;, version = &quot;0.0.17&quot;)
+bazel_dep(name = &quot;rules_android_ndk&quot;, version = &quot;0.1.2&quot;)
 
-load(&quot;@bazel_tools//tools/build_defs/repo:http.bzl&quot;, &quot;http_archive&quot;)
-http_archive(
+android_ndk_repository_extension = use_extension(&quot;@rules_android_ndk//:extension.bzl&quot;, &quot;android_ndk_repository_extension&quot;)
+use_repo(android_ndk_repository_extension, &quot;androidndk&quot;)
+
+register_toolchains(&quot;@androidndk//:all&quot;)"><pre><span class="pl-c"># Or a later version of the following bazel_dep()s</span>
+<span class="pl-en">bazel_dep</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"platforms"</span>, <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"0.0.10"</span>)
+<span class="pl-en">bazel_dep</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_cc"</span>, <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"0.0.17"</span>)
+<span class="pl-en">bazel_dep</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_android_ndk"</span>, <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"0.1.2"</span>)
+
+<span class="pl-s1">android_ndk_repository_extension</span> <span class="pl-c1">=</span> <span class="pl-en">use_extension</span>(<span class="pl-s">"@rules_android_ndk//:extension.bzl"</span>, <span class="pl-s">"android_ndk_repository_extension"</span>)
+<span class="pl-en">use_repo</span>(<span class="pl-s1">android_ndk_repository_extension</span>, <span class="pl-s">"androidndk"</span>)
+
+<span class="pl-en">register_toolchains</span>(<span class="pl-s">"@androidndk//:all"</span>)</pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Legacy WORKSPACE setup</h3><a id="user-content-legacy-workspace-setup" class="anchor" aria-label="Permalink: Legacy WORKSPACE setup" href="#legacy-workspace-setup"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">To use the Android NDK rules, add the following to your <code>WORKSPACE</code> file:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="http_archive(
     name = &quot;rules_android_ndk&quot;,
-    url = &quot;https://github.com/bazelbuild/rules_android_ndk/archive/%s.zip&quot; % RULES_ANDROID_NDK_COMMIT,
-    sha256 = RULES_ANDROID_NDK_SHA,
-    strip_prefix = &quot;rules_android_ndk-%s&quot; % RULES_ANDROID_NDK_COMMIT,
+    sha256 = &quot;89bf5012567a5bade4c78eac5ac56c336695c3bfd281a9b0894ff6605328d2d5&quot;,
+    strip_prefix = &quot;rules_android_ndk-0.1.3&quot;,
+    url = &quot;https://github.com/bazelbuild/rules_android_ndk/releases/download/v0.1.3/rules_android_ndk-v0.1.3.tar.gz&quot;,
 )
+
+http_archive(
+    name = &quot;rules_android&quot;,
+    sha256 = &quot;af84b69ab3d16dd1a41056286e6511f147a94ccea995603e13e934c915c1631c&quot;,
+    strip_prefix = &quot;rules_android-0.6.0&quot;,
+    url = &quot;https://github.com/bazelbuild/rules_android/releases/download/v0.6.0/rules_android-v0.6.0.tar.gz&quot;,
+)
+
+# Android rules dependencies
+load(&quot;@rules_android//:prereqs.bzl&quot;, &quot;rules_android_prereqs&quot;)
+
+rules_android_prereqs()
+
+##### rules_java setup for rules_android #####
+load(&quot;@rules_java//java:rules_java_deps.bzl&quot;, &quot;rules_java_dependencies&quot;)
+
+rules_java_dependencies()
+
+# note that the following line is what is minimally required from protobuf for the java rules
+# consider using the protobuf_deps() public API from @com_google_protobuf//:protobuf_deps.bzl
+load(&quot;@com_google_protobuf//bazel/private:proto_bazel_features.bzl&quot;, &quot;proto_bazel_features&quot;)  # buildifier: disable=bzl-visibility
+
+proto_bazel_features(name = &quot;proto_bazel_features&quot;)
+
+# register toolchains
+load(&quot;@rules_java//java:repositories.bzl&quot;, &quot;rules_java_toolchains&quot;)
+
+rules_java_toolchains()
+
+##### rules_jvm_external setup for rules_android #####
+load(&quot;@rules_jvm_external//:repositories.bzl&quot;, &quot;rules_jvm_external_deps&quot;)
+
+rules_jvm_external_deps()
+
+load(&quot;@rules_jvm_external//:setup.bzl&quot;, &quot;rules_jvm_external_setup&quot;)
+
+rules_jvm_external_setup()
+
+##### rules_android setup #####
+load(&quot;@rules_android//:defs.bzl&quot;, &quot;rules_android_workspace&quot;)
+
+rules_android_workspace()
+
+# Android SDK setup
+load(&quot;@rules_android//rules:rules.bzl&quot;, &quot;android_sdk_repository&quot;)
+
+android_sdk_repository(
+    name = &quot;androidsdk&quot;,
+)
+
+register_toolchains(
+    &quot;@rules_android//toolchains/android:android_default_toolchain&quot;,
+    &quot;@rules_android//toolchains/android_sdk:android_sdk_tools&quot;,
+)
+
+##### rules_cc setup #####
+http_archive(
+    name = &quot;rules_cc&quot;,
+    sha256 = &quot;abc605dd850f813bb37004b77db20106a19311a96b2da1c92b789da529d28fe1&quot;,
+    strip_prefix = &quot;rules_cc-0.0.17&quot;,
+    urls = [&quot;https://github.com/bazelbuild/rules_cc/releases/download/0.0.17/rules_cc-0.0.17.tar.gz&quot;],
+)
+
 load(&quot;@rules_android_ndk//:rules.bzl&quot;, &quot;android_ndk_repository&quot;)
 
 android_ndk_repository(name = &quot;androidndk&quot;)
 
-register_toolchains(&quot;@androidndk//:all&quot;)"><pre class="notranslate"><code># Or a later commit
-RULES_ANDROID_NDK_COMMIT= "81ec8b79dc50ee97e336a25724fdbb28e33b8d41"
-RULES_ANDROID_NDK_SHA = "b29409496439cdcdb50a8e161c4953ca78a548e16d3ee729a1b5cd719ffdacbf"
-
-load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
-http_archive(
+register_toolchains(&quot;@androidndk//:all&quot;)"><pre class="notranslate"><code>http_archive(
     name = "rules_android_ndk",
-    url = "https://github.com/bazelbuild/rules_android_ndk/archive/%s.zip" % RULES_ANDROID_NDK_COMMIT,
-    sha256 = RULES_ANDROID_NDK_SHA,
-    strip_prefix = "rules_android_ndk-%s" % RULES_ANDROID_NDK_COMMIT,
+    sha256 = "89bf5012567a5bade4c78eac5ac56c336695c3bfd281a9b0894ff6605328d2d5",
+    strip_prefix = "rules_android_ndk-0.1.3",
+    url = "https://github.com/bazelbuild/rules_android_ndk/releases/download/v0.1.3/rules_android_ndk-v0.1.3.tar.gz",
 )
+
+http_archive(
+    name = "rules_android",
+    sha256 = "af84b69ab3d16dd1a41056286e6511f147a94ccea995603e13e934c915c1631c",
+    strip_prefix = "rules_android-0.6.0",
+    url = "https://github.com/bazelbuild/rules_android/releases/download/v0.6.0/rules_android-v0.6.0.tar.gz",
+)
+
+# Android rules dependencies
+load("@rules_android//:prereqs.bzl", "rules_android_prereqs")
+
+rules_android_prereqs()
+
+##### rules_java setup for rules_android #####
+load("@rules_java//java:rules_java_deps.bzl", "rules_java_dependencies")
+
+rules_java_dependencies()
+
+# note that the following line is what is minimally required from protobuf for the java rules
+# consider using the protobuf_deps() public API from @com_google_protobuf//:protobuf_deps.bzl
+load("@com_google_protobuf//bazel/private:proto_bazel_features.bzl", "proto_bazel_features")  # buildifier: disable=bzl-visibility
+
+proto_bazel_features(name = "proto_bazel_features")
+
+# register toolchains
+load("@rules_java//java:repositories.bzl", "rules_java_toolchains")
+
+rules_java_toolchains()
+
+##### rules_jvm_external setup for rules_android #####
+load("@rules_jvm_external//:repositories.bzl", "rules_jvm_external_deps")
+
+rules_jvm_external_deps()
+
+load("@rules_jvm_external//:setup.bzl", "rules_jvm_external_setup")
+
+rules_jvm_external_setup()
+
+##### rules_android setup #####
+load("@rules_android//:defs.bzl", "rules_android_workspace")
+
+rules_android_workspace()
+
+# Android SDK setup
+load("@rules_android//rules:rules.bzl", "android_sdk_repository")
+
+android_sdk_repository(
+    name = "androidsdk",
+)
+
+register_toolchains(
+    "@rules_android//toolchains/android:android_default_toolchain",
+    "@rules_android//toolchains/android_sdk:android_sdk_tools",
+)
+
+##### rules_cc setup #####
+http_archive(
+    name = "rules_cc",
+    sha256 = "abc605dd850f813bb37004b77db20106a19311a96b2da1c92b789da529d28fe1",
+    strip_prefix = "rules_cc-0.0.17",
+    urls = ["https://github.com/bazelbuild/rules_cc/releases/download/0.0.17/rules_cc-0.0.17.tar.gz"],
+)
+
 load("@rules_android_ndk//:rules.bzl", "android_ndk_repository")
 
 android_ndk_repository(name = "androidndk")
@@ -51,20 +183,41 @@ replaced with the root path of the Bazel workspace.</p>
 against.</p>
 <p dir="auto">Finally, when building an Android app with native dependencies (e.g.
 <code>cc_library</code> targets), add</p>
-<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="--fat_apk_cpu=&lt;cpus&gt; --android_crosstool_top=@androidndk//:toolchain"><pre class="notranslate"><code>--fat_apk_cpu=&lt;cpus&gt; --android_crosstool_top=@androidndk//:toolchain
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="--android_platforms=&lt;platforms&gt;"><pre class="notranslate"><code>--android_platforms=&lt;platforms&gt;
 </code></pre></div>
-<p dir="auto">to your Bazel invocation. <code>&lt;cpus&gt;</code> is a comma-separated list of the available
-CPUs:</p>
-<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="armeabi-v7a
-arm64-v8a
-x86
-x86_64"><pre class="notranslate"><code>armeabi-v7a
-arm64-v8a
-x86
-x86_64
-</code></pre></div>
-<p dir="auto">e.g. <code>--fat_apk_cpu=arm64-v8a</code> or <code>--fat_apk_cpu=arm64-v8a,x86</code>.</p>
-<p dir="auto">These flags may also be added to the your project's <code>.bazelrc</code> file so that they
-don't have to be specified on the command line.</p>
+<p dir="auto">to your Bazel invocation. <code>&lt;platforms&gt;</code> is a comma-separated list of the available
+platforms. See <a href="https://bazel.build/extending/platforms" rel="nofollow">https://bazel.build/extending/platforms</a> for more details.
+Some common platforms can be constructed as follows:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="platform(
+    name = &quot;arm64-v8a&quot;,
+    constraint_values = [
+        &quot;@platforms//cpu:arm64&quot;,
+        &quot;@platforms//os:android&quot;,
+    ],
+)
+
+platform(
+    name = &quot;x86&quot;,
+    constraint_values = [
+        &quot;@platforms//cpu:x86_32&quot;,
+        &quot;@platforms//os:android&quot;,
+    ],
+)"><pre><span class="pl-en">platform</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"arm64-v8a"</span>,
+    <span class="pl-s1">constraint_values</span> <span class="pl-c1">=</span> [
+        <span class="pl-s">"@platforms//cpu:arm64"</span>,
+        <span class="pl-s">"@platforms//os:android"</span>,
+    ],
+)
+
+<span class="pl-en">platform</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"x86"</span>,
+    <span class="pl-s1">constraint_values</span> <span class="pl-c1">=</span> [
+        <span class="pl-s">"@platforms//cpu:x86_32"</span>,
+        <span class="pl-s">"@platforms//os:android"</span>,
+    ],
+)</pre></div>
+<p dir="auto">The <code>--android_platforms</code> flag may also be added to the your project's
+<code>.bazelrc</code> file so that it doesn't have to be specified on the command line.</p>
 <p dir="auto">See the example in <a href="https://github.com/bazelbuild/rules_android_ndk/tree/main/examples/basic">https://github.com/bazelbuild/rules_android_ndk/tree/main/examples/basic</a>.</p>
 </article></div>
