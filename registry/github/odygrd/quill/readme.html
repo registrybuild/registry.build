@@ -1128,8 +1128,37 @@ target_link_libraries(my_project PUBLIC quill::quill)"><pre><span class="pl-k">c
 <span class="pl-k">add_executable</span>(my_project main.cpp)
 <span class="pl-k">target_link_libraries</span>(my_project <span class="pl-e">PUBLIC</span> quill::quill)</pre></div>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Android NDK</h3><a id="user-content-android-ndk" class="anchor" aria-label="Permalink: Android NDK" href="#android-ndk"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<p dir="auto">Building Quill for Android? Add this flag during configuration:</p>
+<p dir="auto">When building Quill for Android, you might need to add this flag during configuration, but in most cases, it works without it:</p>
 <div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="-DQUILL_NO_THREAD_NAME_SUPPORT:BOOL=ON"><pre>-DQUILL_NO_THREAD_NAME_SUPPORT:BOOL=ON</pre></div>
+<p dir="auto">For timestamps, use <code>quill::ClockSourceType::System</code>. Quill also includes an <code>AndroidSink</code>, which integrates with Android's logging system.</p>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Minimal Example to Start Logging on Android</h4><a id="user-content-minimal-example-to-start-logging-on-android" class="anchor" aria-label="Permalink: Minimal Example to Start Logging on Android" href="#minimal-example-to-start-logging-on-android"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="quill::Backend::start();
+
+auto sink = quill::Frontend::create_or_get_sink&lt;quill::AndroidSink&gt;(&quot;app&quot;, [](){
+    quill::AndroidSinkConfig asc;
+    asc.set_tag(&quot;app&quot;);
+    asc.set_format_message(true);
+    return asc;
+}());
+
+auto logger = quill::Frontend::create_or_get_logger(&quot;root&quot;, std::move(sink),
+                                                    quill::PatternFormatterOptions {}, 
+                                                    quill::ClockSourceType::System);
+
+LOG_INFO(logger, &quot;Test {}&quot;, 123);"><pre><span class="pl-en">quill::Backend::start</span>();
+
+<span class="pl-k">auto</span> sink = quill::Frontend::create_or_get_sink&lt;quill::AndroidSink&gt;(<span class="pl-s"><span class="pl-pds">"</span>app<span class="pl-pds">"</span></span>, [](){
+    quill::AndroidSinkConfig asc;
+    asc.<span class="pl-c1">set_tag</span>(<span class="pl-s"><span class="pl-pds">"</span>app<span class="pl-pds">"</span></span>);
+    asc.<span class="pl-c1">set_format_message</span>(<span class="pl-c1">true</span>);
+    <span class="pl-k">return</span> asc;
+}());
+
+<span class="pl-k">auto</span> logger = quill::Frontend::create_or_get_logger(<span class="pl-s"><span class="pl-pds">"</span>root<span class="pl-pds">"</span></span>, std::move(sink),
+                                                    quill::PatternFormatterOptions {}, 
+                                                    quill::ClockSourceType::System);
+
+<span class="pl-en">LOG_INFO</span>(logger, <span class="pl-s"><span class="pl-pds">"</span>Test {}<span class="pl-pds">"</span></span>, <span class="pl-c1">123</span>);</pre></div>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Meson</h3><a id="user-content-meson" class="anchor" aria-label="Permalink: Meson" href="#meson"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Using WrapDB</h4><a id="user-content-using-wrapdb" class="anchor" aria-label="Permalink: Using WrapDB" href="#using-wrapdb"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">Easily integrate Quill with Meson’s <code>wrapdb</code>:</p>
