@@ -15,7 +15,7 @@ syntax-highlighted rule that matches the regex.</li>
 <li>Extracts interesting project information such as
 the <a href="#dependency-graph">dependency graph</a>,
 <a href="#lib-headers">headers provided by which libraries</a> etc., and presents
-them for easy post-proccessing (outputs simple tables for <code>grep</code> or <code>awk</code>,
+them for easy post-processing (outputs simple tables for <code>grep</code> or <code>awk</code>,
 but as well CSV, JSON and S-Expressions).</li>
 <li><a href="#canonicalize">Canonicalizes</a> targets.</li>
 <li>Is available in the <a href="https://registry.bazel.build/modules/bant" rel="nofollow">Bazel Central Registry</a> for easy
@@ -35,7 +35,7 @@ sufficient to invoke <code>lib-headers</code>.</p>
 just a plain table easy to process with e.g. <code>awk</code> and <code>grep</code>, but
 s-expressions and json are structured outputs interesting in other contexts).</p>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">dwyu : Depend-on What You Use</h3><a id="user-content-dwyu--depend-on-what-you-use" class="anchor" aria-label="Permalink: dwyu : Depend-on What You Use" href="#dwyu--depend-on-what-you-use"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<p dir="auto"><strong><code>dwyu</code></strong> Depend on What You Use (DWYU)<sup><a href="#user-content-fn-1-7628bf05125b50191dd200266f09d11d" id="user-content-fnref-1-7628bf05125b50191dd200266f09d11d" data-footnote-ref="" aria-describedby="footnote-label">1</a></sup>: Determine which dependencies
+<p dir="auto"><strong><code>dwyu</code></strong> Depend on What You Use (DWYU)<sup><a href="#user-content-fn-1-e8c93e079f260163a6986ee292b49bd4" id="user-content-fnref-1-e8c93e079f260163a6986ee292b49bd4" data-footnote-ref="" aria-describedby="footnote-label">1</a></sup>: Determine which dependencies
 are needed in <code>cc_library()</code>, <code>cc_binary()</code>, and <code>cc_test()</code> targets.</p>
 <p dir="auto">If a source file <code>#include</code>s a header, DWYU determines if the library
 that provides that header is mentioned in the <code>deps = [ ... ]</code>.</p>
@@ -77,7 +77,7 @@ dependencies that bazel would not allow.</li>
 <li>Will remove dependencies if they provide headers that are not needed
 by the sources of a target. If you want to keep them linked, you need to
 declare them as <code>alwayslink</code> (libraries that are linked to targets but
-do <em>not</em> provide any headerss are considered alwayslink implicitly).
+do <em>not</em> provide any headers are considered alwayslink implicitly).
 (this is not really a caveat, it just emphasizes that it is important to
 properly declare the intent in BUILD files).</li>
 </ul>
@@ -101,18 +101,38 @@ exactly what <code>bant</code> sees). In general this is much faster than manual
 finding and opening the file, in particular when it is in some external
 project where it is harder to even find the right file; consider</p>
 <div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bant print @googletest//:gtest"><pre>bant print @googletest//:gtest</pre></div>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Expression evaluation</h4><a id="user-content-expression-evaluation" class="anchor" aria-label="Permalink: Expression evaluation" href="#expression-evaluation"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">You see that <code>gtest</code> has some files <code>glob()</code>'d and other expressions
 that make that rule, which we want to see evaluated.
 With the <code>-e</code> option (for <code>e</code>laborate), bant can do some basic evaluation
 of these and print the final form - here you see the filenames are now expanded:</p>
 <div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bant print -e @googletest//:gtest"><pre>bant print -e @googletest//:gtest</pre></div>
-<p dir="auto">In general, evaluation is very limited right now and only does some
-transformations that are immediately useful for dependency analysis, such
-as globbing files, variable expansion and some list comprehension. That is
-why it's called elaboration not evaluation right now :).</p>
-<p dir="auto">(With <code>-b</code>, bant <a href="./bant/builtin-macros.bnt">builtin-macros</a> are also expanded;
-these are usually used internally for <code>dwyu</code> to better see through dependencies,
-so might be useful when debugging these).</p>
+<p dir="auto">In general, evaluation is limited right now and only does some
+transformations that are immediately useful for dependency analysis;
+implemented as need arises (That is why it's called elaboration not evaluation
+right now :)). Use <code>-e</code> to enable the elaboration in <code>print</code>.</p>
+<p dir="auto">Expressions that can be const-evaluated are then replaced with a literal of
+the result. Supported are:</p>
+<ul dir="auto">
+<li>Variable substitution.</li>
+<li><code>glob()</code> expansion.</li>
+<li>List comprehension. This expands list comprehensions used in BUILD files
+to programmatically create lists with a loop. This can be in lists for
+e.g. source files or even toplevel loops creating a bunch of target rules.</li>
+<li>Some common string methods (<code>"str".format()</code>, <code>"str".join()</code> and
+<code>"str".rsplit()</code>). Also the modulo operator for formatting strings the
+classic way <code>"str %s %s" % (foo,bar)</code>.</li>
+<li>Array accesses.</li>
+<li>String and list concatenation with <code>+</code>.</li>
+<li>Some basic arithmetic operators.</li>
+<li>Macro substitution of <a href="./bant/builtin-macros.bnt">builtin-macros</a> (in a bant-specific syntax) to
+help bant better see through some constructs (used in <code>dwyu</code>; to enable
+in printing: use <code>-b</code>).</li>
+</ul>
+<p dir="auto">If you suspect an operation is not evaluated, invoke bant with extra verbose
+<code>-vv</code> - it will show what operations it glossed over (If observed in the field:
+good candidate to implement next).</p>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Grep</h4><a id="user-content-grep" class="anchor" aria-label="Permalink: Grep" href="#grep"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">As targets to print, the usual bazel patterns apply, such as exact label names,
 <code>...</code>, or <code>:all</code>; also, some <code>*</code>-globbing label names is supported in the
 labels in a package (not in the path):</p>
@@ -212,11 +232,12 @@ means you need to run a <code>bazel build ...</code> and possibly <code>bazel te
 to have the entire workspace set up. Given that you do that during development
 anyway, this is typically not an issue.</p>
 <p dir="auto">Typically it is a good to at the least run everything that generates files; we
-can use <code>bant</code> itself to find rules tha generate files to be passed to
+can use <code>bant</code> itself to find rules that generate files to be passed to
 bazel, e.g.</p>
 <div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel build $(bant list-targets | awk '/genrule|cc_proto_library/ {print $3}')"><pre>bazel build <span class="pl-s"><span class="pl-pds">$(</span>bant list-targets <span class="pl-k">|</span> awk <span class="pl-s"><span class="pl-pds">'</span>/genrule|cc_proto_library/ {print $3}<span class="pl-pds">'</span></span><span class="pl-pds">)</span></span></pre></div>
 <p dir="auto">(but of course there might be other bazel rules beside obvious genrules that
-create artifacts, so global <code>bazel build ...</code> will catch these as well)</p>
+create artifacts, so <code>bant list-targets -b</code> could expand more of these
+or global <code>bazel build ...</code> will catch these as well)</p>
 <p dir="auto">Given that <code>bazel</code> adapts the visible external projects depending on what
 targets are used, it might be worthwhile running a bazel build that needs all
 of them, e.g. <code>bazel test ...</code></p>
@@ -245,13 +266,17 @@ PR comments. And in general a nicer action integration. PRs welcome.</p>
 <p dir="auto">If you work on a slow network file system or operate on some cold storage, it
 might add IO-latency for bant to follow directories in <code>glob()</code>-ing patterns.</p>
 <p dir="auto">In that case, it might be beneficial to pre-warm the OS file system cache with
-accesses <code>bant</code> remembers from last time it ran. If a <code>~/.cache/bant/</code> directory
-exists, bant will use it for this purpose (So create the directory if you
-want this feature to be active; if you're on a fast SSD, no need for it).</p>
+accesses <code>bant</code> remembers from last time it ran. Create a <code>~/.cache/bant/</code>
+a directory to activate this feature.</p>
+<p dir="auto">In addition, there is an option <code>-T&lt;num&gt;</code> which allows to set number of threads
+used for some of the internal IO operations.</p>
+<p dir="auto">Note, this is <em>only</em> really useful if you're on a slow network drive or HDD.
+On a commonly used fast SSD, this will not make a difference, probably adding
+overhead.</p>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Synopsis</h3><a id="user-content-synopsis" class="anchor" aria-label="Permalink: Synopsis" href="#synopsis"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="bant v0.1.14+ &lt;http://bant.build/&gt;
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="bant v0.2.0 &lt;http://bant.build/&gt;
 Copyright (c) 2024-2025 Henner Zeller. This program is free software; GPL 3.0.
-Usage: bant [options] &lt;command&gt; [bazel-target-pattern...]
+Usage: bazel-bin/bant/bant [options] &lt;command&gt; [bazel-target-pattern...]
 Options
     -C &lt;directory&gt; : Change to this project directory first (default = '.')
     -q             : Quiet: don't print info messages to stderr.
@@ -260,10 +285,10 @@ Options
                    : native (default), s-expr, plist, json, csv
                      Unique prefix ok, so -fs , -fp, -fj or -fc is sufficient.
     -r             : Follow dependencies recursively starting from pattern.
-                     Without parameter, follows dependencies to the end.
+                     Without numeric parameter, follows dependencies to the end.
                      An optional parameter allows to limit the nesting depth,
                      e.g. -r2 just follows two levels after the toplevel
-                     pattern. -r0 is equivalent to not providing -r.
+                     pattern.
     -v             : Verbose; print some stats. Multiple times: more verbose.
     -h             : This help.
     --//&lt;option&gt;   : configurable flag attribute to be used in select() and
@@ -308,14 +333,15 @@ Commands (unique prefix sufficient):
 
     == Tools ==
     dwyu           : DWYU: Depend on What You Use (emit buildozer edit script)
+                     Default invocation uses -r4
                       -k strict: emit remove even if # keep comment in line.
     canonicalize   : Emit rename edits to canonicalize targets.
     compile-flags  : (experimental) Emit compile flags. Redirect or output with
                      -o compile_flags.txt
     compilation-db : (experimental) Emit compilation db. Redirect or output with
-                     -o compile_commands.json"><pre class="notranslate"><code>bant v0.1.14+ &lt;http://bant.build/&gt;
+                     -o compile_commands.json"><pre class="notranslate"><code>bant v0.2.0 &lt;http://bant.build/&gt;
 Copyright (c) 2024-2025 Henner Zeller. This program is free software; GPL 3.0.
-Usage: bant [options] &lt;command&gt; [bazel-target-pattern...]
+Usage: bazel-bin/bant/bant [options] &lt;command&gt; [bazel-target-pattern...]
 Options
     -C &lt;directory&gt; : Change to this project directory first (default = '.')
     -q             : Quiet: don't print info messages to stderr.
@@ -324,10 +350,10 @@ Options
                    : native (default), s-expr, plist, json, csv
                      Unique prefix ok, so -fs , -fp, -fj or -fc is sufficient.
     -r             : Follow dependencies recursively starting from pattern.
-                     Without parameter, follows dependencies to the end.
+                     Without numeric parameter, follows dependencies to the end.
                      An optional parameter allows to limit the nesting depth,
                      e.g. -r2 just follows two levels after the toplevel
-                     pattern. -r0 is equivalent to not providing -r.
+                     pattern.
     -v             : Verbose; print some stats. Multiple times: more verbose.
     -h             : This help.
     --//&lt;option&gt;   : configurable flag attribute to be used in select() and
@@ -372,6 +398,7 @@ Commands (unique prefix sufficient):
 
     == Tools ==
     dwyu           : DWYU: Depend on What You Use (emit buildozer edit script)
+                     Default invocation uses -r4
                       -k strict: emit remove even if # keep comment in line.
     canonicalize   : Emit rename edits to canonicalize targets.
     compile-flags  : (experimental) Emit compile flags. Redirect or output with
@@ -455,8 +482,8 @@ bant macros.</p>
 </ul>
 <section data-footnotes="" class="footnotes"><h2 id="footnote-label" class="sr-only" dir="auto">Footnotes</h2>
 <ol dir="auto">
-<li id="user-content-fn-1-7628bf05125b50191dd200266f09d11d">
-<p dir="auto">Build-dependency analog to what <a href="https://include-what-you-use.org/">Include What You Use</a> is for source files. <a href="#user-content-fnref-1-7628bf05125b50191dd200266f09d11d" data-footnote-backref="" aria-label="Back to reference 1" class="data-footnote-backref">↩</a></p>
+<li id="user-content-fn-1-e8c93e079f260163a6986ee292b49bd4">
+<p dir="auto">Build-dependency analog to what <a href="https://include-what-you-use.org/">Include What You Use</a> is for source files. <a href="#user-content-fnref-1-e8c93e079f260163a6986ee292b49bd4" data-footnote-backref="" aria-label="Back to reference 1" class="data-footnote-backref">↩</a></p>
 </li>
 </ol>
 </section>
