@@ -2,25 +2,32 @@
 <p dir="auto">This library provides <a href="http://bazel.build" rel="nofollow">Bazel</a> <a href="https://bazel.build/rules/language" rel="nofollow">Starlark</a> functionality meant to help in maintaining other libraries.</p>
 <p dir="auto"><a href="https://github.com/helly25/bzl/actions/workflows/main.yml"><img src="https://github.com/helly25/bzl/actions/workflows/main.yml/badge.svg" alt="Test" style="max-width: 100%;"></a></p>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Versions</h2><a id="user-content-versions" class="anchor" aria-label="Permalink: Versions" href="#versions"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Implements versioning functions that mostly follow <a href="https://semver.org/" rel="nofollow">Semver</a>.</p>
+<p dir="auto">Comparators correctly respect major, minor and patch components, as well as
+Semver compliant 'pre-release' and 'build' components. The pre-release and build
+components are split at ".". Comparing pre-release parts works for alphabetical
+prefixes and numeric suffixes, so 'alpha', 'beta' and 'rc' as well as numbered
+version of those (e.g. 'alpha1' or rc-1') are supported. For pre-releases and
+build pieces a single '-' in front of the numeric parts is dropped (e.g. 'rc-1'
+becomes 'rc' + '1' while 'alpha--2' becomes 'alpha-' + '2').</p>
+<p dir="auto">The full functionality is exposed as a singele struct containing all functions.</p>
+<p dir="auto">The version parameters support:</p>
 <ul dir="auto">
-<li><code>load("@helly25_bzl//bzl/versions:versions_bzl", _versions = "versions")</code>
+<li>a string that can be parsed according to:
+<code>major</code>['.' <code>minor</code> [ '.' <code>patch</code> [ '.' <code>digits</code>]*]] ['-' [^+]+] ['+' .*]</li>
+<li>a <code>list</code> or <code>tuple</code> where each component is a version part. If present, then:
 <ul dir="auto">
-<li><code>versions</code> is a single import structure:
-<ul dir="auto">
-<li><code>parse</code>: Parses a version.</li>
-<li><code>ge</code>: Implements L &gt;= R.</li>
-<li><code>gt</code>: Implements L &gt; R.</li>
-<li><code>le</code>: Implements L &lt;= R.</li>
-<li><code>lt</code>: Implements L &lt; R.</li>
-<li><code>eq</code>: Implements L == R.</li>
-<li><code>ne</code>: Implements L != R.</li>
-<li><code>compare</code>: Implements L OP R.</li>
-<li><code>check_one_requirement</code>: Checks a version adheres to a single requirement.</li>
-<li><code>check_all_requirements</code>: Checks a version adheres to a requirements list.</li>
-<li><code>parse_requirements</code>: Parses a requirements specification.</li>
+<li>a pre-release component must be separated by a single "-" and split by ".".</li>
+<li>a build component must be separated by a single "+" and split by "."</li>
 </ul>
 </li>
-<li>Example:
+<li>a single <code>int</code> which will be the major version.</li>
+<li>anything else is an error and the functions will <code>fail</code>.</li>
+<li>unlike Semver, the function allows any number of numeric version components.</li>
+</ul>
+<p dir="auto">The functionality has exhaustive tests. If something still works wrong please,
+file a bug report or propose a fix.</p>
+<p dir="auto">Example:</p>
 <div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="my_version = &quot;25.33.42&quot;
 min_version = (10, 11, 12)
 if _versions.lt(my_version, min_version):
@@ -34,8 +41,53 @@ if _versions.lt(my_version, min_version):
     <span class="pl-s1">my_version</span> <span class="pl-c1">=</span> <span class="pl-s1">my_version</span>,
     <span class="pl-s1">min_version</span> <span class="pl-c1">=</span> <span class="pl-s1">min_version</span>,
   ))</pre></div>
+<p dir="auto">Provides:</p>
+<ul dir="auto">
+<li><code>load("@helly25_bzl//bzl/versions:versions_bzl", _versions = "versions")</code>
+<ul dir="auto">
+<li><code>versions</code> is a single import structure:
+<ul dir="auto">
+<li><code>parse</code>: Parses a version.</li>
+<li><code>ge</code>: Implements <code>L &gt;= R</code>.</li>
+<li><code>gt</code>: Implements <code>L &gt; R</code>.</li>
+<li><code>le</code>: Implements <code>L &lt;= R</code>.</li>
+<li><code>lt</code>: Implements <code>L &lt; R</code>.</li>
+<li><code>eq</code>: Implements <code>L == R</code>.</li>
+<li><code>ne</code>: Implements <code>L != R</code>.</li>
+<li><code>cmp</code>: Implements <code>L &lt;=&gt; R</code> aka <code>(L &lt; R) - (L &gt; R)</code>.</li>
+<li><code>compare</code>: Implements <code>L OP R</code>.</li>
+<li><code>check_one_requirement</code>: Checks a version adheres to a single requirement.</li>
+<li><code>check_all_requirements</code>: Checks a version adheres to a requirements list.</li>
+<li><code>parse_requirements</code>: Parses a requirements specification.</li>
+</ul>
 </li>
 </ul>
 </li>
+</ul>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Installation</h2><a id="user-content-installation" class="anchor" aria-label="Permalink: Installation" href="#installation"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The library is available for both Bazelmod and Workspace installations and works
+on MacOS, Ubuntu and Windows with Bazel version 7.x and 8.x (Other systems are
+simply not tested). However future version may drop Windows support.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">For MODULES.bazel</h3><a id="user-content-for-modulesbazel" class="anchor" aria-label="Permalink: For MODULES.bazel" href="#for-modulesbazel"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">See <a href="https://github.com/helly25/bzl/releases">https://github.com/helly25/bzl/releases</a> to replace the version number.</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="bazel_dep(name = &quot;helly25_bzl&quot;, version = &quot;0.0.0&quot;)"><pre class="notranslate"><code>bazel_dep(name = "helly25_bzl", version = "0.0.0")
+</code></pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">For WORKSPACE</h3><a id="user-content-for-workspace" class="anchor" aria-label="Permalink: For WORKSPACE" href="#for-workspace"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@bazel_tools//tools/build_defs/repo:http.bzl&quot;, &quot;http_archive&quot;)
+
+http_archive(
+  name = &quot;helly25_bzl&quot;,
+  url = &quot;https://github.com/helly25/bzl/releases/download/0.0.0/bzl-0.0.0.tar.gz&quot;,
+  sha256 = &quot;....&quot; # see https://github.com/helly25/bzl/releases for version numbers SHA256 codes.
+)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@bazel_tools//tools/build_defs/repo:http.bzl"</span>, <span class="pl-s">"http_archive"</span>)
+
+<span class="pl-en">http_archive</span>(
+  <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"helly25_bzl"</span>,
+  <span class="pl-s1">url</span> <span class="pl-c1">=</span> <span class="pl-s">"https://github.com/helly25/bzl/releases/download/0.0.0/bzl-0.0.0.tar.gz"</span>,
+  <span class="pl-s1">sha256</span> <span class="pl-c1">=</span> <span class="pl-s">"...."</span> <span class="pl-c"># see https://github.com/helly25/bzl/releases for version numbers SHA256 codes.</span>
+)</pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Dependencies</h3><a id="user-content-dependencies" class="anchor" aria-label="Permalink: Dependencies" href="#dependencies"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li><code>bazel_skylib</code>.</li>
 </ul>
 </article></div>
