@@ -35,7 +35,7 @@ sufficient to invoke <code>lib-headers</code>.</p>
 just a plain table easy to process with e.g. <code>awk</code> and <code>grep</code>, but
 s-expressions and json are structured outputs interesting in other contexts).</p>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">dwyu : Depend-on What You Use</h3><a id="user-content-dwyu--depend-on-what-you-use" class="anchor" aria-label="Permalink: dwyu : Depend-on What You Use" href="#dwyu--depend-on-what-you-use"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<p dir="auto"><strong><code>dwyu</code></strong> Depend on What You Use (DWYU)<sup><a href="#user-content-fn-1-f281fdc48e62008b0507efc0fb8ae90d" id="user-content-fnref-1-f281fdc48e62008b0507efc0fb8ae90d" data-footnote-ref="" aria-describedby="footnote-label">1</a></sup>: Determine which dependencies
+<p dir="auto"><strong><code>dwyu</code></strong> Depend on What You Use (DWYU)<sup><a href="#user-content-fn-1-a6931d0a22d8aade2f3a05ad113ece74" id="user-content-fnref-1-a6931d0a22d8aade2f3a05ad113ece74" data-footnote-ref="" aria-describedby="footnote-label">1</a></sup>: Determine which dependencies
 are needed in <code>cc_library()</code>, <code>cc_binary()</code>, and <code>cc_test()</code> targets.</p>
 <p dir="auto">If a source file <code>#include</code>s a header, DWYU determines if the library
 that provides that header is mentioned in the <code>deps = [ ... ]</code>.</p>
@@ -101,13 +101,21 @@ exactly what <code>bant</code> sees). In general this is much faster than manual
 finding and opening the file, in particular when it is in some external
 project where it is harder to even find the right file; consider</p>
 <div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bant print @googletest//:gtest"><pre>bant print @googletest//:gtest</pre></div>
+<p dir="auto">By default, <code>print</code> outputs <em>rules</em> matching the pattern, so only these
+are printed. You won't see other constructs parsed in the package,
+such as variable assignments or unevaluated list-comprehensions that are yet
+to build rules.</p>
+<p dir="auto">With <code>-a</code> (for AST, or "all", if you will), the <em>entire</em> parsed content of the
+surrounding package is printed. Say you have list-comprehensions
+that generate rules that you want to see, but don't <code>-e</code>laborate yet; you can
+use <code>-a</code> to show these.</p>
 <div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Expression evaluation</h4><a id="user-content-expression-evaluation" class="anchor" aria-label="Permalink: Expression evaluation" href="#expression-evaluation"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<p dir="auto">You see that <code>gtest</code> has some files <code>glob()</code>'d and other expressions
-that make that rule, which we want to see evaluated.
+<p dir="auto">In the example above you saw that <code>gtest</code> has some files <code>glob()</code>'d and
+other expressions that make that rule, which we want to see evaluated.
 With the <code>-e</code> option (for <code>e</code>laborate), bant can do some basic evaluation
 of these and print the final form - here you see the filenames are now expanded:</p>
 <div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bant print -e @googletest//:gtest"><pre>bant print -e @googletest//:gtest</pre></div>
-<p dir="auto">In general, evaluation is limited right now and only does some
+<p dir="auto">In general, elaboration is limited right now and only does some
 transformations that are immediately useful for dependency analysis;
 implemented as need arises (That is why it's called elaboration not evaluation
 right now :)). Use <code>-e</code> to enable the elaboration in <code>print</code>.</p>
@@ -274,9 +282,9 @@ used for some of the internal IO operations.</p>
 On a commonly used fast SSD, this will not make a difference, probably adding
 overhead.</p>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Synopsis</h3><a id="user-content-synopsis" class="anchor" aria-label="Permalink: Synopsis" href="#synopsis"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="bant v0.2.0 &lt;http://bant.build/&gt;
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="bant v0.2.0+ &lt;http://bant.build/&gt;
 Copyright (c) 2024-2025 Henner Zeller. This program is free software; GPL 3.0.
-Usage: bazel-bin/bant/bant [options] &lt;command&gt; [bazel-target-pattern...]
+Usage: bant [options] &lt;command&gt; [bazel-target-pattern...]
 Options
     -C &lt;directory&gt; : Change to this project directory first (default = '.')
     -q             : Quiet: don't print info messages to stderr.
@@ -297,9 +305,10 @@ Options
 
 Commands (unique prefix sufficient):
     == Parsing ==
-    print          : Print AST matching pattern. -E : only files w/ parse errors
+    print          : Print rules matching pattern. (-E : only files w/ errors)
+                      -a : print all toplevel items in packages, not just rules.
                       -e : elaborate; light eval: expand variables, concat etc.
-                      -b : elaborate with built-in macro expansion.
+                      -b : elaborate including expansion of built-in macros.
                       -g &lt;regex&gt; : 'grep' - only print targets where any string
                                     matches regex.
                       -i If '-g' is given: case insensitive
@@ -339,9 +348,9 @@ Commands (unique prefix sufficient):
     compile-flags  : (experimental) Emit compile flags. Redirect or output with
                      -o compile_flags.txt
     compilation-db : (experimental) Emit compilation db. Redirect or output with
-                     -o compile_commands.json"><pre class="notranslate"><code>bant v0.2.0 &lt;http://bant.build/&gt;
+                     -o compile_commands.json"><pre class="notranslate"><code>bant v0.2.0+ &lt;http://bant.build/&gt;
 Copyright (c) 2024-2025 Henner Zeller. This program is free software; GPL 3.0.
-Usage: bazel-bin/bant/bant [options] &lt;command&gt; [bazel-target-pattern...]
+Usage: bant [options] &lt;command&gt; [bazel-target-pattern...]
 Options
     -C &lt;directory&gt; : Change to this project directory first (default = '.')
     -q             : Quiet: don't print info messages to stderr.
@@ -362,9 +371,10 @@ Options
 
 Commands (unique prefix sufficient):
     == Parsing ==
-    print          : Print AST matching pattern. -E : only files w/ parse errors
+    print          : Print rules matching pattern. (-E : only files w/ errors)
+                      -a : print all toplevel items in packages, not just rules.
                       -e : elaborate; light eval: expand variables, concat etc.
-                      -b : elaborate with built-in macro expansion.
+                      -b : elaborate including expansion of built-in macros.
                       -g &lt;regex&gt; : 'grep' - only print targets where any string
                                     matches regex.
                       -i If '-g' is given: case insensitive
@@ -482,8 +492,8 @@ bant macros.</p>
 </ul>
 <section data-footnotes="" class="footnotes"><h2 id="footnote-label" class="sr-only" dir="auto">Footnotes</h2>
 <ol dir="auto">
-<li id="user-content-fn-1-f281fdc48e62008b0507efc0fb8ae90d">
-<p dir="auto">Build-dependency analog to what <a href="https://include-what-you-use.org/">Include What You Use</a> is for source files. <a href="#user-content-fnref-1-f281fdc48e62008b0507efc0fb8ae90d" data-footnote-backref="" aria-label="Back to reference 1" class="data-footnote-backref">↩</a></p>
+<li id="user-content-fn-1-a6931d0a22d8aade2f3a05ad113ece74">
+<p dir="auto">Build-dependency analog to what <a href="https://include-what-you-use.org/">Include What You Use</a> is for source files. <a href="#user-content-fnref-1-a6931d0a22d8aade2f3a05ad113ece74" data-footnote-backref="" aria-label="Back to reference 1" class="data-footnote-backref">↩</a></p>
 </li>
 </ol>
 </section>

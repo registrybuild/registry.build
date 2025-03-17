@@ -1,0 +1,514 @@
+<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Vince's CSV Parser</h1><a id="user-content-vinces-csv-parser" class="anchor" aria-label="Permalink: Vince's CSV Parser" href="#vinces-csv-parser"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><a href="https://github.com/vincentlaucsb/csv-parser/actions/workflows/cmake-multi-platform.yml"><img src="https://github.com/vincentlaucsb/csv-parser/actions/workflows/cmake-multi-platform.yml/badge.svg" alt="CMake on Windows" style="max-width: 100%;"></a></p>
+<ul dir="auto">
+<li><a href="#motivation">Motivation</a></li>
+<li><a href="#documentation">Documentation</a></li>
+<li><a href="#integration">Integration</a>
+<ul dir="auto">
+<li><a href="#c-version">C++ Version</a></li>
+<li><a href="#single-header">Single Header</a></li>
+<li><a href="#cmake-instructions">CMake Instructions</a></li>
+</ul>
+</li>
+<li><a href="#features--examples">Features &amp; Examples</a>
+<ul dir="auto">
+<li><a href="#reading-an-arbitrarily-large-file-with-iterators">Reading an Arbitrarily Large File (with Iterators)</a>
+<ul dir="auto">
+<li><a href="#memory-mapped-files-vs-streams">Memory Mapped Files vs. Streams</a></li>
+</ul>
+</li>
+<li><a href="#indexing-by-column-names">Indexing by Column Names</a></li>
+<li><a href="#numeric-conversions">Numeric Conversions</a></li>
+<li><a href="#specifying-the-csv-format">Specifying the CSV Format</a>
+<ul dir="auto">
+<li><a href="#trimming-whitespace">Trimming Whitespace</a></li>
+<li><a href="#handling-variable-numbers-of-columns">Handling Variable Numbers of Columns</a></li>
+<li><a href="#setting-column-names">Setting Column Names</a></li>
+</ul>
+</li>
+<li><a href="#converting-to-json">Converting to JSON</a></li>
+<li><a href="#parsing-an-in-memory-string">Parsing an In-Memory String</a></li>
+<li><a href="#writing-csv-files">Writing CSV Files</a></li>
+</ul>
+</li>
+<li><a href="#contributing">Contributing</a></li>
+</ul>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Motivation</h2><a id="user-content-motivation" class="anchor" aria-label="Permalink: Motivation" href="#motivation"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">There's plenty of other CSV parsers in the wild, but I had a hard time finding what I wanted. Inspired by Python's <code>csv</code> module, I wanted a library with <strong>simple, intuitive syntax</strong>. Furthermore, I wanted support for special use cases such as calculating statistics on very large files. Thus, this library was created with these following goals in mind.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Performance and Memory Requirements</h3><a id="user-content-performance-and-memory-requirements" class="anchor" aria-label="Permalink: Performance and Memory Requirements" href="#performance-and-memory-requirements"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">A high performance CSV parser allows you to take advantage of the deluge of large datasets available. By using overlapped threads, memory mapped IO, and
+minimal memory allocation, this parser can quickly tackle large CSV files--even if they are larger than RAM.</p>
+<p dir="auto">In fact, <a href="https://github.com/vincentlaucsb/csv-parser/wiki/Microsoft-Visual-Studio-CPU-Profiling-Results">according to Visual Studio's profier</a> this
+CSV parser <strong>spends almost 90% of its CPU cycles actually reading your data</strong> as opposed to getting hung up in hard disk I/O or pushing around memory.</p>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Show me the numbers</h4><a id="user-content-show-me-the-numbers" class="anchor" aria-label="Permalink: Show me the numbers" href="#show-me-the-numbers"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">On my computer (12th Gen Intel(R) Core(TM) i5-12400 @ 2.50 GHz/Western Digital Blue 5400RPM HDD), this parser can read</p>
+<ul dir="auto">
+<li>the <a href="https://github.com/vincentlaucsb/csv-data/tree/master/real_data">69.9 MB 2015_StateDepartment.csv</a> in 0.19 seconds (360 MBps)</li>
+<li>a <a href="https://www.kaggle.com/austinreese/craigslist-carstrucks-data/version/7" rel="nofollow">1.4 GB Craigslist Used Vehicles Dataset</a> in 1.18 seconds (1.2 GBps)</li>
+<li>a <a href="https://www.kaggle.com/sobhanmoosavi/us-accidents" rel="nofollow">2.9GB Car Accidents Dataset</a> in 8.49 seconds (352 MBps)</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Robust Yet Flexible</h3><a id="user-content-robust-yet-flexible" class="anchor" aria-label="Permalink: Robust Yet Flexible" href="#robust-yet-flexible"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">RFC 4180 and Beyond</h4><a id="user-content-rfc-4180-and-beyond" class="anchor" aria-label="Permalink: RFC 4180 and Beyond" href="#rfc-4180-and-beyond"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">This CSV parser is much more than a fancy string splitter, and parses all files following <a href="https://www.rfc-editor.org/rfc/rfc4180.txt" rel="nofollow">RFC 4180</a>.</p>
+<p dir="auto">However, in reality we know that RFC 4180 is just a suggestion, and there's many "flavors" of CSV such as tab-delimited files. Thus, this library has:</p>
+<ul dir="auto">
+<li>Automatic delimiter guessing</li>
+<li>Ability to ignore comments in leading rows and elsewhere</li>
+<li>Ability to handle rows of different lengths</li>
+<li>Ability to handle arbitrary line endings (as long as they are some combination of carriage return and newline)</li>
+</ul>
+<p dir="auto">By default, rows of variable length are silently ignored, although you may elect to keep them or throw an error.</p>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Encoding</h4><a id="user-content-encoding" class="anchor" aria-label="Permalink: Encoding" href="#encoding"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">This CSV parser is encoding-agnostic and will handle ANSI and UTF-8 encoded files.
+It does not try to decode UTF-8, except for detecting and stripping UTF-8 byte order marks.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Well Tested</h3><a id="user-content-well-tested" class="anchor" aria-label="Permalink: Well Tested" href="#well-tested"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">This CSV parser has an extensive test suite and is checked for memory safety with Valgrind. If you still manage to find a bug,
+do not hesitate to report it.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Documentation</h2><a id="user-content-documentation" class="anchor" aria-label="Permalink: Documentation" href="#documentation"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">In addition to the <a href="#features--examples">Features &amp; Examples</a> below, a <a href="https://vincela.com/csv/" rel="nofollow">fully-fledged online documentation</a> contains more examples, details, interesting features, and instructions for less common use cases.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Integration</h2><a id="user-content-integration" class="anchor" aria-label="Permalink: Integration" href="#integration"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">This library was developed with Microsoft Visual Studio and is compatible with &gt;g++ 7.5 and clang.
+All of the code required to build this library, aside from the C++ standard library, is contained under <code>include/</code>.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">C++ Version</h3><a id="user-content-c-version" class="anchor" aria-label="Permalink: C++ Version" href="#c-version"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">While C++17 is recommended, C++11 is the minimum version required. This library makes extensive use of string views, and uses
+<a href="https://github.com/martinmoene/string-view-lite">Martin Moene's string view library</a> if <code>std::string_view</code> is not available.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Single Header</h3><a id="user-content-single-header" class="anchor" aria-label="Permalink: Single Header" href="#single-header"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">This library is available as a single <code>.hpp</code> file under <a href="single_include/csv.hpp"><code>single_include/csv.hpp</code></a>.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">CMake Instructions</h3><a id="user-content-cmake-instructions" class="anchor" aria-label="Permalink: CMake Instructions" href="#cmake-instructions"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">If you're including this in another CMake project, you can simply clone this repo into your project directory,
+and add the following to your CMakeLists.txt:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="# Optional: Defaults to C++ 17
+# set(CSV_CXX_STANDARD 11)
+add_subdirectory(csv-parser)
+
+# ...
+
+add_executable(&lt;your program&gt; ...)
+target_link_libraries(&lt;your program&gt; csv)
+"><pre class="notranslate"><code># Optional: Defaults to C++ 17
+# set(CSV_CXX_STANDARD 11)
+add_subdirectory(csv-parser)
+
+# ...
+
+add_executable(&lt;your program&gt; ...)
+target_link_libraries(&lt;your program&gt; csv)
+
+</code></pre></div>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Avoid cloning with FetchContent</h4><a id="user-content-avoid-cloning-with-fetchcontent" class="anchor" aria-label="Permalink: Avoid cloning with FetchContent" href="#avoid-cloning-with-fetchcontent"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Don't want to clone? No problem. There's also <a href="https://github.com/vincentlaucsb/csv-parser/wiki/Example:-Using-csv%E2%80%90parser-with-CMake-and-FetchContent">a simple example documenting how to use CMake's FetchContent module to integrate this library</a>.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Features &amp; Examples</h2><a id="user-content-features--examples" class="anchor" aria-label="Permalink: Features &amp; Examples" href="#features--examples"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Reading an Arbitrarily Large File (with Iterators)</h3><a id="user-content-reading-an-arbitrarily-large-file-with-iterators" class="anchor" aria-label="Permalink: Reading an Arbitrarily Large File (with Iterators)" href="#reading-an-arbitrarily-large-file-with-iterators"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">With this library, you can easily stream over a large file without reading its entirety into memory.</p>
+<p dir="auto"><strong>C++ Style</strong></p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="# include &quot;csv.hpp&quot;
+
+using namespace csv;
+
+...
+
+CSVReader reader(&quot;very_big_file.csv&quot;);
+
+for (CSVRow&amp; row: reader) { // Input iterator
+    for (CSVField&amp; field: row) {
+        // By default, get&lt;&gt;() produces a std::string.
+        // A more efficient get&lt;string_view&gt;() is also available, where the resulting
+        // string_view is valid as long as the parent CSVRow is alive
+        std::cout &lt;&lt; field.get&lt;&gt;() &lt;&lt; ...
+    }
+}
+
+..."><pre># <span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">"</span>csv.hpp<span class="pl-pds">"</span></span>
+
+<span class="pl-k">using</span> <span class="pl-k">namespace</span> <span class="pl-en">csv</span><span class="pl-k">;</span>
+
+...
+
+CSVReader <span class="pl-en">reader</span>(<span class="pl-s"><span class="pl-pds">"</span>very_big_file.csv<span class="pl-pds">"</span></span>);
+
+<span class="pl-k">for</span> (CSVRow&amp; row: reader) { <span class="pl-c"><span class="pl-c">//</span> Input iterator</span>
+    <span class="pl-k">for</span> (CSVField&amp; field: row) {
+        <span class="pl-c"><span class="pl-c">//</span> By default, get&lt;&gt;() produces a std::string.</span>
+        <span class="pl-c"><span class="pl-c">//</span> A more efficient get&lt;string_view&gt;() is also available, where the resulting</span>
+        <span class="pl-c"><span class="pl-c">//</span> string_view is valid as long as the parent CSVRow is alive</span>
+        std::cout &lt;&lt; field.<span class="pl-smi">get</span>&lt;&gt;() &lt;&lt; ...
+    }
+}
+
+...</pre></div>
+<p dir="auto"><strong>Old-Fashioned C Style Loop</strong></p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="...
+
+CSVReader reader(&quot;very_big_file.csv&quot;);
+CSVRow row;
+ 
+while (reader.read_row(row)) {
+    // Do stuff with row here
+}
+
+..."><pre>...
+
+CSVReader <span class="pl-en">reader</span>(<span class="pl-s"><span class="pl-pds">"</span>very_big_file.csv<span class="pl-pds">"</span></span>);
+CSVRow row;
+ 
+<span class="pl-k">while</span> (reader.read_row(row)) {
+    <span class="pl-c"><span class="pl-c">//</span> Do stuff with row here</span>
+}
+
+...</pre></div>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Memory-Mapped Files vs. Streams</h4><a id="user-content-memory-mapped-files-vs-streams" class="anchor" aria-label="Permalink: Memory-Mapped Files vs. Streams" href="#memory-mapped-files-vs-streams"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">By default, passing in a file path string to the constructor of <code>CSVReader</code>
+causes memory-mapped IO to be used. In general, this option is the most
+performant.</p>
+<p dir="auto">However, <code>std::ifstream</code> may also be used as well as in-memory sources via <code>std::stringstream</code>.</p>
+<p dir="auto"><strong>Note</strong>: Currently CSV guessing only works for memory-mapped files. The CSV dialect
+must be manually defined for other sources.</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="CSVFormat format;
+// custom formatting options go here
+
+CSVReader mmap(&quot;some_file.csv&quot;, format);
+
+std::ifstream infile(&quot;some_file.csv&quot;, std::ios::binary);
+CSVReader ifstream_reader(infile, format);
+
+std::stringstream my_csv;
+CSVReader sstream_reader(my_csv, format);"><pre>CSVFormat format;
+<span class="pl-c"><span class="pl-c">//</span> custom formatting options go here</span>
+
+CSVReader <span class="pl-en">mmap</span>(<span class="pl-s"><span class="pl-pds">"</span>some_file.csv<span class="pl-pds">"</span></span>, format);
+
+std::ifstream <span class="pl-en">infile</span>(<span class="pl-s"><span class="pl-pds">"</span>some_file.csv<span class="pl-pds">"</span></span>, std::ios::binary);
+CSVReader <span class="pl-en">ifstream_reader</span>(infile, format);
+
+std::stringstream my_csv;
+CSVReader <span class="pl-en">sstream_reader</span>(my_csv, format);</pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Indexing by Column Names</h3><a id="user-content-indexing-by-column-names" class="anchor" aria-label="Permalink: Indexing by Column Names" href="#indexing-by-column-names"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Retrieving values using a column name string is a cheap, constant time operation.</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="# include &quot;csv.hpp&quot;
+
+using namespace csv;
+
+...
+
+CSVReader reader(&quot;very_big_file.csv&quot;);
+double sum = 0;
+
+for (auto&amp; row: reader) {
+    // Note: Can also use index of column with [] operator
+    sum += row[&quot;Total Salary&quot;].get&lt;double&gt;();
+}
+
+..."><pre># <span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">"</span>csv.hpp<span class="pl-pds">"</span></span>
+
+<span class="pl-k">using</span> <span class="pl-k">namespace</span> <span class="pl-en">csv</span><span class="pl-k">;</span>
+
+...
+
+CSVReader <span class="pl-en">reader</span>(<span class="pl-s"><span class="pl-pds">"</span>very_big_file.csv<span class="pl-pds">"</span></span>);
+<span class="pl-k">double</span> sum = <span class="pl-c1">0</span>;
+
+<span class="pl-k">for</span> (<span class="pl-k">auto</span>&amp; row: reader) {
+    <span class="pl-c"><span class="pl-c">//</span> Note: Can also use index of column with [] operator</span>
+    sum += row[<span class="pl-s"><span class="pl-pds">"</span>Total Salary<span class="pl-pds">"</span></span>].<span class="pl-smi">get</span>&lt;<span class="pl-k">double</span>&gt;();
+}
+
+...</pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Numeric Conversions</h3><a id="user-content-numeric-conversions" class="anchor" aria-label="Permalink: Numeric Conversions" href="#numeric-conversions"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">If your CSV has lots of numeric values, you can also have this parser (lazily)
+convert them to the proper data type.</p>
+<ul dir="auto">
+<li>Type checking is performed on conversions to prevent undefined behavior and integer overflow
+<ul dir="auto">
+<li>Negative numbers cannot be blindly converted to unsigned integer types</li>
+</ul>
+</li>
+<li><code>get&lt;float&gt;()</code>, <code>get&lt;double&gt;()</code>, and <code>get&lt;long double&gt;()</code> are capable of parsing numbers written in scientific notation.</li>
+<li><strong>Note:</strong> Conversions to floating point types are not currently checked for loss of precision.</li>
+</ul>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="# include &quot;csv.hpp&quot;
+
+using namespace csv;
+
+...
+
+CSVReader reader(&quot;very_big_file.csv&quot;);
+
+for (auto&amp; row: reader) {
+    if (row[&quot;timestamp&quot;].is_int()) {
+        // Can use get&lt;&gt;() with any integer type, but negative
+        // numbers cannot be converted to unsigned types
+        row[&quot;timestamp&quot;].get&lt;int&gt;();
+        
+        // You can also attempt to parse hex values
+        int value;
+        if (row[&quot;hexValue&quot;].try_parse_hex(value)) {
+            std::cout &lt;&lt; &quot;Hex value is &quot; &lt;&lt; value &lt;&lt; std::endl;
+        }
+
+        // Non-imperial decimal numbers can be handled this way
+        long double decimalValue;
+        if (row[&quot;decimalNumber&quot;].try_parse_decimal(decimalValue, ',')) {
+            std::cout &lt;&lt; &quot;Decimal value is &quot; &lt;&lt; decimalValue &lt;&lt; std::endl;
+        }
+
+        // ..
+    }
+}
+"><pre># <span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">"</span>csv.hpp<span class="pl-pds">"</span></span>
+
+<span class="pl-k">using</span> <span class="pl-k">namespace</span> <span class="pl-en">csv</span><span class="pl-k">;</span>
+
+...
+
+CSVReader <span class="pl-en">reader</span>(<span class="pl-s"><span class="pl-pds">"</span>very_big_file.csv<span class="pl-pds">"</span></span>);
+
+<span class="pl-k">for</span> (<span class="pl-k">auto</span>&amp; row: reader) {
+    <span class="pl-k">if</span> (row[<span class="pl-s"><span class="pl-pds">"</span>timestamp<span class="pl-pds">"</span></span>].<span class="pl-c1">is_int</span>()) {
+        <span class="pl-c"><span class="pl-c">//</span> Can use get&lt;&gt;() with any integer type, but negative</span>
+        <span class="pl-c"><span class="pl-c">//</span> numbers cannot be converted to unsigned types</span>
+        row[<span class="pl-s"><span class="pl-pds">"</span>timestamp<span class="pl-pds">"</span></span>].<span class="pl-smi">get</span>&lt;<span class="pl-k">int</span>&gt;();
+        
+        <span class="pl-c"><span class="pl-c">//</span> You can also attempt to parse hex values</span>
+        <span class="pl-k">int</span> value;
+        <span class="pl-k">if</span> (row[<span class="pl-s"><span class="pl-pds">"</span>hexValue<span class="pl-pds">"</span></span>].<span class="pl-c1">try_parse_hex</span>(value)) {
+            std::cout &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>Hex value is <span class="pl-pds">"</span></span> &lt;&lt; value &lt;&lt; std::endl;
+        }
+
+        <span class="pl-c"><span class="pl-c">//</span> Non-imperial decimal numbers can be handled this way</span>
+        <span class="pl-k">long</span> <span class="pl-k">double</span> decimalValue;
+        <span class="pl-k">if</span> (row[<span class="pl-s"><span class="pl-pds">"</span>decimalNumber<span class="pl-pds">"</span></span>].<span class="pl-c1">try_parse_decimal</span>(decimalValue, <span class="pl-s"><span class="pl-pds">'</span>,<span class="pl-pds">'</span></span>)) {
+            std::cout &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>Decimal value is <span class="pl-pds">"</span></span> &lt;&lt; decimalValue &lt;&lt; std::endl;
+        }
+
+        <span class="pl-c"><span class="pl-c">//</span> ..</span>
+    }
+}
+</pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Converting to JSON</h3><a id="user-content-converting-to-json" class="anchor" aria-label="Permalink: Converting to JSON" href="#converting-to-json"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">You can serialize individual rows as JSON objects, where the keys are column names, or as
+JSON arrays (which don't contain column names). The outputted JSON contains properly escaped
+strings with minimal whitespace and no quoting for numeric values. How these JSON fragments are
+assembled into a larger JSON document is an exercise left for the user.</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="# include &lt;sstream&gt;
+# include &quot;csv.hpp&quot;
+
+using namespace csv;
+
+...
+
+CSVReader reader(&quot;very_big_file.csv&quot;);
+std::stringstream my_json;
+
+for (auto&amp; row: reader) {
+    my_json &lt;&lt; row.to_json() &lt;&lt; std::endl;
+    my_json &lt;&lt; row.to_json_array() &lt;&lt; std::endl;
+
+    // You can pass in a vector of column names to
+    // slice or rearrange the outputted JSON
+    my_json &lt;&lt; row.to_json({ &quot;A&quot;, &quot;B&quot;, &quot;C&quot; }) &lt;&lt; std::endl;
+    my_json &lt;&lt; row.to_json_array({ &quot;C&quot;, &quot;B&quot;, &quot;A&quot; }) &lt;&lt; std::endl;
+}
+"><pre># <span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>sstream<span class="pl-pds">&gt;</span></span>
+# <span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">"</span>csv.hpp<span class="pl-pds">"</span></span>
+
+<span class="pl-k">using</span> <span class="pl-k">namespace</span> <span class="pl-en">csv</span><span class="pl-k">;</span>
+
+...
+
+CSVReader <span class="pl-en">reader</span>(<span class="pl-s"><span class="pl-pds">"</span>very_big_file.csv<span class="pl-pds">"</span></span>);
+std::stringstream my_json;
+
+<span class="pl-k">for</span> (<span class="pl-k">auto</span>&amp; row: reader) {
+    my_json &lt;&lt; row.<span class="pl-c1">to_json</span>() &lt;&lt; std::endl;
+    my_json &lt;&lt; row.<span class="pl-c1">to_json_array</span>() &lt;&lt; std::endl;
+
+    <span class="pl-c"><span class="pl-c">//</span> You can pass in a vector of column names to</span>
+    <span class="pl-c"><span class="pl-c">//</span> slice or rearrange the outputted JSON</span>
+    my_json &lt;&lt; row.<span class="pl-c1">to_json</span>({ <span class="pl-s"><span class="pl-pds">"</span>A<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>B<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>C<span class="pl-pds">"</span></span> }) &lt;&lt; std::endl;
+    my_json &lt;&lt; row.<span class="pl-c1">to_json_array</span>({ <span class="pl-s"><span class="pl-pds">"</span>C<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>B<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>A<span class="pl-pds">"</span></span> }) &lt;&lt; std::endl;
+}
+</pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Specifying the CSV Format</h3><a id="user-content-specifying-the-csv-format" class="anchor" aria-label="Permalink: Specifying the CSV Format" href="#specifying-the-csv-format"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Although the CSV parser has a decent guessing mechanism, in some cases it is preferrable to specify the exact parameters of a file.</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="# include &quot;csv.hpp&quot;
+# include ...
+
+using namespace csv;
+
+CSVFormat format;
+format.delimiter('\t')
+      .quote('~')
+      .header_row(2);   // Header is on 3rd row (zero-indexed)
+      // .no_header();  // Parse CSVs without a header row
+      // .quote(false); // Turn off quoting 
+
+// Alternatively, we can use format.delimiter({ '\t', ',', ... })
+// to tell the CSV guesser which delimiters to try out
+
+CSVReader reader(&quot;wierd_csv_dialect.csv&quot;, format);
+
+for (auto&amp; row: reader) {
+    // Do stuff with rows here
+}
+"><pre># <span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">"</span>csv.hpp<span class="pl-pds">"</span></span>
+# <span class="pl-k">include</span> ...
+
+<span class="pl-k">using</span> <span class="pl-k">namespace</span> <span class="pl-en">csv</span><span class="pl-k">;</span>
+
+CSVFormat format;
+format.delimiter(<span class="pl-s"><span class="pl-pds">'</span><span class="pl-cce">\t</span><span class="pl-pds">'</span></span>)
+      .quote(<span class="pl-s"><span class="pl-pds">'</span>~<span class="pl-pds">'</span></span>)
+      .header_row(<span class="pl-c1">2</span>);   <span class="pl-c"><span class="pl-c">//</span> Header is on 3rd row (zero-indexed)</span>
+      <span class="pl-c"><span class="pl-c">//</span> .no_header();  // Parse CSVs without a header row</span>
+      <span class="pl-c"><span class="pl-c">//</span> .quote(false); // Turn off quoting </span>
+
+<span class="pl-c"><span class="pl-c">//</span> Alternatively, we can use format.delimiter({ '\t', ',', ... })</span>
+<span class="pl-c"><span class="pl-c">//</span> to tell the CSV guesser which delimiters to try out</span>
+
+CSVReader <span class="pl-en">reader</span>(<span class="pl-s"><span class="pl-pds">"</span>wierd_csv_dialect.csv<span class="pl-pds">"</span></span>, format);
+
+<span class="pl-k">for</span> (<span class="pl-k">auto</span>&amp; row: reader) {
+    <span class="pl-c"><span class="pl-c">//</span> Do stuff with rows here</span>
+}
+</pre></div>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Trimming Whitespace</h4><a id="user-content-trimming-whitespace" class="anchor" aria-label="Permalink: Trimming Whitespace" href="#trimming-whitespace"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">This parser can efficiently trim off leading and trailing whitespace. Of course,
+make sure you don't include your intended delimiter or newlines in the list of characters
+to trim.</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="CSVFormat format;
+format.trim({ ' ', '\t'  });"><pre>CSVFormat format;
+format.trim({ <span class="pl-s"><span class="pl-pds">'</span> <span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span><span class="pl-cce">\t</span><span class="pl-pds">'</span></span>  });</pre></div>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Handling Variable Numbers of Columns</h4><a id="user-content-handling-variable-numbers-of-columns" class="anchor" aria-label="Permalink: Handling Variable Numbers of Columns" href="#handling-variable-numbers-of-columns"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Sometimes, the rows in a CSV are not all of the same length. Whether this was intentional or not,
+this library is built to handle all use cases.</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="CSVFormat format;
+
+// Default: Silently ignoring rows with missing or extraneous columns
+format.variable_columns(false); // Short-hand
+format.variable_columns(VariableColumnPolicy::IGNORE_ROW);
+
+// Case 2: Keeping variable-length rows
+format.variable_columns(true); // Short-hand
+format.variable_columns(VariableColumnPolicy::KEEP);
+
+// Case 3: Throwing an error if variable-length rows are encountered
+format.variable_columns(VariableColumnPolicy::THROW);"><pre>CSVFormat format;
+
+<span class="pl-c"><span class="pl-c">//</span> Default: Silently ignoring rows with missing or extraneous columns</span>
+format.variable_columns(<span class="pl-c1">false</span>); <span class="pl-c"><span class="pl-c">//</span> Short-hand</span>
+format.variable_columns(VariableColumnPolicy::IGNORE_ROW);
+
+<span class="pl-c"><span class="pl-c">//</span> Case 2: Keeping variable-length rows</span>
+format.variable_columns(<span class="pl-c1">true</span>); <span class="pl-c"><span class="pl-c">//</span> Short-hand</span>
+format.variable_columns(VariableColumnPolicy::KEEP);
+
+<span class="pl-c"><span class="pl-c">//</span> Case 3: Throwing an error if variable-length rows are encountered</span>
+format.variable_columns(VariableColumnPolicy::THROW);</pre></div>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Setting Column Names</h4><a id="user-content-setting-column-names" class="anchor" aria-label="Permalink: Setting Column Names" href="#setting-column-names"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">If a CSV file does not have column names, you can specify your own:</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="std::vector&lt;std::string&gt; col_names = { ... };
+CSVFormat format;
+format.column_names(col_names);"><pre>std::vector&lt;std::string&gt; col_names = { ... };
+CSVFormat format;
+format.column_names(col_names);</pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Parsing an In-Memory String</h3><a id="user-content-parsing-an-in-memory-string" class="anchor" aria-label="Permalink: Parsing an In-Memory String" href="#parsing-an-in-memory-string"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="# include &quot;csv.hpp&quot;
+
+using namespace csv;
+
+...
+
+// Method 1: Using parse()
+std::string csv_string = &quot;Actor,Character\r\n&quot;
+    &quot;Will Ferrell,Ricky Bobby\r\n&quot;
+    &quot;John C. Reilly,Cal Naughton Jr.\r\n&quot;
+    &quot;Sacha Baron Cohen,Jean Giard\r\n&quot;;
+
+auto rows = parse(csv_string);
+for (auto&amp; r: rows) {
+    // Do stuff with row here
+}
+    
+// Method 2: Using _csv operator
+auto rows = &quot;Actor,Character\r\n&quot;
+    &quot;Will Ferrell,Ricky Bobby\r\n&quot;
+    &quot;John C. Reilly,Cal Naughton Jr.\r\n&quot;
+    &quot;Sacha Baron Cohen,Jean Giard\r\n&quot;_csv;
+
+for (auto&amp; r: rows) {
+    // Do stuff with row here
+}
+"><pre># <span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">"</span>csv.hpp<span class="pl-pds">"</span></span>
+
+<span class="pl-k">using</span> <span class="pl-k">namespace</span> <span class="pl-en">csv</span><span class="pl-k">;</span>
+
+...
+
+<span class="pl-c"><span class="pl-c">//</span> Method 1: Using parse()</span>
+std::string csv_string = <span class="pl-s"><span class="pl-pds">"</span>Actor,Character<span class="pl-cce">\r\n</span><span class="pl-pds">"</span></span>
+    <span class="pl-s"><span class="pl-pds">"</span>Will Ferrell,Ricky Bobby<span class="pl-cce">\r\n</span><span class="pl-pds">"</span></span>
+    <span class="pl-s"><span class="pl-pds">"</span>John C. Reilly,Cal Naughton Jr.<span class="pl-cce">\r\n</span><span class="pl-pds">"</span></span>
+    <span class="pl-s"><span class="pl-pds">"</span>Sacha Baron Cohen,Jean Giard<span class="pl-cce">\r\n</span><span class="pl-pds">"</span></span>;
+
+<span class="pl-k">auto</span> rows = parse(csv_string);
+<span class="pl-k">for</span> (<span class="pl-k">auto</span>&amp; r: rows) {
+    <span class="pl-c"><span class="pl-c">//</span> Do stuff with row here</span>
+}
+    
+<span class="pl-c"><span class="pl-c">//</span> Method 2: Using _csv operator</span>
+<span class="pl-k">auto</span> rows = <span class="pl-s"><span class="pl-pds">"</span>Actor,Character<span class="pl-cce">\r\n</span><span class="pl-pds">"</span></span>
+    <span class="pl-s"><span class="pl-pds">"</span>Will Ferrell,Ricky Bobby<span class="pl-cce">\r\n</span><span class="pl-pds">"</span></span>
+    <span class="pl-s"><span class="pl-pds">"</span>John C. Reilly,Cal Naughton Jr.<span class="pl-cce">\r\n</span><span class="pl-pds">"</span></span>
+    <span class="pl-s"><span class="pl-pds">"</span>Sacha Baron Cohen,Jean Giard<span class="pl-cce">\r\n</span><span class="pl-pds">"</span></span>_csv;
+
+<span class="pl-k">for</span> (<span class="pl-k">auto</span>&amp; r: rows) {
+    <span class="pl-c"><span class="pl-c">//</span> Do stuff with row here</span>
+}
+</pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Writing CSV Files</h3><a id="user-content-writing-csv-files" class="anchor" aria-label="Permalink: Writing CSV Files" href="#writing-csv-files"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="# include &quot;csv.hpp&quot;
+# include ...
+
+using namespace csv;
+using namespace std;
+
+...
+
+stringstream ss; // Can also use ofstream, etc.
+
+auto writer = make_csv_writer(ss);
+// auto writer = make_tsv_writer(ss);               // For tab-separated files
+// DelimWriter&lt;stringstream, '|', '&quot;'&gt; writer(ss);  // Your own custom format
+// set_decimal_places(2);                           // How many places after the decimal will be written for floats
+
+writer &lt;&lt; vector&lt;string&gt;({ &quot;A&quot;, &quot;B&quot;, &quot;C&quot; })
+    &lt;&lt; deque&lt;string&gt;({ &quot;I'm&quot;, &quot;too&quot;, &quot;tired&quot; })
+    &lt;&lt; list&lt;string&gt;({ &quot;to&quot;, &quot;write&quot;, &quot;documentation.&quot; });
+
+writer &lt;&lt; array&lt;string, 2&gt;({ &quot;The quick brown&quot;, &quot;fox&quot;, &quot;jumps over the lazy dog&quot; });
+writer &lt;&lt; make_tuple(1, 2.0, &quot;Three&quot;);
+..."><pre># <span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">"</span>csv.hpp<span class="pl-pds">"</span></span>
+# <span class="pl-k">include</span> ...
+
+<span class="pl-k">using</span> <span class="pl-k">namespace</span> <span class="pl-en">csv</span><span class="pl-k">;</span>
+<span class="pl-k">using</span> <span class="pl-k">namespace</span> <span class="pl-en">std</span><span class="pl-k">;</span>
+
+...
+
+stringstream ss; <span class="pl-c"><span class="pl-c">//</span> Can also use ofstream, etc.</span>
+
+<span class="pl-k">auto</span> writer = make_csv_writer(ss);
+<span class="pl-c"><span class="pl-c">//</span> auto writer = make_tsv_writer(ss);               // For tab-separated files</span>
+<span class="pl-c"><span class="pl-c">//</span> DelimWriter&lt;stringstream, '|', '"'&gt; writer(ss);  // Your own custom format</span>
+<span class="pl-c"><span class="pl-c">//</span> set_decimal_places(2);                           // How many places after the decimal will be written for floats</span>
+
+writer &lt;&lt; vector&lt;string&gt;({ <span class="pl-s"><span class="pl-pds">"</span>A<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>B<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>C<span class="pl-pds">"</span></span> })
+    &lt;&lt; deque&lt;string&gt;({ <span class="pl-s"><span class="pl-pds">"</span>I'm<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>too<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>tired<span class="pl-pds">"</span></span> })
+    &lt;&lt; list&lt;string&gt;({ <span class="pl-s"><span class="pl-pds">"</span>to<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>write<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>documentation.<span class="pl-pds">"</span></span> });
+
+writer &lt;&lt; array&lt;string, <span class="pl-c1">2</span>&gt;({ <span class="pl-s"><span class="pl-pds">"</span>The quick brown<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>fox<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>jumps over the lazy dog<span class="pl-pds">"</span></span> });
+writer &lt;&lt; make_tuple(<span class="pl-c1">1</span>, <span class="pl-c1">2.0</span>, <span class="pl-s"><span class="pl-pds">"</span>Three<span class="pl-pds">"</span></span>);
+...</pre></div>
+<p dir="auto">You can pass in arbitrary types into <code>DelimWriter</code> by defining a conversion function
+for that type to <code>std::string</code>.</p>
+</article></div>
