@@ -1,0 +1,157 @@
+<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">rules_playwright</h1><a id="user-content-rules_playwright" class="anchor" aria-label="Permalink: rules_playwright" href="#rules_playwright"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Bazel rules for downloading and using Playwright browsers. These rules provide access to browser binaries that can be used with other rule sets like <code>aspect_rules_js</code> (see <code>examples/rules_js</code>)</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Overview</h2><a id="user-content-overview" class="anchor" aria-label="Permalink: Overview" href="#overview"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><code>rules_playwright</code> provides Bazel targets for downloading Playwright browser binaries for use in your Bazel builds. It handles platform-specific downloads and configuration, making it easier to integrate browser-based testing into your Bazel workspace.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Setup</h2><a id="user-content-setup" class="anchor" aria-label="Permalink: Setup" href="#setup"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Add the following to your <code>MODULE.bazel</code> file:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel_dep(name = &quot;rules_playwright&quot;, version = &quot;0.0.0&quot;)
+
+playwright = use_extension(&quot;@rules_playwright//playwright:extensions.bzl&quot;, &quot;playwright&quot;)
+playwright.repo(
+    name = &quot;playwright&quot;,
+    playwright_version = &quot;MATCH_YOUR_PACKAGE_JSON&quot;,
+)
+use_repo(playwright, &quot;playwright&quot;)"><pre><span class="pl-en">bazel_dep</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_playwright"</span>, <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"0.0.0"</span>)
+
+<span class="pl-s1">playwright</span> <span class="pl-c1">=</span> <span class="pl-en">use_extension</span>(<span class="pl-s">"@rules_playwright//playwright:extensions.bzl"</span>, <span class="pl-s">"playwright"</span>)
+<span class="pl-s1">playwright</span>.<span class="pl-c1">repo</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"playwright"</span>,
+    <span class="pl-s1">playwright_version</span> <span class="pl-c1">=</span> <span class="pl-s">"MATCH_YOUR_PACKAGE_JSON"</span>,
+)
+<span class="pl-en">use_repo</span>(<span class="pl-s1">playwright</span>, <span class="pl-s">"playwright"</span>)</pre></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Usage</h2><a id="user-content-usage" class="anchor" aria-label="Permalink: Usage" href="#usage"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Here's an example of how to use <code>rules_playwright</code> with Playwright's test runner:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@npm//:defs.bzl&quot;, &quot;npm_link_all_packages&quot;)
+load(&quot;@npm//:playwright/package_json.bzl&quot;, playwright_bin = &quot;bin&quot;)
+
+npm_link_all_packages(name = &quot;node_modules&quot;)
+
+# Run tests in all browsers
+playwright_bin.playwright_test(
+    name = &quot;all&quot;,
+    args = [
+        &quot;test&quot;,
+        &quot;--browser=all&quot;,
+    ],
+    data = [
+        &quot;package.json&quot;,
+        &quot;tests/example.spec.js&quot;,
+        &quot;//:node_modules/@playwright/test&quot;,
+        &quot;@playwright//:chromium-headless-shell&quot;,
+        &quot;@playwright//:firefox&quot;,
+        &quot;@playwright//:webkit&quot;,
+    ],
+    env = {
+        &quot;PLAYWRIGHT_BROWSERS_PATH&quot;: &quot;$(rootpath @playwright//:chromium-headless-shell)/../&quot;,
+    },
+    tags = [&quot;no-sandbox&quot;],  # Required for Firefox on macOS
+)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@npm//:defs.bzl"</span>, <span class="pl-s">"npm_link_all_packages"</span>)
+<span class="pl-en">load</span>(<span class="pl-s">"@npm//:playwright/package_json.bzl"</span>, <span class="pl-s1">playwright_bin</span> <span class="pl-c1">=</span> <span class="pl-s">"bin"</span>)
+
+<span class="pl-en">npm_link_all_packages</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"node_modules"</span>)
+
+<span class="pl-c"># Run tests in all browsers</span>
+<span class="pl-s1">playwright_bin</span>.<span class="pl-c1">playwright_test</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"all"</span>,
+    <span class="pl-s1">args</span> <span class="pl-c1">=</span> [
+        <span class="pl-s">"test"</span>,
+        <span class="pl-s">"--browser=all"</span>,
+    ],
+    <span class="pl-s1">data</span> <span class="pl-c1">=</span> [
+        <span class="pl-s">"package.json"</span>,
+        <span class="pl-s">"tests/example.spec.js"</span>,
+        <span class="pl-s">"//:node_modules/@playwright/test"</span>,
+        <span class="pl-s">"@playwright//:chromium-headless-shell"</span>,
+        <span class="pl-s">"@playwright//:firefox"</span>,
+        <span class="pl-s">"@playwright//:webkit"</span>,
+    ],
+    <span class="pl-s1">env</span> <span class="pl-c1">=</span> {
+        <span class="pl-s">"PLAYWRIGHT_BROWSERS_PATH"</span>: <span class="pl-s">"$(rootpath @playwright//:chromium-headless-shell)/../"</span>,
+    },
+    <span class="pl-s1">tags</span> <span class="pl-c1">=</span> [<span class="pl-s">"no-sandbox"</span>],  <span class="pl-c"># Required for Firefox on macOS</span>
+)</pre></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Available Browsers and Executables</h2><a id="user-content-available-browsers-and-executables" class="anchor" aria-label="Permalink: Available Browsers and Executables" href="#available-browsers-and-executables"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The following targets are available within the generated repository.</p>
+<ul dir="auto">
+<li><code>@playwright//:chromium</code> - Standard Chromium browser</li>
+<li><code>@playwright//:chromium-headless-shell</code> - Headless Chromium shell</li>
+<li><code>@playwright//:chromium-tip-of-tree</code> - Latest Chromium build</li>
+<li><code>@playwright//:firefox</code> - Standard Firefox browser</li>
+<li><code>@playwright//:firefox-beta</code> - Firefox Beta version</li>
+<li><code>@playwright//:webkit</code> - WebKit browser</li>
+<li><code>@playwright//:android</code> - Android browser support</li>
+<li><code>@playwright//:ffmpeg</code> - FFmpeg for video recording</li>
+</ul>
+<p dir="auto">Note <code>@playwright</code> is merely the default workspace name. Your repository name will be whatever you declare in your MODULE.bazel file.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Configuration</h2><a id="user-content-configuration" class="anchor" aria-label="Permalink: Configuration" href="#configuration"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Platform Configuration</h3><a id="user-content-platform-configuration" class="anchor" aria-label="Permalink: Platform Configuration" href="#platform-configuration"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><code>rules_playwright</code> provides configuration flags to specify the target platform version for browser downloads.</p>
+<p dir="auto">Add the following to your <code>BUILD.bazel</code> file:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@bazel_skylib//rules:common_settings.bzl&quot;, &quot;string_flag&quot;)
+
+string_flag(
+    name = &quot;macos_version&quot;,
+    build_setting_default = &quot;12&quot;,
+    values = [
+        &quot;10.13&quot;,
+        &quot;10.14&quot;,
+        &quot;10.15&quot;,
+        &quot;11&quot;,
+        &quot;12&quot;,
+        &quot;13&quot;,
+        &quot;14&quot;,
+        &quot;15&quot;,
+    ],
+)
+
+string_flag(
+    name = &quot;linux_distro&quot;,
+    build_setting_default = &quot;debian11&quot;,
+    values = [
+        &quot;debian11&quot;,
+        &quot;debian12&quot;,
+        &quot;ubuntu20.04&quot;,
+        &quot;ubuntu22.04&quot;,
+        &quot;ubuntu24.04&quot;,
+    ],
+)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@bazel_skylib//rules:common_settings.bzl"</span>, <span class="pl-s">"string_flag"</span>)
+
+<span class="pl-en">string_flag</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"macos_version"</span>,
+    <span class="pl-s1">build_setting_default</span> <span class="pl-c1">=</span> <span class="pl-s">"12"</span>,
+    <span class="pl-s1">values</span> <span class="pl-c1">=</span> [
+        <span class="pl-s">"10.13"</span>,
+        <span class="pl-s">"10.14"</span>,
+        <span class="pl-s">"10.15"</span>,
+        <span class="pl-s">"11"</span>,
+        <span class="pl-s">"12"</span>,
+        <span class="pl-s">"13"</span>,
+        <span class="pl-s">"14"</span>,
+        <span class="pl-s">"15"</span>,
+    ],
+)
+
+<span class="pl-en">string_flag</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"linux_distro"</span>,
+    <span class="pl-s1">build_setting_default</span> <span class="pl-c1">=</span> <span class="pl-s">"debian11"</span>,
+    <span class="pl-s1">values</span> <span class="pl-c1">=</span> [
+        <span class="pl-s">"debian11"</span>,
+        <span class="pl-s">"debian12"</span>,
+        <span class="pl-s">"ubuntu20.04"</span>,
+        <span class="pl-s">"ubuntu22.04"</span>,
+        <span class="pl-s">"ubuntu24.04"</span>,
+    ],
+)</pre></div>
+<p dir="auto">You can override these defaults using Bazel's command line flags:</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel test //... --@rules_playwright//:macos_version=13
+bazel test //... --@rules_playwright//:linux_distro=ubuntu22.04"><pre>bazel <span class="pl-c1">test</span> //... --@rules_playwright//:macos_version=13
+bazel <span class="pl-c1">test</span> //... --@rules_playwright//:linux_distro=ubuntu22.04</pre></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Notes</h2><a id="user-content-notes" class="anchor" aria-label="Permalink: Notes" href="#notes"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li>Firefox requires the <code>no-sandbox</code> tag when running on macOS.</li>
+<li>The <code>PLAYWRIGHT_BROWSERS_PATH</code> environment variable must be set to the directory containing the browser binaries. You can use the make variable <code>rootpath</code> on any browser followed by <code>../</code>.</li>
+<li>Browser selection is handled automatically based on the current platform and specified version flags. Make sure you set the appropriate flag for your test exec platform.</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Contributing</h2><a id="user-content-contributing" class="anchor" aria-label="Permalink: Contributing" href="#contributing"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Contributions are welcome! Plz.</p>
+</article></div>
