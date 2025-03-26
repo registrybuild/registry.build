@@ -112,8 +112,8 @@ load(&quot;@rules_scala//:scala_config.bzl&quot;, &quot;scala_config&quot;)
 #   scala_config(scala_version = &quot;2.13.16&quot;)
 #
 # You may define your own custom toolchain using Maven artifact dependencies
-# configured by your `WORKSPACE` file, imported using external loader like
-# https://github.com/bazelbuild/rules_jvm_external.
+# configured by your `WORKSPACE` file, imported using an external loader like
+# https://github.com/bazelbuild/rules_jvm_external. See docs/scala_toolchain.md.
 scala_config()
 
 load(
@@ -210,8 +210,8 @@ scala_register_toolchains()"><pre><span class="pl-c"># WORKSPACE</span>
 <span class="pl-c">#   scala_config(scala_version = "2.13.16")</span>
 <span class="pl-c">#</span>
 <span class="pl-c"># You may define your own custom toolchain using Maven artifact dependencies</span>
-<span class="pl-c"># configured by your `WORKSPACE` file, imported using external loader like</span>
-<span class="pl-c"># https://github.com/bazelbuild/rules_jvm_external.</span>
+<span class="pl-c"># configured by your `WORKSPACE` file, imported using an external loader like</span>
+<span class="pl-c"># https://github.com/bazelbuild/rules_jvm_external. See docs/scala_toolchain.md.</span>
 <span class="pl-en">scala_config</span>()
 
 <span class="pl-en">load</span>(
@@ -325,8 +325,8 @@ maximum available at the time of writing.</p>
 <a href="scala/deps.bzl">scala/deps.bzl</a>.</p>
 </li>
 <li>
-<p dir="auto">See <a href="./.bazelci/presubmit.yml">the configuration file</a> for the exact Bazel versions verified
-with the continuous-integration builds.</p>
+<p dir="auto">See <a href="./.bazelci/presubmit.yml">.bazelci/presubmit.yml</a> for the exact Bazel
+versions verified by the continuous integration builds.</p>
 </li>
 </ul>
 <markdown-accessiblity-table><table>
@@ -339,23 +339,27 @@ with the continuous-integration builds.</p>
 <tbody>
 <tr>
 <td align="center">Bazel versions using Bzlmod<br>(Coming soon! See <a class="issue-link js-issue-link" data-error-text="Failed to load title" data-id="1628459968" data-permission-text="Title is private" data-url="https://github.com/bazelbuild/rules_scala/issues/1482" data-hovercard-type="issue" data-hovercard-url="/bazelbuild/rules_scala/issues/1482/hovercard" href="https://github.com/bazelbuild/rules_scala/issues/1482">#1482</a>.)</td>
-<td align="center">7.5.0, 8.x,<br><code>rolling</code>, <code>last_green</code></td>
+<td align="center">7.6.0, 8.x,<br><code>rolling</code>, <code>last_green</code></td>
 </tr>
 <tr>
 <td align="center">Bazel versions using <code>WORKSPACE</code></td>
-<td align="center">6.5.0, 7.5.0, 8.x<br>(see the <a href="#6.5.0">notes on 6.5.0 compatibility</a>)</td>
+<td align="center">6.5.0, 7.6.0, 8.x<br>(see the <a href="#6.5.0">notes on 6.5.0 compatibility</a>)</td>
 </tr>
 <tr>
 <td align="center"><code>protobuf</code></td>
-<td align="center">v30.0</td>
+<td align="center">v30.1</td>
+</tr>
+<tr>
+<td align="center"><code>rules_proto</code></td>
+<td align="center">7.1.0</td>
 </tr>
 <tr>
 <td align="center"><code>abseil-cpp</code></td>
-<td align="center">20250127.0</td>
+<td align="center">20250127.1</td>
 </tr>
 <tr>
 <td align="center"><code>rules_java</code></td>
-<td align="center">8.10.0</td>
+<td align="center">8.11.0</td>
 </tr>
 <tr>
 <td align="center"><code>ScalaPB</code></td>
@@ -363,6 +367,10 @@ with the continuous-integration builds.</p>
 </tr>
 </tbody>
 </table></markdown-accessiblity-table>
+<p dir="auto">The next major release will likely drop support for <code>protobuf</code> versions before
+v29 and remove <code>rules_proto</code> completely. This is to comply with the guidance in
+<a href="https://protobuf.dev/news/v29/" rel="nofollow">Protobuf News: News Announcements for Version 29.x</a>. For more details, see this <a href="https://github.com/bazelbuild/rules_scala/pull/1710#issuecomment-2750001012" data-hovercard-type="pull_request" data-hovercard-url="/bazelbuild/rules_scala/pull/1710/hovercard">comment from #1710
+explaining why rules_proto remains for now</a>.</p>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Usage with <a href="https://github.com/johnynek/bazel-deps">bazel-deps</a></h2><a id="user-content-usage-with-bazel-deps" class="anchor" aria-label="Permalink: Usage with bazel-deps" href="#usage-with-bazel-deps"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">Bazel-deps allows you to generate bazel dependencies transitively for maven artifacts. Generally we don't want bazel-deps to fetch
 scala artifacts from maven but instead use the ones we get from calling <code>scala_repositories</code>. The artifacts can be overridden in the
@@ -780,7 +788,7 @@ in <code>@rules_java</code>.</p>
 unless the <code>MODULE.bazel</code> file brings them into scope with
 <a href="https://bazel.build/rules/lib/globals/module#use_repo" rel="nofollow"><code>use_repo()</code></a>. This can
 lead to errors like those from the following example, which <a href="https://github.com/michalbogacz/scala-bazel-monorepo/blob/17f0890a4345529e09b9ce83bcb2e3d15687c522/BUILD.bazel">originally called
-<code>setup_scala_toolchain()</code> under Bzlmod</a>:</p>
+'setup_scala_toolchain()' under Bzlmod</a>:</p>
 <div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@rules_scala//scala:scala.bzl&quot;, &quot;setup_scala_toolchain&quot;)
 
 setup_scala_toolchain(
@@ -866,7 +874,7 @@ while preparing <code>rules_scala</code> for Bazel 8 in <a class="issue-link js-
 <code>$(location)</code> changed, and how changing these particular instances to
 <code>$(rootpath)</code> fixed them.</p>
 <p dir="auto">The good news is that replacing such instances <code>$(location)</code> with <code>$(rootpath)</code>
-is backwards compatible to Bazel 6.5.0 and 7.5.0. Updating them now will ensure
+is backwards compatible to Bazel 6.5.0 and 7.6.0. Updating them now will ensure
 future compatibility.</p>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto"><a id="user-content-6.5.0"></a>Limited Bazel 6.5.0 compatibility</h3><a id="user-content-limited-bazel-650-compatibility" class="anchor" aria-label="Permalink: Limited Bazel 6.5.0 compatibility" href="#limited-bazel-650-compatibility"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto"><strong><code>rules_scala</code> 7.x officially drops support for Bazel 6.5.0.</strong> Bzlmod builds
@@ -937,9 +945,91 @@ later. See <a class="issue-link js-issue-link" data-error-text="Failed to load t
 more recent <code>protobuf</code> versions via <a href="https://github.com/scalapb/ScalaPB/releases/tag/v1.0.0-alpha.1">ScalaPB 1.0.0-alpha1</a>, we had to
 remove the Scala 2.11 test cases.</p>
 <p dir="auto">Building <code>scala_proto</code> for Scala 2.11 requires <a href="#6.5.0">building with Bazel 6.5.0
-under <code>WORKSPACE</code></a>, with the maximum dependency versions specified in
+under WORKSPACE</a>, with the maximum dependency versions specified in
 that section. While this may continue to work for some time, it is not
 officially supported.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Removal of <code>bind()</code> aliases for <code>twitter_scrooge</code> dependencies</h3><a id="user-content-removal-of-bind-aliases-for-twitter_scrooge-dependencies" class="anchor" aria-label="Permalink: Removal of bind() aliases for twitter_scrooge dependencies" href="#removal-of-bind-aliases-for-twitter_scrooge-dependencies"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><code>rules_scala</code> 7.x removes all of the obsolete <a href="https://bazel.build/reference/be/workspace#bind" rel="nofollow"><code>bind()</code></a> aliases under
+<code>//external:io_bazel_rules_scala/dependency/</code> created for <code>twitter_scrooge</code>
+toolchain dependencies. If your project happens to depend on these aliases, you
+can replace them with the following repository references:</p>
+<markdown-accessiblity-table><table>
+<thead>
+<tr>
+<th align="left"><code>bind()</code> alias under <code>//external:io_bazel_rules_scala/dependency/</code></th>
+<th align="left">Repository reference</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left"><code>scala/guava</code></td>
+<td align="left"><code>@io_bazel_rules_scala_guava</code></td>
+</tr>
+<tr>
+<td align="left"><code>thrift/javax_annotation_api</code></td>
+<td align="left"><code>@io_bazel_rules_scala_javax_annotation_api</code></td>
+</tr>
+<tr>
+<td align="left"><code>thrift/libthrift</code></td>
+<td align="left"><code>@libthrift</code></td>
+</tr>
+<tr>
+<td align="left"><code>thrift/mustache</code></td>
+<td align="left"><code>@io_bazel_rules_scala_mustache</code></td>
+</tr>
+<tr>
+<td align="left"><code>thrift/scopt</code></td>
+<td align="left"><code>@io_bazel_rules_scala_scopt</code></td>
+</tr>
+<tr>
+<td align="left"><code>thrift/scrooge_core</code></td>
+<td align="left"><code>@io_bazel_rules_scala_scrooge_core</code></td>
+</tr>
+<tr>
+<td align="left"><code>thrift/scrooge_generator</code></td>
+<td align="left"><code>@io_bazel_rules_scala_scrooge_generator</code></td>
+</tr>
+<tr>
+<td align="left"><code>thrift/util_core</code></td>
+<td align="left"><code>@io_bazel_rules_scala_util_core</code></td>
+</tr>
+<tr>
+<td align="left"><code>thrift/util_logging</code></td>
+<td align="left"><code>@io_bazel_rules_scala_util_logging</code></td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p dir="auto">To access these repositories under Bzlmod, you'll need to add the following to
+your <code>MODULE.bazel</code> file:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="scala_deps.toolchains(
+    twitter_scrooge = True,
+)
+use_repo(
+    scala_deps,
+    &quot;io_bazel_rules_scala_guava&quot;,
+    &quot;io_bazel_rules_scala_javax_annotation_api&quot;,
+    &quot;io_bazel_rules_scala_mustache&quot;,
+    &quot;io_bazel_rules_scala_scopt&quot;,
+    &quot;io_bazel_rules_scala_scrooge_core&quot;,
+    &quot;io_bazel_rules_scala_scrooge_generator&quot;,
+    &quot;io_bazel_rules_scala_util_core&quot;,
+    &quot;io_bazel_rules_scala_util_logging&quot;,
+    &quot;libthrift&quot;,
+)"><pre><span class="pl-s1">scala_deps</span>.<span class="pl-c1">toolchains</span>(
+    <span class="pl-s1">twitter_scrooge</span> <span class="pl-c1">=</span> <span class="pl-c1">True</span>,
+)
+<span class="pl-en">use_repo</span>(
+    <span class="pl-s1">scala_deps</span>,
+    <span class="pl-s">"io_bazel_rules_scala_guava"</span>,
+    <span class="pl-s">"io_bazel_rules_scala_javax_annotation_api"</span>,
+    <span class="pl-s">"io_bazel_rules_scala_mustache"</span>,
+    <span class="pl-s">"io_bazel_rules_scala_scopt"</span>,
+    <span class="pl-s">"io_bazel_rules_scala_scrooge_core"</span>,
+    <span class="pl-s">"io_bazel_rules_scala_scrooge_generator"</span>,
+    <span class="pl-s">"io_bazel_rules_scala_util_core"</span>,
+    <span class="pl-s">"io_bazel_rules_scala_util_logging"</span>,
+    <span class="pl-s">"libthrift"</span>,
+)</pre></div>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Bazel module compatibility levels</h3><a id="user-content-bazel-module-compatibility-levels" class="anchor" aria-label="Permalink: Bazel module compatibility levels" href="#bazel-module-compatibility-levels"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto"><code>rules_scala</code> 7.0.0 will set the
 <a href="https://bazel.build/external/module#compatibility_level" rel="nofollow"><code>compatibility_level</code></a>
