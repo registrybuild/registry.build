@@ -1,0 +1,243 @@
+<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">gason</h1><a id="user-content-gason" class="anchor" aria-label="Permalink: gason" href="#gason"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">gason is new version of <a href="https://code.google.com/p/vjson" rel="nofollow">vjson</a> parser. It's still very <strong>fast</strong> and have very <strong>simple interface</strong>. Completly new api, different internal representation and using new C++ standard features explains why parser get a new name.</p>
+<ul dir="auto">
+<li><a href="#features">Features</a></li>
+<li><a href="#installation">Installation</a></li>
+<li><a href="#usage">Usage</a>
+<ul dir="auto">
+<li><a href="#parsing">Parsing</a></li>
+<li><a href="#iteration">Iteration</a></li>
+</ul>
+</li>
+<li><a href="#notes">Notes</a>
+<ul dir="auto">
+<li><a href="#nan-boxing">NaN-boxing</a></li>
+<li><a href="#memory-management">Memory management</a></li>
+<li><a href="#parser-internals">Parser internals</a></li>
+</ul>
+</li>
+<li><a href="#performance">Performance</a></li>
+<li><a href="#license">License</a></li>
+</ul>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Features</h2><a id="user-content-features" class="anchor" aria-label="Permalink: Features" href="#features"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li>No dependencies</li>
+<li>Small codebase (~450 loc)</li>
+<li>Small memory footprint (16-24B per value)</li>
+</ul>
+<p dir="auto">gason is <strong>not strict</strong> parser:</p>
+<ul dir="auto">
+<li>Source buffer can contain more than one value (first will be parsed; pointer to the rest returns)</li>
+<li>Single number, string or identifier will be succesfully parsed</li>
+<li>Trailing <code>,</code> before closing <code>]</code> or <code>}</code> is not an error</li>
+</ul>
+<p dir="auto">gason is <strong>destructive</strong> parser, i.e. your <strong>source buffer</strong> will be <strong>modified</strong>! Strings stored as pointers to source buffer, where closing <code>"</code> (or any other symbol, if string have escape sequences) replaced with <code>'\0'</code>. Arrays and objects are represented as single linked list (without random access).</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Installation</h2><a id="user-content-installation" class="anchor" aria-label="Permalink: Installation" href="#installation"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ol dir="auto">
+<li>Download latest <a href="https://raw.github.com/vivkin/gason/master/src/gason.h">gason.h</a> and <a href="https://raw.github.com/vivkin/gason/master/src/gason.cpp">gason.cpp</a></li>
+<li>Compile with C++11 support (<code>-std=c++11</code> flag for gcc/clang)</li>
+<li>...</li>
+<li>PROFIT!</li>
+</ol>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Usage</h2><a id="user-content-usage" class="anchor" aria-label="Permalink: Usage" href="#usage"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Parsing</h3><a id="user-content-parsing" class="anchor" aria-label="Permalink: Parsing" href="#parsing"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="#include &quot;gason.h&quot;
+...
+char *source = get_useless_facebook_response(); // or read file, whatever
+// do not forget terminate source string with 0
+char *endptr;
+JsonValue value;
+JsonAllocator allocator;
+int status = jsonParse(source, &amp;endptr, &amp;value, allocator);
+if (status != JSON_OK) {
+	fprintf(stderr, &quot;%s at %zd\n&quot;, jsonStrError(status), endptr - source);
+	exit(EXIT_FAILURE);
+}"><pre>#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">"</span>gason.h<span class="pl-pds">"</span></span>
+...
+<span class="pl-k">char</span> *source = get_useless_facebook_response(); <span class="pl-c"><span class="pl-c">//</span> or read file, whatever</span>
+<span class="pl-c"><span class="pl-c">//</span> do not forget terminate source string with 0</span>
+<span class="pl-k">char</span> *endptr;
+JsonValue value;
+JsonAllocator allocator;
+<span class="pl-k">int</span> status = jsonParse(source, &amp;endptr, &amp;value, allocator);
+<span class="pl-k">if</span> (status != JSON_OK) {
+	<span class="pl-c1">fprintf</span>(stderr, <span class="pl-s"><span class="pl-pds">"</span>%s at %zd<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>, <span class="pl-c1">jsonStrError</span>(status), endptr - source);
+	<span class="pl-c1">exit</span>(EXIT_FAILURE);
+}</pre></div>
+<p dir="auto">All <strong>values</strong> will become <strong>invalid</strong> when <strong>allocator</strong> be <strong>destroyed</strong>. For print verbose error message see <code>printError</code> function in <a href="pretty-print.cpp">pretty-print.cpp</a>.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Iteration</h3><a id="user-content-iteration" class="anchor" aria-label="Permalink: Iteration" href="#iteration"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="double sum_and_print(JsonValue o) {
+    double sum = 0;
+    switch (o.getTag()) {
+    case JSON_NUMBER:
+        printf(&quot;%g\n&quot;, o.toNumber());
+        sum += o.toNumber();
+        break;
+    case JSON_STRING:
+        printf(&quot;\&quot;%s\&quot;\n&quot;, o.toString());
+        break;
+    case JSON_ARRAY:
+        for (auto i : o) {
+            sum += sum_and_print(i-&gt;value);
+        }
+        break;
+    case JSON_OBJECT:
+        for (auto i : o) {
+            printf(&quot;%s = &quot;, i-&gt;key);
+            sum += sum_and_print(i-&gt;value);
+        }
+        break;
+    case JSON_TRUE:
+        fprintf(stdout, &quot;true&quot;);
+        break;
+    case JSON_FALSE:
+        fprintf(stdout, &quot;false&quot;);
+        break;
+    case JSON_NULL:
+        printf(&quot;null\n&quot;);
+        break;
+    }
+    return sum;
+}
+...
+double sum = sum_and_print(value);
+printf(&quot;sum of all numbers: %g\n&quot;, sum);"><pre><span class="pl-k">double</span> <span class="pl-en">sum_and_print</span>(JsonValue o) {
+    <span class="pl-k">double</span> sum = <span class="pl-c1">0</span>;
+    <span class="pl-k">switch</span> (o.<span class="pl-c1">getTag</span>()) {
+    <span class="pl-k">case</span> JSON_NUMBER:
+        <span class="pl-c1">printf</span>(<span class="pl-s"><span class="pl-pds">"</span>%g<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>, o.<span class="pl-c1">toNumber</span>());
+        sum += o.<span class="pl-c1">toNumber</span>();
+        <span class="pl-k">break</span>;
+    <span class="pl-k">case</span> JSON_STRING:
+        <span class="pl-c1">printf</span>(<span class="pl-s"><span class="pl-pds">"</span><span class="pl-cce">\"</span>%s<span class="pl-cce">\"\n</span><span class="pl-pds">"</span></span>, o.<span class="pl-c1">toString</span>());
+        <span class="pl-k">break</span>;
+    <span class="pl-k">case</span> JSON_ARRAY:
+        <span class="pl-k">for</span> (<span class="pl-k">auto</span> i : o) {
+            sum += <span class="pl-c1">sum_and_print</span>(i-&gt;<span class="pl-smi">value</span>);
+        }
+        <span class="pl-k">break</span>;
+    <span class="pl-k">case</span> JSON_OBJECT:
+        <span class="pl-k">for</span> (<span class="pl-k">auto</span> i : o) {
+            <span class="pl-c1">printf</span>(<span class="pl-s"><span class="pl-pds">"</span>%s = <span class="pl-pds">"</span></span>, i-&gt;<span class="pl-smi">key</span>);
+            sum += <span class="pl-c1">sum_and_print</span>(i-&gt;<span class="pl-smi">value</span>);
+        }
+        <span class="pl-k">break</span>;
+    <span class="pl-k">case</span> JSON_TRUE:
+        <span class="pl-c1">fprintf</span>(stdout, <span class="pl-s"><span class="pl-pds">"</span>true<span class="pl-pds">"</span></span>);
+        <span class="pl-k">break</span>;
+    <span class="pl-k">case</span> JSON_FALSE:
+        <span class="pl-c1">fprintf</span>(stdout, <span class="pl-s"><span class="pl-pds">"</span>false<span class="pl-pds">"</span></span>);
+        <span class="pl-k">break</span>;
+    <span class="pl-k">case</span> JSON_NULL:
+        <span class="pl-c1">printf</span>(<span class="pl-s"><span class="pl-pds">"</span>null<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>);
+        <span class="pl-k">break</span>;
+    }
+    <span class="pl-k">return</span> sum;
+}
+...
+<span class="pl-k">double</span> sum = sum_and_print(value);
+<span class="pl-en">printf</span>(<span class="pl-s"><span class="pl-pds">"</span>sum of all numbers: %g<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>, sum);</pre></div>
+<p dir="auto">Arrays and Objects use the same <code>JsonNode</code> struct, but for arrays valid only <code>next</code> and <code>value</code> fields!</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Notes</h2><a id="user-content-notes" class="anchor" aria-label="Permalink: Notes" href="#notes"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">NaN-boxing</h3><a id="user-content-nan-boxing" class="anchor" aria-label="Permalink: NaN-boxing" href="#nan-boxing"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">gason stores values using NaN-boxing technique. By <a href="http://en.wikipedia.org/wiki/IEEE_floating_point" rel="nofollow">IEEE-754</a> standard we have 2^52-1 variants for encoding double's <a href="http://en.wikipedia.org/wiki/NaN" rel="nofollow">NaN</a>. So let's use this to store value type and payload:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content=" sign
+ |  exponent
+ |  |
+[0][11111111111][yyyyxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx]
+                 |   |
+                 tag |
+                     payload"><pre class="notranslate"><code> sign
+ |  exponent
+ |  |
+[0][11111111111][yyyyxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx]
+                 |   |
+                 tag |
+                     payload
+</code></pre></div>
+<p dir="auto">48 bits payload <a href="http://en.wikipedia.org/wiki/X86-64#Virtual_address_space_details" rel="nofollow">enough</a> for store any pointer on x64. Numbers use zero tag, so infinity and nan are accessible.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Memory management</h3><a id="user-content-memory-management" class="anchor" aria-label="Permalink: Memory management" href="#memory-management"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">JsonAllocator allocates big blocks of memory and use pointer bumping inside theese blocks for smaller allocations. Size of block can be tuned by <em>JSON_ZONE_SIZE</em> constant (default 4 KiB).</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Parser internals</h3><a id="user-content-parser-internals" class="anchor" aria-label="Permalink: Parser internals" href="#parser-internals"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<blockquote>
+<p dir="auto">[05.11.13, 2:52:33] Олег Литвин: о нихуя там свитч кейс на стеройдах!</p>
+</blockquote>
+<p dir="auto">Internally in <code>jsonParse</code> function nested arrays/objects stored in array of circulary linked list of <code>JsonNode</code>. Size of that array can be tuned by <em>JSON_STACK_SIZE</em> constant (default 32).</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Performance</h2><a id="user-content-performance" class="anchor" aria-label="Permalink: Performance" href="#performance"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">For build parser shootout:</p>
+<ol dir="auto">
+<li><code>clone-enemy-parser.sh</code> (need mercurial, git, curl, nodejs)</li>
+<li><code>cmake -DCMAKE_BUILD_TYPE=Release -DSHOOTOUT=ON</code></li>
+</ol>
+<p dir="auto">Test files downloads from random repos on github:</p>
+<ul dir="auto">
+<li><code>big.json</code> - just big with big count escape sequences</li>
+<li><code>monster.json</code> - 3d model, lot of numbers</li>
+<li><code>data.json</code> - many objects</li>
+</ul>
+<p dir="auto">First column - parse time in microseconds, second - traverse and sum all numbers.</p>
+<p dir="auto">Intel Core i7 2.3 GHz, OSX 10.9, clang-500.2.79:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="shootout/big.json: length 6072200
+     gason      20092us         71us 	(5520251617769.000000)
+     vjson      19723us        156us 	(5520251617769.000000)
+    sajson      25226us        128us 	(5520251617769.000000)
+ rapidjson      18093us         96us 	(5520251617769.000000)
+shootout/data.json: length 17333
+     gason         75us          4us 	(3754.333493)
+     vjson         80us          5us 	(3754.333471)
+    sajson        117us          8us 	(3754.333493)
+ rapidjson         91us          7us 	(3754.333493)
+shootout/monster.json: length 196473
+     gason        924us        162us 	(34474757.667613)
+     vjson       2218us        396us 	(34474757.667621)
+    sajson       1898us        380us 	(34474757.667613)
+ rapidjson       2210us        446us 	(34474757.667613)"><pre class="notranslate"><code>shootout/big.json: length 6072200
+     gason      20092us         71us 	(5520251617769.000000)
+     vjson      19723us        156us 	(5520251617769.000000)
+    sajson      25226us        128us 	(5520251617769.000000)
+ rapidjson      18093us         96us 	(5520251617769.000000)
+shootout/data.json: length 17333
+     gason         75us          4us 	(3754.333493)
+     vjson         80us          5us 	(3754.333471)
+    sajson        117us          8us 	(3754.333493)
+ rapidjson         91us          7us 	(3754.333493)
+shootout/monster.json: length 196473
+     gason        924us        162us 	(34474757.667613)
+     vjson       2218us        396us 	(34474757.667621)
+    sajson       1898us        380us 	(34474757.667613)
+ rapidjson       2210us        446us 	(34474757.667613)
+</code></pre></div>
+<p dir="auto">Samsung Galaxy Note II (GT-N7100), Android 4.3, gcc 4.8.2:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="I/ruberoid( 8944): /sdcard/Download/shootout/big.json: length 6072200
+I/ruberoid( 8944):      gason      66269us        561us 	(5520251617769.000000)
+I/ruberoid( 8944):      vjson      59052us       1058us 	(5520251617769.000000)
+I/ruberoid( 8944):     sajson      75240us       1573us 	(5520251617769.000000)
+I/ruberoid( 8944):  rapidjson      82948us        808us 	(5520251617769.000000)
+I/ruberoid( 8944): /sdcard/Download/shootout/data.json: length 17333
+I/ruberoid( 8944):      gason        328us         32us 	(3754.333493)
+I/ruberoid( 8944):      vjson        316us         54us 	(3754.333471)
+I/ruberoid( 8944):     sajson        291us         55us 	(3754.333493)
+I/ruberoid( 8944):  rapidjson        386us         48us 	(3754.333493)
+I/ruberoid( 8944): /sdcard/Download/shootout/monster.json: length 196473
+I/ruberoid( 8944):      gason       6330us       1342us 	(34474757.667613)
+I/ruberoid( 8944):      vjson       9481us       2236us 	(34474757.667621)
+I/ruberoid( 8944):     sajson       6400us       1971us 	(34474757.667613)
+I/ruberoid( 8944):  rapidjson       7464us       1745us 	(34474757.667613)"><pre class="notranslate"><code>I/ruberoid( 8944): /sdcard/Download/shootout/big.json: length 6072200
+I/ruberoid( 8944):      gason      66269us        561us 	(5520251617769.000000)
+I/ruberoid( 8944):      vjson      59052us       1058us 	(5520251617769.000000)
+I/ruberoid( 8944):     sajson      75240us       1573us 	(5520251617769.000000)
+I/ruberoid( 8944):  rapidjson      82948us        808us 	(5520251617769.000000)
+I/ruberoid( 8944): /sdcard/Download/shootout/data.json: length 17333
+I/ruberoid( 8944):      gason        328us         32us 	(3754.333493)
+I/ruberoid( 8944):      vjson        316us         54us 	(3754.333471)
+I/ruberoid( 8944):     sajson        291us         55us 	(3754.333493)
+I/ruberoid( 8944):  rapidjson        386us         48us 	(3754.333493)
+I/ruberoid( 8944): /sdcard/Download/shootout/monster.json: length 196473
+I/ruberoid( 8944):      gason       6330us       1342us 	(34474757.667613)
+I/ruberoid( 8944):      vjson       9481us       2236us 	(34474757.667621)
+I/ruberoid( 8944):     sajson       6400us       1971us 	(34474757.667613)
+I/ruberoid( 8944):  rapidjson       7464us       1745us 	(34474757.667613)
+</code></pre></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">License</h2><a id="user-content-license" class="anchor" aria-label="Permalink: License" href="#license"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Distributed under the MIT license. Copyright (c) 2013-2015, Ivan Vashchaev</p>
+</article></div>
