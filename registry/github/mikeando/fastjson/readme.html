@@ -1,0 +1,76 @@
+<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">FastJson</h1><a id="user-content-fastjson" class="anchor" aria-label="Permalink: FastJson" href="#fastjson"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">FastJson is a library for reading and writing json in C++. Its designed to be fast and light, yet complete.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">How to use FastJson</h2><a id="user-content-how-to-use-fastjson" class="anchor" aria-label="Permalink: How to use FastJson" href="#how-to-use-fastjson"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">FastJson has an odd but functional interface. We will just look at the high-level interface here.</p>
+<p dir="auto">First FastJson uses two constructs Tokens and Chunks. A Token is like a node in the JSON, however the Token does not
+own any of the memory that it references. The owner of this memory is (usually) a Chunk.</p>
+<p dir="auto">So parsing a json string looks like this:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="fastjson::Token token;
+fastjson::dom::Chunk chunk;
+std::string error_message;
+if( ! fastjson::dom::parse_string(&quot;{}&quot;, &amp;token, &amp;chunk, &amp;error_message) )
+{
+  std::cerr&lt;&lt;&quot;ERROR : &quot;&lt;&lt;error_message&lt;&lt;std::endl;
+  return;
+}"><pre class="notranslate"><code>fastjson::Token token;
+fastjson::dom::Chunk chunk;
+std::string error_message;
+if( ! fastjson::dom::parse_string("{}", &amp;token, &amp;chunk, &amp;error_message) )
+{
+  std::cerr&lt;&lt;"ERROR : "&lt;&lt;error_message&lt;&lt;std::endl;
+  return;
+}
+</code></pre></div>
+<p dir="auto">Writing one back to a string is even easier</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="std::string s = fastjson::as_string( token );"><pre class="notranslate"><code>std::string s = fastjson::as_string( token );
+</code></pre></div>
+<p dir="auto">Manipulating or interogating the JSON tree is a little uglier - for this there are some helper classes in the dom namespace</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="fastjson::dom::Dictionary dict = fastjson::dom::Dictionary::as_dict( &amp;token, &amp;chunk );
+//Get the id field
+int id;
+if( dict.get&lt;int&gt;(&quot;an_id&quot;, &amp;id) )
+{
+  std::cerr&lt;&lt;&quot;NO id found&quot;&lt;&lt;std::endl;
+  return;
+}
+double f = id+0.5;
+dict.add&lt;double&gt;( &quot;something&quot;, &amp;f );"><pre class="notranslate"><code>fastjson::dom::Dictionary dict = fastjson::dom::Dictionary::as_dict( &amp;token, &amp;chunk );
+//Get the id field
+int id;
+if( dict.get&lt;int&gt;("an_id", &amp;id) )
+{
+  std::cerr&lt;&lt;"NO id found"&lt;&lt;std::endl;
+  return;
+}
+double f = id+0.5;
+dict.add&lt;double&gt;( "something", &amp;f );
+</code></pre></div>
+<p dir="auto">To properly navigate a deeper tree you need to use some of the lower-level constructs, covered in the next section.
+Some of this will be hidden when I work out the neatest way.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">FastJson under the covers</h2><a id="user-content-fastjson-under-the-covers" class="anchor" aria-label="Permalink: FastJson under the covers" href="#fastjson-under-the-covers"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">First some things to note:</p>
+<ol dir="auto">
+<li>FastJson uses an analyse then allocate approach, meaning that while it reads over the json twice, it only allocates its data in large blocks. This makes it fast.</li>
+<li>FastJson values are stored as strings with a type hint. This means large numbers can be read easily without fastjson caring about precission or length, this is the users concern.</li>
+<li>Since we allocate in big chunks, we need something to do our memory management for us .. thats where the Chunk objects come in.</li>
+</ol>
+<p dir="auto">Now some words about tokens. A token is just a discriminated union type. It can either be an ArrayType, DictType, ValueType, or one of the Litterals (Null, False, True). Most of these types contain further pointers to data or more tokens.</p>
+<p dir="auto">This means traversing an Array in json looks like this:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="Token token = ...
+if( token.type != Token::ArrayToken ) { ... }
+ArrayEntry * child = token.array.ptr;
+while(child)
+{
+   ...
+   child = child-&gt;next;
+}"><pre class="notranslate"><code>Token token = ...
+if( token.type != Token::ArrayToken ) { ... }
+ArrayEntry * child = token.array.ptr;
+while(child)
+{
+   ...
+   child = child-&gt;next;
+}
+</code></pre></div>
+<p dir="auto">Traversing a dictionary is similar.</p>
+</article></div>
