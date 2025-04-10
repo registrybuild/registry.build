@@ -4,31 +4,33 @@
 <p dir="auto">See the tutorial in the <a href="example">example</a> directory.</p>
 <p dir="auto">First, generate a <code>cpanfile.snapshot.lock.json</code> file from your <code>cpanfile.snapshot</code> using <code>bazel run @rules_cpan//lock</code>.</p>
 <p dir="auto">Then, add this to <code>MODULE.bazel</code>:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel_dep(name = &quot;rules_cpan&quot;, version = &quot;0.0.1&quot;)
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="bazel_dep(name = &quot;rules_cpan&quot;, version = &quot;0.0.1&quot;)
 cpan = use_extension(&quot;@rules_cpan//cpan:extensions.bzl&quot;, &quot;cpan&quot;)
 cpan.install(
     name = &quot;cpan_deps&quot;,
     lock = &quot;//:cpanfile.snapshot.lock.json&quot;,
 )
-use_repo(cpan, &quot;cpan_deps&quot;)"><pre><span class="pl-en">bazel_dep</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_cpan"</span>, <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"0.0.1"</span>)
-<span class="pl-s1">cpan</span> <span class="pl-c1">=</span> <span class="pl-en">use_extension</span>(<span class="pl-s">"@rules_cpan//cpan:extensions.bzl"</span>, <span class="pl-s">"cpan"</span>)
-<span class="pl-s1">cpan</span>.<span class="pl-c1">install</span>(
-    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"cpan_deps"</span>,
-    <span class="pl-s1">lock</span> <span class="pl-c1">=</span> <span class="pl-s">"//:cpanfile.snapshot.lock.json"</span>,
+use_repo(cpan, &quot;cpan_deps&quot;)"><pre lang="Starlark" class="notranslate"><code>bazel_dep(name = "rules_cpan", version = "0.0.1")
+cpan = use_extension("@rules_cpan//cpan:extensions.bzl", "cpan")
+cpan.install(
+    name = "cpan_deps",
+    lock = "//:cpanfile.snapshot.lock.json",
 )
-<span class="pl-en">use_repo</span>(<span class="pl-s1">cpan</span>, <span class="pl-s">"cpan_deps"</span>)</pre></div>
+use_repo(cpan, "cpan_deps")
+</code></pre></div>
 <p dir="auto">Finally, use the <code>cpan_deps</code> target in your <code>BUILD</code> file:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@rules_perl//perl:perl.bzl&quot;, &quot;perl_library&quot;)
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(&quot;@rules_perl//perl:perl.bzl&quot;, &quot;perl_library&quot;)
 
 perl_library(
     name = &quot;my_perl_lib&quot;,
     srcs = [&quot;lib/MyModule.pm&quot;],
     deps = [&quot;@cpan_deps&quot;],
-)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@rules_perl//perl:perl.bzl"</span>, <span class="pl-s">"perl_library"</span>)
+)"><pre lang="Starlark" class="notranslate"><code>load("@rules_perl//perl:perl.bzl", "perl_library")
 
-<span class="pl-en">perl_library</span>(
-    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"my_perl_lib"</span>,
-    <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> [<span class="pl-s">"lib/MyModule.pm"</span>],
-    <span class="pl-s1">deps</span> <span class="pl-c1">=</span> [<span class="pl-s">"@cpan_deps"</span>],
-)</pre></div>
+perl_library(
+    name = "my_perl_lib",
+    srcs = ["lib/MyModule.pm"],
+    deps = ["@cpan_deps"],
+)
+</code></pre></div>
 </article></div>
