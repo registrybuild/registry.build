@@ -11,36 +11,26 @@ create compiler toolchains and sysroots.</p>
 <li>run <code>bazel run @busybox//:bin/busybox</code> to download/extract the package and run the binary.</li>
 </ul>
 <div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="apt = use_extension(&quot;@bazel_linux_packages//apt:extensions.bzl&quot;, &quot;apt&quot;)
-apt.source(
-    architectures = [&quot;amd64&quot;],
-    components = [&quot;main&quot;],
-    suites = [&quot;focal&quot;],
-    uri = &quot;https://snapshot.ubuntu.com/ubuntu/20250219T154000Z&quot;,
-)
-apt.download(
+apt.ubuntu(
+    name = &quot;busybox&quot;,
     lockfile = &quot;//:focal.lock.json&quot;,
     packages = [&quot;busybox&quot;],
+    suites = [&quot;focal&quot;],
 )
-apt.install(name = &quot;busybox&quot;)
 use_repo(apt, &quot;busybox&quot;)"><pre><span class="pl-s1">apt</span> <span class="pl-c1">=</span> <span class="pl-en">use_extension</span>(<span class="pl-s">"@bazel_linux_packages//apt:extensions.bzl"</span>, <span class="pl-s">"apt"</span>)
-<span class="pl-s1">apt</span>.<span class="pl-c1">source</span>(
-    <span class="pl-s1">architectures</span> <span class="pl-c1">=</span> [<span class="pl-s">"amd64"</span>],
-    <span class="pl-s1">components</span> <span class="pl-c1">=</span> [<span class="pl-s">"main"</span>],
-    <span class="pl-s1">suites</span> <span class="pl-c1">=</span> [<span class="pl-s">"focal"</span>],
-    <span class="pl-s1">uri</span> <span class="pl-c1">=</span> <span class="pl-s">"https://snapshot.ubuntu.com/ubuntu/20250219T154000Z"</span>,
-)
-<span class="pl-s1">apt</span>.<span class="pl-c1">download</span>(
+<span class="pl-s1">apt</span>.<span class="pl-c1">ubuntu</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"busybox"</span>,
     <span class="pl-s1">lockfile</span> <span class="pl-c1">=</span> <span class="pl-s">"//:focal.lock.json"</span>,
     <span class="pl-s1">packages</span> <span class="pl-c1">=</span> [<span class="pl-s">"busybox"</span>],
+    <span class="pl-s1">suites</span> <span class="pl-c1">=</span> [<span class="pl-s">"focal"</span>],
 )
-<span class="pl-s1">apt</span>.<span class="pl-c1">install</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"busybox"</span>)
 <span class="pl-en">use_repo</span>(<span class="pl-s1">apt</span>, <span class="pl-s">"busybox"</span>)</pre></div>
 <p dir="auto">See <a href="e2e/README.md">e2e/</a> for end to end tests and
 <a href="docs/extensions.md">the extension docs</a> for more details:</p>
 <ul dir="auto">
-<li><a href="docs/extensions.md#source"><code>apt.source()</code></a></li>
 <li><a href="docs/extensions.md#download"><code>apt.download()</code></a></li>
-<li><a href="docs/extensions.md#install"><code>apt.install()</code></a></li>
+<li><a href="docs/extensions.md#ubuntu"><code>apt.ubuntu()</code></a></li>
+<li><a href="docs/extensions.md#debian"><code>apt.debian()</code></a></li>
 </ul>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Handle Library Paths</h2><a id="user-content-handle-library-paths" class="anchor" aria-label="Permalink: Handle Library Paths" href="#handle-library-paths"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <ul dir="auto">
@@ -53,7 +43,7 @@ the correct <code>glibc</code> version. There are two strategies to handle these
 <ol dir="auto">
 <li>
 <p dir="auto">Set <a href="docs/extensions.md#apt.install-fix_rpath_with_patchelf"><code>fix_rpath_with_patchelf = True</code></a> for
-<a href="docs/extensions.md#install"><code>apt.install()</code></a>. This will use
+<a href="docs/extensions.md#download"><code>apt.download()</code></a>. This will use
 <a href="https://github.com/NixOS/patchelf"><code>patchelf</code></a> to modify the executables
 and binaries to add library search directories to <code>RUNPATH</code>. See also
 <code>fix_absolute_interpreter_with_patchelf</code>,
