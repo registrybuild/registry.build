@@ -1,0 +1,423 @@
+<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">rules_abs</h1><a id="user-content-rules_abs" class="anchor" aria-label="Permalink: rules_abs" href="#rules_abs"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Bazel rules for downloading files from <a href="https://learn.microsoft.com/en-us/azure/storage/blobs/storage-blobs-introduction" rel="nofollow">Azure Blob Storage (ABS)</a>.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Features</h2><a id="user-content-features" class="anchor" aria-label="Permalink: Features" href="#features"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li>Can be used as a drop-in replacement for <code>http_file</code> (<code>abs_file</code>) and <code>http_archive</code> (<code>abs_archive</code>)</li>
+<li>Can fetch large amounts of objects lazily from a bucket using the <code>abs_container</code> module extension</li>
+<li>Supports fetching from private buckets using a credential helper</li>
+<li>Uses Bazel's downloader and the repository cache</li>
+<li>No dependencies like the Azure cli (<code>az</code>) need to be installed for access of public repos</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Installation</h2><a id="user-content-installation" class="anchor" aria-label="Permalink: Installation" href="#installation"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">You can find the latest version of <a href="https://registry.bazel.build/modules/rules_abs" rel="nofollow"><code>rules_abs</code> on the Bazel Central Registry</a>. Installation works by adding a <code>bazel_dep</code> line to <code>MODULE.bazel</code>.</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel_dep(name = &quot;rules_abs&quot;, version = &quot;0.1.0&quot;)"><pre><span class="pl-en">bazel_dep</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_abs"</span>, <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"0.1.0"</span>)</pre></div>
+<p dir="auto">If you need to configure a credential helper to download from a private repo an example exists in <a href="/examples/full/tools/mock-credential-helper">examples/full</a> that will work if <code>az</code> is installed.
+I have planned work to add support for this to the <a href="https://github.com/tweag/credential-helper/issues/50" data-hovercard-type="issue" data-hovercard-url="/tweag/credential-helper/issues/50/hovercard">credential-helper</a> so that <code>az</code> is no longer required.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Usage</h2><a id="user-content-usage" class="anchor" aria-label="Permalink: Usage" href="#usage"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><code>rules_abs</code> offers two repository rules <a href="#abs_file"><code>abs_file</code></a> and <a href="#abs_archive"><code>abs_archive</code></a> for fetching individual objects.
+If you need to download multiple objects from a container, use the <a href="#abs_container"><code>abs_container</code></a> module extension instead.</p>
+<p dir="auto">To see how it all comes together, take a look at the <a href="/examples/full/">full example</a>.</p>
+<p dir="auto"><a id="user-content-abs_archive"></a></p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">abs_archive</h2><a id="user-content-abs_archive" class="anchor" aria-label="Permalink: abs_archive" href="#abs_archive"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<pre>load("@rules_abs//abs:repo_rules.bzl", "abs_archive")
+
+abs_archive(<a href="#abs_archive-name">name</a>, <a href="#abs_archive-build_file">build_file</a>, <a href="#abs_archive-build_file_content">build_file_content</a>, <a href="#abs_archive-canonical_id">canonical_id</a>, <a href="#abs_archive-integrity">integrity</a>, <a href="#abs_archive-patch_strip">patch_strip</a>, <a href="#abs_archive-patches">patches</a>,
+            <a href="#abs_archive-rename_files">rename_files</a>, <a href="#abs_archive-repo_mapping">repo_mapping</a>, <a href="#abs_archive-sha256">sha256</a>, <a href="#abs_archive-strip_prefix">strip_prefix</a>, <a href="#abs_archive-type">type</a>, <a href="#abs_archive-url">url</a>)
+</pre>
+<p dir="auto">Downloads a Bazel repository as a compressed archive file from an Azure Blob Storage account, decompresses it,
+and makes its targets available for binding.</p>
+<p dir="auto">It supports the following file extensions: <code>"zip"</code>, <code>"jar"</code>, <code>"war"</code>, <code>"aar"</code>, <code>"tar"</code>,
+<code>"tar.gz"</code>, <code>"tgz"</code>, <code>"tar.xz"</code>, <code>"txz"</code>, <code>"tar.zst"</code>, <code>"tzst"</code>, <code>tar.bz2</code>, <code>"ar"</code>,
+or <code>"deb"</code>.</p>
+<p dir="auto">Examples:
+Suppose your code depends on a private library packaged as a <code>.tar.gz</code>
+which is available from <a href="https://myorg.blob.core.windows.net/libmagic.tar.gz" rel="nofollow">https://myorg.blob.core.windows.net/libmagic.tar.gz</a>. This <code>.tar.gz</code> file
+contains the following directory structure:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="MODULE.bazel
+src/
+  magic.cc
+  magic.h"><pre class="notranslate"><code>MODULE.bazel
+src/
+  magic.cc
+  magic.h
+</code></pre></div>
+<p dir="auto">In the local repository, the user creates a <code>magic.BUILD</code> file which
+contains the following target definition:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="cc_library(
+    name = &quot;lib&quot;,
+    srcs = [&quot;src/magic.cc&quot;],
+    hdrs = [&quot;src/magic.h&quot;],
+)"><pre><span class="pl-en">cc_library</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"lib"</span>,
+    <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> [<span class="pl-s">"src/magic.cc"</span>],
+    <span class="pl-s1">hdrs</span> <span class="pl-c1">=</span> [<span class="pl-s">"src/magic.h"</span>],
+)</pre></div>
+<p dir="auto">Targets in the main repository can depend on this target if the
+following lines are added to <code>MODULE.bazel</code>:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="abs_archive = use_repo_rule(&quot;@rulesabs//abs:repo_rules.bzl&quot;, &quot;abs_archive&quot;)
+
+abs_archive(
+    name = &quot;magic&quot;,
+    url = &quot;https://myorg.blob.core.windows.net/libmagic.tar.gz&quot;,
+    sha256 = &quot;e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855&quot;,
+    build_file = &quot;@//:magic.BUILD&quot;,
+)"><pre><span class="pl-s1">abs_archive</span> <span class="pl-c1">=</span> <span class="pl-en">use_repo_rule</span>(<span class="pl-s">"@rulesabs//abs:repo_rules.bzl"</span>, <span class="pl-s">"abs_archive"</span>)
+
+<span class="pl-en">abs_archive</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"magic"</span>,
+    <span class="pl-s1">url</span> <span class="pl-c1">=</span> <span class="pl-s">"https://myorg.blob.core.windows.net/libmagic.tar.gz"</span>,
+    <span class="pl-s1">sha256</span> <span class="pl-c1">=</span> <span class="pl-s">"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"</span>,
+    <span class="pl-s1">build_file</span> <span class="pl-c1">=</span> <span class="pl-s">"@//:magic.BUILD"</span>,
+)</pre></div>
+<p dir="auto">Then targets would specify <code>@magic//:lib</code> as a dependency.</p>
+<p dir="auto"><strong>ATTRIBUTES</strong></p>
+<markdown-accessiblity-table><table>
+<thead>
+<tr>
+<th align="left">Name</th>
+<th align="left">Description</th>
+<th align="left">Type</th>
+<th align="left">Mandatory</th>
+<th align="left">Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left"><a id="user-content-abs_archive-name"></a>name</td>
+<td align="left">A unique name for this repository.</td>
+<td align="left"><a href="https://bazel.build/concepts/labels#target-names" rel="nofollow">Name</a></td>
+<td align="left">required</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-abs_archive-build_file"></a>build_file</td>
+<td align="left">The file to use as the BUILD file for this repository.This attribute is an absolute label (use '@//' for the main repo). The file does not need to be named BUILD, but can be (something like BUILD.new-repo-name may work well for distinguishing it from the repository's actual BUILD files. Either build_file or build_file_content can be specified, but not both.</td>
+<td align="left"><a href="https://bazel.build/concepts/labels" rel="nofollow">Label</a></td>
+<td align="left">optional</td>
+<td align="left"><code>None</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-abs_archive-build_file_content"></a>build_file_content</td>
+<td align="left">The content for the BUILD file for this repository. Either build_file or build_file_content can be specified, but not both.</td>
+<td align="left">String</td>
+<td align="left">optional</td>
+<td align="left"><code>""</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-abs_archive-canonical_id"></a>canonical_id</td>
+<td align="left">A canonical ID of the file downloaded.<br><br>If specified and non-empty, Bazel will not take the file from cache, unless it was added to the cache by a request with the same canonical ID.<br><br>If unspecified or empty, Bazel by default uses the URLs of the file as the canonical ID. This helps catch the common mistake of updating the URLs without also updating the hash, resulting in builds that succeed locally but fail on machines without the file in the cache.</td>
+<td align="left">String</td>
+<td align="left">optional</td>
+<td align="left"><code>""</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-abs_archive-integrity"></a>integrity</td>
+<td align="left">Expected checksum in Subresource Integrity format of the file downloaded.<br><br>This must match the checksum of the file downloaded. It is a security risk to omit the checksum as remote files can change. At best omitting this field will make your build non-hermetic. It is optional to make development easier but either this attribute or <code>sha256</code> should be set before shipping.</td>
+<td align="left">String</td>
+<td align="left">optional</td>
+<td align="left"><code>""</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-abs_archive-patch_strip"></a>patch_strip</td>
+<td align="left">Strip the specified number of leading components from file names.</td>
+<td align="left">Integer</td>
+<td align="left">optional</td>
+<td align="left"><code>0</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-abs_archive-patches"></a>patches</td>
+<td align="left">A list of files that are to be applied as patches after extracting the archive. It uses the Bazel-native patch implementation which doesn't support fuzz match and binary patch.</td>
+<td align="left"><a href="https://bazel.build/concepts/labels" rel="nofollow">List of labels</a></td>
+<td align="left">optional</td>
+<td align="left"><code>[]</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-abs_archive-rename_files"></a>rename_files</td>
+<td align="left">An optional dict specifying files to rename during the extraction. Archive entries with names exactly matching a key will be renamed to the value, prior to any directory prefix adjustment. This can be used to extract archives that contain non-Unicode filenames, or which have files that would extract to the same path on case-insensitive filesystems.</td>
+<td align="left"><a href="https://bazel.build/rules/lib/dict" rel="nofollow">Dictionary: String -&gt; String</a></td>
+<td align="left">optional</td>
+<td align="left"><code>{}</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-abs_archive-repo_mapping"></a>repo_mapping</td>
+<td align="left">In <code>WORKSPACE</code> context only: a dictionary from local repository name to global repository name. This allows controls over workspace dependency resolution for dependencies of this repository.<br><br>For example, an entry <code>"@foo": "@bar"</code> declares that, for any time this repository depends on <code>@foo</code> (such as a dependency on <code>@foo//some:target</code>, it should actually resolve that dependency within globally-declared <code>@bar</code> (<code>@bar//some:target</code>).<br><br>This attribute is <em>not</em> supported in <code>MODULE.bazel</code> context (when invoking a repository rule inside a module extension's implementation function).</td>
+<td align="left"><a href="https://bazel.build/rules/lib/dict" rel="nofollow">Dictionary: String -&gt; String</a></td>
+<td align="left">optional</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-abs_archive-sha256"></a>sha256</td>
+<td align="left">The expected SHA-256 of the file downloaded.<br><br>This must match the SHA-256 of the file downloaded. It is a security risk to omit the SHA-256 as remote files can change. At best omitting this field will make your build non-hermetic. It is optional to make development easier but either this attribute or <code>integrity</code> should be set before shipping.</td>
+<td align="left">String</td>
+<td align="left">optional</td>
+<td align="left"><code>""</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-abs_archive-strip_prefix"></a>strip_prefix</td>
+<td align="left">A directory prefix to strip from the extracted files.<br><br>Many archives contain a top-level directory that contains all of the useful files in archive. Instead of needing to specify this prefix over and over in the <code>build_file</code>, this field can be used to strip it from all of the extracted files.<br><br>For example, suppose you are using <code>foo-lib-latest.zip</code>, which contains the directory <code>foo-lib-1.2.3/</code> under which there is a <code>WORKSPACE</code> file and are <code>src/</code>, <code>lib/</code>, and <code>test/</code> directories that contain the actual code you wish to build. Specify <code>strip_prefix = "foo-lib-1.2.3"</code> to use the <code>foo-lib-1.2.3</code> directory as your top-level directory.<br><br>Note that if there are files outside of this directory, they will be discarded and inaccessible (e.g., a top-level license file). This includes files/directories that start with the prefix but are not in the directory (e.g., <code>foo-lib-1.2.3.release-notes</code>). If the specified prefix does not match a directory in the archive, Bazel will return an error.</td>
+<td align="left">String</td>
+<td align="left">optional</td>
+<td align="left"><code>""</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-abs_archive-type"></a>type</td>
+<td align="left">The archive type of the downloaded file.<br><br>By default, the archive type is determined from the file extension of the URL. If the file has no extension, you can explicitly specify one of the following: <code>"zip"</code>, <code>"jar"</code>, <code>"war"</code>, <code>"aar"</code>, <code>"tar"</code>, <code>"tar.gz"</code>, <code>"tgz"</code>, <code>"tar.xz"</code>, <code>"txz"</code>, <code>"tar.zst"</code>, <code>"tzst"</code>, <code>"tar.bz2"</code>, <code>"ar"</code>, or <code>"deb"</code>.</td>
+<td align="left">String</td>
+<td align="left">optional</td>
+<td align="left"><code>""</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-abs_archive-url"></a>url</td>
+<td align="left">A URL to a file that will be made available to Bazel. This must be a 'http[s]://' URL.</td>
+<td align="left">String</td>
+<td align="left">required</td>
+<td align="left"></td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p dir="auto"><a id="user-content-abs_file"></a></p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">abs_file</h2><a id="user-content-abs_file" class="anchor" aria-label="Permalink: abs_file" href="#abs_file"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<pre>load("@rules_abs//abs:repo_rules.bzl", "abs_file")
+
+abs_file(<a href="#abs_file-name">name</a>, <a href="#abs_file-canonical_id">canonical_id</a>, <a href="#abs_file-downloaded_file_path">downloaded_file_path</a>, <a href="#abs_file-executable">executable</a>, <a href="#abs_file-integrity">integrity</a>, <a href="#abs_file-repo_mapping">repo_mapping</a>, <a href="#abs_file-sha256">sha256</a>, <a href="#abs_file-url">url</a>)
+</pre>
+<p dir="auto">Downloads a file from an Azure Blob Storage bucket and makes it available to be used as a file group.</p>
+<p dir="auto">Examples:
+Suppose you need to have a large file that is read during a test and is stored in a private bucket.
+This file is available from <a href="https://myorg.blob.core.windows.net/junk/azure-cli-2.66.1-x64.zip" rel="nofollow">https://myorg.blob.core.windows.net/junk/azure-cli-2.66.1-x64.zip</a>.
+Then you can add to your MODULE.bazel file:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="abs_file = use_repo_rule(&quot;@rules_abs//abs:repo_rules.bzl&quot;, &quot;abs_file&quot;)
+
+abs_file(
+    name = &quot;azure_cli&quot;,
+    url = &quot;https://myorg.blob.core.windows.net/junk/azure-cli-2.66.1-x64.zip&quot;,
+    sha256 = &quot;9567c5e8d7fe0d4dc9351b85fdab254ccc5f4218c4def688f44d7e76c20a3d29&quot;,
+)"><pre><span class="pl-s1">abs_file</span> <span class="pl-c1">=</span> <span class="pl-en">use_repo_rule</span>(<span class="pl-s">"@rules_abs//abs:repo_rules.bzl"</span>, <span class="pl-s">"abs_file"</span>)
+
+<span class="pl-en">abs_file</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"azure_cli"</span>,
+    <span class="pl-s1">url</span> <span class="pl-c1">=</span> <span class="pl-s">"https://myorg.blob.core.windows.net/junk/azure-cli-2.66.1-x64.zip"</span>,
+    <span class="pl-s1">sha256</span> <span class="pl-c1">=</span> <span class="pl-s">"9567c5e8d7fe0d4dc9351b85fdab254ccc5f4218c4def688f44d7e76c20a3d29"</span>,
+)</pre></div>
+<p dir="auto">Targets would specify <code>@azure_cli//file</code> as a dependency to depend on this file.</p>
+<p dir="auto"><strong>ATTRIBUTES</strong></p>
+<markdown-accessiblity-table><table>
+<thead>
+<tr>
+<th align="left">Name</th>
+<th align="left">Description</th>
+<th align="left">Type</th>
+<th align="left">Mandatory</th>
+<th align="left">Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left"><a id="user-content-abs_file-name"></a>name</td>
+<td align="left">A unique name for this repository.</td>
+<td align="left"><a href="https://bazel.build/concepts/labels#target-names" rel="nofollow">Name</a></td>
+<td align="left">required</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-abs_file-canonical_id"></a>canonical_id</td>
+<td align="left">A canonical ID of the file downloaded.<br><br>If specified and non-empty, Bazel will not take the file from cache, unless it was added to the cache by a request with the same canonical ID.<br><br>If unspecified or empty, Bazel by default uses the URLs of the file as the canonical ID. This helps catch the common mistake of updating the URLs without also updating the hash, resulting in builds that succeed locally but fail on machines without the file in the cache.</td>
+<td align="left">String</td>
+<td align="left">optional</td>
+<td align="left"><code>""</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-abs_file-downloaded_file_path"></a>downloaded_file_path</td>
+<td align="left">Optional output path for the downloaded file. The remote path from the URL is used as a fallback.</td>
+<td align="left">String</td>
+<td align="left">optional</td>
+<td align="left"><code>""</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-abs_file-executable"></a>executable</td>
+<td align="left">If the downloaded file should be made executable.</td>
+<td align="left">Boolean</td>
+<td align="left">optional</td>
+<td align="left"><code>False</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-abs_file-integrity"></a>integrity</td>
+<td align="left">Expected checksum in Subresource Integrity format of the file downloaded.<br><br>This must match the checksum of the file downloaded. It is a security risk to omit the checksum as remote files can change. At best omitting this field will make your build non-hermetic. It is optional to make development easier but either this attribute or <code>sha256</code> should be set before shipping.</td>
+<td align="left">String</td>
+<td align="left">optional</td>
+<td align="left"><code>""</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-abs_file-repo_mapping"></a>repo_mapping</td>
+<td align="left">In <code>WORKSPACE</code> context only: a dictionary from local repository name to global repository name. This allows controls over workspace dependency resolution for dependencies of this repository.<br><br>For example, an entry <code>"@foo": "@bar"</code> declares that, for any time this repository depends on <code>@foo</code> (such as a dependency on <code>@foo//some:target</code>, it should actually resolve that dependency within globally-declared <code>@bar</code> (<code>@bar//some:target</code>).<br><br>This attribute is <em>not</em> supported in <code>MODULE.bazel</code> context (when invoking a repository rule inside a module extension's implementation function).</td>
+<td align="left"><a href="https://bazel.build/rules/lib/dict" rel="nofollow">Dictionary: String -&gt; String</a></td>
+<td align="left">optional</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-abs_file-sha256"></a>sha256</td>
+<td align="left">The expected SHA-256 of the file downloaded.<br><br>This must match the SHA-256 of the file downloaded. <em>It is a security risk to omit the SHA-256 as remote files can change.</em> At best omitting this field will make your build non-hermetic. It is optional to make development easier but should be set before shipping.</td>
+<td align="left">String</td>
+<td align="left">optional</td>
+<td align="left"><code>""</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-abs_file-url"></a>url</td>
+<td align="left">A URL to a file that will be made available to Bazel. This must be a 'https://' URL.</td>
+<td align="left">String</td>
+<td align="left">required</td>
+<td align="left"></td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p dir="auto"><a id="user-content-abs_container"></a></p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">abs_container</h2><a id="user-content-abs_container" class="anchor" aria-label="Permalink: abs_container" href="#abs_container"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<pre>abs_container = use_extension("@rules_abs//abs:extensions.bzl", "abs_container")
+abs_container.from_file(<a href="#abs_container.from_file-name">name</a>, <a href="#abs_container.from_file-container">container</a>, <a href="#abs_container.from_file-dev_dependency">dev_dependency</a>, <a href="#abs_container.from_file-lockfile">lockfile</a>, <a href="#abs_container.from_file-lockfile_jsonpath">lockfile_jsonpath</a>, <a href="#abs_container.from_file-method">method</a>,
+                        <a href="#abs_container.from_file-storage_account">storage_account</a>)
+</pre>
+<p dir="auto">Downloads a collection of objects from an Azure Storage container and makes them available under a single hub repository name.</p>
+<p dir="auto">Examples:
+Suppose your code depends on a collection of large assets that are used during code generation or testing. Those assets are stored in a private Azure Storage container.</p>
+<p dir="auto">In the local repository, the user creates a <code>abs_lock.json</code> JSON lockfile describing the required objects, including their expected hashes:</p>
+<div class="highlight highlight-source-json notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="  {
+      &quot;trainingdata/model/small.bin&quot;: {
+          &quot;sha256&quot;: &quot;abd83816bd236b266c3643e6c852b446f068fe260f3296af1a25b550854ec7e5&quot;
+      },
+      &quot;trainingdata/model/medium.bin&quot;: {
+          &quot;sha256&quot;: &quot;c6f9568f930b16101089f1036677bb15a3185e9ed9b8dbce2f518fb5a52b6787&quot;
+      },
+      &quot;trainingdata/model/large.bin&quot;: {
+          &quot;sha256&quot;: &quot;b3ccb0ba6f7972074b0a1e13340307abfd5a5eef540c521a88b368891ec5cd6b&quot;
+      },
+      &quot;trainingdata/model/very_large.bin&quot;: {
+          &quot;remote_path&quot;: &quot;weird/nested/path/extra/model/very_large.bin&quot;,
+          &quot;integrity&quot;: &quot;sha256-Oibw8PV3cDY84HKv3sAWIEuk+R2s8Hwhvlg6qg4H7uY=&quot;
+      }
+  }"><pre>  {
+      <span class="pl-ent">"trainingdata/model/small.bin"</span>: {
+          <span class="pl-ent">"sha256"</span>: <span class="pl-s"><span class="pl-pds">"</span>abd83816bd236b266c3643e6c852b446f068fe260f3296af1a25b550854ec7e5<span class="pl-pds">"</span></span>
+      },
+      <span class="pl-ent">"trainingdata/model/medium.bin"</span>: {
+          <span class="pl-ent">"sha256"</span>: <span class="pl-s"><span class="pl-pds">"</span>c6f9568f930b16101089f1036677bb15a3185e9ed9b8dbce2f518fb5a52b6787<span class="pl-pds">"</span></span>
+      },
+      <span class="pl-ent">"trainingdata/model/large.bin"</span>: {
+          <span class="pl-ent">"sha256"</span>: <span class="pl-s"><span class="pl-pds">"</span>b3ccb0ba6f7972074b0a1e13340307abfd5a5eef540c521a88b368891ec5cd6b<span class="pl-pds">"</span></span>
+      },
+      <span class="pl-ent">"trainingdata/model/very_large.bin"</span>: {
+          <span class="pl-ent">"remote_path"</span>: <span class="pl-s"><span class="pl-pds">"</span>weird/nested/path/extra/model/very_large.bin<span class="pl-pds">"</span></span>,
+          <span class="pl-ent">"integrity"</span>: <span class="pl-s"><span class="pl-pds">"</span>sha256-Oibw8PV3cDY84HKv3sAWIEuk+R2s8Hwhvlg6qg4H7uY=<span class="pl-pds">"</span></span>
+      }
+  }</pre></div>
+<p dir="auto">The exact format for the lockfile is a JSON object where each key is a path to a local file in the repository and the value is a JSON object with the following keys:</p>
+<ul dir="auto">
+<li><code>sha256</code>: the expected sha256 hash of the file. Required unless <code>integrity</code> is used.</li>
+<li><code>integrity</code>: the expected SRI value of the file. Required unless <code>sha256</code> is used.</li>
+<li><code>remote_path</code>: name of the object within the bucket. If not set, the local path is used.</li>
+</ul>
+<p dir="auto">Targets in the main repository can depend on this target if the
+following lines are added to <code>MODULE.bazel</code>:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="abs_container = use_extension(&quot;@rules_abs//abs:extensions.bzl&quot;, &quot;abs_container&quot;)
+abs_container.from_file(
+    name = &quot;trainingdata&quot;,
+    container = &quot;stuff&quot;,
+    storage_account = &quot;my_org_assets&quot;,
+    lockfile = &quot;@//:abs_lock.json&quot;,
+)"><pre><span class="pl-s1">abs_container</span> <span class="pl-c1">=</span> <span class="pl-en">use_extension</span>(<span class="pl-s">"@rules_abs//abs:extensions.bzl"</span>, <span class="pl-s">"abs_container"</span>)
+<span class="pl-s1">abs_container</span>.<span class="pl-c1">from_file</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"trainingdata"</span>,
+    <span class="pl-s1">container</span> <span class="pl-c1">=</span> <span class="pl-s">"stuff"</span>,
+    <span class="pl-s1">storage_account</span> <span class="pl-c1">=</span> <span class="pl-s">"my_org_assets"</span>,
+    <span class="pl-s1">lockfile</span> <span class="pl-c1">=</span> <span class="pl-s">"@//:abs_lock.json"</span>,
+)</pre></div>
+<p dir="auto">Then targets would specify labels like <code>@trainingdata//:stuff/trainingdata/model/very_large.bin</code> as a dependency.</p>
+<p dir="auto"><strong>TAG CLASSES</strong></p>
+<p dir="auto"><a id="user-content-abs_container.from_file"></a></p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">from_file</h3><a id="user-content-from_file" class="anchor" aria-label="Permalink: from_file" href="#from_file"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><strong>Attributes</strong></p>
+<markdown-accessiblity-table><table>
+<thead>
+<tr>
+<th align="left">Name</th>
+<th align="left">Description</th>
+<th align="left">Type</th>
+<th align="left">Mandatory</th>
+<th align="left">Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left"><a id="user-content-abs_container.from_file-name"></a>name</td>
+<td align="left">Name of the hub repository containing referencing all blobs</td>
+<td align="left"><a href="https://bazel.build/concepts/labels#target-names" rel="nofollow">Name</a></td>
+<td align="left">required</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-abs_container.from_file-container"></a>container</td>
+<td align="left">Name of the container in the storage account</td>
+<td align="left">String</td>
+<td align="left">required</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-abs_container.from_file-dev_dependency"></a>dev_dependency</td>
+<td align="left">If true, this dependency will be ignored if the current module is not the root module or <code>--ignore_dev_dependency</code> is enabled.</td>
+<td align="left">Boolean</td>
+<td align="left">optional</td>
+<td align="left"><code>False</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-abs_container.from_file-lockfile"></a>lockfile</td>
+<td align="left">JSON lockfile containing objects to load from the Azure Storage Account container</td>
+<td align="left"><a href="https://bazel.build/concepts/labels" rel="nofollow">Label</a></td>
+<td align="left">required</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-abs_container.from_file-lockfile_jsonpath"></a>lockfile_jsonpath</td>
+<td align="left">JSONPath expression referencing the dict of paths. By default, the top-level object is used.</td>
+<td align="left">String</td>
+<td align="left">optional</td>
+<td align="left"><code>""</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-abs_container.from_file-method"></a>method</td>
+<td align="left">Method used for downloading:<br><br><code>symlink</code>: lazy fetching with symlinks, <code>alias</code>: lazy fetching with alias targets, <code>copy</code>: lazy fetching with full file copies, <code>eager</code>: all objects are fetched eagerly</td>
+<td align="left">String</td>
+<td align="left">optional</td>
+<td align="left"><code>"symlink"</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-abs_container.from_file-storage_account"></a>storage_account</td>
+<td align="left">Name of the Azure Storage Account</td>
+<td align="left">String</td>
+<td align="left">required</td>
+<td align="left"></td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Troubleshooting</h2><a id="user-content-troubleshooting" class="anchor" aria-label="Permalink: Troubleshooting" href="#troubleshooting"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li>
+<p dir="auto">Credential helper not found</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="WARNING: Error retrieving auth headers, continuing without: Failed to get credentials for 'https://malte-s3-bazel-test.s3.amazonaws.com/hello_world' from helper 'tools/credential-helper': Cannot run program &quot;tools/credential-helper&quot; (in directory &quot;...&quot;): error=2, No such file or directory"><pre class="notranslate"><code>WARNING: Error retrieving auth headers, continuing without: Failed to get credentials for 'https://malte-s3-bazel-test.s3.amazonaws.com/hello_world' from helper 'tools/credential-helper': Cannot run program "tools/credential-helper" (in directory "..."): error=2, No such file or directory
+</code></pre></div>
+<p dir="auto">You need to install a credential helper (either <a href="https://github.com/tweag/credential-helper"><code>tweag-credential-helper</code></a>, or your own) as explained <a href="#installation">above</a>.</p>
+</li>
+<li>
+<p dir="auto">HTTP 401 or 403 error codes</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="ERROR: Target parsing failed due to unexpected exception: java.io.IOException: Error downloading [https://s3.amazonaws.com/...] to ...: GET returned 403 Forbidden"><pre class="notranslate"><code>ERROR: Target parsing failed due to unexpected exception: java.io.IOException: Error downloading [https://s3.amazonaws.com/...] to ...: GET returned 403 Forbidden
+</code></pre></div>
+<p dir="auto">Follow the setup instructions of your credential helper ([<code>tweag-credential-helper</code> docs][tweag-credential-helper-s3-docs]).</p>
+</li>
+<li>
+<p dir="auto">Checksum mismatch (empty file downloaded)</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="Error in wait: com.google.devtools.build.lib.bazel.repository.downloader.UnrecoverableHttpException: Checksum was e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 but wanted &lt;actual&gt;"><pre class="notranslate"><code>Error in wait: com.google.devtools.build.lib.bazel.repository.downloader.UnrecoverableHttpException: Checksum was e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 but wanted &lt;actual&gt;
+</code></pre></div>
+<p dir="auto">Check if you are using <code>--experimental_remote_downloader</code>. If you do, the remote cache may drop your auth header and silently give you empty files instead. One workaround is setting <code>--experimental_remote_downloader_local_fallback</code> in <code>.bazelrc</code>.</p>
+</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Acknowledgements</h2><a id="user-content-acknowledgements" class="anchor" aria-label="Permalink: Acknowledgements" href="#acknowledgements"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><em><code>rules_abs</code> is based on <a href="https://github.com/tweag/rules_s3"><code>rules_s3</code></a>, which was initially developed by <a href="https://www.imax.com/en/us/sct" rel="nofollow">IMAX</a> and now maintained by Tweag. This repo is privately maintained by myself</em></p>
+</article></div>
