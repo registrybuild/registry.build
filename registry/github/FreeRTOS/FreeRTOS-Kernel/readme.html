@@ -34,17 +34,19 @@ Add the following into your project's main or a subdirectory's <code>CMakeLists.
 <ul dir="auto">
 <li>Define the source and version/tag you want to use:</li>
 </ul>
-<div class="highlight highlight-source-cmake notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="FetchContent_Declare( freertos_kernel
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="FetchContent_Declare( freertos_kernel
   GIT_REPOSITORY https://github.com/FreeRTOS/FreeRTOS-Kernel.git
   GIT_TAG        main #Note: Best practice to use specific git-hash or tagged version
-)"><pre>FetchContent_Declare( freertos_kernel
+)"><pre lang="cmake" class="notranslate"><code>FetchContent_Declare( freertos_kernel
   GIT_REPOSITORY https://github.com/FreeRTOS/FreeRTOS-Kernel.git
-  GIT_TAG        main <span class="pl-c">#Note: Best practice to use specific git-hash or tagged version</span>
-)</pre></div>
+  GIT_TAG        main #Note: Best practice to use specific git-hash or tagged version
+)
+</code></pre></div>
 <p dir="auto">In case you prefer to add it as a git submodule, do:</p>
-<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="git submodule add https://github.com/FreeRTOS/FreeRTOS-Kernel.git &lt;path of the submodule&gt;
-git submodule update --init"><pre>git submodule add https://github.com/FreeRTOS/FreeRTOS-Kernel.git <span class="pl-k">&lt;</span>path of the submodule<span class="pl-k">&gt;</span>
-git submodule update --init</pre></div>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="git submodule add https://github.com/FreeRTOS/FreeRTOS-Kernel.git &lt;path of the submodule&gt;
+git submodule update --init"><pre lang="bash" class="notranslate"><code>git submodule add https://github.com/FreeRTOS/FreeRTOS-Kernel.git &lt;path of the submodule&gt;
+git submodule update --init
+</code></pre></div>
 <ul dir="auto">
 <li>Add a freertos_config library (typically an INTERFACE library) The following assumes the directory structure:
 <ul dir="auto">
@@ -52,7 +54,7 @@ git submodule update --init</pre></div>
 </ul>
 </li>
 </ul>
-<div class="highlight highlight-source-cmake notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="add_library(freertos_config INTERFACE)
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="add_library(freertos_config INTERFACE)
 
 target_include_directories(freertos_config SYSTEM
 INTERFACE
@@ -62,19 +64,21 @@ INTERFACE
 target_compile_definitions(freertos_config
   INTERFACE
     projCOVERAGE_TEST=0
-)"><pre><span class="pl-k">add_library</span>(freertos_config <span class="pl-e">INTERFACE</span>)
+)"><pre lang="cmake" class="notranslate"><code>add_library(freertos_config INTERFACE)
 
-<span class="pl-k">target_include_directories</span>(freertos_config <span class="pl-c1">SYSTEM</span>
-<span class="pl-e">INTERFACE</span>
-<span class="pl-k">    include</span>
+target_include_directories(freertos_config SYSTEM
+INTERFACE
+    include
 )
 
-<span class="pl-k">target_compile_definitions</span>(freertos_config
-  <span class="pl-e">INTERFACE</span>
+target_compile_definitions(freertos_config
+  INTERFACE
     projCOVERAGE_TEST=0
-)</pre></div>
+)
+</code></pre></div>
 <p dir="auto">In case you installed FreeRTOS-Kernel as a submodule, you will have to add it as a subdirectory:</p>
-<div class="highlight highlight-source-cmake notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="add_subdirectory(${FREERTOS_PATH})"><pre><span class="pl-k">add_subdirectory</span>(<span class="pl-k">${FREERTOS_PATH}</span>)</pre></div>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="add_subdirectory(${FREERTOS_PATH})"><pre lang="cmake" class="notranslate"><code>add_subdirectory(${FREERTOS_PATH})
+</code></pre></div>
 <ul dir="auto">
 <li>Configure the FreeRTOS-Kernel and make it available
 <ul dir="auto">
@@ -82,7 +86,7 @@ target_compile_definitions(freertos_config
 </ul>
 </li>
 </ul>
-<div class="highlight highlight-source-cmake notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="set( FREERTOS_HEAP &quot;4&quot; CACHE STRING &quot;&quot; FORCE)
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="set( FREERTOS_HEAP &quot;4&quot; CACHE STRING &quot;&quot; FORCE)
 # Select the native compile PORT
 set( FREERTOS_PORT &quot;GCC_POSIX&quot; CACHE STRING &quot;&quot; FORCE)
 # Select the cross-compile PORT
@@ -90,21 +94,23 @@ if (CMAKE_CROSSCOMPILING)
   set(FREERTOS_PORT &quot;GCC_ARM_CA9&quot; CACHE STRING &quot;&quot; FORCE)
 endif()
 
-FetchContent_MakeAvailable(freertos_kernel)"><pre><span class="pl-k">set</span>( FREERTOS_HEAP <span class="pl-s">"4"</span> <span class="pl-k">CACHE</span> <span class="pl-k">STRING</span> <span class="pl-s">""</span> FORCE)
-<span class="pl-c"># Select the native compile PORT</span>
-<span class="pl-k">set</span>( FREERTOS_PORT <span class="pl-s">"GCC_POSIX"</span> <span class="pl-k">CACHE</span> <span class="pl-k">STRING</span> <span class="pl-s">""</span> FORCE)
-<span class="pl-c"># Select the cross-compile PORT</span>
-<span class="pl-k">if</span> (<span class="pl-v">CMAKE_CROSSCOMPILING</span>)
-<span class="pl-k">  set</span>(FREERTOS_PORT <span class="pl-s">"GCC_ARM_CA9"</span> <span class="pl-k">CACHE</span> <span class="pl-k">STRING</span> <span class="pl-s">""</span> FORCE)
-<span class="pl-k">endif</span>()
+FetchContent_MakeAvailable(freertos_kernel)"><pre lang="cmake" class="notranslate"><code>set( FREERTOS_HEAP "4" CACHE STRING "" FORCE)
+# Select the native compile PORT
+set( FREERTOS_PORT "GCC_POSIX" CACHE STRING "" FORCE)
+# Select the cross-compile PORT
+if (CMAKE_CROSSCOMPILING)
+  set(FREERTOS_PORT "GCC_ARM_CA9" CACHE STRING "" FORCE)
+endif()
 
-FetchContent_MakeAvailable(freertos_kernel)</pre></div>
+FetchContent_MakeAvailable(freertos_kernel)
+</code></pre></div>
 <ul dir="auto">
 <li>In case of cross compilation, you should also add the following to <code>freertos_config</code>:</li>
 </ul>
-<div class="highlight highlight-source-cmake notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="target_compile_definitions(freertos_config INTERFACE ${definitions})
-target_compile_options(freertos_config INTERFACE ${options})"><pre><span class="pl-k">target_compile_definitions</span>(freertos_config <span class="pl-e">INTERFACE</span> <span class="pl-k">${definitions}</span>)
-<span class="pl-k">target_compile_options</span>(freertos_config <span class="pl-e">INTERFACE</span> <span class="pl-k">${options}</span>)</pre></div>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="target_compile_definitions(freertos_config INTERFACE ${definitions})
+target_compile_options(freertos_config INTERFACE ${options})"><pre lang="cmake" class="notranslate"><code>target_compile_definitions(freertos_config INTERFACE ${definitions})
+target_compile_options(freertos_config INTERFACE ${options})
+</code></pre></div>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Consuming stand-alone - Cloning this repository</h3><a id="user-content-consuming-stand-alone---cloning-this-repository" class="anchor" aria-label="Permalink: Consuming stand-alone - Cloning this repository" href="#consuming-stand-alone---cloning-this-repository"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">To clone using HTTPS:</p>
 <div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="git clone https://github.com/FreeRTOS/FreeRTOS-Kernel.git"><pre class="notranslate"><code>git clone https://github.com/FreeRTOS/FreeRTOS-Kernel.git
