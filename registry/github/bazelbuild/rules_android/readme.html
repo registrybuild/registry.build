@@ -105,10 +105,30 @@ register_toolchains(
 <div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel_dep(name = &quot;rules_java&quot;, version = &quot;7.11.1&quot;)
 bazel_dep(name = &quot;bazel_skylib&quot;, version = &quot;1.3.0&quot;)
 
-bazel_dep(name = &quot;rules_android&quot;, version = &quot;0.6.0&quot;)"><pre><span class="pl-en">bazel_dep</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_java"</span>, <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"7.11.1"</span>)
+bazel_dep(name = &quot;rules_android&quot;, version = &quot;0.6.4&quot;)
+
+remote_android_extensions = use_extension(
+    &quot;@rules_android//bzlmod_extensions:android_extensions.bzl&quot;,
+    &quot;remote_android_tools_extensions&quot;)
+use_repo(remote_android_extensions, &quot;android_gmaven_r8&quot;, &quot;android_tools&quot;)
+
+android_sdk_repository_extension = use_extension(&quot;@rules_android//rules/android_sdk_repository:rule.bzl&quot;, &quot;android_sdk_repository_extension&quot;)
+use_repo(android_sdk_repository_extension, &quot;androidsdk&quot;)
+
+register_toolchains(&quot;@androidsdk//:sdk-toolchain&quot;, &quot;@androidsdk//:all&quot;)"><pre><span class="pl-en">bazel_dep</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_java"</span>, <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"7.11.1"</span>)
 <span class="pl-en">bazel_dep</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"bazel_skylib"</span>, <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"1.3.0"</span>)
 
-<span class="pl-en">bazel_dep</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_android"</span>, <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"0.6.0"</span>)</pre></div>
+<span class="pl-en">bazel_dep</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_android"</span>, <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"0.6.4"</span>)
+
+<span class="pl-s1">remote_android_extensions</span> <span class="pl-c1">=</span> <span class="pl-en">use_extension</span>(
+    <span class="pl-s">"@rules_android//bzlmod_extensions:android_extensions.bzl"</span>,
+    <span class="pl-s">"remote_android_tools_extensions"</span>)
+<span class="pl-en">use_repo</span>(<span class="pl-s1">remote_android_extensions</span>, <span class="pl-s">"android_gmaven_r8"</span>, <span class="pl-s">"android_tools"</span>)
+
+<span class="pl-s1">android_sdk_repository_extension</span> <span class="pl-c1">=</span> <span class="pl-en">use_extension</span>(<span class="pl-s">"@rules_android//rules/android_sdk_repository:rule.bzl"</span>, <span class="pl-s">"android_sdk_repository_extension"</span>)
+<span class="pl-en">use_repo</span>(<span class="pl-s1">android_sdk_repository_extension</span>, <span class="pl-s">"androidsdk"</span>)
+
+<span class="pl-en">register_toolchains</span>(<span class="pl-s">"@androidsdk//:sdk-toolchain"</span>, <span class="pl-s">"@androidsdk//:all"</span>)</pre></div>
 <p dir="auto">Then, in your BUILD files, import and use the rules:</p>
 <div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@rules_android//rules:rules.bzl&quot;, &quot;android_binary&quot;, &quot;android_library&quot;)
 android_binary(
