@@ -504,7 +504,7 @@ rules, so it's not on by default. See <a href="#fix-command-transformations">Fix
 for details.</p>
 <p dir="auto">Both commands accept a list of directories to process as positional arguments.
 If no directories are specified, Gazelle will process the current directory.
-Subdirectories will be processed recursively.</p>
+Subdirectories will be processed recursively by default (unless <code>-r=false</code>).</p>
 <p dir="auto">The following flags are accepted:</p>
 <markdown-accessiblity-table><table>
 
@@ -557,12 +557,19 @@ directive.</p>
 current repository. May be <code>external</code>, <code>static</code> or <code>vendored</code>. See
 <a href="#dependency-resolution">Dependency resolution</a>.</td>
 </tr>
-<tr><td><code>-index true|false</code></td>
-<td><code>true</code></td>
+<tr><td><code>-index none|lazy|all</code></td>
+<td><code>all</code></td>
 </tr>
-<tr><td colspan="2">Determines whether Gazelle should index the libraries in the current repository and whether it
-should use the index to resolve dependencies. If this is switched off, Gazelle would rely on
-<code># gazelle:prefix</code> directive or <code>-go_prefix</code> flag to resolve dependencies.</td>
+<tr><td colspan="2"><p dir="auto">Determines whether Gazelle should index the libraries in the current repository and whether it
+should use the index to resolve dependencies.</p>
+<p dir="auto">If none or false, indexing is disabled, and Gazelle relies purely on conventions to translate
+language-specific import strings into dependency labels.</p>
+<p dir="auto">If lazy, Gazelle indexes libraries in directories it visits explicitly. Language extensions may be
+configured to index additional directories through directives like <code># gazelle:go_search</code>. This mode
+is very fast when recursion is disabled with <code>-r=false</code>.</p>
+<p dir="auto">If all or true, Gazelle indexes all directories in the repository, even when recursion is disabled.
+This makes dependency resolution simple but can be slow for large repositories.</p>
+</td>
 </tr>
 <tr><td><code>-go_grpc_compiler</code></td>
 <td><code>@io_bazel_rules_go//proto:go_grpc</code></td>
@@ -644,6 +651,18 @@ when in <code>package</code> mode. See details in <a href="#directives">Directiv
 This adds a prefix to the string used to import <code>.proto</code> files listed in
 the <code>srcs</code> attribute of generated rules. Equivalent to the
 <code># gazelle:proto_import_prefix</code> directive. See details in <a href="#directives">Directives</a> below.</td>
+</tr>
+<tr><td><code>-r</code></td>
+<td><code>true</code></td>
+</tr>
+<tr><td colspan="2"><p dir="auto">Controls whether Gazelle recurses into subdirectories of the directories named
+on the command line. This is enabled by default, so when Gazelle is run from
+the repository root directory without arguments, it visits and updates all
+directories. This can be slow for large repositories.</p>
+<p dir="auto">When recursion is disabled, Gazelle only visits specific named directories.
+This can be very fast, but you may also want to use lazy indexing
+(<code>-index=lazy</code>) or disable indexing altogether (<code>-index=none</code>).</p>
+</td>
 </tr>
 <tr><td><code>-repo_root dir</code></td>
 <td> </td>
@@ -1295,14 +1314,16 @@ See <a href="https://github.com/bazelbuild/rules_go/blob/master/proto/core.rst#a
 </ol>
 </li>
 <li>If the import to be resolved is in the library index, the import will be resolved
-to that library. If <code>-index=true</code>, Gazelle builds an index of library rules in
-the current repository before starting dependency resolution, and this is how
-most dependencies are resolved.<ol dir="auto">
+to that library. If <code>-index=all</code>, Gazelle builds an index of library rules in
+the current repository before starting dependency resolution. This can take a
+while, since Gazelle visits every directory in the repository. If
+<code>-index=lazy</code>, then language extensions may hint at specific directories
+to visit, which can be much faster.<ol dir="auto">
 <li>For Go, the match is based on the <code>importpath</code> attribute.</li>
 <li>For proto, the match is based on the <code>srcs</code> attribute.</li>
 </ol>
 </li>
-<li>If <code>-index=false</code> and a package is imported that has the current <code>go_prefix</code>
+<li>If <code>-index=none</code> and a package is imported that has the current <code>go_prefix</code>
 as a prefix, Gazelle generates a label following a convention. For example, if
 the build file in <code>//src</code> set the prefix with
 <code># gazelle:prefix example.com/repo/foo</code>, and you import the library
