@@ -98,14 +98,14 @@ register_toolchains(
 # compiler&quot; section below.
 bazel_dep(
     name = &quot;protobuf&quot;,
-    version = &quot;30.1&quot;,
+    version = &quot;30.2&quot;,
     repo_name = &quot;com_google_protobuf&quot;,
 )
 single_version_override(
     module_name = &quot;protobuf&quot;,
     patch_strip = 1,
     patches = [&quot;//:protobuf.patch&quot;],
-    version = &quot;30.1&quot;,
+    version = &quot;30.2&quot;,
 )"><pre><span class="pl-c"># MODULE.bazel</span>
 
 <span class="pl-c"># You can add `repo_name = "io_bazel_rules_scala"` if you still need it.</span>
@@ -172,14 +172,14 @@ single_version_override(
 <span class="pl-c"># compiler" section below.</span>
 <span class="pl-en">bazel_dep</span>(
     <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"protobuf"</span>,
-    <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"30.1"</span>,
+    <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"30.2"</span>,
     <span class="pl-s1">repo_name</span> <span class="pl-c1">=</span> <span class="pl-s">"com_google_protobuf"</span>,
 )
 <span class="pl-en">single_version_override</span>(
     <span class="pl-s1">module_name</span> <span class="pl-c1">=</span> <span class="pl-s">"protobuf"</span>,
     <span class="pl-s1">patch_strip</span> <span class="pl-c1">=</span> <span class="pl-c1">1</span>,
     <span class="pl-s1">patches</span> <span class="pl-c1">=</span> [<span class="pl-s">"//:protobuf.patch"</span>],
-    <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"30.1"</span>,
+    <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"30.2"</span>,
 )</pre></div>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Resolving <code>protobuf</code> conflicts</h3><a id="user-content-resolving-protobuf-conflicts" class="anchor" aria-label="Permalink: Resolving protobuf conflicts" href="#resolving-protobuf-conflicts"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">If a newer <code>protobuf</code> version in the module graph breaks your build, use
@@ -223,6 +223,21 @@ http_archive(
     url = &quot;https://github.com/bazelbuild/rules_scala/releases/download/&lt;VERSION&gt;/rules_scala-&lt;VERSION&gt;.tar.gz&quot;,
 )
 
+# This imports the minimum versions supported by the minimum supported Bazel
+# version, plus `rules_java` 8.5.0. If you use `rules_java` 7 or an earlier
+# `rules_java` 8 version, the corresponding `load` statements are slightly
+# different. See the `WORKSPACE` snippet from
+# https://github.com/bazelbuild/rules_java/releases corresponding to the
+# `rules_java` version for details.
+#
+# Also, this imports `rules_proto` 6.0.2, though 6.0.0 will work. This is
+# because the `WORKSPACE` snippets for different versions of `rules_proto` vary
+# somewhat, and the 6.0.2 snippet works with the latest version. See
+# https://github.com/bazelbuild/rules_proto/releases for the corresponding
+# `rules_proto` release for details.
+#
+# If you want the latest dependency versions, change `deps.bzl` to
+# `latest_deps.bzl`.
 load(&quot;@rules_scala//scala:deps.bzl&quot;, &quot;rules_scala_dependencies&quot;)
 
 rules_scala_dependencies()
@@ -290,7 +305,8 @@ rules_proto_toolchains()
 
 # Include this after loading `platforms`, `com_google_protobuf`, and
 # `rules_proto` to enable the `//protoc` precompiled protocol compiler
-# toolchains. See the &quot;Using a precompiled protocol compiler&quot; section below.
+# toolchains. Requires at least `protobuf` v29.0. See the &quot;Using a precompiled
+# protocol compiler&quot; section below.
 load(&quot;@rules_scala//protoc:toolchains.bzl&quot;, &quot;scala_protoc_toolchains&quot;)
 
 # This name can be anything, but we recommend `rules_scala_protoc_toolchains`.
@@ -339,6 +355,21 @@ scala_register_toolchains()"><pre><span class="pl-c"># WORKSPACE</span>
     <span class="pl-s1">url</span> <span class="pl-c1">=</span> <span class="pl-s">"https://github.com/bazelbuild/rules_scala/releases/download/&lt;VERSION&gt;/rules_scala-&lt;VERSION&gt;.tar.gz"</span>,
 )
 
+<span class="pl-c"># This imports the minimum versions supported by the minimum supported Bazel</span>
+<span class="pl-c"># version, plus `rules_java` 8.5.0. If you use `rules_java` 7 or an earlier</span>
+<span class="pl-c"># `rules_java` 8 version, the corresponding `load` statements are slightly</span>
+<span class="pl-c"># different. See the `WORKSPACE` snippet from</span>
+<span class="pl-c"># https://github.com/bazelbuild/rules_java/releases corresponding to the</span>
+<span class="pl-c"># `rules_java` version for details.</span>
+<span class="pl-c">#</span>
+<span class="pl-c"># Also, this imports `rules_proto` 6.0.2, though 6.0.0 will work. This is</span>
+<span class="pl-c"># because the `WORKSPACE` snippets for different versions of `rules_proto` vary</span>
+<span class="pl-c"># somewhat, and the 6.0.2 snippet works with the latest version. See</span>
+<span class="pl-c"># https://github.com/bazelbuild/rules_proto/releases for the corresponding</span>
+<span class="pl-c"># `rules_proto` release for details.</span>
+<span class="pl-c">#</span>
+<span class="pl-c"># If you want the latest dependency versions, change `deps.bzl` to</span>
+<span class="pl-c"># `latest_deps.bzl`.</span>
 <span class="pl-en">load</span>(<span class="pl-s">"@rules_scala//scala:deps.bzl"</span>, <span class="pl-s">"rules_scala_dependencies"</span>)
 
 <span class="pl-en">rules_scala_dependencies</span>()
@@ -406,7 +437,8 @@ scala_register_toolchains()"><pre><span class="pl-c"># WORKSPACE</span>
 
 <span class="pl-c"># Include this after loading `platforms`, `com_google_protobuf`, and</span>
 <span class="pl-c"># `rules_proto` to enable the `//protoc` precompiled protocol compiler</span>
-<span class="pl-c"># toolchains. See the "Using a precompiled protocol compiler" section below.</span>
+<span class="pl-c"># toolchains. Requires at least `protobuf` v29.0. See the "Using a precompiled</span>
+<span class="pl-c"># protocol compiler" section below.</span>
 <span class="pl-en">load</span>(<span class="pl-s">"@rules_scala//protoc:toolchains.bzl"</span>, <span class="pl-s">"scala_protoc_toolchains"</span>)
 
 <span class="pl-c"># This name can be anything, but we recommend `rules_scala_protoc_toolchains`.</span>
@@ -483,16 +515,65 @@ section below.</p>
 )</pre></div>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto"><a id="user-content-protoc"></a>Using a precompiled protocol compiler</h3><a id="user-content-using-a-precompiled-protocol-compiler" class="anchor" aria-label="Permalink: Using a precompiled protocol compiler" href="#using-a-precompiled-protocol-compiler"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto"><code>rules_scala</code> now supports the
-<a href="https://bazel.build/reference/command-line-reference#flag--incompatible_enable_proto_toolchain_resolution" rel="nofollow"><code>--incompatible_enable_proto_toolchain_resolution</code></a> flag when using
-<a href="#why-proto-v29">protobuf v29 or later</a>. When using this flag with the
-<code>MODULE.bazel</code> or <code>WORKSPACE</code> configurations below, <code>rules_scala</code> will use a
-precompiled protocol compiler binary by default.</p>
+<a href="https://bazel.build/reference/command-line-reference#flag--incompatible_enable_proto_toolchain_resolution" rel="nofollow"><code>--incompatible_enable_proto_toolchain_resolution</code></a> flag when using <a href="#why-proto-v29">protobuf
+v29 or later</a> with the minimum dependency versions specified
+below. When using this flag with the <code>MODULE.bazel</code> or <code>WORKSPACE</code>
+configurations below, <code>rules_scala</code> will use a precompiled protocol compiler
+binary by default.</p>
 <p dir="auto"><strong>Windows builds now require using <code>protobuf</code> v29 or later with the precompiled
 protocol compiler toolchain.</strong> See the <a href="#protoc-msvc">Windows MSVC builds of protobuf broken
 by default</a> section below for details.</p>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Minimum dependency versions</h4><a id="user-content-minimum-dependency-versions" class="anchor" aria-label="Permalink: Minimum dependency versions" href="#minimum-dependency-versions"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">These are the minimum dependency versions required to enable the precompiled
+protocol compiler toolchain.</p>
+<p dir="auto">Note that <code>rules_java</code> can be as low as 8.3.0, compared to <code>rules_java</code> 8.5.0
+specified in <a href="#compatible-bazel-versions">Compatible Bazel versions</a>.</p>
+<markdown-accessiblity-table><table>
+<thead>
+<tr>
+<th align="center">Dependency</th>
+<th align="center">Minimum version</th>
+<th align="left">Reason</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center"><code>protobuf</code></td>
+<td align="center">v29.0</td>
+<td align="left">See the <a href="#why-proto-v29">Why this requires 'protobuf' v29 or later</a> section.</td>
+</tr>
+<tr>
+<td align="center">Bazel</td>
+<td align="center">7.1.0 (with <code>rules_java</code> 7.10.0, 8.3.2)<br>7.3.2 (with <code>rules_java</code> 8.3.0)</td>
+<td align="left"><code>module(bazel_compatibility = "...")</code> constraints in <code>MODULE.bazel</code></td>
+</tr>
+<tr>
+<td align="center"><code>platforms</code></td>
+<td align="center">0.0.9</td>
+<td align="left">Creates the <code>@host_platform</code> repo used to auto-detect the toolchain for the host platform.</td>
+</tr>
+<tr>
+<td align="center"><code>rules_java</code></td>
+<td align="center">7.10.0 (with <code>--experimental_google_legacy_api</code>), 8.3.0</td>
+<td align="left"><code>protobuf</code> v29 needs 7.8.0 with <code>--experimental_google_legacy_api</code> for <code>ProguardSpecProvider</code>. Then it needs 7.10.0 for <code>//java/private:proto_support.bzl</code> visibility.<br><code>protobuf</code> v29 needs <code>@rules_java//java/private:proto_support.bzl</code> from v8.2.0. See <a href="https://github.com/bazelbuild/rules_java/commit/94d5617cf3d97ddda10c81ba05a865e8e3a0408e">bazelbuild/rules_java@94d5617</a>.<br>v8.3.0 fixes <a class="issue-link js-issue-link" data-error-text="Failed to load title" data-id="2593228608" data-permission-text="Title is private" data-url="https://github.com/bazelbuild/rules_java/issues/233" data-hovercard-type="issue" data-hovercard-url="/bazelbuild/rules_java/issues/233/hovercard" href="https://github.com/bazelbuild/rules_java/issues/233">bazelbuild/rules_java#233</a>.</td>
+</tr>
+<tr>
+<td align="center"><code>rules_proto</code></td>
+<td align="center">7.0.0</td>
+<td align="left">Required by <code>protobuf</code> v29 and later.</td>
+</tr>
+<tr>
+<td align="center"><code>bazel_skylib</code></td>
+<td align="center">1.7.0</td>
+<td align="left">Contains <code>paths.is_normalized</code>, required by <code>//bazel/private:bazel_proto_library_rule.bzl</code> in <code>protobuf</code> v29. See <a href="https://github.com/bazelbuild/bazel-skylib/commit/0e485c80b7992f5ebfab50637f86e966f544ad58">bazelbuild/bazel-skylib@0e485c8</a>.</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
 <div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Common setup</h4><a id="user-content-common-setup" class="anchor" aria-label="Permalink: Common setup" href="#common-setup"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">To set the flag in your <code>.bazelrc</code> file:</p>
-<div class="highlight highlight-text-adblock notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="common --incompatible_enable_proto_toolchain_resolution"><pre>common --incompatible_enable_proto_toolchain_resolution</pre></div>
+<div class="highlight highlight-text-adblock notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="# .bazelrc
+common --incompatible_enable_proto_toolchain_resolution"><pre><span class="pl-c"># .bazelrc</span>
+common --incompatible_enable_proto_toolchain_resolution</pre></div>
 <p dir="auto">In both <code>MODULE.bazel</code> and <code>WORKSPACE</code>, you must register the protocol compiler
 toolchains <em>before</em> any other toolchains. It's safe to use even when
 <code>--incompatible_enable_proto_toolchain_resolution</code> is <code>False</code>.</p>
@@ -601,47 +682,48 @@ package of your repository, add the following to your <code>MODULE.bazel</code>:
 # protocolbuffers/protobuf#19679.
 bazel_dep(
     name = &quot;protobuf&quot;,
-    version = &quot;30.1&quot;,
+    version = &quot;30.2&quot;,
     repo_name = &quot;com_google_protobuf&quot;,
 )
 single_version_override(
     module_name = &quot;protobuf&quot;,
     patch_strip = 1,
     patches = [&quot;//:protobuf.patch&quot;],
-    version = &quot;30.1&quot;,
+    version = &quot;30.2&quot;,
 )"><pre><span class="pl-c"># MODULE.bazel</span>
 
 <span class="pl-c"># Required for protocol compiler toolchainization until resolution of</span>
 <span class="pl-c"># protocolbuffers/protobuf#19679.</span>
 <span class="pl-en">bazel_dep</span>(
     <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"protobuf"</span>,
-    <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"30.1"</span>,
+    <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"30.2"</span>,
     <span class="pl-s1">repo_name</span> <span class="pl-c1">=</span> <span class="pl-s">"com_google_protobuf"</span>,
 )
 <span class="pl-en">single_version_override</span>(
     <span class="pl-s1">module_name</span> <span class="pl-c1">=</span> <span class="pl-s">"protobuf"</span>,
     <span class="pl-s1">patch_strip</span> <span class="pl-c1">=</span> <span class="pl-c1">1</span>,
     <span class="pl-s1">patches</span> <span class="pl-c1">=</span> [<span class="pl-s">"//:protobuf.patch"</span>],
-    <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"30.1"</span>,
+    <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"30.2"</span>,
 )</pre></div>
 <div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto"><code>protobuf</code> patch setup under <code>WORKSPACE</code></h4><a id="user-content-protobuf-patch-setup-under-workspace" class="anchor" aria-label="Permalink: protobuf patch setup under WORKSPACE" href="#protobuf-patch-setup-under-workspace"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<p dir="auto"><a href="./scala/deps.bzl"><code>scala/deps.bzl</code></a> currently applies the <code>protobuf</code> patch to <code>protobuf</code> v30.1.</p>
+<p dir="auto"><a href="./scala/latest-deps.bzl"><code>scala/latest-deps.bzl</code></a> currently applies the
+<code>protobuf</code> patch to <code>protobuf</code> v30.2.</p>
 <p dir="auto">If you need to apply the patch to a different version of <code>protobuf</code>, copy it to
 your repo as described in the Bzlmod setup above. Then apply it in your own
 <code>http_archive</code> call:</p>
 <div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="http_archive(
     name = &quot;com_google_protobuf&quot;,
-    sha256 = &quot;1451b03faec83aed17cdc71671d1bbdfd72e54086b827f5f6fd02bf7a4041b68&quot;,
-    strip_prefix = &quot;protobuf-30.1&quot;,
-    url = &quot;https://github.com/protocolbuffers/protobuf/archive/refs/tags/v30.1.tar.gz&quot;,
+    sha256 = &quot;07a43d88fe5a38e434c7f94129cad56a4c43a51f99336074d0799c2f7d4e44c5&quot;,
+    strip_prefix = &quot;protobuf-30.2&quot;,
+    url = &quot;https://github.com/protocolbuffers/protobuf/archive/refs/tags/v30.2.tar.gz&quot;,
     repo_mapping = {&quot;@com_google_absl&quot;: &quot;@abseil-cpp&quot;},
     patches = [&quot;//protobuf.patch&quot;],
     patch_args = [&quot;-p1&quot;],
 )"><pre><span class="pl-en">http_archive</span>(
     <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"com_google_protobuf"</span>,
-    <span class="pl-s1">sha256</span> <span class="pl-c1">=</span> <span class="pl-s">"1451b03faec83aed17cdc71671d1bbdfd72e54086b827f5f6fd02bf7a4041b68"</span>,
-    <span class="pl-s1">strip_prefix</span> <span class="pl-c1">=</span> <span class="pl-s">"protobuf-30.1"</span>,
-    <span class="pl-s1">url</span> <span class="pl-c1">=</span> <span class="pl-s">"https://github.com/protocolbuffers/protobuf/archive/refs/tags/v30.1.tar.gz"</span>,
+    <span class="pl-s1">sha256</span> <span class="pl-c1">=</span> <span class="pl-s">"07a43d88fe5a38e434c7f94129cad56a4c43a51f99336074d0799c2f7d4e44c5"</span>,
+    <span class="pl-s1">strip_prefix</span> <span class="pl-c1">=</span> <span class="pl-s">"protobuf-30.2"</span>,
+    <span class="pl-s1">url</span> <span class="pl-c1">=</span> <span class="pl-s">"https://github.com/protocolbuffers/protobuf/archive/refs/tags/v30.2.tar.gz"</span>,
     <span class="pl-s1">repo_mapping</span> <span class="pl-c1">=</span> {<span class="pl-s">"@com_google_absl"</span>: <span class="pl-s">"@abseil-cpp"</span>},
     <span class="pl-s1">patches</span> <span class="pl-c1">=</span> [<span class="pl-s">"//protobuf.patch"</span>],
     <span class="pl-s1">patch_args</span> <span class="pl-c1">=</span> [<span class="pl-s">"-p1"</span>],
@@ -768,8 +850,8 @@ Please also note, that the <code>overriden_artifacts</code> parameter is likely 
 <p dir="auto">Bazel compatibility is tied directly to the versions of <code>protobuf</code> required by
 Bazel and <code>rules_java</code>, and their compatibility with <a href="https://github.com/scalapb/ScalaPB">scalapb/ScalaPB</a> Maven artifacts. For extensive analysis,
 see <a class="issue-link js-issue-link" data-error-text="Failed to load title" data-id="2647796826" data-permission-text="Title is private" data-url="https://github.com/bazelbuild/rules_scala/issues/1647" data-hovercard-type="issue" data-hovercard-url="/bazelbuild/rules_scala/issues/1647/hovercard" href="https://github.com/bazelbuild/rules_scala/issues/1647">#1647</a>.</p>
-<p dir="auto">The Bazel versions and dependency versions in the table below represent the
-maximum available at the time of writing.</p>
+<p dir="auto">The Bazel versions and dependency versions below represent the minimum versions
+compatible with <code>rules_scala</code> 7.x.</p>
 <ul dir="auto">
 <li>
 <p dir="auto">For the actual versions used by <code>rules_scala</code>, see
@@ -783,38 +865,53 @@ versions verified by the continuous integration builds.</p>
 <markdown-accessiblity-table><table>
 <thead>
 <tr>
-<th align="center">Bazel/Dependency</th>
-<th align="center"><code>rules_scala</code> 7.x</th>
+<th align="center">Mode</th>
+<th align="center">Supported Bazel versions</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td align="center">Bazel versions using Bzlmod<br>(Coming soon! See <a class="issue-link js-issue-link" data-error-text="Failed to load title" data-id="1628459968" data-permission-text="Title is private" data-url="https://github.com/bazelbuild/rules_scala/issues/1482" data-hovercard-type="issue" data-hovercard-url="/bazelbuild/rules_scala/issues/1482/hovercard" href="https://github.com/bazelbuild/rules_scala/issues/1482">#1482</a>.)</td>
-<td align="center">7.6.0, 8.x,<br><code>rolling</code>, <code>last_green</code></td>
+<td align="center">Bzlmod<br>(Coming soon! See <a class="issue-link js-issue-link" data-error-text="Failed to load title" data-id="1628459968" data-permission-text="Title is private" data-url="https://github.com/bazelbuild/rules_scala/issues/1482" data-hovercard-type="issue" data-hovercard-url="/bazelbuild/rules_scala/issues/1482/hovercard" href="https://github.com/bazelbuild/rules_scala/issues/1482">#1482</a>.)</td>
+<td align="center">&gt;= 7.1.0, 8.x,<br><code>rolling</code>, <code>last_green</code></td>
 </tr>
 <tr>
-<td align="center">Bazel versions using <code>WORKSPACE</code></td>
-<td align="center">6.5.0, 7.6.0, 8.x<br>(see the <a href="#6.5.0">notes on 6.5.0 compatibility</a>)</td>
+<td align="center"><code>WORKSPACE</code></td>
+<td align="center">6.5.0, &gt;= 7.1.0, 8.x<br>(see the <a href="#6.5.0">notes on 6.5.0 compatibility</a>)</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p dir="auto"><code>rules_scala</code> 7.0.0 uses <code>ScalaPB</code> 1.0.0-alpha.1 to support <code>protobuf</code> v28.2 and
+later, required by newer Bazel versions and other dependencies. Below are the
+minimum versions of <code>protobuf</code> and related dependencies supported for Bazel 7
+and 8.</p>
+<markdown-accessiblity-table><table>
+<thead>
+<tr>
+<th align="center">Dependency</th>
+<th align="center">Bazel &gt;= 7.1.0</th>
+<th align="center">Bazel 8.x</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center"><code>bazel_skylib</code></td>
+<td align="center">1.6.0</td>
+<td align="center">1.7.0</td>
 </tr>
 <tr>
 <td align="center"><code>protobuf</code></td>
-<td align="center">v30.1</td>
-</tr>
-<tr>
-<td align="center"><code>rules_proto</code></td>
-<td align="center">7.1.0</td>
-</tr>
-<tr>
-<td align="center"><code>abseil-cpp</code></td>
-<td align="center">20250127.1</td>
+<td align="center">v28.2</td>
+<td align="center">v29.0</td>
 </tr>
 <tr>
 <td align="center"><code>rules_java</code></td>
-<td align="center">8.11.0</td>
+<td align="center">7.6.0, 8.4.0</td>
+<td align="center">8.5.0</td>
 </tr>
 <tr>
-<td align="center"><code>ScalaPB</code></td>
-<td align="center">1.0.0-alpha.1</td>
+<td align="center"><code>rules_proto</code></td>
+<td align="center">6.0.0</td>
+<td align="center">7.0.0</td>
 </tr>
 </tbody>
 </table></markdown-accessiblity-table>
@@ -824,7 +921,8 @@ v29 and remove <code>rules_proto</code> completely. This is to comply with the g
 explaining why rules_proto remains for now</a>.</p>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Using a prebuilt <code>@com_google_protobuf//:protoc</code> or C++ compiler flags</h3><a id="user-content-using-a-prebuilt-com_google_protobufprotoc-or-c-compiler-flags" class="anchor" aria-label="Permalink: Using a prebuilt @com_google_protobuf//:protoc or C++ compiler flags" href="#using-a-prebuilt-com_google_protobufprotoc-or-c-compiler-flags"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">Newer versions of <code>abseil-cpp</code>, required by newer versions of
-<code>@com_google_protobuf//:protoc</code>, fail to compile under Bazel 6.5.0 and 7.6.0 by
+<code>@com_google_protobuf//:protoc</code>, fail to compile under Bazel 6.5.0 by default.
+The latest versions of <code>abseil-cpp</code> also fail to compile under Bazel 7 by
 default. <a href="#protoc-msvc">protoc will also fail to build on Windows when using
 MSVC</a>. You will have to choose one of the following approaches to
 resolve this problem.</p>
@@ -1295,12 +1393,12 @@ Bazel+MSVC</a></p>
 </ul>
 <p dir="auto">Enable <a href="#protoc">protocol compiler toolchainization</a> to fix broken Windows
 builds by avoiding <code>@com_google_protobuf//:protoc</code> recompilation.</p>
-<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Minimum of <code>protobuf</code> v28</h3><a id="user-content-minimum-of-protobuf-v28" class="anchor" aria-label="Permalink: Minimum of protobuf v28" href="#minimum-of-protobuf-v28"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<p dir="auto"><code>rules_scala</code> requires at least <code>protobuf</code> v28, and at least v29 for <a href="#protoc">protocol
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Minimum of <code>protobuf</code> v28.2</h3><a id="user-content-minimum-of-protobuf-v282" class="anchor" aria-label="Permalink: Minimum of protobuf v28.2" href="#minimum-of-protobuf-v282"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><code>rules_scala</code> requires at least <code>protobuf</code> v28.2, and at least v29 for <a href="#protoc">protocol
 compiler toolchain</a> support. No <code>ScalaPB</code> release supports <code>protobuf</code>
 v25.6, v26, or v27.</p>
 <div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Using earlier <code>protobuf</code> versions</h4><a id="user-content-using-earlier-protobuf-versions" class="anchor" aria-label="Permalink: Using earlier protobuf versions" href="#using-earlier-protobuf-versions"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<p dir="auto">If you can't update to <code>protobuf</code> v28 or later right now, build using Bazel 7
+<p dir="auto">If you can't update to <code>protobuf</code> v28.2 or later right now, build using Bazel 7
 and the following maximum versions of key dependencies. This is not officially
 supported, but should work for some time.</p>
 <markdown-accessiblity-table><table>
@@ -1313,19 +1411,14 @@ supported, but should work for some time.</p>
 </thead>
 <tbody>
 <tr>
+<td align="center"><code>ScalaPB</code></td>
+<td align="center">0.11.17<br>(0.9.8 for Scala 2.11)</td>
+<td align="left">Later versions only support <code>protobuf</code> &gt;= v28.2.</td>
+</tr>
+<tr>
 <td align="center"><code>protobuf</code></td>
 <td align="center">v25.5</td>
 <td align="left">Maximum version supported by <code>ScalaPB</code> 0.11.17.</td>
-</tr>
-<tr>
-<td align="center"><code>rules_proto</code></td>
-<td align="center">6.0.2</td>
-<td align="left">Maximum version supporting <code>protobuf</code> v25.5</td>
-</tr>
-<tr>
-<td align="center"><code>rules_java</code></td>
-<td align="center">7.12.4</td>
-<td align="left">8.x requires <code>protobuf</code> v27 and later.</td>
 </tr>
 <tr>
 <td align="center"><code>rules_cc</code></td>
@@ -1333,9 +1426,14 @@ supported, but should work for some time.</p>
 <td align="left">0.0.10 requires Bazel 7 to define <code>CcSharedLibraryHintInfo</code>.<br>0.0.13 requires at least <code>protobuf</code> v27.0.</td>
 </tr>
 <tr>
-<td align="center"><code>ScalaPB</code></td>
-<td align="center">0.11.17<br>(0.9.8 for Scala 2.11)</td>
-<td align="left">Later versions only support <code>protobuf</code> &gt;= v28.</td>
+<td align="center"><code>rules_java</code></td>
+<td align="center">7.12.5</td>
+<td align="left">8.x requires <code>protobuf</code> v27 and later.</td>
+</tr>
+<tr>
+<td align="center"><code>rules_proto</code></td>
+<td align="center">6.0.2</td>
+<td align="left">Maximum version supporting <code>protobuf</code> v25.5</td>
 </tr>
 </tbody>
 </table></markdown-accessiblity-table>
