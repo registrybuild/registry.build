@@ -122,6 +122,27 @@ directory(
 build:clang-tidy --@bazel_clang_tidy//:clang_tidy_additional_deps=@gcc-linux-x86_64//:toolchain_root"><pre lang="text" class="notranslate"><code>build:clang-tidy --@bazel_clang_tidy//:clang_tidy_gcc_install_dir=@gcc-linux-x86_64//:x86_64-buildroot-linux-gnu
 build:clang-tidy --@bazel_clang_tidy//:clang_tidy_additional_deps=@gcc-linux-x86_64//:toolchain_root
 </code></pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">use with a vendored clang-tidy</h3><a id="user-content-use-with-a-vendored-clang-tidy" class="anchor" aria-label="Permalink: use with a vendored clang-tidy" href="#use-with-a-vendored-clang-tidy"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">In the case you vendor clang-tidy, potentially alongside clang itself,
+it's possible clang-tidy cannot automatically find the <code>-resource-dir</code>
+path to the builtin headers. In this case, you can use skylib's
+<code>directory</code> rule to create a target to the clang resource directory.</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@bazel_skylib//rules/directory:directory.bzl&quot;, &quot;directory&quot;)
+
+directory(
+    name = &quot;resource_dir&quot;,
+    srcs = glob([&quot;lib/clang/*/include/**&quot;]),
+    visibility = [&quot;//visibility:public&quot;],
+)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@bazel_skylib//rules/directory:directory.bzl"</span>, <span class="pl-s">"directory"</span>)
+
+<span class="pl-en">directory</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"resource_dir"</span>,
+    <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> <span class="pl-en">glob</span>([<span class="pl-s">"lib/clang/*/include/**"</span>]),
+    <span class="pl-s1">visibility</span> <span class="pl-c1">=</span> [<span class="pl-s">"//visibility:public"</span>],
+)</pre></div>
+<p dir="auto">Then pass the <code>resource_dir</code> with a flag in your <code>.bazelrc</code>:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="build:clang-tidy --@bazel_clang_tidy//:clang_tidy_resource_dir=//path/to:resource_dir"><pre class="notranslate"><code>build:clang-tidy --@bazel_clang_tidy//:clang_tidy_resource_dir=//path/to:resource_dir
+</code></pre></div>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Features</h2><a id="user-content-features" class="anchor" aria-label="Permalink: Features" href="#features"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <ul dir="auto">
 <li>Run clang-tidy on any C/C++ target
