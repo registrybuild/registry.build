@@ -525,7 +525,8 @@ protocol compiler toolchain.</strong> See the <a href="#protoc-msvc">Windows MSV
 by default</a> section below for details.</p>
 <div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Minimum dependency versions</h4><a id="user-content-minimum-dependency-versions" class="anchor" aria-label="Permalink: Minimum dependency versions" href="#minimum-dependency-versions"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">These are the minimum dependency versions required to enable the precompiled
-protocol compiler toolchain.</p>
+protocol compiler toolchain. These are validated by
+<a href="./test/shell/test_dependency_versions.sh"><code>test_dependency_versions.sh</code></a>.</p>
 <p dir="auto">Note that <code>rules_java</code> can be as low as 8.3.0, compared to <code>rules_java</code> 8.5.0
 specified in <a href="#compatible-bazel-versions">Compatible Bazel versions</a>.</p>
 <markdown-accessiblity-table><table>
@@ -1181,18 +1182,51 @@ scala_register_toolchains()"><pre><span class="pl-en">load</span>(<span class="p
 parameter list, which is almost in complete correspondence with parameters from
 the previous macros. The <code>WORKSPACE</code> files in this repository also provide many
 examples.</p>
-<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Replacing toolchain registration macros in <code>WORKSPACE</code></h3><a id="user-content-replacing-toolchain-registration-macros-in-workspace" class="anchor" aria-label="Permalink: Replacing toolchain registration macros in WORKSPACE" href="#replacing-toolchain-registration-macros-in-workspace"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Replacing toolchain registration macros</h3><a id="user-content-replacing-toolchain-registration-macros" class="anchor" aria-label="Permalink: Replacing toolchain registration macros" href="#replacing-toolchain-registration-macros"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">Almost all <code>rules_scala</code> toolchains configured using <code>scala_toolchains()</code> are
-automatically registered by <code>scala_register_toolchains()</code>. There are two
-toolchain macro replacements that require special handling.</p>
+automatically registered by <code>scala_register_toolchains()</code>. The same is true for
+toolchains configured using the <code>scala_deps</code> module extension under Bzlmod.
+There are two toolchain macro replacements that require special handling.</p>
 <p dir="auto">The first is replacing <code>scala_proto_register_enable_all_options_toolchain()</code>
-with the following <code>scala_toolchains()</code> parameters:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="scala_toolchains(
-    scala_proto = True,
-    scala_proto_options = [],
-)"><pre><span class="pl-en">scala_toolchains</span>(
-    <span class="pl-s1">scala_proto</span> <span class="pl-c1">=</span> <span class="pl-c1">True</span>,
-    <span class="pl-s1">scala_proto_options</span> <span class="pl-c1">=</span> [],
+with the following:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="# MODULE.bazel
+
+scala_deps.scala_proto(
+    &quot;default_gen_opts&quot; = [
+        &quot;flat_package&quot;,
+        &quot;grpc&quot;,
+        &quot;single_line_to_proto_string&quot;,
+    ],
+)
+
+# WORKSPACE
+scala_toolchains(
+    scala_proto = {
+        &quot;default_gen_opts&quot;: [
+            &quot;flat_package&quot;,
+            &quot;grpc&quot;,
+            &quot;single_line_to_proto_string&quot;,
+        ],
+    },
+)"><pre><span class="pl-c"># MODULE.bazel</span>
+
+<span class="pl-s1">scala_deps</span>.<span class="pl-c1">scala_proto</span>(
+    <span class="pl-s">"default_gen_opts"</span> <span class="pl-c1">=</span> [
+        <span class="pl-s">"flat_package"</span>,
+        <span class="pl-s">"grpc"</span>,
+        <span class="pl-s">"single_line_to_proto_string"</span>,
+    ],
+)
+
+<span class="pl-c"># WORKSPACE</span>
+<span class="pl-en">scala_toolchains</span>(
+    <span class="pl-s1">scala_proto</span> <span class="pl-c1">=</span> {
+        <span class="pl-s">"default_gen_opts"</span>: [
+            <span class="pl-s">"flat_package"</span>,
+            <span class="pl-s">"grpc"</span>,
+            <span class="pl-s">"single_line_to_proto_string"</span>,
+        ],
+    },
 )</pre></div>
 <p dir="auto">The other is replacing <code>scala_register_unused_deps_toolchains()</code> with an
 explicit <code>register_toolchains()</code> call:</p>
