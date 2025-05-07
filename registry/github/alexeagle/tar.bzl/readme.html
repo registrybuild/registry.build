@@ -1,0 +1,48 @@
+<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Bazel tar rule</h1><a id="user-content-bazel-tar-rule" class="anchor" aria-label="Permalink: Bazel tar rule" href="#bazel-tar-rule"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">General-purpose rule to create tar archives.</p>
+<p dir="auto">Unlike <a href="https://github.com/bazelbuild/rules_pkg/blob/main/docs/latest.md#pkg_tar">pkg_tar from rules_pkg</a>:</p>
+<ul dir="auto">
+<li>It does not depend on any Python interpreter setup</li>
+<li>The "manifest" specification is a mature public API and uses a compact tabular format, fixing
+<a class="issue-link js-issue-link" data-error-text="Failed to load title" data-id="709081858" data-permission-text="Title is private" data-url="https://github.com/bazelbuild/rules_pkg/issues/238" data-hovercard-type="pull_request" data-hovercard-url="/bazelbuild/rules_pkg/pull/238/hovercard" href="https://github.com/bazelbuild/rules_pkg/pull/238">bazelbuild/rules_pkg#238</a></li>
+<li>It doesn't rely custom program to produce the output, instead
+we rely on the well-known C++ program <code>tar(1)</code>.
+Specifically, we use the BSD variant of tar since it provides a means
+of controlling mtimes, uid, symlinks, etc.</li>
+</ul>
+<p dir="auto">We also provide full control for tar'ring binaries including their runfiles.</p>
+<p dir="auto">The <code>tar</code> binary is hermetic and fully statically-linked. See Design Notes below.</p>
+<p dir="auto">This rule was originally developed within bazel-lib.
+Thanks to all the contributors who made it possible!</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Examples</h2><a id="user-content-examples" class="anchor" aria-label="Permalink: Examples" href="#examples"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Simplest possible usage:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(&quot;@tar.bzl&quot;, &quot;tar&quot;)
+
+# build this target to produce archive.tar
+tar(
+    name = &quot;archive&quot;,
+    srcs = [&quot;my-file.txt&quot;],
+)"><pre class="notranslate"><code>load("@tar.bzl", "tar")
+
+# build this target to produce archive.tar
+tar(
+    name = "archive",
+    srcs = ["my-file.txt"],
+)
+</code></pre></div>
+<p dir="auto">Exhaustive examples may be found in our test suite: <code>/tar/tests/BUILD</code></p>
+<p dir="auto">Note; this repository doesn't yet allow modes other than <code>create</code>, such as "append", "list", "update", "extract".
+See <a href="https://registry.bazel.build/modules/rules_tar" rel="nofollow">https://registry.bazel.build/modules/rules_tar</a> for this.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">API docs</h2><a id="user-content-api-docs" class="anchor" aria-label="Permalink: API docs" href="#api-docs"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li><a href="docs/tar.md">tar</a> Run BSD <code>tar(1)</code> to produce archives</li>
+<li><a href="docs/mtree.md">mtree</a> The intermediate manifest format <code>mtree(8)</code> describing a tar operation</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Design notes</h2><a id="user-content-design-notes" class="anchor" aria-label="Permalink: Design notes" href="#design-notes"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ol dir="auto">
+<li>We start from libarchive, which is on the BCR: <a href="https://registry.bazel.build/modules/libarchive" rel="nofollow">https://registry.bazel.build/modules/libarchive</a></li>
+<li>You could choose to register a toolchain that builds from source, but most users want a pre-built tar binary: <a href="https://github.com/aspect-build/bsdtar-prebuilt">https://github.com/aspect-build/bsdtar-prebuilt</a></li>
+<li>bazel-lib defines the toolchain type, and registers a sensible default toolchain: <a href="https://github.com/bazel-contrib/bazel-lib/blob/main/lib/private/tar_toolchain.bzl">https://github.com/bazel-contrib/bazel-lib/blob/main/lib/private/tar_toolchain.bzl</a></li>
+<li>This repo then contains just the starlark rule code for invoking <code>tar</code> within Bazel actions (aka. build steps)</li>
+</ol>
+</article></div>
