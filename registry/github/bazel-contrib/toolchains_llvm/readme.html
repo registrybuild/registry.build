@@ -40,8 +40,31 @@ map their respective target to a distinct version:</p>
 <p dir="auto">We currently offer limited customizability through attributes of the
 <a href="toolchain/rules.bzl">llvm_toolchain_* rules</a>. You can send us a PR to add
 more configuration attributes.</p>
-<p dir="auto">The following shows how to add a specific version for a specific target before
-the version was added to <a href="toolchain/internal/llvm_distributions.bzl">llvm_distributions.bzl</a>:</p>
+<p dir="auto">The <code>MODULE.bazel</code> example below demonstrates how to add new LLVM distributions before the toolchain has
+been updated. They can easily be computed using the provided checksum tool (see <code>llvm_checksums.sh -h</code>).</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="llvm = use_extension(&quot;@toolchains_llvm//toolchain/extensions:llvm.bzl&quot;, &quot;llvm&quot;, dev_dependency = True)
+llvm.toolchain(
+    name = &quot;llvm_toolchain&quot;,
+    llvm_version = &quot;20.1.4&quot;,
+    extra_llvm_distributions = {
+        &quot;LLVM-20.1.4-Linux-ARM64.tar.xz&quot;: &quot;4de80a332eecb06bf55097fd3280e1c69ed80f222e5bdd556221a6ceee02721a&quot;,
+        &quot;LLVM-20.1.4-Linux-X64.tar.xz&quot;: &quot;113b54c397adb2039fa45e38dc8107b9ec5a0baead3a3bac8ccfbb65b2340caa&quot;,
+        &quot;LLVM-20.1.4-macOS-ARM64.tar.xz&quot;: &quot;debb43b7b364c5cf864260d84ba1b201d49b6460fe84b76eaa65688dfadf19d2&quot;,
+        &quot;clang+llvm-20.1.4-x86_64-pc-windows-msvc.tar.xz&quot;: &quot;2b12ac1a0689e29a38a7c98c409cbfa83f390aea30c60b7a06e4ed73f82d2457&quot;,
+    },
+)"><pre><span class="pl-s1">llvm</span> <span class="pl-c1">=</span> <span class="pl-en">use_extension</span>(<span class="pl-s">"@toolchains_llvm//toolchain/extensions:llvm.bzl"</span>, <span class="pl-s">"llvm"</span>, <span class="pl-s1">dev_dependency</span> <span class="pl-c1">=</span> <span class="pl-c1">True</span>)
+<span class="pl-s1">llvm</span>.<span class="pl-c1">toolchain</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"llvm_toolchain"</span>,
+    <span class="pl-s1">llvm_version</span> <span class="pl-c1">=</span> <span class="pl-s">"20.1.4"</span>,
+    <span class="pl-s1">extra_llvm_distributions</span> <span class="pl-c1">=</span> {
+        <span class="pl-s">"LLVM-20.1.4-Linux-ARM64.tar.xz"</span>: <span class="pl-s">"4de80a332eecb06bf55097fd3280e1c69ed80f222e5bdd556221a6ceee02721a"</span>,
+        <span class="pl-s">"LLVM-20.1.4-Linux-X64.tar.xz"</span>: <span class="pl-s">"113b54c397adb2039fa45e38dc8107b9ec5a0baead3a3bac8ccfbb65b2340caa"</span>,
+        <span class="pl-s">"LLVM-20.1.4-macOS-ARM64.tar.xz"</span>: <span class="pl-s">"debb43b7b364c5cf864260d84ba1b201d49b6460fe84b76eaa65688dfadf19d2"</span>,
+        <span class="pl-s">"clang+llvm-20.1.4-x86_64-pc-windows-msvc.tar.xz"</span>: <span class="pl-s">"2b12ac1a0689e29a38a7c98c409cbfa83f390aea30c60b7a06e4ed73f82d2457"</span>,
+    },
+)</pre></div>
+<p dir="auto">The following <code>WORKSPACE</code> snippet shows how to add a specific version for a specific target before
+the version was added to <a href="toolchain/internal/llvm_distributions.bzl">llvm_distributions.bzl</a>.</p>
 <div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="llvm_toolchain(
     name = &quot;llvm_toolchain&quot;,
     llvm_version = &quot;19.1.6&quot;,
