@@ -7,7 +7,7 @@ but also welcomes language-specific rules to compile source code files into comp
 (including generating WIT bindings).</p>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Rules</h2><a id="user-content-rules" class="anchor" aria-label="Permalink: Rules" href="#rules"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <ul dir="auto">
-<li><a href="wasm.bzl"><code>//:wasm.bzl</code></a>:
+<li><a href="wasm/defs.bzl"><code>//wasm:defs.bzl</code></a>:
 <ul dir="auto">
 <li><code>wasm_component</code> - Turn a core Wasm module into a component.</li>
 <li><code>wasm_plug</code> - Link the exports of a 'plug' component
@@ -17,7 +17,7 @@ without a <a href="https://github.com/bytecodealliance/wac">WAC</a> file.</li>
 <li><code>wit_package</code> - Bundle a group of WIT files into a unified package.</li>
 </ul>
 </li>
-<li><a href="rust.bzl"><code>//:rust.bzl</code></a>:
+<li><a href="rust/defs.bzl"><code>//rust:defs.bzl</code></a>:
 <ul dir="auto">
 <li><code>rust_component</code> - Compile a Wasm interface and matching Rust implementation
 into a Wasm component.</li>
@@ -28,13 +28,30 @@ Use <code>rust_component</code> for a single macro to compile a component from R
 </li>
 <li>C support is hacky and needs to be adapted to a proper CC toolchain
 (blocked on <a href="https://github.com/bazelbuild/rules_cc/issues/277" data-hovercard-type="issue" data-hovercard-url="/bazelbuild/rules_cc/issues/277/hovercard">bazelbuild/rules_cc#277</a>),
-but there's <a href="c.bzl"><code>//:c.bzl</code></a>:
+but there's <a href="c/defs.bzl"><code>//c:defs.bzl</code></a>,
+which makes use of the <a href="https://github.com/WebAssembly/wasi-sdk">WASI SDK</a>:
 <ul dir="auto">
 <li><code>c_component</code> - Compile a Wasm interface and matching C implementation
 into a Wasm component.</li>
 <li><code>c_wit_bindgen</code> - Generate C sources for a Wasm interface.
 This is a lower-level rule that you normally wouldn't need to use directly.
 Use <code>c_component</code> for a single macro to compile a component from C.</li>
+</ul>
+</li>
+<li>Go support is hacky and needs to be adapted to a proper Go toolchain.
+This is <a href="https://github.com/bazel-contrib/rules_go/issues/4333" data-hovercard-type="issue" data-hovercard-url="/bazel-contrib/rules_go/issues/4333/hovercard">fundamentally difficult</a>
+because Bazel's Go rules require knowing about module metadata and dependencies
+during the analysis phase,
+but the output of <code>wit-bindgen-go</code> is only known for sure during the execution phase.
+Meanwhile, there's <a href="go/defs.bzl"><code>//go:defs.bzl</code></a>,
+which makes use of <a href="https://tinygo.org/" rel="nofollow">TinyGo</a>:
+<ul dir="auto">
+<li><code>go_component</code> - Compile a Wasm interface and matching C implementation
+into a Wasm component.</li>
+<li><code>go_wit_bindgen</code> - Generate Go sources for a Wasm interface,
+including a minimal <code>go.mod</code> file to emulate a Go module.
+This is a lower-level rule that you normally wouldn't need to use directly.
+Use <code>go_component</code> for a single macro to compile a component from Go.</li>
 </ul>
 </li>
 </ul>
