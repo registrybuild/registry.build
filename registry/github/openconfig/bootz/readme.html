@@ -1,0 +1,593 @@
+<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Bootz protocol v2 (sZTP++ or gZTP)</h1><a id="user-content-bootz-protocol-v2-sztp-or-gztp" class="anchor" aria-label="Permalink: Bootz protocol v2 (sZTP++ or gZTP)" href="#bootz-protocol-v2-sztp-or-gztp"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Objective</h2><a id="user-content-objective" class="anchor" aria-label="Permalink: Objective" href="#objective"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Define a structured data format for exchanging as much data with the network
+device as possible, to take the device from a factory state to a fully
+production supportable state.</p>
+<p dir="auto">Additionally, define both a dialout and dialin RPC service which can perform the
+boot workflow.</p>
+<p dir="auto">The overall design of bootz is meant to allow operators of equipment to provide
+a data-only bootstrap request and allow vendors the freedom to implement the
+intent based on their own internal APIs.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Bootstrap/Configuration Management End State</h2><a id="user-content-bootstrapconfiguration-management-end-state" class="anchor" aria-label="Permalink: Bootstrap/Configuration Management End State" href="#bootstrapconfiguration-management-end-state"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">When thinking about what data is needed to transition a "factory-reset" device
+from that state into a production-managed state, we can divide the configuration
+into multiple units, which differ in how they are managed and interacted with.
+This is counter to the current model of vendor network devices which have a
+monolithic single configuration that stores all parameters[^1].</p>
+<p dir="auto">For the use cases in our or service provider networks, we consider the following
+units:</p>
+<ul dir="auto">
+<li><strong>Boot Config</strong> - Static “bootstrap” configuration required to get a device
+into a manageable state within the network. This configuration includes
+parameters such as the gRPC services that are to run, and the management
+connectivity configuration.</li>
+<li><strong>Security Config</strong> - Policies related to provide device access - such as
+authentication and authorization configurations. This configuration
+explicitly controls access to who can write the configuration, read
+parameters from the device via telemetry, and interact with operational
+RPCs. This configuration can be considered to be separate from the base
+device configuration, since it is owned by a separate entity within the
+service provider management plane. It also should not be something that can
+be modified by an entity that is given read access to the configuration.</li>
+<li><strong>Dynamic config</strong> - configuration of the device which is generated
+according to the topology, and services that are running on the device.</li>
+</ul>
+<p dir="auto">It is desirable for each of these elements of configuration to each have a
+single owner, who is able to declaratively replace the running configuration on
+the device without needing to consider contents of the other elements of the
+system (i.e., the dynamic configuration manager may be unaware of the bootstrap
+configuration, or the authentication configuration).</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Design Options</h3><a id="user-content-design-options" class="anchor" aria-label="Permalink: Design Options" href="#design-options"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">To support such a concept, there are multiple potential solutions that we can
+consider:</p>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Path based authorization for configuration</h4><a id="user-content-path-based-authorization-for-configuration" class="anchor" aria-label="Permalink: Path based authorization for configuration" href="#path-based-authorization-for-configuration"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li>This concept still has a single root configuration on the device. Clients
+“own” part of the namespace of this configuration (e.g., <code>/system/aaa</code> in
+OpenConfig), controlled by <code>gnsi.Pathz</code> configuration.</li>
+<li>The positive of this approach is that it aligns with existing device
+operational models, with a single configuration (other than <code>Pathz</code> exists
+on the device).</li>
+<li>The major downside of this approach is fragility - the “dynamic”
+configuration described above is the catch-all configuration for the device,
+and would ideally replace <code>/</code>, however, it can no longer do this, fsince
+there exists data under the bootstrap configuration (for example,
+<code>/interfaces</code> entries that store the management interfaces) and the security
+configuration that must not be replaced. The “dynamic” configuration then
+must cherry-pick trees that are to be replaced, potentially at relatively
+deep levels in the hierarchy. Bugs or issues with which trees are replaced
+can render the device unmanageable, or can reflect a security problem
+(whereby a client that is not authorized to change security policies is able
+to do so).</li>
+<li>Equally, authentication policies become more complex in this scenario - we
+imply the existence of a new namespace (<code>Pathz</code>), and create this new
+concept of multiple configurations solely to enforce the restrictions on the
+single configuration that we were trying to maintain.</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h5 class="heading-element" dir="auto">Path based implementation details</h5><a id="user-content-path-based-implementation-details" class="anchor" aria-label="Permalink: Path based implementation details" href="#path-based-implementation-details"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li><code>gnsi.Pathz</code> policy would limit specific OpenConfig paths from general
+writability</li>
+<li>The response to the gNMI <code>SetRequest</code> that contains the OC configuration
+change (update, set, delete) is expected to indicate that the request failed
+if those paths are not writable by the caller</li>
+<li>The full config replace would be responsible for only "replacing" specific
+paths rather than a root level replace
+<ul dir="auto">
+<li>/system/&lt;subpaths&gt; but excluding /system/aaa or /interfaces/interfac
+[name=*] but exclude /interfaces[name=mgmt0|1], this introduces
+fragility and complexity in how the /interfaces/interface list, or
+/system paths are managed since they now have multiple writers.</li>
+</ul>
+</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Multiple namespaces for the configuration</h4><a id="user-content-multiple-namespaces-for-the-configuration" class="anchor" aria-label="Permalink: Multiple namespaces for the configuration" href="#multiple-namespaces-for-the-configuration"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li>This is the approach that has been pursued with gNSI - whereby certain
+subsets of the configuration are moved into a separate namespace (origin in
+oc naming), which is not manipulated via gNMI’s <code>Set</code> RPC. To support the
+bootstrap configuration, an additional ‘boot’ configuration namespace would
+be introduced.</li>
+<li>A disadvantage of this approach is the change that it makes to existing
+device configurations, introducing the concept of multiple potentially
+overlapping configurations.</li>
+<li>An advantage of the approach is that there is clean separation according to
+the operational use case described above - a gNSI namespace exists for
+policies on the device; the ‘boot’ namespace would exist for configuration
+that is immutable after device boot; and the existing configuration becomes
+the dynamic configuration of the device. Each namespace can have its own
+policies for permissions, and client service. Client services need not know
+about each other’s configuration since replacing a configuration replaces
+only the namespace of that client.</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h5 class="heading-element" dir="auto">Multiple namespace implementation details</h5><a id="user-content-multiple-namespace-implementation-details" class="anchor" aria-label="Permalink: Multiple namespace implementation details" href="#multiple-namespace-implementation-details"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li>Data supplied by gNSI is considered as a separate namespace/configuration
+store that is treated independently of configuration interacted with via
+gNMI. All system AAA paths, certificates, keys, accounts and other gNSI
+covered data is contained in this namespace.</li>
+<li>If gNSI is enabled on the device all of the content covered via gNSI is
+interacted with solely within this namespace. To interact with this content,
+gNSI is used. gNSI SetRequests are ACL'ed via gnsi.Pathz. Additionally, gNSI
+endpoints would continue to provide set operations as well for those
+configuration elements.</li>
+<li>OpenConfig and vendor configuration would not be allowed to configure those
+leaves.</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Explicit exclusion of configuration based on a specification in <code>gNMI.Set</code></h4><a id="user-content-explicit-exclusion-of-configuration-based-on-a-specification-in-gnmiset" class="anchor" aria-label="Permalink: Explicit exclusion of configuration based on a specification in gNMI.Set" href="#explicit-exclusion-of-configuration-based-on-a-specification-in-gnmiset"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li>In this approach, rather than having separate namespaces be defined, a
+client that was performing a <code>gNMI.Set</code> request would include some
+additional information (likely defined through having a new extension
+message) that specified a set of paths that explicitly should not be
+modified through the contents of the <code>SetRequest</code>. Specifically, this would
+ensure that:
+<ul dir="auto">
+<li>Should the payload of the <code>SetRequest</code> specify a path that was in the
+“paths that are not to be modified list” an error would be returned.</li>
+<li><code>Replace</code> operations that give the declarative set of end contents for a
+particular path would exclude these being replaced (e.g., a <code>replace</code>
+operation that impacted <code>/system</code>, along with a payload that specified
+that <code>/system/aaa</code> is not to be modified) would have the semantics of
+replacing the contents of <code>/system</code> with that specified, yet leaving
+<code>/system/aaa</code> in place.</li>
+</ul>
+</li>
+<li>This approach allows for a flexible means by which a scope can be declared
+by a client that knows that there are specific areas of the configuration
+that it is not intending to modify. Since this scope would be declared by
+the client, clearly it is not a security mechanism, and hence <code>gNSI.Pathz</code>
+is still required to define the authorisation policy as to which client can
+write to specific parts of the configuration.</li>
+<li>The downside of this approach is the complexity introduced into the
+implementation of the <code>Set</code> handler – and at the client. A client that is
+managing the dynamic configuration must have a definition as to what areas
+of the configuration it does not expect to overwrite, and the target
+implementation must add additional validation code to ensure that the
+transaction had not changed these values.</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h5 class="heading-element" dir="auto">Explicit exclusion implementation details</h5><a id="user-content-explicit-exclusion-implementation-details" class="anchor" aria-label="Permalink: Explicit exclusion implementation details" href="#explicit-exclusion-implementation-details"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li>A gNMI <code>SetRequest</code> would require the inclusion of a message to indicate
+that a specific set of "exclude paths" are to be honored.</li>
+<li>These paths would be excluded from the merge / replace operations.</li>
+<li>Currently, for some implementations this behavior can be achieved via a
+proprietary switch within the vendor-configuration that excludes specific
+paths from being settable from gNMI.
+<ul dir="auto">
+<li>In this implementation any attempts to "set an excluded" path is
+ignored.</li>
+<li>This is not advisable as it makes it very opaque during a set as to why
+a set is having a specific output.</li>
+</ul>
+</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Proposed Solution</h3><a id="user-content-proposed-solution" class="anchor" aria-label="Permalink: Proposed Solution" href="#proposed-solution"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">We propose to follow the “multiple namespaces for configuration” approach
+described above, whereby separate configuration stores, per the diagram and
+process below.</p>
+<p dir="auto">Figure 1: Proposed configuration namespaces and clients.</p>
+<p dir="auto">The proposed operational model for devices is shown in Figure 1 above.</p>
+<ul dir="auto">
+<li>Security credentials (authorization, accounting, authentication) are
+considered part of security/auth namespace. gNSI manages this configuration
+store completely. It is considered a “precedence 0” store, whereby it is the
+authoritative source of configuration in the case of any overlap with other
+namespace. Explicitly, this means that gNSI owns this configuration, and
+calls must be made to gNSI to mutate this store.</li>
+<li>Boot configuration (discussed in more detail in this document) is considered
+part of a bootstrap namespace. gNOI.Bootz manages this configuration store
+completely (proposed and described in this document). Boot configuration is
+considered a “precedence 10” store, with it being the authoritative source
+of configuration in the case of overlaps.</li>
+<li>Boot configuration is expressly defined to be immutable, and provided
+only at the time of device boot. If the boot configuration is required
+to be modified, it would be changed through calling a <code>Set</code> RPC through
+the <code>Bootz</code> service.
+<ul dir="auto">
+<li>When changing this configuration the device must "reapply" configuration
+just as would be expected through a controller doing a gnmi.Set
+union-merge.</li>
+</ul>
+</li>
+<li>Dynamic configuration reflects the current, widely-understood concept of
+configuration on a network device. It is managed via gNMI. Each origin
+within gNMI is assigned an explicit precedence. The precedence for origins
+is defined in the relevant document - but the value suggested is &gt;=
+100,i.e., for overlaps with other namespaces it is explicitly ignored.
+<ul dir="auto">
+<li>It is expected that this is needed in the case that:</li>
+<li><code>/system/aaa</code> is populated on the device running gNSI. In such a case,
+gNSI (in the auth namespace) is the source of truth.</li>
+<li>Management interfaces, or running gRPC daemons are specified in the Boot
+namespace, also in the <code>/system</code> or <code>/interfaces</code> hierarchies within the
+dynamic configuration.</li>
+</ul>
+</li>
+</ul>
+<p dir="auto">CLI(via SSH or Console) as an API should have access to all the 3 name spaces
+above. It provides a low dependency method to recover the device in case of
+bugs/failures/emergencies.</p>
+<p dir="auto">To support this approach, this document proposes a <code>Bootz</code> service, which is the
+mechanism by which the “boot” namespace is interacted with. <strong><code>Bootz</code> is
+proposed to replace the existing zero-touch-provisioning implementations.</strong></p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Background</h3><a id="user-content-background" class="anchor" aria-label="Permalink: Background" href="#background"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Currently, the industry standard[^2] is to use the base sZTP protocol for
+bootstrapping devices. Current sZTP implementations require vendor specific
+definitions for providing the bootstrapping of a device, because there is no
+agreed upon vendor neutral data set of “boot configuration” defined. <code>Bootz</code>
+provides a specification that enumerates the data elements which can be used in
+a mainly vendor agnostic way, along with the operations that are required at
+turn-up time that become part of the “boot” process. Specifically, we are
+suggesting that TPM-related enrollment and attestation should be required during
+the boot process to ensure the authenticity and integrity of the device
+<strong>before</strong> providing it with potentially sensitive artifacts such as
+certificates, key and device configuration.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Reference Documentation</h3><a id="user-content-reference-documentation" class="anchor" aria-label="Permalink: Reference Documentation" href="#reference-documentation"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li>External
+<ul dir="auto">
+<li>RFC: <a href="https://datatracker.ietf.org/doc/html/rfc8572" rel="nofollow">RFC8572</a></li>
+<li>Attestation:
+<a href="https://datatracker.ietf.org/doc/pdf/draft-ietf-rats-yang-tpm-charra-21#page=5" rel="nofollow">Charra Draft</a></li>
+</ul>
+</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Bootz Operation</h3><a id="user-content-bootz-operation" class="anchor" aria-label="Permalink: Bootz Operation" href="#bootz-operation"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Devices are expected to perform a standard DHCP boot. The DHCP server passes a
+boot option to the device for an endpoint (URL) from which the boot package can
+be retrieved. The package returned by the endpoint consists of a binary encoded
+protocol buffer containing all data for being able to complete the boot process.
+In this context, “complete the boot process” implies the device reaching a fully
+manageable state - with the relevant gRPC services running.</p>
+<p dir="auto">Upon receiving the bootz protocol buffer, the device is responsible for
+unmarshalling the bootz message and distributing to the relevant system
+components for these artifacts to be acted upon. For example, configuration to a
+configuration manager component, keys and credentials to the relevant security
+components, etc.</p>
+<p dir="auto">The bootz payload will be encrypted via the TLS session underlying the gRPC
+service.</p>
+<p dir="auto">Depends on the security requirement for the deployment environment, after
+loading all the provided data on first boot the device might still not be in a
+trusted state, however it should have enough g* services initialized to a state
+where the device can be interrogated from a trusted system to enroll the TPM and
+validate specific TPM values to attest the device. Once attested, the systems
+can install production configuration and certificates into the device.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Detailed Design</h2><a id="user-content-detailed-design" class="anchor" aria-label="Permalink: Detailed Design" href="#detailed-design"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Boot Procedure (v2)</h3><a id="user-content-boot-procedure-v2" class="anchor" aria-label="Permalink: Boot Procedure (v2)" href="#boot-procedure-v2"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ol dir="auto">
+<li>DHCP Discovery of Bootstrap Server
+<ol dir="auto">
+<li>Device sends DHCP messages, containing the mac-address of the active
+control card. The DHCP server has been configured with all possible
+mac-addresses of the device, and responds with the static IP address of
+the bootstrap server.</li>
+<li>DHCP server also assigns an IP address and a gateway to the device.</li>
+<li>The DHCP response option code should be OPTION_V4_SZTP_REDIRECT(143) or
+OPTION_V6_SZTP_REDIRECT(136).</li>
+<li>The format of the DHCP message (other than response option code) follows
+<a href="https://www.rfc-editor.org/rfc/rfc8572#page-56" rel="nofollow">RFC</a>.
+<ol dir="auto">
+<li>The URI will be in the format of bootz://&lt;host or ip&gt;:&lt;port&gt;</li>
+</ol>
+</li>
+</ol>
+</li>
+<li>Bootstrapping Service
+<ol dir="auto">
+<li>Device initiates a gRPC connection to the bootz-server whose address was
+obtained from the DHCP server.</li>
+<li>The TLS connection <strong>MUST</strong> be secured on the client-side with the
+IDevId of the active control card.</li>
+<li>The responses from the bootz-server are signed by ownership-certificate.
+The device validates the ownership-voucher, which authenticates the
+ownership-certificate. The device verifies the signature of the message
+body before accepting the message.</li>
+<li>If the signature could not be verified, the bootstrap process starts
+from Step 1.</li>
+</ol>
+</li>
+</ol>
+<p dir="auto">Note: though a device SHOULD validate ownership by default, in some environment
+(e.g. a lab) we might not want to do so. In this case, the device can be
+explicitly configured to skip the ownership validation, and the device will then
+not set the <code>nonce</code> field in the <code>GetBootstrapDataRequest message</code>. The
+bootstrap server may proceed without signing the response and without providing
+the ownership voucher and ownership certificate.</p>
+<ol dir="auto">
+<li>Ownership Voucher and Ownership Certificate
+<ol dir="auto">
+<li>These artifacts have the same meaning as the original sZTP
+<a href="https://www.rfc-editor.org/rfc/rfc8572#section-3.2" rel="nofollow">RFC</a>. This document
+uses OC and PDC interchangeably for convenience. However, we should keep
+in mind that OV authenticates a PDC (Pinned Domain Cert), and OC might
+be a distinct certificate with a chain of trust to the PDC.</li>
+<li>The contents of the GetBootstrappingDataResponse has an inner message
+body. The outer message contains the Ownership Voucher, the Ownership
+Certificate and a signature over the inner message body. The signature
+is generated using the OC and the nonce.</li>
+</ol>
+</li>
+<li>GetBootstrappingData
+<ol dir="auto">
+<li>The bootz workflow is initiated by the device sending a
+GetBootstrappingData RPC to the bootz-server.</li>
+<li>The device describes itself, by listing out all available control cards,
+and their states.</li>
+<li>For a full device install, the state of all control cards is
+NOT_INITIALIZED.</li>
+<li>For installing hot-swapped modules (RMA), the primary control card sets
+its state to INITIALIZED, and that of the swapped module to
+NOT_INITIALIZED.</li>
+</ol>
+</li>
+<li>GetBootstrappingDataResponse
+<ol dir="auto">
+<li>The server responds with the intent for the device's baseline state.
+This includes the OS version and boot password hash, and an initial
+device configuration. This would include initial gNSI artifacts
+such as:
+certz,pathz,authz,credentialz artifacts to allow the device to progress
+to enrollment and attestation or even bring the device fully into a
+production state.</li>
+<li>The proto allows us to return multiple sets of configurations, one per
+control card. However, in practice, we will apply the same configuration
+to both cards.</li>
+<li>For RMA, the server will return only one state - for the RMA'd module.</li>
+<li>The device/modules should download the OS image, verify its hash and
+install the OS.
+<ol dir="auto">
+<li>A reboot may be performed, if required.</li>
+</ol>
+</li>
+<li>The device will then apply the configuration
+<ol dir="auto">
+<li>A reboot may be performed, if required.</li>
+</ol>
+</li>
+<li>The GetIntendedState RPC can be performed as many times as required
+(i.e. it is idempotent).</li>
+</ol>
+</li>
+<li>ReportProgress
+<ol dir="auto">
+<li>This RPC method is used by the device to inform the bootz server that
+the bootstrapping process is complete. Success or failure is indicated
+using an enum.</li>
+<li>In case of failure, the device should retry this process from Step 1.</li>
+<li>When making this RPC, the device should verify the identity of the
+server using the "<code>server_trust_cert</code>" certificate obtained from
+GetBootstrappingDataResponse.</li>
+<li>"<code>server_trust_cert</code>" plays the same role as "trust-anchor" in the sZTP
+RFC (i.e. allows the device to verify the identity of the server).</li>
+</ol>
+</li>
+<li>At this point, the device has a minimal set of configuration, enabling it to
+receive grpc calls. Depending on the operator's security policies, an
+attestation-verification or an enrollment step may be performed.
+<ol dir="auto">
+<li>At Google, we plan to always require enrollment and
+attestation-verification.</li>
+</ol>
+</li>
+<li>TpmEnrollment
+<ol dir="auto">
+<li>The enrollment API doc is the authoritative reference for this API. The
+API is reproduced here for convenience.</li>
+<li>This step allows the owner organization to install an owner IAK
+certificate on the device(s). This may be desirable if the owner
+requires periodic rotation of certificates and a revocation policy that
+is independent of the device vendor.</li>
+<li>The TpmEnrollment API is secured with the IDevID certificate.</li>
+<li>During enrollment, the server <strong>MUST</strong> verify that the serial number on
+the Attestation Key certificate matches the serial number on the DevID
+certificate, and validate both certificates with the appropriate trust
+bundle.</li>
+</ol>
+</li>
+<li>Attestation
+<ol dir="auto">
+<li>The attestation API doc is the authoritative reference for this API. The
+API is reproduced here for convenience.</li>
+<li>This step allows the owner to obtain cryptographic evidence for the
+integrity of the software components on the control-cards.</li>
+<li>The attestation API should be secured with DevID for the first
+attestation, and mtls for subsequent attestations.
+<ol dir="auto">
+<li>On first attestation, the server <strong>MUST</strong> verify that the serial
+number on the Attestation Key certificate matches the serial number
+on the DevID certificate, and validate both certificates with the
+appropriate trust bundle.</li>
+</ol>
+</li>
+<li>On modular devices, the active control card obtains attestation evidence
+from the standby, and relays it to the bootz server. The active card
+must verify the identity of the standby during this process. The standby
+card's ability to communicate with the active card is not sufficient
+evidence of identity.
+<ol dir="auto">
+<li>This specification does not prescribe how to verify the identity of
+the standby, as the communication between the control cards takes
+place over vendor-proprietary protocols. However, at a minimum, the
+active supervisor must check that the standby's TPM-backed IDevID.
+For example, it may request the IDevID cert, then issue a decrypt
+challenge to the standby card.</li>
+</ol>
+</li>
+</ol>
+</li>
+<li>Final state:
+<ol dir="auto">
+<li>At this point, the device an initial configuration, user accounts, and
+we have validated the identity and integrity of the device and its
+software components. It is ready to serve traffic.</li>
+</ol>
+</li>
+</ol>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Bootz Procedure (BootstrapStream)</h3><a id="user-content-bootz-procedure-bootstrapstream" class="anchor" aria-label="Permalink: Bootz Procedure (BootstrapStream)" href="#bootz-procedure-bootstrapstream"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ol dir="auto">
+<li>DHCP Discovery of Bootstrap Server
+<ol dir="auto">
+<li>Device sends DHCP messages, containing the mac-address of the active
+control card. The DHCP server has been configured with all possible
+mac-addresses of the device, and responds with the static IP address of
+the bootstrap server.</li>
+<li>DHCP server also assigns an IP address and a gateway to the device.</li>
+<li>The DHCP response option code should be OPTION_V4_SZTP_REDIRECT(143) or
+OPTION_V6_SZTP_REDIRECT(136).</li>
+<li>The format of the DHCP message (other than response option code) follows
+<a href="https://www.rfc-editor.org/rfc/rfc8572#page-56" rel="nofollow">RFC</a>.
+<ol dir="auto">
+<li>The URI will be in the format of bootz://:</li>
+</ol>
+</li>
+</ol>
+</li>
+<li>Bootstrapping Service
+<ol dir="auto">
+<li>Device initiates a gRPC connection to the bootz-server whose address was
+obtained from the DHCP server.</li>
+<li>The TLS connection may use any certificate it has available. This can
+be a self-signed certificate as the cert is only used to encrypt the
+connection.</li>
+<li>The responses from the bootz-server are signed by ownership-certificate.
+The device validates the ownership-voucher, which authenticates the
+ownership-certificate. The device verifies the signature of the message
+body before accepting the message.</li>
+<li>If the signature could not be verified, the bootstrap process starts
+from Step 1.</li>
+</ol>
+</li>
+<li>BootstrapStreamRequest.bootstrap_request
+<ol dir="auto">
+<li>The bootz BootstrapStream is initiated by the device sending a
+GetBootstrappingData message to the bootz-server in the first message
+of the stream.</li>
+<li>The device describes itself, by listing out all available control cards,
+and their states.</li>
+<li>For a full device install, the state of all control cards is
+<code>NOT_INITIALIZED</code>.</li>
+<li>For installing hot-swapped modules (RMA), the primary control card sets
+its state to <code>INITIALIZED</code>, and that of the swapped module to
+<code>NOT_INITIALIZED</code>.</li>
+</ol>
+</li>
+<li>BootstrapStreamResponse.challenge
+<ol dir="auto">
+<li>The server will provide a challenge depending on the data fetched from
+OVGS server based on the GetBootstrapDataRequest.identity.</li>
+<li>For TPM2.0 with iDevID
+<ol dir="auto">
+<li>The iDevID cert will be validated and the S/N will
+will be used to validate the device.</li>
+<li>The Challenge will be returned.</li>
+</ol>
+</li>
+<li>For non-iDevID systems
+<ol dir="auto">
+<li>The GetBootstrapDataRequest.chassis_descriptor data will be used to
+validate the S/N.</li>
+<li>This will then be validated by lookup in OVGS and then used the keys
+returned to encrypt the challenge.</li>
+</ol>
+</li>
+</ol>
+</li>
+<li>BootstrapStreamRequest.response
+<ol dir="auto">
+<li>The response message will contain the nonce signed via IAK for
+TPM 2.0 system with iDevID. This will validate that the device is
+in fact the device expected.</li>
+<li>For all other systems the returned value will be the unencryted nonce.</li>
+<li>If the challenge response is valid the server will send the bootstrap
+data.</li>
+<li>If the challenge fails an error will be returned and the device must
+start over at step 1.</li>
+</ol>
+</li>
+<li>BootstrapStreamResponse.bootstrap_response
+<ol dir="auto">
+<li>The server responds with the intent for the device's baseline state.
+This includes the OS version and boot password hash, and an initial
+device configuration. This would include initial gNSI artifacts
+such as:
+certz,pathz,authz,credentialz artifacts to allow the device to progress
+to enrollment and attestation or even bring the device fully into a
+production state.</li>
+<li>The proto allows us to return multiple sets of configurations, one per
+control card. However, in practice, we will apply the same configuration
+to both cards.</li>
+<li>For RMA, the server will return only one state - for the RMA'd module.</li>
+<li>The device/modules should download the OS image, verify its hash and
+install the OS.
+<ol dir="auto">
+<li>A reboot may be performed, if required.</li>
+</ol>
+</li>
+<li>The device will then apply the configuration
+<ol dir="auto">
+<li>A reboot may be performed, if required.</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">A Note on Modular Devices</h3><a id="user-content-a-note-on-modular-devices" class="anchor" aria-label="Permalink: A Note on Modular Devices" href="#a-note-on-modular-devices"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Many commercial modular form-factor devices start copying data from the active
+control card to a hot-swapped standby immediately on plug-in. This includes
+sensitive data such as credentials and certificates. From a security standpoint,
+this is undesirable.</p>
+<p dir="auto">We recommend that the active card copy system software only (includes firmware,
+bootloader, boot password and OS image), then restart the hot-swapped card. It
+should verify the standby card's identity (using DevID verified against the
+vendor root of trust) and attestation evidence (which should match the active
+card's PCR values) before copying the operator-provided operational
+configuration.</p>
+<p dir="auto">Alternatively, the active card can perform the bootstrapping, enrollment and
+attestation workflow on behalf of the standby before copying operational
+configuration.</p>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Workflows for RMA replacement</h4><a id="user-content-workflows-for-rma-replacement" class="anchor" aria-label="Permalink: Workflows for RMA replacement" href="#workflows-for-rma-replacement"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ol dir="auto">
+<li>Card failure detected</li>
+<li>Card RMA issued</li>
+<li>Card replaced</li>
+<li>Active control card detects new linecard</li>
+<li>Active control card tries to verify card via IDevID</li>
+<li>Active control card verifies card software and firmware is at least at it's
+version a. if not will send over the firmware and software and perform an
+upgrade.</li>
+<li>The chassis will update gNMI with component in inserted but not enrolled
+state.</li>
+<li>Kick of workflow for initialization of new control card a. Inventory system
+detects unenrolled control card kicks off workflow to the
+enrollment/attestion system. b. Active control card send bootz request to
+bootserver containing serial number of new card and will get back bootz
+artifacts.</li>
+<li>Planet service makes call to enrollment API and provides proper OV for the
+control card.</li>
+<li>Planet service makes call to attestation API to verify attestation values.</li>
+<li>Active control card now verifies the card and brings the card into
+production state and sync's configuration and other files.</li>
+</ol>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Certificate deployment options</h3><a id="user-content-certificate-deployment-options" class="anchor" aria-label="Permalink: Certificate deployment options" href="#certificate-deployment-options"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Bootz only</h4><a id="user-content-bootz-only" class="anchor" aria-label="Permalink: Bootz only" href="#bootz-only"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><a target="_blank" rel="noopener noreferrer" href="design_images/bootz.png"><img src="design_images/bootz.png" alt="Alt text" title="Certs delivered as part of Bootz" style="max-width: 100%;"></a></p>
+<p dir="auto">In the Bootz only workflow certificates are delivered by the bootz server in the
+initial bootz data payload. After reboot the device will use the provided
+security profile and certificates provided in the bootz message.</p>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Bootz with Certz rotation</h4><a id="user-content-bootz-with-certz-rotation" class="anchor" aria-label="Permalink: Bootz with Certz rotation" href="#bootz-with-certz-rotation"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><a target="_blank" rel="noopener noreferrer" href="design_images/bootz_certz.png"><img src="design_images/bootz_certz.png" alt="Alt text" title="Certs delivered via Certz" style="max-width: 100%;"></a></p>
+<p dir="auto">In this workflow the device will boot from bootz but will use it's iDevID cert
+for initial services. Once rebooted, the device can be reached via Certz using
+the iDevID cert.</p>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Bootz with Enrollz and Attestz</h4><a id="user-content-bootz-with-enrollz-and-attestz" class="anchor" aria-label="Permalink: Bootz with Enrollz and Attestz" href="#bootz-with-enrollz-and-attestz"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><a target="_blank" rel="noopener noreferrer" href="design_images/bootz_enrollz.png"><img src="design_images/bootz_enrollz.png" alt="Alt text" title="Certs delivered via Certz after Enrollz" style="max-width: 100%;"></a></p>
+<p dir="auto">This is the preferred workflow for security considerations. This workflow
+utilizes Enrollz and Attestz to provide enrollment then measured boot to
+validate the state of device before providing any "production" certificates.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Protobuf Payload for Bootstrap</h3><a id="user-content-protobuf-payload-for-bootstrap" class="anchor" aria-label="Permalink: Protobuf Payload for Bootstrap" href="#protobuf-payload-for-bootstrap"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The following protocol buffer is provided from the bootserver to the device to
+provide the bundle of artifacts needed for the device to reach a manageable
+state.</p>
+<p dir="auto">See <a href="https://github.com/openconfig/bootz/pull/1" data-hovercard-type="pull_request" data-hovercard-url="/openconfig/bootz/pull/1/hovercard">PR</a></p>
+</article></div>
