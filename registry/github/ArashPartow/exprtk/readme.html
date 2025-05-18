@@ -95,9 +95,9 @@ expressions that can be parsed and evaluated using the ExprTk library.
   (01) sqrt(1 - (3 / x^2))
   (02) clamp(-1, sin(2 * pi * x) + cos(y / 2 * pi), +1)
   (03) sin(2.34e-3 * x)
-  (04) if(((x[2] + 2) == 3) and ((y + 5) &lt;= 9),1 + w, 2 / z)
-  (05) inrange(-2,m,+2) == if(({-2 &lt;= m} and [m &lt;= +2]),1,0)
-  (06) ({1/1}*[1/2]+(1/3))-{1/4}^[1/5]+(1/6)-({1/7}+[1/8]*(1/9))
+  (04) if(((x[2] + 2) == 3) and ((y + 5) &lt;= 9), 1 + w, 2 / z)
+  (05) inrange(-2, m, +2) == if(({-2 &lt;= m} and [m &lt;= +2]), 1, 0)
+  (06) ({1/1}*[1/2]+(1/3)) - {1/4}^[1/5]+(1/6) - ({1/7}+[1/8]*(1/9))
   (07) a * exp(2.2 / 3.3 * t) + c
   (08) z := x + sin(2.567 * pi / y)
   (09) u := 2.123 * {pi * z} / (w := x + cos(y / pi))
@@ -1311,7 +1311,7 @@ commutative and strength reduction options are enabled is as  follows:
    parser_t parser(compile_options);
 
 
-Currently  eight  types of  compile  time options  are  supported, and
+Currently  nine  types  of compile  time  options  are supported,  and
 enabled by default. The options and their explanations are as follows:
 
    (1) Replacer
@@ -1322,7 +1322,7 @@ enabled by default. The options and their explanations are as follows:
    (6) Commutative Check
    (7) Strength Reduction Check
    (8) Stack And Node Depth Check
-   (9) Vector Size Check
+   (9) Expression Size Check
 
 
 (1) Replacer (e_replacer)
@@ -1629,7 +1629,7 @@ within the loop body upon its last iteration:
 
 
 (2) Statements And Side-Effects
-Statements themselves may have side effects, which in-turn affect  the
+Statements themselves may have side effects, which in-turn affects the
 proceeding statements in multi-statement expressions.
 
 A statement is said  to have a side-effect  if it causes the  state of
@@ -1657,18 +1657,15 @@ noted:
   |3| abs(x - y);          | False                        |
   | | z := (x += y);       | True - Due to assignments    |
   +-+----------------------+------------------------------+
-  |4| abs(x - y);          | False                        |
-  | | z := (x += y);       | True - Due to assignments    |
-  +-+----------------------+------------------------------+
-  |5| var t := abs(x - y); | True - Due to initialisation |
+  |4| var t := abs(x - y); | True - Due to initialisation |
   | | t + x;               | False                        |
   | | z := (x += y);       | True - Due to assignments    |
   +-+----------------------+------------------------------+
-  |6| foo(x - y)           | True - user defined function |
+  |5| foo(x - y)           | True - user defined function |
   +-+----------------------+------------------------------+
 
 
-Note09: In example  6 from  the above  set, it  is  assumed  the  user
+Note09: In example  5 from  the above  set, it  is  assumed  the  user
 defined function foo has been  registered as having a side-effect.  By
 default all user defined  functions are assumed to  have side-effects,
 unless they  are configured  in their  constructors to  not have side-
@@ -1678,11 +1675,11 @@ Function Side-Effects.
 
 At this point we  can see that there  will be expressions composed  of
 certain kinds  of statements  that when  executed will  not affect the
-nature  of the  expression's  result.  These statements  are typically
-called 'dead code'.  These statements though  not affecting the  final
+nature  of  the  expression's result.  These statements  are typically
+called 'dead code'. These statements though not influencing the  final
 result will still be executed and as such they will consume processing
-time that could otherwise be saved. As such ExprTk attempts to  detect
-and remove such statements from expressions.
+time that could  otherwise be saved.  Consequently ExprTk attempts  to
+detect and remove such statements from expressions.
 
 The  'Dead  Code  Elimination' (DCE)  optimisation  process,  which is
 enabled by default, will remove any statements that are determined  to
@@ -2253,7 +2250,7 @@ During  expression  compilation  when required  the  reference  to the
 function  shall be obtained from  the associated  symbol_table and  be
 embedded into the expression.
 
-There are five types of function interface:
+There are six types of function interface:
 
   +---+----------------------+--------------+----------------------+
   | # |         Name         | Return Type  | Input Types          |
@@ -4405,24 +4402,24 @@ file I/O package is made available for the given expression:
 
 (2) File I/O functions:
 
-   (a) open    (b) close
-   (c) write   (d) read
-   (e) getline (f) eof
+   (a) open         (b) close
+   (c) write        (d) read
+   (e) getline      (f) eof
 
 (3) Vector Operations functions:
 
-(a) all_true     (b) all_false
-(c) any_true     (d) any_false
-(e) assign       (f) count
-(g) copy         (h) reverse
-(i) rotate-left  (j) rotate-right
-(k) shift-left   (l) shift-right
-(m) sort         (n) nth_element
-(o) iota         (p) sumk
-(q) axpy         (r) axpby
-(s) axpyz        (t) axpbyz
-(u) axpbz        (v) dot
-(w) dotk         (x) diff
+   (a) all_true     (b) all_false
+   (c) any_true     (d) any_false
+   (e) assign       (f) count
+   (g) copy         (h) reverse
+   (i) rotate-left  (j) rotate-right
+   (k) shift-left   (l) shift-right
+   (m) sort         (n) nth_element
+   (o) iota         (p) sumk
+   (q) axpy         (r) axpby
+   (s) axpyz        (t) axpbyz
+   (u) axpbz        (v) dot
+   (w) dotk         (x) diff
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -4746,7 +4743,7 @@ is as follows:
 
 [SECTION 24 - RUNTIME CHECKS]
 The  ExprTk library   provides the ability  to perform runtime  checks
-during expression evaluation so as to ensure memory access  violations
+during expression evaluation so as  to ensure memory access  violation
 errors  are  caught and  handled  without causing further  issues. The
 checks typically cover:
 
@@ -5554,10 +5551,11 @@ into account when using ExprTk:
 
  (07) Variable, vector, string variable and function names must begin
       with  a letter  (A-Z or  a-z), then  can  be  comprised of  any
-      combination of letters, digits, underscores and dots, ending in
-      either a letter (A-Z or a-z), digit or underscore. (eg: x,  y2,
-      var1,  power_func99,  person.age,  item.size.0). The associated
-      regex pattern is: [a-zA-Z][a-zA-Z0-9_.]*[a-zA-Z0-9_]+
+      combination of letters, digits, underscores and non-consecutive
+      dots,  ending  in  either  a  letter  (A-Z  or  a-z),  digit or
+      underscore.  (eg:  x,   y2,  var1,   power_func99,  person.age,
+      item.size.0). The associated regex pattern is:
+      [a-zA-Z][a-zA-Z0-9_]*(\.[a-zA-Z0-9_]+)*
 
  (08) Expression lengths and sub-expression lists are limited only by
       storage capacity.
@@ -5996,64 +5994,67 @@ Various extended and advanced examples using ExprTk are available
 via the following:
 
    (00) exprtk_american_option_binomial_model.cpp
-   (01) exprtk_binomial_coefficient.cpp
-   (02) exprtk_bsm_benchmark.cpp
-   (03) exprtk_calc.cpp
-   (04) exprtk_collatz.cpp
-   (05) exprtk_compilation_timeout.cpp
-   (06) exprtk_degree_trigonometry_example.cpp
-   (07) exprtk_exprgen.cpp
-   (08) exprtk_extract_dependents.cpp
-   (09) exprtk_e_10kdigits.cpp
-   (10) exprtk_factorize_fermat.cpp
-   (11) exprtk_factorize_pollard.cpp
-   (12) exprtk_fizzbuzz.cpp
-   (13) exprtk_funcall_benchmark.cpp
-   (14) exprtk_game_of_life.cpp
-   (15) exprtk_gcd.cpp
-   (16) exprtk_gnuplot.cpp
-   (17) exprtk_gnuplot_multi.cpp
-   (18) exprtk_groups_examples.cpp
-   (19) exprtk_immutable_symbol_table_example.cpp
-   (20) exprtk_import_packages.cpp
-   (21) exprtk_instruction_primer.cpp
-   (22) exprtk_jump_diffusion_process.cpp
-   (23) exprtk_loop_timeout_rtc.cpp
-   (24) exprtk_magic_square.cpp
-   (25) exprtk_mandelbrot.cpp
-   (26) exprtk_max_subarray_sum.cpp
-   (27) exprtk_maze_generator.cpp
-   (28) exprtk_miller_rabin_primality_test.cpp
-   (29) exprtk_montecarlo_e.cpp
-   (30) exprtk_montecarlo_option_pricing_model.cpp
-   (31) exprtk_montecarlo_pi.cpp
-   (32) exprtk_naive_primes.cpp
-   (33) exprtk_normal_random_marsaglia_method.cpp
-   (34) exprtk_nqueens_problem.cpp
-   (35) exprtk_nthroot_bisection.cpp
-   (36) exprtk_ornstein_uhlenbeck_process.cpp
-   (37) exprtk_pascals_triangle.cpp
-   (38) exprtk_pi_10kdigits.cpp
-   (39) exprtk_prime_sieve.cpp
-   (40) exprtk_prime_sieve_vectorized.cpp
-   (41) exprtk_pythagorean_triples.cpp
-   (42) exprtk_recursive_fibonacci.cpp
-   (43) exprtk_repl.cpp
-   (44) exprtk_riddle.cpp
-   (45) exprtk_rtc_overhead.cpp
-   (46) exprtk_sudoku_solver.cpp
-   (47) exprtk_sumofprimes.cpp
-   (48) exprtk_symtab_functions.cpp
-   (49) exprtk_testgen.cpp
-   (50) exprtk_tower_of_hanoi.cpp
-   (51) exprtk_truthtable_gen.cpp
-   (52) exprtk_vectorized_binomial_model.cpp
-   (53) exprtk_vectornorm.cpp
-   (54) exprtk_vector_benchmark.cpp
-   (55) exprtk_vector_benchmark_multithreaded.cpp
-   (56) exprtk_vector_resize_example.cpp
-   (57) exprtk_vector_resize_inline_example.cpp
-   (58) exprtk_wiener_process_pi.cpp
+   (01) exprtk_archimedes_pi.cpp
+   (02) exprtk_arithmetic_evaluator.cpp
+   (03) exprtk_binomial_coefficient.cpp
+   (04) exprtk_bsm_benchmark.cpp
+   (05) exprtk_calc.cpp
+   (06) exprtk_collatz.cpp
+   (07) exprtk_compilation_timeout.cpp
+   (08) exprtk_degree_trigonometry_example.cpp
+   (09) exprtk_exprgen.cpp
+   (00) exprtk_extract_dependents.cpp
+   (11) exprtk_e_10kdigits.cpp
+   (12) exprtk_factorize_fermat.cpp
+   (13) exprtk_factorize_pollard.cpp
+   (14) exprtk_fizzbuzz.cpp
+   (15) exprtk_funcall_benchmark.cpp
+   (16) exprtk_game_of_life.cpp
+   (17) exprtk_gcd.cpp
+   (18) exprtk_gnuplot.cpp
+   (19) exprtk_gnuplot_multi.cpp
+   (10) exprtk_groups_examples.cpp
+   (21) exprtk_immutable_symbol_table_example.cpp
+   (22) exprtk_import_packages.cpp
+   (23) exprtk_instruction_primer.cpp
+   (24) exprtk_jump_diffusion_process.cpp
+   (25) exprtk_loop_timeout_rtc.cpp
+   (26) exprtk_magic_square.cpp
+   (27) exprtk_mandelbrot.cpp
+   (28) exprtk_max_subarray_sum.cpp
+   (29) exprtk_maze_generator.cpp
+   (20) exprtk_miller_rabin_primality_test.cpp
+   (31) exprtk_montecarlo_e.cpp
+   (32) exprtk_montecarlo_option_pricing_model.cpp
+   (33) exprtk_montecarlo_pi.cpp
+   (34) exprtk_naive_primes.cpp
+   (35) exprtk_normal_random_marsaglia_method.cpp
+   (36) exprtk_nqueens_problem.cpp
+   (37) exprtk_nthroot_bisection.cpp
+   (38) exprtk_ornstein_uhlenbeck_process.cpp
+   (39) exprtk_pascals_triangle.cpp
+   (30) exprtk_pi_10kdigits.cpp
+   (41) exprtk_prime_sieve.cpp
+   (42) exprtk_prime_sieve_vectorized.cpp
+   (43) exprtk_pyramid.cpp
+   (44) exprtk_pythagorean_triples.cpp
+   (45) exprtk_recursive_fibonacci.cpp
+   (46) exprtk_repl.cpp
+   (47) exprtk_riddle.cpp
+   (48) exprtk_rtc_overhead.cpp
+   (49) exprtk_sudoku_solver.cpp
+   (50) exprtk_sumofprimes.cpp
+   (51) exprtk_symtab_functions.cpp
+   (52) exprtk_testgen.cpp
+   (53) exprtk_tower_of_hanoi.cpp
+   (54) exprtk_truthtable_gen.cpp
+   (55) exprtk_vectorized_binomial_model.cpp
+   (56) exprtk_vectornorm.cpp
+   (57) exprtk_vector_benchmark.cpp
+   (58) exprtk_vector_benchmark_multithreaded.cpp
+   (59) exprtk_vector_resize_example.cpp
+   (60) exprtk_vector_resize_inline_example.cpp
+   (61) exprtk_wiener_process_pi.cpp
 
 
 Details for each of the above examples can be found here:
