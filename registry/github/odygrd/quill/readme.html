@@ -65,7 +65,8 @@
 </ul>
 <hr>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">✨ Introduction</h2><a id="user-content--introduction" class="anchor" aria-label="Permalink: ✨ Introduction" href="#-introduction"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<p dir="auto"><strong>Quill</strong> is a <strong>high-performance asynchronous logging library</strong> written in <strong>C++</strong>. It is designed for low-latency, performance-critical applications where every microsecond counts.</p>
+<p dir="auto"><strong>Quill</strong> is a <strong>high-performance asynchronous logging library</strong> written in <strong>C++</strong>. It is designed for low-latency,
+performance-critical applications where every microsecond counts.</p>
 <ul dir="auto">
 <li><strong>Performance-Focused</strong>: Quill consistently outperforms many popular logging libraries.</li>
 <li><strong>Feature-Rich</strong>: Packed with advanced features to meet diverse logging needs.</li>
@@ -122,7 +123,8 @@
 </tbody>
 </table></markdown-accessiblity-table>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Setup</h3><a id="user-content-setup" class="anchor" aria-label="Permalink: Setup" href="#setup"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<p dir="auto">Once installed, you can start using Quill with the following code:</p>
+<p dir="auto">Once installed, you can start using Quill with the macro-based logging interface, which is the recommended approach for
+optimal performance.</p>
 <div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="#include &quot;quill/Backend.h&quot;
 #include &quot;quill/Frontend.h&quot;
 #include &quot;quill/LogMacros.h&quot;
@@ -153,6 +155,40 @@ int main()
     <span class="pl-s"><span class="pl-pds">"</span>root<span class="pl-pds">"</span></span>, quill::Frontend::create_or_get_sink&lt;quill::ConsoleSink&gt;(<span class="pl-s"><span class="pl-pds">"</span>sink_id_1<span class="pl-pds">"</span></span>));
 
   <span class="pl-c1">LOG_INFO</span>(logger, <span class="pl-s"><span class="pl-pds">"</span>Hello from {}!<span class="pl-pds">"</span></span>, std::string_view{<span class="pl-s"><span class="pl-pds">"</span>Quill<span class="pl-pds">"</span></span>});
+}</pre></div>
+<p dir="auto">Alternatively, you can use the macro-free mode.
+See <a href="https://quillcpp.readthedocs.io/en/latest/macro_free_mode.html" rel="nofollow">here</a> for details on performance
+trade-offs.</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="#include &quot;quill/Backend.h&quot;
+#include &quot;quill/Frontend.h&quot;
+#include &quot;quill/LogFunctions.h&quot;
+#include &quot;quill/Logger.h&quot;
+#include &quot;quill/sinks/ConsoleSink.h&quot;
+#include &lt;string_view&gt;
+
+int main()
+{
+  quill::Backend::start();
+
+  quill::Logger* logger = quill::Frontend::create_or_get_logger(
+    &quot;root&quot;, quill::Frontend::create_or_get_sink&lt;quill::ConsoleSink&gt;(&quot;sink_id_1&quot;));
+
+  quill::info(logger, &quot;Hello from {}!&quot;, std::string_view{&quot;Quill&quot;});
+}"><pre>#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">"</span>quill/Backend.h<span class="pl-pds">"</span></span>
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">"</span>quill/Frontend.h<span class="pl-pds">"</span></span>
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">"</span>quill/LogFunctions.h<span class="pl-pds">"</span></span>
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">"</span>quill/Logger.h<span class="pl-pds">"</span></span>
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">"</span>quill/sinks/ConsoleSink.h<span class="pl-pds">"</span></span>
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>string_view<span class="pl-pds">&gt;</span></span>
+
+<span class="pl-k">int</span> <span class="pl-en">main</span>()
+{
+  <span class="pl-c1">quill::Backend::start</span>();
+
+  quill::Logger* logger = <span class="pl-c1">quill::Frontend::create_or_get_logger</span>(
+    <span class="pl-s"><span class="pl-pds">"</span>root<span class="pl-pds">"</span></span>, quill::Frontend::create_or_get_sink&lt;quill::ConsoleSink&gt;(<span class="pl-s"><span class="pl-pds">"</span>sink_id_1<span class="pl-pds">"</span></span>));
+
+  <span class="pl-c1">quill::info</span>(logger, <span class="pl-s"><span class="pl-pds">"</span>Hello from {}!<span class="pl-pds">"</span></span>, std::string_view{<span class="pl-s"><span class="pl-pds">"</span>Quill<span class="pl-pds">"</span></span>});
 }</pre></div>
 <hr>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">🎯 Features</h2><a id="user-content--features" class="anchor" aria-label="Permalink: 🎯 Features" href="#-features"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
@@ -285,6 +321,15 @@ BOOT_IMAGE=(hd0,gpt2)/vmlinuz-5.14.0-427.13.1.el9_4.x86_64 root=/dev/mapper/rhel
 <td align="center">53</td>
 </tr>
 <tr>
+<td><a href="http://github.com/odygrd/quill">Quill Unbounded Queue - Macro Free Mode</a></td>
+<td align="center">26</td>
+<td align="center">27</td>
+<td align="center">28</td>
+<td align="center">28</td>
+<td align="center">30</td>
+<td align="center">32</td>
+</tr>
+<tr>
 <td><a href="http://github.com/mattiasflodin/reckless">Reckless</a></td>
 <td align="center">26</td>
 <td align="center">28</td>
@@ -410,6 +455,15 @@ BOOT_IMAGE=(hd0,gpt2)/vmlinuz-5.14.0-427.13.1.el9_4.x86_64 root=/dev/mapper/rhel
 <td align="center">55</td>
 </tr>
 <tr>
+<td><a href="http://github.com/odygrd/quill">Quill Unbounded Queue - Macro Free Mode</a></td>
+<td align="center">28</td>
+<td align="center">29</td>
+<td align="center">30</td>
+<td align="center">31</td>
+<td align="center">34</td>
+<td align="center">40</td>
+</tr>
+<tr>
 <td><a href="https://github.com/Tencent/BqLog">BqLog</a></td>
 <td align="center">31</td>
 <td align="center">33</td>
@@ -518,6 +572,15 @@ BOOT_IMAGE=(hd0,gpt2)/vmlinuz-5.14.0-427.13.1.el9_4.x86_64 root=/dev/mapper/rhel
 <td align="center">31</td>
 <td align="center">35</td>
 <td align="center">54</td>
+</tr>
+<tr>
+<td><a href="http://github.com/odygrd/quill">Quill Unbounded Queue - Macro Free Mode</a></td>
+<td align="center">31</td>
+<td align="center">32</td>
+<td align="center">33</td>
+<td align="center">34</td>
+<td align="center">36</td>
+<td align="center">38</td>
 </tr>
 <tr>
 <td><a href="https://github.com/Tencent/BqLog">BqLog</a></td>
@@ -634,6 +697,15 @@ BOOT_IMAGE=(hd0,gpt2)/vmlinuz-5.14.0-427.13.1.el9_4.x86_64 root=/dev/mapper/rhel
 <td align="center">38</td>
 <td align="center">44</td>
 <td align="center">51</td>
+</tr>
+<tr>
+<td><a href="http://github.com/odygrd/quill">Quill Unbounded Queue - Macro Free Mode</a></td>
+<td align="center">31</td>
+<td align="center">32</td>
+<td align="center">34</td>
+<td align="center">35</td>
+<td align="center">37</td>
+<td align="center">41</td>
 </tr>
 <tr>
 <td><a href="https://github.com/Tencent/BqLog">BqLog</a></td>
@@ -873,8 +945,8 @@ from the table.</p>
 </tr>
 <tr>
 <td><a href="http://github.com/odygrd/quill">Quill</a></td>
-<td align="center">5.70</td>
-<td align="center">701 ms</td>
+<td align="center">5.30</td>
+<td align="center">754 ms</td>
 </tr>
 <tr>
 <td><a href="https://github.com/Tencent/BqLog">BqLog</a></td>
@@ -895,6 +967,11 @@ from the table.</p>
 <td><a href="http://github.com/mattiasflodin/reckless">Reckless</a></td>
 <td align="center">2.72</td>
 <td align="center">1471 ms</td>
+</tr>
+<tr>
+<td><a href="https://github.com/choll/xtr">Quill - Macro Free Mode</a></td>
+<td align="center">2.65</td>
+<td align="center">1510 ms</td>
 </tr>
 <tr>
 <td><a href="https://github.com/choll/xtr">XTR</a></td>
@@ -1130,9 +1207,11 @@ target_link_libraries(my_project PUBLIC quill::quill)"><pre><span class="pl-k">c
 <span class="pl-k">add_executable</span>(my_project main.cpp)
 <span class="pl-k">target_link_libraries</span>(my_project <span class="pl-e">PUBLIC</span> quill::quill)</pre></div>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Android NDK</h3><a id="user-content-android-ndk" class="anchor" aria-label="Permalink: Android NDK" href="#android-ndk"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<p dir="auto">When building Quill for Android, you might need to add this flag during configuration, but in most cases, it works without it:</p>
+<p dir="auto">When building Quill for Android, you might need to add this flag during configuration, but in most cases, it works
+without it:</p>
 <div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="-DQUILL_NO_THREAD_NAME_SUPPORT:BOOL=ON"><pre>-DQUILL_NO_THREAD_NAME_SUPPORT:BOOL=ON</pre></div>
-<p dir="auto">For timestamps, use <code>quill::ClockSourceType::System</code>. Quill also includes an <code>AndroidSink</code>, which integrates with Android's logging system.</p>
+<p dir="auto">For timestamps, use <code>quill::ClockSourceType::System</code>. Quill also includes an <code>AndroidSink</code>, which integrates with
+Android's logging system.</p>
 <div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Minimal Example to Start Logging on Android</h4><a id="user-content-minimal-example-to-start-logging-on-android" class="anchor" aria-label="Permalink: Minimal Example to Start Logging on Android" href="#minimal-example-to-start-logging-on-android"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="quill::Backend::start();
 
