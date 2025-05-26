@@ -1,0 +1,248 @@
+<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><p align="center" dir="auto">
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/nmwsharp/happly/blob/master/happly_logo.jpg"><img src="https://github.com/nmwsharp/happly/raw/master/happly_logo.jpg" width="200" style="max-width: 100%;"></a> 
+</p>
+<p align="center" dir="auto">A header-only C++ reader/writer for the PLY file format. Parse .ply happily! </p><p align="center" dir="auto">
+</p><div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Features:</h3><a id="user-content-features" class="anchor" aria-label="Permalink: Features:" href="#features"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li>Header only-- drop in and use!</li>
+<li>Read and write to plaintext and binary variants of format with same API!</li>
+<li>Supports general data in <code>.ply</code> files, along with common-case helpers for reading/writing mesh data!</li>
+<li>Automatic type promotion-- eg, if a file contains a <code>float</code> field, you can seamlessly read it as a <code>double</code>!</li>
+<li>Tested, documented, and MIT-licensed!</li>
+</ul>
+<p dir="auto"><a href="https://github.com/nmwsharp/happly/actions"><img src="https://github.com/nmwsharp/happly/workflows/linux/badge.svg" alt="actions status linux" style="max-width: 100%;"></a>
+<a href="https://github.com/nmwsharp/happly/actions"><img src="https://github.com/nmwsharp/happly/workflows/macOS/badge.svg" alt="actions status macOS" style="max-width: 100%;"></a>
+<a href="https://github.com/nmwsharp/happly/actions"><img src="https://github.com/nmwsharp/happly/workflows/windows/badge.svg" alt="actions status windows" style="max-width: 100%;"></a></p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">The <code>.ply</code> format and hapPLY</h2><a id="user-content-the-ply-format-and-happly" class="anchor" aria-label="Permalink: The .ply format and hapPLY" href="#the-ply-format-and-happly"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The <code>.ply</code> format is a general-purpose flat file format useful for recording numerical data on unstructured domains, which includes both plaintext and binary representations. The format has been kicking around since the 90s: <a href="http://paulbourke.net/dataformats/ply/" rel="nofollow">Paul Bourke's webpage</a> serves as both an introduction and the most official specification. <a href="https://github.com/nmwsharp/happly">hapPLY</a> grew out of my own personal code for <code>.ply</code> files-- the format is extremely useful for working with 3D meshes and other geometric data, but no easily accessible C++ implementation was available.</p>
+<p dir="auto">Although the <code>.ply</code> format is commonly used to store 3D mesh and point cloud data, the format itself technically has nothing to do with meshes or point clouds; it simply specifies a collection <strong>elements</strong>, and data (called <strong>properties</strong>) associated with those elements.  For instance in a mesh, the elements are vertices and faces; vertices then have properties like "position" and "color", while faces have a property which is a list of vertex indices. hapPLY exposes a general API for reading and writing elements and properties, as well as special-purpose helpers for the common conventions surrounding mesh data.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Examples</h2><a id="user-content-examples" class="anchor" aria-label="Permalink: Examples" href="#examples"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Read basic data</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="#include &quot;happly.h&quot;
+
+// Construct a data object by reading from file
+happly::PLYData plyIn(&quot;my_file.ply&quot;);
+
+// Get data from the object
+std::vector&lt;float&gt; elementA_prop1 = plyIn.getElement(&quot;elementA&quot;).getProperty&lt;float&gt;(&quot;prop1&quot;);
+std::vector&lt;double&gt; elementA_prop2 = plyIn.getElement(&quot;elementA&quot;).getProperty&lt;double&gt;(&quot;prop1&quot;);
+std::vector&lt;std::vector&lt;double&gt;&gt; elementB_listProp = 
+    plyIn.getElement(&quot;elementB&quot;).getListProperty&lt;double&gt;(&quot;listprop1&quot;);
+
+// Type promotion is automatic for numeric types: even if this property was stored as a float, 
+// we can access it as a double
+std::vector&lt;double&gt; elementA_prop1_as_double = 
+    plyIn.getElement(&quot;elementA&quot;).getProperty&lt;double&gt;(&quot;prop1&quot;); "><pre>#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">"</span>happly.h<span class="pl-pds">"</span></span>
+
+<span class="pl-c"><span class="pl-c">//</span> Construct a data object by reading from file</span>
+happly::PLYData <span class="pl-en">plyIn</span>(<span class="pl-s"><span class="pl-pds">"</span>my_file.ply<span class="pl-pds">"</span></span>);
+
+<span class="pl-c"><span class="pl-c">//</span> Get data from the object</span>
+std::vector&lt;<span class="pl-k">float</span>&gt; elementA_prop1 = plyIn.getElement(<span class="pl-s"><span class="pl-pds">"</span>elementA<span class="pl-pds">"</span></span>).getProperty&lt;<span class="pl-k">float</span>&gt;(<span class="pl-s"><span class="pl-pds">"</span>prop1<span class="pl-pds">"</span></span>);
+std::vector&lt;<span class="pl-k">double</span>&gt; elementA_prop2 = plyIn.getElement(<span class="pl-s"><span class="pl-pds">"</span>elementA<span class="pl-pds">"</span></span>).getProperty&lt;<span class="pl-k">double</span>&gt;(<span class="pl-s"><span class="pl-pds">"</span>prop1<span class="pl-pds">"</span></span>);
+std::vector&lt;std::vector&lt;<span class="pl-k">double</span>&gt;&gt; elementB_listProp = 
+    plyIn.getElement(<span class="pl-s"><span class="pl-pds">"</span>elementB<span class="pl-pds">"</span></span>).getListProperty&lt;<span class="pl-k">double</span>&gt;(<span class="pl-s"><span class="pl-pds">"</span>listprop1<span class="pl-pds">"</span></span>);
+
+<span class="pl-c"><span class="pl-c">//</span> Type promotion is automatic for numeric types: even if this property was stored as a float, </span>
+<span class="pl-c"><span class="pl-c">//</span> we can access it as a double</span>
+std::vector&lt;<span class="pl-k">double</span>&gt; elementA_prop1_as_double = 
+    plyIn.getElement(<span class="pl-s"><span class="pl-pds">"</span>elementA<span class="pl-pds">"</span></span>).getProperty&lt;<span class="pl-k">double</span>&gt;(<span class="pl-s"><span class="pl-pds">"</span>prop1<span class="pl-pds">"</span></span>); </pre></div>
+<p dir="auto">Write basic data</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="#include &quot;happly.h&quot;
+
+// Suppose these hold your data
+std::vector&lt;float&gt; elementA_prop1;
+std::vector&lt;int&gt; elementA_prop2;
+std::vector&lt;std::vector&lt;double&gt;&gt; elementB_listProp;
+
+// Create an empty object
+happly::PLYData plyOut;
+
+// Add elements
+plyOut.addElement(&quot;elementA&quot;, 20);
+plyOut.addElement(&quot;elementB&quot;, 42);
+
+// Add properties to those elements
+plyOut.getElement(&quot;elementA&quot;).addProperty&lt;float&gt;(&quot;prop1&quot;, elementA_prop1);
+plyOut.getElement(&quot;elementA&quot;).addProperty&lt;int&gt;(&quot;prop2&quot;, elementA_prop2);
+plyOut.getElement(&quot;elementB&quot;).addListProperty&lt;double&gt;(&quot;listprop1&quot;, elementB_listProp);
+
+// Write the object to file
+plyOut.write(&quot;my_output_file.ply&quot;, happly::DataFormat::Binary);
+"><pre>#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">"</span>happly.h<span class="pl-pds">"</span></span>
+
+<span class="pl-c"><span class="pl-c">//</span> Suppose these hold your data</span>
+std::vector&lt;<span class="pl-k">float</span>&gt; elementA_prop1;
+std::vector&lt;<span class="pl-k">int</span>&gt; elementA_prop2;
+std::vector&lt;std::vector&lt;<span class="pl-k">double</span>&gt;&gt; elementB_listProp;
+
+<span class="pl-c"><span class="pl-c">//</span> Create an empty object</span>
+happly::PLYData plyOut;
+
+<span class="pl-c"><span class="pl-c">//</span> Add elements</span>
+plyOut.addElement(<span class="pl-s"><span class="pl-pds">"</span>elementA<span class="pl-pds">"</span></span>, <span class="pl-c1">20</span>);
+plyOut.addElement(<span class="pl-s"><span class="pl-pds">"</span>elementB<span class="pl-pds">"</span></span>, <span class="pl-c1">42</span>);
+
+<span class="pl-c"><span class="pl-c">//</span> Add properties to those elements</span>
+plyOut.getElement(<span class="pl-s"><span class="pl-pds">"</span>elementA<span class="pl-pds">"</span></span>).addProperty&lt;<span class="pl-k">float</span>&gt;(<span class="pl-s"><span class="pl-pds">"</span>prop1<span class="pl-pds">"</span></span>, elementA_prop1);
+plyOut.getElement(<span class="pl-s"><span class="pl-pds">"</span>elementA<span class="pl-pds">"</span></span>).addProperty&lt;<span class="pl-k">int</span>&gt;(<span class="pl-s"><span class="pl-pds">"</span>prop2<span class="pl-pds">"</span></span>, elementA_prop2);
+plyOut.getElement(<span class="pl-s"><span class="pl-pds">"</span>elementB<span class="pl-pds">"</span></span>).addListProperty&lt;<span class="pl-k">double</span>&gt;(<span class="pl-s"><span class="pl-pds">"</span>listprop1<span class="pl-pds">"</span></span>, elementB_listProp);
+
+<span class="pl-c"><span class="pl-c">//</span> Write the object to file</span>
+plyOut.write(<span class="pl-s"><span class="pl-pds">"</span>my_output_file.ply<span class="pl-pds">"</span></span>, happly::DataFormat::Binary);
+</pre></div>
+<p dir="auto">Read mesh-like data</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="#include &quot;happly.h&quot;
+
+// Construct the data object by reading from file
+happly::PLYData plyIn(&quot;my_mesh_file.ply&quot;);
+
+// Get mesh-style data from the object
+std::vector&lt;std::array&lt;double, 3&gt;&gt; vPos = plyIn.getVertexPositions();
+std::vector&lt;std::vector&lt;size_t&gt;&gt; fInd = plyIn.getFaceIndices&lt;size_t&gt;();"><pre>#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">"</span>happly.h<span class="pl-pds">"</span></span>
+
+<span class="pl-c"><span class="pl-c">//</span> Construct the data object by reading from file</span>
+happly::PLYData <span class="pl-en">plyIn</span>(<span class="pl-s"><span class="pl-pds">"</span>my_mesh_file.ply<span class="pl-pds">"</span></span>);
+
+<span class="pl-c"><span class="pl-c">//</span> Get mesh-style data from the object</span>
+std::vector&lt;std::array&lt;<span class="pl-k">double</span>, <span class="pl-c1">3</span>&gt;&gt; vPos = plyIn.getVertexPositions();
+std::vector&lt;std::vector&lt;<span class="pl-c1">size_t</span>&gt;&gt; <span class="pl-smi">fInd</span> = plyIn.getFaceIndices&lt;<span class="pl-c1">size_t</span>&gt;();</pre></div>
+<p dir="auto">Write mesh-like data</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="#include &quot;happly.h&quot;
+
+// Suppose these hold your data
+std::vector&lt;std::array&lt;double, 3&gt;&gt; meshVertexPositions;
+std::vector&lt;std::array&lt;double, 3&gt;&gt; meshVertexColors;
+std::vector&lt;std::vector&lt;size_t&gt;&gt; meshFaceIndices;
+
+// Create an empty object
+happly::PLYData plyOut;
+
+// Add mesh data (elements are created automatically)
+plyOut.addVertexPositions(meshVertexPositions);
+plyOut.addVertexColors(meshVertexColors);
+plyOut.addFaceIndices(meshFaceIndices);
+
+
+// Write the object to file
+plyOut.write(&quot;my_output_mesh_file.ply&quot;, happly::DataFormat::ASCII);
+"><pre>#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">"</span>happly.h<span class="pl-pds">"</span></span>
+
+<span class="pl-c"><span class="pl-c">//</span> Suppose these hold your data</span>
+std::vector&lt;std::array&lt;<span class="pl-k">double</span>, <span class="pl-c1">3</span>&gt;&gt; meshVertexPositions;
+std::vector&lt;std::array&lt;<span class="pl-k">double</span>, <span class="pl-c1">3</span>&gt;&gt; meshVertexColors;
+std::vector&lt;std::vector&lt;<span class="pl-c1">size_t</span>&gt;&gt; meshFaceIndices;
+
+<span class="pl-c"><span class="pl-c">//</span> Create an empty object</span>
+happly::PLYData plyOut;
+
+<span class="pl-c"><span class="pl-c">//</span> Add mesh data (elements are created automatically)</span>
+plyOut.addVertexPositions(meshVertexPositions);
+plyOut.addVertexColors(meshVertexColors);
+plyOut.addFaceIndices(meshFaceIndices);
+
+
+<span class="pl-c"><span class="pl-c">//</span> Write the object to file</span>
+plyOut.write(<span class="pl-s"><span class="pl-pds">"</span>my_output_mesh_file.ply<span class="pl-pds">"</span></span>, happly::DataFormat::ASCII);
+</pre></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">API</h2><a id="user-content-api" class="anchor" aria-label="Permalink: API" href="#api"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">This assumes a basic familiarity with the file format; I suggest reading <a href="http://paulbourke.net/dataformats/ply/" rel="nofollow">Paul Bourke's webpage</a> if you are new to <code>.ply</code>.</p>
+<p dir="auto">All of the outward-facing functionality of hapPLY is grouped under a single (namespaced) class called <code>happly::PLYData</code>, which represents a collection of elements and their properties. <code>PLYData</code> objects can be constructed from an existing file <code>PLYData::PLYData("my_input.ply")</code>, or you can fill with your own data and then write to file <code>PLYData::write("my_output.ply", DataFormat::ASCII)</code>.</p>
+<p dir="auto">Generally speaking, hapPLY uses C++ exceptions to communicate errors-- most of these methods will throw if something is wrong. hapPLY attempts to provide basic sanity checks and informative errors, but does not guarantee robustness to malformed input.</p>
+<p dir="auto"><strong>Reading and writing objects</strong>:</p>
+<ul dir="auto">
+<li>
+<p dir="auto"><code>PLYData()</code> Construct an empty PLYData containing no elements or properties.</p>
+</li>
+<li>
+<p dir="auto"><code>PLYData(std::string filename, bool verbose = false)</code> Construct a new PLYData object from a file, automatically detecting whether the file is plaintext or binary. If <code>verbose=true</code>, useful information about the file will be printed to <code>stdout</code>.</p>
+</li>
+<li>
+<p dir="auto"><code>PLYData(std::istream&amp; inStream, bool verbose = false)</code> Like the previous constructor, but reads from an<code>istream</code>.</p>
+</li>
+<li>
+<p dir="auto"><code>PLYData::validate()</code> Perform some basic sanity checks on the object, throwing if any fail. Called internally before writing.</p>
+</li>
+<li>
+<p dir="auto"><code>PLYData::write(std::string filename, DataFormat format = DataFormat::ASCII)</code> Write the object to file. Specifying <code>DataFormat::ASCII</code>, <code>DataFormat::Binary</code>, or <code>DataFormat::BinaryBigEndian</code> controls the kind of output file.</p>
+</li>
+<li>
+<p dir="auto"><code>PLYData::write(std::ostream&amp; outStream, DataFormat format = DataFormat::ASCII)</code> Like the previous method, but writes to an<code>ostream</code>.</p>
+</li>
+</ul>
+<p dir="auto"><strong>Accessing and adding data to an object</strong>:</p>
+<ul dir="auto">
+<li>
+<p dir="auto"><code>void addElement(std::string name, size_t count)</code> Add a new element type to the object, with the given name and number of elements.</p>
+</li>
+<li>
+<p dir="auto"><code>Element&amp; getElement(std::string target)</code> Get a reference to an element type contained in the object.</p>
+</li>
+<li>
+<p dir="auto"><code>bool hasElement(std::string target)</code> Check if an element type is contained in the object.</p>
+</li>
+<li>
+<p dir="auto"><code>std::vector&lt;std::string&gt; getElementNames()</code> List of all element names.</p>
+</li>
+<li>
+<p dir="auto"><code>std::vector&lt;T&gt; Element::getProperty(std::string propertyName)</code> Get a vector of property data for an element. Will automatically promote types if possible, eg <code>getProperty&lt;int&gt;("my_prop")</code> will succeed even if the object contains "my_prop" with type <code>short</code>.</p>
+</li>
+<li>
+<p dir="auto"><code>std::vector&lt;std::vector&lt;T&gt;&gt; Element::getListProperty(std::string propertyName)</code> Get a vector of list property data for an element. Supports type promotion just like <code>getProperty()</code>.</p>
+</li>
+<li>
+<p dir="auto"><code>void Element::addProperty(std::string propertyName, std::vector&lt;T&gt;&amp; data)</code> Add a new property to an element type. <code>data</code> must be the same length as the number of elements of that type.</p>
+</li>
+<li>
+<p dir="auto"><code>void addListProperty(std::string propertyName, std::vector&lt;std::vector&lt;T&gt;&gt;&amp; data)</code> Add a new list property to an element type. <code>data</code> must be the same length as the number of elements of that type.</p>
+</li>
+</ul>
+<p dir="auto"><strong>Misc object options</strong>:</p>
+<ul dir="auto">
+<li>
+<p dir="auto"><code>std::vector&lt;std::string&gt; PLYData::comments</code> Comments included in the .ply file, one string per line. These are populated after reading and written when writing.</p>
+</li>
+<li>
+<p dir="auto"><code>std::vector&lt;std::string&gt; PLYData::objInfoComments</code> Lines prefaced with <code>obj_info</code> included in the .ply file, which are effectively a different kind of comment, one string per line. These seem to be an ad-hoc extension to .ply, but they are pretty common, so we support them.</p>
+</li>
+</ul>
+<p dir="auto"><strong>Common-case helpers for mesh data</strong>:</p>
+<ul dir="auto">
+<li>
+<p dir="auto"><code>std::vector&lt;std::array&lt;double, 3&gt;&gt; getVertexPositions(std::string vertexElementName = "vertex")</code> Returns x,y,z vertex positions from an object. <code>vertexElementName</code> specifies the name of the element type holding vertices, which is conventionally "vertex".</p>
+</li>
+<li>
+<p dir="auto"><code>void addVertexPositions(std::vector&lt;std::array&lt;double, 3&gt;&gt;&amp; vertexPositions)</code> Adds x,y,z vertex positions to an object, under the element name "vertex".</p>
+</li>
+<li>
+<p dir="auto"><code>std::vector&lt;std::array&lt;unsigned char, 3&gt;&gt; getVertexColors(std::string vertexElementName = "vertex")</code> Returns r,g,b vertex colors from an object. <code>vertexElementName</code> specifies the name of the element type holding vertices, which is conventionally "vertex".</p>
+</li>
+<li>
+<p dir="auto"><code>void addVertexColors(std::vector&lt;std::array&lt;unsigned char, 3&gt;&gt;&amp; vertexColors)</code> Adds r,g,b vertex colors positions to an object, under the element name "vertex".</p>
+</li>
+<li>
+<p dir="auto"><code>void addVertexColors(std::vector&lt;std::array&lt;double, 3&gt;&gt;&amp; vertexColors)</code> Adds r,g,b vertex colors positions to an object, under the element name "vertex". Assumes input is in [0.0,1.0], and internally converts to 0-255 char values</p>
+</li>
+<li>
+<p dir="auto"><code>std::vector&lt;std::vector&lt;T&gt;&gt; getFaceIndices()</code> Returns indices in to a vertex list for each face. Usually 0-indexed, but there are no formal rules in the format. Supports type promotion as in <code>getProperty()</code>, and furthermore converts signed to unsigned and vice-versa, though the conversion is performed naively.</p>
+</li>
+<li>
+<p dir="auto"><code>void addFaceIndices(std::vector&lt;std::vector&lt;T&gt;&gt;&amp; indices)</code> Adds vertex indices for faces to an object, under the element name "face" with the property name "vertex_indices". Automatically converts to a 32-bit integer type with the same signedness as the input type, and throws if the data cannot be converted to that type.</p>
+</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Known issues:</h2><a id="user-content-known-issues" class="anchor" aria-label="Permalink: Known issues:" href="#known-issues"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li>Writing floating-point values of <code>inf</code> or <code>nan</code> in ASCII mode is not supported, because the .ply format does not specify how they should be written (C++'s ofstream and ifstream don't even treat them consistently). These values work just fine in binary mode.</li>
+<li>Currently hapPLY does not allow the user to specify a type for the variable which indicates how many elements are in a list; it always uses <code>uchar</code> (and throws and error if the data does not fit in a uchar). Note that at least for mesh-like data, popular software only accepts <code>uchar</code>.</li>
+<li>Almost all modern computers are little-endian. If you happen to have a big-endian platform, be aware that the codebase has not been tested in a big-endian environment, and might have bugs related to binary reading/writing there. Note that the <em>platform</em> endianness is distinct from the <em>file</em> endianness---reading/writing either big- or little-endian files certainly works just fine as long as you're running the code on a little-endian computer (as you problably are).</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Current TODOs:</h2><a id="user-content-current-todos" class="anchor" aria-label="Permalink: Current TODOs:" href="#current-todos"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li>Add more common-case helpers for meshes (texture coordinates, etc)</li>
+<li>Add common-case helpers for point clouds</li>
+<li>Bindings for Python, Matlab?</li>
+</ul>
+<hr>
+<p dir="auto">By <a href="http://www.nmwsharp.com" rel="nofollow">Nicholas Sharp</a>. Credit to <a href="http://www.keenan.is/here" rel="nofollow">Keenan Crane</a> for early feedback and the logo!</p>
+<p dir="auto">Development of this software was funded in part by NSF Award 1717320, an NSF graduate research fellowship, and gifts from Adobe Research and Autodesk, Inc.</p>
+</article></div>
