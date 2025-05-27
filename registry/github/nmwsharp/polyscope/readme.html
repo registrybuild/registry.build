@@ -1,0 +1,123 @@
+<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Polyscope's documentation is hosted at <a href="http://polyscope.run" rel="nofollow">polyscope.run</a></h1><a id="user-content-polyscopes-documentation-is-hosted-at-polyscoperun" class="anchor" aria-label="Permalink: Polyscope's documentation is hosted at polyscope.run" href="#polyscopes-documentation-is-hosted-at-polyscoperun"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">To contribute, check out the <a href="https://polyscope.run/about/contributing/" rel="nofollow">instructions here</a>.</p>
+<p dir="auto"><a target="_blank" rel="noopener noreferrer nofollow" href="https://camo.githubusercontent.com/c692a89ad848f1616c121d7404fecd1e839b244049821c102d05893a18dd3647/687474703a2f2f706f6c7973636f70652e72756e2f6d656469612f7465617365722e737667"><img src="https://camo.githubusercontent.com/c692a89ad848f1616c121d7404fecd1e839b244049821c102d05893a18dd3647/687474703a2f2f706f6c7973636f70652e72756e2f6d656469612f7465617365722e737667" alt="Polyscope" data-canonical-src="http://polyscope.run/media/teaser.svg" style="max-width: 100%;"></a></p>
+<p dir="auto"><a href="https://github.com/nmwsharp/polyscope/actions"><img src="https://github.com/nmwsharp/polyscope/workflows/linux/badge.svg" alt="actions status linux" style="max-width: 100%;"></a>
+<a href="https://github.com/nmwsharp/polyscope/actions"><img src="https://github.com/nmwsharp/polyscope/workflows/macOS/badge.svg" alt="actions status macOS" style="max-width: 100%;"></a>
+<a href="https://github.com/nmwsharp/polyscope/actions"><img src="https://github.com/nmwsharp/polyscope/workflows/windows/badge.svg" alt="actions status windows" style="max-width: 100%;"></a>
+<a target="_blank" rel="noopener noreferrer nofollow" href="https://camo.githubusercontent.com/70948cf31ba9e739b9ccbbcb2b13a149a53eb8ab6ed51c520f9ae4eb6e151b1b/68747470733a2f2f696d672e736869656c64732e696f2f707970692f762f706f6c7973636f70653f7374796c653d666c61742d737175617265"><img src="https://camo.githubusercontent.com/70948cf31ba9e739b9ccbbcb2b13a149a53eb8ab6ed51c520f9ae4eb6e151b1b/68747470733a2f2f696d672e736869656c64732e696f2f707970692f762f706f6c7973636f70653f7374796c653d666c61742d737175617265" alt="PyPI" data-canonical-src="https://img.shields.io/pypi/v/polyscope?style=flat-square" style="max-width: 100%;"></a></p>
+<p dir="auto">Polyscope is a C++/Python viewer and user interface for 3D data such as meshes and point clouds. It allows you to register your data and quickly generate informative and beautiful visualizations, either programmatically or via a dynamic GUI. Polyscope is designed to be lightweight---it does not "take ownership" over your entire program, and it is easy to integrate with existing codebases and popular libraries. The lofty objective of Polyscope is to offer a useful visual interface to your data via a single line of code.</p>
+<p dir="auto">Polyscope uses a paradigm of <em>structures</em> and <em>quantities</em>. A <strong>structure</strong> is a geometric object in the scene, such as a surface mesh or point cloud. A <strong>quantity</strong> is data associated with a structure, such as a scalar function or a vector field.</p>
+<p dir="auto">When any of these structures and quantities are registered, Polyscope displays them in an interactive 3D scene, handling boilerplate concerns such as toggling visibility, color-mapping data and adjusting maps, "picking" to click in the scene and query numerical quantities, etc.</p>
+<p dir="auto">C++:</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="#include &quot;polyscope/polyscope.h&quot;
+#include &quot;polyscope/point_cloud.h&quot;
+#include &quot;polyscope/surface_mesh.h&quot;
+
+// Initialize polyscope
+polyscope::init();
+
+// Register a point cloud
+// `points` is a Nx3 array-like container of points
+polyscope::registerPointCloud(&quot;my points&quot;, points);
+
+// Register a surface mesh structure
+// `meshVerts` is a Vx3 array-like container of vertex positions
+// `meshFaces` is a Fx3 array-like container of face indices  
+polyscope::registerSurfaceMesh(&quot;my mesh&quot;, meshVerts, meshFaces);
+
+// Add a scalar and a vector function defined on the mesh
+// `scalarQuantity` is a length V array-like container of values
+// `vectorQuantity` is an Fx3 array-like container of vectors per face
+polyscope::getSurfaceMesh(&quot;my mesh&quot;)-&gt;addVertexScalarQuantity(&quot;my_scalar&quot;, scalarQuantity);
+polyscope::getSurfaceMesh(&quot;my mesh&quot;)-&gt;addFaceVectorQuantity(&quot;my_vector&quot;, vectorQuantity);
+
+// View the point cloud and mesh we just registered in the 3D UI
+polyscope::show();"><pre>#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">"</span>polyscope/polyscope.h<span class="pl-pds">"</span></span>
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">"</span>polyscope/point_cloud.h<span class="pl-pds">"</span></span>
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">"</span>polyscope/surface_mesh.h<span class="pl-pds">"</span></span>
+
+<span class="pl-c"><span class="pl-c">//</span> Initialize polyscope</span>
+<span class="pl-en">polyscope::init</span>();
+
+<span class="pl-c"><span class="pl-c">//</span> Register a point cloud</span>
+<span class="pl-c"><span class="pl-c">//</span> `points` is a Nx3 array-like container of points</span>
+<span class="pl-en">polyscope::registerPointCloud</span>(<span class="pl-s"><span class="pl-pds">"</span>my points<span class="pl-pds">"</span></span>, points);
+
+<span class="pl-c"><span class="pl-c">//</span> Register a surface mesh structure</span>
+<span class="pl-c"><span class="pl-c">//</span> `meshVerts` is a Vx3 array-like container of vertex positions</span>
+<span class="pl-c"><span class="pl-c">//</span> `meshFaces` is a Fx3 array-like container of face indices  </span>
+<span class="pl-en">polyscope::registerSurfaceMesh</span>(<span class="pl-s"><span class="pl-pds">"</span>my mesh<span class="pl-pds">"</span></span>, meshVerts, meshFaces);
+
+<span class="pl-c"><span class="pl-c">//</span> Add a scalar and a vector function defined on the mesh</span>
+<span class="pl-c"><span class="pl-c">//</span> `scalarQuantity` is a length V array-like container of values</span>
+<span class="pl-c"><span class="pl-c">//</span> `vectorQuantity` is an Fx3 array-like container of vectors per face</span>
+<span class="pl-en">polyscope::getSurfaceMesh</span>(<span class="pl-s"><span class="pl-pds">"</span>my mesh<span class="pl-pds">"</span></span>)-&gt;addVertexScalarQuantity(<span class="pl-s"><span class="pl-pds">"</span>my_scalar<span class="pl-pds">"</span></span>, scalarQuantity);
+<span class="pl-en">polyscope::getSurfaceMesh</span>(<span class="pl-s"><span class="pl-pds">"</span>my mesh<span class="pl-pds">"</span></span>)-&gt;addFaceVectorQuantity(<span class="pl-s"><span class="pl-pds">"</span>my_vector<span class="pl-pds">"</span></span>, vectorQuantity);
+
+<span class="pl-c"><span class="pl-c">//</span> View the point cloud and mesh we just registered in the 3D UI</span>
+<span class="pl-en">polyscope::show</span>();</pre></div>
+<p dir="auto">Python:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="import polyscope as ps
+
+# Initialize polyscope
+ps.init()
+
+### Register a point cloud
+# `my_points` is a Nx3 numpy array
+ps.register_point_cloud(&quot;my points&quot;, my_points)
+
+### Register a mesh
+# `verts` is a Nx3 numpy array of vertex positions
+# `faces` is a Fx3 array of indices, or a nested list
+ps.register_surface_mesh(&quot;my mesh&quot;, verts, faces, smooth_shade=True)
+
+# Add a scalar function and a vector function defined on the mesh
+# vertex_scalar is a length V numpy array of values
+# face_vectors is an Fx3 array of vectors per face
+ps.get_surface_mesh(&quot;my mesh&quot;).add_scalar_quantity(&quot;my_scalar&quot;, 
+        vertex_scalar, defined_on='vertices', cmap='blues')
+ps.get_surface_mesh(&quot;my mesh&quot;).add_vector_quantity(&quot;my_vector&quot;, 
+        face_vectors, defined_on='faces', color=(0.2, 0.5, 0.5))
+
+# View the point cloud and mesh we just registered in the 3D UI
+ps.show()"><pre><span class="pl-k">import</span> <span class="pl-s1">polyscope</span> <span class="pl-k">as</span> <span class="pl-s1">ps</span>
+
+<span class="pl-c"># Initialize polyscope</span>
+<span class="pl-s1">ps</span>.<span class="pl-c1">init</span>()
+
+<span class="pl-c">### Register a point cloud</span>
+<span class="pl-c"># `my_points` is a Nx3 numpy array</span>
+<span class="pl-s1">ps</span>.<span class="pl-c1">register_point_cloud</span>(<span class="pl-s">"my points"</span>, <span class="pl-s1">my_points</span>)
+
+<span class="pl-c">### Register a mesh</span>
+<span class="pl-c"># `verts` is a Nx3 numpy array of vertex positions</span>
+<span class="pl-c"># `faces` is a Fx3 array of indices, or a nested list</span>
+<span class="pl-s1">ps</span>.<span class="pl-c1">register_surface_mesh</span>(<span class="pl-s">"my mesh"</span>, <span class="pl-s1">verts</span>, <span class="pl-s1">faces</span>, <span class="pl-s1">smooth_shade</span><span class="pl-c1">=</span><span class="pl-c1">True</span>)
+
+<span class="pl-c"># Add a scalar function and a vector function defined on the mesh</span>
+<span class="pl-c"># vertex_scalar is a length V numpy array of values</span>
+<span class="pl-c"># face_vectors is an Fx3 array of vectors per face</span>
+<span class="pl-s1">ps</span>.<span class="pl-c1">get_surface_mesh</span>(<span class="pl-s">"my mesh"</span>).<span class="pl-c1">add_scalar_quantity</span>(<span class="pl-s">"my_scalar"</span>, 
+        <span class="pl-s1">vertex_scalar</span>, <span class="pl-s1">defined_on</span><span class="pl-c1">=</span><span class="pl-s">'vertices'</span>, <span class="pl-s1">cmap</span><span class="pl-c1">=</span><span class="pl-s">'blues'</span>)
+<span class="pl-s1">ps</span>.<span class="pl-c1">get_surface_mesh</span>(<span class="pl-s">"my mesh"</span>).<span class="pl-c1">add_vector_quantity</span>(<span class="pl-s">"my_vector"</span>, 
+        <span class="pl-s1">face_vectors</span>, <span class="pl-s1">defined_on</span><span class="pl-c1">=</span><span class="pl-s">'faces'</span>, <span class="pl-s1">color</span><span class="pl-c1">=</span>(<span class="pl-c1">0.2</span>, <span class="pl-c1">0.5</span>, <span class="pl-c1">0.5</span>))
+
+<span class="pl-c"># View the point cloud and mesh we just registered in the 3D UI</span>
+<span class="pl-s1">ps</span>.<span class="pl-c1">show</span>()</pre></div>
+<p dir="auto">Polyscope is designed to make your life easier. It is simple to build, and fewer than 10 lines of code should be sufficient to start visualizing. In C++, some <a href="https://polyscope.run/data_adaptors/" rel="nofollow">template magic</a> means Polyscope can probably accept the data types you're already using!</p>
+<hr>
+<p dir="auto">Author: <a href="http://www.nmwsharp.com" rel="nofollow">Nicholas Sharp</a></p>
+<p dir="auto">If Polyscope contributes to an academic publication, cite it as:</p>
+<div class="highlight highlight-text-bibtex notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="@misc{polyscope,
+  title = {Polyscope},
+  author = {Nicholas Sharp and others},
+  note = {www.polyscope.run},
+  year = {2019}
+}"><pre><span class="pl-k">@misc</span>{<span class="pl-en">polyscope</span>,
+  <span class="pl-s">title</span> = <span class="pl-s"><span class="pl-pds">{</span>Polyscope<span class="pl-pds">}</span></span>,
+  <span class="pl-s">author</span> = <span class="pl-s"><span class="pl-pds">{</span>Nicholas Sharp and others<span class="pl-pds">}</span></span>,
+  <span class="pl-s">note</span> = <span class="pl-s"><span class="pl-pds">{</span>www.polyscope.run<span class="pl-pds">}</span></span>,
+  <span class="pl-s">year</span> = <span class="pl-s"><span class="pl-pds">{</span>2019<span class="pl-pds">}</span></span>
+}</pre></div>
+<p dir="auto">Development of this software was funded in part by NSF Award 1717320, an NSF graduate research fellowship, and gifts from Adobe Research and Autodesk, Inc.</p>
+</article></div>
