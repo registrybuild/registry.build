@@ -1,0 +1,185 @@
+<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">LLVM cross compilation toolchain for Bazel</h1><a id="user-content-llvm-cross-compilation-toolchain-for-bazel" class="anchor" aria-label="Permalink: LLVM cross compilation toolchain for Bazel" href="#llvm-cross-compilation-toolchain-for-bazel"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<blockquote>
+<p dir="auto"><g-emoji class="g-emoji" alias="warning">⚠️</g-emoji> <strong>Warning:</strong> This project is still in development and may break.</p>
+</blockquote>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Description</h2><a id="user-content-description" class="anchor" aria-label="Permalink: Description" href="#description"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">This toolchain brings a zero sysroot, fully hermetic C/C++ cross compilation toolchain to Bazel based on LLVM.</p>
+<p dir="auto">It can cross compile out of the box without any kind of extra configuration.</p>
+<p dir="auto">It is based on the new <code>rules_cc</code> rule base toolchain API and will work out of the box
+for the entire <code>rules_cc</code> ruleset.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Installation</h2><a id="user-content-installation" class="anchor" aria-label="Permalink: Installation" href="#installation"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">See instructions in the <a href="https://github.com/cerisier/toolchains_llvm_bootstrapped/releases">releases</a> for installation.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">How does it work ?</h2><a id="user-content-how-does-it-work-" class="anchor" aria-label="Permalink: How does it work ?" href="#how-does-it-work-"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Cross compilation usually requires 2 main components:</p>
+<ol dir="auto">
+<li><strong>A cross-compiler and cross-linker</strong> capable of generating and linking binaries for the target platform.</li>
+<li><strong>Target-specific headers and libraries</strong> such as the C runtime (CRT files), libc (glibc, musl, etc.), C++ standard library (libstdc++, libc++), compiler runtimes (libgcc, compiler-rt), and optional components like profilers or sanitizers.</li>
+</ol>
+<p dir="auto">Usually, this is done by providing a sysroot for each target platform that contains
+all the target-specific components that match that of the deployment target.</p>
+<p dir="auto">This toolchain simplifies the process by requiring only the cross-compiler and cross-linker.
+It builds all the target-specific components from source.</p>
+<p dir="auto">To build programs, this toolchain is composed of 2 bazel toolchains:</p>
+<ol dir="auto">
+<li>A raw toolchain used to compile the target-specific components.</li>
+<li>A final toolchain used to compile user programs, including the components built by the 1st.</li>
+</ol>
+<blockquote>
+<p dir="auto">TODO: Write about the differences with the approach of building against sysroots.</p>
+</blockquote>
+<blockquote>
+<p dir="auto">TODO: Write about stubs generation for the glibc.</p>
+</blockquote>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Usage</h2><a id="user-content-usage" class="anchor" aria-label="Permalink: Usage" href="#usage"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Add this to your <code>MODULE.bazel</code>:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel_dep(name = &quot;toolchains_llvm_bootstrapped&quot;, version = &quot;0.1.5&quot;)
+
+register_toolchains(
+    &quot;@toolchains_llvm_bootstrapped//toolchain:all&quot;,"><pre><span class="pl-en">bazel_dep</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"toolchains_llvm_bootstrapped"</span>, <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"0.1.5"</span>)
+
+<span class="pl-s1">register_toolchains</span>(
+    <span class="pl-s">"@toolchains_llvm_bootstrapped//toolchain:all"</span>,</pre></div>
+<p dir="auto">This will register all toolchains declared by this module for all supported targets.</p>
+<p dir="auto">You can also register toolchains selectively per target:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="register_toolchains(
+    &quot;@toolchains_llvm_bootstrapped//toolchain:linux_aarch64&quot;,"><pre><span class="pl-s1">register_toolchains</span>(
+    <span class="pl-s">"@toolchains_llvm_bootstrapped//toolchain:linux_aarch64"</span>,</pre></div>
+<p dir="auto">To list all available toolchains, you can run the following bazel query command:</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel query 'kind(toolchain, //toolchain:all) except kind(cc_toolchain, //toolchain:all)'"><pre>bazel query <span class="pl-s"><span class="pl-pds">'</span>kind(toolchain, //toolchain:all) except kind(cc_toolchain, //toolchain:all)<span class="pl-pds">'</span></span></pre></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Examples</h2><a id="user-content-examples" class="anchor" aria-label="Permalink: Examples" href="#examples"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">If you clone this repository, you can test this toolchain for all the registered platforms:</p>
+<p dir="auto">See all supported platforms:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="bazel query 'kind(platform, //platforms/...)'"><pre class="notranslate"><code>bazel query 'kind(platform, //platforms/...)'
+</code></pre></div>
+<p dir="auto">Build a simple C++ program to play with the toolchain:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="cd examples/rules_cc
+bazel build :main --platforms=//platforms:linux_amd64"><pre class="notranslate"><code>cd examples/rules_cc
+bazel build :main --platforms=//platforms:linux_amd64
+</code></pre></div>
+<p dir="auto">Or just verify that it runs on your current platform:</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="cd examples/rules_cc
+bazel run :main"><pre><span class="pl-c1">cd</span> examples/rules_cc
+bazel run :main</pre></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Supported platforms</h2><a id="user-content-supported-platforms" class="anchor" aria-label="Permalink: Supported platforms" href="#supported-platforms"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">✅ Currently supports cross-compilation between all combinations of the following platforms:</p>
+<markdown-accessiblity-table><table>
+<thead>
+<tr>
+<th>From ↓ / To →</th>
+<th>macOS arm64</th>
+<th>macOS amd64</th>
+<th>Linux arm64</th>
+<th>Linux amd64</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>macOS arm64</strong></td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><strong>macOS amd64</strong></td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><strong>Linux arm64</strong></td>
+<td>🚧 In Progress</td>
+<td>🚧 In Progress</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><strong>Linux amd64</strong></td>
+<td>🚧 In Progress</td>
+<td>🚧 In Progress</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">musl</h3><a id="user-content-musl" class="anchor" aria-label="Permalink: musl" href="#musl"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Compiling and linking against musl on linux is supported, but only statically.</p>
+<p dir="auto">To target musl, use:
+<code>--platforms //platforms/libc_aware:linux_aarch64_musl</code></p>
+<blockquote>
+<p dir="auto">By default, the binary will be fully statically link (no dynamic linker at all).</p>
+</blockquote>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">GNU C Library ("glibc") versions</h3><a id="user-content-gnu-c-library-glibc-versions" class="anchor" aria-label="Permalink: GNU C Library (&quot;glibc&quot;) versions" href="#gnu-c-library-glibc-versions"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Compiling and linking against an arbitrary version of the glibc is supported.
+By default, the earliest glibc version that supports your target is used (2.28 in most case).</p>
+<p dir="auto">To target a specific version, use:
+<code>--platforms //platforms/libc_aware:linux_x86_64_gnu.2.28</code></p>
+<p dir="auto">Behind the scenes, your code is compiled using the appropriate headers for the
+target version, and linked against a stub glibc that includes only the symbols
+available in that version.</p>
+<p dir="auto">This guarantees that your program will run on any system with that exact glibc
+version or newer, since it never relies on symbols introduced in later versions.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">macOS notes</h3><a id="user-content-macos-notes" class="anchor" aria-label="Permalink: macOS notes" href="#macos-notes"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">🚧 Cross-compiling to macOS from non-macOS hosts is nearly ready.</p>
+<p dir="auto">It will support two modes:</p>
+<ol dir="auto">
+<li><strong>libSystem-only</strong>: Compiling against a libSystem-compatible libc headers (no SDK or Apple frameworks).</li>
+<li><strong>macOS SDK</strong>: Compiling against the official macOS SDK for full framework and system support.</li>
+</ol>
+<p dir="auto">✅ Compilation from macOS to macOS is supported.</p>
+<p dir="auto">By default, it uses a hermetic SDK, ensuring reproducibility and isolation from the host system.
+The SDK is the official macOS SDK and is downloaded from apple CDN directly.</p>
+<p dir="auto">I'm planning on supporting the local SDK, opt-in.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Other platforms</h3><a id="user-content-other-platforms" class="anchor" aria-label="Permalink: Other platforms" href="#other-platforms"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">In theory, this toolchain enables cross compilation to the entire set of LLVM supported toolchains.</p>
+<p dir="auto">I have early validation of the most popular targets and os, and will progressively add support for them as time allows.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Prior art</h2><a id="user-content-prior-art" class="anchor" aria-label="Permalink: Prior art" href="#prior-art"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li>
+<p dir="auto"><a href="https://andrewkelley.me/post/zig-cc-powerful-drop-in-replacement-gcc-clang.html" rel="nofollow">https://andrewkelley.me/post/zig-cc-powerful-drop-in-replacement-gcc-clang.html</a> I was heavily inspired by (and heavily rely on) the work of <a href="https://github.com/andrewrk">Andrew Kelley</a> on the <a href="https://github.com/ziglang/zig">zig</a> programming language compiler.</p>
+</li>
+<li>
+<p dir="auto"><a href="https://github.com/bazel-contrib/toolchains_llvm">https://github.com/bazel-contrib/toolchains_llvm</a> which provides a cross compilation toolchain based on user-provided <code>sysroot</code>.</p>
+</li>
+<li>
+<p dir="auto"><a href="https://github.com/uber/hermetic_cc_toolchain">https://github.com/uber/hermetic_cc_toolchain</a> which prodives a Bazel cross compilation toolchain built around the <code>zig</code> binary and it's <code>cc</code> subcommand.</p>
+</li>
+<li>
+<p dir="auto"><a href="https://github.com/dzbarsky/static-clang">https://github.com/dzbarsky/static-clang</a> which provides stripped subset of llvm binaries for lighter dependencies, as well as a starting point for missing llvm targets build file authoring (compiler-rt, etc.).</p>
+</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Roadmap</h2><a id="user-content-roadmap" class="anchor" aria-label="Permalink: Roadmap" href="#roadmap"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<blockquote>
+<p dir="auto">TODO: Add remaining tasks for production readyness.</p>
+</blockquote>
+<ul dir="auto">
+<li>Allow configuration with the same granularity as <code>toolchains_llvm</code>
+(custom LLVM release, user-provided sysroot, static/dynamic linking option for the c++ standard library, libunwind etc.).</li>
+<li>[IN PROGRESS] Support linking against libstd++ (<code>libstdcxx</code> branch).</li>
+<li>Support for asan/tsan/ubsan.</li>
+<li>Support <code>rules_foreign_cc</code> and <code>rules_go</code> out of the box.</li>
+<li>Support easy LLVM targets (arm, loongarch, mips, riscv, sparc, spirv, thumb).</li>
+<li>Support WASM targets.</li>
+<li>Support Windows.</li>
+<li>Support Objective C.</li>
+<li>Support <strong>cross-compilation</strong> to macOS (Requires unpacking the SDK on linux).</li>
+<li>Tests and hardening.</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Known issues</h3><a id="user-content-known-issues" class="anchor" aria-label="Permalink: Known issues" href="#known-issues"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li>The C Library is always compiled and linked.</li>
+<li>The C++ standard library is always compiled and linked (with -as-needed).</li>
+<li>The final toolchain makes <code>-nostdinc</code>, <code>-nostdlib</code> family of flags unapplicable.
+(One idea would be to expose different toolchains for this usecase, or <code>config_settings</code>)</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Thanks</h1><a id="user-content-thanks" class="anchor" aria-label="Permalink: Thanks" href="#thanks"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">None of this would have been possible without the support of <a href="https://zml.ai/" rel="nofollow">zml.ai</a> for whom this toolchain has initially been created. They are building an <strong>high performance inference suite</strong> and this is by far the most impressive bazel project I've worked on.</p>
+<p dir="auto">A particular thank you to <a href="https://github.com/steeve">@steeve</a>, the founder of <a href="https://zml.ai" rel="nofollow">zml.ai</a> for planting the idea and providing guidance and support.</p>
+<p dir="auto">Special thanks to the Bazel community for answering many of my interrogations on the Bazel slack and providing guidance when needed.</p>
+<p dir="auto">Special mention for <a href="https://github.com/dzbarsky">@dzbarsky</a>, <a href="https://github.com/fmeum">@fmeum</a>, <a href="https://github.com/keith">@keith</a>, <a href="https://github.com/armandomontanez">@armandomontanez</a> and the whole <a href="https://github.com/bazelbuild/rules_cc">bazelbuild/rules_cc</a> team at Google for being supportive and reactive!</p>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">In memory of</h1><a id="user-content-in-memory-of" class="anchor" aria-label="Permalink: In memory of" href="#in-memory-of"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">This project is dedicated to the memory of my beloved cat "Koutchi" aka "Garçon" who was everything to me.
+To my little star dust &lt;3</p>
+<p dir="auto"><a target="_blank" rel="noopener noreferrer" href="https://private-user-images.githubusercontent.com/1126594/447250419-333760d2-d2e1-4e69-9a20-6c3ead575b5e.jpeg?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3NDg1Nzk5MjUsIm5iZiI6MTc0ODU3OTYyNSwicGF0aCI6Ii8xMTI2NTk0LzQ0NzI1MDQxOS0zMzM3NjBkMi1kMmUxLTRlNjktOWEyMC02YzNlYWQ1NzViNWUuanBlZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNTA1MzAlMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjUwNTMwVDA0MzM0NVomWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPTIwODU4ODk2OWJmN2FkMDAyOWFiYzdlNzI1OGI5NDYzOTRmNmY1ZGI1MTE4ZmQzMjJhY2RhOGE0NmFjNjJmMjAmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0In0.bRUIvYeZpf7CljtFH60Xen04AKivhlBZ9tuiVb3uhkY"><img src="https://private-user-images.githubusercontent.com/1126594/447250419-333760d2-d2e1-4e69-9a20-6c3ead575b5e.jpeg?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3NDg1Nzk5MjUsIm5iZiI6MTc0ODU3OTYyNSwicGF0aCI6Ii8xMTI2NTk0LzQ0NzI1MDQxOS0zMzM3NjBkMi1kMmUxLTRlNjktOWEyMC02YzNlYWQ1NzViNWUuanBlZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNTA1MzAlMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjUwNTMwVDA0MzM0NVomWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPTIwODU4ODk2OWJmN2FkMDAyOWFiYzdlNzI1OGI5NDYzOTRmNmY1ZGI1MTE4ZmQzMjJhY2RhOGE0NmFjNjJmMjAmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0In0.bRUIvYeZpf7CljtFH60Xen04AKivhlBZ9tuiVb3uhkY" alt="IMG_1840 2" style="max-width: 100%;"></a></p>
+</article></div>
