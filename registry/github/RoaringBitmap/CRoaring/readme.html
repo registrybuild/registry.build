@@ -3,6 +3,44 @@
 <a href="https://bugs.chromium.org/p/oss-fuzz/issues/list?sort=-opened&amp;can=1&amp;q=proj:croaring" rel="nofollow"><img src="https://camo.githubusercontent.com/2b9a5ec19a6b79f85b7bb5699cddd8791682668b2f25482a914710a9fb161547/68747470733a2f2f6f73732d66757a7a2d6275696c642d6c6f67732e73746f726167652e676f6f676c65617069732e636f6d2f6261646765732f63726f6172696e672e737667" alt="Fuzzing Status" data-canonical-src="https://oss-fuzz-build-logs.storage.googleapis.com/badges/croaring.svg" style="max-width: 100%;"></a></p>
 <p dir="auto"><a href="http://roaringbitmap.github.io/CRoaring/" rel="nofollow"><img src="https://camo.githubusercontent.com/8a5de105fe8b8429f39b77bb30e976ae428d4921f56ec60f0ed64121f788e62b/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f646f63732d646f787967656e2d677265656e2e737667" alt="Doxygen Documentation" data-canonical-src="https://img.shields.io/badge/docs-doxygen-green.svg" style="max-width: 100%;"></a></p>
 <p dir="auto">Portable Roaring bitmaps in C (and C++) with full support for your favorite compiler (GNU GCC, LLVM's clang, Visual Studio, Apple Xcode, Intel oneAPI). Included in the <a href="https://github.com/kozross/awesome-c">Awesome C</a> list of open source C software.</p>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Table of Contents</h1><a id="user-content-table-of-contents" class="anchor" aria-label="Permalink: Table of Contents" href="#table-of-contents"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#objective">Objective</a></li>
+<li><a href="#requirements">Requirements</a></li>
+<li><a href="#quick-start">Quick Start</a></li>
+<li><a href="#packages">Packages</a></li>
+<li><a href="#using-roaring-as-a-cpm-dependency">Using Roaring as a CPM dependency</a></li>
+<li><a href="#using-as-a-cmake-dependency-with-fetchcontent">Using as a CMake dependency with FetchContent</a></li>
+<li><a href="#amalgamating">Amalgamating</a></li>
+<li><a href="#api">API</a>
+<ul dir="auto">
+<li><a href="#main-api-functions">Main API functions</a></li>
+<li><a href="#c-api-functions">C++ API functions</a></li>
+</ul>
+</li>
+<li><a href="#dealing-with-large-volumes-of-data">Dealing with large volumes of data</a></li>
+<li><a href="#running-microbenchmarks">Running microbenchmarks</a></li>
+<li><a href="#custom-memory-allocators">Custom memory allocators</a></li>
+<li><a href="#example-c">Example (C)</a></li>
+<li><a href="#compressed-64-bit-roaring-bitmaps-c">Compressed 64-bit Roaring bitmaps (C)</a></li>
+<li><a href="#conventional-bitsets-c">Conventional bitsets (C)</a></li>
+<li><a href="#example-c-1">Example (C++)</a></li>
+<li><a href="#building-with-cmake-linux-and-macos-visual-studio-users-should-see-below">Building with cmake (Linux and macOS, Visual Studio users should see below)</a></li>
+<li><a href="#building-visual-studio-under-windows">Building (Visual Studio under Windows)</a>
+<ul dir="auto">
+<li><a href="#usage-using-conan">Usage (Using conan)</a></li>
+<li><a href="#usage-using-vcpkg-on-windows-linux-and-macos">Usage (Using vcpkg on Windows, Linux and macOS)</a></li>
+</ul>
+</li>
+<li><a href="#simd-related-throttling">SIMD-related throttling</a></li>
+<li><a href="#thread-safety">Thread safety</a></li>
+<li><a href="#how-to-best-aggregate-bitmaps">How to best aggregate bitmaps?</a></li>
+<li><a href="#wrappers-for-roaring-bitmaps">Wrappers for Roaring Bitmaps</a></li>
+<li><a href="#mailing-listdiscussion-group">Mailing list/discussion group</a></li>
+<li><a href="#contributing">Contributing</a></li>
+<li><a href="#references-about-roaring">References about Roaring</a></li>
+</ul>
 <div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Introduction</h1><a id="user-content-introduction" class="anchor" aria-label="Permalink: Introduction" href="#introduction"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">Bitsets, also called bitmaps, are commonly used as fast data structures. Unfortunately, they can use too much memory.
 To compensate, we often use compressed bitmaps.</p>
@@ -260,7 +298,274 @@ it from any directory where you want the amalgamation files to be written.</p>
 <li><a href="https://github.com/RoaringBitmap/CRoaring/blob/master/cpp/roaring.hh">roaring.hh</a>,</li>
 <li><a href="https://github.com/RoaringBitmap/CRoaring/blob/master/cpp/roaring64map.hh">roaring64map.hh</a>.</li>
 </ul>
-<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Dealing with large volumes</h1><a id="user-content-dealing-with-large-volumes" class="anchor" aria-label="Permalink: Dealing with large volumes" href="#dealing-with-large-volumes"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Main API functions</h1><a id="user-content-main-api-functions" class="anchor" aria-label="Permalink: Main API functions" href="#main-api-functions"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Below is an overview of the main functions provided by CRoaring in C, covering both 32-bit (<code>roaring.h</code>) and 64-bit (<code>roaring64.h</code>) bitmaps. For more details, see the header files in <code>include/roaring/</code> or the Doxygen documentation.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Creation and Destruction</h2><a id="user-content-creation-and-destruction" class="anchor" aria-label="Permalink: Creation and Destruction" href="#creation-and-destruction"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li><code>roaring_bitmap_t *roaring_bitmap_create(void);</code><br>
+Create a new empty 32-bit bitmap.</li>
+<li><code>roaring64_bitmap_t *roaring64_bitmap_create(void);</code><br>
+Create a new empty 64-bit bitmap.</li>
+<li><code>void roaring_bitmap_free(roaring_bitmap_t *r);</code><br>
+Free a 32-bit bitmap.</li>
+<li><code>void roaring64_bitmap_free(roaring64_bitmap_t *r);</code><br>
+Free a 64-bit bitmap.</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Adding and Removing Values</h2><a id="user-content-adding-and-removing-values" class="anchor" aria-label="Permalink: Adding and Removing Values" href="#adding-and-removing-values"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li><code>void roaring_bitmap_add(roaring_bitmap_t *r, uint32_t x);</code><br>
+Add value <code>x</code> to a 32-bit bitmap.</li>
+<li><code>void roaring64_bitmap_add(roaring64_bitmap_t *r, uint64_t x);</code><br>
+Add value <code>x</code> to a 64-bit bitmap.</li>
+<li><code>void roaring_bitmap_remove(roaring_bitmap_t *r, uint32_t x);</code><br>
+Remove value <code>x</code> from a 32-bit bitmap.</li>
+<li><code>void roaring64_bitmap_remove(roaring64_bitmap_t *r, uint64_t x);</code><br>
+Remove value <code>x</code> from a 64-bit bitmap.</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Queries and Cardinality</h2><a id="user-content-queries-and-cardinality" class="anchor" aria-label="Permalink: Queries and Cardinality" href="#queries-and-cardinality"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li><code>bool roaring_bitmap_contains(const roaring_bitmap_t *r, uint32_t x);</code><br>
+Check if <code>x</code> is present in a 32-bit bitmap.</li>
+<li><code>bool roaring64_bitmap_contains(const roaring64_bitmap_t *r, uint64_t x);</code><br>
+Check if <code>x</code> is present in a 64-bit bitmap.</li>
+<li><code>uint64_t roaring_bitmap_get_cardinality(const roaring_bitmap_t *r);</code><br>
+Get the number of elements in a 32-bit bitmap.</li>
+<li><code>uint64_t roaring64_bitmap_get_cardinality(const roaring64_bitmap_t *r);</code><br>
+Get the number of elements in a 64-bit bitmap.</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Iteration</h2><a id="user-content-iteration" class="anchor" aria-label="Permalink: Iteration" href="#iteration"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li><code>bool roaring_iterate(const roaring_bitmap_t *r, roaring_iterator iterator, void *param);</code><br>
+Iterate over all values in a 32-bit bitmap, calling <code>iterator</code> for each value.</li>
+<li><code>bool roaring64_iterate(const roaring64_bitmap_t *r, roaring_iterator64 iterator, void *param);</code><br>
+Iterate over all values in a 64-bit bitmap.</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Set Operations</h2><a id="user-content-set-operations" class="anchor" aria-label="Permalink: Set Operations" href="#set-operations"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li><code>roaring_bitmap_t *roaring_bitmap_and(const roaring_bitmap_t *r1, const roaring_bitmap_t *r2);</code><br>
+Intersection (AND) of two 32-bit bitmaps.</li>
+<li><code>roaring64_bitmap_t *roaring64_bitmap_and(const roaring64_bitmap_t *r1, const roaring64_bitmap_t *r2);</code><br>
+Intersection (AND) of two 64-bit bitmaps.</li>
+<li><code>roaring_bitmap_t *roaring_bitmap_or(const roaring_bitmap_t *r1, const roaring_bitmap_t *r2);</code><br>
+Union (OR) of two 32-bit bitmaps.</li>
+<li><code>roaring64_bitmap_t *roaring64_bitmap_or(const roaring64_bitmap_t *r1, const roaring64_bitmap_t *r2);</code><br>
+Union (OR) of two 64-bit bitmaps.</li>
+<li><code>roaring_bitmap_t *roaring_bitmap_xor(const roaring_bitmap_t *r1, const roaring_bitmap_t *r2);</code><br>
+Symmetric difference (XOR) of two 32-bit bitmaps.</li>
+<li><code>roaring64_bitmap_t *roaring64_bitmap_xor(const roaring64_bitmap_t *r1, const roaring64_bitmap_t *r2);</code><br>
+Symmetric difference (XOR) of two 64-bit bitmaps.</li>
+<li><code>roaring_bitmap_t *roaring_bitmap_andnot(const roaring_bitmap_t *r1, const roaring_bitmap_t *r2);</code><br>
+Difference (r1 \ r2) for 32-bit bitmaps.</li>
+<li><code>roaring64_bitmap_t *roaring64_bitmap_andnot(const roaring64_bitmap_t *r1, const roaring64_bitmap_t *r2);</code><br>
+Difference (r1 \ r2) for 64-bit bitmaps.</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Serialization and Deserialization</h2><a id="user-content-serialization-and-deserialization" class="anchor" aria-label="Permalink: Serialization and Deserialization" href="#serialization-and-deserialization"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li><code>size_t roaring_bitmap_portable_size_in_bytes(const roaring_bitmap_t *r);</code><br>
+Get the number of bytes required to serialize a 32-bit bitmap.</li>
+<li><code>size_t roaring64_bitmap_portable_size_in_bytes(const roaring64_bitmap_t *r);</code><br>
+Get the number of bytes required to serialize a 64-bit bitmap.</li>
+<li><code>size_t roaring_bitmap_portable_serialize(const roaring_bitmap_t *r, char *buf);</code><br>
+Serialize a 32-bit bitmap to a buffer (portable format).</li>
+<li><code>size_t roaring64_bitmap_portable_serialize(const roaring64_bitmap_t *r, char *buf);</code><br>
+Serialize a 64-bit bitmap to a buffer (portable format).</li>
+<li><code>roaring_bitmap_t *roaring_bitmap_portable_deserialize(const char *buf);</code><br>
+Deserialize a 32-bit bitmap from a buffer.</li>
+<li><code>roaring64_bitmap_t *roaring64_bitmap_portable_deserialize(const char *buf);</code><br>
+Deserialize a 64-bit bitmap from a buffer.</li>
+<li><code>roaring_bitmap_t *roaring_bitmap_portable_deserialize_safe(const char *buf, size_t maxbytes);</code><br>
+Safe deserialization of a 32-bit bitmap (will not read past <code>maxbytes</code>).</li>
+<li><code>roaring64_bitmap_t *roaring64_bitmap_portable_deserialize_safe(const char *buf, size_t maxbytes);</code><br>
+Safe deserialization of a 64-bit bitmap.</li>
+<li><code>size_t roaring_bitmap_portable_deserialize_size(const char *buf, size_t maxbytes);</code><br>
+Get the size of a serialized 32-bit bitmap (returns 0 if invalid).</li>
+<li><code>size_t roaring64_bitmap_portable_deserialize_size(const char *buf, size_t maxbytes);</code><br>
+Get the size of a serialized 64-bit bitmap (returns 0 if invalid).</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Validation</h2><a id="user-content-validation" class="anchor" aria-label="Permalink: Validation" href="#validation"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li><code>bool roaring_bitmap_internal_validate(const roaring_bitmap_t *r, const char **reason);</code><br>
+Validate the internal structure of a 32-bit bitmap. Returns <code>true</code> if valid, <code>false</code> otherwise. If invalid, <code>reason</code> points to a string describing the problem.</li>
+<li><code>bool roaring64_bitmap_internal_validate(const roaring64_bitmap_t *r, const char **reason);</code><br>
+Validate the internal structure of a 64-bit bitmap.</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Notes</h2><a id="user-content-notes" class="anchor" aria-label="Permalink: Notes" href="#notes"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li>All memory allocated by the library must be freed using the corresponding <code>free</code> function.</li>
+<li>The portable serialization format is cross-platform and can be shared between different languages and architectures.</li>
+<li>Always validate bitmaps deserialized from untrusted sources before using them.</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">C++ API functions</h1><a id="user-content-c-api-functions" class="anchor" aria-label="Permalink: C++ API functions" href="#c-api-functions"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The C++ interface is provided via the <code>roaring.hh</code> (32-bit) and <code>roaring64map.hh</code> (64-bit) headers. These offer a modern, type-safe, and convenient API for manipulating Roaring bitmaps in C++.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Main Classes</h2><a id="user-content-main-classes" class="anchor" aria-label="Permalink: Main Classes" href="#main-classes"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li><code>roaring::Roaring</code> — 32-bit Roaring bitmap</li>
+<li><code>roaring::Roaring64Map</code> — 64-bit Roaring bitmap</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Common Methods (32-bit and 64-bit)</h2><a id="user-content-common-methods-32-bit-and-64-bit" class="anchor" aria-label="Permalink: Common Methods (32-bit and 64-bit)" href="#common-methods-32-bit-and-64-bit"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li><code>Roaring()</code> / <code>Roaring64Map()</code>
+<ul dir="auto">
+<li>Construct an empty bitmap.</li>
+</ul>
+</li>
+<li><code>Roaring(std::initializer_list&lt;uint32_t&gt; values)</code>
+<ul dir="auto">
+<li>Construct from a list of values.</li>
+</ul>
+</li>
+<li><code>void add(uint32_t x)</code> / <code>void add(uint64_t x)</code>
+<ul dir="auto">
+<li>Add a value to the bitmap.</li>
+</ul>
+</li>
+<li><code>void remove(uint32_t x)</code> / <code>void remove(uint64_t x)</code>
+<ul dir="auto">
+<li>Remove a value from the bitmap.</li>
+</ul>
+</li>
+<li><code>bool contains(uint32_t x) const</code> / <code>bool contains(uint64_t x) const</code>
+<ul dir="auto">
+<li>Check if a value is present.</li>
+</ul>
+</li>
+<li><code>uint64_t cardinality() const</code>
+<ul dir="auto">
+<li>Get the number of elements in the bitmap.</li>
+</ul>
+</li>
+<li><code>bool isEmpty() const</code>
+<ul dir="auto">
+<li>Check if the bitmap is empty.</li>
+</ul>
+</li>
+<li><code>void clear()</code>
+<ul dir="auto">
+<li>Remove all elements.</li>
+</ul>
+</li>
+<li><code>void runOptimize()</code>
+<ul dir="auto">
+<li>Convert internal containers to run containers for better compression.</li>
+</ul>
+</li>
+<li><code>void setCopyOnWrite(bool enable)</code>
+<ul dir="auto">
+<li>Enable or disable copy-on-write mode for fast/shallow copies.</li>
+</ul>
+</li>
+<li><code>bool operator==(const Roaring&amp;) const</code> / <code>bool operator==(const Roaring64Map&amp;) const</code>
+<ul dir="auto">
+<li>Equality comparison.</li>
+</ul>
+</li>
+<li><code>void swap(Roaring&amp;)</code> / <code>void swap(Roaring64Map&amp;)</code>
+<ul dir="auto">
+<li>Swap contents with another bitmap.</li>
+</ul>
+</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Set Operations</h2><a id="user-content-set-operations-1" class="anchor" aria-label="Permalink: Set Operations" href="#set-operations-1"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li><code>Roaring operator|(const Roaring&amp;) const</code> / <code>Roaring64Map operator|(const Roaring64Map&amp;) const</code>
+<ul dir="auto">
+<li>Union (OR)</li>
+</ul>
+</li>
+<li><code>Roaring operator&amp;(const Roaring&amp;) const</code> / <code>Roaring64Map operator&amp;(const Roaring64Map&amp;) const</code>
+<ul dir="auto">
+<li>Intersection (AND)</li>
+</ul>
+</li>
+<li><code>Roaring operator^(const Roaring&amp;) const</code> / <code>Roaring64Map operator^(const Roaring64Map&amp;) const</code>
+<ul dir="auto">
+<li>Symmetric difference (XOR)</li>
+</ul>
+</li>
+<li><code>Roaring operator-(const Roaring&amp;) const</code> / <code>Roaring64Map operator-(const Roaring64Map&amp;) const</code>
+<ul dir="auto">
+<li>Difference</li>
+</ul>
+</li>
+<li>In-place versions: <code>operator|=</code>, <code>operator&amp;=</code>, <code>operator^=</code>, <code>operator-=</code></li>
+</ul>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Iteration</h2><a id="user-content-iteration-1" class="anchor" aria-label="Permalink: Iteration" href="#iteration-1"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li><code>Roaring::const_iterator</code> / <code>Roaring64Map::const_iterator</code>
+<ul dir="auto">
+<li>Standard C++ iterator support: <code>begin()</code>, <code>end()</code></li>
+</ul>
+</li>
+<li><code>void iterate(function, void* param)</code>
+<ul dir="auto">
+<li>Call a function for each value (C-style callback).</li>
+</ul>
+</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Serialization and Deserialization</h2><a id="user-content-serialization-and-deserialization-1" class="anchor" aria-label="Permalink: Serialization and Deserialization" href="#serialization-and-deserialization-1"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li><code>size_t getSizeInBytes() const</code>
+<ul dir="auto">
+<li>Get the size in bytes for serialization.</li>
+</ul>
+</li>
+<li><code>void write(char* buf) const</code>
+<ul dir="auto">
+<li>Serialize the bitmap to a buffer.</li>
+</ul>
+</li>
+<li><code>static Roaring read(const char* buf, bool portable = true)</code>
+<ul dir="auto">
+<li>Deserialize a bitmap from a buffer.</li>
+</ul>
+</li>
+<li><code>static Roaring readSafe(const char* buf, size_t maxbytes, bool portable = true)</code>
+<ul dir="auto">
+<li>Safe deserialization (will not read past <code>maxbytes</code>).</li>
+</ul>
+</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Bulk Operations</h2><a id="user-content-bulk-operations" class="anchor" aria-label="Permalink: Bulk Operations" href="#bulk-operations"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li><code>void addMany(size_t n, const uint32_t* values)</code> / <code>void addMany(size_t n, const uint64_t* values)</code>
+<ul dir="auto">
+<li>Add many values at once.</li>
+</ul>
+</li>
+<li><code>void toUint32Array(uint32_t* out) const</code> / <code>void toUint64Array(uint64_t* out) const</code>
+<ul dir="auto">
+<li>Export all values to an array.</li>
+</ul>
+</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Example Usage</h2><a id="user-content-example-usage" class="anchor" aria-label="Permalink: Example Usage" href="#example-usage"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="#include &quot;roaring.hh&quot;
+using namespace roaring;
+
+Roaring r1;
+r1.add(42);
+if (r1.contains(42)) {
+    // ...
+}
+Roaring r2 = Roaring::bitmapOf(3, 1, 2, 3);
+Roaring r3 = r1 | r2;
+for (auto v : r3) {
+    // iterate over values
+}"><pre>#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">"</span>roaring.hh<span class="pl-pds">"</span></span>
+<span class="pl-k">using</span> <span class="pl-k">namespace</span> <span class="pl-en">roaring</span><span class="pl-k">;</span>
+
+Roaring r1;
+r1.add(<span class="pl-c1">42</span>);
+<span class="pl-k">if</span> (r1.contains(<span class="pl-c1">42</span>)) {
+    <span class="pl-c"><span class="pl-c">//</span> ...</span>
+}
+Roaring r2 = Roaring::bitmapOf(<span class="pl-c1">3</span>, <span class="pl-c1">1</span>, <span class="pl-c1">2</span>, <span class="pl-c1">3</span>);
+Roaring r3 = r1 | r2;
+<span class="pl-k">for</span> (<span class="pl-k">auto</span> v : r3) {
+    <span class="pl-c"><span class="pl-c">//</span> iterate over values</span>
+}</pre></div>
+<p dir="auto">For 64-bit values, use <code>#include "roaring64map.hh"</code> and the <code>Roaring64Map</code> class, which has a similar API.</p>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Dealing with large volumes of data</h1><a id="user-content-dealing-with-large-volumes-of-data" class="anchor" aria-label="Permalink: Dealing with large volumes of data" href="#dealing-with-large-volumes-of-data"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">Some users have to deal with large volumes of data. It  may be important for these users to be aware of the <code>addMany</code> (C++) <code>roaring_bitmap_or_many</code> (C) functions as it is much faster and economical to add values in batches when possible. Furthermore, calling periodically the <code>runOptimize</code> (C++) or <code>roaring_bitmap_run_optimize</code> (C) functions may help.</p>
 <div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Running microbenchmarks</h1><a id="user-content-running-microbenchmarks" class="anchor" aria-label="Permalink: Running microbenchmarks" href="#running-microbenchmarks"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">We have microbenchmarks constructed with the Google Benchmarks.
