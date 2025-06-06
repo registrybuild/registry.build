@@ -1,0 +1,160 @@
+<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Bazel Web Testing Rules</h1><a id="user-content-bazel-web-testing-rules" class="anchor" aria-label="Permalink: Bazel Web Testing Rules" href="#bazel-web-testing-rules"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><a href="https://buildkite.com/bazel/rules-webtesting-saucelabs" rel="nofollow"><img src="https://camo.githubusercontent.com/d56c8539c98519069e3e042d20ec8e2a47e1a24993d7f976fc079d66faa791ef/68747470733a2f2f62616467652e6275696c646b6974652e636f6d2f64396333393734663932353837363339346361396433653030363730633039353062366637656266333235343132646566372e7376673f6272616e63683d6d6173746572" alt="Build status" data-canonical-src="https://badge.buildkite.com/d9c3974f925876394ca9d3e00670c0950b6f7ebf325412def7.svg?branch=master" style="max-width: 100%;"></a></p>
+<p dir="auto">Bazel rules and supporting code to allow testing against a browser with
+WebDriver.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Configure your Bazel project</h2><a id="user-content-configure-your-bazel-project" class="anchor" aria-label="Permalink: Configure your Bazel project" href="#configure-your-bazel-project"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">For each language that is used by your project, you need to add the corresponding sub module to your MODULE.bazel file:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel_dep(name = &quot;rules_webtesting&quot;, version = &quot;0.4.0&quot;)"><pre><span class="pl-en">bazel_dep</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_webtesting"</span>, <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"0.4.0"</span>)</pre></div>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel_dep(name = &quot;rules_webtesting_${language}&quot;, version = &quot;0.4.0&quot;)"><pre><span class="pl-en">bazel_dep</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_webtesting_${language}"</span>, <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"0.4.0"</span>)</pre></div>
+<p dir="auto">For example for Java:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel_dep(name = &quot;rules_webtesting_java&quot;, version = &quot;0.4.0&quot;)"><pre><span class="pl-en">bazel_dep</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_webtesting_java"</span>, <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"0.4.0"</span>)</pre></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Write your tests</h2><a id="user-content-write-your-tests" class="anchor" aria-label="Permalink: Write your tests" href="#write-your-tests"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Write your test in the language of your choice, but use our provided Browser API
+to get an instance of WebDriver.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Example Java Test</h3><a id="user-content-example-java-test" class="anchor" aria-label="Permalink: Example Java Test" href="#example-java-test"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="highlight highlight-source-java notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="import com.google.testing.web.WebTest;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
+import org.openqa.selenium.WebDriver;
+
+@RunWith(JUnit4.class)
+public class BrowserTest {
+  private WebDriver driver;
+
+  @Before public void createDriver() {
+    driver = new WebTest().newWebDriverSession();
+  }
+
+  @After public void quitDriver() {
+    try {
+      driver.quit();
+     } finally {
+      driver = null;
+     }
+   }
+
+  // your tests here
+}"><pre><span class="pl-k">import</span> <span class="pl-s1">com</span>.<span class="pl-s1">google</span>.<span class="pl-s1">testing</span>.<span class="pl-s1">web</span>.<span class="pl-s1">WebTest</span>;
+<span class="pl-k">import</span> <span class="pl-s1">org</span>.<span class="pl-s1">junit</span>.<span class="pl-s1">Test</span>;
+<span class="pl-k">import</span> <span class="pl-s1">org</span>.<span class="pl-s1">junit</span>.<span class="pl-s1">runner</span>.<span class="pl-s1">RunWith</span>;
+<span class="pl-k">import</span> <span class="pl-s1">org</span>.<span class="pl-s1">junit</span>.<span class="pl-s1">runners</span>.<span class="pl-s1">JUnit4</span>;
+<span class="pl-k">import</span> <span class="pl-s1">org</span>.<span class="pl-s1">openqa</span>.<span class="pl-s1">selenium</span>.<span class="pl-s1">WebDriver</span>;
+
+<span class="pl-c1">@</span><span class="pl-c1">RunWith</span>(<span class="pl-smi">JUnit4</span>.<span class="pl-k">class</span>)
+<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-smi">BrowserTest</span> {
+  <span class="pl-k">private</span> <span class="pl-smi">WebDriver</span> <span class="pl-s1">driver</span>;
+
+  <span class="pl-c1">@</span><span class="pl-c1">Before</span> <span class="pl-k">public</span> <span class="pl-smi">void</span> <span class="pl-en">createDriver</span>() {
+    <span class="pl-s1">driver</span> = <span class="pl-k">new</span> <span class="pl-smi">WebTest</span>().<span class="pl-en">newWebDriverSession</span>();
+  }
+
+  <span class="pl-c1">@</span><span class="pl-c1">After</span> <span class="pl-k">public</span> <span class="pl-smi">void</span> <span class="pl-en">quitDriver</span>() {
+    <span class="pl-k">try</span> {
+      <span class="pl-s1">driver</span>.<span class="pl-en">quit</span>();
+     } <span class="pl-k">finally</span> {
+      <span class="pl-s1">driver</span> = <span class="pl-c1">null</span>;
+     }
+   }
+
+  <span class="pl-c">// your tests here</span>
+}</pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Example Python Test</h3><a id="user-content-example-python-test" class="anchor" aria-label="Permalink: Example Python Test" href="#example-python-test"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="import unittest
+from testing.web import webtest
+
+
+class BrowserTest(unittest.TestCase):
+  def setUp(self):
+    self.driver = webtest.new_webdriver_session()
+
+  def tearDown(self):
+    try:
+      self.driver.quit()
+    finally:
+      self.driver = None
+
+  # Your tests here
+
+if __name__ == &quot;__main__&quot;:
+  unittest.main()"><pre><span class="pl-k">import</span> <span class="pl-s1">unittest</span>
+<span class="pl-k">from</span> <span class="pl-s1">testing</span>.<span class="pl-s1">web</span> <span class="pl-k">import</span> <span class="pl-s1">webtest</span>
+
+
+<span class="pl-k">class</span> <span class="pl-v">BrowserTest</span>(<span class="pl-s1">unittest</span>.<span class="pl-c1">TestCase</span>):
+  <span class="pl-k">def</span> <span class="pl-en">setUp</span>(<span class="pl-s1">self</span>):
+    <span class="pl-s1">self</span>.<span class="pl-c1">driver</span> <span class="pl-c1">=</span> <span class="pl-s1">webtest</span>.<span class="pl-c1">new_webdriver_session</span>()
+
+  <span class="pl-k">def</span> <span class="pl-en">tearDown</span>(<span class="pl-s1">self</span>):
+    <span class="pl-k">try</span>:
+      <span class="pl-s1">self</span>.<span class="pl-c1">driver</span>.<span class="pl-c1">quit</span>()
+    <span class="pl-k">finally</span>:
+      <span class="pl-s1">self</span>.<span class="pl-c1">driver</span> <span class="pl-c1">=</span> <span class="pl-c1">None</span>
+
+  <span class="pl-c"># Your tests here</span>
+
+<span class="pl-k">if</span> <span class="pl-s1">__name__</span> <span class="pl-c1">==</span> <span class="pl-s">"__main__"</span>:
+  <span class="pl-s1">unittest</span>.<span class="pl-c1">main</span>()</pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Example Go Test</h3><a id="user-content-example-go-test" class="anchor" aria-label="Permalink: Example Go Test" href="#example-go-test"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="highlight highlight-source-go notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="import (
+    &quot;testing&quot;
+
+    &quot;github.com/tebeka/selenium&quot;
+    &quot;github.com/bazelbuild/rules_web_testing_go/webtest&quot;
+)
+
+func TestWebApp(t *testing.T) {
+    wd, err := webtest.NewWebDriverSession(selenium.Capabilities{})
+    if err != nil {
+        t.Fatal(err)
+    }
+
+    // your test here
+
+    if err := wd.Quit(); err != nil {
+        t.Logf(&quot;Error quitting webdriver: %v&quot;, err)
+    }
+}"><pre><span class="pl-k">import</span> (
+    <span class="pl-s">"testing"</span>
+
+    <span class="pl-s">"github.com/tebeka/selenium"</span>
+    <span class="pl-s">"github.com/bazelbuild/rules_web_testing_go/webtest"</span>
+)
+
+<span class="pl-k">func</span> <span class="pl-s1">TestWebApp</span>(<span class="pl-s1">t</span> <span class="pl-c1">*</span>testing.<span class="pl-smi">T</span>) {
+    <span class="pl-s1">wd</span>, <span class="pl-s1">err</span> <span class="pl-c1">:=</span> <span class="pl-s1">webtest</span>.<span class="pl-c1">NewWebDriverSession</span>(selenium.<span class="pl-smi">Capabilities</span>{})
+    <span class="pl-k">if</span> <span class="pl-s1">err</span> <span class="pl-c1">!=</span> <span class="pl-c1">nil</span> {
+        <span class="pl-s1">t</span>.<span class="pl-c1">Fatal</span>(<span class="pl-s1">err</span>)
+    }
+
+    <span class="pl-c">// your test here</span>
+
+    <span class="pl-k">if</span> <span class="pl-s1">err</span> <span class="pl-c1">:=</span> <span class="pl-s1">wd</span>.<span class="pl-c1">Quit</span>(); <span class="pl-s1">err</span> <span class="pl-c1">!=</span> <span class="pl-c1">nil</span> {
+        <span class="pl-s1">t</span>.<span class="pl-c1">Logf</span>(<span class="pl-s">"Error quitting webdriver: %v"</span>, <span class="pl-s1">err</span>)
+    }
+}</pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">BUILD file</h3><a id="user-content-build-file" class="anchor" aria-label="Permalink: BUILD file" href="#build-file"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">In your BUILD files, load the correct language specific build rule and create a
+test target using it:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@rules_web_testing_python//web:py.bzl&quot;, &quot;py_web_test_suite&quot;)
+
+py_web_test_suite(
+    name = &quot;browser_test&quot;,
+    srcs = [&quot;browser_test.py&quot;],
+    browsers = [
+        &quot;@rules_webtesting//browsers:chromium-local&quot;,
+    ],
+    local = True,
+    deps = [&quot;@rules_webtesting//testing/web&quot;],
+)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@rules_web_testing_python//web:py.bzl"</span>, <span class="pl-s">"py_web_test_suite"</span>)
+
+<span class="pl-en">py_web_test_suite</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"browser_test"</span>,
+    <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> [<span class="pl-s">"browser_test.py"</span>],
+    <span class="pl-s1">browsers</span> <span class="pl-c1">=</span> [
+        <span class="pl-s">"@rules_webtesting//browsers:chromium-local"</span>,
+    ],
+    <span class="pl-s1">local</span> <span class="pl-c1">=</span> <span class="pl-c1">True</span>,
+    <span class="pl-s1">deps</span> <span class="pl-c1">=</span> [<span class="pl-s">"@rules_webtesting//testing/web"</span>],
+)</pre></div>
+</article></div>
