@@ -4,6 +4,7 @@ import {
   AlertOctagon,
   ArrowUpDown,
   BookOpen,
+  ChevronDown,
   Box,
   CheckCircle2,
   Copy,
@@ -31,7 +32,7 @@ const Module = (props) => {
 
   let [workspaceCopied, setWorkspaceCopied] = useState(false);
   let [moduleCopied, setModuleCopied] = useState(false);
-
+  let [isReleaseExpanded, setIsReleaseExpanded] = useState(location.hash === '#showReleaseNotes');
   let module = props.data.modules[0];
   let versionData =
     release &&
@@ -232,103 +233,142 @@ const Module = (props) => {
           )}
         </div>
       </div>
-      {release &&
-        [release].map((release) => (
-          <div className="package package-release" key={release.tag_name}>
-            <div className="release-header">
-              <div className="release-name">{release.tag_name}</div>
-              <div className="release-date">
-                {new Date(release.published_at).toLocaleDateString("en-us", {
-                  month: "long",
-                  day: "numeric",
-                  year: "numeric",
-                })}
-              </div>
-              <div className="package-release-dropdown-container">
-                <select
-                  className="package-release-dropdown"
-                  onChange={(e) =>
-                    history.push(
-                      `${location.pathname
-                        .split("@")[0]
-                        .replace(/\/$/, "")}@${e.target.value.replace(
-                        /^v/,
-                        ""
-                      )}`
-                    )
-                  }
-                  value={getVersion(location)}
-                >
-                  {props.data.releases.map((r) => (
-                    <option
-                      key={r.tag_name}
-                      value={r.tag_name.replace(/^v/, "")}
-                    >
-                      {r.tag_name.replace(/^v/, "")}
-                    </option>
-                  ))}
-                </select>
-              </div>
+      {release && (
+        <div className="package package-release" key={release.tag_name}>
+          <div 
+            className="release-header hover:bg-gray-50"
+            onClick={() => {
+              setIsReleaseExpanded(!isReleaseExpanded);
+              history.replace({ ...location, hash: !isReleaseExpanded ? '#showReleaseNotes' : '' });
+            }}
+            style={{ cursor: 'pointer' }}
+          >
+            <div className="release-name">
+              <ChevronDown 
+                style={{ 
+                  marginRight: '8px',
+                  width: '16px',
+                  transform: `rotate(${isReleaseExpanded ? 0 : -90}deg)`,
+                  transition: 'transform 0.2s ease'
+                }} 
+              />
+              {release.tag_name}
             </div>
-            <div
-              className="package-rendered"
-              dangerouslySetInnerHTML={{
-                __html: release.body.replace(
-                  new RegExp(
-                    `<h1.*?>.*?${release.name.replace(
-                      /[-[\]{}()*+?.,\\^$|#\s]/g,
-                      "\\$&"
-                    )}.*?</h1>`
-                  ),
-                  ""
-                ),
-              }}
-            />
-            {
-              <>
-                {versionData && (
-                  <div className="package-deps">
-                    <b>Deps:</b>
-                    <ul>
-                      {[
-                        ...versionData.module.matchAll(
-                          /bazel_dep\(.*?name.*?=.*?\"(.*?)\".*?version.*?=.*?\"(.*?)\".*?\)/g
-                        ),
-                      ].map((m) => (
-                        <li key={m[1]}>
-                          <Link href={`/bazel/${m[1]}`}>{m[1]}</Link> · version{" "}
-                          {m[2]}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-                {release && release.assets.length > 0 && (
-                  <div className="package-assets">
-                    <b>Assets:</b>
-                    <ul>
-                      {release.assets.map((a) => (
-                        <li key={a.name}>
-                          <a href={a.browser_download_url}>{a.name}</a> ·{" "}
-                          {size(a.size)} · {a.download_count.toLocaleString()}{" "}
-                          downloads
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-                {versionData && versionData.patches.length > 0 && (
-                  <div className="package-time">
-                    Patches:
-                    {Object.keys(versionData.patches).map((p) => (
-                      <div key={p}>{p}</div>
-                    ))}
-                  </div>
-                )}
-              </>
-            }
+            <div className="release-date">
+              {new Date(release.published_at).toLocaleDateString("en-us", {
+                month: "long",
+                day: "numeric",
+                year: "numeric",
+              })}
+            </div>
+            <div className="package-release-dropdown-container">
+              <select
+                className="package-release-dropdown"
+                onClick={(e) => e.stopPropagation()}
+                onChange={(e) =>
+                  history.push(
+                    `${location.pathname
+                      .split("@")[0]
+                      .replace(/\/$/, "")}@${e.target.value.replace(/^v/, "")}`
+                  )
+                }
+                value={release.tag_name}
+              >
+                {props.data.releases.map((release) => (
+                  <option key={release.tag_name} value={release.tag_name}>
+                    {release.tag_name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            {yanked && (
+              <div className="package-yanked">
+                <AlertOctagon className="package-icon" /> This version has been
+                yanked
+              </div>
+            )}
           </div>
-        ))}
+          {isReleaseExpanded ? (
+            <div className="package-release-content">
+              <div
+                className="package-rendered"
+                dangerouslySetInnerHTML={{
+                  __html: release.body.replace(
+                    new RegExp(
+                      `<h1.*?>.*?${release.name.replace(
+                        /[-[\]{}()*+?.,\\^$|#\s]/g,
+                        "\\$&"
+                      )}.*?</h1>`
+                    ),
+                    ""
+                  ),
+                }}
+              />
+              {versionData && (
+                <>
+                  {versionData.module.compatibility_level && (
+                    <div className="package-time">
+                      <b>Compatibility level:</b>{" "}
+                      {versionData.module.compatibility_level}
+                    </div>
+                  )}
+                  {versionData.module.deps && (
+                    <div className="package-time">
+                      <b>Dependencies:</b>
+                      <ul>
+                        {[
+                          ...Object.entries(versionData.module.deps as Record<string, string>).map(
+                            ([k, v]) => ["bazel_dep", k, v] as [string, string, string]
+                          ),
+                        ].map((m) => (
+                          <li key={m[1]}>
+                            <Link href={`/bazel/${m[1]}`}>{m[1]}</Link> · version{" "}
+                            {m[2]}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  {release && release.assets.length > 0 && (
+                    <div className="package-assets">
+                      <b>Assets:</b>
+                      <ul>
+                        {release.assets.map((a) => (
+                          <li key={a.name}>
+                            <a href={a.browser_download_url}>{a.name}</a> ·{" "}
+                            {size(a.size)} · {a.download_count.toLocaleString()}{" "}
+                            downloads
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  {versionData && versionData.patches.length > 0 && (
+                    <div className="package-time">
+                      Patches:
+                      {Object.keys(versionData.patches).map((p) => (
+                        <div key={p}>{p}</div>
+                      ))}
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          ) : (
+            <div 
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsReleaseExpanded(true);
+                history.replace({ ...location, hash: '#showReleaseNotes' });
+              }}
+              className="hover:underline package-description"
+              style={{ cursor: 'pointer' }}
+            >
+              [expand for release notes]
+            </div>
+          )}
+        </div>
+      )}
       {
         <div className="package">
           <div
