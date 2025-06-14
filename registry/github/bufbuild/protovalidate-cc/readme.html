@@ -1,0 +1,183 @@
+<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><p dir="auto"><a href="https://buf.build" rel="nofollow"><img src=".github/buf-logo.svg" alt="The Buf logo" style="max-width: 100%;"></a></p>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">protovalidate-cc</h1><a id="user-content-protovalidate-cc" class="anchor" aria-label="Permalink: protovalidate-cc" href="#protovalidate-cc"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><a href="https://github.com/bufbuild/protovalidate-cc/actions/workflows/ci.yaml"><img src="https://github.com/bufbuild/protovalidate-cc/actions/workflows/ci.yaml/badge.svg" alt="CI" style="max-width: 100%;"></a>
+<a href="https://github.com/bufbuild/protovalidate-cc/actions/workflows/conformance.yaml"><img src="https://github.com/bufbuild/protovalidate-cc/actions/workflows/conformance.yaml/badge.svg" alt="Conformance" style="max-width: 100%;"></a>
+<a href="https://buf.build/bufbuild/protovalidate" rel="nofollow"><img src="https://camo.githubusercontent.com/9747f10f052cde2fbae556cdabe2f8333e644ed52570ce55296fd0861e06c099/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f4253522d4d6f64756c652d304336354543" alt="BSR" data-canonical-src="https://img.shields.io/badge/BSR-Module-0C65EC" style="max-width: 100%;"></a></p>
+<p dir="auto"><a href="https://buf.build/docs/protovalidate/" rel="nofollow">Protovalidate</a> provides standard annotations to validate common constraints on messages and fields, as well as the ability to use <a href="https://cel.dev" rel="nofollow">CEL</a> to write custom constraints. It's the next generation of <a href="https://github.com/bufbuild/protoc-gen-validate">protoc-gen-validate</a>, the only widely used validation library for Protobuf.</p>
+<p dir="auto">With Protovalidate, you can annotate your Protobuf messages with both standard and custom validation rules:</p>
+<div class="highlight highlight-source-proto notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="syntax = &quot;proto3&quot;;
+
+package banking.v1;
+
+import &quot;buf/validate/validate.proto&quot;;
+
+message MoneyTransfer {
+  string to_account_id = 1 [
+    // Standard rule: `to_account_id` must be a UUID
+    (buf.validate.field).string.uuid = true
+  ];
+
+  string from_account_id = 2 [
+    // Standard rule: `from_account_id` must be a UUID
+    (buf.validate.field).string.uuid = true
+  ];
+
+  // Custom rule: `to_account_id` and `from_account_id` can't be the same.
+  option (buf.validate.message).cel = {
+    id: &quot;to_account_id.not.from_account_id&quot;
+    message: &quot;to_account_id and from_account_id should not be the same value&quot;
+    expression: &quot;this.to_account_id != this.from_account_id&quot;
+  };
+}"><pre><span class="pl-k">syntax</span> <span class="pl-k">=</span> <span class="pl-s">"proto3"</span>;
+
+<span class="pl-k">package</span> <span class="pl-s">banking.v1</span>;
+
+<span class="pl-k">import</span> <span class="pl-s">"buf/validate/validate.proto"</span>;
+
+<span class="pl-k">message</span> <span class="pl-en">MoneyTransfer</span> {
+  <span class="pl-k">string</span> <span class="pl-smi">to_account_id</span> <span class="pl-k">=</span> <span class="pl-c1">1</span> [
+    // <span class="pl-c1">Standard</span> <span class="pl-c1">rule</span>: `<span class="pl-c1">to_account_id</span>` <span class="pl-c1">must</span> <span class="pl-c1">be</span> <span class="pl-c1">a</span> <span class="pl-c1">UUID</span>
+    <span class="pl-c1">(buf.validate<span class="pl-c1">.field</span>)</span>.string<span class="pl-c1">.uuid</span> = <span class="pl-c1">true</span>
+  ];
+
+  <span class="pl-k">string</span> <span class="pl-smi">from_account_id</span> <span class="pl-k">=</span> <span class="pl-c1">2</span> [
+    // <span class="pl-c1">Standard</span> <span class="pl-c1">rule</span>: `<span class="pl-c1">from_account_id</span>` <span class="pl-c1">must</span> <span class="pl-c1">be</span> <span class="pl-c1">a</span> <span class="pl-c1">UUID</span>
+    <span class="pl-c1">(buf.validate<span class="pl-c1">.field</span>)</span>.string<span class="pl-c1">.uuid</span> = <span class="pl-c1">true</span>
+  ];
+
+  <span class="pl-c">// Custom rule: `to_account_id` and `from_account_id` can't be the same.</span>
+  <span class="pl-k">option</span> <span class="pl-c1">(buf.validate<span class="pl-c1">.message</span>).cel</span> <span class="pl-k">=</span> {
+    <span class="pl-k">id</span>: <span class="pl-s">"to_account_id.not.from_account_id"</span>
+    <span class="pl-k">message</span>: <span class="pl-s">"to_account_id and from_account_id should not be the same value"</span>
+    <span class="pl-k">expression</span>: <span class="pl-s">"this.to_account_id != this.from_account_id"</span>
+  };
+}</pre></div>
+<p dir="auto">Once you've added <code>protovalidate-cc</code> to your project, validation is idiomatic C++:</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="std::unique_ptr&lt;buf::validate::ValidatorFactory&gt; factory =
+  buf::validate::ValidatorFactory::New().value();
+google::protobuf::Arena arena;
+buf::validate::Validator validator = factory-&gt;NewValidator(&amp;arena);
+buf::validate::Violations results = validator.Validate(moneyTransfer).value();
+if (results.violations_size() &gt; 0) {
+    // Handle failure
+}"><pre>std::unique_ptr&lt;buf::validate::ValidatorFactory&gt; factory =
+  <span class="pl-en">buf::validate::ValidatorFactory::New</span>().value();
+google::protobuf::Arena arena;
+buf::validate::Validator validator = factory-&gt;<span class="pl-en">NewValidator</span>(&amp;arena);
+buf::validate::Violations results = validator.Validate(moneyTransfer).value();
+<span class="pl-k">if</span> (results.violations_size() &gt; <span class="pl-c1">0</span>) {
+    <span class="pl-c"><span class="pl-c">//</span> Handle failure</span>
+}</pre></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Installation</h2><a id="user-content-installation" class="anchor" aria-label="Permalink: Installation" href="#installation"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Building from source</h3><a id="user-content-building-from-source" class="anchor" aria-label="Permalink: Building from source" href="#building-from-source"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">To install <code>protovalidate-cc</code>, clone the repository and build the project:</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="git clone https://github.com/bufbuild/protovalidate-cc.git
+cd protovalidate-cc
+make build"><pre>git clone https://github.com/bufbuild/protovalidate-cc.git
+<span class="pl-c1">cd</span> protovalidate-cc
+make build</pre></div>
+<p dir="auto">Remember to always check for the latest version of <code>protovalidate-cc</code> on the project's <a href="https://github.com/bufbuild/protovalidate-cc/releases">GitHub releases page</a> to ensure you're using the most up-to-date version.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Bazel external repository</h3><a id="user-content-bazel-external-repository" class="anchor" aria-label="Permalink: Bazel external repository" href="#bazel-external-repository"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Workspace</h4><a id="user-content-workspace" class="anchor" aria-label="Permalink: Workspace" href="#workspace"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">To use <code>protovalidate-cc</code> as an external Bazel repository, add the following to the <code>WORKSPACE</code> file:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@bazel_tools//tools/build_defs/repo:http.bzl&quot;, &quot;http_archive&quot;)
+
+http_archive(
+    name = &quot;com_github_bufbuild_protovalidate_cc&quot;,
+    sha256 = ...,
+    strip_prefix = &quot;protovalidate-cc-{verion}&quot;,
+    urls = [
+        &quot;https://github.com/bufbuild/protovalidate-cc/archive/v{verion}.tar.gz&quot;,
+    ],
+)
+
+load(&quot;@com_github_bufbuild_protovalidate_cc//bazel:deps.bzl&quot;, &quot;protovalidate_cc_dependencies&quot;)
+
+protovalidate_cc_dependencies()"><pre><span class="pl-en">load</span>(<span class="pl-s">"@bazel_tools//tools/build_defs/repo:http.bzl"</span>, <span class="pl-s">"http_archive"</span>)
+
+<span class="pl-en">http_archive</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"com_github_bufbuild_protovalidate_cc"</span>,
+    <span class="pl-s1">sha256</span> <span class="pl-c1">=</span> ...,
+    <span class="pl-s1">strip_prefix</span> <span class="pl-c1">=</span> <span class="pl-s">"protovalidate-cc-{verion}"</span>,
+    <span class="pl-s1">urls</span> <span class="pl-c1">=</span> [
+        <span class="pl-s">"https://github.com/bufbuild/protovalidate-cc/archive/v{verion}.tar.gz"</span>,
+    ],
+)
+
+<span class="pl-en">load</span>(<span class="pl-s">"@com_github_bufbuild_protovalidate_cc//bazel:deps.bzl"</span>, <span class="pl-s">"protovalidate_cc_dependencies"</span>)
+
+<span class="pl-en">protovalidate_cc_dependencies</span>()</pre></div>
+<p dir="auto">Then add a dependency to a <code>cc_library</code> or <code>cc_binary</code> target:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="cc_library(
+    ...
+    deps = [
+        &quot;@com_github_bufbuild_protovalidate_cc//buf/validate:validator&quot;,
+        ...
+    ]
+)"><pre><span class="pl-en">cc_library</span>(
+    ...
+    <span class="pl-s1">deps</span> <span class="pl-c1">=</span> [
+        <span class="pl-s">"@com_github_bufbuild_protovalidate_cc//buf/validate:validator"</span>,
+        ...
+    ]
+)</pre></div>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Bzlmod</h4><a id="user-content-bzlmod" class="anchor" aria-label="Permalink: Bzlmod" href="#bzlmod"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">To use <code>protovalidate-cc</code> as an external dependency for bzlmod, add the following to the <code>MODULE.bazel</code>:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="module(
+    name = &quot;my-module&quot;,
+    version = &quot;1.0&quot;,
+)
+
+bazel_dep(name = &quot;cel-cpp&quot;, repo_name = &quot;com_google_cel_cpp&quot;, version=&quot;0.11.0&quot;)
+bazel_dep(name = &quot;protovalidate-cc&quot;, version = &quot;1.0.0-rc.2&quot;)"><pre><span class="pl-en">module</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"my-module"</span>,
+    <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"1.0"</span>,
+)
+
+<span class="pl-en">bazel_dep</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"cel-cpp"</span>, <span class="pl-s1">repo_name</span> <span class="pl-c1">=</span> <span class="pl-s">"com_google_cel_cpp"</span>, <span class="pl-s1">version</span><span class="pl-c1">=</span><span class="pl-s">"0.11.0"</span>)
+<span class="pl-en">bazel_dep</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"protovalidate-cc"</span>, <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"1.0.0-rc.2"</span>)</pre></div>
+<p dir="auto">And the following to your <code>BUILD.bazel</code>:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="
+cc_binary(
+   ...
+   deps = [ ..., &quot;@protovalidate-cc//buf/validate:validator&quot;, ...]
+   ...
+)"><pre><span class="pl-en">cc_binary</span>(
+   ...
+   <span class="pl-s1">deps</span> <span class="pl-c1">=</span> [ ..., <span class="pl-s">"@protovalidate-cc//buf/validate:validator"</span>, ...]
+   ...
+)</pre></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Documentation</h2><a id="user-content-documentation" class="anchor" aria-label="Permalink: Documentation" href="#documentation"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Comprehensive documentation for Protovalidate is available in <a href="https://buf.build/docs/protovalidate/" rel="nofollow">Buf's documentation library</a>.</p>
+<p dir="auto">Highlights for C++ developers include:</p>
+<ul dir="auto">
+<li>The <a href="https://buf.build/docs/protovalidate/quickstart/" rel="nofollow">developer quickstart</a></li>
+<li>A <a href="https://buf.build/docs/migration-guides/migrate-from-protoc-gen-validate/" rel="nofollow">migration guide for protoc-gen-validate</a> users</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Additional Languages and Repositories</h2><a id="user-content-additional-languages-and-repositories" class="anchor" aria-label="Permalink: Additional Languages and Repositories" href="#additional-languages-and-repositories"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Protovalidate isn't just for C++! You might be interested in sibling repositories for other languages:</p>
+<ul dir="auto">
+<li><a href="https://github.com/bufbuild/protovalidate-go"><code>protovalidate-go</code></a> (Go)</li>
+<li><a href="https://github.com/bufbuild/protovalidate-java"><code>protovalidate-java</code></a> (Java)</li>
+<li><a href="https://github.com/bufbuild/protovalidate-python"><code>protovalidate-python</code></a> (Python)</li>
+<li><a href="https://github.com/bufbuild/protovalidate-es"><code>protovalidate-es</code></a> (TypeScript and JavaScript)</li>
+</ul>
+<p dir="auto">Additionally, <a href="https://github.com/bufbuild/protovalidate">protovalidate's core repository</a> provides:</p>
+<ul dir="auto">
+<li><a href="https://buf.build/bufbuild/protovalidate/docs/main:buf.validate" rel="nofollow">Protovalidate's Protobuf API</a></li>
+<li><a href="https://github.com/bufbuild/protovalidate/blob/main/docs/conformance.md">Conformance testing utilities</a> for acceptance testing of <code>protovalidate</code> implementations</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Contribution</h2><a id="user-content-contribution" class="anchor" aria-label="Permalink: Contribution" href="#contribution"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">We genuinely appreciate any help! If you'd like to contribute, check out these resources:</p>
+<ul dir="auto">
+<li><a href=".github/CONTRIBUTING.md">Contributing Guidelines</a>: Guidelines to make your contribution process straightforward and meaningful</li>
+<li><a href="https://github.com/bufbuild/protovalidate/tree/main/docs/conformance.md">Conformance testing utilities</a>: Utilities providing acceptance testing of <code>protovalidate</code> implementations</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Related Sites</h2><a id="user-content-related-sites" class="anchor" aria-label="Permalink: Related Sites" href="#related-sites"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li><a href="https://buf.build" rel="nofollow">Buf</a>: Enterprise-grade Kafka and gRPC for the modern age</li>
+<li><a href="https://cel.dev" rel="nofollow">Common Expression Language (CEL)</a>: The open-source technology at the core of Protovalidate</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Legal</h2><a id="user-content-legal" class="anchor" aria-label="Permalink: Legal" href="#legal"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Offered under the <a href="LICENSE">Apache 2 license</a>.</p>
+</article></div>
