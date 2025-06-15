@@ -53,20 +53,23 @@ complete details, but to get started, the "Hello, world" <a href="https://raw.gi
 int
 main()
 {
+    int width =  100;
+    int height = 50;
+
+    Imf::Array2D&lt;Imf::Rgba&gt; pixels(height, width);
+    for (int y=0; y&lt;height; y++)
+    {
+        float c = (y / 5 % 2 == 0) ? (y / (float) height) : 0.0;
+        for (int x=0; x&lt;width; x++)
+            pixels[y][x] = Imf::Rgba(c, c, c);
+    }
+
     try {
-        int width =  10;
-        int height = 10;
-        
-        Imf::Array2D&lt;Imf::Rgba&gt; pixels(width, height);
-        for (int y=0; y&lt;height; y++)
-            for (int x=0; x&lt;width; x++)
-                pixels[y][x] = Imf::Rgba(0, x / (width-1.0f), y / (height-1.0f));
-    
-        Imf::RgbaOutputFile file (&quot;hello.exr&quot;, width, height, Imf::WRITE_RGBA);
+        Imf::RgbaOutputFile file (&quot;stripes.exr&quot;, width, height, Imf::WRITE_RGBA);
         file.setFrameBuffer (&amp;pixels[0][0], 1, width);
         file.writePixels (height);
     } catch (const std::exception &amp;e) {
-        std::cerr &lt;&lt; &quot;Unable to read image file hello.exr:&quot; &lt;&lt; e.what() &lt;&lt; std::endl;
+        std::cerr &lt;&lt; &quot;error writing image file stripes.exr:&quot; &lt;&lt; e.what() &lt;&lt; std::endl;
         return 1;
     }
     return 0;
@@ -77,25 +80,33 @@ main()
 int
 main()
 {
+    int width =  100;
+    int height = 50;
+
+    Imf::Array2D&lt;Imf::Rgba&gt; pixels(height, width);
+    for (int y=0; y&lt;height; y++)
+    {
+        float c = (y / 5 % 2 == 0) ? (y / (float) height) : 0.0;
+        for (int x=0; x&lt;width; x++)
+            pixels[y][x] = Imf::Rgba(c, c, c);
+    }
+
     try {
-        int width =  10;
-        int height = 10;
-        
-        Imf::Array2D&lt;Imf::Rgba&gt; pixels(width, height);
-        for (int y=0; y&lt;height; y++)
-            for (int x=0; x&lt;width; x++)
-                pixels[y][x] = Imf::Rgba(0, x / (width-1.0f), y / (height-1.0f));
-    
-        Imf::RgbaOutputFile file ("hello.exr", width, height, Imf::WRITE_RGBA);
+        Imf::RgbaOutputFile file ("stripes.exr", width, height, Imf::WRITE_RGBA);
         file.setFrameBuffer (&amp;pixels[0][0], 1, width);
         file.writePixels (height);
     } catch (const std::exception &amp;e) {
-        std::cerr &lt;&lt; "Unable to read image file hello.exr:" &lt;&lt; e.what() &lt;&lt; std::endl;
+        std::cerr &lt;&lt; "error writing image file stripes.exr:" &lt;&lt; e.what() &lt;&lt; std::endl;
         return 1;
     }
     return 0;
 }
 </code></pre></div>
+<p dir="auto">This creates an image 100 pixels wide and 50 pixels high with
+horizontal stripes 5 pixels high of graduated intensity, bright on the
+bottom of the image and dark towards the top. Note that <code>pixel[0][0]</code>
+is in the upper left:</p>
+<p dir="auto"><a target="_blank" rel="noopener noreferrer" href="website/images/stripes.png"><img src="website/images/stripes.png" alt="stripes" style="max-width: 100%;"></a></p>
 <p dir="auto">The <a href="https://raw.githubusercontent.com/AcademySoftwareFoundation/openexr/main/website/src/exrwriter/CMakeLists.txt" rel="nofollow"><code>CMakeLists.txt</code></a> to build:</p>
 <div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="cmake_minimum_required(VERSION 3.12)
 project(exrwriter)
