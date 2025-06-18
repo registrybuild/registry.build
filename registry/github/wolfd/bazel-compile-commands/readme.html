@@ -1,0 +1,47 @@
+<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">bazel-compile-commands</h1><a id="user-content-bazel-compile-commands" class="anchor" aria-label="Permalink: bazel-compile-commands" href="#bazel-compile-commands"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Usage</h2><a id="user-content-usage" class="anchor" aria-label="Permalink: Usage" href="#usage"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">See <a href="https://github.com/wolfd/bazel-compile-commands/releases">releases</a> for install information.</p>
+<p dir="auto">If you're using the <a href="https://marketplace.visualstudio.com/items?itemName=llvm-vs-code-extensions.vscode-clangd" rel="nofollow">VS Code clangd plugin</a>, you may want to experiment with this option in .vscode/settings.json:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="  &quot;clangd.arguments&quot;: [
+    // Allow clangd to execute your compiler to find system headers. I've seen strange errors when this is enabled, so it might be worth trying without it.
+    &quot;--query-driver=/**&quot;
+  ],"><pre class="notranslate"><code>  "clangd.arguments": [
+    // Allow clangd to execute your compiler to find system headers. I've seen strange errors when this is enabled, so it might be worth trying without it.
+    "--query-driver=/**"
+  ],
+</code></pre></div>
+<p dir="auto">To run, use <code>bazel run @bazel_compile_commands//:generate_compile_commands -- &lt;optional query pattern&gt;</code></p>
+<p dir="auto">Consider adding an alias to your root BUILD.bazel:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="alias(
+    name = &quot;compile_commands&quot;,
+    actual = &quot;@bazel_compile_commands//:generate_compile_commands&quot;,
+)"><pre class="notranslate"><code>alias(
+    name = "compile_commands",
+    actual = "@bazel_compile_commands//:generate_compile_commands",
+)
+</code></pre></div>
+<p dir="auto">And then all you need to do is run <code>bazel run compile_commands</code></p>
+<p dir="auto">You may find in large repos that <code>//...</code> is too much, and you need to run it on a subset of your repo.
+If you don't provide a specific query we default to <code>//... except attr(tags, '\bmanual\b', //...)</code> which will avoid looking at targets that are tagged as manual.
+See the <a href="https://bazel.build/query/aquery" rel="nofollow">bazel aquery docs</a> for more information on how to use aquery.
+The query is wrapped with <code>deps()</code>, but filtered down to <code>CppCompile</code> and <code>Middleman</code> actions.</p>
+<p dir="auto">This tool is not particularly configurable, feel free to fork it and modify it to your needs.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Details</h2><a id="user-content-details" class="anchor" aria-label="Permalink: Details" href="#details"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">This tool uses <code>bazel aquery</code> to get the actual command lines that will be used to compile each file.
+The major complication is that we want to give clangd context for how header files are used in the project.
+The way we solve this problem is by assocating every header with the command line of a source file (.cc/.cpp) that includes it.
+We trace through the whole dependency tree, for headers included in sources, we associate them directly, for headers included in other headers, we trace back up the tree until we find a source file.</p>
+<p dir="auto">We use pre-compiled protobuf outputs. To regenerate them, use <code>./regenerate_protos.sh</code> (run from the root of the repo).
+This requires <a href="https://nixos.org/download" rel="nofollow">nix</a> to be installed.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Known issues</h2><a id="user-content-known-issues" class="anchor" aria-label="Permalink: Known issues" href="#known-issues"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li>Headers stored in tree artifacts are not expanded, so there won't be an entry in compile_commands.json for them.</li>
+<li><code>cc_library</code>s using <code>strip_include_prefix</code> should work (if they've been built recently), but clicking through will open the generated <code>_virtual_includes</code> folder, not the original source (if it exists).</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Related projects</h2><a id="user-content-related-projects" class="anchor" aria-label="Permalink: Related projects" href="#related-projects"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li><a href="https://github.com/hedronvision/bazel-compile-commands-extractor">hedronvision/bazel-compile-commands-extractor</a></li>
+<li><a href="https://github.com/grailbio/bazel-compilation-database">grailbio/bazel-compilation-database</a></li>
+<li><a href="https://github.com/stackb/bazel-stack-vscode-cc">stackb/bazel-stack-vscode-cc</a></li>
+</ul>
+</article></div>
