@@ -1,0 +1,1121 @@
+<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">cpp-peglib</h1><a id="user-content-cpp-peglib" class="anchor" aria-label="Permalink: cpp-peglib" href="#cpp-peglib"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><a href="https://github.com/yhirose/cpp-peglib/actions"><img src="https://github.com/yhirose/cpp-peglib/workflows/CMake/badge.svg" alt="" style="max-width: 100%;"></a></p>
+<p dir="auto">C++17 header-only <a href="http://en.wikipedia.org/wiki/Parsing_expression_grammar" rel="nofollow">PEG</a> (Parsing Expression Grammars) library. You can start using it right away just by including <code>peglib.h</code> in your project.</p>
+<p dir="auto">Since this library only supports C++17 compilers, please make sure that the compiler option <code>-std=c++17</code> is enabled.
+(<code>/std:c++17 /Zc:__cplusplus</code> for MSVC)</p>
+<p dir="auto">You can also try the online version, PEG Playground at <a href="https://yhirose.github.io/cpp-peglib" rel="nofollow">https://yhirose.github.io/cpp-peglib</a>.</p>
+<p dir="auto">The PEG syntax is well described on page 2 in the <a href="http://www.brynosaurus.com/pub/lang/peg.pdf" rel="nofollow">document</a> by Bryan Ford. <em>cpp-peglib</em> also supports the following additional syntax for now:</p>
+<ul dir="auto">
+<li><code>'...'i</code> (Case-insensitive literal operator)</li>
+<li><code>[...]i</code> (Case-insensitive character class operator)</li>
+<li><code>[^...]</code> (Negated character class operator)</li>
+<li><code>[^...]i</code> (Case-insensitive negated character class operator)</li>
+<li><code>{2,5}</code> (Regex-like repetition operator)</li>
+<li><code>&lt;</code> ... <code>&gt;</code> (Token boundary operator)</li>
+<li><code>~</code> (Ignore operator)</li>
+<li><code>\x20</code> (Hex number char)</li>
+<li><code>\u10FFFF</code> (Unicode char)</li>
+<li><code>%whitespace</code> (Automatic whitespace skipping)</li>
+<li><code>%word</code> (Word expression)</li>
+<li><code>$name(</code> ... <code>)</code> (Capture scope operator)</li>
+<li><code>$name&lt;</code> ... <code>&gt;</code> (Named capture operator)</li>
+<li><code>$name</code> (Backreference operator)</li>
+<li><code>|</code> (Dictionary operator)</li>
+<li><code>↑</code> (Cut operator)</li>
+<li><code>MACRO_NAME(</code> ... <code>)</code> (Parameterized rule or Macro)</li>
+<li><code>{ precedence L - + L / * }</code> (Parsing infix expression)</li>
+<li><code>%recovery(</code> ... <code>)</code> (Error recovery operator)</li>
+<li><code>exp⇑label</code> or <code>exp^label</code> (Syntax sugar for <code>(exp / %recover(label))</code>)</li>
+<li><code>label { error_message "..." }</code> (Error message instruction)</li>
+<li><code>{ no_ast_opt }</code> (No AST node optimization instruction)</li>
+</ul>
+<p dir="auto">'End of Input' check will be done as default. To disable the check, please call <code>disable_eoi_check</code>.</p>
+<p dir="auto">This library supports the linear-time parsing known as the <a href="http://pdos.csail.mit.edu/~baford/packrat/thesis/thesis.pdf" rel="nofollow"><em>Packrat</em></a> parsing.</p>
+<p dir="auto">IMPORTANT NOTE for some Linux distributions such as Ubuntu and CentOS: Need <code>-pthread</code> option when linking. See <a href="https://github.com/yhirose/cpp-peglib/issues/23#issuecomment-261126127" data-hovercard-type="issue" data-hovercard-url="/yhirose/cpp-peglib/issues/23/hovercard">#23</a>, <a href="https://github.com/yhirose/cpp-peglib/issues/46#issuecomment-417870473" data-hovercard-type="issue" data-hovercard-url="/yhirose/cpp-peglib/issues/46/hovercard">#46</a> and <a href="https://github.com/yhirose/cpp-peglib/issues/62#issuecomment-492032680" data-hovercard-type="issue" data-hovercard-url="/yhirose/cpp-peglib/issues/62/hovercard">#62</a>.</p>
+<p dir="auto">I am sure that you will enjoy this excellent <a href="https://berthub.eu/articles/posts/practical-peg-parsing/" rel="nofollow">"Practical parsing with PEG and cpp-peglib"</a> article by <a href="https://berthub.eu/" rel="nofollow">bert hubert</a>!</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">How to use</h2><a id="user-content-how-to-use" class="anchor" aria-label="Permalink: How to use" href="#how-to-use"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">This is a simple calculator sample. It shows how to define grammar, associate semantic actions to the grammar, and handle semantic values.</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="// (1) Include the header file
+#include &lt;peglib.h&gt;
+#include &lt;assert.h&gt;
+#include &lt;iostream&gt;
+
+using namespace peg;
+using namespace std;
+
+int main(void) {
+  // (2) Make a parser
+  parser parser(R&quot;(
+    # Grammar for Calculator...
+    Additive    &lt;- Multiplicative '+' Additive / Multiplicative
+    Multiplicative   &lt;- Primary '*' Multiplicative / Primary
+    Primary     &lt;- '(' Additive ')' / Number
+    Number      &lt;- &lt; [0-9]+ &gt;
+    %whitespace &lt;- [ \t]*
+  )&quot;);
+
+  assert(static_cast&lt;bool&gt;(parser) == true);
+
+  // (3) Setup actions
+  parser[&quot;Additive&quot;] = [](const SemanticValues &amp;vs) {
+    switch (vs.choice()) {
+    case 0: // &quot;Multiplicative '+' Additive&quot;
+      return any_cast&lt;int&gt;(vs[0]) + any_cast&lt;int&gt;(vs[1]);
+    default: // &quot;Multiplicative&quot;
+      return any_cast&lt;int&gt;(vs[0]);
+    }
+  };
+
+  parser[&quot;Multiplicative&quot;] = [](const SemanticValues &amp;vs) {
+    switch (vs.choice()) {
+    case 0: // &quot;Primary '*' Multiplicative&quot;
+      return any_cast&lt;int&gt;(vs[0]) * any_cast&lt;int&gt;(vs[1]);
+    default: // &quot;Primary&quot;
+      return any_cast&lt;int&gt;(vs[0]);
+    }
+  };
+
+  parser[&quot;Number&quot;] = [](const SemanticValues &amp;vs) {
+    return vs.token_to_number&lt;int&gt;();
+  };
+
+  // (4) Parse
+  parser.enable_packrat_parsing(); // Enable packrat parsing.
+
+  int val;
+  parser.parse(&quot; (1 + 2) * 3 &quot;, val);
+
+  assert(val == 9);
+}"><pre><span class="pl-c"><span class="pl-c">//</span> (1) Include the header file</span>
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>peglib.h<span class="pl-pds">&gt;</span></span>
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>assert.h<span class="pl-pds">&gt;</span></span>
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>iostream<span class="pl-pds">&gt;</span></span>
+
+<span class="pl-k">using</span> <span class="pl-k">namespace</span> <span class="pl-en">peg</span><span class="pl-k">;</span>
+<span class="pl-k">using</span> <span class="pl-k">namespace</span> <span class="pl-en">std</span><span class="pl-k">;</span>
+
+<span class="pl-k">int</span> <span class="pl-en">main</span>(<span class="pl-k">void</span>) {
+  <span class="pl-c"><span class="pl-c">//</span> (2) Make a parser</span>
+  parser <span class="pl-smi">parser</span>(<span class="pl-s"><span class="pl-pds">R"(</span></span>
+<span class="pl-s">    # Grammar for Calculator...</span>
+<span class="pl-s">    Additive    &lt;- Multiplicative '+' Additive / Multiplicative</span>
+<span class="pl-s">    Multiplicative   &lt;- Primary '*' Multiplicative / Primary</span>
+<span class="pl-s">    Primary     &lt;- '(' Additive ')' / Number</span>
+<span class="pl-s">    Number      &lt;- &lt; [0-9]+ &gt;</span>
+<span class="pl-s">    %whitespace &lt;- [ \t]*</span>
+<span class="pl-s">  <span class="pl-pds">)"</span></span>);
+
+  <span class="pl-c1">assert</span>(<span class="pl-k">static_cast</span>&lt;<span class="pl-k">bool</span>&gt;(parser) == <span class="pl-c1">true</span>);
+
+  <span class="pl-c"><span class="pl-c">//</span> (3) Setup actions</span>
+  parser[<span class="pl-s"><span class="pl-pds">"</span>Additive<span class="pl-pds">"</span></span>] = [](<span class="pl-k">const</span> SemanticValues &amp;vs) {
+    <span class="pl-k">switch</span> (vs.<span class="pl-c1">choice</span>()) {
+    <span class="pl-k">case</span> <span class="pl-c1">0</span>: <span class="pl-c"><span class="pl-c">//</span> "Multiplicative '+' Additive"</span>
+      <span class="pl-k">return</span> any_cast&lt;<span class="pl-k">int</span>&gt;(vs[<span class="pl-c1">0</span>]) + any_cast&lt;<span class="pl-k">int</span>&gt;(vs[<span class="pl-c1">1</span>]);
+    <span class="pl-k">default</span>: <span class="pl-c"><span class="pl-c">//</span> "Multiplicative"</span>
+      <span class="pl-k">return</span> any_cast&lt;<span class="pl-k">int</span>&gt;(vs[<span class="pl-c1">0</span>]);
+    }
+  };
+
+  parser[<span class="pl-s"><span class="pl-pds">"</span>Multiplicative<span class="pl-pds">"</span></span>] = [](<span class="pl-k">const</span> SemanticValues &amp;vs) {
+    <span class="pl-k">switch</span> (vs.<span class="pl-c1">choice</span>()) {
+    <span class="pl-k">case</span> <span class="pl-c1">0</span>: <span class="pl-c"><span class="pl-c">//</span> "Primary '*' Multiplicative"</span>
+      <span class="pl-k">return</span> any_cast&lt;<span class="pl-k">int</span>&gt;(vs[<span class="pl-c1">0</span>]) * any_cast&lt;<span class="pl-k">int</span>&gt;(vs[<span class="pl-c1">1</span>]);
+    <span class="pl-k">default</span>: <span class="pl-c"><span class="pl-c">//</span> "Primary"</span>
+      <span class="pl-k">return</span> any_cast&lt;<span class="pl-k">int</span>&gt;(vs[<span class="pl-c1">0</span>]);
+    }
+  };
+
+  parser[<span class="pl-s"><span class="pl-pds">"</span>Number<span class="pl-pds">"</span></span>] = [](<span class="pl-k">const</span> SemanticValues &amp;vs) {
+    <span class="pl-k">return</span> vs.<span class="pl-smi">token_to_number</span>&lt;<span class="pl-k">int</span>&gt;();
+  };
+
+  <span class="pl-c"><span class="pl-c">//</span> (4) Parse</span>
+  parser.<span class="pl-c1">enable_packrat_parsing</span>(); <span class="pl-c"><span class="pl-c">//</span> Enable packrat parsing.</span>
+
+  <span class="pl-k">int</span> val;
+  parser.<span class="pl-c1">parse</span>(<span class="pl-s"><span class="pl-pds">"</span> (1 + 2) * 3 <span class="pl-pds">"</span></span>, val);
+
+  <span class="pl-c1">assert</span>(val == <span class="pl-c1">9</span>);
+}</pre></div>
+<p dir="auto">To show syntax errors in grammar text:</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="auto grammar = R&quot;(
+  # Grammar for Calculator...
+  Additive    &lt;- Multiplicative '+' Additive / Multiplicative
+  Multiplicative   &lt;- Primary '*' Multiplicative / Primary
+  Primary     &lt;- '(' Additive ')' / Number
+  Number      &lt;- &lt; [0-9]+ &gt;
+  %whitespace &lt;- [ \t]*
+)&quot;;
+
+parser parser;
+
+parser.set_logger([](size_t line, size_t col, const string&amp; msg, const string &amp;rule) {
+  cerr &lt;&lt; line &lt;&lt; &quot;:&quot; &lt;&lt; col &lt;&lt; &quot;: &quot; &lt;&lt; msg &lt;&lt; &quot;\n&quot;;
+});
+
+auto ok = parser.load_grammar(grammar);
+assert(ok);"><pre><span class="pl-k">auto</span> grammar = <span class="pl-s"><span class="pl-pds">R"(</span></span>
+<span class="pl-s">  # Grammar for Calculator...</span>
+<span class="pl-s">  Additive    &lt;- Multiplicative '+' Additive / Multiplicative</span>
+<span class="pl-s">  Multiplicative   &lt;- Primary '*' Multiplicative / Primary</span>
+<span class="pl-s">  Primary     &lt;- '(' Additive ')' / Number</span>
+<span class="pl-s">  Number      &lt;- &lt; [0-9]+ &gt;</span>
+<span class="pl-s">  %whitespace &lt;- [ \t]*</span>
+<span class="pl-s"><span class="pl-pds">)"</span></span>;
+
+parser parser;
+
+parser.set_logger([](<span class="pl-c1">size_t</span> line, <span class="pl-c1">size_t</span> col, <span class="pl-k">const</span> string&amp; msg, <span class="pl-k">const</span> string &amp;rule) {
+  cerr &lt;&lt; line &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>:<span class="pl-pds">"</span></span> &lt;&lt; col &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>: <span class="pl-pds">"</span></span> &lt;&lt; msg &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span><span class="pl-cce">\n</span><span class="pl-pds">"</span></span>;
+});
+
+<span class="pl-k">auto</span> ok = parser.load_grammar(grammar);
+<span class="pl-en">assert</span>(ok);</pre></div>
+<p dir="auto">There are four semantic actions available:</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="[](const SemanticValues&amp; vs, any&amp; dt)
+[](const SemanticValues&amp; vs)
+[](SemanticValues&amp; vs, any&amp; dt)
+[](SemanticValues&amp; vs)"><pre>[](<span class="pl-k">const</span> SemanticValues&amp; vs, any&amp; dt)
+[](<span class="pl-k">const</span> SemanticValues&amp; vs)
+[](SemanticValues&amp; vs, any&amp; dt)
+[](SemanticValues&amp; vs)</pre></div>
+<p dir="auto"><code>SemanticValues</code> value contains the following information:</p>
+<ul dir="auto">
+<li>Semantic values</li>
+<li>Matched string information</li>
+<li>Token information if the rule is literal or uses a token boundary operator</li>
+<li>Choice number when the rule is 'prioritized choice'</li>
+</ul>
+<p dir="auto"><code>any&amp; dt</code> is a 'read-write' context data which can be used for whatever purposes. The initial context data is set in <code>peg::parser::parse</code> method.</p>
+<p dir="auto">A semantic action can return a value of arbitrary data type, which will be wrapped by <code>peg::any</code>. If a user returns nothing in a semantic action, the first semantic value in the <code>const SemanticValues&amp; vs</code> argument will be returned. (Yacc parser has the same behavior.)</p>
+<p dir="auto">Here shows the <code>SemanticValues</code> structure:</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="struct SemanticValues : protected std::vector&lt;any&gt;
+{
+  // Input text
+  const char* path;
+  const char* ss;
+
+  // Matched string
+  std::string_view sv() const { return sv_; }
+
+  // Line number and column at which the matched string is
+  std::pair&lt;size_t, size_t&gt; line_info() const;
+
+  // Tokens
+  std::vector&lt;std::string_view&gt; tokens;
+  std::string_view token(size_t id = 0) const;
+
+  // Token conversion
+  std::string token_to_string(size_t id = 0) const;
+  template &lt;typename T&gt; T token_to_number() const;
+
+  // Choice number (0 based index)
+  size_t choice() const;
+
+  // Transform the semantic value vector to another vector
+  template &lt;typename T&gt; vector&lt;T&gt; transform(size_t beg = 0, size_t end = -1) const;
+}"><pre><span class="pl-k">struct</span> <span class="pl-en">SemanticValues</span> : <span class="pl-k">protected</span> <span class="pl-en">std</span>::vector&lt;any&gt;
+{
+  <span class="pl-c"><span class="pl-c">//</span> Input text</span>
+  <span class="pl-k">const</span> <span class="pl-k">char</span>* path;
+  <span class="pl-k">const</span> <span class="pl-k">char</span>* ss;
+
+  <span class="pl-c"><span class="pl-c">//</span> Matched string</span>
+  std::string_view <span class="pl-en">sv</span>() <span class="pl-k">const</span> { <span class="pl-k">return</span> sv_; }
+
+  <span class="pl-c"><span class="pl-c">//</span> Line number and column at which the matched string is</span>
+  std::pair&lt;<span class="pl-c1">size_t</span>, <span class="pl-c1">size_t</span>&gt; <span class="pl-en">line_info</span>() <span class="pl-k">const</span>;
+
+  <span class="pl-c"><span class="pl-c">//</span> Tokens</span>
+  std::vector&lt;std::string_view&gt; tokens;
+  std::string_view <span class="pl-en">token</span>(<span class="pl-c1">size_t</span> id = <span class="pl-c1">0</span>) <span class="pl-k">const</span>;
+
+  <span class="pl-c"><span class="pl-c">//</span> Token conversion</span>
+  std::string <span class="pl-en">token_to_string</span>(<span class="pl-c1">size_t</span> id = <span class="pl-c1">0</span>) <span class="pl-k">const</span>;
+  <span class="pl-k">template </span>&lt;<span class="pl-k">typename</span> T&gt; T <span class="pl-en">token_to_number</span>() <span class="pl-k">const</span>;
+
+  <span class="pl-c"><span class="pl-c">//</span> Choice number (0 based index)</span>
+  <span class="pl-c1">size_t</span> <span class="pl-en">choice</span>() <span class="pl-k">const</span>;
+
+  <span class="pl-c"><span class="pl-c">//</span> Transform the semantic value vector to another vector</span>
+  <span class="pl-k">template </span>&lt;<span class="pl-k">typename</span> T&gt; vector&lt;T&gt; <span class="pl-en">transform</span>(<span class="pl-c1">size_t</span> beg = <span class="pl-c1">0</span>, <span class="pl-c1">size_t</span> end = -<span class="pl-c1">1</span>) <span class="pl-k">const</span>;
+}<span class="pl-ii"></span></pre></div>
+<p dir="auto">The following example uses <code>&lt;</code> ... <code>&gt;</code> operator, which is <em>token boundary</em> operator.</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="peg::parser parser(R&quot;(
+  ROOT  &lt;- _ TOKEN (',' _ TOKEN)*
+  TOKEN &lt;- &lt; [a-z0-9]+ &gt; _
+  _     &lt;- [ \t\r\n]*
+)&quot;);
+
+parser[&quot;TOKEN&quot;] = [](const SemanticValues&amp; vs) {
+  // 'token' doesn't include trailing whitespaces
+  auto token = vs.token();
+};
+
+auto ret = parser.parse(&quot; token1, token2 &quot;);"><pre>peg::parser <span class="pl-en">parser</span>(<span class="pl-s"><span class="pl-pds">R"(</span></span>
+<span class="pl-s">  ROOT  &lt;- _ TOKEN (',' _ TOKEN)*</span>
+<span class="pl-s">  TOKEN &lt;- &lt; [a-z0-9]+ &gt; _</span>
+<span class="pl-s">  _     &lt;- [ \t\r\n]*</span>
+<span class="pl-s"><span class="pl-pds">)"</span></span>);
+
+parser[<span class="pl-s"><span class="pl-pds">"</span>TOKEN<span class="pl-pds">"</span></span>] = [](<span class="pl-k">const</span> SemanticValues&amp; vs) {
+  <span class="pl-c"><span class="pl-c">//</span> 'token' doesn't include trailing whitespaces</span>
+  <span class="pl-k">auto</span> token = vs.<span class="pl-c1">token</span>();
+};
+
+<span class="pl-k">auto</span> ret = parser.parse(<span class="pl-s"><span class="pl-pds">"</span> token1, token2 <span class="pl-pds">"</span></span>);</pre></div>
+<p dir="auto">We can ignore unnecessary semantic values from the list by using <code>~</code> operator.</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="peg::parser parser(R&quot;(
+  ROOT  &lt;-  _ ITEM (',' _ ITEM _)*
+  ITEM  &lt;-  ([a-z0-9])+
+  ~_    &lt;-  [ \t]*
+)&quot;);
+
+parser[&quot;ROOT&quot;] = [&amp;](const SemanticValues&amp; vs) {
+  assert(vs.size() == 2); // should be 2 instead of 5.
+};
+
+auto ret = parser.parse(&quot; item1, item2 &quot;);"><pre>peg::parser <span class="pl-en">parser</span>(<span class="pl-s"><span class="pl-pds">R"(</span></span>
+<span class="pl-s">  ROOT  &lt;-  _ ITEM (',' _ ITEM _)*</span>
+<span class="pl-s">  ITEM  &lt;-  ([a-z0-9])+</span>
+<span class="pl-s">  ~_    &lt;-  [ \t]*</span>
+<span class="pl-s"><span class="pl-pds">)"</span></span>);
+
+parser[<span class="pl-s"><span class="pl-pds">"</span>ROOT<span class="pl-pds">"</span></span>] = [&amp;](<span class="pl-k">const</span> SemanticValues&amp; vs) {
+  <span class="pl-c1">assert</span>(vs.<span class="pl-c1">size</span>() == <span class="pl-c1">2</span>); <span class="pl-c"><span class="pl-c">//</span> should be 2 instead of 5.</span>
+};
+
+<span class="pl-k">auto</span> ret = parser.parse(<span class="pl-s"><span class="pl-pds">"</span> item1, item2 <span class="pl-pds">"</span></span>);</pre></div>
+<p dir="auto">The following grammar is the same as the above.</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="peg::parser parser(R&quot;(
+  ROOT  &lt;-  ~_ ITEM (',' ~_ ITEM ~_)*
+  ITEM  &lt;-  ([a-z0-9])+
+  _     &lt;-  [ \t]*
+)&quot;);"><pre>peg::parser <span class="pl-en">parser</span>(<span class="pl-s"><span class="pl-pds">R"(</span></span>
+<span class="pl-s">  ROOT  &lt;-  ~_ ITEM (',' ~_ ITEM ~_)*</span>
+<span class="pl-s">  ITEM  &lt;-  ([a-z0-9])+</span>
+<span class="pl-s">  _     &lt;-  [ \t]*</span>
+<span class="pl-s"><span class="pl-pds">)"</span></span>);</pre></div>
+<p dir="auto"><em>Semantic predicate</em> support is available with a <em>predicate</em> action.</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="peg::parser parser(&quot;NUMBER  &lt;-  [0-9]+&quot;);
+
+parser[&quot;NUMBER&quot;] = [](const SemanticValues &amp;vs) {
+  return vs.token_to_number&lt;long&gt;();
+};
+
+parser[&quot;NUMBER&quot;].predicate = [](const SemanticValues &amp;vs,
+                                const std::any &amp; /*dt*/, std::string &amp;msg) {
+  if (vs.token_to_number&lt;long&gt;() != 100) {
+    msg = &quot;value error!!&quot;;
+    return false;
+  }
+  return true;
+};
+
+long val;
+auto ret = parser.parse(&quot;100&quot;, val);
+assert(ret == true);
+assert(val == 100);
+
+ret = parser.parse(&quot;200&quot;, val);
+assert(ret == false);"><pre>peg::parser <span class="pl-en">parser</span>(<span class="pl-s"><span class="pl-pds">"</span>NUMBER  &lt;-  [0-9]+<span class="pl-pds">"</span></span>);
+
+parser[<span class="pl-s"><span class="pl-pds">"</span>NUMBER<span class="pl-pds">"</span></span>] = [](<span class="pl-k">const</span> SemanticValues &amp;vs) {
+  <span class="pl-k">return</span> vs.<span class="pl-smi">token_to_number</span>&lt;<span class="pl-k">long</span>&gt;();
+};
+
+parser[<span class="pl-s"><span class="pl-pds">"</span>NUMBER<span class="pl-pds">"</span></span>].predicate = [](<span class="pl-k">const</span> SemanticValues &amp;vs,
+                                <span class="pl-k">const</span> std::any &amp; <span class="pl-c"><span class="pl-c">/*</span>dt<span class="pl-c">*/</span></span>, std::string &amp;msg) {
+  <span class="pl-k">if</span> (vs.<span class="pl-smi">token_to_number</span>&lt;<span class="pl-k">long</span>&gt;() != <span class="pl-c1">100</span>) {
+    msg = <span class="pl-s"><span class="pl-pds">"</span>value error!!<span class="pl-pds">"</span></span>;
+    <span class="pl-k">return</span> <span class="pl-c1">false</span>;
+  }
+  <span class="pl-k">return</span> <span class="pl-c1">true</span>;
+};
+
+<span class="pl-k">long</span> val;
+<span class="pl-k">auto</span> ret = parser.parse(<span class="pl-s"><span class="pl-pds">"</span>100<span class="pl-pds">"</span></span>, val);
+<span class="pl-en">assert</span>(ret == <span class="pl-c1">true</span>);
+<span class="pl-en">assert</span>(val == <span class="pl-c1">100</span>);
+
+ret = parser.parse(<span class="pl-s"><span class="pl-pds">"</span>200<span class="pl-pds">"</span></span>, val);
+<span class="pl-en">assert</span>(ret == <span class="pl-c1">false</span>);</pre></div>
+<p dir="auto"><em>enter</em> and <em>leave</em> actions are also available.</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="parser[&quot;RULE&quot;].enter = [](const Context &amp;c, const char* s, size_t n, any&amp; dt) {
+  std::cout &lt;&lt; &quot;enter&quot; &lt;&lt; std::endl;
+};
+
+parser[&quot;RULE&quot;] = [](const SemanticValues&amp; vs, any&amp; dt) {
+  std::cout &lt;&lt; &quot;action!&quot; &lt;&lt; std::endl;
+};
+
+parser[&quot;RULE&quot;].leave = [](const Context &amp;c, const char* s, size_t n, size_t matchlen, any&amp; value, any&amp; dt) {
+  std::cout &lt;&lt; &quot;leave&quot; &lt;&lt; std::endl;
+};"><pre>parser[<span class="pl-s"><span class="pl-pds">"</span>RULE<span class="pl-pds">"</span></span>].enter = [](<span class="pl-k">const</span> Context &amp;c, <span class="pl-k">const</span> <span class="pl-k">char</span>* s, <span class="pl-c1">size_t</span> n, any&amp; dt) {
+  std::cout &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>enter<span class="pl-pds">"</span></span> &lt;&lt; std::endl;
+};
+
+parser[<span class="pl-s"><span class="pl-pds">"</span>RULE<span class="pl-pds">"</span></span>] = [](<span class="pl-k">const</span> SemanticValues&amp; vs, any&amp; dt) {
+  std::cout &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>action!<span class="pl-pds">"</span></span> &lt;&lt; std::endl;
+};
+
+parser[<span class="pl-s"><span class="pl-pds">"</span>RULE<span class="pl-pds">"</span></span>].leave = [](<span class="pl-k">const</span> Context &amp;c, <span class="pl-k">const</span> <span class="pl-k">char</span>* s, <span class="pl-c1">size_t</span> n, <span class="pl-c1">size_t</span> matchlen, any&amp; value, any&amp; dt) {
+  std::cout &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>leave<span class="pl-pds">"</span></span> &lt;&lt; std::endl;
+};</pre></div>
+<p dir="auto">You can receive error information via a logger:</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="parser.set_logger([](size_t line, size_t col, const string&amp; msg) {
+  ...
+});
+
+parser.set_logger([](size_t line, size_t col, const string&amp; msg, const string &amp;rule) {
+  ...
+});"><pre>parser.set_logger([](<span class="pl-c1">size_t</span> line, <span class="pl-c1">size_t</span> col, <span class="pl-k">const</span> string&amp; msg) {
+  ...
+});
+
+parser.set_logger([](<span class="pl-c1">size_t</span> line, <span class="pl-c1">size_t</span> col, <span class="pl-k">const</span> string&amp; msg, <span class="pl-k">const</span> string &amp;rule) {
+  ...
+});</pre></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Ignoring Whitespaces</h2><a id="user-content-ignoring-whitespaces" class="anchor" aria-label="Permalink: Ignoring Whitespaces" href="#ignoring-whitespaces"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">As you can see in the first example, we can ignore whitespaces between tokens automatically with <code>%whitespace</code> rule.</p>
+<p dir="auto"><code>%whitespace</code> rule can be applied to the following three conditions:</p>
+<ul dir="auto">
+<li>trailing spaces on tokens</li>
+<li>leading spaces on text</li>
+<li>trailing spaces on literal strings in rules</li>
+</ul>
+<p dir="auto">These are valid tokens:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="KEYWORD   &lt;- 'keyword'
+KEYWORDI  &lt;- 'case_insensitive_keyword'
+WORD      &lt;-  &lt; [a-zA-Z0-9] [a-zA-Z0-9-_]* &gt;    # token boundary operator is used.
+IDNET     &lt;-  &lt; IDENT_START_CHAR IDENT_CHAR* &gt;  # token boundary operator is used."><pre class="notranslate"><code>KEYWORD   &lt;- 'keyword'
+KEYWORDI  &lt;- 'case_insensitive_keyword'
+WORD      &lt;-  &lt; [a-zA-Z0-9] [a-zA-Z0-9-_]* &gt;    # token boundary operator is used.
+IDNET     &lt;-  &lt; IDENT_START_CHAR IDENT_CHAR* &gt;  # token boundary operator is used.
+</code></pre></div>
+<p dir="auto">The following grammar accepts <code>one, "two three", four</code>.</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="ROOT         &lt;- ITEM (',' ITEM)*
+ITEM         &lt;- WORD / PHRASE
+WORD         &lt;- &lt; [a-z]+ &gt;
+PHRASE       &lt;- &lt; '&quot;' (!'&quot;' .)* '&quot;' &gt;
+
+%whitespace  &lt;-  [ \t\r\n]*"><pre class="notranslate"><code>ROOT         &lt;- ITEM (',' ITEM)*
+ITEM         &lt;- WORD / PHRASE
+WORD         &lt;- &lt; [a-z]+ &gt;
+PHRASE       &lt;- &lt; '"' (!'"' .)* '"' &gt;
+
+%whitespace  &lt;-  [ \t\r\n]*
+</code></pre></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Word expression</h2><a id="user-content-word-expression" class="anchor" aria-label="Permalink: Word expression" href="#word-expression"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="peg::parser parser(R&quot;(
+  ROOT         &lt;-  'hello' 'world'
+  %whitespace  &lt;-  [ \t\r\n]*
+  %word        &lt;-  [a-z]+
+)&quot;);
+
+parser.parse(&quot;hello world&quot;); // OK
+parser.parse(&quot;helloworld&quot;);  // NG"><pre>peg::parser <span class="pl-en">parser</span>(<span class="pl-s"><span class="pl-pds">R"(</span></span>
+<span class="pl-s">  ROOT         &lt;-  'hello' 'world'</span>
+<span class="pl-s">  %whitespace  &lt;-  [ \t\r\n]*</span>
+<span class="pl-s">  %word        &lt;-  [a-z]+</span>
+<span class="pl-s"><span class="pl-pds">)"</span></span>);
+
+parser.parse(<span class="pl-s"><span class="pl-pds">"</span>hello world<span class="pl-pds">"</span></span>); <span class="pl-c"><span class="pl-c">//</span> OK</span>
+parser.parse(<span class="pl-s"><span class="pl-pds">"</span>helloworld<span class="pl-pds">"</span></span>);  <span class="pl-c"><span class="pl-c">//</span> NG</span></pre></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Capture/Backreference</h2><a id="user-content-capturebackreference" class="anchor" aria-label="Permalink: Capture/Backreference" href="#capturebackreference"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="peg::parser parser(R&quot;(
+  ROOT      &lt;- CONTENT
+  CONTENT   &lt;- (ELEMENT / TEXT)*
+  ELEMENT   &lt;- $(STAG CONTENT ETAG)
+  STAG      &lt;- '&lt;' $tag&lt; TAG_NAME &gt; '&gt;'
+  ETAG      &lt;- '&lt;/' $tag '&gt;'
+  TAG_NAME  &lt;- 'b' / 'u'
+  TEXT      &lt;- TEXT_DATA
+  TEXT_DATA &lt;- ![&lt;] .
+)&quot;);
+
+parser.parse(&quot;This is &lt;b&gt;a &lt;u&gt;test&lt;/u&gt; text&lt;/b&gt;.&quot;); // OK
+parser.parse(&quot;This is &lt;b&gt;a &lt;u&gt;test&lt;/b&gt; text&lt;/u&gt;.&quot;); // NG
+parser.parse(&quot;This is &lt;b&gt;a &lt;u&gt;test text&lt;/b&gt;.&quot;);     // NG"><pre>peg::parser <span class="pl-en">parser</span>(<span class="pl-s"><span class="pl-pds">R"(</span></span>
+<span class="pl-s">  ROOT      &lt;- CONTENT</span>
+<span class="pl-s">  CONTENT   &lt;- (ELEMENT / TEXT)*</span>
+<span class="pl-s">  ELEMENT   &lt;- $(STAG CONTENT ETAG)</span>
+<span class="pl-s">  STAG      &lt;- '&lt;' $tag&lt; TAG_NAME &gt; '&gt;'</span>
+<span class="pl-s">  ETAG      &lt;- '&lt;/' $tag '&gt;'</span>
+<span class="pl-s">  TAG_NAME  &lt;- 'b' / 'u'</span>
+<span class="pl-s">  TEXT      &lt;- TEXT_DATA</span>
+<span class="pl-s">  TEXT_DATA &lt;- ![&lt;] .</span>
+<span class="pl-s"><span class="pl-pds">)"</span></span>);
+
+parser.parse(<span class="pl-s"><span class="pl-pds">"</span>This is &lt;b&gt;a &lt;u&gt;test&lt;/u&gt; text&lt;/b&gt;.<span class="pl-pds">"</span></span>); <span class="pl-c"><span class="pl-c">//</span> OK</span>
+parser.parse(<span class="pl-s"><span class="pl-pds">"</span>This is &lt;b&gt;a &lt;u&gt;test&lt;/b&gt; text&lt;/u&gt;.<span class="pl-pds">"</span></span>); <span class="pl-c"><span class="pl-c">//</span> NG</span>
+parser.parse(<span class="pl-s"><span class="pl-pds">"</span>This is &lt;b&gt;a &lt;u&gt;test text&lt;/b&gt;.<span class="pl-pds">"</span></span>);     <span class="pl-c"><span class="pl-c">//</span> NG</span></pre></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Dictionary</h2><a id="user-content-dictionary" class="anchor" aria-label="Permalink: Dictionary" href="#dictionary"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><code>|</code> operator allows us to make a word dictionary for fast lookup by using Trie structure internally. We don't have to worry about the order of words.</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="START &lt;- 'This month is ' MONTH '.'
+MONTH &lt;- 'Jan' | 'January' | 'Feb' | 'February' | '...'"><pre lang="peg" class="notranslate"><code>START &lt;- 'This month is ' MONTH '.'
+MONTH &lt;- 'Jan' | 'January' | 'Feb' | 'February' | '...'
+</code></pre></div>
+<p dir="auto">We are able to find which item is matched with <code>choice()</code>.</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="parser[&quot;MONTH&quot;] = [](const SemanticValues &amp;vs) {
+  auto id = vs.choice();
+};"><pre>parser[<span class="pl-s"><span class="pl-pds">"</span>MONTH<span class="pl-pds">"</span></span>] = [](<span class="pl-k">const</span> SemanticValues &amp;vs) {
+  <span class="pl-k">auto</span> id = vs.<span class="pl-c1">choice</span>();
+};</pre></div>
+<p dir="auto">It supports the case-insensitive mode.</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="START &lt;- 'This month is ' MONTH '.'
+MONTH &lt;- 'Jan'i | 'January'i | 'Feb'i | 'February'i | '...'i"><pre lang="peg" class="notranslate"><code>START &lt;- 'This month is ' MONTH '.'
+MONTH &lt;- 'Jan'i | 'January'i | 'Feb'i | 'February'i | '...'i
+</code></pre></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Cut operator</h2><a id="user-content-cut-operator" class="anchor" aria-label="Permalink: Cut operator" href="#cut-operator"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><code>↑</code> operator could mitigate the backtrack performance problem, but has a risk to change the meaning of grammar.</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="S &lt;- '(' ↑ P ')' / '&quot;' ↑ P '&quot;' / P
+P &lt;- 'a' / 'b' / 'c'"><pre lang="peg" class="notranslate"><code>S &lt;- '(' ↑ P ')' / '"' ↑ P '"' / P
+P &lt;- 'a' / 'b' / 'c'
+</code></pre></div>
+<p dir="auto">When we parse <code>(z</code> with the above grammar, we don't have to backtrack in <code>S</code> after <code>(</code> is matched, because a cut operator is inserted there.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Parameterized Rule or Macro</h2><a id="user-content-parameterized-rule-or-macro" class="anchor" aria-label="Permalink: Parameterized Rule or Macro" href="#parameterized-rule-or-macro"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="# Syntax
+Start      ← _ Expr
+Expr       ← Sum
+Sum        ← List(Product, SumOpe)
+Product    ← List(Value, ProOpe)
+Value      ← Number / T('(') Expr T(')')
+
+# Token
+SumOpe     ← T('+' / '-')
+ProOpe     ← T('*' / '/')
+Number     ← T([0-9]+)
+~_         ← [ \t\r\n]*
+
+# Macro
+List(I, D) ← I (D I)*
+T(x)       ← &lt; x &gt; _"><pre lang="peg" class="notranslate"><code># Syntax
+Start      ← _ Expr
+Expr       ← Sum
+Sum        ← List(Product, SumOpe)
+Product    ← List(Value, ProOpe)
+Value      ← Number / T('(') Expr T(')')
+
+# Token
+SumOpe     ← T('+' / '-')
+ProOpe     ← T('*' / '/')
+Number     ← T([0-9]+)
+~_         ← [ \t\r\n]*
+
+# Macro
+List(I, D) ← I (D I)*
+T(x)       ← &lt; x &gt; _
+</code></pre></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Parsing infix expression by Precedence climbing</h2><a id="user-content-parsing-infix-expression-by-precedence-climbing" class="anchor" aria-label="Permalink: Parsing infix expression by Precedence climbing" href="#parsing-infix-expression-by-precedence-climbing"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Regarding the <em>precedence climbing algorithm</em>, please see <a href="https://eli.thegreenplace.net/2012/08/02/parsing-expressions-by-precedence-climbing" rel="nofollow">this article</a>.</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="parser parser(R&quot;(
+  EXPRESSION             &lt;-  INFIX_EXPRESSION(ATOM, OPERATOR)
+  ATOM                   &lt;-  NUMBER / '(' EXPRESSION ')'
+  OPERATOR               &lt;-  &lt; [-+/*] &gt;
+  NUMBER                 &lt;-  &lt; '-'? [0-9]+ &gt;
+  %whitespace            &lt;-  [ \t]*
+
+  # Declare order of precedence
+  INFIX_EXPRESSION(A, O) &lt;-  A (O A)* {
+    precedence
+      L + -
+      L * /
+  }
+)&quot;);
+
+parser[&quot;INFIX_EXPRESSION&quot;] = [](const SemanticValues&amp; vs) -&gt; long {
+  auto result = any_cast&lt;long&gt;(vs[0]);
+  if (vs.size() &gt; 1) {
+    auto ope = any_cast&lt;char&gt;(vs[1]);
+    auto num = any_cast&lt;long&gt;(vs[2]);
+    switch (ope) {
+      case '+': result += num; break;
+      case '-': result -= num; break;
+      case '*': result *= num; break;
+      case '/': result /= num; break;
+    }
+  }
+  return result;
+};
+parser[&quot;OPERATOR&quot;] = [](const SemanticValues&amp; vs) { return *vs.sv(); };
+parser[&quot;NUMBER&quot;] = [](const SemanticValues&amp; vs) { return vs.token_to_number&lt;long&gt;(); };
+
+long val;
+parser.parse(&quot; -1 + (1 + 2) * 3 - -1&quot;, val);
+assert(val == 9);"><pre>parser <span class="pl-en">parser</span>(<span class="pl-s"><span class="pl-pds">R"(</span></span>
+<span class="pl-s">  EXPRESSION             &lt;-  INFIX_EXPRESSION(ATOM, OPERATOR)</span>
+<span class="pl-s">  ATOM                   &lt;-  NUMBER / '(' EXPRESSION ')'</span>
+<span class="pl-s">  OPERATOR               &lt;-  &lt; [-+/*] &gt;</span>
+<span class="pl-s">  NUMBER                 &lt;-  &lt; '-'? [0-9]+ &gt;</span>
+<span class="pl-s">  %whitespace            &lt;-  [ \t]*</span>
+<span class="pl-s"></span>
+<span class="pl-s">  # Declare order of precedence</span>
+<span class="pl-s">  INFIX_EXPRESSION(A, O) &lt;-  A (O A)* {</span>
+<span class="pl-s">    precedence</span>
+<span class="pl-s">      L + -</span>
+<span class="pl-s">      L * /</span>
+<span class="pl-s">  }</span>
+<span class="pl-s"><span class="pl-pds">)"</span></span>);
+
+parser[<span class="pl-s"><span class="pl-pds">"</span>INFIX_EXPRESSION<span class="pl-pds">"</span></span>] = [](<span class="pl-k">const</span> SemanticValues&amp; vs) -&gt; <span class="pl-k">long</span> {
+  <span class="pl-k">auto</span> result = any_cast&lt;<span class="pl-k">long</span>&gt;(vs[<span class="pl-c1">0</span>]);
+  <span class="pl-k">if</span> (vs.<span class="pl-c1">size</span>() &gt; <span class="pl-c1">1</span>) {
+    <span class="pl-k">auto</span> ope = any_cast&lt;<span class="pl-k">char</span>&gt;(vs[<span class="pl-c1">1</span>]);
+    <span class="pl-k">auto</span> num = any_cast&lt;<span class="pl-k">long</span>&gt;(vs[<span class="pl-c1">2</span>]);
+    <span class="pl-k">switch</span> (ope) {
+      <span class="pl-k">case</span> <span class="pl-s"><span class="pl-pds">'</span>+<span class="pl-pds">'</span></span>: result += num; <span class="pl-k">break</span>;
+      <span class="pl-k">case</span> <span class="pl-s"><span class="pl-pds">'</span>-<span class="pl-pds">'</span></span>: result -= num; <span class="pl-k">break</span>;
+      <span class="pl-k">case</span> <span class="pl-s"><span class="pl-pds">'</span>*<span class="pl-pds">'</span></span>: result *= num; <span class="pl-k">break</span>;
+      <span class="pl-k">case</span> <span class="pl-s"><span class="pl-pds">'</span>/<span class="pl-pds">'</span></span>: result /= num; <span class="pl-k">break</span>;
+    }
+  }
+  <span class="pl-k">return</span> result;
+};
+parser[<span class="pl-s"><span class="pl-pds">"</span>OPERATOR<span class="pl-pds">"</span></span>] = [](<span class="pl-k">const</span> SemanticValues&amp; vs) { <span class="pl-k">return</span> *vs.<span class="pl-c1">sv</span>(); };
+parser[<span class="pl-s"><span class="pl-pds">"</span>NUMBER<span class="pl-pds">"</span></span>] = [](<span class="pl-k">const</span> SemanticValues&amp; vs) { <span class="pl-k">return</span> vs.<span class="pl-smi">token_to_number</span>&lt;<span class="pl-k">long</span>&gt;(); };
+
+<span class="pl-k">long</span> val;
+parser.parse(<span class="pl-s"><span class="pl-pds">"</span> -1 + (1 + 2) * 3 - -1<span class="pl-pds">"</span></span>, val);
+<span class="pl-en">assert</span>(val == <span class="pl-c1">9</span>);</pre></div>
+<p dir="auto"><em>precedence</em> instruction can be applied only to the following 'list' style rule.</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="Rule &lt;- Atom (Operator Atom)* {
+  precedence
+    L - +
+    L / *
+    R ^
+}"><pre class="notranslate"><code>Rule &lt;- Atom (Operator Atom)* {
+  precedence
+    L - +
+    L / *
+    R ^
+}
+</code></pre></div>
+<p dir="auto"><em>precedence</em> instruction contains precedence info entries. Each entry starts with <em>associativity</em> which is 'L' (left) or 'R' (right), then operator <em>literal</em> tokens follow. The first entry has the highest order level.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">AST generation</h2><a id="user-content-ast-generation" class="anchor" aria-label="Permalink: AST generation" href="#ast-generation"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><em>cpp-peglib</em> is able to generate an AST (Abstract Syntax Tree) when parsing. <code>enable_ast</code> method on <code>peg::parser</code> class enables the feature.</p>
+<p dir="auto">NOTE: An AST node holds a corresponding token as <code>std::string_vew</code> for performance and less memory usage. It is users' responsibility to keep the original source text along with the generated AST tree.</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="peg::parser parser(R&quot;(
+  ...
+  definition1 &lt;- ... { no_ast_opt }
+  definition2 &lt;- ... { no_ast_opt }
+  ...
+)&quot;);
+
+parser.enable_ast();
+
+shared_ptr&lt;peg::Ast&gt; ast;
+if (parser.parse(&quot;...&quot;, ast)) {
+  cout &lt;&lt; peg::ast_to_s(ast);
+
+  ast = parser.optimize_ast(ast);
+  cout &lt;&lt; peg::ast_to_s(ast);
+}"><pre class="notranslate"><code>peg::parser parser(R"(
+  ...
+  definition1 &lt;- ... { no_ast_opt }
+  definition2 &lt;- ... { no_ast_opt }
+  ...
+)");
+
+parser.enable_ast();
+
+shared_ptr&lt;peg::Ast&gt; ast;
+if (parser.parse("...", ast)) {
+  cout &lt;&lt; peg::ast_to_s(ast);
+
+  ast = parser.optimize_ast(ast);
+  cout &lt;&lt; peg::ast_to_s(ast);
+}
+</code></pre></div>
+<p dir="auto"><code>optimize_ast</code> removes redundant nodes to make an AST simpler. If you want to disable this behavior from particular rules, <code>no_ast_opt</code> instruction can be used.</p>
+<p dir="auto">It internally calls <code>peg::AstOptimizer</code> to do the job. You can make your own AST optimizers to fit your needs.</p>
+<p dir="auto">See actual usages in the <a href="https://github.com/yhirose/cpp-peglib/blob/master/example/calc3.cc">AST calculator example</a> and <a href="https://github.com/yhirose/cpp-peglib/blob/master/pl0/pl0.cc">PL/0 language example</a>.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Make a parser with parser combinators</h2><a id="user-content-make-a-parser-with-parser-combinators" class="anchor" aria-label="Permalink: Make a parser with parser combinators" href="#make-a-parser-with-parser-combinators"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Instead of making a parser by parsing PEG syntax text, we can also construct a parser by hand with <em>parser combinators</em>. Here is an example:</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="using namespace peg;
+using namespace std;
+
+vector&lt;string&gt; tags;
+
+Definition ROOT, TAG_NAME, _;
+ROOT     &lt;= seq(_, zom(seq(chr('['), TAG_NAME, chr(']'), _)));
+TAG_NAME &lt;= oom(seq(npd(chr(']')), dot())), [&amp;](const SemanticValues&amp; vs) {
+              tags.push_back(vs.token_to_string());
+            };
+_        &lt;= zom(cls(&quot; \t&quot;));
+
+auto ret = ROOT.parse(&quot; [tag1] [tag:2] [tag-3] &quot;);"><pre><span class="pl-k">using</span> <span class="pl-k">namespace</span> <span class="pl-en">peg</span><span class="pl-k">;</span>
+<span class="pl-k">using</span> <span class="pl-k">namespace</span> <span class="pl-en">std</span><span class="pl-k">;</span>
+
+vector&lt;string&gt; tags;
+
+Definition ROOT, TAG_NAME, _;
+ROOT     &lt;= seq(_, zom(seq(chr(<span class="pl-s"><span class="pl-pds">'</span>[<span class="pl-pds">'</span></span>), TAG_NAME, chr(<span class="pl-s"><span class="pl-pds">'</span>]<span class="pl-pds">'</span></span>), _)));
+TAG_NAME &lt;= oom(seq(npd(chr(<span class="pl-s"><span class="pl-pds">'</span>]<span class="pl-pds">'</span></span>)), dot())), [&amp;](<span class="pl-k">const</span> SemanticValues&amp; vs) {
+              tags.<span class="pl-c1">push_back</span>(vs.<span class="pl-c1">token_to_string</span>());
+            };
+_        &lt;= zom(cls(<span class="pl-s"><span class="pl-pds">"</span> <span class="pl-cce">\t</span><span class="pl-pds">"</span></span>));
+
+<span class="pl-k">auto</span> ret = ROOT.parse(<span class="pl-s"><span class="pl-pds">"</span> [tag1] [tag:2] [tag-3] <span class="pl-pds">"</span></span>);</pre></div>
+<p dir="auto">The following are available operators:</p>
+<markdown-accessiblity-table><table>
+<thead>
+<tr>
+<th align="left">Operator</th>
+<th align="left">Description</th>
+<th align="left">Operator</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">seq</td>
+<td align="left">Sequence</td>
+<td align="left">cho</td>
+<td align="left">Prioritized Choice</td>
+</tr>
+<tr>
+<td align="left">zom</td>
+<td align="left">Zero or More</td>
+<td align="left">oom</td>
+<td align="left">One or More</td>
+</tr>
+<tr>
+<td align="left">opt</td>
+<td align="left">Optional</td>
+<td align="left">apd</td>
+<td align="left">And predicate</td>
+</tr>
+<tr>
+<td align="left">npd</td>
+<td align="left">Not predicate</td>
+<td align="left">lit</td>
+<td align="left">Literal string</td>
+</tr>
+<tr>
+<td align="left">liti</td>
+<td align="left">Case-insensitive Literal string</td>
+<td align="left">cls</td>
+<td align="left">Character class</td>
+</tr>
+<tr>
+<td align="left">ncls</td>
+<td align="left">Negated Character class</td>
+<td align="left">chr</td>
+<td align="left">Character</td>
+</tr>
+<tr>
+<td align="left">dot</td>
+<td align="left">Any character</td>
+<td align="left">tok</td>
+<td align="left">Token boundary</td>
+</tr>
+<tr>
+<td align="left">ign</td>
+<td align="left">Ignore semantic value</td>
+<td align="left">csc</td>
+<td align="left">Capture scope</td>
+</tr>
+<tr>
+<td align="left">cap</td>
+<td align="left">Capture</td>
+<td align="left">bkr</td>
+<td align="left">Back reference</td>
+</tr>
+<tr>
+<td align="left">dic</td>
+<td align="left">Dictionary</td>
+<td align="left">pre</td>
+<td align="left">Infix expression</td>
+</tr>
+<tr>
+<td align="left">rec</td>
+<td align="left">Infix expression</td>
+<td align="left">usr</td>
+<td align="left">User defined parser</td>
+</tr>
+<tr>
+<td align="left">rep</td>
+<td align="left">Repetition</td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Adjust definitions</h2><a id="user-content-adjust-definitions" class="anchor" aria-label="Permalink: Adjust definitions" href="#adjust-definitions"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">It's possible to add/override definitions.</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="auto syntax = R&quot;(
+  ROOT &lt;- _ 'Hello' _ NAME '!' _
+)&quot;;
+
+Rules additional_rules = {
+  {
+    &quot;NAME&quot;, usr([](const char* s, size_t n, SemanticValues&amp; vs, any&amp; dt) -&gt; size_t {
+      static vector&lt;string&gt; names = { &quot;PEG&quot;, &quot;BNF&quot; };
+      for (const auto&amp; name: names) {
+        if (name.size() &lt;= n &amp;&amp; !name.compare(0, name.size(), s, name.size())) {
+          return name.size(); // processed length
+        }
+      }
+      return -1; // parse error
+    })
+  },
+  {
+    &quot;~_&quot;, zom(cls(&quot; \t\r\n&quot;))
+  }
+};
+
+auto g = parser(syntax, additional_rules);
+
+assert(g.parse(&quot; Hello BNF! &quot;));"><pre><span class="pl-k">auto</span> syntax = <span class="pl-s"><span class="pl-pds">R"(</span></span>
+<span class="pl-s">  ROOT &lt;- _ 'Hello' _ NAME '!' _</span>
+<span class="pl-s"><span class="pl-pds">)"</span></span>;
+
+Rules additional_rules = {
+  {
+    <span class="pl-s"><span class="pl-pds">"</span>NAME<span class="pl-pds">"</span></span>, <span class="pl-c1">usr</span>([](<span class="pl-k">const</span> <span class="pl-k">char</span>* s, <span class="pl-c1">size_t</span> n, SemanticValues&amp; vs, any&amp; dt) -&gt; <span class="pl-c1">size_t</span> {
+      <span class="pl-k">static</span> vector&lt;string&gt; names = { <span class="pl-s"><span class="pl-pds">"</span>PEG<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>BNF<span class="pl-pds">"</span></span> };
+      <span class="pl-k">for</span> (<span class="pl-k">const</span> <span class="pl-k">auto</span>&amp; name: names) {
+        <span class="pl-k">if</span> (name.<span class="pl-c1">size</span>() &lt;= n &amp;&amp; !name.<span class="pl-c1">compare</span>(<span class="pl-c1">0</span>, name.<span class="pl-c1">size</span>(), s, name.<span class="pl-c1">size</span>())) {
+          <span class="pl-k">return</span> name.<span class="pl-c1">size</span>(); <span class="pl-c"><span class="pl-c">//</span> processed length</span>
+        }
+      }
+      <span class="pl-k">return</span> -<span class="pl-c1">1</span>; <span class="pl-c"><span class="pl-c">//</span> parse error</span>
+    })
+  },
+  {
+    <span class="pl-s"><span class="pl-pds">"</span>~_<span class="pl-pds">"</span></span>, <span class="pl-c1">zom</span>(<span class="pl-c1">cls</span>(<span class="pl-s"><span class="pl-pds">"</span> <span class="pl-cce">\t\r\n</span><span class="pl-pds">"</span></span>))
+  }
+};
+
+<span class="pl-k">auto</span> g = parser(syntax, additional_rules);
+
+<span class="pl-en">assert</span>(g.parse(<span class="pl-s"><span class="pl-pds">"</span> Hello BNF! <span class="pl-pds">"</span></span>));</pre></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Unicode support</h2><a id="user-content-unicode-support" class="anchor" aria-label="Permalink: Unicode support" href="#unicode-support"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">cpp-peglib accepts UTF8 text. <code>.</code> matches a Unicode codepoint. Also, it supports <code>\u????</code>.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Error report and recovery</h2><a id="user-content-error-report-and-recovery" class="anchor" aria-label="Permalink: Error report and recovery" href="#error-report-and-recovery"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">cpp-peglib supports the furthest failure error position report as described in the Bryan Ford original document.</p>
+<p dir="auto">For better error report and recovery, cpp-peglib supports 'recovery' operator with label which can be associated with a recovery expression and a custom error message. This idea comes from the fantastic <a href="https://arxiv.org/pdf/1806.11150.pdf" rel="nofollow">"Syntax Error Recovery in Parsing Expression Grammars"</a> paper by Sergio Medeiros and Fabio Mascarenhas.</p>
+<p dir="auto">The custom message supports <code>%t</code> which is a placeholder for the unexpected token, and <code>%c</code> for the unexpected Unicode char.</p>
+<p dir="auto">Here is an example of Java-like grammar:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="# java.peg
+Prog        ← 'public' 'class' NAME '{' 'public' 'static' 'void' 'main' '(' 'String' '[' ']' NAME ')' BlockStmt '}'
+BlockStmt   ← '{' (!'}' Stmt^stmtb)* '}' # Annotated with `stmtb`
+Stmt        ← IfStmt / WhileStmt / PrintStmt / DecStmt / AssignStmt / BlockStmt
+IfStmt      ← 'if' '(' Exp ')' Stmt ('else' Stmt)?
+WhileStmt   ← 'while' '(' Exp^condw ')' Stmt # Annotated with `condw`
+DecStmt     ← 'int' NAME ('=' Exp)? ';'
+AssignStmt  ← NAME '=' Exp ';'^semia # Annotated with `semi`
+PrintStmt   ← 'System.out.println' '(' Exp ')' ';'
+Exp         ← RelExp ('==' RelExp)*
+RelExp      ← AddExp ('&lt;' AddExp)*
+AddExp      ← MulExp (('+' / '-') MulExp)*
+MulExp      ← AtomExp (('*' / '/') AtomExp)*
+AtomExp     ← '(' Exp ')' / NUMBER / NAME
+
+NUMBER      ← &lt; [0-9]+ &gt;
+NAME        ← &lt; [a-zA-Z_][a-zA-Z_0-9]* &gt;
+
+%whitespace ← [ \t\n]*
+%word       ← NAME
+
+# Recovery operator labels
+semia       ← '' { error_message &quot;missing semicolon in assignment.&quot; }
+stmtb       ← (!(Stmt / 'else' / '}') .)* { error_message &quot;invalid statement&quot; }
+condw       ← &amp;'==' ('==' RelExp)* / &amp;'&lt;' ('&lt;' AddExp)* / (!')' .)*"><pre lang="peg" class="notranslate"><code># java.peg
+Prog        ← 'public' 'class' NAME '{' 'public' 'static' 'void' 'main' '(' 'String' '[' ']' NAME ')' BlockStmt '}'
+BlockStmt   ← '{' (!'}' Stmt^stmtb)* '}' # Annotated with `stmtb`
+Stmt        ← IfStmt / WhileStmt / PrintStmt / DecStmt / AssignStmt / BlockStmt
+IfStmt      ← 'if' '(' Exp ')' Stmt ('else' Stmt)?
+WhileStmt   ← 'while' '(' Exp^condw ')' Stmt # Annotated with `condw`
+DecStmt     ← 'int' NAME ('=' Exp)? ';'
+AssignStmt  ← NAME '=' Exp ';'^semia # Annotated with `semi`
+PrintStmt   ← 'System.out.println' '(' Exp ')' ';'
+Exp         ← RelExp ('==' RelExp)*
+RelExp      ← AddExp ('&lt;' AddExp)*
+AddExp      ← MulExp (('+' / '-') MulExp)*
+MulExp      ← AtomExp (('*' / '/') AtomExp)*
+AtomExp     ← '(' Exp ')' / NUMBER / NAME
+
+NUMBER      ← &lt; [0-9]+ &gt;
+NAME        ← &lt; [a-zA-Z_][a-zA-Z_0-9]* &gt;
+
+%whitespace ← [ \t\n]*
+%word       ← NAME
+
+# Recovery operator labels
+semia       ← '' { error_message "missing semicolon in assignment." }
+stmtb       ← (!(Stmt / 'else' / '}') .)* { error_message "invalid statement" }
+condw       ← &amp;'==' ('==' RelExp)* / &amp;'&lt;' ('&lt;' AddExp)* / (!')' .)*
+</code></pre></div>
+<p dir="auto">For instance, <code>';'^semi</code> is a syntactic sugar for <code>(';' / %recovery(semi))</code>. <code>%recover</code> operator tries to recover the error at ';' by skipping input text with the recovery expression <code>semi</code>. Also <code>semi</code> is associated with a custom message "missing semicolon in assignment."</p>
+<p dir="auto">Here is the result:</p>
+<div class="highlight highlight-source-java notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="&gt; cat sample.java
+public class Example {
+  public static void main(String[] args) {
+    int n = 5;
+    int f = 1;
+    while( &lt; n) {
+      f = f * n;
+      n = n - 1
+    };
+    System.out.println(f);
+  }
+}
+
+&gt; peglint java.peg sample.java
+sample.java:5:12: syntax error, unexpected '&lt;', expecting '(', &lt;NUMBER&gt;, &lt;NAME&gt;.
+sample.java:8:5: missing semicolon in assignment.
+sample.java:8:6: invalid statement"><pre>&gt; <span class="pl-smi">cat</span> <span class="pl-s1">sample</span>.<span class="pl-s1">java</span>
+<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-s1">Example</span> {
+  <span class="pl-k">public</span> <span class="pl-k">static</span> <span class="pl-smi">void</span> <span class="pl-en">main</span>(<span class="pl-smi">String</span>[] <span class="pl-s1">args</span>) {
+    <span class="pl-smi">int</span> <span class="pl-s1">n</span> = <span class="pl-c1">5</span>;
+    <span class="pl-smi">int</span> <span class="pl-s1">f</span> = <span class="pl-c1">1</span>;
+    <span class="pl-k">while</span>( &lt; <span class="pl-s1">n</span>) {
+      <span class="pl-s1">f</span> = <span class="pl-s1">f</span> * <span class="pl-s1">n</span>;
+      <span class="pl-s1">n</span> = <span class="pl-s1">n</span> - <span class="pl-c1">1</span>
+    };
+    <span class="pl-smi">System</span>.<span class="pl-s1">out</span>.<span class="pl-en">println</span>(<span class="pl-s1">f</span>);
+  }
+}
+
+&gt; <span class="pl-smi">peglint</span> <span class="pl-s1">java</span>.<span class="pl-s1">peg</span> <span class="pl-s1">sample</span>.<span class="pl-s1">java</span>
+<span class="pl-smi">sample</span>.<span class="pl-smi">java</span>:<span class="pl-c1">5</span>:<span class="pl-c1">12</span>: <span class="pl-s1">syntax</span> <span class="pl-s1">error</span>, <span class="pl-s1">unexpected</span> <span class="pl-s">'&lt;'</span>, <span class="pl-s1">expecting</span> <span class="pl-s">'('</span>, &lt;<span class="pl-c1">NUMBER</span>&gt;, &lt;<span class="pl-c1">NAME</span>&gt;.
+<span class="pl-s1">sample</span>.<span class="pl-s1">java</span>:<span class="pl-c1">8</span>:<span class="pl-c1">5</span>: <span class="pl-s1">missing</span> <span class="pl-s1">semicolon</span> <span class="pl-s1">in</span> <span class="pl-smi">assignment</span>.
+<span class="pl-smi">sample</span>.<span class="pl-smi">java</span>:<span class="pl-c1">8</span>:<span class="pl-c1">6</span>: <span class="pl-s1">invalid</span> <span class="pl-s1">statement</span></pre></div>
+<p dir="auto">As you can see, it can now show more than one error, and provide more meaningful error messages than the default messages.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Custom error message for definitions</h3><a id="user-content-custom-error-message-for-definitions" class="anchor" aria-label="Permalink: Custom error message for definitions" href="#custom-error-message-for-definitions"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">We can associate custom error messages to definitions.</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="# custom_message.peg
+START       &lt;- CODE (',' CODE)*
+CODE        &lt;- &lt; '0x' [a-fA-F0-9]+ &gt; { error_message 'code format error...' }
+%whitespace &lt;- [ \t]*"><pre lang="peg" class="notranslate"><code># custom_message.peg
+START       &lt;- CODE (',' CODE)*
+CODE        &lt;- &lt; '0x' [a-fA-F0-9]+ &gt; { error_message 'code format error...' }
+%whitespace &lt;- [ \t]*
+</code></pre></div>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="&gt; cat custom_message.txt
+0x1234,0x@@@@,0xABCD
+
+&gt; peglint custom_message.peg custom_message.txt
+custom_message.txt:1:8: code format error..."><pre class="notranslate"><code>&gt; cat custom_message.txt
+0x1234,0x@@@@,0xABCD
+
+&gt; peglint custom_message.peg custom_message.txt
+custom_message.txt:1:8: code format error...
+</code></pre></div>
+<p dir="auto">NOTE: If there is more than one element with an error message instruction in a prioritized choice, this feature may not work as you expect.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Change the Start Definition Rule</h2><a id="user-content-change-the-start-definition-rule" class="anchor" aria-label="Permalink: Change the Start Definition Rule" href="#change-the-start-definition-rule"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">We can change the start definition rule as below.</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="auto grammar = R&quot;(
+  Start       &lt;- A
+  A           &lt;- B (',' B)*
+  B           &lt;- '[one]' / '[two]'
+  %whitespace &lt;- [ \t\n]*
+)&quot;;
+
+peg::parser parser(grammar, &quot;A&quot;); // Start Rule is &quot;A&quot;
+
+  or
+
+peg::parser parser;
+parser.load_grammar(grammar, &quot;A&quot;); // Start Rule is &quot;A&quot;
+
+parser.parse(&quot; [one] , [two] &quot;); // OK"><pre><span class="pl-k">auto</span> grammar = <span class="pl-s"><span class="pl-pds">R"(</span></span>
+<span class="pl-s">  Start       &lt;- A</span>
+<span class="pl-s">  A           &lt;- B (',' B)*</span>
+<span class="pl-s">  B           &lt;- '[one]' / '[two]'</span>
+<span class="pl-s">  %whitespace &lt;- [ \t\n]*</span>
+<span class="pl-s"><span class="pl-pds">)"</span></span>;
+
+peg::parser <span class="pl-en">parser</span>(grammar, <span class="pl-s"><span class="pl-pds">"</span>A<span class="pl-pds">"</span></span>); <span class="pl-c"><span class="pl-c">//</span> Start Rule is "A"</span>
+
+  <span class="pl-k">or</span>
+
+peg::parser parser;
+parser.load_grammar(grammar, <span class="pl-s"><span class="pl-pds">"</span>A<span class="pl-pds">"</span></span>); <span class="pl-c"><span class="pl-c">//</span> Start Rule is "A"</span>
+
+parser.parse(<span class="pl-s"><span class="pl-pds">"</span> [one] , [two] <span class="pl-pds">"</span></span>); <span class="pl-c"><span class="pl-c">//</span> OK</span></pre></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">peglint - PEG syntax lint utility</h2><a id="user-content-peglint---peg-syntax-lint-utility" class="anchor" aria-label="Permalink: peglint - PEG syntax lint utility" href="#peglint---peg-syntax-lint-utility"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Build peglint</h3><a id="user-content-build-peglint" class="anchor" aria-label="Permalink: Build peglint" href="#build-peglint"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="&gt; cd lint
+&gt; mkdir build
+&gt; cd build
+&gt; cmake ..
+&gt; make
+&gt; ./peglint
+usage: grammar_file_path [source_file_path]
+
+  options:
+    --source: source text
+    --packrat: enable packrat memoise
+    --ast: show AST tree
+    --opt, --opt-all: optimize all AST nodes except nodes selected with `no_ast_opt` instruction
+    --opt-only: optimize only AST nodes selected with `no_ast_opt` instruction
+    --trace: show concise trace messages
+    --profile: show profile report
+    --verbose: verbose output for trace and profile"><pre class="notranslate"><code>&gt; cd lint
+&gt; mkdir build
+&gt; cd build
+&gt; cmake ..
+&gt; make
+&gt; ./peglint
+usage: grammar_file_path [source_file_path]
+
+  options:
+    --source: source text
+    --packrat: enable packrat memoise
+    --ast: show AST tree
+    --opt, --opt-all: optimize all AST nodes except nodes selected with `no_ast_opt` instruction
+    --opt-only: optimize only AST nodes selected with `no_ast_opt` instruction
+    --trace: show concise trace messages
+    --profile: show profile report
+    --verbose: verbose output for trace and profile
+</code></pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Grammar check</h3><a id="user-content-grammar-check" class="anchor" aria-label="Permalink: Grammar check" href="#grammar-check"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="&gt; cat a.peg
+Additive    &lt;- Multiplicative '+' Additive / Multiplicative
+Multiplicative   &lt;- Primary '*' Multiplicative / Primary
+Primary     &lt;- '(' Additive ')' / Number
+%whitespace &lt;- [ \t\r\n]*
+
+&gt; peglint a.peg
+[commandline]:3:35: 'Number' is not defined."><pre class="notranslate"><code>&gt; cat a.peg
+Additive    &lt;- Multiplicative '+' Additive / Multiplicative
+Multiplicative   &lt;- Primary '*' Multiplicative / Primary
+Primary     &lt;- '(' Additive ')' / Number
+%whitespace &lt;- [ \t\r\n]*
+
+&gt; peglint a.peg
+[commandline]:3:35: 'Number' is not defined.
+</code></pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Source check</h3><a id="user-content-source-check" class="anchor" aria-label="Permalink: Source check" href="#source-check"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="&gt; cat a.peg
+Additive    &lt;- Multiplicative '+' Additive / Multiplicative
+Multiplicative   &lt;- Primary '*' Multiplicative / Primary
+Primary     &lt;- '(' Additive ')' / Number
+Number      &lt;- &lt; [0-9]+ &gt;
+%whitespace &lt;- [ \t\r\n]*
+
+&gt; peglint --source &quot;1 + a * 3&quot; a.peg
+[commandline]:1:3: syntax error"><pre class="notranslate"><code>&gt; cat a.peg
+Additive    &lt;- Multiplicative '+' Additive / Multiplicative
+Multiplicative   &lt;- Primary '*' Multiplicative / Primary
+Primary     &lt;- '(' Additive ')' / Number
+Number      &lt;- &lt; [0-9]+ &gt;
+%whitespace &lt;- [ \t\r\n]*
+
+&gt; peglint --source "1 + a * 3" a.peg
+[commandline]:1:3: syntax error
+</code></pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">AST</h3><a id="user-content-ast" class="anchor" aria-label="Permalink: AST" href="#ast"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="&gt; cat a.txt
+1 + 2 * 3
+
+&gt; peglint --ast a.peg a.txt
++ Additive
+  + Multiplicative
+    + Primary
+      - Number (1)
+  + Additive
+    + Multiplicative
+      + Primary
+        - Number (2)
+      + Multiplicative
+        + Primary
+          - Number (3)"><pre class="notranslate"><code>&gt; cat a.txt
+1 + 2 * 3
+
+&gt; peglint --ast a.peg a.txt
++ Additive
+  + Multiplicative
+    + Primary
+      - Number (1)
+  + Additive
+    + Multiplicative
+      + Primary
+        - Number (2)
+      + Multiplicative
+        + Primary
+          - Number (3)
+</code></pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">AST optimization</h3><a id="user-content-ast-optimization" class="anchor" aria-label="Permalink: AST optimization" href="#ast-optimization"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="&gt; peglint --ast --opt --source &quot;1 + 2 * 3&quot; a.peg
++ Additive
+  - Multiplicative[Number] (1)
+  + Additive[Multiplicative]
+    - Primary[Number] (2)
+    - Multiplicative[Number] (3)"><pre class="notranslate"><code>&gt; peglint --ast --opt --source "1 + 2 * 3" a.peg
++ Additive
+  - Multiplicative[Number] (1)
+  + Additive[Multiplicative]
+    - Primary[Number] (2)
+    - Multiplicative[Number] (3)
+</code></pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Adjust AST optimization with <code>no_ast_opt</code> instruction</h3><a id="user-content-adjust-ast-optimization-with-no_ast_opt-instruction" class="anchor" aria-label="Permalink: Adjust AST optimization with no_ast_opt instruction" href="#adjust-ast-optimization-with-no_ast_opt-instruction"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="&gt; cat a.peg
+Additive    &lt;- Multiplicative '+' Additive / Multiplicative
+Multiplicative   &lt;- Primary '*' Multiplicative / Primary
+Primary     &lt;- '(' Additive ')' / Number          { no_ast_opt }
+Number      &lt;- &lt; [0-9]+ &gt;
+%whitespace &lt;- [ \t\r\n]*
+
+&gt; peglint --ast --opt --source &quot;1 + 2 * 3&quot; a.peg
++ Additive/0
+  + Multiplicative/1[Primary]
+    - Number (1)
+  + Additive/1[Multiplicative]
+    + Primary/1
+      - Number (2)
+    + Multiplicative/1[Primary]
+      - Number (3)
+
+&gt; peglint --ast --opt-only --source &quot;1 + 2 * 3&quot; a.peg
++ Additive/0
+  + Multiplicative/1
+    - Primary/1[Number] (1)
+  + Additive/1
+    + Multiplicative/0
+      - Primary/1[Number] (2)
+      + Multiplicative/1
+        - Primary/1[Number] (3)"><pre class="notranslate"><code>&gt; cat a.peg
+Additive    &lt;- Multiplicative '+' Additive / Multiplicative
+Multiplicative   &lt;- Primary '*' Multiplicative / Primary
+Primary     &lt;- '(' Additive ')' / Number          { no_ast_opt }
+Number      &lt;- &lt; [0-9]+ &gt;
+%whitespace &lt;- [ \t\r\n]*
+
+&gt; peglint --ast --opt --source "1 + 2 * 3" a.peg
++ Additive/0
+  + Multiplicative/1[Primary]
+    - Number (1)
+  + Additive/1[Multiplicative]
+    + Primary/1
+      - Number (2)
+    + Multiplicative/1[Primary]
+      - Number (3)
+
+&gt; peglint --ast --opt-only --source "1 + 2 * 3" a.peg
++ Additive/0
+  + Multiplicative/1
+    - Primary/1[Number] (1)
+  + Additive/1
+    + Multiplicative/0
+      - Primary/1[Number] (2)
+      + Multiplicative/1
+        - Primary/1[Number] (3)
+</code></pre></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Sample codes</h2><a id="user-content-sample-codes" class="anchor" aria-label="Permalink: Sample codes" href="#sample-codes"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li><a href="https://github.com/yhirose/cpp-peglib/blob/master/example/calc.cc">Calculator</a></li>
+<li><a href="https://github.com/yhirose/cpp-peglib/blob/master/example/calc2.cc">Calculator (with parser operators)</a></li>
+<li><a href="https://github.com/yhirose/cpp-peglib/blob/master/example/calc3.cc">Calculator (AST version)</a></li>
+<li><a href="https://github.com/yhirose/cpp-peglib/blob/master/example/calc4.cc">Calculator (parsing expressions by precedence climbing)</a></li>
+<li><a href="https://github.com/yhirose/cpp-peglib/blob/master/example/calc5.cc">Calculator (AST version and parsing expressions by precedence climbing)</a></li>
+<li><a href="https://github.com/yhirose/pl0-jit-compiler">A tiny PL/0 JIT compiler in less than 900 LOC with LLVM and PEG parser</a></li>
+<li><a href="https://github.com/yhirose/fizzbuzzlang">A Programming Language just for writing Fizz Buzz program. :)</a></li>
+</ul>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">License</h2><a id="user-content-license" class="anchor" aria-label="Permalink: License" href="#license"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">MIT license (© 2022 Yuji Hirose)</p>
+</article></div>
