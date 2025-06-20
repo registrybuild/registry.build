@@ -48,6 +48,7 @@ register_toolchains(&quot;@vulkan_sdk_1.4.313//:all&quot;)"><pre><span class="pl
 <span class="pl-en">register_toolchains</span>(<span class="pl-s">"@vulkan_sdk_1.4.313//:all"</span>)</pre></div>
 <p dir="auto">Then use it in your <code>BUILD</code> files:</p>
 <div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@rules_vulkan//hlsl:rules.bzl&quot;, &quot;hlsl_shader&quot;)
+load(&quot;@rules_vulkan//glsl:rules.bzl&quot;, &quot;glsl_shader&quot;)
 
 hlsl_shader(
     name = &quot;hello_hlsl&quot;,
@@ -58,13 +59,20 @@ hlsl_shader(
     hdrs = [&quot;:common_headers&quot;],
 )
 
+glsl_shader(
+    name = &quot;hello_glsl&quot;,
+    src = &quot;shader.glsl&quot;,
+    stage = &quot;comp&quot;,
+)
+
 cc_binary(
     name = &quot;app&quot;,
     srcs = [&quot;main.c&quot;],
-    data = [&quot;:hello_hlsl&quot;],
+    data = [&quot;:hello_hlsl&quot;, &quot;:hello_glsl&quot;],
     deps = [&quot;@vulkan_sdk_1.4.313//:vulkan&quot;],
 )
 "><pre><span class="pl-en">load</span>(<span class="pl-s">"@rules_vulkan//hlsl:rules.bzl"</span>, <span class="pl-s">"hlsl_shader"</span>)
+<span class="pl-en">load</span>(<span class="pl-s">"@rules_vulkan//glsl:rules.bzl"</span>, <span class="pl-s">"glsl_shader"</span>)
 
 <span class="pl-en">hlsl_shader</span>(
     <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"hello_hlsl"</span>,
@@ -75,10 +83,16 @@ cc_binary(
     <span class="pl-s1">hdrs</span> <span class="pl-c1">=</span> [<span class="pl-s">":common_headers"</span>],
 )
 
+<span class="pl-en">glsl_shader</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"hello_glsl"</span>,
+    <span class="pl-s1">src</span> <span class="pl-c1">=</span> <span class="pl-s">"shader.glsl"</span>,
+    <span class="pl-s1">stage</span> <span class="pl-c1">=</span> <span class="pl-s">"comp"</span>,
+)
+
 <span class="pl-en">cc_binary</span>(
     <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"app"</span>,
     <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> [<span class="pl-s">"main.c"</span>],
-    <span class="pl-s1">data</span> <span class="pl-c1">=</span> [<span class="pl-s">":hello_hlsl"</span>],
+    <span class="pl-s1">data</span> <span class="pl-c1">=</span> [<span class="pl-s">":hello_hlsl"</span>, <span class="pl-s">":hello_glsl"</span>],
     <span class="pl-s1">deps</span> <span class="pl-c1">=</span> [<span class="pl-s">"@vulkan_sdk_1.4.313//:vulkan"</span>],
 )</pre></div>
 <p dir="auto">Refer to <code>e2e</code> project <a href="./e2e/smoke/BUILD">here</a> for a more complete setup.</p>
