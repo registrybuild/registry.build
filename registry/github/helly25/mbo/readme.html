@@ -277,7 +277,9 @@ supports <code>clang-format</code> and thus can be used for source-code generati
 </li>
 <li>mbo/types:compare_cc, mbo/types/compare.h
 <ul dir="auto">
+<li>function <code>CompareDouble</code> which can compare two <code>float</code>, <code>double</code> or <code>long double</code> values returning <code>std::strong_ordering</code>.</li>
 <li>comparator <code>CompareLess</code> which is compatible to std::Less but allows container optimizations.</li>
+<li>function <code>WeakToStrong</code> which converts a <code>std::weak_ordering</code> to a <code>std::strong_ordering</code>.</li>
 </ul>
 </li>
 <li>mbo/types:container_proxy_cc, mbo/types/container_proxy.h
@@ -349,12 +351,13 @@ supports <code>clang-format</code> and thus can be used for source-code generati
 <li>struct <code>StringifyOptions</code> which can be used to control <code>Stringify</code> formatting.</li>
 <li>struct <code>StringifyRootOptions</code> which can be used to control outer/root options for streaming/printing structs.</li>
 <li>API extension point type <code>MboTypesStringifySupport</code> which enables <code>Stringify</code> support even if not otherwise enabled (disables Abseil stringify support in <code>Stringify</code>).</li>
+<li>API extension point function <code>MboTypesStringifyConvert(I, T, V)</code> allows to control conversion based on field types via a static call to the owning type, receiving the field index, the object and the field value.</li>
 <li>API extension point type <code>MboTypesStringifyDisable</code> which disables <code>Stringify</code> support. This allows to prevent
 complex classes (and more importantly fields of complex types) from being printed/streamed using <code>Stringify</code></li>
 <li>API extension point type <code>MboTypesStringifyDoNotPrintFieldNames</code> which if present disables field names in <code>Stringify</code>.</li>
 <li>API extension point function <code>MboTypesStringifyFieldNames</code> which adds field names to <code>Stringify</code>.</li>
 <li>API extension point function <code>MboTypesStringifyOptions</code> which adds full format control to <code>Stringify</code>.</li>
-<li>API extension point function <code>MboTypesStringifyConvert(I, T, V)</code> allows to control conversion based on field types via a static call to the owning type, receiving the field index, the object and the field value.</li>
+<li>API extension point functoin <code>MboTypesStringifyValueAccess</code> which allows to replace a struct with a single value in <code>Stringify</code> processing.</li>
 </ul>
 </li>
 <li>mbo/types:stringify_ostream_cc, mbo/types/stringify_ostream.h
@@ -383,16 +386,16 @@ complex classes (and more importantly fields of complex types) from being printe
 <li>concept <code>IsBracesConstructibleV</code> determines whether a type can be constructe from given argument types.</li>
 <li>concept <code>IsOptional</code> determines whether a type is a <code>std::optional</code> type.</li>
 <li>concept <code>IsPair</code> determines whether a type is a <code>std::pair</code> type.</li>
-<li>concept <code>IsSet</code> determines whether a type is a <code>std::set</code> type.</li>
 <li>concept <code>IsSameAsAnyOf</code> which determines whether a type is the same as one of a list of types. Similar to <code>IsSameAsAnyOfRaw</code> but using exact types.</li>
 <li>concept <code>IsSameAsAnyOfRaw</code> / <code>NotSameAsAnyOfRaw</code> which determines whether a type is one of a list of types. Similar to <code>IsSameAsAnyOf</code> but applies <code>std::remove_cvref_t</code> on all types.</li>
+<li>concept <code>IsSet</code> determines whether a type is a <code>std::set</code> type.</li>
 <li>concept <code>IsSmartPtr</code> determines whether a type is a <code>std::shared_ptr</code>, <code>std::unique_ptr</code> or <code>std::weak_ptr</code>.
 <ul dir="auto">
 <li>Can be extended with other smart pointers through <code>IsSmartPtrImpl</code>.</li>
 </ul>
 </li>
+<li>concept <code>IsStringKeyedContainer</code> which determines whether a type is a container whose elements are pairs and whose keys are convertible to a std::string_view.</li>
 <li>concept <code>IsTuple</code> determines whether a type is a <code>std::tuple</code> type.</li>
-<li>concept <code>IsVariant</code> determines whether a type is a <code>std::variant</code> type.</li>
 <li>concept <code>IsVector</code> determines whether a type is a <code>std::vector</code> type.</li>
 </ul>
 </li>
@@ -413,6 +416,13 @@ complex classes (and more importantly fields of complex types) from being printe
 <li>mbo/types:tuple_cc, mbo/types/tuple.h
 <ul dir="auto">
 <li>template struct <code>TupleCat</code> which concatenates tuple types.</li>
+</ul>
+</li>
+<li>mbo/types:variant_cc, mbo/types/variant.h
+<ul dir="auto">
+<li>concept <code>IsVariant</code> determines whether a type is a <code>std::variant</code> type.</li>
+<li>concept <code>IsVariantMemberType</code> determine whether a <code>Type</code> is any of the types in a <code>Variant</code>.</li>
+<li>struct <code>Overloaded</code> which implements an Overload handler for <code>std::visit(std::variant&lt;...&gt;)</code> and <code>std::variant::visit</code>.</li>
 </ul>
 </li>
 </ul>
