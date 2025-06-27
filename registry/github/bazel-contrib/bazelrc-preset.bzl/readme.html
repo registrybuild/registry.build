@@ -1,0 +1,67 @@
+<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Preset for bazelrc</h1><a id="user-content-preset-for-bazelrc" class="anchor" aria-label="Permalink: Preset for bazelrc" href="#preset-for-bazelrc"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Bazel has a tremendously large number of flags.
+Many are obscure, many are important to use, and many have an undesirable default value.</p>
+<p dir="auto">This rule generates a custom <code>bazelrc</code> file that matches your Bazel version and makes it convenient to vendor into your repo.
+We call this a "preset".</p>
+<div class="markdown-alert markdown-alert-note" dir="auto"><p class="markdown-alert-title" dir="auto"><svg class="octicon octicon-info mr-2" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</p><p dir="auto">Preset changes can cause behavior changes in your repo that are undesirable or even break the build.
+Since vendoring is required, changes will be code-reviewed when they arrive in your repo, rather than as an invisible side-effect of updating the version of bazelrc-presets.
+For this reason, this rule does not strictly follow Semantic Versioning.</p>
+</div>
+<p dir="auto">Bazel options may be stored in <code>*.bazelrc</code> files, in several places on disk.
+Read <a href="https://bazel.build/run/bazelrc" rel="nofollow">the Bazel bazelrc documentation</a>.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Install</h2><a id="user-content-install" class="anchor" aria-label="Permalink: Install" href="#install"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ol dir="auto">
+<li>Add <code>bazelrc-preset.bzl</code> to your <code>MODULE.bazel</code> file.</li>
+<li>Call it from a BUILD file, for example in <code>tools/BUILD</code>:</li>
+</ol>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@bazelrc-preset.bzl&quot;, &quot;bazelrc_preset&quot;)
+
+bazelrc_preset(
+    name = &quot;preset&quot;,
+)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@bazelrc-preset.bzl"</span>, <span class="pl-s">"bazelrc_preset"</span>)
+
+<span class="pl-en">bazelrc_preset</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"preset"</span>,
+)</pre></div>
+<ol start="3" dir="auto">
+<li>
+<p dir="auto">Create the preset by running <code>bazel run //tools:preset.update</code>.
+Note that you don't need to remember the command.
+A test target <code>preset.update_test</code> is also created, which prints the command if the file is missing or has outdated contents.</p>
+</li>
+<li>
+<p dir="auto">Import it into your project's <code>/.bazelrc</code> file.
+We suggest you add it at the top, so that project-specific flags may override, as follows:</p>
+</li>
+</ol>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="# Import bazelrc presets
+import %workspace%/tools/preset.bazelrc
+...
+
+### Project-specific flags ###
+
+...
+
+# Load any settings &amp; overrides specific to the current user from `user.bazelrc`.
+# This file should appear in `.gitignore` so that settings are not shared with team members. This
+# should be last statement in this config so the user configuration is able to overwrite flags from
+# this file. See https://bazel.build/configure/best-practices#bazelrc-file.
+try-import %workspace%/user.bazelrc"><pre class="notranslate"><code># Import bazelrc presets
+import %workspace%/tools/preset.bazelrc
+...
+
+### Project-specific flags ###
+
+...
+
+# Load any settings &amp; overrides specific to the current user from `user.bazelrc`.
+# This file should appear in `.gitignore` so that settings are not shared with team members. This
+# should be last statement in this config so the user configuration is able to overwrite flags from
+# this file. See https://bazel.build/configure/best-practices#bazelrc-file.
+try-import %workspace%/user.bazelrc
+</code></pre></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">References and Credits</h2><a id="user-content-references-and-credits" class="anchor" aria-label="Permalink: References and Credits" href="#references-and-credits"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">This was originally a feature of Aspect's bazel-lib:
+<a href="https://github.com/bazel-contrib/bazel-lib/tree/main/.aspect/bazelrc">https://github.com/bazel-contrib/bazel-lib/tree/main/.aspect/bazelrc</a></p>
+<p dir="auto">This rule is maintained by the Rules Authors SIG, see <a class="issue-link js-issue-link" data-error-text="Failed to load title" data-id="2831685446" data-permission-text="Title is private" data-url="https://github.com/bazel-contrib/SIG-rules-authors/issues/106" data-hovercard-type="issue" data-hovercard-url="/bazel-contrib/SIG-rules-authors/issues/106/hovercard" href="https://github.com/bazel-contrib/SIG-rules-authors/issues/106">bazel-contrib/SIG-rules-authors#106</a></p>
+</article></div>
