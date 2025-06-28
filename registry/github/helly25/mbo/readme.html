@@ -277,8 +277,12 @@ supports <code>clang-format</code> and thus can be used for source-code generati
 </li>
 <li>mbo/types:compare_cc, mbo/types/compare.h
 <ul dir="auto">
-<li>function <code>CompareDouble</code> which can compare two <code>float</code>, <code>double</code> or <code>long double</code> values returning <code>std::strong_ordering</code>.</li>
+<li>function <code>CompareArithmetic</code> which cmpares two values that are scalar-numbers (including foat/double, excluding pointers and references).</li>
+<li>function <code>CompareFloat</code> which can compare two <code>float</code>, <code>double</code> or <code>long double</code> values returning <code>std::strong_ordering</code>.</li>
+<li>function <code>CompareIntegral</code> which compares two values that are integral-numbers (no float/double, no pointers, no references).</li>
 <li>comparator <code>CompareLess</code> which is compatible to std::Less but allows container optimizations.</li>
+<li>function <code>CompareScalar</code> which compares two values that are scalar-numbers (including float/double and pointers, excluding references).</li>
+<li>concept <code>ThreeWayComparableTo</code> which is similar to <code>std::three_way_comparable_with</code> but we only verify that <code>L &lt;=&gt; R</code> can be interpreted as <code>Cat</code> in the presented argument order.</li>
 <li>function <code>WeakToStrong</code> which converts a <code>std::weak_ordering</code> to a <code>std::strong_ordering</code>.</li>
 </ul>
 </li>
@@ -324,12 +328,14 @@ supports <code>clang-format</code> and thus can be used for source-code generati
 </li>
 <li>mbo/types:optional_ref_cc, mbo/types/optional_data_or_ref.h
 <ul dir="auto">
+<li>concept <code>IsOptionalDataOrRef</code> which determines whether a type is a <code>OptionalDataOrRef</code>.</li>
 <li>struct <code>OptionalDataOrRef</code> similar to <code>std::optional</code> but can hold <code>std::nullopt</code>, a type <code>T</code> or a reference <code>T&amp;</code>/<code>const T&amp;</code>.</li>
 <li>struct <code>OptionalDataOrConstRef</code> similar to <code>std::optional</code> but can hold <code>std::nullopt</code>, a type <code>T</code> or a const reference <code>const T&amp;</code>.</li>
 </ul>
 </li>
 <li>mbo/types:optional_ref_cc, mbo/types/optional_ref.h
 <ul dir="auto">
+<li>concept <code>IsOptionalRef</code> which determines whether a type is a <code>OptionalRef</code>.</li>
 <li>struct <code>OptionalRef</code> similar to <code>std::optional</code> but can hold <code>std::nullopt</code> or a reference <code>T&amp;</code>/<code>const T&amp;</code>.</li>
 </ul>
 </li>
@@ -363,11 +369,14 @@ complex classes (and more importantly fields of complex types) from being printe
 <li>mbo/types:stringify_ostream_cc, mbo/types/stringify_ostream.h
 <ul dir="auto">
 <li>operator <code>std::ostream&amp; operator&lt;&lt;(std::ostream&amp;, const MboTypesStringifySupport auto&amp; v)</code> - conditioanl automatic ostream support for structs using <code>Stringify</code>.</li>
+<li>function <code>SetStringifyOstreamOutputMode</code> which sets global Stringify stream options by mode.</li>
+<li>function <code>SetStringifyOstreamOptions</code> which sets global Stringify stream options.</li>
 </ul>
 </li>
 <li>mbo/types:traits_cc, mbo/types/traits.h
 <ul dir="auto">
-<li>concept <code>ConstructibleInto</code> determined whether one type can be constructed from another. Similar to <code>std::convertible_to</code> but with the argument order of <code>std::constructible_from</code>.</li>
+<li>concept <code>ConstructibleFrom</code> implements a variant of <code>std::constructible_from</code> that works around its limitations to deal with array args.</li>
+<li>concept <code>ConstructibleInto</code> determines whether one type can be constructed from another. Similar to <code>std::convertible_to</code> but with the argument order of <code>std::constructible_from</code>.</li>
 <li>type alias <code>ContainerConstIteratorValueType</code> returned the value-type of the const_iterator of a container.</li>
 <li>concept <code>ContainerIsForwardIteratable</code> determines whether a types can be used in forward iteration.</li>
 <li>concept <code>ContainerHasEmplace</code> determines whether a container has <code>emplace</code>.</li>
@@ -378,16 +387,23 @@ complex classes (and more importantly fields of complex types) from being printe
 <li>concept <code>ContainerHasInputIterator</code> determines whether a container has <code>begin</code>, <code>end</code> and <code>std::input_iterator</code> compliant iterators.</li>
 <li>type alias <code>GetDifferenceType</code> is either set to the type's <code>difference_type</code> or <code>std::ptrdiff_t</code>.</li>
 <li>concept <code>HasDifferenceType</code> determines whether a type has a <code>difference_type</code>.</li>
+<li>concept <code>IsAnyOfSameAs</code> which determines whether a type is the same as one of a list of types. Unlike <code>IsSameAsAnyOf</code> this has the searched typed on the right, so it can be bound in template clauses. The inversion is available as <code>NotAnyOfSameAs</code>.</li>
+<li>concept <code>IsAnyOfSameAsRaw</code> which determines whether a type is the same as one of a list of types (when const, volatile and reference are removed). Unlike <code>IsSameAsAnyOfRaw</code> this has the searched typed on the right, so it can be bound in template clauses. Similar to <code>IsSameAsAnyOf</code> but applies <code>std::remove_cvref_t</code> on all types. The inversion is available as <code>NotAnyOfSameAsRaw</code>.</li>
 <li>concept <code>IsAggregate</code> determines whether a type is an aggregate.</li>
+<li>concept <code>IsArithmetic</code> uses <code>std::is_arithmetic_v&lt;T&gt;</code>.</li>
+<li>concept <code>IsBracesConstructibleV</code> determines whether a type can be constructed from given argument types.</li>
 <li>concept <code>IsCharArray</code> determines whether a type is a <code>char*</code> or <code>char[]</code> related type.</li>
 <li>concept <code>IsDecomposable</code> determines whether a type can be used in static-bindings.</li>
 <li>concept <code>IsEmptyType</code> determines whether a type is empty (calls <code>std::is_empty_v</code>).</li>
+<li>concept <code>IsFloatingPoint</code> determines whether a type is a floating point type (uses <code>std::floating_point</code>).</li>
 <li>concept <code>IsInitializerList</code> determines whether a type is `std::initializer type.</li>
-<li>concept <code>IsBracesConstructibleV</code> determines whether a type can be constructe from given argument types.</li>
+<li>concept <code>IsScalar</code> uses <code>std::is_scalar_v&lt;T&gt;</code>.</li>
 <li>concept <code>IsOptional</code> determines whether a type is a <code>std::optional</code> type.</li>
 <li>concept <code>IsPair</code> determines whether a type is a <code>std::pair</code> type.</li>
-<li>concept <code>IsSameAsAnyOf</code> which determines whether a type is the same as one of a list of types. Similar to <code>IsSameAsAnyOfRaw</code> but using exact types.</li>
-<li>concept <code>IsSameAsAnyOfRaw</code> / <code>NotSameAsAnyOfRaw</code> which determines whether a type is one of a list of types. Similar to <code>IsSameAsAnyOf</code> but applies <code>std::remove_cvref_t</code> on all types.</li>
+<li>concept <code>IsReferenceWrapper</code> determines whether a type is a <code>std::reference_wrapper</code>.</li>
+<li>concept <code>IsSameAsAnyOf</code> which determines whether a type is the same as one of a list of types. Similar to <code>IsSameAsAnyOfRaw</code> but using exact types. The inversion is available as <code>NotSameAsAnyOf</code>.</li>
+<li>concept <code>IsSameAsAnyOfRaw</code> which determines whether a type is one of a list of types. Similar to <code>IsSameAsAnyOf</code> but applies <code>std::remove_cvref_t</code> on all types. The inversion is available as <code>NotSameAsAnyOfRaw</code>.</li>
+<li>concept <code>IsScalar</code> uses <code>std::is_scalar_v&lt;T&gt;</code>.</li>
 <li>concept <code>IsSet</code> determines whether a type is a <code>std::set</code> type.</li>
 <li>concept <code>IsSmartPtr</code> determines whether a type is a <code>std::shared_ptr</code>, <code>std::unique_ptr</code> or <code>std::weak_ptr</code>.
 <ul dir="auto">
@@ -416,6 +432,11 @@ complex classes (and more importantly fields of complex types) from being printe
 <li>mbo/types:tuple_cc, mbo/types/tuple.h
 <ul dir="auto">
 <li>template struct <code>TupleCat</code> which concatenates tuple types.</li>
+</ul>
+</li>
+<li>mbo/types:typed_view_cc, mbo/types/typed_view.h
+<ul dir="auto">
+<li>template struct <code>TypedView</code> a wrapper for STL views that provides type definitions, most importantly <code>value_type</code>. That allows such views to be used with GoogleTest container matchers.</li>
 </ul>
 </li>
 <li>mbo/types:variant_cc, mbo/types/variant.h
