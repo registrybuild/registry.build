@@ -32,7 +32,7 @@ builds</a> (blog post)</li>
 </ul>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Setup</h2><a id="user-content-setup" class="anchor" aria-label="Permalink: Setup" href="#setup"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">Add the following to your <code>WORKSPACE</code> file, and select a <code>$COMMIT</code> accordingly.</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@bazel_tools//tools/build_defs/repo:http.bzl&quot;, &quot;http_archive&quot;)
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(&quot;@bazel_tools//tools/build_defs/repo:http.bzl&quot;, &quot;http_archive&quot;)
 
 http_archive(
     name = &quot;io_tweag_rules_nixpkgs&quot;,
@@ -45,20 +45,21 @@ rules_nixpkgs_dependencies()
 
 load(&quot;@io_tweag_rules_nixpkgs//nixpkgs:nixpkgs.bzl&quot;, &quot;nixpkgs_git_repository&quot;, &quot;nixpkgs_package&quot;, &quot;nixpkgs_cc_configure&quot;)
 
-load(&quot;@io_tweag_rules_nixpkgs//nixpkgs:toolchains/go.bzl&quot;, &quot;nixpkgs_go_configure&quot;) # optional"><pre><span class="pl-en">load</span>(<span class="pl-s">"@bazel_tools//tools/build_defs/repo:http.bzl"</span>, <span class="pl-s">"http_archive"</span>)
+load(&quot;@io_tweag_rules_nixpkgs//nixpkgs:toolchains/go.bzl&quot;, &quot;nixpkgs_go_configure&quot;) # optional"><pre lang="bzl" class="notranslate"><code>load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
-<span class="pl-en">http_archive</span>(
-    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"io_tweag_rules_nixpkgs"</span>,
-    <span class="pl-s1">strip_prefix</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_nixpkgs-$COMMIT"</span>,
-    <span class="pl-s1">urls</span> <span class="pl-c1">=</span> [<span class="pl-s">"https://github.com/tweag/rules_nixpkgs/archive/$COMMIT.tar.gz"</span>],
+http_archive(
+    name = "io_tweag_rules_nixpkgs",
+    strip_prefix = "rules_nixpkgs-$COMMIT",
+    urls = ["https://github.com/tweag/rules_nixpkgs/archive/$COMMIT.tar.gz"],
 )
 
-<span class="pl-en">load</span>(<span class="pl-s">"@io_tweag_rules_nixpkgs//nixpkgs:repositories.bzl"</span>, <span class="pl-s">"rules_nixpkgs_dependencies"</span>)
-<span class="pl-en">rules_nixpkgs_dependencies</span>()
+load("@io_tweag_rules_nixpkgs//nixpkgs:repositories.bzl", "rules_nixpkgs_dependencies")
+rules_nixpkgs_dependencies()
 
-<span class="pl-en">load</span>(<span class="pl-s">"@io_tweag_rules_nixpkgs//nixpkgs:nixpkgs.bzl"</span>, <span class="pl-s">"nixpkgs_git_repository"</span>, <span class="pl-s">"nixpkgs_package"</span>, <span class="pl-s">"nixpkgs_cc_configure"</span>)
+load("@io_tweag_rules_nixpkgs//nixpkgs:nixpkgs.bzl", "nixpkgs_git_repository", "nixpkgs_package", "nixpkgs_cc_configure")
 
-<span class="pl-en">load</span>(<span class="pl-s">"@io_tweag_rules_nixpkgs//nixpkgs:toolchains/go.bzl"</span>, <span class="pl-s">"nixpkgs_go_configure"</span>) <span class="pl-c"># optional</span></pre></div>
+load("@io_tweag_rules_nixpkgs//nixpkgs:toolchains/go.bzl", "nixpkgs_go_configure") # optional
+</code></pre></div>
 <p dir="auto">If you use <code>rules_nixpkgs</code> to configure a toolchain, then you will also need to
 configure the build platform to include the
 <code>@rules_nixpkgs_core//constraints:support_nix</code> constraint. For
@@ -66,7 +67,7 @@ example by adding the following to <code>.bazelrc</code>:</p>
 <div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="build --host_platform=@rules_nixpkgs_core//platforms:host"><pre class="notranslate"><code>build --host_platform=@rules_nixpkgs_core//platforms:host
 </code></pre></div>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Example</h2><a id="user-content-example" class="anchor" aria-label="Permalink: Example" href="#example"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="nixpkgs_git_repository(
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="nixpkgs_git_repository(
     name = &quot;nixpkgs&quot;,
     revision = &quot;17.09&quot;, # Any tag or commit hash
     sha256 = &quot;&quot; # optional sha to verify package integrity!
@@ -75,16 +76,17 @@ example by adding the following to <code>.bazelrc</code>:</p>
 nixpkgs_package(
     name = &quot;hello&quot;,
     repositories = { &quot;nixpkgs&quot;: &quot;@nixpkgs//:default.nix&quot; }
-)"><pre><span class="pl-en">nixpkgs_git_repository</span>(
-    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"nixpkgs"</span>,
-    <span class="pl-s1">revision</span> <span class="pl-c1">=</span> <span class="pl-s">"17.09"</span>, <span class="pl-c"># Any tag or commit hash</span>
-    <span class="pl-s1">sha256</span> <span class="pl-c1">=</span> <span class="pl-s">""</span> <span class="pl-c"># optional sha to verify package integrity!</span>
+)"><pre lang="bzl" class="notranslate"><code>nixpkgs_git_repository(
+    name = "nixpkgs",
+    revision = "17.09", # Any tag or commit hash
+    sha256 = "" # optional sha to verify package integrity!
 )
 
-<span class="pl-en">nixpkgs_package</span>(
-    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"hello"</span>,
-    <span class="pl-s1">repositories</span> <span class="pl-c1">=</span> { <span class="pl-s">"nixpkgs"</span>: <span class="pl-s">"@nixpkgs//:default.nix"</span> }
-)</pre></div>
+nixpkgs_package(
+    name = "hello",
+    repositories = { "nixpkgs": "@nixpkgs//:default.nix" }
+)
+</code></pre></div>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Migration from older releases</h2><a id="user-content-migration-from-older-releases" class="anchor" aria-label="Permalink: Migration from older releases" href="#migration-from-older-releases"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto"><code>path</code> Attribute (removed in 0.3)</h3><a id="user-content-path-attribute-removed-in-03" class="anchor" aria-label="Permalink: path Attribute (removed in 0.3)" href="#path-attribute-removed-in-03"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto"><code>path</code> was an attribute from the early days of <code>rules_nixpkgs</code>, and
@@ -94,7 +96,7 @@ a specific version of <code>nixpkgs</code>. If you absolutely <em>must</em> depe
 local folder, use Bazel's
 <a href="https://docs.bazel.build/versions/master/be/workspace.html#local_repository" rel="nofollow"><code>local_repository</code> workspace rule</a>.
 Both approaches work well with the <code>repositories</code> attribute of <code>nixpkgs_package</code>.</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="local_repository(
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="local_repository(
   name = &quot;local-nixpkgs&quot;,
   path = &quot;/path/to/nixpkgs&quot;,
 )
@@ -104,17 +106,18 @@ nixpkgs_package(
   repositories = {
     &quot;nixpkgs&quot;: &quot;@local-nixpkgs//:default.nix&quot;,
   },
-)"><pre><span class="pl-en">local_repository</span>(
-  <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"local-nixpkgs"</span>,
-  <span class="pl-s1">path</span> <span class="pl-c1">=</span> <span class="pl-s">"/path/to/nixpkgs"</span>,
+)"><pre lang="bzl" class="notranslate"><code>local_repository(
+  name = "local-nixpkgs",
+  path = "/path/to/nixpkgs",
 )
 
-<span class="pl-en">nixpkgs_package</span>(
-  <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"somepackage"</span>,
-  <span class="pl-s1">repositories</span> <span class="pl-c1">=</span> {
-    <span class="pl-s">"nixpkgs"</span>: <span class="pl-s">"@local-nixpkgs//:default.nix"</span>,
+nixpkgs_package(
+  name = "somepackage",
+  repositories = {
+    "nixpkgs": "@local-nixpkgs//:default.nix",
   },
-)</pre></div>
+)
+</code></pre></div>
 <div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Reference documentation</h1><a id="user-content-reference-documentation" class="anchor" aria-label="Permalink: Reference documentation" href="#reference-documentation"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto"><a id="user-content-#nixpkgs_cc_configure"></a></p>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">nixpkgs_cc_configure</h3><a id="user-content-nixpkgs_cc_configure" class="anchor" aria-label="Permalink: nixpkgs_cc_configure" href="#nixpkgs_cc_configure"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
@@ -723,15 +726,16 @@ Bazel can use this instance to run JVM binaries and tests, refer to the
 <div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Example</h4><a id="user-content-example-1" class="anchor" aria-label="Permalink: Example" href="#example-1"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <div class="markdown-heading" dir="auto"><h5 class="heading-element" dir="auto">Bazel 4</h5><a id="user-content-bazel-4" class="anchor" aria-label="Permalink: Bazel 4" href="#bazel-4"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">Add the following to your <code>WORKSPACE</code> file to import a JDK from nixpkgs:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@io_tweag_rules_nixpkgs//nixpkgs:nixpkgs.bzl&quot;, &quot;nixpkgs_java_configure&quot;)
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(&quot;@io_tweag_rules_nixpkgs//nixpkgs:nixpkgs.bzl&quot;, &quot;nixpkgs_java_configure&quot;)
 nixpkgs_java_configure(
     attribute_path = &quot;jdk11.home&quot;,
     repository = &quot;@nixpkgs&quot;,
-)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@io_tweag_rules_nixpkgs//nixpkgs:nixpkgs.bzl"</span>, <span class="pl-s">"nixpkgs_java_configure"</span>)
-<span class="pl-en">nixpkgs_java_configure</span>(
-    <span class="pl-s1">attribute_path</span> <span class="pl-c1">=</span> <span class="pl-s">"jdk11.home"</span>,
-    <span class="pl-s1">repository</span> <span class="pl-c1">=</span> <span class="pl-s">"@nixpkgs"</span>,
-)</pre></div>
+)"><pre lang="bzl" class="notranslate"><code>load("@io_tweag_rules_nixpkgs//nixpkgs:nixpkgs.bzl", "nixpkgs_java_configure")
+nixpkgs_java_configure(
+    attribute_path = "jdk11.home",
+    repository = "@nixpkgs",
+)
+</code></pre></div>
 <p dir="auto">Add the following configuration to <code>.bazelrc</code> to enable this Java runtime:</p>
 <div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="build --javabase=@nixpkgs_java_runtime//:runtime
 build --host_javabase=@nixpkgs_java_runtime//:runtime
@@ -747,21 +751,22 @@ build --host_java_toolchain=@bazel_tools//tools/jdk:toolchain_java11
 </code></pre></div>
 <div class="markdown-heading" dir="auto"><h5 class="heading-element" dir="auto">Bazel 5</h5><a id="user-content-bazel-5" class="anchor" aria-label="Permalink: Bazel 5" href="#bazel-5"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">Add the following to your <code>WORKSPACE</code> file to import a JDK from nixpkgs:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@io_tweag_rules_nixpkgs//nixpkgs:nixpkgs.bzl&quot;, &quot;nixpkgs_java_configure&quot;)
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(&quot;@io_tweag_rules_nixpkgs//nixpkgs:nixpkgs.bzl&quot;, &quot;nixpkgs_java_configure&quot;)
 nixpkgs_java_configure(
     attribute_path = &quot;jdk11.home&quot;,
     repository = &quot;@nixpkgs&quot;,
     toolchain = True,
     toolchain_name = &quot;nixpkgs_java&quot;,
     toolchain_version = &quot;11&quot;,
-)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@io_tweag_rules_nixpkgs//nixpkgs:nixpkgs.bzl"</span>, <span class="pl-s">"nixpkgs_java_configure"</span>)
-<span class="pl-en">nixpkgs_java_configure</span>(
-    <span class="pl-s1">attribute_path</span> <span class="pl-c1">=</span> <span class="pl-s">"jdk11.home"</span>,
-    <span class="pl-s1">repository</span> <span class="pl-c1">=</span> <span class="pl-s">"@nixpkgs"</span>,
-    <span class="pl-s1">toolchain</span> <span class="pl-c1">=</span> <span class="pl-c1">True</span>,
-    <span class="pl-s1">toolchain_name</span> <span class="pl-c1">=</span> <span class="pl-s">"nixpkgs_java"</span>,
-    <span class="pl-s1">toolchain_version</span> <span class="pl-c1">=</span> <span class="pl-s">"11"</span>,
-)</pre></div>
+)"><pre lang="bzl" class="notranslate"><code>load("@io_tweag_rules_nixpkgs//nixpkgs:nixpkgs.bzl", "nixpkgs_java_configure")
+nixpkgs_java_configure(
+    attribute_path = "jdk11.home",
+    repository = "@nixpkgs",
+    toolchain = True,
+    toolchain_name = "nixpkgs_java",
+    toolchain_version = "11",
+)
+</code></pre></div>
 <p dir="auto">Add the following configuration to <code>.bazelrc</code> to enable this Java runtime:</p>
 <div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="build --host_platform=@io_tweag_rules_nixpkgs//nixpkgs/platforms:host
 build --java_runtime_version=nixpkgs_java
@@ -772,7 +777,7 @@ build --tool_java_runtime_version=nixpkgs_java
 <div class="markdown-heading" dir="auto"><h5 class="heading-element" dir="auto">Bazel 6</h5><a id="user-content-bazel-6" class="anchor" aria-label="Permalink: Bazel 6" href="#bazel-6"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">with with <a href="https://bazel.build/versions/6.5.0/external/overview#bzlmod" rel="nofollow">Bzlmod</a></h4><a id="user-content-with-with-bzlmod" class="anchor" aria-label="Permalink: with with Bzlmod" href="#with-with-bzlmod"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">Add the following to your <code>MODULE.bazel</code> file to depend on <code>rules_nixpkgs</code>, <code>rules_nixpkgs_java</code>, and nixpgks:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel_dep(name = &quot;rules_nixpkgs_core&quot;, version = &quot;0.13.0&quot;)
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="bazel_dep(name = &quot;rules_nixpkgs_core&quot;, version = &quot;0.13.0&quot;)
 bazel_dep(name = &quot;rules_nixpkgs_java&quot;, version = &quot;0.13.0&quot;)
 bazel_dep(name = &quot;rules_java&quot;, version = &quot;7.3.1&quot;)
 bazel_dep(name = &quot;platforms&quot;, version = &quot;0.0.9&quot;)
@@ -797,34 +802,35 @@ archive_override(
     urls = &quot;https://github.com/tweag/rules_nixpkgs/releases/download/v0.13.0/rules_nixpkgs-0.13.0.tar.gz&quot;,
     integrity = &quot;&quot;,
     strip_prefix = &quot;rules_nixpkgs-0.13.0/toolchains/java&quot;,
-)"><pre><span class="pl-en">bazel_dep</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_nixpkgs_core"</span>, <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"0.13.0"</span>)
-<span class="pl-en">bazel_dep</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_nixpkgs_java"</span>, <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"0.13.0"</span>)
-<span class="pl-en">bazel_dep</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_java"</span>, <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"7.3.1"</span>)
-<span class="pl-en">bazel_dep</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"platforms"</span>, <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"0.0.9"</span>)
+)"><pre lang="bzl" class="notranslate"><code>bazel_dep(name = "rules_nixpkgs_core", version = "0.13.0")
+bazel_dep(name = "rules_nixpkgs_java", version = "0.13.0")
+bazel_dep(name = "rules_java", version = "7.3.1")
+bazel_dep(name = "platforms", version = "0.0.9")
 
-<span class="pl-s1">nix_repo</span> <span class="pl-c1">=</span> <span class="pl-en">use_extension</span>(<span class="pl-s">"@rules_nixpkgs_core//extensions:repository.bzl"</span>, <span class="pl-s">"nix_repo"</span>)
-<span class="pl-s1">nix_repo</span>.<span class="pl-c1">github</span>(
-    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"nixpkgs"</span>,
-    <span class="pl-s1">org</span> <span class="pl-c1">=</span> <span class="pl-s">"NixOS"</span>,
-    <span class="pl-s1">repo</span> <span class="pl-c1">=</span> <span class="pl-s">"nixpkgs"</span>,
-    <span class="pl-s1">commit</span> <span class="pl-c1">=</span> <span class="pl-s">"ff0dbd94265ac470dda06a657d5fe49de93b4599"</span>,
-    <span class="pl-s1">sha256</span> <span class="pl-c1">=</span> <span class="pl-s">"1bf0f88ee9181dd993a38d73cb120d0435e8411ea9e95b58475d4426c0948e98"</span>,
+nix_repo = use_extension("@rules_nixpkgs_core//extensions:repository.bzl", "nix_repo")
+nix_repo.github(
+    name = "nixpkgs",
+    org = "NixOS",
+    repo = "nixpkgs",
+    commit = "ff0dbd94265ac470dda06a657d5fe49de93b4599",
+    sha256 = "1bf0f88ee9181dd993a38d73cb120d0435e8411ea9e95b58475d4426c0948e98",
 )
-<span class="pl-en">use_repo</span>(<span class="pl-s1">nix_repo</span>, <span class="pl-s">"nixpkgs"</span>)
+use_repo(nix_repo, "nixpkgs")
 
-<span class="pl-s1">non_module_dependencies</span> <span class="pl-c1">=</span> <span class="pl-en">use_extension</span>(<span class="pl-s">"//:non_module_dependencies.bzl"</span>, <span class="pl-s">"non_module_dependencies"</span>)
-<span class="pl-en">use_repo</span>(<span class="pl-s1">non_module_dependencies</span>, <span class="pl-s">"nixpkgs_java_runtime_toolchain"</span>)
+non_module_dependencies = use_extension("//:non_module_dependencies.bzl", "non_module_dependencies")
+use_repo(non_module_dependencies, "nixpkgs_java_runtime_toolchain")
 
-<span class="pl-en">register_toolchains</span>(<span class="pl-s">"@nixpkgs_java_runtime_toolchain//:all"</span>)
+register_toolchains("@nixpkgs_java_runtime_toolchain//:all")
 
-<span class="pl-en">archive_override</span>(
-    <span class="pl-s1">module_name</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_nixpkgs_java"</span>,
-    <span class="pl-s1">urls</span> <span class="pl-c1">=</span> <span class="pl-s">"https://github.com/tweag/rules_nixpkgs/releases/download/v0.13.0/rules_nixpkgs-0.13.0.tar.gz"</span>,
-    <span class="pl-s1">integrity</span> <span class="pl-c1">=</span> <span class="pl-s">""</span>,
-    <span class="pl-s1">strip_prefix</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_nixpkgs-0.13.0/toolchains/java"</span>,
-)</pre></div>
+archive_override(
+    module_name = "rules_nixpkgs_java",
+    urls = "https://github.com/tweag/rules_nixpkgs/releases/download/v0.13.0/rules_nixpkgs-0.13.0.tar.gz",
+    integrity = "",
+    strip_prefix = "rules_nixpkgs-0.13.0/toolchains/java",
+)
+</code></pre></div>
 <p dir="auto">Add the following to a <code>.bzl</code> file, like <code>non_module_dependencies.bzl</code>, to import a JDK from nixpkgs:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@rules_nixpkgs_java//:java.bzl&quot;, &quot;nixpkgs_java_configure&quot;)
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(&quot;@rules_nixpkgs_java//:java.bzl&quot;, &quot;nixpkgs_java_configure&quot;)
 
 def _non_module_dependencies_impl(_ctx):
     nixpkgs_java_configure(
@@ -839,22 +845,23 @@ def _non_module_dependencies_impl(_ctx):
 
 non_module_dependencies = module_extension(
     implementation = _non_module_dependencies_impl,
-)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@rules_nixpkgs_java//:java.bzl"</span>, <span class="pl-s">"nixpkgs_java_configure"</span>)
+)"><pre lang="bzl" class="notranslate"><code>load("@rules_nixpkgs_java//:java.bzl", "nixpkgs_java_configure")
 
-<span class="pl-k">def</span> <span class="pl-en">_non_module_dependencies_impl</span>(<span class="pl-s1">_ctx</span>):
-    <span class="pl-en">nixpkgs_java_configure</span>(
-        <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"nixpkgs_java_runtime"</span>,
-        <span class="pl-s1">attribute_path</span> <span class="pl-c1">=</span> <span class="pl-s">"openjdk19.home"</span>,
-        <span class="pl-s1">repository</span> <span class="pl-c1">=</span> <span class="pl-s">"@nixpkgs"</span>,
-        <span class="pl-s1">toolchain</span> <span class="pl-c1">=</span> <span class="pl-c1">True</span>,
-        <span class="pl-s1">toolchain_name</span> <span class="pl-c1">=</span> <span class="pl-s">"nixpkgs_java"</span>,
-        <span class="pl-s1">toolchain_version</span> <span class="pl-c1">=</span> <span class="pl-s">"19"</span>,
-        <span class="pl-s1">register</span> <span class="pl-c1">=</span> <span class="pl-c1">False</span>,
+def _non_module_dependencies_impl(_ctx):
+    nixpkgs_java_configure(
+        name = "nixpkgs_java_runtime",
+        attribute_path = "openjdk19.home",
+        repository = "@nixpkgs",
+        toolchain = True,
+        toolchain_name = "nixpkgs_java",
+        toolchain_version = "19",
+        register = False,
     )
 
-<span class="pl-s1">non_module_dependencies</span> <span class="pl-c1">=</span> <span class="pl-en">module_extension</span>(
-    <span class="pl-s1">implementation</span> <span class="pl-c1">=</span> <span class="pl-s1">_non_module_dependencies_impl</span>,
-)</pre></div>
+non_module_dependencies = module_extension(
+    implementation = _non_module_dependencies_impl,
+)
+</code></pre></div>
 <p dir="auto">Add the following configuration to <code>.bazelrc</code> to enable this Java runtime:</p>
 <div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="common --enable_bzlmod
 build --host_platform=@rules_nixpkgs_core//platforms:host
@@ -870,21 +877,22 @@ build --tool_java_language_version=19
 </code></pre></div>
 <div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">with <code>WORKSPACE</code></h4><a id="user-content-with-workspace" class="anchor" aria-label="Permalink: with WORKSPACE" href="#with-workspace"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">Add the following to your <code>WORKSPACE</code> file to import a JDK from nixpkgs:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@io_tweag_rules_nixpkgs//nixpkgs:nixpkgs.bzl&quot;, &quot;nixpkgs_java_configure&quot;)
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(&quot;@io_tweag_rules_nixpkgs//nixpkgs:nixpkgs.bzl&quot;, &quot;nixpkgs_java_configure&quot;)
 nixpkgs_java_configure(
     attribute_path = &quot;jdk11.home&quot;,
     repository = &quot;@nixpkgs&quot;,
     toolchain = True,
     toolchain_name = &quot;nixpkgs_java&quot;,
     toolchain_version = &quot;11&quot;,
-)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@io_tweag_rules_nixpkgs//nixpkgs:nixpkgs.bzl"</span>, <span class="pl-s">"nixpkgs_java_configure"</span>)
-<span class="pl-en">nixpkgs_java_configure</span>(
-    <span class="pl-s1">attribute_path</span> <span class="pl-c1">=</span> <span class="pl-s">"jdk11.home"</span>,
-    <span class="pl-s1">repository</span> <span class="pl-c1">=</span> <span class="pl-s">"@nixpkgs"</span>,
-    <span class="pl-s1">toolchain</span> <span class="pl-c1">=</span> <span class="pl-c1">True</span>,
-    <span class="pl-s1">toolchain_name</span> <span class="pl-c1">=</span> <span class="pl-s">"nixpkgs_java"</span>,
-    <span class="pl-s1">toolchain_version</span> <span class="pl-c1">=</span> <span class="pl-s">"11"</span>,
-)</pre></div>
+)"><pre lang="bzl" class="notranslate"><code>load("@io_tweag_rules_nixpkgs//nixpkgs:nixpkgs.bzl", "nixpkgs_java_configure")
+nixpkgs_java_configure(
+    attribute_path = "jdk11.home",
+    repository = "@nixpkgs",
+    toolchain = True,
+    toolchain_name = "nixpkgs_java",
+    toolchain_version = "11",
+)
+</code></pre></div>
 <p dir="auto">Add the following configuration to <code>.bazelrc</code> to enable this Java runtime:</p>
 <div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="build --host_platform=@io_tweag_rules_nixpkgs//nixpkgs/platforms:host
 build --java_runtime_version=nixpkgs_java_11
@@ -898,7 +906,7 @@ build --tool_java_language_version=11
 </code></pre></div>
 <div class="markdown-heading" dir="auto"><h5 class="heading-element" dir="auto">Bazel 7 with <a href="https://bazel.build/versions/7.0.0/external/overview#bzlmod" rel="nofollow">Bzlmod</a></h5><a id="user-content-bazel-7-with-bzlmod" class="anchor" aria-label="Permalink: Bazel 7 with Bzlmod" href="#bazel-7-with-bzlmod"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">Add the following to your <code>MODULE.bazel</code> file to depend on <code>rules_nixpkgs</code>, <code>rules_nixpkgs_java</code>, and nixpgks:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel_dep(name = &quot;rules_nixpkgs_core&quot;, version = &quot;0.13.0&quot;)
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="bazel_dep(name = &quot;rules_nixpkgs_core&quot;, version = &quot;0.13.0&quot;)
 bazel_dep(name = &quot;rules_nixpkgs_java&quot;, version = &quot;0.13.0&quot;)
 bazel_dep(name = &quot;rules_java&quot;, version = &quot;7.5.0&quot;)
 bazel_dep(name = &quot;platforms&quot;, version = &quot;0.0.9&quot;)
@@ -923,34 +931,35 @@ archive_override(
     urls = &quot;https://github.com/tweag/rules_nixpkgs/releases/download/v0.13.0/rules_nixpkgs-0.13.0.tar.gz&quot;,
     integrity = &quot;&quot;,
     strip_prefix = &quot;rules_nixpkgs-0.13.0/toolchains/java&quot;,
-)"><pre><span class="pl-en">bazel_dep</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_nixpkgs_core"</span>, <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"0.13.0"</span>)
-<span class="pl-en">bazel_dep</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_nixpkgs_java"</span>, <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"0.13.0"</span>)
-<span class="pl-en">bazel_dep</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_java"</span>, <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"7.5.0"</span>)
-<span class="pl-en">bazel_dep</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"platforms"</span>, <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"0.0.9"</span>)
+)"><pre lang="bzl" class="notranslate"><code>bazel_dep(name = "rules_nixpkgs_core", version = "0.13.0")
+bazel_dep(name = "rules_nixpkgs_java", version = "0.13.0")
+bazel_dep(name = "rules_java", version = "7.5.0")
+bazel_dep(name = "platforms", version = "0.0.9")
 
-<span class="pl-s1">nix_repo</span> <span class="pl-c1">=</span> <span class="pl-en">use_extension</span>(<span class="pl-s">"@rules_nixpkgs_core//extensions:repository.bzl"</span>, <span class="pl-s">"nix_repo"</span>)
-<span class="pl-s1">nix_repo</span>.<span class="pl-c1">github</span>(
-    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"nixpkgs"</span>,
-    <span class="pl-s1">org</span> <span class="pl-c1">=</span> <span class="pl-s">"NixOS"</span>,
-    <span class="pl-s1">repo</span> <span class="pl-c1">=</span> <span class="pl-s">"nixpkgs"</span>,
-    <span class="pl-s1">commit</span> <span class="pl-c1">=</span> <span class="pl-s">"ff0dbd94265ac470dda06a657d5fe49de93b4599"</span>,
-    <span class="pl-s1">sha256</span> <span class="pl-c1">=</span> <span class="pl-s">"1bf0f88ee9181dd993a38d73cb120d0435e8411ea9e95b58475d4426c0948e98"</span>,
+nix_repo = use_extension("@rules_nixpkgs_core//extensions:repository.bzl", "nix_repo")
+nix_repo.github(
+    name = "nixpkgs",
+    org = "NixOS",
+    repo = "nixpkgs",
+    commit = "ff0dbd94265ac470dda06a657d5fe49de93b4599",
+    sha256 = "1bf0f88ee9181dd993a38d73cb120d0435e8411ea9e95b58475d4426c0948e98",
 )
-<span class="pl-en">use_repo</span>(<span class="pl-s1">nix_repo</span>, <span class="pl-s">"nixpkgs"</span>)
+use_repo(nix_repo, "nixpkgs")
 
-<span class="pl-s1">non_module_dependencies</span> <span class="pl-c1">=</span> <span class="pl-en">use_extension</span>(<span class="pl-s">"//:non_module_dependencies.bzl"</span>, <span class="pl-s">"non_module_dependencies"</span>)
-<span class="pl-en">use_repo</span>(<span class="pl-s1">non_module_dependencies</span>, <span class="pl-s">"nixpkgs_java_runtime_toolchain"</span>)
+non_module_dependencies = use_extension("//:non_module_dependencies.bzl", "non_module_dependencies")
+use_repo(non_module_dependencies, "nixpkgs_java_runtime_toolchain")
 
-<span class="pl-en">register_toolchains</span>(<span class="pl-s">"@nixpkgs_java_runtime_toolchain//:all"</span>)
+register_toolchains("@nixpkgs_java_runtime_toolchain//:all")
 
-<span class="pl-en">archive_override</span>(
-    <span class="pl-s1">module_name</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_nixpkgs_java"</span>,
-    <span class="pl-s1">urls</span> <span class="pl-c1">=</span> <span class="pl-s">"https://github.com/tweag/rules_nixpkgs/releases/download/v0.13.0/rules_nixpkgs-0.13.0.tar.gz"</span>,
-    <span class="pl-s1">integrity</span> <span class="pl-c1">=</span> <span class="pl-s">""</span>,
-    <span class="pl-s1">strip_prefix</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_nixpkgs-0.13.0/toolchains/java"</span>,
-)</pre></div>
+archive_override(
+    module_name = "rules_nixpkgs_java",
+    urls = "https://github.com/tweag/rules_nixpkgs/releases/download/v0.13.0/rules_nixpkgs-0.13.0.tar.gz",
+    integrity = "",
+    strip_prefix = "rules_nixpkgs-0.13.0/toolchains/java",
+)
+</code></pre></div>
 <p dir="auto">Add the following to a <code>.bzl</code> file, like <code>non_module_dependencies.bzl</code>, to import a JDK from nixpkgs:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@rules_nixpkgs_java//:java.bzl&quot;, &quot;nixpkgs_java_configure&quot;)
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(&quot;@rules_nixpkgs_java//:java.bzl&quot;, &quot;nixpkgs_java_configure&quot;)
 
 def _non_module_dependencies_impl(_ctx):
     nixpkgs_java_configure(
@@ -965,22 +974,23 @@ def _non_module_dependencies_impl(_ctx):
 
 non_module_dependencies = module_extension(
     implementation = _non_module_dependencies_impl,
-)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@rules_nixpkgs_java//:java.bzl"</span>, <span class="pl-s">"nixpkgs_java_configure"</span>)
+)"><pre lang="bzl" class="notranslate"><code>load("@rules_nixpkgs_java//:java.bzl", "nixpkgs_java_configure")
 
-<span class="pl-k">def</span> <span class="pl-en">_non_module_dependencies_impl</span>(<span class="pl-s1">_ctx</span>):
-    <span class="pl-en">nixpkgs_java_configure</span>(
-        <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"nixpkgs_java_runtime"</span>,
-        <span class="pl-s1">attribute_path</span> <span class="pl-c1">=</span> <span class="pl-s">"openjdk19.home"</span>,
-        <span class="pl-s1">repository</span> <span class="pl-c1">=</span> <span class="pl-s">"@nixpkgs"</span>,
-        <span class="pl-s1">toolchain</span> <span class="pl-c1">=</span> <span class="pl-c1">True</span>,
-        <span class="pl-s1">toolchain_name</span> <span class="pl-c1">=</span> <span class="pl-s">"nixpkgs_java"</span>,
-        <span class="pl-s1">toolchain_version</span> <span class="pl-c1">=</span> <span class="pl-s">"19"</span>,
-        <span class="pl-s1">register</span> <span class="pl-c1">=</span> <span class="pl-c1">False</span>,
+def _non_module_dependencies_impl(_ctx):
+    nixpkgs_java_configure(
+        name = "nixpkgs_java_runtime",
+        attribute_path = "openjdk19.home",
+        repository = "@nixpkgs",
+        toolchain = True,
+        toolchain_name = "nixpkgs_java",
+        toolchain_version = "19",
+        register = False,
     )
 
-<span class="pl-s1">non_module_dependencies</span> <span class="pl-c1">=</span> <span class="pl-en">module_extension</span>(
-    <span class="pl-s1">implementation</span> <span class="pl-c1">=</span> <span class="pl-s1">_non_module_dependencies_impl</span>,
-)</pre></div>
+non_module_dependencies = module_extension(
+    implementation = _non_module_dependencies_impl,
+)
+</code></pre></div>
 <p dir="auto">Add the following configuration to <code>.bazelrc</code> to enable this Java runtime:</p>
 <div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="build --host_platform=@rules_nixpkgs_core//platforms:host
 build --java_runtime_version=nixpkgs_java_19
