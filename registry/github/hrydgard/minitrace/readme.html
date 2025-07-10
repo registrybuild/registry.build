@@ -1,0 +1,131 @@
+<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">minitrace</h1><a id="user-content-minitrace" class="anchor" aria-label="Permalink: minitrace" href="#minitrace"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">by Henrik Rydgård 2014 (<a href="mailto:hrydgard+minitrace@gmail.com">hrydgard+minitrace@gmail.com</a>)</p>
+<p dir="auto">MIT licensed, feel free to use however you want. If you use it for something cool, I'd love to hear about it!</p>
+<p dir="auto">This is a C library with C++ helpers for producing JSON traces suitable for Chrome's excellent built-in trace viewer (chrome://tracing).</p>
+<p dir="auto">Extremely simple to build and use. Tested on Mac and Windows, but should compile anywhere you can use ANSI C with few or no changes.</p>
+<p dir="auto">Sample output (see example code below):</p>
+<p dir="auto"><a target="_blank" rel="noopener noreferrer nofollow" href="https://camo.githubusercontent.com/6476d1d810b08bc0c789e9e6e0d1895424f53e0f4864a59e9932656919eb2de5/687474703a2f2f7777772e7070737370702e6f72672f696d672f6d696e6974726163652e706e67"><img src="https://camo.githubusercontent.com/6476d1d810b08bc0c789e9e6e0d1895424f53e0f4864a59e9932656919eb2de5/687474703a2f2f7777772e7070737370702e6f72672f696d672f6d696e6974726163652e706e67" alt="minitrace" data-canonical-src="http://www.ppsspp.org/img/minitrace.png" style="max-width: 100%;"></a></p>
+<p dir="auto">Remember to be careful when interpreting the output. This is not a sampling profiler, so it only records start and stop times for blocks. This means that blocks grow even when the CPU is off running another thread, and that it can look like work is being done on more blocks at a time than you have CPUs.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">How to use</h2><a id="user-content-how-to-use" class="anchor" aria-label="Permalink: How to use" href="#how-to-use"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ol dir="auto">
+<li>
+<p dir="auto">Include <code>minitrace.c</code> and <code>minitrace.h</code> in your project. <code>#include minitrace.h</code> in some common header.</p>
+</li>
+<li>
+<p dir="auto">In your initialization code:</p>
+<div class="highlight highlight-source-c notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="mtr_init(&quot;trace.json&quot;);"><pre><span class="pl-en">mtr_init</span>(<span class="pl-s">"trace.json"</span>);</pre></div>
+</li>
+<li>
+<p dir="auto">In your exit code:</p>
+<div class="highlight highlight-source-c notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="mtr_shutdown();"><pre><span class="pl-en">mtr_shutdown</span>();</pre></div>
+</li>
+<li>
+<p dir="auto">Make sure <code>MTR_ENABLED</code> is defined globally when you want to profile, for example <code>-DMTR_ENABLED</code></p>
+</li>
+<li>
+<p dir="auto">In all functions you want to profile:</p>
+<div class="highlight highlight-source-c notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="// C
+MTR_BEGIN(&quot;GFX&quot;, &quot;RasterizeTriangle&quot;)
+...
+MTR_END(&quot;GFX&quot;, &quot;RasterizeTriangle&quot;)"><pre><span class="pl-c">// C</span>
+<span class="pl-en">MTR_BEGIN</span>(<span class="pl-s">"GFX"</span>, <span class="pl-s">"RasterizeTriangle"</span>)
+...
+<span class="pl-en">MTR_END</span>(<span class="pl-s">"GFX"</span>, <span class="pl-s">"RasterizeTriangle"</span>)</pre></div>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="// C++
+MTR_SCOPE(&quot;GFX&quot;, &quot;RasterizeTriangle&quot;)"><pre><span class="pl-c"><span class="pl-c">//</span> C++</span>
+<span class="pl-en">MTR_SCOPE</span>(<span class="pl-s"><span class="pl-pds">"</span>GFX<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>RasterizeTriangle<span class="pl-pds">"</span></span>)</pre></div>
+</li>
+<li>
+<p dir="auto">In Google Chrome open "about:tracing"</p>
+</li>
+<li>
+<p dir="auto">Click Open, and choose your <code>trace.json</code></p>
+</li>
+<li>
+<p dir="auto">Navigate the trace view using the WASD keys, and Look for bottlenecks and optimize your application.</p>
+</li>
+<li>
+<p dir="auto">In your final release build, don't forget to remove <code>-DMTR_ENABLED</code> or however you set the define.</p>
+</li>
+</ol>
+<p dir="auto">By default, it will collect 1 million tracepoints and then stop. You can change this behaviour, see the
+top of the header file.</p>
+<p dir="auto">Note: Please only use string literals in MTR statements.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Example code</h2><a id="user-content-example-code" class="anchor" aria-label="Permalink: Example code" href="#example-code"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="highlight highlight-source-c notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="int main(int argc, const char *argv[]) {
+  int i;
+  mtr_init(&quot;trace.json&quot;);
+
+  MTR_META_PROCESS_NAME(&quot;minitrace_test&quot;);
+  MTR_META_THREAD_NAME(&quot;main thread&quot;);
+
+  int long_running_thing_1;
+  int long_running_thing_2;
+
+  MTR_START(&quot;background&quot;, &quot;long_running&quot;, &amp;long_running_thing_1);
+  MTR_START(&quot;background&quot;, &quot;long_running&quot;, &amp;long_running_thing_2);
+
+  MTR_BEGIN(&quot;main&quot;, &quot;outer&quot;);
+  usleep(80000);
+  for (i = 0; i &lt; 3; i++) {
+    MTR_BEGIN(&quot;main&quot;, &quot;inner&quot;);
+    usleep(40000);
+    MTR_END(&quot;main&quot;, &quot;inner&quot;);
+    usleep(10000);
+  }
+  MTR_STEP(&quot;background&quot;, &quot;long_running&quot;, &amp;long_running_thing_1, &quot;middle step&quot;);
+  usleep(80000);
+  MTR_END(&quot;main&quot;, &quot;outer&quot;);
+
+  usleep(50000);
+  MTR_INSTANT(&quot;main&quot;, &quot;the end&quot;);
+  usleep(10000);
+  MTR_FINISH(&quot;background&quot;, &quot;long_running&quot;, &amp;long_running_thing_1);
+  MTR_FINISH(&quot;background&quot;, &quot;long_running&quot;, &amp;long_running_thing_2);
+
+  mtr_flush();
+  mtr_shutdown();
+  return 0;
+}"><pre><span class="pl-smi">int</span> <span class="pl-en">main</span>(<span class="pl-smi">int</span> <span class="pl-s1">argc</span>, <span class="pl-k">const</span> <span class="pl-smi">char</span> <span class="pl-c1">*</span><span class="pl-s1">argv</span>[]) {
+  <span class="pl-smi">int</span> <span class="pl-s1">i</span>;
+  <span class="pl-en">mtr_init</span>(<span class="pl-s">"trace.json"</span>);
+
+  <span class="pl-en">MTR_META_PROCESS_NAME</span>(<span class="pl-s">"minitrace_test"</span>);
+  <span class="pl-en">MTR_META_THREAD_NAME</span>(<span class="pl-s">"main thread"</span>);
+
+  <span class="pl-smi">int</span> <span class="pl-s1">long_running_thing_1</span>;
+  <span class="pl-smi">int</span> <span class="pl-s1">long_running_thing_2</span>;
+
+  <span class="pl-en">MTR_START</span>(<span class="pl-s">"background"</span>, <span class="pl-s">"long_running"</span>, <span class="pl-c1">&amp;</span><span class="pl-s1">long_running_thing_1</span>);
+  <span class="pl-en">MTR_START</span>(<span class="pl-s">"background"</span>, <span class="pl-s">"long_running"</span>, <span class="pl-c1">&amp;</span><span class="pl-s1">long_running_thing_2</span>);
+
+  <span class="pl-en">MTR_BEGIN</span>(<span class="pl-s">"main"</span>, <span class="pl-s">"outer"</span>);
+  <span class="pl-en">usleep</span>(<span class="pl-c1">80000</span>);
+  <span class="pl-k">for</span> (<span class="pl-s1">i</span> <span class="pl-c1">=</span> <span class="pl-c1">0</span>; <span class="pl-s1">i</span> <span class="pl-c1">&lt;</span> <span class="pl-c1">3</span>; <span class="pl-s1">i</span><span class="pl-c1">++</span>) {
+    <span class="pl-en">MTR_BEGIN</span>(<span class="pl-s">"main"</span>, <span class="pl-s">"inner"</span>);
+    <span class="pl-en">usleep</span>(<span class="pl-c1">40000</span>);
+    <span class="pl-en">MTR_END</span>(<span class="pl-s">"main"</span>, <span class="pl-s">"inner"</span>);
+    <span class="pl-en">usleep</span>(<span class="pl-c1">10000</span>);
+  }
+  <span class="pl-en">MTR_STEP</span>(<span class="pl-s">"background"</span>, <span class="pl-s">"long_running"</span>, <span class="pl-c1">&amp;</span><span class="pl-s1">long_running_thing_1</span>, <span class="pl-s">"middle step"</span>);
+  <span class="pl-en">usleep</span>(<span class="pl-c1">80000</span>);
+  <span class="pl-en">MTR_END</span>(<span class="pl-s">"main"</span>, <span class="pl-s">"outer"</span>);
+
+  <span class="pl-en">usleep</span>(<span class="pl-c1">50000</span>);
+  <span class="pl-en">MTR_INSTANT</span>(<span class="pl-s">"main"</span>, <span class="pl-s">"the end"</span>);
+  <span class="pl-en">usleep</span>(<span class="pl-c1">10000</span>);
+  <span class="pl-en">MTR_FINISH</span>(<span class="pl-s">"background"</span>, <span class="pl-s">"long_running"</span>, <span class="pl-c1">&amp;</span><span class="pl-s1">long_running_thing_1</span>);
+  <span class="pl-en">MTR_FINISH</span>(<span class="pl-s">"background"</span>, <span class="pl-s">"long_running"</span>, <span class="pl-c1">&amp;</span><span class="pl-s1">long_running_thing_2</span>);
+
+  <span class="pl-en">mtr_flush</span>();
+  <span class="pl-en">mtr_shutdown</span>();
+  <span class="pl-k">return</span> <span class="pl-c1">0</span>;
+}</pre></div>
+<p dir="auto">The output will result in something looking a little like the picture at the top of this readme.</p>
+<p dir="auto">Future plans:</p>
+<ul dir="auto">
+<li>Builtin background flush thread support with better synchronization, no more fixed limit</li>
+<li>Support for more trace arguments, more tracing types</li>
+</ul>
+<p dir="auto">If you use this, feel free to tell me how, and what issues you may have had. <a href="mailto:hrydgard+minitrace@gmail.com">hrydgard+minitrace@gmail.com</a></p>
+</article></div>
