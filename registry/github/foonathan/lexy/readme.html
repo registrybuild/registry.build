@@ -1,0 +1,293 @@
+<div id="readme" class="adoc" data-path="README.adoc"><article class="markdown-body entry-content container-lg" itemprop="text"><div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">lexy</h1><a id="user-content-lexy" class="anchor" aria-label="Permalink: lexy" href="#lexy"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div id="user-content-preamble" dir="auto">
+<div dir="auto">
+<div dir="auto">
+<p dir="auto"><span><a href="https://www.jonathanmueller.dev/project/" rel="nofollow"><img src="https://camo.githubusercontent.com/ed180cca2e39192996049387162c1c7495d47e137f611e47ad2608f72f4937dc/68747470733a2f2f696d672e736869656c64732e696f2f656e64706f696e743f75726c3d68747470732533412532462532467777772e6a6f6e617468616e6d75656c6c65722e64657625324670726f6a6563742532466c657879253246696e6465782e6a736f6e" alt="Project Status" data-canonical-src="https://img.shields.io/endpoint?url=https%3A%2F%2Fwww.jonathanmueller.dev%2Fproject%2Flexy%2Findex.json" style="max-width: 100%;"></a></span>
+<span><a target="_blank" rel="noopener noreferrer" href="https://github.com/foonathan/lexy/workflows/Main%20CI/badge.svg"><img src="https://github.com/foonathan/lexy/workflows/Main%20CI/badge.svg" alt="Build Status" style="max-width: 100%;"></a></span>
+<span><a href="https://lexy.foonathan.net/playground" rel="nofollow"><img src="https://camo.githubusercontent.com/68b223cec264c1465875b0747cf3a8b5491f6844d0537554ce046ebabe678320/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f7472795f69745f6f6e6c696e652d626c7565" alt="Playground" data-canonical-src="https://img.shields.io/badge/try_it_online-blue" style="max-width: 100%;"></a></span></p>
+</div>
+<div dir="auto">
+<p dir="auto">lexy is a parser combinator library for C++17 and onwards.
+It allows you to write a parser by specifying it in a convenient C++ DSL,
+which gives you all the flexibility and control of a handwritten parser without any of the manual work.</p>
+</div>
+<div dir="auto">
+<p dir="auto"><strong>Documentation</strong>: <a href="https://lexy.foonathan.net/" rel="nofollow">lexy.foonathan.net</a></p>
+</div>
+<div dir="auto">
+<div dir="auto">IPv4 address parser</div>
+<div dir="auto">
+<div dir="auto">
+<div dir="auto">
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="namespace dsl = lexy::dsl;
+
+// Parse an IPv4 address into a `std::uint32_t`.
+struct ipv4_address
+{
+    // What is being matched.
+    static constexpr auto rule = []{
+        // Match a sequence of (decimal) digits and convert it into a std::uint8_t.
+        auto octet = dsl::integer&lt;std::uint8_t&gt;;
+
+        // Match four of them separated by periods.
+        return dsl::times&lt;4&gt;(octet, dsl::sep(dsl::period)) + dsl::eof;
+    }();
+
+    // How the matched output is being stored.
+    static constexpr auto value
+        = lexy::callback&lt;std::uint32_t&gt;([](std::uint8_t a, std::uint8_t b, std::uint8_t c, std::uint8_t d) {
+            return (a &lt;&lt; 24) | (b &lt;&lt; 16) | (c &lt;&lt; 8) | d;
+        });
+};"><pre><span class="pl-k">namespace</span> <span class="pl-en">dsl</span> <span class="pl-k">=</span> lexy::dsl;
+
+<span class="pl-c"><span class="pl-c">//</span> Parse an IPv4 address into a `std::uint32_t`.</span>
+<span class="pl-k">struct</span> <span class="pl-en">ipv4_address</span>
+{
+    <span class="pl-c"><span class="pl-c">//</span> What is being matched.</span>
+    <span class="pl-k">static</span> <span class="pl-k">constexpr</span> <span class="pl-k">auto</span> rule = []{
+        <span class="pl-c"><span class="pl-c">//</span> Match a sequence of (decimal) digits and convert it into a std::uint8_t.</span>
+        <span class="pl-k">auto</span> octet = dsl::integer&lt;std::<span class="pl-c1">uint8_t</span>&gt;;
+
+        <span class="pl-c"><span class="pl-c">//</span> Match four of them separated by periods.</span>
+        <span class="pl-k">return</span> dsl::times&lt;<span class="pl-c1">4</span>&gt;(octet, <span class="pl-c1">dsl::sep</span>(dsl::period)) + dsl::eof;
+    }();
+
+    <span class="pl-c"><span class="pl-c">//</span> How the matched output is being stored.</span>
+    <span class="pl-k">static</span> <span class="pl-k">constexpr</span> <span class="pl-k">auto</span> value
+        = lexy::callback&lt;std::<span class="pl-c1">uint32_t</span>&gt;([](std::<span class="pl-c1">uint8_t</span> a, std::<span class="pl-c1">uint8_t</span> b, std::<span class="pl-c1">uint8_t</span> c, std::<span class="pl-c1">uint8_t</span> d) {
+            <span class="pl-k">return</span> (a &lt;&lt; <span class="pl-c1">24</span>) | (b &lt;&lt; <span class="pl-c1">16</span>) | (c &lt;&lt; <span class="pl-c1">8</span>) | d;
+        });
+};</pre></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div dir="auto">
+<div class="markdown-heading" dir="auto"><h2 id="user-content-features" class="heading-element" dir="auto">Features</h2><a id="user-content-features" class="anchor" aria-label="Permalink: Features" href="#features"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div dir="auto">
+<div dir="auto">
+<dl>
+<dt>Full control</dt>
+<dd>
+<div dir="auto">
+<ul dir="auto">
+<li>
+<p dir="auto"><strong>Describe the parser, not some abstract grammar</strong>:
+Unlike parser generators that use some table driven magic for parsing, lexy’s grammar is just syntax sugar for a hand-written recursive descent parser.
+The parsing algorithm does exactly what you’ve instructed it to do — no more ambiguities or weird shift/reduce errors!</p>
+</li>
+<li>
+<p dir="auto"><strong>No implicit backtracking or lookahead</strong>:
+It will only backtrack when you say it should, and only lookahead when and how far you want it.
+Don’t worry about rules that have side-effects, they won’t be executed unnecessarily thanks to the user-specified lookahead conditions.
+<a href="https://lexy.foonathan.net/playground?example=peek" rel="nofollow">Try it online</a>.</p>
+</li>
+<li>
+<p dir="auto"><strong>Escape hatch for manual parsing</strong>:
+Sometimes you want to parse something that can’t be expressed easily with lexy’s facilities.
+Don’t worry, you can integrate a hand-written parser into the grammar at any point.
+<a href="https://lexy.foonathan.net/playground/?example=scan" rel="nofollow">Try it online</a>.</p>
+</li>
+<li>
+<p dir="auto"><strong>Tracing</strong>:
+Figure out why the grammar isn’t working the way you want it to.
+<a href="https://lexy.foonathan.net/playground/?example=trace&amp;mode=trace" rel="nofollow">Try it online</a>.</p>
+</li>
+</ul>
+</div>
+</dd>
+<dt>Easily integrated</dt>
+<dd>
+<div dir="auto">
+<ul dir="auto">
+<li>
+<p dir="auto"><strong>A pure C++ DSL</strong>:
+No need to use an external grammar file; embed the grammar directly in your C++ project using operator overloading and functions.</p>
+</li>
+<li>
+<p dir="auto"><strong>Bring your own data structures</strong>:
+You can directly store results into your own types and have full control over all heap allocations.</p>
+</li>
+<li>
+<p dir="auto"><strong>Fully <code>constexpr</code> parsing</strong>:
+You want to parse a string literal at compile-time? You can do so.</p>
+</li>
+<li>
+<p dir="auto"><strong>Minimal standard library dependencies</strong>:
+The core parsing library only depends on fundamental headers such as <code>&lt;type_traits&gt;</code> or <code>&lt;cstddef&gt;</code>; no big includes like <code>&lt;vector&gt;</code> or <code>&lt;algorithm&gt;</code>.</p>
+</li>
+<li>
+<p dir="auto"><strong>Header-only core library</strong> (by necessity, not by choice — it’s <code>constexpr</code> after all).</p>
+</li>
+</ul>
+</div>
+</dd>
+<dt>Designed for text</dt>
+<dd>
+<div dir="auto">
+<ul dir="auto">
+<li>
+<p dir="auto"><strong>Unicode support</strong>: parse UTF-8, UTF-16, or UTF-32, and access the Unicode character database to query char classes or perform case folding.
+<a href="https://lexy.foonathan.net/playground?example=identifier-unicode" rel="nofollow">Try it online</a>.</p>
+</li>
+<li>
+<p dir="auto"><strong>Convenience</strong>:
+Built-in rules for parsing nested structures, quotes and escape sequences.
+<a href="https://lexy.foonathan.net/playground?example=parenthesized" rel="nofollow">Try it online</a>.</p>
+</li>
+<li>
+<p dir="auto"><strong>Automatic whitespace skipping</strong>:
+No need to manually handle whitespace or comments.
+<a href="https://lexy.foonathan.net/playground/?example=whitespace_comment" rel="nofollow">Try it online</a>.</p>
+</li>
+</ul>
+</div>
+</dd>
+<dt>Designed for programming languages</dt>
+<dd>
+<div dir="auto">
+<ul dir="auto">
+<li>
+<p dir="auto"><strong>Keyword and identifier parsing</strong>:
+Reserve a set of keywords that won’t be matched as regular identifiers.
+<a href="https://lexy.foonathan.net/playground/?example=reserved_identifier" rel="nofollow">Try it online</a>.</p>
+</li>
+<li>
+<p dir="auto"><strong>Operator parsing</strong>:
+Parse unary/binary operators with different precedences and associativity, including chained comparisons <code>a &lt; b &lt; c</code>.
+<a href="https://lexy.foonathan.net/playground/?example=expr" rel="nofollow">Try it online</a>.</p>
+</li>
+<li>
+<p dir="auto"><strong>Automatic error recovery</strong>:
+Log an error, recover, and continue parsing!
+<a href="https://lexy.foonathan.net/playground/?example=recover" rel="nofollow">Try it online</a>.</p>
+</li>
+</ul>
+</div>
+</dd>
+<dt>Designed for binary input</dt>
+<dd>
+<div dir="auto">
+<ul dir="auto">
+<li>
+<p dir="auto"><strong>Bytes</strong>: Rules for parsing <code>N</code> bytes or Nbit big/little endian integer.</p>
+</li>
+<li>
+<p dir="auto"><strong>Bits</strong>: Rules for parsing individual bit patterns.</p>
+</li>
+<li>
+<p dir="auto"><strong>Blobs</strong>: Rules for parsing TLV formats.</p>
+</li>
+</ul>
+</div>
+</dd>
+</dl>
+</div>
+</div>
+</div>
+<div dir="auto">
+<div class="markdown-heading" dir="auto"><h2 id="user-content-faq" class="heading-element" dir="auto">FAQ</h2><a id="user-content-faq" class="anchor" aria-label="Permalink: FAQ" href="#faq"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div dir="auto">
+<div dir="auto">
+<dl>
+<dt>Why should I use lexy over XYZ?</dt>
+<dd>
+<p dir="auto">lexy is closest to other PEG parsers.
+However, they usually do more implicit backtracking, which can hurt performance and you need to be very careful with rules that have side-effects.
+This is not the case for lexy, where backtracking is controlled using branch conditions.
+lexy also gives you a lot of control over error reporting, supports error recovery, special support for operator precedence parsing, and other advanced features.</p>
+<div dir="auto">
+<dl>
+<dt><a href="http://boost-spirit.com/home/" rel="nofollow">Boost.Spirit</a></dt>
+<dd>
+<p dir="auto">The main difference: it is not a Boost library.
+In addition, Boost.Spirit is quite old and doesn’t support e.g. non-common ranges as input.
+Boost.Spirit also eagerly creates attributes from the rules, which can lead to nested tuples/variants while lexy uses callbacks which enables zero-copy parsing directly into your own data structure.
+However, lexy’s grammar is more verbose and designed to parser bigger grammars instead of the small one-off rules that Boost.Spirit is good at.</p>
+</dd>
+<dt><a href="https://github.com/taocpp/PEGTL">PEGTL</a></dt>
+<dd>
+<p dir="auto">PEGTL is very similar and was a big inspiration.
+The biggest difference is that lexy uses an operator based DSL instead of inheriting from templated classes as PEGTL does;
+depending on your preference this can be an advantage or disadvantage.</p>
+</dd>
+<dt>Hand-written Parsers</dt>
+<dd>
+<p dir="auto">Writing a handwritten parser is more manual work and error prone.
+lexy automates that away without having to sacrifice control.
+You can use it to quickly prototype a parser and then slowly replace more and more with a handwritten parser over time;
+mixing a hand-written parser and a lexy grammar works seamlessly.</p>
+</dd>
+</dl>
+</div>
+</dd>
+<dt>How bad are the compilation times?</dt>
+<dd>
+<p dir="auto">They’re not as bad as you might expect (in debug mode, that is).</p>
+<div dir="auto">
+<p dir="auto">The example JSON parser compiles in about 2s on my machine.
+If we remove all the lexy specific parts and just benchmark the time it takes for the compiler to process the datastructure (and stdlib includes),
+that takes about 700ms.
+If we validate JSON only instead of parsing it, so remove the data structures and keep only the lexy specific parts, we’re looking at about 840ms.</p>
+</div>
+<div dir="auto">
+<p dir="auto">Keep in mind, that you can fully isolate lexy in a single translation unit that only needs to be touched when you change the parser.
+You can also split a lexy grammar into multiple translation units using the <code>dsl::subgrammar</code> rule.</p>
+</div>
+</dd>
+<dt>How bad are the C++ error messages if you mess something up?</dt>
+<dd>
+<p dir="auto">They’re certainly worse than the error message lexy gives you.
+The big problem here is that the first line gives you the error, followed by dozens of template instantiations, which end at your <code>lexy::parse</code> call.
+Besides providing an external tool to filter those error messages, there is nothing I can do about that.</p>
+</dd>
+<dt>How fast is it?</dt>
+<dd>
+<p dir="auto">Benchmarks are available in the <code>benchmarks/</code> directory.
+A sample result of the JSON validator benchmark which compares the example JSON parser with various other implementations is available <a href="https://lexy.foonathan.net/benchmark_json/" rel="nofollow">here</a>.</p>
+</dd>
+<dt>Why is it called lexy?</dt>
+<dd>
+<p dir="auto">I previously had a tokenizer library called foonathan/lex.
+I’ve tried adding a parser to it, but found that the line between pure tokenization and parsing has become increasingly blurred.
+lexy is a re-imagination on of the parser I’ve added to foonathan/lex, and I’ve simply kept a similar name.</p>
+</dd>
+</dl>
+</div>
+</div>
+</div>
+<div dir="auto">
+<div class="markdown-heading" dir="auto"><h2 id="user-content-documentation" class="heading-element" dir="auto">Documentation</h2><a id="user-content-documentation" class="anchor" aria-label="Permalink: Documentation" href="#documentation"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div dir="auto">
+<div dir="auto">
+<p dir="auto">The documentation, including tutorials, reference documentation, and an interactive playground can be found at <a href="https://lexy.foonathan.net/" rel="nofollow">lexy.foonathan.net</a>.</p>
+</div>
+<div dir="auto">
+<p dir="auto">A minimal <code>CMakeLists.txt</code> that uses lexy can look like this:</p>
+</div>
+<div dir="auto">
+<div dir="auto"><code>CMakeLists.txt</code></div>
+<div dir="auto">
+<div class="highlight highlight-source-cmake notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="project(lexy-example)
+
+include(FetchContent)
+FetchContent_Declare(lexy URL https://lexy.foonathan.net/download/lexy-src.zip)
+FetchContent_MakeAvailable(lexy)
+
+add_executable(lexy_example)
+target_sources(lexy_example PRIVATE main.cpp)
+target_link_libraries(lexy_example PRIVATE foonathan::lexy)"><pre><span class="pl-c1">project</span>(<span class="pl-s">lexy-example</span>)
+
+<span class="pl-c1">include</span>(<span class="pl-s">FetchContent</span>)
+<span class="pl-en">FetchContent_Declare</span>(<span class="pl-s">lexy</span> <span class="pl-s">URL</span> <span class="pl-s">https://lexy.foonathan.net/download/lexy-src.zip</span>)
+<span class="pl-en">FetchContent_MakeAvailable</span>(<span class="pl-s">lexy</span>)
+
+<span class="pl-c1">add_executable</span>(<span class="pl-s">lexy_example</span>)
+<span class="pl-c1">target_sources</span>(<span class="pl-s">lexy_example</span> <span class="pl-c1">PRIVATE</span> <span class="pl-s">main.cpp</span>)
+<span class="pl-c1">target_link_libraries</span>(<span class="pl-s">lexy_example</span> <span class="pl-c1">PRIVATE</span> <span class="pl-s">foonathan::lexy</span>)</pre></div>
+</div>
+</div>
+</div>
+</div></article></div>
