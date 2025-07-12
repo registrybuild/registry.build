@@ -1,0 +1,213 @@
+<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">aspect_tools_telemetry</h1><a id="user-content-aspect_tools_telemetry" class="anchor" aria-label="Permalink: aspect_tools_telemetry" href="#aspect_tools_telemetry"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Aspect's ruleset telemetry Bazel module.</p>
+<p dir="auto">This package defines a Bazel extension which allows for rulesets to report usage to Aspect, allowing us to estimate the install base of Bazel, rulesets, and monitor trends in the ecosystem such as library usage and Bazel versions.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">When reporting occurs</h2><a id="user-content-when-reporting-occurs" class="anchor" aria-label="Permalink: When reporting occurs" href="#when-reporting-occurs"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><code>aspect_tools_telemetry</code> is implemented as a Bazel module which performs side-effects.
+This means that telemetry is collected at repository granularity only when Bazel modules are invalidated and re-evaluated.</p>
+<p dir="auto">Examples:</p>
+<ul dir="auto">
+<li>A user adding a new Bazel dependency will invalidate modules and trigger reporting</li>
+<li>A user making a local code change and performing a build will not trigger reporting</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Controlling reporting</h2><a id="user-content-controlling-reporting" class="anchor" aria-label="Permalink: Controlling reporting" href="#controlling-reporting"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The telemetry module honors <code>$DO_NOT_TRACK</code> and will disable itself if this variable is set.</p>
+<p dir="auto">The telemetry module can be controlled at a finer granularity with the <code>$ASPECT_TOOLS_TELEMETRY</code> environment variable.
+<code>$ASPECT_TOOLS_TELEMETRY</code> is a comma joined list of reporting features using Bazel's set notation.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Example configurations</h3><a id="user-content-example-configurations" class="anchor" aria-label="Permalink: Example configurations" href="#example-configurations"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="--repo_env=ASPECT_TOOLS_TELEMETRY=all  # enabled (default)
+--repo_env=ASPECT_TOOLS_TELEMETRY=deps # only report aspect deps
+
+--repo_env=ASPECT_TOOLS_TELEMETRY=     # disabled
+--repo_env=ASPECT_TOOLS_TELEMETRY=-all # also disabled
+--repo_env=ASPECT_TOOLS_TELEMETRY=-org # just disable org name reporting"><pre>--repo_env=ASPECT_TOOLS_TELEMETRY=all  <span class="pl-c"><span class="pl-c">#</span> enabled (default)</span>
+--repo_env=ASPECT_TOOLS_TELEMETRY=deps <span class="pl-c"><span class="pl-c">#</span> only report aspect deps</span>
+
+--repo_env=ASPECT_TOOLS_TELEMETRY=     <span class="pl-c"><span class="pl-c">#</span> disabled</span>
+--repo_env=ASPECT_TOOLS_TELEMETRY=-all <span class="pl-c"><span class="pl-c">#</span> also disabled</span>
+--repo_env=ASPECT_TOOLS_TELEMETRY=-org <span class="pl-c"><span class="pl-c">#</span> just disable org name reporting</span></pre></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Reporting features</h2><a id="user-content-reporting-features" class="anchor" aria-label="Permalink: Reporting features" href="#reporting-features"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li><code>arch</code>: The arch per <code>repository_ctx.os.arch</code></li>
+<li><code>bazel_version</code>: The version of Bazel</li>
+<li><code>bazelisk</code>: Is the <code>bazelisk</code> tool is being used</li>
+<li><code>ci</code>: Is the build occurring in CI/CD or locally</li>
+<li><code>counter</code>: The build counter if available</li>
+<li><code>deps</code>: The active set of bzlmod modules from the public registry</li>
+<li><code>has_bazel_module</code>: Is a <code>MODULE.bazel</code> being used</li>
+<li><code>has_bazel_prelude</code>: Does the project use a <code>prelude_bazel</code></li>
+<li><code>has_bazel_tool</code>: Does the project use a <code>tools/bazel</code> script</li>
+<li><code>has_bazel_workspace</code>: Does the project still have a <code>WORKSPACE</code> file</li>
+<li><code>id</code>: A hash of the repo is used as a stable pseudononymous ID</li>
+<li><code>org</code>: A human readable organization name string</li>
+<li><code>os</code>: The os per <code>repository_ctx.os.name</code></li>
+<li><code>runner</code>: The CI/CD system being used if any</li>
+<li><code>user</code>: A salted hash of the user running Bazel's name</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Example exploration</h2><a id="user-content-example-exploration" class="anchor" aria-label="Permalink: Example exploration" href="#example-exploration"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The included examples/simple submodule provides a sandbox for easily testing the telemetry module's behavior.</p>
+<div class="highlight highlight-text-shell-session notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="❯ cd examples/simple
+
+# Default unconfigured behavior
+❯ bazel build \
+    --repo_env=CI=1 \
+    --repo_env=DRONE_BUILD_NUMBER=678 \
+    --repo_env=GIT_URL=http://github.com/aspect-build/tools_telemetry.git \
+    //:report.json &amp;&amp; cat bazel-bin/report.json
+INFO: Analyzed target //:report.json (7 packages loaded, 10 targets configured).
+INFO: Found 1 target...
+Target //:report.json up-to-date:
+  bazel-bin/report.json
+INFO: Elapsed time: 0.300s, Critical Path: 0.03s
+INFO: 2 processes: 1 internal, 1 darwin-sandbox.
+INFO: Build completed successfully, 2 total actions
+{
+ &quot;tools_telemetry&quot;: {
+   &quot;arch&quot;: &quot;aarch64&quot;,
+   &quot;bazel_version&quot;: &quot;8.3.1&quot;,
+   &quot;bazelisk&quot;: true,
+   &quot;ci&quot;: true,
+   &quot;counter&quot;: &quot;678&quot;,
+   &quot;deps&quot;: {
+     &quot;abseil-cpp&quot;: &quot;20240116.1&quot;,
+     &quot;aspect_bazel_lib&quot;: &quot;2.19.4&quot;,
+     &quot;bazel_features&quot;: &quot;1.30.0&quot;,
+     &quot;bazel_skylib&quot;: &quot;1.8.0&quot;,
+     &quot;buildozer&quot;: &quot;7.1.2&quot;,
+     &quot;googletest&quot;: &quot;1.14.0.bcr.1&quot;,
+     &quot;jq.bzl&quot;: &quot;0.1.0&quot;,
+     &quot;jsoncpp&quot;: &quot;1.9.5&quot;,
+     &quot;package_metadata&quot;: &quot;0.0.2&quot;,
+     &quot;platforms&quot;: &quot;0.0.11&quot;,
+     &quot;protobuf&quot;: &quot;29.0&quot;,
+     &quot;pybind11_bazel&quot;: &quot;2.11.1&quot;,
+     &quot;re2&quot;: &quot;2023-09-01&quot;,
+     &quot;rules_android&quot;: &quot;0.1.1&quot;,
+     &quot;rules_cc&quot;: &quot;0.1.1&quot;,
+     &quot;rules_fuzzing&quot;: &quot;0.5.2&quot;,
+     &quot;rules_java&quot;: &quot;8.12.0&quot;,
+     &quot;rules_jvm_external&quot;: &quot;6.3&quot;,
+     &quot;rules_kotlin&quot;: &quot;1.9.6&quot;,
+     &quot;rules_license&quot;: &quot;1.0.0&quot;,
+     &quot;rules_pkg&quot;: &quot;1.0.1&quot;,
+     &quot;rules_proto&quot;: &quot;7.0.2&quot;,
+     &quot;rules_python&quot;: &quot;0.40.0&quot;,
+     &quot;rules_shell&quot;: &quot;0.4.1&quot;,
+     &quot;stardoc&quot;: &quot;0.7.1&quot;,
+     &quot;tar.bzl&quot;: &quot;0.2.1&quot;,
+     &quot;yq.bzl&quot;: &quot;0.1.1&quot;,
+     &quot;zlib&quot;: &quot;1.3.1.bcr.5&quot;
+   },
+   &quot;has_bazel_module&quot;: true,
+   &quot;has_bazel_prelude&quot;: false,
+   &quot;has_bazel_tool&quot;: false,
+   &quot;has_bazel_workspace&quot;: false,
+   &quot;id&quot;: &quot;ccc935dd186ed92c3322efb755e8f70ede47c243&quot;,
+   &quot;org&quot;: null,
+   &quot;os&quot;: &quot;mac os x&quot;,
+   &quot;runner&quot;: &quot;drone&quot;,
+     &quot;user&quot;: &quot;94fb5cf79f8322bd3f999a10eb713f478470979c&quot;
+   }
+}%
+
+# Disabled behavior
+❯ bazel build \
+    --repo_env=CI=1 \
+    --repo_env=BUILD_NUMBER=678 \
+    --repo_env=JENKINS_HOME=$HOME \
+    --repo_env=GIT_URL=http://github.com/aspect-build/tools_telemetry.git \
+    --repo_env=DO_NOT_TRACK=1 //:report.json \
+    &amp;&amp; cat bazel-bin/report.json
+INFO: Analyzed target //:report.json (7 packages loaded, 10 targets configured).
+INFO: Found 1 target...
+Target //:report.json up-to-date:
+  bazel-bin/report.json
+INFO: Elapsed time: 0.071s, Critical Path: 0.00s
+INFO: 1 process: 1 action cache hit, 1 internal.
+INFO: Build completed successfully, 1 total action
+{}%"><pre>❯ <span class="pl-s1"><span class="pl-c1">cd</span> examples/simple</span>
+
+# <span class="pl-s1">Default unconfigured behavior</span>
+❯ <span class="pl-s1">bazel build \</span>
+<span class="pl-c1">    --repo_env=CI=1 \</span>
+<span class="pl-c1">    --repo_env=DRONE_BUILD_NUMBER=678 \</span>
+<span class="pl-c1">    --repo_env=GIT_URL=http://github.com/aspect-build/tools_telemetry.git \</span>
+<span class="pl-c1">    //:report.json &amp;&amp; cat bazel-bin/report.json</span>
+<span class="pl-c1">INFO: Analyzed target //:report.json (7 packages loaded, 10 targets configured).</span>
+<span class="pl-c1">INFO: Found 1 target...</span>
+<span class="pl-c1">Target //:report.json up-to-date:</span>
+<span class="pl-c1">  bazel-bin/report.json</span>
+<span class="pl-c1">INFO: Elapsed time: 0.300s, Critical Path: 0.03s</span>
+<span class="pl-c1">INFO: 2 processes: 1 internal, 1 darwin-sandbox.</span>
+<span class="pl-c1">INFO: Build completed successfully, 2 total actions</span>
+<span class="pl-c1">{</span>
+<span class="pl-c1"> "tools_telemetry": {</span>
+<span class="pl-c1">   "arch": "aarch64",</span>
+<span class="pl-c1">   "bazel_version": "8.3.1",</span>
+<span class="pl-c1">   "bazelisk": true,</span>
+<span class="pl-c1">   "ci": true,</span>
+<span class="pl-c1">   "counter": "678",</span>
+<span class="pl-c1">   "deps": {</span>
+<span class="pl-c1">     "abseil-cpp": "20240116.1",</span>
+<span class="pl-c1">     "aspect_bazel_lib": "2.19.4",</span>
+<span class="pl-c1">     "bazel_features": "1.30.0",</span>
+<span class="pl-c1">     "bazel_skylib": "1.8.0",</span>
+<span class="pl-c1">     "buildozer": "7.1.2",</span>
+<span class="pl-c1">     "googletest": "1.14.0.bcr.1",</span>
+<span class="pl-c1">     "jq.bzl": "0.1.0",</span>
+<span class="pl-c1">     "jsoncpp": "1.9.5",</span>
+<span class="pl-c1">     "package_metadata": "0.0.2",</span>
+<span class="pl-c1">     "platforms": "0.0.11",</span>
+<span class="pl-c1">     "protobuf": "29.0",</span>
+<span class="pl-c1">     "pybind11_bazel": "2.11.1",</span>
+<span class="pl-c1">     "re2": "2023-09-01",</span>
+<span class="pl-c1">     "rules_android": "0.1.1",</span>
+<span class="pl-c1">     "rules_cc": "0.1.1",</span>
+<span class="pl-c1">     "rules_fuzzing": "0.5.2",</span>
+<span class="pl-c1">     "rules_java": "8.12.0",</span>
+<span class="pl-c1">     "rules_jvm_external": "6.3",</span>
+<span class="pl-c1">     "rules_kotlin": "1.9.6",</span>
+<span class="pl-c1">     "rules_license": "1.0.0",</span>
+<span class="pl-c1">     "rules_pkg": "1.0.1",</span>
+<span class="pl-c1">     "rules_proto": "7.0.2",</span>
+<span class="pl-c1">     "rules_python": "0.40.0",</span>
+<span class="pl-c1">     "rules_shell": "0.4.1",</span>
+<span class="pl-c1">     "stardoc": "0.7.1",</span>
+<span class="pl-c1">     "tar.bzl": "0.2.1",</span>
+<span class="pl-c1">     "yq.bzl": "0.1.1",</span>
+<span class="pl-c1">     "zlib": "1.3.1.bcr.5"</span>
+<span class="pl-c1">   },</span>
+<span class="pl-c1">   "has_bazel_module": true,</span>
+<span class="pl-c1">   "has_bazel_prelude": false,</span>
+<span class="pl-c1">   "has_bazel_tool": false,</span>
+<span class="pl-c1">   "has_bazel_workspace": false,</span>
+<span class="pl-c1">   "id": "ccc935dd186ed92c3322efb755e8f70ede47c243",</span>
+<span class="pl-c1">   "org": null,</span>
+<span class="pl-c1">   "os": "mac os x",</span>
+<span class="pl-c1">   "runner": "drone",</span>
+<span class="pl-c1">     "user": "94fb5cf79f8322bd3f999a10eb713f478470979c"</span>
+<span class="pl-c1">   }</span>
+<span class="pl-c1">}%</span>
+
+# <span class="pl-s1">Disabled behavior</span>
+❯ <span class="pl-s1">bazel build \</span>
+<span class="pl-c1">    --repo_env=CI=1 \</span>
+<span class="pl-c1">    --repo_env=BUILD_NUMBER=678 \</span>
+<span class="pl-c1">    --repo_env=JENKINS_HOME=$HOME \</span>
+<span class="pl-c1">    --repo_env=GIT_URL=http://github.com/aspect-build/tools_telemetry.git \</span>
+<span class="pl-c1">    --repo_env=DO_NOT_TRACK=1 //:report.json \</span>
+<span class="pl-c1">    &amp;&amp; cat bazel-bin/report.json</span>
+<span class="pl-c1">INFO: Analyzed target //:report.json (7 packages loaded, 10 targets configured).</span>
+<span class="pl-c1">INFO: Found 1 target...</span>
+<span class="pl-c1">Target //:report.json up-to-date:</span>
+<span class="pl-c1">  bazel-bin/report.json</span>
+<span class="pl-c1">INFO: Elapsed time: 0.071s, Critical Path: 0.00s</span>
+<span class="pl-c1">INFO: 1 process: 1 action cache hit, 1 internal.</span>
+<span class="pl-c1">INFO: Build completed successfully, 1 total action</span>
+<span class="pl-c1">{}%</span></pre></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Report inspection</h2><a id="user-content-report-inspection" class="anchor" aria-label="Permalink: Report inspection" href="#report-inspection"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">For transparency reports are persisted into the Bazel configuration and can be inspected as <code>@aspect_tools_telemetry_report//:report.json</code>.</p>
+<div class="highlight highlight-text-shell-session notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="❯ cat $(bazel query --output=location @aspect_tools_telemetry_report//:report.json | cut -d: -f1)"><pre>❯ <span class="pl-s1">cat <span class="pl-s"><span class="pl-pds">$(</span>bazel query --output=location @aspect_tools_telemetry_report//:report.json <span class="pl-k">|</span> cut -d: -f1<span class="pl-pds">)</span></span></span></pre></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Privacy policy</h2><a id="user-content-privacy-policy" class="anchor" aria-label="Permalink: Privacy policy" href="#privacy-policy"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Data collected by this telemetry package is reported to Aspec and governed under our privacy policy.</p>
+<p dir="auto">For more please see <a href="https://www.aspect.build/privacy-policy" rel="nofollow">https://www.aspect.build/privacy-policy</a></p>
+</article></div>
