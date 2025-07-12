@@ -1,0 +1,564 @@
+<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">minicoro</h1><a id="user-content-minicoro" class="anchor" aria-label="Permalink: minicoro" href="#minicoro"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Minicoro is single-file library for using asymmetric coroutines in C.
+The API is inspired by <a href="https://www.lua.org/manual/5.4/manual.html#6.2" rel="nofollow">Lua coroutines</a> but with C use in mind.</p>
+<p dir="auto">The project is being developed mainly to be a coroutine backend
+for the <a href="https://github.com/edubart/nelua-lang">Nelua</a> programming language.</p>
+<p dir="auto">The library assembly implementation is inspired by <a href="https://coco.luajit.org/index.html" rel="nofollow">Lua Coco</a> by Mike Pall.</p>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Features</h1><a id="user-content-features" class="anchor" aria-label="Permalink: Features" href="#features"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li>Stackful asymmetric coroutines.</li>
+<li>Supports nesting coroutines (resuming a coroutine from another coroutine).</li>
+<li>Supports custom allocators.</li>
+<li>Storage system to allow passing values between yield and resume.</li>
+<li>Customizable stack size.</li>
+<li>Supports growable stacks and low memory footprint when enabling the virtual memory allocator.</li>
+<li>Coroutine API design inspired by Lua with C use in mind.</li>
+<li>Yield across any C function.</li>
+<li>Made to work in multithread applications.</li>
+<li>Cross platform.</li>
+<li>Minimal, self contained and no external dependencies.</li>
+<li>Readable sources and documented.</li>
+<li>Implemented via assembly, ucontext or fibers.</li>
+<li>Lightweight and very efficient.</li>
+<li>Works in most C89 compilers.</li>
+<li>Error prone API, returning proper error codes on misuse.</li>
+<li>Support running with Valgrind, ASan (AddressSanitizer) and TSan (ThreadSanitizer).</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Supported Platforms</h1><a id="user-content-supported-platforms" class="anchor" aria-label="Permalink: Supported Platforms" href="#supported-platforms"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Most platforms are supported through different methods:</p>
+<markdown-accessiblity-table><table>
+<thead>
+<tr>
+<th>Platform</th>
+<th>Assembly Method</th>
+<th>Fallback Method</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Android</td>
+<td>ARM/ARM64</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td>iOS</td>
+<td>ARM/ARM64</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td>Windows</td>
+<td>x86_64</td>
+<td>Windows fibers</td>
+</tr>
+<tr>
+<td>Linux</td>
+<td>x86_64/i686</td>
+<td>ucontext</td>
+</tr>
+<tr>
+<td>Mac OS X</td>
+<td>x86_64/ARM/ARM64</td>
+<td>ucontext</td>
+</tr>
+<tr>
+<td>WebAssembly</td>
+<td>N/A</td>
+<td>Emscripten fibers / Binaryen asyncify</td>
+</tr>
+<tr>
+<td>Raspberry Pi</td>
+<td>ARM</td>
+<td>ucontext</td>
+</tr>
+<tr>
+<td>RISC-V</td>
+<td>rv64/rv32</td>
+<td>ucontext</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p dir="auto">The assembly method is used by default if supported by the compiler and CPU,
+otherwise ucontext or fiber method is used as a fallback.</p>
+<p dir="auto">The assembly method is very efficient, it just take a few cycles
+to create, resume, yield or destroy a coroutine.</p>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Caveats</h1><a id="user-content-caveats" class="anchor" aria-label="Permalink: Caveats" href="#caveats"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li>Avoid using coroutines with C++ exceptions, this is not recommended, it may not behave as you expect.</li>
+<li>When using C++ RAII (i.e. destructors) you must resume the coroutine until it dies to properly execute all destructors.</li>
+<li>Some unsupported sanitizers for C may trigger false warnings when using coroutines.</li>
+<li>The <code>mco_coro</code> object is not thread safe, you should use a mutex for manipulating it in multithread applications.</li>
+<li>To use in multithread applications, you must compile with C compiler that supports <code>thread_local</code> qualifier.</li>
+<li>Avoid using <code>thread_local</code> inside coroutine code, the compiler may cache thread local variables pointers which can be invalid when a coroutine switch threads.</li>
+<li>Stack space is limited. By default it has 56KB of space, this can be changed on coroutine creation, or by enabling the virtual memory backed allocator to make it 2040KB.</li>
+<li>Take care to not cause stack overflows (run out of stack space), otherwise your program may crash or not, the behavior is undefined.</li>
+<li>On WebAssembly you must compile with Emscripten flag <code>-s ASYNCIFY=1</code>.</li>
+<li>The WebAssembly Binaryen asyncify method can be used when explicitly enabled,
+you may want to do this only to use minicoro with WebAssembly native interpreters
+(no Web browser). This method is confirmed to work well with Emscripten toolchain,
+however it fails on other WebAssembly toolchains like WASI SDK.</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Introduction</h1><a id="user-content-introduction" class="anchor" aria-label="Permalink: Introduction" href="#introduction"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">A coroutine represents an independent "green" thread of execution.
+Unlike threads in multithread systems, however,
+a coroutine only suspends its execution by explicitly calling a yield function.</p>
+<p dir="auto">You create a coroutine by calling <code>mco_create</code>.
+Its sole argument is a <code>mco_desc</code> structure with a description for the coroutine.
+The <code>mco_create</code> function only creates a new coroutine and returns a handle to it, it does not start the coroutine.</p>
+<p dir="auto">You execute a coroutine by calling <code>mco_resume</code>.
+When calling a resume function the coroutine starts its execution by calling its body function.
+After the coroutine starts running, it runs until it terminates or yields.</p>
+<p dir="auto">A coroutine yields by calling <code>mco_yield</code>.
+When a coroutine yields, the corresponding resume returns immediately,
+even if the yield happens inside nested function calls (that is, not in the main function).
+The next time you resume the same coroutine, it continues its execution from the point where it yielded.</p>
+<p dir="auto">To associate a persistent value with the coroutine,
+you can  optionally set <code>user_data</code> on its creation and later retrieve with <code>mco_get_user_data</code>.</p>
+<p dir="auto">To pass values between resume and yield,
+you can optionally use <code>mco_push</code> and <code>mco_pop</code> APIs,
+they are intended to pass temporary values using a LIFO style buffer.
+The storage system can also be used to send and receive initial values on coroutine creation or before it finishes.</p>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Usage</h1><a id="user-content-usage" class="anchor" aria-label="Permalink: Usage" href="#usage"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">To use minicoro, do the following in one .c file:</p>
+<div class="highlight highlight-source-c notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="#define MINICORO_IMPL
+#include &quot;minicoro.h&quot;"><pre><span class="pl-k">#define</span> <span class="pl-c1">MINICORO_IMPL</span>
+<span class="pl-k">#include</span> <span class="pl-s">"minicoro.h"</span></pre></div>
+<p dir="auto">You can do <code>#include "minicoro.h"</code> in other parts of the program just like any other header.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Minimal Example</h2><a id="user-content-minimal-example" class="anchor" aria-label="Permalink: Minimal Example" href="#minimal-example"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The following simple example demonstrates on how to use the library:</p>
+<div class="highlight highlight-source-c notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="#define MINICORO_IMPL
+#include &quot;minicoro.h&quot;
+#include &lt;stdio.h&gt;
+#include &lt;assert.h&gt;
+
+// Coroutine entry function.
+void coro_entry(mco_coro* co) {
+  printf(&quot;coroutine 1\n&quot;);
+  mco_yield(co);
+  printf(&quot;coroutine 2\n&quot;);
+}
+
+int main() {
+  // First initialize a `desc` object through `mco_desc_init`.
+  mco_desc desc = mco_desc_init(coro_entry, 0);
+  // Configure `desc` fields when needed (e.g. customize user_data or allocation functions).
+  desc.user_data = NULL;
+  // Call `mco_create` with the output coroutine pointer and `desc` pointer.
+  mco_coro* co;
+  mco_result res = mco_create(&amp;co, &amp;desc);
+  assert(res == MCO_SUCCESS);
+  // The coroutine should be now in suspended state.
+  assert(mco_status(co) == MCO_SUSPENDED);
+  // Call `mco_resume` to start for the first time, switching to its context.
+  res = mco_resume(co); // Should print &quot;coroutine 1&quot;.
+  assert(res == MCO_SUCCESS);
+  // We get back from coroutine context in suspended state (because it's unfinished).
+  assert(mco_status(co) == MCO_SUSPENDED);
+  // Call `mco_resume` to resume for a second time.
+  res = mco_resume(co); // Should print &quot;coroutine 2&quot;.
+  assert(res == MCO_SUCCESS);
+  // The coroutine finished and should be now dead.
+  assert(mco_status(co) == MCO_DEAD);
+  // Call `mco_destroy` to destroy the coroutine.
+  res = mco_destroy(co);
+  assert(res == MCO_SUCCESS);
+  return 0;
+}"><pre><span class="pl-k">#define</span> <span class="pl-c1">MINICORO_IMPL</span>
+<span class="pl-k">#include</span> <span class="pl-s">"minicoro.h"</span>
+<span class="pl-k">#include</span> <span class="pl-s">&lt;stdio.h&gt;</span>
+<span class="pl-k">#include</span> <span class="pl-s">&lt;assert.h&gt;</span>
+
+<span class="pl-c">// Coroutine entry function.</span>
+<span class="pl-smi">void</span> <span class="pl-en">coro_entry</span>(<span class="pl-smi">mco_coro</span><span class="pl-c1">*</span> <span class="pl-s1">co</span>) {
+  <span class="pl-en">printf</span>(<span class="pl-s">"coroutine 1\n"</span>);
+  <span class="pl-en">mco_yield</span>(<span class="pl-s1">co</span>);
+  <span class="pl-en">printf</span>(<span class="pl-s">"coroutine 2\n"</span>);
+}
+
+<span class="pl-smi">int</span> <span class="pl-en">main</span>() {
+  <span class="pl-c">// First initialize a `desc` object through `mco_desc_init`.</span>
+  <span class="pl-smi">mco_desc</span> <span class="pl-s1">desc</span> <span class="pl-c1">=</span> <span class="pl-en">mco_desc_init</span>(<span class="pl-s1">coro_entry</span>, <span class="pl-c1">0</span>);
+  <span class="pl-c">// Configure `desc` fields when needed (e.g. customize user_data or allocation functions).</span>
+  <span class="pl-s1">desc</span>.<span class="pl-c1">user_data</span> <span class="pl-c1">=</span> <span class="pl-c1">NULL</span>;
+  <span class="pl-c">// Call `mco_create` with the output coroutine pointer and `desc` pointer.</span>
+  <span class="pl-smi">mco_coro</span><span class="pl-c1">*</span> <span class="pl-s1">co</span>;
+  <span class="pl-smi">mco_result</span> <span class="pl-s1">res</span> <span class="pl-c1">=</span> <span class="pl-en">mco_create</span>(<span class="pl-c1">&amp;</span><span class="pl-s1">co</span>, <span class="pl-c1">&amp;</span><span class="pl-s1">desc</span>);
+  <span class="pl-en">assert</span>(<span class="pl-s1">res</span> <span class="pl-c1">==</span> <span class="pl-c1">MCO_SUCCESS</span>);
+  <span class="pl-c">// The coroutine should be now in suspended state.</span>
+  <span class="pl-en">assert</span>(<span class="pl-en">mco_status</span>(<span class="pl-s1">co</span>) <span class="pl-c1">==</span> <span class="pl-c1">MCO_SUSPENDED</span>);
+  <span class="pl-c">// Call `mco_resume` to start for the first time, switching to its context.</span>
+  <span class="pl-s1">res</span> <span class="pl-c1">=</span> <span class="pl-en">mco_resume</span>(<span class="pl-s1">co</span>); <span class="pl-c">// Should print "coroutine 1".</span>
+  <span class="pl-en">assert</span>(<span class="pl-s1">res</span> <span class="pl-c1">==</span> <span class="pl-c1">MCO_SUCCESS</span>);
+  <span class="pl-c">// We get back from coroutine context in suspended state (because it's unfinished).</span>
+  <span class="pl-en">assert</span>(<span class="pl-en">mco_status</span>(<span class="pl-s1">co</span>) <span class="pl-c1">==</span> <span class="pl-c1">MCO_SUSPENDED</span>);
+  <span class="pl-c">// Call `mco_resume` to resume for a second time.</span>
+  <span class="pl-s1">res</span> <span class="pl-c1">=</span> <span class="pl-en">mco_resume</span>(<span class="pl-s1">co</span>); <span class="pl-c">// Should print "coroutine 2".</span>
+  <span class="pl-en">assert</span>(<span class="pl-s1">res</span> <span class="pl-c1">==</span> <span class="pl-c1">MCO_SUCCESS</span>);
+  <span class="pl-c">// The coroutine finished and should be now dead.</span>
+  <span class="pl-en">assert</span>(<span class="pl-en">mco_status</span>(<span class="pl-s1">co</span>) <span class="pl-c1">==</span> <span class="pl-c1">MCO_DEAD</span>);
+  <span class="pl-c">// Call `mco_destroy` to destroy the coroutine.</span>
+  <span class="pl-s1">res</span> <span class="pl-c1">=</span> <span class="pl-en">mco_destroy</span>(<span class="pl-s1">co</span>);
+  <span class="pl-en">assert</span>(<span class="pl-s1">res</span> <span class="pl-c1">==</span> <span class="pl-c1">MCO_SUCCESS</span>);
+  <span class="pl-k">return</span> <span class="pl-c1">0</span>;
+}</pre></div>
+<p dir="auto"><em>NOTE</em>: In case you don't want to use the minicoro allocator system you should
+allocate a coroutine object yourself using <code>mco_desc.coro_size</code> and call <code>mco_init</code>,
+then later to destroy call <code>mco_uninit</code> and deallocate it.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Yielding from anywhere</h2><a id="user-content-yielding-from-anywhere" class="anchor" aria-label="Permalink: Yielding from anywhere" href="#yielding-from-anywhere"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">You can yield the current running coroutine from anywhere
+without having to pass <code>mco_coro</code> pointers around,
+to this just use <code>mco_yield(mco_running())</code>.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Passing data between yield and resume</h2><a id="user-content-passing-data-between-yield-and-resume" class="anchor" aria-label="Permalink: Passing data between yield and resume" href="#passing-data-between-yield-and-resume"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The library has the storage interface to assist passing data between yield and resume.
+It's usage is straightforward,
+use <code>mco_push</code> to send data before a <code>mco_resume</code> or <code>mco_yield</code>,
+then later use <code>mco_pop</code> after a <code>mco_resume</code> or <code>mco_yield</code> to receive data.
+Take care to not mismatch a push and pop, otherwise these functions will return
+an error.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Error handling</h2><a id="user-content-error-handling" class="anchor" aria-label="Permalink: Error handling" href="#error-handling"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The library return error codes in most of its API in case of misuse or system error,
+the user is encouraged to handle them properly.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Virtual memory backed allocator</h2><a id="user-content-virtual-memory-backed-allocator" class="anchor" aria-label="Permalink: Virtual memory backed allocator" href="#virtual-memory-backed-allocator"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The new compile time option <code>MCO_USE_VMEM_ALLOCATOR</code> enables a virtual memory backed allocator.</p>
+<p dir="auto">Every stackful coroutine usually have to reserve memory for its full stack,
+this typically makes the total memory usage very high when allocating thousands of coroutines,
+for example, an application with 100 thousands coroutine with stacks of 56KB would consume as high
+as 5GB of memory, however your application may not really full stack usage for every coroutine.</p>
+<p dir="auto">Some developers often prefer stackless coroutines over stackful coroutines
+because of this problem, stackless memory footprint is low, therefore often considered more lightweight.
+However stackless have many other limitations, like you cannot run unconstrained code inside them.</p>
+<p dir="auto">One remedy to the solution is to make stackful coroutines growable,
+to only use physical memory on demand when its really needed,
+and there is a nice way to do this relying on virtual memory allocation
+when supported by the operating system.</p>
+<p dir="auto">The virtual memory backed allocator will reserve virtual memory in the OS for each coroutine stack,
+but not trigger real physical memory usage yet.
+While the application virtual memory usage will be high,
+the physical memory usage will be low and actually grow on demand (usually every 4KB chunk in Linux).</p>
+<p dir="auto">The virtual memory backed allocator also raises the default stack size to about 2MB,
+typically the size of extra threads in Linux,
+so you have more space in your coroutines and the risk of stack overflow is low.</p>
+<p dir="auto">As an example, allocating 100 thousands coroutines with nearly 2MB stack reserved space
+with the virtual memory allocator uses 783MB of physical memory usage, that is about 8KB per coroutine,
+however the virtual memory usage will be at 98GB.</p>
+<p dir="auto">It is recommended to enable this option only if you plan to spawn thousands of coroutines
+while wanting to have a low memory footprint.
+Not all environments have an OS with virtual memory support, therefore this option is disabled by default.</p>
+<p dir="auto">This option may add an order of magnitude overhead to <code>mco_create()</code>/<code>mco_destroy()</code>,
+because they will request the OS to manage virtual memory page tables,
+if this is a problem for you, please customize a custom allocator for your own needs.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Library customization</h2><a id="user-content-library-customization" class="anchor" aria-label="Permalink: Library customization" href="#library-customization"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The following can be defined to change the library behavior:</p>
+<ul dir="auto">
+<li><code>MCO_API</code>                   - Public API qualifier. Default is <code>extern</code>.</li>
+<li><code>MCO_MIN_STACK_SIZE</code>        - Minimum stack size when creating a coroutine. Default is 32768 (32KB).</li>
+<li><code>MCO_DEFAULT_STORAGE_SIZE</code>  - Size of coroutine storage buffer. Default is 1024.</li>
+<li><code>MCO_DEFAULT_STACK_SIZE</code>    - Default stack size when creating a coroutine. Default is 57344 (56KB). When <code>MCO_USE_VMEM_ALLOCATOR</code> is true the default is 2040KB (nearly 2MB).</li>
+<li><code>MCO_ALLOC</code>                 - Default allocation function. Default is <code>calloc</code>.</li>
+<li><code>MCO_DEALLOC</code>               - Default deallocation function. Default is <code>free</code>.</li>
+<li><code>MCO_USE_VMEM_ALLOCATOR</code>    - Use virtual memory backed allocator, improving memory footprint per coroutine.</li>
+<li><code>MCO_NO_DEFAULT_ALLOCATOR</code>  - Disable the default allocator using <code>MCO_ALLOC</code> and <code>MCO_DEALLOC</code>.</li>
+<li><code>MCO_ZERO_MEMORY</code>           - Zero memory of stack when poping storage, intended for garbage collected environments.</li>
+<li><code>MCO_DEBUG</code>                 - Enable debug mode, logging any runtime error to stdout. Defined automatically unless <code>NDEBUG</code> or <code>MCO_NO_DEBUG</code> is defined.</li>
+<li><code>MCO_NO_DEBUG</code>              - Disable debug mode.</li>
+<li><code>MCO_NO_MULTITHREAD</code>        - Disable multithread usage. Multithread is supported when <code>thread_local</code> is supported.</li>
+<li><code>MCO_USE_ASM</code>               - Force use of assembly context switch implementation.</li>
+<li><code>MCO_USE_UCONTEXT</code>          - Force use of ucontext context switch implementation.</li>
+<li><code>MCO_USE_FIBERS</code>            - Force use of fibers context switch implementation.</li>
+<li><code>MCO_USE_ASYNCIFY</code>          - Force use of Binaryen asyncify context switch implementation.</li>
+<li><code>MCO_USE_VALGRIND</code>          - Define if you want run with valgrind to fix accessing memory errors.</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Benchmarks</h1><a id="user-content-benchmarks" class="anchor" aria-label="Permalink: Benchmarks" href="#benchmarks"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The coroutine library was benchmarked for x86_64 counting CPU cycles
+for context switch (triggered in resume or yield) and initialization.</p>
+<markdown-accessiblity-table><table>
+<thead>
+<tr>
+<th>CPU Arch</th>
+<th>OS</th>
+<th>Method</th>
+<th>Context switch</th>
+<th>Initialize</th>
+<th>Uninitialize</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>x86_64</td>
+<td>Linux</td>
+<td>assembly</td>
+<td>9 cycles</td>
+<td>31 cycles</td>
+<td>14 cycles</td>
+</tr>
+<tr>
+<td>x86_64</td>
+<td>Linux</td>
+<td>ucontext</td>
+<td>352 cycles</td>
+<td>383 cycles</td>
+<td>14 cycles</td>
+</tr>
+<tr>
+<td>x86_64</td>
+<td>Windows</td>
+<td>fibers</td>
+<td>69 cycles</td>
+<td>10564 cycles</td>
+<td>11167 cycles</td>
+</tr>
+<tr>
+<td>x86_64</td>
+<td>Windows</td>
+<td>assembly</td>
+<td>33 cycles</td>
+<td>74 cycles</td>
+<td>14 cycles</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p dir="auto"><em>NOTE</em>: Tested on Intel Core i7-8750H CPU @ 2.20GHz with pre allocated coroutines.</p>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Cheatsheet</h1><a id="user-content-cheatsheet" class="anchor" aria-label="Permalink: Cheatsheet" href="#cheatsheet"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Here is a list of all library functions for quick reference:</p>
+<div class="highlight highlight-source-c notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="/* Structure used to initialize a coroutine. */
+typedef struct mco_desc {
+  void (*func)(mco_coro* co); /* Entry point function for the coroutine. */
+  void* user_data;            /* Coroutine user data, can be get with `mco_get_user_data`. */
+  /* Custom allocation interface. */
+  void* (*alloc_cb)(size_t size, void* allocator_data); /* Custom allocation function. */
+  void  (*dealloc_cb)(void* ptr, size_t size, void* allocator_data);     /* Custom deallocation function. */
+  void* allocator_data;       /* User data pointer passed to `alloc`/`dealloc` allocation functions. */
+  size_t storage_size;        /* Coroutine storage size, to be used with the storage APIs. */
+  /* These must be initialized only through `mco_init_desc`. */
+  size_t coro_size;           /* Coroutine structure size. */
+  size_t stack_size;          /* Coroutine stack size. */
+} mco_desc;
+
+/* Coroutine functions. */
+mco_desc mco_desc_init(void (*func)(mco_coro* co), size_t stack_size);  /* Initialize description of a coroutine. When stack size is 0 then MCO_DEFAULT_STACK_SIZE is used. */
+mco_result mco_init(mco_coro* co, mco_desc* desc);                      /* Initialize the coroutine. */
+mco_result mco_uninit(mco_coro* co);                                    /* Uninitialize the coroutine, may fail if it's not dead or suspended. */
+mco_result mco_create(mco_coro** out_co, mco_desc* desc);               /* Allocates and initializes a new coroutine. */
+mco_result mco_destroy(mco_coro* co);                                   /* Uninitialize and deallocate the coroutine, may fail if it's not dead or suspended. */
+mco_result mco_resume(mco_coro* co);                                    /* Starts or continues the execution of the coroutine. */
+mco_result mco_yield(mco_coro* co);                                     /* Suspends the execution of a coroutine. */
+mco_state mco_status(mco_coro* co);                                     /* Returns the status of the coroutine. */
+void* mco_get_user_data(mco_coro* co);                                  /* Get coroutine user data supplied on coroutine creation. */
+
+/* Storage interface functions, used to pass values between yield and resume. */
+mco_result mco_push(mco_coro* co, const void* src, size_t len); /* Push bytes to the coroutine storage. Use to send values between yield and resume. */
+mco_result mco_pop(mco_coro* co, void* dest, size_t len);       /* Pop bytes from the coroutine storage. Use to get values between yield and resume. */
+mco_result mco_peek(mco_coro* co, void* dest, size_t len);      /* Like `mco_pop` but it does not consumes the storage. */
+size_t mco_get_bytes_stored(mco_coro* co);                      /* Get the available bytes that can be retrieved with a `mco_pop`. */
+size_t mco_get_storage_size(mco_coro* co);                      /* Get the total storage size. */
+
+/* Misc functions. */
+mco_coro* mco_running(void);                        /* Returns the running coroutine for the current thread. */
+const char* mco_result_description(mco_result res); /* Get the description of a result. */"><pre><span class="pl-c">/* Structure used to initialize a coroutine. */</span>
+<span class="pl-k">typedef</span> <span class="pl-k">struct</span> <span class="pl-smi">mco_desc</span> {
+  <span class="pl-smi">void</span> (<span class="pl-c1">*</span><span class="pl-c1">func</span>)(<span class="pl-smi">mco_coro</span><span class="pl-c1">*</span> <span class="pl-s1">co</span>); <span class="pl-c">/* Entry point function for the coroutine. */</span>
+  <span class="pl-smi">void</span><span class="pl-c1">*</span> <span class="pl-c1">user_data</span>;            <span class="pl-c">/* Coroutine user data, can be get with `mco_get_user_data`. */</span>
+  <span class="pl-c">/* Custom allocation interface. */</span>
+  <span class="pl-smi">void</span><span class="pl-c1">*</span> (<span class="pl-c1">*</span><span class="pl-c1">alloc_cb</span>)(<span class="pl-smi">size_t</span> <span class="pl-s1">size</span>, <span class="pl-smi">void</span><span class="pl-c1">*</span> <span class="pl-s1">allocator_data</span>); <span class="pl-c">/* Custom allocation function. */</span>
+  <span class="pl-smi">void</span>  (<span class="pl-c1">*</span><span class="pl-c1">dealloc_cb</span>)(<span class="pl-smi">void</span><span class="pl-c1">*</span> <span class="pl-s1">ptr</span>, <span class="pl-smi">size_t</span> <span class="pl-s1">size</span>, <span class="pl-smi">void</span><span class="pl-c1">*</span> <span class="pl-s1">allocator_data</span>);     <span class="pl-c">/* Custom deallocation function. */</span>
+  <span class="pl-smi">void</span><span class="pl-c1">*</span> <span class="pl-c1">allocator_data</span>;       <span class="pl-c">/* User data pointer passed to `alloc`/`dealloc` allocation functions. */</span>
+  <span class="pl-smi">size_t</span> <span class="pl-c1">storage_size</span>;        <span class="pl-c">/* Coroutine storage size, to be used with the storage APIs. */</span>
+  <span class="pl-c">/* These must be initialized only through `mco_init_desc`. */</span>
+  <span class="pl-smi">size_t</span> <span class="pl-c1">coro_size</span>;           <span class="pl-c">/* Coroutine structure size. */</span>
+  <span class="pl-smi">size_t</span> <span class="pl-c1">stack_size</span>;          <span class="pl-c">/* Coroutine stack size. */</span>
+} <span class="pl-smi">mco_desc</span>;
+
+<span class="pl-c">/* Coroutine functions. */</span>
+<span class="pl-smi">mco_desc</span> <span class="pl-en">mco_desc_init</span>(<span class="pl-smi">void</span> (<span class="pl-c1">*</span><span class="pl-s1">func</span>)(<span class="pl-smi">mco_coro</span><span class="pl-c1">*</span> <span class="pl-s1">co</span>), <span class="pl-smi">size_t</span> <span class="pl-s1">stack_size</span>);  <span class="pl-c">/* Initialize description of a coroutine. When stack size is 0 then MCO_DEFAULT_STACK_SIZE is used. */</span>
+<span class="pl-smi">mco_result</span> <span class="pl-en">mco_init</span>(<span class="pl-smi">mco_coro</span><span class="pl-c1">*</span> <span class="pl-s1">co</span>, <span class="pl-smi">mco_desc</span><span class="pl-c1">*</span> <span class="pl-s1">desc</span>);                      <span class="pl-c">/* Initialize the coroutine. */</span>
+<span class="pl-smi">mco_result</span> <span class="pl-en">mco_uninit</span>(<span class="pl-smi">mco_coro</span><span class="pl-c1">*</span> <span class="pl-s1">co</span>);                                    <span class="pl-c">/* Uninitialize the coroutine, may fail if it's not dead or suspended. */</span>
+<span class="pl-smi">mco_result</span> <span class="pl-en">mco_create</span>(<span class="pl-smi">mco_coro</span><span class="pl-c1">*</span><span class="pl-c1">*</span> <span class="pl-s1">out_co</span>, <span class="pl-smi">mco_desc</span><span class="pl-c1">*</span> <span class="pl-s1">desc</span>);               <span class="pl-c">/* Allocates and initializes a new coroutine. */</span>
+<span class="pl-smi">mco_result</span> <span class="pl-en">mco_destroy</span>(<span class="pl-smi">mco_coro</span><span class="pl-c1">*</span> <span class="pl-s1">co</span>);                                   <span class="pl-c">/* Uninitialize and deallocate the coroutine, may fail if it's not dead or suspended. */</span>
+<span class="pl-smi">mco_result</span> <span class="pl-en">mco_resume</span>(<span class="pl-smi">mco_coro</span><span class="pl-c1">*</span> <span class="pl-s1">co</span>);                                    <span class="pl-c">/* Starts or continues the execution of the coroutine. */</span>
+<span class="pl-smi">mco_result</span> <span class="pl-en">mco_yield</span>(<span class="pl-smi">mco_coro</span><span class="pl-c1">*</span> <span class="pl-s1">co</span>);                                     <span class="pl-c">/* Suspends the execution of a coroutine. */</span>
+<span class="pl-smi">mco_state</span> <span class="pl-en">mco_status</span>(<span class="pl-smi">mco_coro</span><span class="pl-c1">*</span> <span class="pl-s1">co</span>);                                     <span class="pl-c">/* Returns the status of the coroutine. */</span>
+<span class="pl-smi">void</span><span class="pl-c1">*</span> <span class="pl-en">mco_get_user_data</span>(<span class="pl-smi">mco_coro</span><span class="pl-c1">*</span> <span class="pl-s1">co</span>);                                  <span class="pl-c">/* Get coroutine user data supplied on coroutine creation. */</span>
+
+<span class="pl-c">/* Storage interface functions, used to pass values between yield and resume. */</span>
+<span class="pl-smi">mco_result</span> <span class="pl-en">mco_push</span>(<span class="pl-smi">mco_coro</span><span class="pl-c1">*</span> <span class="pl-s1">co</span>, <span class="pl-k">const</span> <span class="pl-smi">void</span><span class="pl-c1">*</span> <span class="pl-s1">src</span>, <span class="pl-smi">size_t</span> <span class="pl-s1">len</span>); <span class="pl-c">/* Push bytes to the coroutine storage. Use to send values between yield and resume. */</span>
+<span class="pl-smi">mco_result</span> <span class="pl-en">mco_pop</span>(<span class="pl-smi">mco_coro</span><span class="pl-c1">*</span> <span class="pl-s1">co</span>, <span class="pl-smi">void</span><span class="pl-c1">*</span> <span class="pl-s1">dest</span>, <span class="pl-smi">size_t</span> <span class="pl-s1">len</span>);       <span class="pl-c">/* Pop bytes from the coroutine storage. Use to get values between yield and resume. */</span>
+<span class="pl-smi">mco_result</span> <span class="pl-en">mco_peek</span>(<span class="pl-smi">mco_coro</span><span class="pl-c1">*</span> <span class="pl-s1">co</span>, <span class="pl-smi">void</span><span class="pl-c1">*</span> <span class="pl-s1">dest</span>, <span class="pl-smi">size_t</span> <span class="pl-s1">len</span>);      <span class="pl-c">/* Like `mco_pop` but it does not consumes the storage. */</span>
+<span class="pl-smi">size_t</span> <span class="pl-en">mco_get_bytes_stored</span>(<span class="pl-smi">mco_coro</span><span class="pl-c1">*</span> <span class="pl-s1">co</span>);                      <span class="pl-c">/* Get the available bytes that can be retrieved with a `mco_pop`. */</span>
+<span class="pl-smi">size_t</span> <span class="pl-en">mco_get_storage_size</span>(<span class="pl-smi">mco_coro</span><span class="pl-c1">*</span> <span class="pl-s1">co</span>);                      <span class="pl-c">/* Get the total storage size. */</span>
+
+<span class="pl-c">/* Misc functions. */</span>
+<span class="pl-smi">mco_coro</span><span class="pl-c1">*</span> <span class="pl-en">mco_running</span>(<span class="pl-smi">void</span>);                        <span class="pl-c">/* Returns the running coroutine for the current thread. */</span>
+<span class="pl-k">const</span> <span class="pl-smi">char</span><span class="pl-c1">*</span> <span class="pl-en">mco_result_description</span>(<span class="pl-smi">mco_result</span> <span class="pl-s1">res</span>); <span class="pl-c">/* Get the description of a result. */</span></pre></div>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Complete Example</h1><a id="user-content-complete-example" class="anchor" aria-label="Permalink: Complete Example" href="#complete-example"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The following is a more complete example, generating Fibonacci numbers:</p>
+<div class="highlight highlight-source-c notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="#define MINICORO_IMPL
+#include &quot;minicoro.h&quot;
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+
+static void fail(const char* message, mco_result res) {
+  printf(&quot;%s: %s\n&quot;, message, mco_result_description(res));
+  exit(-1);
+}
+
+static void fibonacci_coro(mco_coro* co) {
+  unsigned long m = 1;
+  unsigned long n = 1;
+
+  /* Retrieve max value. */
+  unsigned long max;
+  mco_result res = mco_pop(co, &amp;max, sizeof(max));
+  if(res != MCO_SUCCESS)
+    fail(&quot;Failed to retrieve coroutine storage&quot;, res);
+
+  while(1) {
+    /* Yield the next Fibonacci number. */
+    mco_push(co, &amp;m, sizeof(m));
+    res = mco_yield(co);
+    if(res != MCO_SUCCESS)
+      fail(&quot;Failed to yield coroutine&quot;, res);
+
+    unsigned long tmp = m + n;
+    m = n;
+    n = tmp;
+    if(m &gt;= max)
+      break;
+  }
+
+  /* Yield the last Fibonacci number. */
+  mco_push(co, &amp;m, sizeof(m));
+}
+
+int main() {
+  /* Create the coroutine. */
+  mco_coro* co;
+  mco_desc desc = mco_desc_init(fibonacci_coro, 0);
+  mco_result res = mco_create(&amp;co, &amp;desc);
+  if(res != MCO_SUCCESS)
+    fail(&quot;Failed to create coroutine&quot;, res);
+
+  /* Set storage. */
+  unsigned long max = 1000000000;
+  mco_push(co, &amp;max, sizeof(max));
+
+  int counter = 1;
+  while(mco_status(co) == MCO_SUSPENDED) {
+    /* Resume the coroutine. */
+    res = mco_resume(co);
+    if(res != MCO_SUCCESS)
+      fail(&quot;Failed to resume coroutine&quot;, res);
+
+    /* Retrieve storage set in last coroutine yield. */
+    unsigned long ret = 0;
+    res = mco_pop(co, &amp;ret, sizeof(ret));
+    if(res != MCO_SUCCESS)
+      fail(&quot;Failed to retrieve coroutine storage&quot;, res);
+    printf(&quot;fib %d = %lu\n&quot;, counter, ret);
+    counter = counter + 1;
+  }
+
+  /* Destroy the coroutine. */
+  res = mco_destroy(co);
+  if(res != MCO_SUCCESS)
+    fail(&quot;Failed to destroy coroutine&quot;, res);
+  return 0;
+}"><pre><span class="pl-k">#define</span> <span class="pl-c1">MINICORO_IMPL</span>
+<span class="pl-k">#include</span> <span class="pl-s">"minicoro.h"</span>
+<span class="pl-k">#include</span> <span class="pl-s">&lt;stdio.h&gt;</span>
+<span class="pl-k">#include</span> <span class="pl-s">&lt;stdlib.h&gt;</span>
+
+<span class="pl-k">static</span> <span class="pl-smi">void</span> <span class="pl-en">fail</span>(<span class="pl-k">const</span> <span class="pl-smi">char</span><span class="pl-c1">*</span> <span class="pl-s1">message</span>, <span class="pl-smi">mco_result</span> <span class="pl-s1">res</span>) {
+  <span class="pl-en">printf</span>(<span class="pl-s">"%s: %s\n"</span>, <span class="pl-s1">message</span>, <span class="pl-en">mco_result_description</span>(<span class="pl-s1">res</span>));
+  <span class="pl-en">exit</span>(<span class="pl-c1">-1</span>);
+}
+
+<span class="pl-k">static</span> <span class="pl-smi">void</span> <span class="pl-en">fibonacci_coro</span>(<span class="pl-smi">mco_coro</span><span class="pl-c1">*</span> <span class="pl-s1">co</span>) {
+  <span class="pl-smi">unsigned long</span> <span class="pl-s1">m</span> <span class="pl-c1">=</span> <span class="pl-c1">1</span>;
+  <span class="pl-smi">unsigned long</span> <span class="pl-s1">n</span> <span class="pl-c1">=</span> <span class="pl-c1">1</span>;
+
+  <span class="pl-c">/* Retrieve max value. */</span>
+  <span class="pl-smi">unsigned long</span> <span class="pl-s1">max</span>;
+  <span class="pl-smi">mco_result</span> <span class="pl-s1">res</span> <span class="pl-c1">=</span> <span class="pl-en">mco_pop</span>(<span class="pl-s1">co</span>, <span class="pl-c1">&amp;</span><span class="pl-s1">max</span>, <span class="pl-k">sizeof</span>(<span class="pl-s1">max</span>));
+  <span class="pl-k">if</span>(<span class="pl-s1">res</span> <span class="pl-c1">!=</span> <span class="pl-c1">MCO_SUCCESS</span>)
+    <span class="pl-en">fail</span>(<span class="pl-s">"Failed to retrieve coroutine storage"</span>, <span class="pl-s1">res</span>);
+
+  <span class="pl-k">while</span>(<span class="pl-c1">1</span>) {
+    <span class="pl-c">/* Yield the next Fibonacci number. */</span>
+    <span class="pl-en">mco_push</span>(<span class="pl-s1">co</span>, <span class="pl-c1">&amp;</span><span class="pl-s1">m</span>, <span class="pl-k">sizeof</span>(<span class="pl-s1">m</span>));
+    <span class="pl-s1">res</span> <span class="pl-c1">=</span> <span class="pl-en">mco_yield</span>(<span class="pl-s1">co</span>);
+    <span class="pl-k">if</span>(<span class="pl-s1">res</span> <span class="pl-c1">!=</span> <span class="pl-c1">MCO_SUCCESS</span>)
+      <span class="pl-en">fail</span>(<span class="pl-s">"Failed to yield coroutine"</span>, <span class="pl-s1">res</span>);
+
+    <span class="pl-smi">unsigned long</span> <span class="pl-s1">tmp</span> <span class="pl-c1">=</span> <span class="pl-s1">m</span> <span class="pl-c1">+</span> <span class="pl-s1">n</span>;
+    <span class="pl-s1">m</span> <span class="pl-c1">=</span> <span class="pl-s1">n</span>;
+    <span class="pl-s1">n</span> <span class="pl-c1">=</span> <span class="pl-s1">tmp</span>;
+    <span class="pl-k">if</span>(<span class="pl-s1">m</span> &gt;= <span class="pl-s1">max</span>)
+      <span class="pl-k">break</span>;
+  }
+
+  <span class="pl-c">/* Yield the last Fibonacci number. */</span>
+  <span class="pl-en">mco_push</span>(<span class="pl-s1">co</span>, <span class="pl-c1">&amp;</span><span class="pl-s1">m</span>, <span class="pl-k">sizeof</span>(<span class="pl-s1">m</span>));
+}
+
+<span class="pl-smi">int</span> <span class="pl-en">main</span>() {
+  <span class="pl-c">/* Create the coroutine. */</span>
+  <span class="pl-smi">mco_coro</span><span class="pl-c1">*</span> <span class="pl-s1">co</span>;
+  <span class="pl-smi">mco_desc</span> <span class="pl-s1">desc</span> <span class="pl-c1">=</span> <span class="pl-en">mco_desc_init</span>(<span class="pl-s1">fibonacci_coro</span>, <span class="pl-c1">0</span>);
+  <span class="pl-smi">mco_result</span> <span class="pl-s1">res</span> <span class="pl-c1">=</span> <span class="pl-en">mco_create</span>(<span class="pl-c1">&amp;</span><span class="pl-s1">co</span>, <span class="pl-c1">&amp;</span><span class="pl-s1">desc</span>);
+  <span class="pl-k">if</span>(<span class="pl-s1">res</span> <span class="pl-c1">!=</span> <span class="pl-c1">MCO_SUCCESS</span>)
+    <span class="pl-en">fail</span>(<span class="pl-s">"Failed to create coroutine"</span>, <span class="pl-s1">res</span>);
+
+  <span class="pl-c">/* Set storage. */</span>
+  <span class="pl-smi">unsigned long</span> <span class="pl-s1">max</span> <span class="pl-c1">=</span> <span class="pl-c1">1000000000</span>;
+  <span class="pl-en">mco_push</span>(<span class="pl-s1">co</span>, <span class="pl-c1">&amp;</span><span class="pl-s1">max</span>, <span class="pl-k">sizeof</span>(<span class="pl-s1">max</span>));
+
+  <span class="pl-smi">int</span> <span class="pl-s1">counter</span> <span class="pl-c1">=</span> <span class="pl-c1">1</span>;
+  <span class="pl-k">while</span>(<span class="pl-en">mco_status</span>(<span class="pl-s1">co</span>) <span class="pl-c1">==</span> <span class="pl-c1">MCO_SUSPENDED</span>) {
+    <span class="pl-c">/* Resume the coroutine. */</span>
+    <span class="pl-s1">res</span> <span class="pl-c1">=</span> <span class="pl-en">mco_resume</span>(<span class="pl-s1">co</span>);
+    <span class="pl-k">if</span>(<span class="pl-s1">res</span> <span class="pl-c1">!=</span> <span class="pl-c1">MCO_SUCCESS</span>)
+      <span class="pl-en">fail</span>(<span class="pl-s">"Failed to resume coroutine"</span>, <span class="pl-s1">res</span>);
+
+    <span class="pl-c">/* Retrieve storage set in last coroutine yield. */</span>
+    <span class="pl-smi">unsigned long</span> <span class="pl-s1">ret</span> <span class="pl-c1">=</span> <span class="pl-c1">0</span>;
+    <span class="pl-s1">res</span> <span class="pl-c1">=</span> <span class="pl-en">mco_pop</span>(<span class="pl-s1">co</span>, <span class="pl-c1">&amp;</span><span class="pl-s1">ret</span>, <span class="pl-k">sizeof</span>(<span class="pl-s1">ret</span>));
+    <span class="pl-k">if</span>(<span class="pl-s1">res</span> <span class="pl-c1">!=</span> <span class="pl-c1">MCO_SUCCESS</span>)
+      <span class="pl-en">fail</span>(<span class="pl-s">"Failed to retrieve coroutine storage"</span>, <span class="pl-s1">res</span>);
+    <span class="pl-en">printf</span>(<span class="pl-s">"fib %d = %lu\n"</span>, <span class="pl-s1">counter</span>, <span class="pl-s1">ret</span>);
+    <span class="pl-s1">counter</span> <span class="pl-c1">=</span> <span class="pl-s1">counter</span> <span class="pl-c1">+</span> <span class="pl-c1">1</span>;
+  }
+
+  <span class="pl-c">/* Destroy the coroutine. */</span>
+  <span class="pl-s1">res</span> <span class="pl-c1">=</span> <span class="pl-en">mco_destroy</span>(<span class="pl-s1">co</span>);
+  <span class="pl-k">if</span>(<span class="pl-s1">res</span> <span class="pl-c1">!=</span> <span class="pl-c1">MCO_SUCCESS</span>)
+    <span class="pl-en">fail</span>(<span class="pl-s">"Failed to destroy coroutine"</span>, <span class="pl-s1">res</span>);
+  <span class="pl-k">return</span> <span class="pl-c1">0</span>;
+}</pre></div>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Updates</h1><a id="user-content-updates" class="anchor" aria-label="Permalink: Updates" href="#updates"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li><strong>15-Nov-2023</strong>: Introduce <code>MCO_USE_VMEM_ALLOCATOR</code> option for allocating thousands of coroutines with low memory footprint, this include breaking changes in the allocator API.</li>
+<li><strong>7-Jan-2023</strong>: Fix 128-bit XMM registers not being fully saved on Windows.</li>
+<li><strong>08-Jun-2022</strong>: Minicoro has been awarded by the <a href="https://icculus.org/microgrant/" rel="nofollow">Icculus Microgrant 2021</a>, thanks @icculus for supporting open source work.</li>
+<li><strong>26-Jan-2022</strong>: Added support for WebAssembly outside the WebBrowser using Binaryen asyncify pass.</li>
+<li><strong>01-Sep-2021</strong>: Added support for DOSBox (MS-DOS Emulator).</li>
+<li><strong>30-Aug-2021</strong>: Fix stack overflow crash on Windows 32 bits.</li>
+<li><strong>22-Aug-2021</strong>: Added checks for stack overflow and iOS support (thanks @srberg).</li>
+<li><strong>12-Mar-2021</strong>: Added support for RISC-V RV32.</li>
+<li><strong>19-Jan-2021</strong>: Fix compilation and issues on Mac OS X, release v0.1.1.</li>
+<li><strong>19-Jan-2021</strong>: First release, v0.1.0.</li>
+<li><strong>18-Jan-2021</strong>: Fix issues when using Clang on Linux.</li>
+<li><strong>17-Jan-2021</strong>: Add support for RISC-V 64 bits.</li>
+<li><strong>16-Jan-2021</strong>: Add support for Mac OS X x86_64, thanks @RandyGaul for testing, debugging and researching about it.</li>
+<li><strong>15-Jan-2021</strong>: Make assembly method the default one on Windows x86_64. Redesigned the storage API, thanks @RandyGaul for the suggestion.</li>
+<li><strong>14-Jan-2021</strong>: Add support for running with ASan (AddressSanitizer) and TSan (ThreadSanitizer).</li>
+<li><strong>13-Jan-2021</strong>: Add support for ARM and WebAssembly. Add Public Domain and MIT No Attribution license.</li>
+<li><strong>12-Jan-2021</strong>: Some API changes and improvements.</li>
+<li><strong>11-Jan-2021</strong>: Support valgrind and add benchmarks.</li>
+<li><strong>10-Jan-2021</strong>: Minor API improvements and document more.</li>
+<li><strong>09-Jan-2021</strong>: Library created.</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Donation</h1><a id="user-content-donation" class="anchor" aria-label="Permalink: Donation" href="#donation"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">I'm a full-time open source developer, any amount of the donation through my GitHub will be appreciated and could bring me encouragement to keep supporting this and other open source projects.
+I may accept one-time sponsorships for small features or minor enhancements aligned with the project goals, in this case contact me.</p>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">License</h1><a id="user-content-license" class="anchor" aria-label="Permalink: License" href="#license"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Your choice of either Public Domain or MIT No Attribution, see LICENSE file.</p>
+</article></div>
