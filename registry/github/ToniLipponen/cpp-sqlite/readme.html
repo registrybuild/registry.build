@@ -1,0 +1,66 @@
+<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Single file header only sqlite wrapper for C++</h2><a id="user-content-single-file-header-only-sqlite-wrapper-for-c" class="anchor" aria-label="Permalink: Single file header only sqlite wrapper for C++" href="#single-file-header-only-sqlite-wrapper-for-c"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Example</h2><a id="user-content-example" class="anchor" aria-label="Permalink: Example" href="#example"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="#include &quot;sqlite.hpp&quot;
+#include &lt;iostream&gt;
+
+int main()
+{
+    sqlite::Connection connection(&quot;example.db&quot;);
+
+    connection.Statement(&quot;CREATE TABLE IF NOT EXISTS example (&quot;
+                         &quot;id INTEGER PRIMARY KEY AUTOINCREMENT, &quot;
+                         &quot;textData TEXT, &quot;
+                         &quot;intData INTEGER, &quot;
+                         &quot;floatData REAL)&quot;);
+
+    connection.Statement(&quot;INSERT INTO example (textData, intData, floatData) &quot;
+                         &quot;VALUES (?,?,?)&quot;,
+                         &quot;Hello world&quot;,
+                         1,
+                         1.23);
+
+    sqlite::Result result = connection.Query(&quot;SELECT * FROM example&quot;);
+
+    while(result.Next())
+    {
+        std::cout
+        &lt;&lt; result.Get&lt;int&gt;(0)          &lt;&lt; &quot; &quot;
+        &lt;&lt; result.Get&lt;std::string&gt;(1)  &lt;&lt; &quot; &quot;
+        &lt;&lt; result.Get&lt;int&gt;(2)          &lt;&lt; &quot; &quot;
+        &lt;&lt; result.Get&lt;float&gt;(3)        &lt;&lt; std::endl;
+    }
+
+    return 0;
+}"><pre>#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">"</span>sqlite.hpp<span class="pl-pds">"</span></span>
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>iostream<span class="pl-pds">&gt;</span></span>
+
+<span class="pl-k">int</span> <span class="pl-en">main</span>()
+{
+    sqlite::Connection <span class="pl-smi">connection</span>(<span class="pl-s"><span class="pl-pds">"</span>example.db<span class="pl-pds">"</span></span>);
+
+    connection.<span class="pl-c1">Statement</span>(<span class="pl-s"><span class="pl-pds">"</span>CREATE TABLE IF NOT EXISTS example (<span class="pl-pds">"</span></span>
+                         <span class="pl-s"><span class="pl-pds">"</span>id INTEGER PRIMARY KEY AUTOINCREMENT, <span class="pl-pds">"</span></span>
+                         <span class="pl-s"><span class="pl-pds">"</span>textData TEXT, <span class="pl-pds">"</span></span>
+                         <span class="pl-s"><span class="pl-pds">"</span>intData INTEGER, <span class="pl-pds">"</span></span>
+                         <span class="pl-s"><span class="pl-pds">"</span>floatData REAL)<span class="pl-pds">"</span></span>);
+
+    connection.<span class="pl-c1">Statement</span>(<span class="pl-s"><span class="pl-pds">"</span>INSERT INTO example (textData, intData, floatData) <span class="pl-pds">"</span></span>
+                         <span class="pl-s"><span class="pl-pds">"</span>VALUES (?,?,?)<span class="pl-pds">"</span></span>,
+                         <span class="pl-s"><span class="pl-pds">"</span>Hello world<span class="pl-pds">"</span></span>,
+                         <span class="pl-c1">1</span>,
+                         <span class="pl-c1">1.23</span>);
+
+    sqlite::Result result = connection.<span class="pl-c1">Query</span>(<span class="pl-s"><span class="pl-pds">"</span>SELECT * FROM example<span class="pl-pds">"</span></span>);
+
+    <span class="pl-k">while</span>(result.<span class="pl-c1">Next</span>())
+    {
+        std::cout
+        &lt;&lt; result.<span class="pl-smi">Get</span>&lt;<span class="pl-k">int</span>&gt;(<span class="pl-c1">0</span>)          &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span> <span class="pl-pds">"</span></span>
+        &lt;&lt; result.<span class="pl-smi">Get</span>&lt;std::string&gt;(<span class="pl-c1">1</span>)  &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span> <span class="pl-pds">"</span></span>
+        &lt;&lt; result.<span class="pl-smi">Get</span>&lt;<span class="pl-k">int</span>&gt;(<span class="pl-c1">2</span>)          &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span> <span class="pl-pds">"</span></span>
+        &lt;&lt; result.<span class="pl-smi">Get</span>&lt;<span class="pl-k">float</span>&gt;(<span class="pl-c1">3</span>)        &lt;&lt; std::endl;
+    }
+
+    <span class="pl-k">return</span> <span class="pl-c1">0</span>;
+}</pre></div>
+</article></div>
