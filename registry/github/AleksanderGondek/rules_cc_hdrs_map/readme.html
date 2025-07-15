@@ -18,8 +18,10 @@ load(&quot;@rules_cc_hdrs_map//cc_hdrs_map:defs.bzl&quot;, &quot;cc_bin&quot;)
 cc_bin(
     name = &quot;foo&quot;,
     srcs = [
-        &quot;foo.hpp&quot;,
         &quot;foo.cpp&quot;,
+    ],
+    hdrs = [
+        &quot;foo.hpp&quot;,
     ],
     hdrs_map = {
         &quot;**/foo.hpp&quot;: [&quot;bar/{filename}&quot;],
@@ -38,8 +40,10 @@ load("@rules_cc_hdrs_map//cc_hdrs_map:defs.bzl", "cc_bin")
 cc_bin(
     name = "foo",
     srcs = [
-        "foo.hpp",
         "foo.cpp",
+    ],
+    hdrs = [
+        "foo.hpp",
     ],
     hdrs_map = {
         "**/foo.hpp": ["bar/{filename}"],
@@ -78,10 +82,10 @@ cc_bin(
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">cc_archive</h2><a id="user-content-cc_archive" class="anchor" aria-label="Permalink: cc_archive" href="#cc_archive"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <pre>load("@rules_cc_hdrs_map//cc_hdrs_map:defs.bzl", "cc_archive")
 
-cc_archive(<a href="#cc_archive-name">name</a>, <a href="#cc_archive-deps">deps</a>, <a href="#cc_archive-srcs">srcs</a>, <a href="#cc_archive-additional_linker_inputs">additional_linker_inputs</a>, <a href="#cc_archive-conlyopts">conlyopts</a>, <a href="#cc_archive-copts">copts</a>, <a href="#cc_archive-cxxopts">cxxopts</a>, <a href="#cc_archive-defines">defines</a>,
-           <a href="#cc_archive-dynamic_deps">dynamic_deps</a>, <a href="#cc_archive-hdrs_map">hdrs_map</a>, <a href="#cc_archive-include_prefix">include_prefix</a>, <a href="#cc_archive-includes">includes</a>, <a href="#cc_archive-link_extra_lib">link_extra_lib</a>, <a href="#cc_archive-linkopts">linkopts</a>, <a href="#cc_archive-linkstatic">linkstatic</a>,
-           <a href="#cc_archive-local_defines">local_defines</a>, <a href="#cc_archive-malloc">malloc</a>, <a href="#cc_archive-nocopts">nocopts</a>, <a href="#cc_archive-private_hdrs">private_hdrs</a>, <a href="#cc_archive-public_hdrs">public_hdrs</a>, <a href="#cc_archive-reexport_deps">reexport_deps</a>,
-           <a href="#cc_archive-strip_include_prefix">strip_include_prefix</a>)
+cc_archive(<a href="#cc_archive-name">name</a>, <a href="#cc_archive-deps">deps</a>, <a href="#cc_archive-srcs">srcs</a>, <a href="#cc_archive-data">data</a>, <a href="#cc_archive-hdrs">hdrs</a>, <a href="#cc_archive-additional_compiler_inputs">additional_compiler_inputs</a>, <a href="#cc_archive-additional_linker_inputs">additional_linker_inputs</a>,
+           <a href="#cc_archive-conlyopts">conlyopts</a>, <a href="#cc_archive-copts">copts</a>, <a href="#cc_archive-cxxopts">cxxopts</a>, <a href="#cc_archive-defines">defines</a>, <a href="#cc_archive-dynamic_deps">dynamic_deps</a>, <a href="#cc_archive-hdrs_map">hdrs_map</a>, <a href="#cc_archive-implementation_hdrs">implementation_hdrs</a>,
+           <a href="#cc_archive-include_prefix">include_prefix</a>, <a href="#cc_archive-includes">includes</a>, <a href="#cc_archive-link_extra_lib">link_extra_lib</a>, <a href="#cc_archive-linkopts">linkopts</a>, <a href="#cc_archive-linkstatic">linkstatic</a>, <a href="#cc_archive-local_defines">local_defines</a>, <a href="#cc_archive-malloc">malloc</a>,
+           <a href="#cc_archive-nocopts">nocopts</a>, <a href="#cc_archive-reexport_deps">reexport_deps</a>, <a href="#cc_archive-strip_include_prefix">strip_include_prefix</a>)
 </pre>
 <p dir="auto">Produce an archive file.</p>
 <p dir="auto">The intended major difference between this rule and rules_cc's <code>cc_static_library</code>,
@@ -120,8 +124,29 @@ is that this rule does not intend to pull-in all static dependencies.</p>
 <td align="left"></td>
 </tr>
 <tr>
+<td align="left"><a id="user-content-cc_archive-data"></a>data</td>
+<td align="left">The list of files needed by this target at runtime. See general comments about data at Typical attributes defined by most build rules.</td>
+<td align="left"><a href="https://bazel.build/concepts/labels" rel="nofollow">List of labels</a></td>
+<td align="left">optional</td>
+<td align="left"><code>[]</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-cc_archive-hdrs"></a>hdrs</td>
+<td align="left">List of headers that may be included by dependent rules transitively. Notice: the cutoff happens during compilation.</td>
+<td align="left"><a href="https://bazel.build/concepts/labels" rel="nofollow">List of labels</a></td>
+<td align="left">optional</td>
+<td align="left"><code>[]</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-cc_archive-additional_compiler_inputs"></a>additional_compiler_inputs</td>
+<td align="left">Any additional files you might want to pass to the compiler command line, such as sanitizer ignorelists, for example. Files specified here can then be used in copts with the $(location) function.</td>
+<td align="left"><a href="https://bazel.build/concepts/labels" rel="nofollow">List of labels</a></td>
+<td align="left">optional</td>
+<td align="left"><code>[]</code></td>
+</tr>
+<tr>
 <td align="left"><a id="user-content-cc_archive-additional_linker_inputs"></a>additional_linker_inputs</td>
-<td align="left">Pass these files to the C++ linker command.<br><br>For example, compiled Windows .res files can be provided here to be embedded in the binary target.</td>
+<td align="left">Any additional files that you may want to pass to the linker, for example, linker scripts. You have to separately pass any linker flags that the linker needs in order to be aware of this file. You can do so via the linkopts attribute.</td>
 <td align="left"><a href="https://bazel.build/concepts/labels" rel="nofollow">List of labels</a></td>
 <td align="left">optional</td>
 <td align="left"><code>[]</code></td>
@@ -156,7 +181,7 @@ is that this rule does not intend to pull-in all static dependencies.</p>
 </tr>
 <tr>
 <td align="left"><a id="user-content-cc_archive-dynamic_deps"></a>dynamic_deps</td>
-<td align="left">These are other cc_shared_library dependencies the current target depends on.<br><br>The cc_shared_library implementation will use the list of dynamic_deps (transitively, i.e. also the dynamic_deps of the current target's dynamic_deps) to decide which cc_libraries in the transitive deps should not be linked in because they are already provided by a different cc_shared_library.</td>
+<td align="left">In contrast to <code>rules_cc</code>, the dynamic_deps of <code>rules_cc_hdrs_map</code> are simply translated into deps parameter, and the providers (CcInfo vs CcSharedInfo) are used to steer the behavior further.</td>
 <td align="left"><a href="https://bazel.build/concepts/labels" rel="nofollow">List of labels</a></td>
 <td align="left">optional</td>
 <td align="left"><code>[]</code></td>
@@ -167,6 +192,13 @@ is that this rule does not intend to pull-in all static dependencies.</p>
 <td align="left"><a href="https://bazel.build/rules/lib/dict" rel="nofollow">Dictionary: String -&gt; List of strings</a></td>
 <td align="left">optional</td>
 <td align="left"><code>{}</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-cc_archive-implementation_hdrs"></a>implementation_hdrs</td>
+<td align="left">List of headers that CANNOT be included by dependent rules. Notice: the cutoff happens during compilation.</td>
+<td align="left"><a href="https://bazel.build/concepts/labels" rel="nofollow">List of labels</a></td>
+<td align="left">optional</td>
+<td align="left"><code>[]</code></td>
 </tr>
 <tr>
 <td align="left"><a id="user-content-cc_archive-include_prefix"></a>include_prefix</td>
@@ -198,7 +230,7 @@ is that this rule does not intend to pull-in all static dependencies.</p>
 </tr>
 <tr>
 <td align="left"><a id="user-content-cc_archive-linkstatic"></a>linkstatic</td>
-<td align="left">Link the binary in static mode.</td>
+<td align="left">(Unsupported) As there is clear distinction between targets that are SOLs and archives, the parameter is not applicable.</td>
 <td align="left">Boolean</td>
 <td align="left">optional</td>
 <td align="left"><code>True</code></td>
@@ -225,20 +257,6 @@ is that this rule does not intend to pull-in all static dependencies.</p>
 <td align="left"><code>""</code></td>
 </tr>
 <tr>
-<td align="left"><a id="user-content-cc_archive-private_hdrs"></a>private_hdrs</td>
-<td align="left">List of headers that CANNOT be included by dependent rules. Notice: the cutoff happens during compilation.</td>
-<td align="left"><a href="https://bazel.build/concepts/labels" rel="nofollow">List of labels</a></td>
-<td align="left">optional</td>
-<td align="left"><code>[]</code></td>
-</tr>
-<tr>
-<td align="left"><a id="user-content-cc_archive-public_hdrs"></a>public_hdrs</td>
-<td align="left">List of headers that may be included by dependent rules transitively. Notice: the cutoff happens during compilation.</td>
-<td align="left"><a href="https://bazel.build/concepts/labels" rel="nofollow">List of labels</a></td>
-<td align="left">optional</td>
-<td align="left"><code>[]</code></td>
-</tr>
-<tr>
 <td align="left"><a id="user-content-cc_archive-reexport_deps"></a>reexport_deps</td>
 <td align="left">-</td>
 <td align="left"><a href="https://bazel.build/concepts/labels" rel="nofollow">List of labels</a></td>
@@ -258,9 +276,9 @@ is that this rule does not intend to pull-in all static dependencies.</p>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">cc_bin</h2><a id="user-content-cc_bin" class="anchor" aria-label="Permalink: cc_bin" href="#cc_bin"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <pre>load("@rules_cc_hdrs_map//cc_hdrs_map:defs.bzl", "cc_bin")
 
-cc_bin(<a href="#cc_bin-name">name</a>, <a href="#cc_bin-deps">deps</a>, <a href="#cc_bin-srcs">srcs</a>, <a href="#cc_bin-data">data</a>, <a href="#cc_bin-additional_linker_inputs">additional_linker_inputs</a>, <a href="#cc_bin-conlyopts">conlyopts</a>, <a href="#cc_bin-copts">copts</a>, <a href="#cc_bin-cxxopts">cxxopts</a>, <a href="#cc_bin-defines">defines</a>,
-       <a href="#cc_bin-dynamic_deps">dynamic_deps</a>, <a href="#cc_bin-hdrs_map">hdrs_map</a>, <a href="#cc_bin-includes">includes</a>, <a href="#cc_bin-link_extra_lib">link_extra_lib</a>, <a href="#cc_bin-linkopts">linkopts</a>, <a href="#cc_bin-linkstatic">linkstatic</a>, <a href="#cc_bin-local_defines">local_defines</a>, <a href="#cc_bin-malloc">malloc</a>,
-       <a href="#cc_bin-nocopts">nocopts</a>, <a href="#cc_bin-private_hdrs">private_hdrs</a>, <a href="#cc_bin-public_hdrs">public_hdrs</a>, <a href="#cc_bin-reexport_deps">reexport_deps</a>, <a href="#cc_bin-stamp">stamp</a>)
+cc_bin(<a href="#cc_bin-name">name</a>, <a href="#cc_bin-deps">deps</a>, <a href="#cc_bin-srcs">srcs</a>, <a href="#cc_bin-data">data</a>, <a href="#cc_bin-hdrs">hdrs</a>, <a href="#cc_bin-additional_compiler_inputs">additional_compiler_inputs</a>, <a href="#cc_bin-additional_linker_inputs">additional_linker_inputs</a>,
+       <a href="#cc_bin-conlyopts">conlyopts</a>, <a href="#cc_bin-copts">copts</a>, <a href="#cc_bin-cxxopts">cxxopts</a>, <a href="#cc_bin-defines">defines</a>, <a href="#cc_bin-dynamic_deps">dynamic_deps</a>, <a href="#cc_bin-hdrs_map">hdrs_map</a>, <a href="#cc_bin-implementation_hdrs">implementation_hdrs</a>, <a href="#cc_bin-includes">includes</a>,
+       <a href="#cc_bin-link_extra_lib">link_extra_lib</a>, <a href="#cc_bin-linkopts">linkopts</a>, <a href="#cc_bin-linkstatic">linkstatic</a>, <a href="#cc_bin-local_defines">local_defines</a>, <a href="#cc_bin-malloc">malloc</a>, <a href="#cc_bin-nocopts">nocopts</a>, <a href="#cc_bin-reexport_deps">reexport_deps</a>, <a href="#cc_bin-stamp">stamp</a>)
 </pre>
 <p dir="auto">Produce exectuable binary.</p>
 <p dir="auto">It is intended for this rule, to differ from rules_cc's <code>cc_binary</code> in the following
@@ -301,14 +319,28 @@ available during binary execution.</p>
 </tr>
 <tr>
 <td align="left"><a id="user-content-cc_bin-data"></a>data</td>
-<td align="left">The list of files needed by this library at runtime. See general comments about data at Typical attributes defined by most build rules.<br><br>If a data is the name of a generated file, then this cc_library rule automatically depends on the generating rule.<br><br>If a data is a rule name, then this cc_library rule automatically depends on that rule, and that rule's outs are automatically added to this cc_library's data files.</td>
+<td align="left">The list of files needed by this target at runtime. See general comments about data at Typical attributes defined by most build rules.</td>
+<td align="left"><a href="https://bazel.build/concepts/labels" rel="nofollow">List of labels</a></td>
+<td align="left">optional</td>
+<td align="left"><code>[]</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-cc_bin-hdrs"></a>hdrs</td>
+<td align="left">List of headers that may be included by dependent rules transitively. Notice: the cutoff happens during compilation.</td>
+<td align="left"><a href="https://bazel.build/concepts/labels" rel="nofollow">List of labels</a></td>
+<td align="left">optional</td>
+<td align="left"><code>[]</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-cc_bin-additional_compiler_inputs"></a>additional_compiler_inputs</td>
+<td align="left">Any additional files you might want to pass to the compiler command line, such as sanitizer ignorelists, for example. Files specified here can then be used in copts with the $(location) function.</td>
 <td align="left"><a href="https://bazel.build/concepts/labels" rel="nofollow">List of labels</a></td>
 <td align="left">optional</td>
 <td align="left"><code>[]</code></td>
 </tr>
 <tr>
 <td align="left"><a id="user-content-cc_bin-additional_linker_inputs"></a>additional_linker_inputs</td>
-<td align="left">Pass these files to the C++ linker command.<br><br>For example, compiled Windows .res files can be provided here to be embedded in the binary target.</td>
+<td align="left">Any additional files that you may want to pass to the linker, for example, linker scripts. You have to separately pass any linker flags that the linker needs in order to be aware of this file. You can do so via the linkopts attribute.</td>
 <td align="left"><a href="https://bazel.build/concepts/labels" rel="nofollow">List of labels</a></td>
 <td align="left">optional</td>
 <td align="left"><code>[]</code></td>
@@ -343,7 +375,7 @@ available during binary execution.</p>
 </tr>
 <tr>
 <td align="left"><a id="user-content-cc_bin-dynamic_deps"></a>dynamic_deps</td>
-<td align="left">These are other cc_shared_library dependencies the current target depends on.<br><br>The cc_shared_library implementation will use the list of dynamic_deps (transitively, i.e. also the dynamic_deps of the current target's dynamic_deps) to decide which cc_libraries in the transitive deps should not be linked in because they are already provided by a different cc_shared_library.</td>
+<td align="left">In contrast to <code>rules_cc</code>, the dynamic_deps of <code>rules_cc_hdrs_map</code> are simply translated into deps parameter, and the providers (CcInfo vs CcSharedInfo) are used to steer the behavior further.</td>
 <td align="left"><a href="https://bazel.build/concepts/labels" rel="nofollow">List of labels</a></td>
 <td align="left">optional</td>
 <td align="left"><code>[]</code></td>
@@ -354,6 +386,13 @@ available during binary execution.</p>
 <td align="left"><a href="https://bazel.build/rules/lib/dict" rel="nofollow">Dictionary: String -&gt; List of strings</a></td>
 <td align="left">optional</td>
 <td align="left"><code>{}</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-cc_bin-implementation_hdrs"></a>implementation_hdrs</td>
+<td align="left">List of headers that CANNOT be included by dependent rules. Notice: the cutoff happens during compilation.</td>
+<td align="left"><a href="https://bazel.build/concepts/labels" rel="nofollow">List of labels</a></td>
+<td align="left">optional</td>
+<td align="left"><code>[]</code></td>
 </tr>
 <tr>
 <td align="left"><a id="user-content-cc_bin-includes"></a>includes</td>
@@ -378,7 +417,7 @@ available during binary execution.</p>
 </tr>
 <tr>
 <td align="left"><a id="user-content-cc_bin-linkstatic"></a>linkstatic</td>
-<td align="left">Link the binary in static mode.</td>
+<td align="left">(Unsupported) As there is clear distinction between targets that are SOLs and archives, the parameter is not applicable.</td>
 <td align="left">Boolean</td>
 <td align="left">optional</td>
 <td align="left"><code>True</code></td>
@@ -405,20 +444,6 @@ available during binary execution.</p>
 <td align="left"><code>""</code></td>
 </tr>
 <tr>
-<td align="left"><a id="user-content-cc_bin-private_hdrs"></a>private_hdrs</td>
-<td align="left">List of headers that CANNOT be included by dependent rules. Notice: the cutoff happens during compilation.</td>
-<td align="left"><a href="https://bazel.build/concepts/labels" rel="nofollow">List of labels</a></td>
-<td align="left">optional</td>
-<td align="left"><code>[]</code></td>
-</tr>
-<tr>
-<td align="left"><a id="user-content-cc_bin-public_hdrs"></a>public_hdrs</td>
-<td align="left">List of headers that may be included by dependent rules transitively. Notice: the cutoff happens during compilation.</td>
-<td align="left"><a href="https://bazel.build/concepts/labels" rel="nofollow">List of labels</a></td>
-<td align="left">optional</td>
-<td align="left"><code>[]</code></td>
-</tr>
-<tr>
 <td align="left"><a id="user-content-cc_bin-reexport_deps"></a>reexport_deps</td>
 <td align="left">-</td>
 <td align="left"><a href="https://bazel.build/concepts/labels" rel="nofollow">List of labels</a></td>
@@ -438,7 +463,7 @@ available during binary execution.</p>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">cc_hdrs</h2><a id="user-content-cc_hdrs" class="anchor" aria-label="Permalink: cc_hdrs" href="#cc_hdrs"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <pre>load("@rules_cc_hdrs_map//cc_hdrs_map:defs.bzl", "cc_hdrs")
 
-cc_hdrs(<a href="#cc_hdrs-name">name</a>, <a href="#cc_hdrs-deps">deps</a>, <a href="#cc_hdrs-hdrs_map">hdrs_map</a>, <a href="#cc_hdrs-private_hdrs">private_hdrs</a>, <a href="#cc_hdrs-public_hdrs">public_hdrs</a>)
+cc_hdrs(<a href="#cc_hdrs-name">name</a>, <a href="#cc_hdrs-deps">deps</a>, <a href="#cc_hdrs-hdrs">hdrs</a>, <a href="#cc_hdrs-hdrs_map">hdrs_map</a>, <a href="#cc_hdrs-implementation_hdrs">implementation_hdrs</a>)
 </pre>
 <p dir="auto">Define header files properties.</p>
 <p dir="auto">This rule groups headers into a singular target and allows
@@ -472,6 +497,13 @@ be used with their intended include paths.</p>
 <td align="left"><code>[]</code></td>
 </tr>
 <tr>
+<td align="left"><a id="user-content-cc_hdrs-hdrs"></a>hdrs</td>
+<td align="left">List of headers that may be included by dependent rules transitively. Notice: the cutoff happens during compilation.</td>
+<td align="left"><a href="https://bazel.build/concepts/labels" rel="nofollow">List of labels</a></td>
+<td align="left">optional</td>
+<td align="left"><code>[]</code></td>
+</tr>
+<tr>
 <td align="left"><a id="user-content-cc_hdrs-hdrs_map"></a>hdrs_map</td>
 <td align="left">Dictionary describing paths under which header files should be avaiable as.<br><br>Keys are simple glob pathnames, used to match agains all header files avaiable in the rule. Values are list of paths to which matching header files should be mapped.<br><br>'{filename}' is special token used to signify to matching file name.<br><br>For example: '"**/*o.hpp": ["a/{filename}"]' - will ensure all hpp files with names ending with '0' will be also avaible as if they were placed in a subdirectory.</td>
 <td align="left"><a href="https://bazel.build/rules/lib/dict" rel="nofollow">Dictionary: String -&gt; List of strings</a></td>
@@ -479,15 +511,8 @@ be used with their intended include paths.</p>
 <td align="left"><code>{}</code></td>
 </tr>
 <tr>
-<td align="left"><a id="user-content-cc_hdrs-private_hdrs"></a>private_hdrs</td>
+<td align="left"><a id="user-content-cc_hdrs-implementation_hdrs"></a>implementation_hdrs</td>
 <td align="left">List of headers that CANNOT be included by dependent rules. Notice: the cutoff happens during compilation.</td>
-<td align="left"><a href="https://bazel.build/concepts/labels" rel="nofollow">List of labels</a></td>
-<td align="left">optional</td>
-<td align="left"><code>[]</code></td>
-</tr>
-<tr>
-<td align="left"><a id="user-content-cc_hdrs-public_hdrs"></a>public_hdrs</td>
-<td align="left">List of headers that may be included by dependent rules transitively. Notice: the cutoff happens during compilation.</td>
 <td align="left"><a href="https://bazel.build/concepts/labels" rel="nofollow">List of labels</a></td>
 <td align="left">optional</td>
 <td align="left"><code>[]</code></td>
@@ -498,15 +523,18 @@ be used with their intended include paths.</p>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">cc_so</h2><a id="user-content-cc_so" class="anchor" aria-label="Permalink: cc_so" href="#cc_so"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <pre>load("@rules_cc_hdrs_map//cc_hdrs_map:defs.bzl", "cc_so")
 
-cc_so(<a href="#cc_so-name">name</a>, <a href="#cc_so-deps">deps</a>, <a href="#cc_so-srcs">srcs</a>, <a href="#cc_so-additional_linker_inputs">additional_linker_inputs</a>, <a href="#cc_so-alwayslink">alwayslink</a>, <a href="#cc_so-conlyopts">conlyopts</a>, <a href="#cc_so-copts">copts</a>, <a href="#cc_so-cxxopts">cxxopts</a>, <a href="#cc_so-defines">defines</a>,
-      <a href="#cc_so-dynamic_deps">dynamic_deps</a>, <a href="#cc_so-hdrs_map">hdrs_map</a>, <a href="#cc_so-include_prefix">include_prefix</a>, <a href="#cc_so-includes">includes</a>, <a href="#cc_so-link_extra_lib">link_extra_lib</a>, <a href="#cc_so-linkopts">linkopts</a>, <a href="#cc_so-linkstatic">linkstatic</a>,
-      <a href="#cc_so-local_defines">local_defines</a>, <a href="#cc_so-malloc">malloc</a>, <a href="#cc_so-nocopts">nocopts</a>, <a href="#cc_so-private_hdrs">private_hdrs</a>, <a href="#cc_so-public_hdrs">public_hdrs</a>, <a href="#cc_so-reexport_deps">reexport_deps</a>, <a href="#cc_so-shared_lib_name">shared_lib_name</a>,
-      <a href="#cc_so-strip_include_prefix">strip_include_prefix</a>)
+cc_so(<a href="#cc_so-name">name</a>, <a href="#cc_so-deps">deps</a>, <a href="#cc_so-srcs">srcs</a>, <a href="#cc_so-data">data</a>, <a href="#cc_so-hdrs">hdrs</a>, <a href="#cc_so-additional_compiler_inputs">additional_compiler_inputs</a>, <a href="#cc_so-additional_linker_inputs">additional_linker_inputs</a>,
+      <a href="#cc_so-alwayslink">alwayslink</a>, <a href="#cc_so-conlyopts">conlyopts</a>, <a href="#cc_so-copts">copts</a>, <a href="#cc_so-cxxopts">cxxopts</a>, <a href="#cc_so-defines">defines</a>, <a href="#cc_so-dynamic_deps">dynamic_deps</a>, <a href="#cc_so-hdrs_map">hdrs_map</a>, <a href="#cc_so-implementation_hdrs">implementation_hdrs</a>,
+      <a href="#cc_so-include_prefix">include_prefix</a>, <a href="#cc_so-includes">includes</a>, <a href="#cc_so-link_extra_lib">link_extra_lib</a>, <a href="#cc_so-linkopts">linkopts</a>, <a href="#cc_so-linkstatic">linkstatic</a>, <a href="#cc_so-local_defines">local_defines</a>, <a href="#cc_so-malloc">malloc</a>, <a href="#cc_so-nocopts">nocopts</a>,
+      <a href="#cc_so-reexport_deps">reexport_deps</a>, <a href="#cc_so-shared_lib_name">shared_lib_name</a>, <a href="#cc_so-strip_include_prefix">strip_include_prefix</a>)
 </pre>
 <p dir="auto">Produce shared object library.</p>
-<p dir="auto">The intended difference between this rule and the rules_cc's cc_shared_library is
-to unify handling of dependencies that are equipped with CcInfo and CcSharedLibraryInfo
-(use singular attribute of deps to track them both).</p>
+<p dir="auto">The intended difference between this rule and the rules_cc's cc_shared_library is to:</p>
+<ol dir="auto">
+<li>remove 'cc_library' out of the equation (no more targets that produce either archive or sol)</li>
+<li>unify handling of dependencies that are equipped with CcInfo and CcSharedLibraryInfo
+(use singular attribute of deps to track them both).</li>
+</ol>
 <p dir="auto"><strong>ATTRIBUTES</strong></p>
 <markdown-accessiblity-table><table>
 <thead>
@@ -541,15 +569,36 @@ to unify handling of dependencies that are equipped with CcInfo and CcSharedLibr
 <td align="left"></td>
 </tr>
 <tr>
+<td align="left"><a id="user-content-cc_so-data"></a>data</td>
+<td align="left">The list of files needed by this target at runtime. See general comments about data at Typical attributes defined by most build rules.</td>
+<td align="left"><a href="https://bazel.build/concepts/labels" rel="nofollow">List of labels</a></td>
+<td align="left">optional</td>
+<td align="left"><code>[]</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-cc_so-hdrs"></a>hdrs</td>
+<td align="left">List of headers that may be included by dependent rules transitively. Notice: the cutoff happens during compilation.</td>
+<td align="left"><a href="https://bazel.build/concepts/labels" rel="nofollow">List of labels</a></td>
+<td align="left">optional</td>
+<td align="left"><code>[]</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-cc_so-additional_compiler_inputs"></a>additional_compiler_inputs</td>
+<td align="left">Any additional files you might want to pass to the compiler command line, such as sanitizer ignorelists, for example. Files specified here can then be used in copts with the $(location) function.</td>
+<td align="left"><a href="https://bazel.build/concepts/labels" rel="nofollow">List of labels</a></td>
+<td align="left">optional</td>
+<td align="left"><code>[]</code></td>
+</tr>
+<tr>
 <td align="left"><a id="user-content-cc_so-additional_linker_inputs"></a>additional_linker_inputs</td>
-<td align="left">Pass these files to the C++ linker command.<br><br>For example, compiled Windows .res files can be provided here to be embedded in the binary target.</td>
+<td align="left">Any additional files that you may want to pass to the linker, for example, linker scripts. You have to separately pass any linker flags that the linker needs in order to be aware of this file. You can do so via the linkopts attribute.</td>
 <td align="left"><a href="https://bazel.build/concepts/labels" rel="nofollow">List of labels</a></td>
 <td align="left">optional</td>
 <td align="left"><code>[]</code></td>
 </tr>
 <tr>
 <td align="left"><a id="user-content-cc_so-alwayslink"></a>alwayslink</td>
-<td align="left">If 1, any binary that depends (directly or indirectly) on this C++ library will link in all the object files for the files listed in srcs, even if some contain no symbols referenced by the binary. This is useful if your code isn't explicitly called by code in the binary, e.g., if your code registers to receive some callback provided by some service.</td>
+<td align="left">(Unsupported) Not yet implemented.</td>
 <td align="left">Boolean</td>
 <td align="left">optional</td>
 <td align="left"><code>True</code></td>
@@ -584,7 +633,7 @@ to unify handling of dependencies that are equipped with CcInfo and CcSharedLibr
 </tr>
 <tr>
 <td align="left"><a id="user-content-cc_so-dynamic_deps"></a>dynamic_deps</td>
-<td align="left">These are other cc_shared_library dependencies the current target depends on.<br><br>The cc_shared_library implementation will use the list of dynamic_deps (transitively, i.e. also the dynamic_deps of the current target's dynamic_deps) to decide which cc_libraries in the transitive deps should not be linked in because they are already provided by a different cc_shared_library.</td>
+<td align="left">In contrast to <code>rules_cc</code>, the dynamic_deps of <code>rules_cc_hdrs_map</code> are simply translated into deps parameter, and the providers (CcInfo vs CcSharedInfo) are used to steer the behavior further.</td>
 <td align="left"><a href="https://bazel.build/concepts/labels" rel="nofollow">List of labels</a></td>
 <td align="left">optional</td>
 <td align="left"><code>[]</code></td>
@@ -595,6 +644,13 @@ to unify handling of dependencies that are equipped with CcInfo and CcSharedLibr
 <td align="left"><a href="https://bazel.build/rules/lib/dict" rel="nofollow">Dictionary: String -&gt; List of strings</a></td>
 <td align="left">optional</td>
 <td align="left"><code>{}</code></td>
+</tr>
+<tr>
+<td align="left"><a id="user-content-cc_so-implementation_hdrs"></a>implementation_hdrs</td>
+<td align="left">List of headers that CANNOT be included by dependent rules. Notice: the cutoff happens during compilation.</td>
+<td align="left"><a href="https://bazel.build/concepts/labels" rel="nofollow">List of labels</a></td>
+<td align="left">optional</td>
+<td align="left"><code>[]</code></td>
 </tr>
 <tr>
 <td align="left"><a id="user-content-cc_so-include_prefix"></a>include_prefix</td>
@@ -626,7 +682,7 @@ to unify handling of dependencies that are equipped with CcInfo and CcSharedLibr
 </tr>
 <tr>
 <td align="left"><a id="user-content-cc_so-linkstatic"></a>linkstatic</td>
-<td align="left">Link the binary in static mode.</td>
+<td align="left">(Unsupported) As there is clear distinction between targets that are SOLs and archives, the parameter is not applicable.</td>
 <td align="left">Boolean</td>
 <td align="left">optional</td>
 <td align="left"><code>True</code></td>
@@ -653,20 +709,6 @@ to unify handling of dependencies that are equipped with CcInfo and CcSharedLibr
 <td align="left"><code>""</code></td>
 </tr>
 <tr>
-<td align="left"><a id="user-content-cc_so-private_hdrs"></a>private_hdrs</td>
-<td align="left">List of headers that CANNOT be included by dependent rules. Notice: the cutoff happens during compilation.</td>
-<td align="left"><a href="https://bazel.build/concepts/labels" rel="nofollow">List of labels</a></td>
-<td align="left">optional</td>
-<td align="left"><code>[]</code></td>
-</tr>
-<tr>
-<td align="left"><a id="user-content-cc_so-public_hdrs"></a>public_hdrs</td>
-<td align="left">List of headers that may be included by dependent rules transitively. Notice: the cutoff happens during compilation.</td>
-<td align="left"><a href="https://bazel.build/concepts/labels" rel="nofollow">List of labels</a></td>
-<td align="left">optional</td>
-<td align="left"><code>[]</code></td>
-</tr>
-<tr>
 <td align="left"><a id="user-content-cc_so-reexport_deps"></a>reexport_deps</td>
 <td align="left">-</td>
 <td align="left"><a href="https://bazel.build/concepts/labels" rel="nofollow">List of labels</a></td>
@@ -675,7 +717,7 @@ to unify handling of dependencies that are equipped with CcInfo and CcSharedLibr
 </tr>
 <tr>
 <td align="left"><a id="user-content-cc_so-shared_lib_name"></a>shared_lib_name</td>
-<td align="left">This allows to override the library name. </td>
+<td align="left">Specify the name of the created SOL file (that is decoupled from the rule instance name). Note, that the 'cc_so' is opinionated and will remove any leading 'lib' prefix and any '.so' in the name (mening 'libTest.so.x64.so' will become 'Test.x64' and will produce 'libTest.x64.so')</td>
 <td align="left">String</td>
 <td align="left">optional</td>
 <td align="left"><code>""</code></td>
@@ -693,7 +735,7 @@ to unify handling of dependencies that are equipped with CcInfo and CcSharedLibr
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">HdrsMapInfo</h2><a id="user-content-hdrsmapinfo" class="anchor" aria-label="Permalink: HdrsMapInfo" href="#hdrsmapinfo"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <pre>load("@rules_cc_hdrs_map//cc_hdrs_map:defs.bzl", "HdrsMapInfo")
 
-HdrsMapInfo(<a href="#HdrsMapInfo-public_hdrs">public_hdrs</a>, <a href="#HdrsMapInfo-private_hdrs">private_hdrs</a>, <a href="#HdrsMapInfo-hdrs_map">hdrs_map</a>, <a href="#HdrsMapInfo-deps">deps</a>)
+HdrsMapInfo(<a href="#HdrsMapInfo-hdrs">hdrs</a>, <a href="#HdrsMapInfo-implementation_hdrs">implementation_hdrs</a>, <a href="#HdrsMapInfo-hdrs_map">hdrs_map</a>, <a href="#HdrsMapInfo-deps">deps</a>)
 </pre>
 <p dir="auto">Represents grouping of CC header files, alongsdie with their intended include paths.</p>
 <p dir="auto"><strong>FIELDS</strong></p>
@@ -706,11 +748,11 @@ HdrsMapInfo(<a href="#HdrsMapInfo-public_hdrs">public_hdrs</a>, <a href="#HdrsMa
 </thead>
 <tbody>
 <tr>
-<td align="left"><a id="user-content-hdrsmapinfo-public_hdrs"></a>public_hdrs</td>
+<td align="left"><a id="user-content-hdrsmapinfo-hdrs"></a>hdrs</td>
 <td align="left">Headers which should be exposed after the compilation is done.</td>
 </tr>
 <tr>
-<td align="left"><a id="user-content-hdrsmapinfo-private_hdrs"></a>private_hdrs</td>
+<td align="left"><a id="user-content-hdrsmapinfo-implementation_hdrs"></a>implementation_hdrs</td>
 <td align="left">Headers that should not be propagated after the compilation.</td>
 </tr>
 <tr>
