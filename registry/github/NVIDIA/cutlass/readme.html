@@ -36,30 +36,16 @@ designs, and bringing optimized solutions into production.</p>
 <div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">What's New in CUTLASS 4.1</h1><a id="user-content-whats-new-in-cutlass-41" class="anchor" aria-label="Permalink: What's New in CUTLASS 4.1" href="#whats-new-in-cutlass-41"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">CuTe DSL</h2><a id="user-content-cute-dsl" class="anchor" aria-label="Permalink: CuTe DSL" href="#cute-dsl"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <ul dir="auto">
+<li>Add aarch64 support, you can now pip install <code>nvidia-cutlass-dsl</code> on GB200 systems!</li>
 <li>More examples demonstrating how to use CuTe DSL to write peak-performance kernels
 <ul dir="auto">
 <li><a href="https://github.com/NVIDIA/cutlass/tree/main/examples/python/CuTeDSL/blackwell/mamba2_ssd/mamba2_ssd.py">Blackwell Mamba2 SSD</a></li>
+<li><a href="https://github.com/NVIDIA/cutlass/tree/main/examples/python/CuTeDSL/blackwell/dense_blockscaled_gemm_persistent.py">Blackwell SM100 persistent dense blockscaled GEMM with static scheduling</a></li>
 </ul>
 </li>
 <li>API updates
 <ul dir="auto">
-<li>for loop
-<ul dir="auto">
-<li>Python built-in <code>range</code> now always generates IR and executes at runtime</li>
-<li><code>cutlass.range</code> is advanced <code>range</code> with IR level unrolling and pipelining control</li>
-<li>Deprecated <code>cutlass.range_dynamic</code>, please replace with <code>range</code> or <code>cutlass.range</code></li>
-<li><strong>Experimental</strong> Added <code>pipelining</code> control for compiler generated software pipeline code</li>
-</ul>
-</li>
-<li>while/if
-<ul dir="auto">
-<li><code>while</code>/<code>if</code> now by default generates IR and executes at runtime unless <code>cutlass.const_expr</code> is specified for the predicate</li>
-<li>Deprecated <code>cutlass.dynamic_expr</code>, please remove it</li>
-</ul>
-</li>
-<li>Rename mbarrier functions to reduce ambiguity</li>
-<li>Modify SyncObject API (<code>MbarrierArray</code>, <code>NamedBarrier</code>, <code>TmaStoreFence</code>) to match <code>std::barrier</code></li>
-<li>Change pipeline <code>create</code> function to take only keyword arguments, and make <code>barrier_storage</code> optional.</li>
+<li>Please refer to <a href="https://github.com/NVIDIA/cutlass/blob/main/FUNCTIONALITY.md">FUNCTIONALITY.md</a> for details</li>
 </ul>
 </li>
 </ul>
@@ -81,7 +67,7 @@ designs, and bringing optimized solutions into production.</p>
 <li>Factor out <code>print_svg</code> and friends and rewrite.</li>
 </ul>
 </li>
-<li>Support Blackwell SM100 SIMT FFMA2 kernels.</li>
+<li>Support Blackwell SM100 SIMT packed fp32x2 kernels.</li>
 <li>Support residual add for implicit gemm kernels.</li>
 <li>Various fixes for CUTLASS C++ Python interface's EVT tracer:
 <ul dir="auto">
@@ -95,6 +81,12 @@ designs, and bringing optimized solutions into production.</p>
 <ul dir="auto">
 <li>Fix incorrect cluster shape output issue when doing exhaustive search.</li>
 <li>Fix a bug in profiler grouped GEMM for setting tile scheduler swizzles, cluster shapes, and raster orders.</li>
+</ul>
+</li>
+<li>Fix some profiler issues.
+<ul dir="auto">
+<li>Complete the reference for Blackwell blockwise gemm kernels.</li>
+<li>Fix incorrect regex logic for L1 test.</li>
 </ul>
 </li>
 </ul>
