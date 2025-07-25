@@ -19,7 +19,7 @@
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Installation</h2><a id="user-content-installation" class="anchor" aria-label="Permalink: Installation" href="#installation"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">First, install <a href="https://docs.bazel.build/versions/master/install.html" rel="nofollow">Bazel</a> and <a href="https://yarnpkg.com/lang/en/docs/install" rel="nofollow">Yarn</a>.</p>
 <p dir="auto">Next, create a <code>WORKSPACE</code> file in your project root containing:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@bazel_tools//tools/build_defs/repo:git.bzl&quot;, &quot;git_repository&quot;)
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(&quot;@bazel_tools//tools/build_defs/repo:git.bzl&quot;, &quot;git_repository&quot;)
 
 # Required for access to js_library, ts_library, js_test, web_bundle, etc.
 git_repository(
@@ -46,34 +46,35 @@ load(&quot;@build_bazel_rules_nodejs//:defs.bzl&quot;, &quot;node_repositories&q
 #
 # See https://github.com/bazelbuild/rules_nodejs if you'd like to use your
 # local Node and Yarn binaries instead.
-node_repositories(package_json = [])"><pre><span class="pl-en">load</span>(<span class="pl-s">"@bazel_tools//tools/build_defs/repo:git.bzl"</span>, <span class="pl-s">"git_repository"</span>)
+node_repositories(package_json = [])"><pre lang="python" class="notranslate"><code>load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 
-<span class="pl-c"># Required for access to js_library, ts_library, js_test, web_bundle, etc.</span>
-<span class="pl-en">git_repository</span>(
-  <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"bazel_javascript"</span>,
-  <span class="pl-s1">remote</span> <span class="pl-c1">=</span> <span class="pl-s">"https://github.com/zenclabs/bazel-javascript.git"</span>,
-  <span class="pl-s1">tag</span> <span class="pl-c1">=</span> <span class="pl-s">"0.0.28"</span>,
+# Required for access to js_library, ts_library, js_test, web_bundle, etc.
+git_repository(
+  name = "bazel_javascript",
+  remote = "https://github.com/zenclabs/bazel-javascript.git",
+  tag = "0.0.28",
 )
 
-<span class="pl-c"># Required for underlying dependencies such as Node and Yarn.</span>
-<span class="pl-en">git_repository</span>(
-    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"build_bazel_rules_nodejs"</span>,
-    <span class="pl-s1">remote</span> <span class="pl-c1">=</span> <span class="pl-s">"https://github.com/bazelbuild/rules_nodejs.git"</span>,
-    <span class="pl-s1">tag</span> <span class="pl-c1">=</span> <span class="pl-s">"0.15.0"</span>,
+# Required for underlying dependencies such as Node and Yarn.
+git_repository(
+    name = "build_bazel_rules_nodejs",
+    remote = "https://github.com/bazelbuild/rules_nodejs.git",
+    tag = "0.15.0",
 )
 
-<span class="pl-en">load</span>(<span class="pl-s">"@build_bazel_rules_nodejs//:package.bzl"</span>, <span class="pl-s">"rules_nodejs_dependencies"</span>)
-<span class="pl-en">rules_nodejs_dependencies</span>()
+load("@build_bazel_rules_nodejs//:package.bzl", "rules_nodejs_dependencies")
+rules_nodejs_dependencies()
 
-<span class="pl-en">load</span>(<span class="pl-s">"@build_bazel_rules_nodejs//:defs.bzl"</span>, <span class="pl-s">"node_repositories"</span>)
+load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories")
 
-<span class="pl-c"># By default, the Node and Yarn versions you have installed locally will be</span>
-<span class="pl-c"># ignored, and Bazel will install a separate version instead. This helps</span>
-<span class="pl-c"># achieve consistency across teams.</span>
-<span class="pl-c">#</span>
-<span class="pl-c"># See https://github.com/bazelbuild/rules_nodejs if you'd like to use your</span>
-<span class="pl-c"># local Node and Yarn binaries instead.</span>
-<span class="pl-en">node_repositories</span>(<span class="pl-s1">package_json</span> <span class="pl-c1">=</span> [])</pre></div>
+# By default, the Node and Yarn versions you have installed locally will be
+# ignored, and Bazel will install a separate version instead. This helps
+# achieve consistency across teams.
+#
+# See https://github.com/bazelbuild/rules_nodejs if you'd like to use your
+# local Node and Yarn binaries instead.
+node_repositories(package_json = [])
+</code></pre></div>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Basic example</h2><a id="user-content-basic-example" class="anchor" aria-label="Permalink: Basic example" href="#basic-example"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">Suppose you have the following directory structure:</p>
 <div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="[workspace]/
@@ -99,17 +100,18 @@ node_repositories(package_json = [])"><pre><span class="pl-en">load</span>(<span
       constants.js
 </code></pre></div>
 <p dir="auto"><code>package.json</code></p>
-<div class="highlight highlight-source-json notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="{
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="{
   &quot;dependencies&quot;: {
     &quot;textbuilder&quot;: &quot;^1.0.3&quot;
   }
-}"><pre>{
-  <span class="pl-ent">"dependencies"</span>: {
-    <span class="pl-ent">"textbuilder"</span>: <span class="pl-s"><span class="pl-pds">"</span>^1.0.3<span class="pl-pds">"</span></span>
+}"><pre lang="json" class="notranslate"><code>{
+  "dependencies": {
+    "textbuilder": "^1.0.3"
   }
-}</pre></div>
+}
+</code></pre></div>
 <p dir="auto"><code>BUILD.bazel</code></p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="package(default_visibility = [&quot;//visibility:public&quot;])
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="package(default_visibility = [&quot;//visibility:public&quot;])
 
 load(&quot;@bazel_javascript//:defs.bzl&quot;, &quot;js_binary&quot;, &quot;npm_packages&quot;)
 
@@ -123,29 +125,31 @@ npm_packages(
   name = &quot;packages&quot;,
   package_json = &quot;:package.json&quot;,
   yarn_lock = &quot;:yarn.lock&quot;,
-)"><pre><span class="pl-en">package</span>(<span class="pl-s1">default_visibility</span> <span class="pl-c1">=</span> [<span class="pl-s">"//visibility:public"</span>])
+)"><pre lang="python" class="notranslate"><code>package(default_visibility = ["//visibility:public"])
 
-<span class="pl-en">load</span>(<span class="pl-s">"@bazel_javascript//:defs.bzl"</span>, <span class="pl-s">"js_binary"</span>, <span class="pl-s">"npm_packages"</span>)
+load("@bazel_javascript//:defs.bzl", "js_binary", "npm_packages")
 
-<span class="pl-en">js_binary</span>(
-  <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"app"</span>,
-  <span class="pl-s1">lib</span> <span class="pl-c1">=</span> <span class="pl-s">"//src:main"</span>,
-  <span class="pl-s1">entry</span> <span class="pl-c1">=</span> <span class="pl-s">"main.js"</span>,
+js_binary(
+  name = "app",
+  lib = "//src:main",
+  entry = "main.js",
 )
 
-<span class="pl-en">npm_packages</span>(
-  <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"packages"</span>,
-  <span class="pl-s1">package_json</span> <span class="pl-c1">=</span> <span class="pl-s">":package.json"</span>,
-  <span class="pl-s1">yarn_lock</span> <span class="pl-c1">=</span> <span class="pl-s">":yarn.lock"</span>,
-)</pre></div>
+npm_packages(
+  name = "packages",
+  package_json = ":package.json",
+  yarn_lock = ":yarn.lock",
+)
+</code></pre></div>
 <p dir="auto"><code>src/main.js</code></p>
-<div class="highlight highlight-source-js notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="import { GREETING } from &quot;./util/constants&quot;;
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="import { GREETING } from &quot;./util/constants&quot;;
 
-console.log(GREETING);"><pre><span class="pl-k">import</span> <span class="pl-kos">{</span> <span class="pl-c1">GREETING</span> <span class="pl-kos">}</span> <span class="pl-k">from</span> <span class="pl-s">"./util/constants"</span><span class="pl-kos">;</span>
+console.log(GREETING);"><pre lang="javascript" class="notranslate"><code>import { GREETING } from "./util/constants";
 
-<span class="pl-smi">console</span><span class="pl-kos">.</span><span class="pl-en">log</span><span class="pl-kos">(</span><span class="pl-c1">GREETING</span><span class="pl-kos">)</span><span class="pl-kos">;</span></pre></div>
+console.log(GREETING);
+</code></pre></div>
 <p dir="auto"><code>src/BUILD.bazel</code></p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="package(default_visibility = [&quot;//visibility:public&quot;])
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="package(default_visibility = [&quot;//visibility:public&quot;])
 
 load(&quot;@bazel_javascript//:defs.bzl&quot;, &quot;js_library&quot;)
 
@@ -157,31 +161,33 @@ js_library(
   deps = [
     &quot;//src/util:constants&quot;,
   ],
-)"><pre><span class="pl-en">package</span>(<span class="pl-s1">default_visibility</span> <span class="pl-c1">=</span> [<span class="pl-s">"//visibility:public"</span>])
+)"><pre lang="python" class="notranslate"><code>package(default_visibility = ["//visibility:public"])
 
-<span class="pl-en">load</span>(<span class="pl-s">"@bazel_javascript//:defs.bzl"</span>, <span class="pl-s">"js_library"</span>)
+load("@bazel_javascript//:defs.bzl", "js_library")
 
-<span class="pl-en">js_library</span>(
-  <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"main"</span>,
-  <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> [
-    <span class="pl-s">"main.js"</span>,
+js_library(
+  name = "main",
+  srcs = [
+    "main.js",
   ],
-  <span class="pl-s1">deps</span> <span class="pl-c1">=</span> [
-    <span class="pl-s">"//src/util:constants"</span>,
+  deps = [
+    "//src/util:constants",
   ],
-)</pre></div>
+)
+</code></pre></div>
 <p dir="auto"><code>src/util/constants.js</code></p>
-<div class="highlight highlight-source-js notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="import TextBuilder from &quot;textbuilder&quot;;
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="import TextBuilder from &quot;textbuilder&quot;;
 
 const t = new TextBuilder();
 t.append(&quot;Hello &quot;, process.argv[2] || &quot;Daniel&quot;);
-export const GREETING = t.build();"><pre><span class="pl-k">import</span> <span class="pl-v">TextBuilder</span> <span class="pl-k">from</span> <span class="pl-s">"textbuilder"</span><span class="pl-kos">;</span>
+export const GREETING = t.build();"><pre lang="javascript" class="notranslate"><code>import TextBuilder from "textbuilder";
 
-<span class="pl-k">const</span> <span class="pl-s1">t</span> <span class="pl-c1">=</span> <span class="pl-k">new</span> <span class="pl-v">TextBuilder</span><span class="pl-kos">(</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
-<span class="pl-s1">t</span><span class="pl-kos">.</span><span class="pl-en">append</span><span class="pl-kos">(</span><span class="pl-s">"Hello "</span><span class="pl-kos">,</span> <span class="pl-s1">process</span><span class="pl-kos">.</span><span class="pl-c1">argv</span><span class="pl-kos">[</span><span class="pl-c1">2</span><span class="pl-kos">]</span> <span class="pl-c1">||</span> <span class="pl-s">"Daniel"</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
-<span class="pl-k">export</span> <span class="pl-k">const</span> <span class="pl-c1">GREETING</span> <span class="pl-c1">=</span> <span class="pl-s1">t</span><span class="pl-kos">.</span><span class="pl-en">build</span><span class="pl-kos">(</span><span class="pl-kos">)</span><span class="pl-kos">;</span></pre></div>
+const t = new TextBuilder();
+t.append("Hello ", process.argv[2] || "Daniel");
+export const GREETING = t.build();
+</code></pre></div>
 <p dir="auto"><code>src/util/BUILD.bazel</code></p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="package(default_visibility = [&quot;//visibility:public&quot;])
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="package(default_visibility = [&quot;//visibility:public&quot;])
 
 load(&quot;@bazel_javascript//:defs.bzl&quot;, &quot;js_library&quot;)
 
@@ -193,21 +199,22 @@ js_library(
   deps = [
     &quot;//:packages&quot;,
   ],
-)"><pre><span class="pl-en">package</span>(<span class="pl-s1">default_visibility</span> <span class="pl-c1">=</span> [<span class="pl-s">"//visibility:public"</span>])
+)"><pre lang="python" class="notranslate"><code>package(default_visibility = ["//visibility:public"])
 
-<span class="pl-en">load</span>(<span class="pl-s">"@bazel_javascript//:defs.bzl"</span>, <span class="pl-s">"js_library"</span>)
+load("@bazel_javascript//:defs.bzl", "js_library")
 
-<span class="pl-en">js_library</span>(
-  <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"constants"</span>,
-  <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> [
-    <span class="pl-s">"constants.js"</span>,
+js_library(
+  name = "constants",
+  srcs = [
+    "constants.js",
   ],
-  <span class="pl-s1">deps</span> <span class="pl-c1">=</span> [
-    <span class="pl-s">"//:packages"</span>,
+  deps = [
+    "//:packages",
   ],
-)</pre></div>
+)
+</code></pre></div>
 <p dir="auto">Run and build the binary:</p>
-<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="$ bazel run //:app John
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="$ bazel run //:app John
 INFO: Analysed target //:app (0 packages loaded).
 INFO: Found 1 target...
 Target //:app up-to-date:
@@ -216,7 +223,7 @@ INFO: Elapsed time: 0.140s, Critical Path: 0.00s
 INFO: Build completed successfully, 1 total action
 
 INFO: Running command line: bazel-bin/app.js John
-Hello John"><pre>$ bazel run //:app John
+Hello John"><pre lang="sh" class="notranslate"><code>$ bazel run //:app John
 INFO: Analysed target //:app (0 packages loaded).
 INFO: Found 1 target...
 Target //:app up-to-date:
@@ -224,19 +231,21 @@ Target //:app up-to-date:
 INFO: Elapsed time: 0.140s, Critical Path: 0.00s
 INFO: Build completed successfully, 1 total action
 
-INFO: Running <span class="pl-c1">command</span> line: bazel-bin/app.js John
-Hello John</pre></div>
+INFO: Running command line: bazel-bin/app.js John
+Hello John
+</code></pre></div>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Rules</h2><a id="user-content-rules-1" class="anchor" aria-label="Permalink: Rules" href="#rules-1"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">js_library</h3><a id="user-content-js_library" class="anchor" aria-label="Permalink: js_library" href="#js_library"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="js_library(
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="js_library(
   name,
   srcs,
   deps = [],
-)"><pre><span class="pl-en">js_library</span>(
-  <span class="pl-s1">name</span>,
-  <span class="pl-s1">srcs</span>,
-  <span class="pl-s1">deps</span> <span class="pl-c1">=</span> [],
-)</pre></div>
+)"><pre lang="python" class="notranslate"><code>js_library(
+  name,
+  srcs,
+  deps = [],
+)
+</code></pre></div>
 <p dir="auto">Used to represent a set of JavaScript files and their dependencies.</p>
 <markdown-accessiblity-table><table>
   <thead>
@@ -270,7 +279,8 @@ Hello John</pre></div>
   </tbody>
 </table></markdown-accessiblity-table>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">ts_library</h3><a id="user-content-ts_library" class="anchor" aria-label="Permalink: ts_library" href="#ts_library"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="ts_library(name, srcs, deps = [], tsconfig = ...)"><pre><span class="pl-en">ts_library</span>(<span class="pl-s1">name</span>, <span class="pl-s1">srcs</span>, <span class="pl-s1">deps</span> <span class="pl-c1">=</span> [], <span class="pl-s1">tsconfig</span> <span class="pl-c1">=</span> ...)</pre></div>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="ts_library(name, srcs, deps = [], tsconfig = ...)"><pre lang="python" class="notranslate"><code>ts_library(name, srcs, deps = [], tsconfig = ...)
+</code></pre></div>
 <p dir="auto">Used to generate the compiled JavaScript and declaration files for a set of
 TypeScript source files.</p>
 <markdown-accessiblity-table><table>
@@ -315,7 +325,7 @@ TypeScript source files.</p>
   </tbody>
 </table></markdown-accessiblity-table>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">web_bundle</h3><a id="user-content-web_bundle" class="anchor" aria-label="Permalink: web_bundle" href="#web_bundle"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="web_bundle(
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="web_bundle(
   name,
   lib,
   entry,
@@ -325,17 +335,18 @@ TypeScript source files.</p>
   public_path = &quot;&quot;,
   library_name = &quot;&quot;,
   library_target = &quot;umd&quot;,
-)"><pre><span class="pl-en">web_bundle</span>(
-  <span class="pl-s1">name</span>,
-  <span class="pl-s1">lib</span>,
-  <span class="pl-s1">entry</span>,
-  <span class="pl-s1">html_template</span>,
-  <span class="pl-s1">mode</span> <span class="pl-c1">=</span> <span class="pl-s">"none"</span>,
-  <span class="pl-s1">split_chunks</span> <span class="pl-c1">=</span> <span class="pl-c1">0</span>,
-  <span class="pl-s1">public_path</span> <span class="pl-c1">=</span> <span class="pl-s">""</span>,
-  <span class="pl-s1">library_name</span> <span class="pl-c1">=</span> <span class="pl-s">""</span>,
-  <span class="pl-s1">library_target</span> <span class="pl-c1">=</span> <span class="pl-s">"umd"</span>,
-)</pre></div>
+)"><pre lang="python" class="notranslate"><code>web_bundle(
+  name,
+  lib,
+  entry,
+  html_template,
+  mode = "none",
+  split_chunks = 0,
+  public_path = "",
+  library_name = "",
+  library_target = "umd",
+)
+</code></pre></div>
 <p dir="auto">Used to compile a <code>js_library</code> to a JavaScript bundle to include in an HTML page.</p>
 <p dir="auto">You can run a webpack-dev-server with <code>bazel run //target_server</code> (append <code>_server</code> to your target name).
 Live reloading is supported if you use <a href="https://github.com/bazelbuild/bazel-watcher"><code>ibazel</code></a>.</p>
@@ -437,7 +448,8 @@ Live reloading is supported if you use <a href="https://github.com/bazelbuild/ba
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">js_binary</h3><a id="user-content-js_binary" class="anchor" aria-label="Permalink: js_binary" href="#js_binary"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">Similar to <code>web_bundle</code>, but produces an executable JavaScript file (using Node).</p>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">js_script</h3><a id="user-content-js_script" class="anchor" aria-label="Permalink: js_script" href="#js_script"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="js_script(cmd, lib)"><pre><span class="pl-en">js_script</span>(<span class="pl-s1">cmd</span>, <span class="pl-s1">lib</span>)</pre></div>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="js_script(cmd, lib)"><pre lang="python" class="notranslate"><code>js_script(cmd, lib)
+</code></pre></div>
 <p dir="auto">Used to run a script (similarly to <code>scripts</code> in <code>package.json</code>).</p>
 <markdown-accessiblity-table><table>
   <thead>
@@ -462,10 +474,12 @@ Live reloading is supported if you use <a href="https://github.com/bazelbuild/ba
   </tbody>
 </table></markdown-accessiblity-table>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">js_test</h3><a id="user-content-js_test" class="anchor" aria-label="Permalink: js_test" href="#js_test"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="js_test(cmd, lib)"><pre><span class="pl-en">js_test</span>(<span class="pl-s1">cmd</span>, <span class="pl-s1">lib</span>)</pre></div>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="js_test(cmd, lib)"><pre lang="python" class="notranslate"><code>js_test(cmd, lib)
+</code></pre></div>
 <p dir="auto">Used to define a test. Arguments are identical to <code>js_script</code>.</p>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">npm_packages</h3><a id="user-content-npm_packages" class="anchor" aria-label="Permalink: npm_packages" href="#npm_packages"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="npm_packages(name, package_json, yarn_lock)"><pre><span class="pl-en">npm_packages</span>(<span class="pl-s1">name</span>, <span class="pl-s1">package_json</span>, <span class="pl-s1">yarn_lock</span>)</pre></div>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="npm_packages(name, package_json, yarn_lock)"><pre lang="python" class="notranslate"><code>npm_packages(name, package_json, yarn_lock)
+</code></pre></div>
 <p dir="auto">Used to define NPM dependencies. Bazel will download the packages in its own internal directory.</p>
 <markdown-accessiblity-table><table>
   <thead>
@@ -495,7 +509,8 @@ Live reloading is supported if you use <a href="https://github.com/bazelbuild/ba
   </tbody>
 </table></markdown-accessiblity-table>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">npm_binary</h3><a id="user-content-npm_binary" class="anchor" aria-label="Permalink: npm_binary" href="#npm_binary"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="npm_binary(install, binary)"><pre><span class="pl-en">npm_binary</span>(<span class="pl-s1">install</span>, <span class="pl-s1">binary</span>)</pre></div>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="npm_binary(install, binary)"><pre lang="python" class="notranslate"><code>npm_binary(install, binary)
+</code></pre></div>
 <p dir="auto">Used to invoke an NPM binary (from <code>node_modules/.bin/[binary]</code>).</p>
 <markdown-accessiblity-table><table>
   <thead>
