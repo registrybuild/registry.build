@@ -199,7 +199,7 @@ is that this rule does not intend to pull-in all static dependencies.</p>
 </tr>
 <tr>
 <td align="left"><a id="user-content-cc_archive-implementation_deps"></a>implementation_deps</td>
-<td align="left">(Not yet implemented) cc_common attribute for passing on implementation_deps is currently private.</td>
+<td align="left">The list of other libraries that the library target depends on. Unlike with deps, the headers and include paths of these libraries (and all their transitive deps) are only used for compilation of this library, and not libraries that depend on it. Libraries specified with implementation_deps are still linked in binary targets that depend on this library.</td>
 <td align="left"><a href="https://bazel.build/concepts/labels" rel="nofollow">List of labels</a></td>
 <td align="left">optional</td>
 <td align="left"><code>[]</code></td>
@@ -234,24 +234,24 @@ is that this rule does not intend to pull-in all static dependencies.</p>
 </tr>
 <tr>
 <td align="left"><a id="user-content-cc_archive-linkshared"></a>linkshared</td>
-<td align="left">(Will not implemented) As there is clear distinction between targets that are SOLs and archives, the parameter is not applicable.</td>
+<td align="left">Create a shared library. To enable this attribute, include linkshared=True in your rule. By default this option is off.</td>
 <td align="left">Boolean</td>
 <td align="left">optional</td>
 <td align="left"><code>False</code></td>
 </tr>
 <tr>
 <td align="left"><a id="user-content-cc_archive-linkstamp"></a>linkstamp</td>
-<td align="left">(Not yet implemented)</td>
-<td align="left">List of strings</td>
+<td align="left">Simultaneously compiles and links the specified C++ source file into the final binary. This trickery is required to introduce timestamp information into binaries; if we compiled the source file to an object file in the usual way, the timestamp would be incorrect. A linkstamp compilation may not include any particular set of compiler flags and so should not depend on any particular header, compiler option, or other build variable. This option should only be needed in the base package.</td>
+<td align="left"><a href="https://bazel.build/concepts/labels" rel="nofollow">Label</a></td>
 <td align="left">optional</td>
-<td align="left"><code>[]</code></td>
+<td align="left"><code>None</code></td>
 </tr>
 <tr>
 <td align="left"><a id="user-content-cc_archive-linkstatic"></a>linkstatic</td>
-<td align="left">(Will not implement) As there is clear distinction between targets that are SOLs and archives, the parameter is not applicable.</td>
+<td align="left">If enabled and this is a binary or test, this option tells the build tool to link in .a's instead of .so's for user libraries whenever possible. System libraries such as libc (but not the C/C++ runtime libraries, see below) are still linked dynamically, as are libraries for which there is no static library. So the resulting executable will still be dynamically linked, hence only mostly static. The linkstatic attribute has a different meaning if used on a cc_library() rule. For a C++ library, linkstatic=True indicates that only static linking is allowed, so no .so will be produced. linkstatic=False does not prevent static libraries from being created. The attribute is meant to control the creation of dynamic libraries.</td>
 <td align="left">Boolean</td>
 <td align="left">optional</td>
-<td align="left"><code>True</code></td>
+<td align="left"><code>False</code></td>
 </tr>
 <tr>
 <td align="left"><a id="user-content-cc_archive-local_defines"></a>local_defines</td>
@@ -262,21 +262,21 @@ is that this rule does not intend to pull-in all static dependencies.</p>
 </tr>
 <tr>
 <td align="left"><a id="user-content-cc_archive-module_interfaces"></a>module_interfaces</td>
-<td align="left">(Not yet implemented)</td>
+<td align="left">The list of files that are regarded as C++20 Modules Interface.<br><br>C++ Standard has no restriction about module interface file extension * Clang use cppm * GCC can use any source file extension * MSVC use ixx<br><br>The use is guarded by the flag --experimental_cpp_modules.</td>
 <td align="left"><a href="https://bazel.build/concepts/labels" rel="nofollow">List of labels</a></td>
 <td align="left">optional</td>
 <td align="left"><code>[]</code></td>
 </tr>
 <tr>
 <td align="left"><a id="user-content-cc_archive-nocopts"></a>nocopts</td>
-<td align="left">(Not yet implemented)</td>
+<td align="left">Remove matching options from the C++ compilation command. Subject to "Make" variable substitution. The value of this attribute is interpreted as a regular expression. Any preexisting COPTS that match this regular expression (including values explicitly specified in the rule's copts attribute) will be removed from COPTS for purposes of compiling this rule. This attribute should not be needed or used outside of third_party. The values are not preprocessed in any way other than the "Make" variable substitution.</td>
 <td align="left">String</td>
 <td align="left">optional</td>
 <td align="left"><code>""</code></td>
 </tr>
 <tr>
 <td align="left"><a id="user-content-cc_archive-reexport_deps"></a>reexport_deps</td>
-<td align="left">(Not yet implemented)</td>
+<td align="left">-</td>
 <td align="left"><a href="https://bazel.build/concepts/labels" rel="nofollow">List of labels</a></td>
 <td align="left">optional</td>
 <td align="left"><code>[]</code></td>
@@ -290,14 +290,14 @@ is that this rule does not intend to pull-in all static dependencies.</p>
 </tr>
 <tr>
 <td align="left"><a id="user-content-cc_archive-textual_hdrs"></a>textual_hdrs</td>
-<td align="left">(Not yet implemented)</td>
+<td align="left">The list of header files published by this library to be textually included by sources in dependent rules.<br><br>This is the location for declaring header files that cannot be compiled on their own; that is, they always need to be textually included by other source files to build valid code.</td>
 <td align="left"><a href="https://bazel.build/concepts/labels" rel="nofollow">List of labels</a></td>
 <td align="left">optional</td>
 <td align="left"><code>[]</code></td>
 </tr>
 <tr>
 <td align="left"><a id="user-content-cc_archive-win_def_file"></a>win_def_file</td>
-<td align="left">(Will not implement) Support for Windows is not in scope of current development.</td>
+<td align="left">The Windows DEF file to be passed to linker.<br><br>This attribute should only be used when Windows is the target platform. It can be used to export symbols during linking a shared library.</td>
 <td align="left"><a href="https://bazel.build/concepts/labels" rel="nofollow">Label</a></td>
 <td align="left">optional</td>
 <td align="left"><code>None</code></td>
@@ -432,7 +432,7 @@ available during binary execution.</p>
 <td align="left">Control linking of extra libraries.<br><br>By default, C++ binaries are linked against //tools/cpp:link_extra_lib, which by default depends on the label flag //tools/cpp:link_extra_libs. Without setting the flag, this library is empty by default. Setting the label flag allows linking optional dependencies, such as overrides for weak symbols, interceptors for shared library functions, or special runtime libraries (for malloc replacements, prefer malloc or --custom_malloc). Setting this attribute to None disables this behaviour.</td>
 <td align="left"><a href="https://bazel.build/concepts/labels" rel="nofollow">Label</a></td>
 <td align="left">optional</td>
-<td align="left"><code>"@bazel_tools//tools/cpp:link_extra_lib"</code></td>
+<td align="left"><code>None</code></td>
 </tr>
 <tr>
 <td align="left"><a id="user-content-cc_bin-linkopts"></a>linkopts</td>
@@ -443,17 +443,17 @@ available during binary execution.</p>
 </tr>
 <tr>
 <td align="left"><a id="user-content-cc_bin-linkshared"></a>linkshared</td>
-<td align="left">(Will not implemented) As there is clear distinction between targets that are SOLs and archives, the parameter is not applicable.</td>
+<td align="left">Create a shared library. To enable this attribute, include linkshared=True in your rule. By default this option is off.</td>
 <td align="left">Boolean</td>
 <td align="left">optional</td>
 <td align="left"><code>False</code></td>
 </tr>
 <tr>
 <td align="left"><a id="user-content-cc_bin-linkstatic"></a>linkstatic</td>
-<td align="left">(Will not implement) As there is clear distinction between targets that are SOLs and archives, the parameter is not applicable.</td>
+<td align="left">If enabled and this is a binary or test, this option tells the build tool to link in .a's instead of .so's for user libraries whenever possible. System libraries such as libc (but not the C/C++ runtime libraries, see below) are still linked dynamically, as are libraries for which there is no static library. So the resulting executable will still be dynamically linked, hence only mostly static. The linkstatic attribute has a different meaning if used on a cc_library() rule. For a C++ library, linkstatic=True indicates that only static linking is allowed, so no .so will be produced. linkstatic=False does not prevent static libraries from being created. The attribute is meant to control the creation of dynamic libraries.</td>
 <td align="left">Boolean</td>
 <td align="left">optional</td>
-<td align="left"><code>True</code></td>
+<td align="left"><code>False</code></td>
 </tr>
 <tr>
 <td align="left"><a id="user-content-cc_bin-local_defines"></a>local_defines</td>
@@ -464,28 +464,28 @@ available during binary execution.</p>
 </tr>
 <tr>
 <td align="left"><a id="user-content-cc_bin-malloc"></a>malloc</td>
-<td align="left">(Not yet implemented)</td>
+<td align="left">Override the default dependency on malloc.<br><br>By default, C++ binaries are linked against //tools/cpp:malloc, which is an empty library so the binary ends up using libc malloc. This label must refer to a cc_library. If compilation is for a non-C++ rule, this option has no effect. The value of this attribute is ignored if linkshared=True is specified.</td>
 <td align="left"><a href="https://bazel.build/concepts/labels" rel="nofollow">Label</a></td>
 <td align="left">optional</td>
-<td align="left"><code>"@bazel_tools//tools/cpp:malloc"</code></td>
+<td align="left"><code>None</code></td>
 </tr>
 <tr>
 <td align="left"><a id="user-content-cc_bin-module_interfaces"></a>module_interfaces</td>
-<td align="left">(Not yet implemented)</td>
+<td align="left">The list of files that are regarded as C++20 Modules Interface.<br><br>C++ Standard has no restriction about module interface file extension * Clang use cppm * GCC can use any source file extension * MSVC use ixx<br><br>The use is guarded by the flag --experimental_cpp_modules.</td>
 <td align="left"><a href="https://bazel.build/concepts/labels" rel="nofollow">List of labels</a></td>
 <td align="left">optional</td>
 <td align="left"><code>[]</code></td>
 </tr>
 <tr>
 <td align="left"><a id="user-content-cc_bin-nocopts"></a>nocopts</td>
-<td align="left">(Not yet implemented)</td>
+<td align="left">Remove matching options from the C++ compilation command. Subject to "Make" variable substitution. The value of this attribute is interpreted as a regular expression. Any preexisting COPTS that match this regular expression (including values explicitly specified in the rule's copts attribute) will be removed from COPTS for purposes of compiling this rule. This attribute should not be needed or used outside of third_party. The values are not preprocessed in any way other than the "Make" variable substitution.</td>
 <td align="left">String</td>
 <td align="left">optional</td>
 <td align="left"><code>""</code></td>
 </tr>
 <tr>
 <td align="left"><a id="user-content-cc_bin-reexport_deps"></a>reexport_deps</td>
-<td align="left">(Not yet implemented)</td>
+<td align="left">-</td>
 <td align="left"><a href="https://bazel.build/concepts/labels" rel="nofollow">List of labels</a></td>
 <td align="left">optional</td>
 <td align="left"><code>[]</code></td>
@@ -499,7 +499,7 @@ available during binary execution.</p>
 </tr>
 <tr>
 <td align="left"><a id="user-content-cc_bin-win_def_file"></a>win_def_file</td>
-<td align="left">(Will not implement) Support for Windows is not in scope of current development.</td>
+<td align="left">The Windows DEF file to be passed to linker.<br><br>This attribute should only be used when Windows is the target platform. It can be used to export symbols during linking a shared library.</td>
 <td align="left"><a href="https://bazel.build/concepts/labels" rel="nofollow">Label</a></td>
 <td align="left">optional</td>
 <td align="left"><code>None</code></td>
@@ -573,14 +573,14 @@ be used with their intended include paths.</p>
 </tr>
 <tr>
 <td align="left"><a id="user-content-cc_hdrs-module_interfaces"></a>module_interfaces</td>
-<td align="left">(Not yet implemented)</td>
+<td align="left">The list of files that are regarded as C++20 Modules Interface.<br><br>C++ Standard has no restriction about module interface file extension * Clang use cppm * GCC can use any source file extension * MSVC use ixx<br><br>The use is guarded by the flag --experimental_cpp_modules.</td>
 <td align="left"><a href="https://bazel.build/concepts/labels" rel="nofollow">List of labels</a></td>
 <td align="left">optional</td>
 <td align="left"><code>[]</code></td>
 </tr>
 <tr>
 <td align="left"><a id="user-content-cc_hdrs-win_def_file"></a>win_def_file</td>
-<td align="left">(Will not implement) Support for Windows is not in scope of current development.</td>
+<td align="left">The Windows DEF file to be passed to linker.<br><br>This attribute should only be used when Windows is the target platform. It can be used to export symbols during linking a shared library.</td>
 <td align="left"><a href="https://bazel.build/concepts/labels" rel="nofollow">Label</a></td>
 <td align="left">optional</td>
 <td align="left"><code>None</code></td>
@@ -667,10 +667,10 @@ cc_so(<a href="#cc_so-name">name</a>, <a href="#cc_so-deps">deps</a>, <a href="#
 </tr>
 <tr>
 <td align="left"><a id="user-content-cc_so-alwayslink"></a>alwayslink</td>
-<td align="left">(Not yet implemented)</td>
+<td align="left">If 1, any binary that depends (directly or indirectly) on this C++ precompiled library will link in all the object files archived in the static library, even if some contain no symbols referenced by the binary. This is useful if your code isn't explicitly called by code in the binary, e.g., if your code registers to receive some callback provided by some service.</td>
 <td align="left">Boolean</td>
 <td align="left">optional</td>
-<td align="left"><code>True</code></td>
+<td align="left"><code>False</code></td>
 </tr>
 <tr>
 <td align="left"><a id="user-content-cc_so-conlyopts"></a>conlyopts</td>
@@ -709,7 +709,7 @@ cc_so(<a href="#cc_so-name">name</a>, <a href="#cc_so-deps">deps</a>, <a href="#
 </tr>
 <tr>
 <td align="left"><a id="user-content-cc_so-exports_filter"></a>exports_filter</td>
-<td align="left">(Not yet implemented)</td>
+<td align="left">This attribute contains a list of targets that are claimed to be exported by the current shared library.<br><br>Any target deps is already understood to be exported by the shared library. This attribute should be used to list any targets that are exported by the shared library but are transitive dependencies of deps.<br><br>Note that this attribute is not actually adding a dependency edge to those targets, the dependency edge should instead be created by deps.The entries in this attribute are just strings. Keep in mind that when placing a target in this attribute, this is considered a claim that the shared library exports the symbols from that target. The cc_shared_library logic doesn't actually handle telling the linker which symbols should be exported.<br><br>The following syntax is allowed:<br><br>//foo:<strong>pkg</strong> to account for any target in foo/BUILD<br><br>//foo:<strong>subpackages</strong> to account for any target in foo/BUILD or any other package below foo/ like foo/bar/BUILD</td>
 <td align="left">List of strings</td>
 <td align="left">optional</td>
 <td align="left"><code>[]</code></td>
@@ -723,7 +723,7 @@ cc_so(<a href="#cc_so-name">name</a>, <a href="#cc_so-deps">deps</a>, <a href="#
 </tr>
 <tr>
 <td align="left"><a id="user-content-cc_so-implementation_deps"></a>implementation_deps</td>
-<td align="left">(Not yet implemented) cc_common attribute for passing on implementation_deps is currently private.</td>
+<td align="left">The list of other libraries that the library target depends on. Unlike with deps, the headers and include paths of these libraries (and all their transitive deps) are only used for compilation of this library, and not libraries that depend on it. Libraries specified with implementation_deps are still linked in binary targets that depend on this library.</td>
 <td align="left"><a href="https://bazel.build/concepts/labels" rel="nofollow">List of labels</a></td>
 <td align="left">optional</td>
 <td align="left"><code>[]</code></td>
@@ -754,7 +754,7 @@ cc_so(<a href="#cc_so-name">name</a>, <a href="#cc_so-deps">deps</a>, <a href="#
 <td align="left">Control linking of extra libraries.<br><br>By default, C++ binaries are linked against //tools/cpp:link_extra_lib, which by default depends on the label flag //tools/cpp:link_extra_libs. Without setting the flag, this library is empty by default. Setting the label flag allows linking optional dependencies, such as overrides for weak symbols, interceptors for shared library functions, or special runtime libraries (for malloc replacements, prefer malloc or --custom_malloc). Setting this attribute to None disables this behaviour.</td>
 <td align="left"><a href="https://bazel.build/concepts/labels" rel="nofollow">Label</a></td>
 <td align="left">optional</td>
-<td align="left"><code>"@bazel_tools//tools/cpp:link_extra_lib"</code></td>
+<td align="left"><code>None</code></td>
 </tr>
 <tr>
 <td align="left"><a id="user-content-cc_so-linkopts"></a>linkopts</td>
@@ -765,24 +765,24 @@ cc_so(<a href="#cc_so-name">name</a>, <a href="#cc_so-deps">deps</a>, <a href="#
 </tr>
 <tr>
 <td align="left"><a id="user-content-cc_so-linkshared"></a>linkshared</td>
-<td align="left">(Will not implemented) As there is clear distinction between targets that are SOLs and archives, the parameter is not applicable.</td>
+<td align="left">Create a shared library. To enable this attribute, include linkshared=True in your rule. By default this option is off.</td>
 <td align="left">Boolean</td>
 <td align="left">optional</td>
 <td align="left"><code>False</code></td>
 </tr>
 <tr>
 <td align="left"><a id="user-content-cc_so-linkstamp"></a>linkstamp</td>
-<td align="left">(Not yet implemented)</td>
-<td align="left">List of strings</td>
+<td align="left">Simultaneously compiles and links the specified C++ source file into the final binary. This trickery is required to introduce timestamp information into binaries; if we compiled the source file to an object file in the usual way, the timestamp would be incorrect. A linkstamp compilation may not include any particular set of compiler flags and so should not depend on any particular header, compiler option, or other build variable. This option should only be needed in the base package.</td>
+<td align="left"><a href="https://bazel.build/concepts/labels" rel="nofollow">Label</a></td>
 <td align="left">optional</td>
-<td align="left"><code>[]</code></td>
+<td align="left"><code>None</code></td>
 </tr>
 <tr>
 <td align="left"><a id="user-content-cc_so-linkstatic"></a>linkstatic</td>
-<td align="left">(Will not implement) As there is clear distinction between targets that are SOLs and archives, the parameter is not applicable.</td>
+<td align="left">If enabled and this is a binary or test, this option tells the build tool to link in .a's instead of .so's for user libraries whenever possible. System libraries such as libc (but not the C/C++ runtime libraries, see below) are still linked dynamically, as are libraries for which there is no static library. So the resulting executable will still be dynamically linked, hence only mostly static. The linkstatic attribute has a different meaning if used on a cc_library() rule. For a C++ library, linkstatic=True indicates that only static linking is allowed, so no .so will be produced. linkstatic=False does not prevent static libraries from being created. The attribute is meant to control the creation of dynamic libraries.</td>
 <td align="left">Boolean</td>
 <td align="left">optional</td>
-<td align="left"><code>True</code></td>
+<td align="left"><code>False</code></td>
 </tr>
 <tr>
 <td align="left"><a id="user-content-cc_so-local_defines"></a>local_defines</td>
@@ -793,21 +793,21 @@ cc_so(<a href="#cc_so-name">name</a>, <a href="#cc_so-deps">deps</a>, <a href="#
 </tr>
 <tr>
 <td align="left"><a id="user-content-cc_so-malloc"></a>malloc</td>
-<td align="left">(Not yet implemented)</td>
+<td align="left">Override the default dependency on malloc.<br><br>By default, C++ binaries are linked against //tools/cpp:malloc, which is an empty library so the binary ends up using libc malloc. This label must refer to a cc_library. If compilation is for a non-C++ rule, this option has no effect. The value of this attribute is ignored if linkshared=True is specified.</td>
 <td align="left"><a href="https://bazel.build/concepts/labels" rel="nofollow">Label</a></td>
 <td align="left">optional</td>
-<td align="left"><code>"@bazel_tools//tools/cpp:malloc"</code></td>
+<td align="left"><code>None</code></td>
 </tr>
 <tr>
 <td align="left"><a id="user-content-cc_so-module_interfaces"></a>module_interfaces</td>
-<td align="left">(Not yet implemented)</td>
+<td align="left">The list of files that are regarded as C++20 Modules Interface.<br><br>C++ Standard has no restriction about module interface file extension * Clang use cppm * GCC can use any source file extension * MSVC use ixx<br><br>The use is guarded by the flag --experimental_cpp_modules.</td>
 <td align="left"><a href="https://bazel.build/concepts/labels" rel="nofollow">List of labels</a></td>
 <td align="left">optional</td>
 <td align="left"><code>[]</code></td>
 </tr>
 <tr>
 <td align="left"><a id="user-content-cc_so-nocopts"></a>nocopts</td>
-<td align="left">(Not yet implemented)</td>
+<td align="left">Remove matching options from the C++ compilation command. Subject to "Make" variable substitution. The value of this attribute is interpreted as a regular expression. Any preexisting COPTS that match this regular expression (including values explicitly specified in the rule's copts attribute) will be removed from COPTS for purposes of compiling this rule. This attribute should not be needed or used outside of third_party. The values are not preprocessed in any way other than the "Make" variable substitution.</td>
 <td align="left">String</td>
 <td align="left">optional</td>
 <td align="left"><code>""</code></td>
@@ -835,14 +835,14 @@ cc_so(<a href="#cc_so-name">name</a>, <a href="#cc_so-deps">deps</a>, <a href="#
 </tr>
 <tr>
 <td align="left"><a id="user-content-cc_so-textual_hdrs"></a>textual_hdrs</td>
-<td align="left">(Not yet implemented)</td>
+<td align="left">The list of header files published by this library to be textually included by sources in dependent rules.<br><br>This is the location for declaring header files that cannot be compiled on their own; that is, they always need to be textually included by other source files to build valid code.</td>
 <td align="left"><a href="https://bazel.build/concepts/labels" rel="nofollow">List of labels</a></td>
 <td align="left">optional</td>
 <td align="left"><code>[]</code></td>
 </tr>
 <tr>
 <td align="left"><a id="user-content-cc_so-win_def_file"></a>win_def_file</td>
-<td align="left">(Will not implement) Support for Windows is not in scope of current development.</td>
+<td align="left">The Windows DEF file to be passed to linker.<br><br>This attribute should only be used when Windows is the target platform. It can be used to export symbols during linking a shared library.</td>
 <td align="left"><a href="https://bazel.build/concepts/labels" rel="nofollow">Label</a></td>
 <td align="left">optional</td>
 <td align="left"><code>None</code></td>
