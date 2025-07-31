@@ -1,48 +1,247 @@
-<div id="readme" class="" data-path="README"><div class="plain"><pre style="white-space: pre-wrap">This is the source code repository for RE2, a regular expression library.
+<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">RE2, a regular expression library</h1><a id="user-content-re2-a-regular-expression-library" class="anchor" aria-label="Permalink: RE2, a regular expression library" href="#re2-a-regular-expression-library"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">RE2 is an efficient, principled regular expression library
+that has been used in production at Google and many other places
+since 2006.</p>
+<p dir="auto"><em><strong>Safety is RE2's primary goal.</strong></em></p>
+<p dir="auto">RE2 was designed and implemented with an explicit goal of being able
+to handle regular expressions from untrusted users without risk.
+One of its primary guarantees is that the match time is linear in the
+length of the input string. It was also written with production concerns in mind:
+the parser, the compiler and the execution engines limit their memory usage
+by working within a configurable budget—failing gracefully when exhausted—and
+they avoid stack overflow by eschewing recursion.</p>
+<p dir="auto">It is not a goal to be faster than all other engines under all circumstances.
+Although RE2 guarantees a running time that is asymptotically linear in
+the length of the input, more complex expressions may incur larger constant factors;
+longer expressions increase the overhead required to handle those expressions safely.
+In a sense, RE2 is pessimistic where a backtracking engine is optimistic:
+A backtracking engine tests each alternative sequentially, making it fast when the first alternative is common.
+By contrast RE2 evaluates all alternatives in parallel, avoiding the performance penalty for the last alternative,
+at the cost of some overhead. This pessimism is what makes RE2 secure.</p>
+<p dir="auto">It is also not a goal to implement all of the features offered by Perl, PCRE and other engines.
+As a matter of principle, RE2 does not support constructs for which only backtracking solutions are known to exist.
+Thus, backreferences and look-around assertions are not supported.</p>
+<p dir="auto">For more information, please refer to Russ Cox's articles on regular expression theory and practice:</p>
+<ul dir="auto">
+<li><a href="https://swtch.com/~rsc/regexp/regexp1.html" rel="nofollow">Regular Expression Matching Can Be Simple And Fast</a></li>
+<li><a href="https://swtch.com/~rsc/regexp/regexp2.html" rel="nofollow">Regular Expression Matching: the Virtual Machine Approach</a></li>
+<li><a href="https://swtch.com/~rsc/regexp/regexp3.html" rel="nofollow">Regular Expression Matching in the Wild</a></li>
+</ul>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Syntax</h3><a id="user-content-syntax" class="anchor" aria-label="Permalink: Syntax" href="#syntax"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">In POSIX mode, RE2 accepts standard POSIX (egrep) syntax regular expressions.
+In Perl mode, RE2 accepts most Perl operators.  The only excluded ones are
+those that require backtracking (and its potential for exponential runtime)
+to implement.  These include backreferences (submatching is still okay)
+and generalized assertions.
+The <a href="https://github.com/google/re2/wiki/Syntax">Syntax wiki page</a>
+documents the supported Perl-mode syntax in detail.
+The default is Perl mode.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">C++ API</h3><a id="user-content-c-api" class="anchor" aria-label="Permalink: C++ API" href="#c-api"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">RE2's native language is C++, although there are <a href="#ports-and-wrappers">ports and wrappers</a> listed below.</p>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Matching Interface</h4><a id="user-content-matching-interface" class="anchor" aria-label="Permalink: Matching Interface" href="#matching-interface"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">There are two basic operators:
+<code>RE2::FullMatch</code> requires the regexp to match the entire input text, and
+<code>RE2::PartialMatch</code> looks for a match for a substring of the input text,
+returning the leftmost-longest match in POSIX mode and the
+same match that Perl would have chosen in Perl mode.</p>
+<p dir="auto">Examples:</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="assert(RE2::FullMatch(&quot;hello&quot;, &quot;h.*o&quot;))
+assert(!RE2::FullMatch(&quot;hello&quot;, &quot;e&quot;))
 
-For documentation about how to install and use RE2,
-visit <a href="https://github.com/google/re2/">https://github.com/google/re2/</a>.
+assert(RE2::PartialMatch(&quot;hello&quot;, &quot;h.*o&quot;))
+assert(RE2::PartialMatch(&quot;hello&quot;, &quot;e&quot;))"><pre><span class="pl-en">assert</span>(RE2::FullMatch(<span class="pl-s"><span class="pl-pds">"</span>hello<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>h.*o<span class="pl-pds">"</span></span>))
+assert(!RE2::FullMatch(<span class="pl-s"><span class="pl-pds">"</span>hello<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>e<span class="pl-pds">"</span></span>))
 
-The short version is:
+assert(RE2::PartialMatch(<span class="pl-s"><span class="pl-pds">"</span>hello<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>h.*o<span class="pl-pds">"</span></span>))
+assert(RE2::PartialMatch(<span class="pl-s"><span class="pl-pds">"</span>hello<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>e<span class="pl-pds">"</span></span>))</pre></div>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Submatch Extraction</h4><a id="user-content-submatch-extraction" class="anchor" aria-label="Permalink: Submatch Extraction" href="#submatch-extraction"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Both matching functions take additional arguments in which submatches will be stored.
+The argument can be a <code>string*</code>, or an integer type, or the type <code>absl::string_view*</code>.
+(The <code>absl::string_view</code> type is very similar to the <code>std::string_view</code> type,
+but for historical reasons, RE2 uses the former.)
+A <code>string_view</code> is a pointer to the original input text, along with a count.
+It behaves like a string but doesn't carry its own storage.
+Like when using a pointer, when using a <code>string_view</code>
+you must be careful not to use it once the original text has been deleted or gone out of scope.</p>
+<p dir="auto">Examples:</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="// Successful parsing.
+int i;
+string s;
+assert(RE2::FullMatch(&quot;ruby:1234&quot;, &quot;(\\w+):(\\d+)&quot;, &amp;s, &amp;i));
+assert(s == &quot;ruby&quot;);
+assert(i == 1234);
 
+// Fails: &quot;ruby&quot; cannot be parsed as an integer.
+assert(!RE2::FullMatch(&quot;ruby&quot;, &quot;(.+)&quot;, &amp;i));
+
+// Success; does not extract the number.
+assert(RE2::FullMatch(&quot;ruby:1234&quot;, &quot;(\\w+):(\\d+)&quot;, &amp;s));
+
+// Success; skips NULL argument.
+assert(RE2::FullMatch(&quot;ruby:1234&quot;, &quot;(\\w+):(\\d+)&quot;, (void*)NULL, &amp;i));
+
+// Fails: integer overflow keeps value from being stored in i.
+assert(!RE2::FullMatch(&quot;ruby:123456789123&quot;, &quot;(\\w+):(\\d+)&quot;, &amp;s, &amp;i));"><pre><span class="pl-c"><span class="pl-c">//</span> Successful parsing.</span>
+<span class="pl-k">int</span> i;
+string s;
+<span class="pl-en">assert</span>(RE2::FullMatch(<span class="pl-s"><span class="pl-pds">"</span>ruby:1234<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>(<span class="pl-cce">\\</span>w+):(<span class="pl-cce">\\</span>d+)<span class="pl-pds">"</span></span>, &amp;s, &amp;i));
+<span class="pl-en">assert</span>(s == <span class="pl-s"><span class="pl-pds">"</span>ruby<span class="pl-pds">"</span></span>);
+<span class="pl-en">assert</span>(i == <span class="pl-c1">1234</span>);
+
+<span class="pl-c"><span class="pl-c">//</span> Fails: "ruby" cannot be parsed as an integer.</span>
+<span class="pl-en">assert</span>(!RE2::FullMatch(<span class="pl-s"><span class="pl-pds">"</span>ruby<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>(.+)<span class="pl-pds">"</span></span>, &amp;i));
+
+<span class="pl-c"><span class="pl-c">//</span> Success; does not extract the number.</span>
+<span class="pl-en">assert</span>(RE2::FullMatch(<span class="pl-s"><span class="pl-pds">"</span>ruby:1234<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>(<span class="pl-cce">\\</span>w+):(<span class="pl-cce">\\</span>d+)<span class="pl-pds">"</span></span>, &amp;s));
+
+<span class="pl-c"><span class="pl-c">//</span> Success; skips NULL argument.</span>
+<span class="pl-en">assert</span>(RE2::FullMatch(<span class="pl-s"><span class="pl-pds">"</span>ruby:1234<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>(<span class="pl-cce">\\</span>w+):(<span class="pl-cce">\\</span>d+)<span class="pl-pds">"</span></span>, (<span class="pl-k">void</span>*)NULL, &amp;i));
+
+<span class="pl-c"><span class="pl-c">//</span> Fails: integer overflow keeps value from being stored in i.</span>
+<span class="pl-en">assert</span>(!RE2::FullMatch(<span class="pl-s"><span class="pl-pds">"</span>ruby:123456789123<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>(<span class="pl-cce">\\</span>w+):(<span class="pl-cce">\\</span>d+)<span class="pl-pds">"</span></span>, &amp;s, &amp;i));</pre></div>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Pre-Compiled Regular Expressions</h4><a id="user-content-pre-compiled-regular-expressions" class="anchor" aria-label="Permalink: Pre-Compiled Regular Expressions" href="#pre-compiled-regular-expressions"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The examples above all recompile the regular expression on each call.
+Instead, you can compile it once to an RE2 object and reuse that object for each call.</p>
+<p dir="auto">Example:</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="RE2 re(&quot;(\\w+):(\\d+)&quot;);
+assert(re.ok());  // compiled; if not, see re.error();
+
+assert(RE2::FullMatch(&quot;ruby:1234&quot;, re, &amp;s, &amp;i));
+assert(RE2::FullMatch(&quot;ruby:1234&quot;, re, &amp;s));
+assert(RE2::FullMatch(&quot;ruby:1234&quot;, re, (void*)NULL, &amp;i));
+assert(!RE2::FullMatch(&quot;ruby:123456789123&quot;, re, &amp;s, &amp;i));"><pre>RE2 <span class="pl-en">re</span>(<span class="pl-s"><span class="pl-pds">"</span>(<span class="pl-cce">\\</span>w+):(<span class="pl-cce">\\</span>d+)<span class="pl-pds">"</span></span>);
+<span class="pl-en">assert</span>(re.ok());  <span class="pl-c"><span class="pl-c">//</span> compiled; if not, see re.error();</span>
+
+<span class="pl-en">assert</span>(RE2::FullMatch(<span class="pl-s"><span class="pl-pds">"</span>ruby:1234<span class="pl-pds">"</span></span>, re, &amp;s, &amp;i));
+<span class="pl-en">assert</span>(RE2::FullMatch(<span class="pl-s"><span class="pl-pds">"</span>ruby:1234<span class="pl-pds">"</span></span>, re, &amp;s));
+<span class="pl-en">assert</span>(RE2::FullMatch(<span class="pl-s"><span class="pl-pds">"</span>ruby:1234<span class="pl-pds">"</span></span>, re, (<span class="pl-k">void</span>*)NULL, &amp;i));
+<span class="pl-en">assert</span>(!RE2::FullMatch(<span class="pl-s"><span class="pl-pds">"</span>ruby:123456789123<span class="pl-pds">"</span></span>, re, &amp;s, &amp;i));</pre></div>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Options</h4><a id="user-content-options" class="anchor" aria-label="Permalink: Options" href="#options"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The constructor takes an optional second argument that can
+be used to change RE2's default options.
+For example, <code>RE2::Quiet</code> silences the error messages that are
+usually printed when a regular expression fails to parse:</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="RE2 re(&quot;(ab&quot;, RE2::Quiet);  // don't write to stderr for parser failure
+assert(!re.ok());  // can check re.error() for details"><pre>RE2 <span class="pl-en">re</span>(<span class="pl-s"><span class="pl-pds">"</span>(ab<span class="pl-pds">"</span></span>, RE2::Quiet);  <span class="pl-c"><span class="pl-c">//</span> don't write to stderr for parser failure</span>
+<span class="pl-en">assert</span>(!re.ok());  <span class="pl-c"><span class="pl-c">//</span> can check re.error() for details</span></pre></div>
+<p dir="auto">Other useful predefined options are <code>Latin1</code> (disable UTF-8) and <code>POSIX</code>
+(use POSIX syntax and leftmost longest matching).</p>
+<p dir="auto">You can also declare your own <code>RE2::Options</code> object and then configure it as you like.
+See the <a href="https://github.com/google/re2/blob/main/re2/re2.h">header</a> for the full set of options.</p>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Unicode Normalization</h4><a id="user-content-unicode-normalization" class="anchor" aria-label="Permalink: Unicode Normalization" href="#unicode-normalization"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">RE2 operates on Unicode code points: it makes no attempt at normalization.
+For example, the regular expression /ü/ (U+00FC, u with diaeresis)
+does not match the input "ü" (U+0075 U+0308, u followed by combining diaeresis).
+Normalization is a long, involved topic.
+The simplest solution, if you need such matches, is to normalize both the regular expressions
+and the input in a preprocessing step before using RE2.
+For more details on the general topic, see <a href="https://www.unicode.org/reports/tr15/" rel="nofollow">https://www.unicode.org/reports/tr15/</a>.</p>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Additional Tips and Tricks</h4><a id="user-content-additional-tips-and-tricks" class="anchor" aria-label="Permalink: Additional Tips and Tricks" href="#additional-tips-and-tricks"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">For advanced usage, like constructing your own argument lists,
+or using RE2 as a lexer, or parsing hex, octal, and C-radix numbers,
+see <a href="https://github.com/google/re2/blob/main/re2/re2.h">re2.h</a>.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Installation</h3><a id="user-content-installation" class="anchor" aria-label="Permalink: Installation" href="#installation"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">RE2 can be built and installed using GNU make, CMake, or Bazel.
+The simplest installation instructions are:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="make
+make test
+make benchmark
+make install
+make testinstall"><pre class="notranslate"><code>make
+make test
+make benchmark
+make install
+make testinstall
+</code></pre></div>
+<p dir="auto">Building RE2 requires a C++17 compiler and the <a href="https://github.com/abseil/abseil-cpp">Abseil</a> library.
+Building the tests and benchmarks requires
+<a href="https://github.com/google/googletest">GoogleTest</a>
+and <a href="https://github.com/google/benchmark">Benchmark</a>.
+To obtain those:</p>
+<ul dir="auto">
+<li>Linux: <code>apt install libabsl-dev libgtest-dev libbenchmark-dev</code></li>
+<li>macOS: <code>brew install abseil googletest google-benchmark pkg-config-wrapper</code></li>
+<li>Windows: <code>vcpkg install abseil gtest benchmark</code> <br>
+or <code>vcpkg add port abseil gtest benchmark</code></li>
+</ul>
+<p dir="auto">Once those are installed, the build has to be able to find them.
+If the standard Makefile has trouble, then switching to CMake can help:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="rm -rf build
+cmake -DRE2_TEST=ON -DRE2_BENCHMARK=ON -S . -B build
+cd build
+make
+make test
+make install"><pre class="notranslate"><code>rm -rf build
+cmake -DRE2_TEST=ON -DRE2_BENCHMARK=ON -S . -B build
+cd build
 make
 make test
 make install
-make testinstall
+</code></pre></div>
+<p dir="auto">When using CMake, with benchmarks enabled, <code>make test</code> builds and runs test binaries
+and builds a <code>regexp_benchmark</code> binary but does not run it.
+If you don't need the tests or benchmarks at all, you can omit the corresponding <code>-D</code> arguments,
+and then you don't need the GoogleTest or Benchmark dependencies either.</p>
+<p dir="auto">Another useful option is <code>-DRE2_USE_ICU=ON</code>, which adds a dependency on the
+ICU Unicode library but also extends the list of property names available in the <code>\p</code> and <code>\P</code> patterns.</p>
+<p dir="auto">CMake can also be used to generate Visual Studio and Xcode projects, as well as
+Cygwin, MinGW, and MSYS makefiles.</p>
+<ul dir="auto">
+<li>Visual Studio users: You need Visual Studio 2019 or later.</li>
+<li>Cygwin users: You must run CMake from the Cygwin command line, not the Windows command line.</li>
+</ul>
+<p dir="auto">If you are adding RE2 to your own CMake project,
+CMake has two ways to use a dependency: <code>add_subdirectory()</code>,
+which is when the dependency's <strong><em>sources</em></strong> are in a subdirectory of your project;
+and <code>find_package()</code>, which is when the dependency's
+<strong><em>binaries</em></strong> have been built and installed somewhere on your system.
+The Abseil documentation walks through the former <a href="https://abseil.io/docs/cpp/quickstart-cmake" rel="nofollow">here</a>
+versus the latter <a href="https://abseil.io/docs/cpp/tools/cmake-installs" rel="nofollow">here</a>.
+Once you get Abseil working, getting RE2 working will be a very similar process and,
+either way, <code>target_link_libraries(… re2::re2)</code> should Just Work™.</p>
+<p dir="auto">If you are using <a href="https://bazel.io" rel="nofollow">Bazel</a>, it will handle the dependencies for you,
+although you still need to download Bazel,
+which you can do with <a href="https://github.com/bazelbuild/bazelisk">Bazelisk</a>.</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="go install github.com/bazelbuild/bazelisk@latest
+# or on mac: brew install bazelisk
 
-Building RE2 requires Abseil (<a href="https://github.com/abseil/abseil-cpp">https://github.com/abseil/abseil-cpp</a>)
-to be installed on your system. Building the testing for RE2 requires
-GoogleTest (<a href="https://github.com/google/googletest">https://github.com/google/googletest</a>) and Benchmark
-(<a href="https://github.com/google/benchmark">https://github.com/google/benchmark</a>) to be installed as well.
+bazelisk build :all
+bazelisk test :all"><pre class="notranslate"><code>go install github.com/bazelbuild/bazelisk@latest
+# or on mac: brew install bazelisk
 
-There is a fair amount of documentation (including code snippets) in
-the re2.h header file.
-
-More information can be found on the wiki:
-<a href="https://github.com/google/re2/wiki">https://github.com/google/re2/wiki</a>
-
-Issue tracker:
-<a href="https://github.com/google/re2/issues">https://github.com/google/re2/issues</a>
-
-Mailing list:
-<a href="https://groups.google.com/group/re2-dev" rel="nofollow">https://groups.google.com/group/re2-dev</a>
-
-Unless otherwise noted, the RE2 source files are distributed
-under the BSD-style license found in the LICENSE file.
-
-RE2's native language is C++.
-
-The Python wrapper is at <a href="https://github.com/google/re2/tree/main/python">https://github.com/google/re2/tree/main/python</a>
-and on PyPI (<a href="https://pypi.org/project/google-re2/" rel="nofollow">https://pypi.org/project/google-re2/</a>).
-
-A C wrapper is at <a href="https://github.com/marcomaggi/cre2/">https://github.com/marcomaggi/cre2/</a>.
-A D wrapper is at <a href="https://github.com/ShigekiKarita/re2d/">https://github.com/ShigekiKarita/re2d/</a> and on DUB (code.dlang.org).
-An Erlang wrapper is at <a href="https://github.com/dukesoferl/re2/">https://github.com/dukesoferl/re2/</a> and on Hex (hex.pm).
-An Inferno wrapper is at <a href="https://github.com/powerman/inferno-re2/">https://github.com/powerman/inferno-re2/</a>.
-A Node.js wrapper is at <a href="https://github.com/uhop/node-re2/">https://github.com/uhop/node-re2/</a> and on NPM (npmjs.com).
-An OCaml wrapper is at <a href="https://github.com/janestreet/re2/">https://github.com/janestreet/re2/</a> and on OPAM (opam.ocaml.org).
-A Perl wrapper is at <a href="https://github.com/dgl/re-engine-RE2/">https://github.com/dgl/re-engine-RE2/</a> and on CPAN (cpan.org).
-An R wrapper is at <a href="https://github.com/girishji/re2/">https://github.com/girishji/re2/</a> and on CRAN (cran.r-project.org).
-A Ruby wrapper is at <a href="https://github.com/mudge/re2/">https://github.com/mudge/re2/</a> and on RubyGems (rubygems.org).
-A WebAssembly wrapper is at <a href="https://github.com/google/re2-wasm/">https://github.com/google/re2-wasm/</a> and on NPM (npmjs.com).
-</pre></div></div>
+bazelisk build :all
+bazelisk test :all
+</code></pre></div>
+<p dir="auto">If you are using RE2 from another project, you need to make sure you are
+using at least C++17.
+See the RE2 <a href="https://github.com/google/re2/blob/main/.bazelrc">.bazelrc</a> file for an example.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Ports and Wrappers</h3><a id="user-content-ports-and-wrappers" class="anchor" aria-label="Permalink: Ports and Wrappers" href="#ports-and-wrappers"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">RE2 is implemented in C++.</p>
+<p dir="auto">The official Python wrapper is <a href="https://github.com/google/re2/tree/main/python">in the <code>python</code> directory</a>
+and <a href="https://pypi.org/project/google-re2/" rel="nofollow">published on PyPI as <code>google-re2</code></a>.
+Note that there is also a PyPI <code>re2</code> but it is not by the RE2 authors and is unmaintained. Use <code>google-re2</code>.</p>
+<p dir="auto">There are also other unofficial wrappers:</p>
+<ul dir="auto">
+<li>A C wrapper is at <a href="https://github.com/marcomaggi/cre2/">https://github.com/marcomaggi/cre2/</a>.</li>
+<li>A D wrapper is at <a href="https://github.com/ShigekiKarita/re2d/">https://github.com/ShigekiKarita/re2d/</a> and <a href="https://code.dlang.org/packages/re2d" rel="nofollow">on DUB</a>.</li>
+<li>An Erlang wrapper is at <a href="https://github.com/dukesoferl/re2/">https://github.com/dukesoferl/re2/</a> and <a href="https://hex.pm/packages/re2" rel="nofollow">on Hex</a>.</li>
+<li>An Inferno wrapper is at <a href="https://github.com/powerman/inferno-re2/">https://github.com/powerman/inferno-re2/</a>.</li>
+<li>A Node.js wrapper is at <a href="https://github.com/uhop/node-re2/">https://github.com/uhop/node-re2/</a> and <a href="https://www.npmjs.com/package/re2" rel="nofollow">on NPM</a>.</li>
+<li>An OCaml wrapper is at <a href="https://github.com/janestreet/re2/">https://github.com/janestreet/re2/</a> and <a href="https://opam.ocaml.org/packages/re2/" rel="nofollow">on OPAM</a>.</li>
+<li>A Perl wrapper is at <a href="https://github.com/dgl/re-engine-RE2/">https://github.com/dgl/re-engine-RE2/</a> and <a href="https://metacpan.org/pod/re::engine::RE2" rel="nofollow">on CPAN</a>.</li>
+<li>An R wrapper is at <a href="https://github.com/girishji/re2/">https://github.com/girishji/re2/</a> and <a href="https://cran.r-project.org/web/packages/re2/index.html" rel="nofollow">on CRAN</a>.</li>
+<li>A Ruby wrapper is at <a href="https://github.com/mudge/re2/">https://github.com/mudge/re2/</a> and on RubyGems (rubygems.org).</li>
+<li>A WebAssembly wrapper is at <a href="https://github.com/google/re2-wasm/">https://github.com/google/re2-wasm/</a> and on NPM (npmjs.com).</li>
+</ul>
+<p dir="auto"><a href="https://github.com/google/re2j">RE2J</a> is a port of the RE2 C++ code to pure Java,
+and <a href="https://github.com/le0pard/re2js">RE2JS</a> is a port of RE2J to JavaScript.</p>
+<p dir="auto">The <a href="https://go.dev/pkg/regexp" rel="nofollow">Go <code>regexp</code> package</a>
+and <a href="https://docs.rs/regex" rel="nofollow">Rust <code>regex</code> crate</a>
+do not share code with RE2, but they follow the same principles,
+accept the same syntax, and provide the same efficiency guarantees.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Contact</h3><a id="user-content-contact" class="anchor" aria-label="Permalink: Contact" href="#contact"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The <a href="https://github.com/google/re2/issues">issue tracker</a> is the best place for discussions.</p>
+<p dir="auto">There is a <a href="https://groups.google.com/group/re2-dev" rel="nofollow">mailing list</a> for keeping up with code changes.</p>
+<p dir="auto">Please read the <a href="https://github.com/google/re2/wiki/Contribute">contribution guide</a> before sending changes.
+In particular, note that RE2 does not use GitHub pull requests.</p>
+</article></div>
