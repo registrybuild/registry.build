@@ -32,7 +32,7 @@ to deceive the viewer into believing it is the object itself...</p>
 <p dir="auto">Also, follow up with the post on
 <a href="https://playfulprogramming.blogspot.se/2015/01/sequence-control-with-trompeloeil-c.html" rel="nofollow">sequencing</a> for examples on how to restrict or relax allowed sequences of matching calls.</p>
 <div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Teaser</h1><a id="user-content-teaser" class="anchor" aria-label="Permalink: Teaser" href="#teaser"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="#include &lt;trompeloeil.hpp&gt;
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="#include &lt;trompeloeil.hpp&gt;
 
 class Interface
 {
@@ -86,62 +86,61 @@ TEST(exercise_interface_func)
   interface_func(&amp;m);
 
   // all the above expectations must be fulfilled here
-}"><pre lang="Cpp" class="notranslate"><code>#include &lt;trompeloeil.hpp&gt;
+}"><pre>#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>trompeloeil.hpp<span class="pl-pds">&gt;</span></span>
 
-class Interface
+<span class="pl-k">class</span> <span class="pl-en">Interface</span>
 {
-public:
-  virtual ~Interface() = default;
-  virtual bool foo(int, std::string&amp; s) = 0;
-  virtual bool bar(int) = 0;
-  virtual bool bar(std::string) = 0;
+<span class="pl-k">public:</span>
+  <span class="pl-k">virtual</span> <span class="pl-en">~Interface</span>() = <span class="pl-k">default</span>;
+  <span class="pl-k">virtual</span> <span class="pl-k">bool</span> <span class="pl-en">foo</span>(<span class="pl-k">int</span>, std::string&amp; s) = 0;
+  <span class="pl-k">virtual</span> <span class="pl-k">bool</span> <span class="pl-en">bar</span>(<span class="pl-k">int</span>) = 0;
+  <span class="pl-k">virtual</span> <span class="pl-k">bool</span> <span class="pl-en">bar</span>(std::string) = 0;
 };
 
-void interface_func(Interface*); // function to test
+<span class="pl-k">void</span> <span class="pl-en">interface_func</span>(Interface*); <span class="pl-c"><span class="pl-c">//</span> function to test</span>
 
-class Mock : public Interface
+<span class="pl-k">class</span> <span class="pl-en">Mock</span> : <span class="pl-k">public</span> <span class="pl-en">Interface</span>
 {
-public:
-  MAKE_MOCK(foo, auto (int, std::string&amp;) -&gt; bool, override);
-  MAKE_MOCK(bar, auto (int) -&gt; bool, override);
-  MAKE_MOCK(bar, auto (std::string) -&gt; bool, override);
-  MAKE_MOCK0(baz, void()); // not from Interface
+<span class="pl-k">public:</span>
+  <span class="pl-en">MAKE_MOCK</span>(foo, <span class="pl-k">auto</span> (<span class="pl-k">int</span>, std::string&amp;) -&gt; <span class="pl-k">bool</span>, <span class="pl-k">override</span>);
+  <span class="pl-en">MAKE_MOCK</span>(bar, <span class="pl-k">auto</span> (<span class="pl-k">int</span>) -&gt; <span class="pl-k">bool</span>, <span class="pl-k">override</span>);
+  <span class="pl-en">MAKE_MOCK</span>(bar, <span class="pl-k">auto</span> (std::string) -&gt; <span class="pl-k">bool</span>, <span class="pl-k">override</span>);
+  <span class="pl-en">MAKE_MOCK0</span>(baz, <span class="pl-k">void</span>()); <span class="pl-c"><span class="pl-c">//</span> not from Interface</span>
 };
 
-TEST(exercise_interface_func)
+<span class="pl-en">TEST</span>(exercise_interface_func)
 {
-  using trompeloeil::_;  // wild card for matching any value
-  using trompeloeil::gt; // greater-than match
+  <span class="pl-k">using</span> trompeloeil::_;  <span class="pl-c"><span class="pl-c">//</span> wild card for matching any value</span>
+  <span class="pl-k">using</span> trompeloeil::gt; <span class="pl-c"><span class="pl-c">//</span> greater-than match</span>
 
   Mock m;
 
-  trompeloeil::sequence seq1, seq2;  // control order of matching calls
+  trompeloeil::sequence seq1, seq2;  <span class="pl-c"><span class="pl-c">//</span> control order of matching calls</span>
 
-  int local_var = 0;
+  <span class="pl-k">int</span> local_var = <span class="pl-c1">0</span>;
 
-  REQUIRE_CALL(m, bar(ANY(int)))     // expect call to m.bar(int)
-    .LR_SIDE_EFFECT(local_var = _1)  // set captured variable to value of param
-    .RETURN(_1 &gt; 0)                  // return value depending on param value
-    .IN_SEQUENCE(seq1)               // must be first match for seq1
-    .TIMES(AT_LEAST(1));             // can be called several times
+  <span class="pl-c1">REQUIRE_CALL</span>(m, <span class="pl-c1">bar</span>(<span class="pl-c1">ANY</span>(<span class="pl-k">int</span>)))     <span class="pl-c"><span class="pl-c">//</span> expect call to m.bar(int)</span>
+    .<span class="pl-c1">LR_SIDE_EFFECT</span>(local_var = _1)  <span class="pl-c"><span class="pl-c">//</span> set captured variable to value of param</span>
+    .<span class="pl-c1">RETURN</span>(_1 &gt; <span class="pl-c1">0</span>)                  <span class="pl-c"><span class="pl-c">//</span> return value depending on param value</span>
+    .<span class="pl-c1">IN_SEQUENCE</span>(seq1)               <span class="pl-c"><span class="pl-c">//</span> must be first match for seq1</span>
+    .<span class="pl-c1">TIMES</span>(<span class="pl-c1">AT_LEAST</span>(<span class="pl-c1">1</span>));             <span class="pl-c"><span class="pl-c">//</span> can be called several times</span>
 
-  FORBID_CALL(m, bar(0));            // but m.bar(0) is not allowed
+  <span class="pl-c1">FORBID_CALL</span>(m, <span class="pl-c1">bar</span>(<span class="pl-c1">0</span>));            <span class="pl-c"><span class="pl-c">//</span> but m.bar(0) is not allowed</span>
 
-  REQUIRE_CALL(m, bar("word"))       // expect one call to m.bar(std::string)
-    .RETURN(true)
-    .IN_SEQUENCE(seq2);              // must be first match for seq2
+  <span class="pl-c1">REQUIRE_CALL</span>(m, <span class="pl-c1">bar</span>(<span class="pl-s"><span class="pl-pds">"</span>word<span class="pl-pds">"</span></span>))       <span class="pl-c"><span class="pl-c">//</span> expect one call to m.bar(std::string)</span>
+    .<span class="pl-c1">RETURN</span>(<span class="pl-c1">true</span>)
+    .<span class="pl-c1">IN_SEQUENCE</span>(seq2);              <span class="pl-c"><span class="pl-c">//</span> must be first match for seq2</span>
 
-  REQUIRE_CALL(m, foo(gt(2), _))     // expect call to foo(int,std::string&amp;)
-    .WITH(_2 == "")                  // with int &gt; 2 and empty string
-    .IN_SEQUENCE(seq1, seq2)         // last for both seq1 and seq2
-    .SIDE_EFFECT(_2 = "cat")         // and set param string to "cat"
-    .RETURN(true);
+  <span class="pl-c1">REQUIRE_CALL</span>(m, <span class="pl-c1">foo</span>(<span class="pl-c1">gt</span>(<span class="pl-c1">2</span>), _))     <span class="pl-c"><span class="pl-c">//</span> expect call to foo(int,std::string&amp;)</span>
+    .<span class="pl-c1">WITH</span>(_2 == <span class="pl-s"><span class="pl-pds">"</span><span class="pl-pds">"</span></span>)                  <span class="pl-c"><span class="pl-c">//</span> with int &gt; 2 and empty string</span>
+    .<span class="pl-c1">IN_SEQUENCE</span>(seq1, seq2)         <span class="pl-c"><span class="pl-c">//</span> last for both seq1 and seq2</span>
+    .<span class="pl-c1">SIDE_EFFECT</span>(_2 = <span class="pl-s"><span class="pl-pds">"</span>cat<span class="pl-pds">"</span></span>)         <span class="pl-c"><span class="pl-c">//</span> and set param string to "cat"</span>
+    .<span class="pl-c1">RETURN</span>(<span class="pl-c1">true</span>);
 
-  interface_func(&amp;m);
+  <span class="pl-c1">interface_func</span>(&amp;m);
 
-  // all the above expectations must be fulfilled here
-}
-</code></pre></div>
+  <span class="pl-c"><span class="pl-c">//</span> all the above expectations must be fulfilled here</span>
+}</pre></div>
 <div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto"><a name="user-content-self_test"> Building and running the self test suite</a></h1><a id="user-content--building-and-running-the-self-test-suite" class="anchor" aria-label="Permalink:  Building and running the self test suite" href="#-building-and-running-the-self-test-suite"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">To build the self test suite run <code>cmake</code> with <code>-DTROMPELOEIL_BUILD_TESTS=yes</code>.
 Use the options <code>CXX_STANDARD</code> to select which C++ standard to test, and
