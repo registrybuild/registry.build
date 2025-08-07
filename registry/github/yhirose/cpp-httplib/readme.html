@@ -481,22 +481,45 @@ svr.set_file_request_handler([](<span class="pl-k">const</span> Request &amp;req
   ...
 });</pre></div>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Logging</h3><a id="user-content-logging" class="anchor" aria-label="Permalink: Logging" href="#logging"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="svr.set_logger([](const auto&amp; req, const auto&amp; res) {
-  your_logger(req, res);
-});"><pre>svr.set_logger([](<span class="pl-k">const</span> <span class="pl-k">auto</span>&amp; req, <span class="pl-k">const</span> <span class="pl-k">auto</span>&amp; res) {
-  <span class="pl-c1">your_logger</span>(req, res);
+<p dir="auto">cpp-httplib provides separate logging capabilities for access logs and error logs, similar to web servers like Nginx and Apache.</p>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Access Logging</h4><a id="user-content-access-logging" class="anchor" aria-label="Permalink: Access Logging" href="#access-logging"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Access loggers capture successful HTTP requests and responses:</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="svr.set_logger([](const httplib::Request&amp; req, const httplib::Response&amp; res) {
+  std::cout &lt;&lt; req.method &lt;&lt; &quot; &quot; &lt;&lt; req.path &lt;&lt; &quot; -&gt; &quot; &lt;&lt; res.status &lt;&lt; std::endl;
+});"><pre>svr.set_logger([](<span class="pl-k">const</span> httplib::Request&amp; req, <span class="pl-k">const</span> httplib::Response&amp; res) {
+  std::cout &lt;&lt; req.<span class="pl-smi">method</span> &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span> <span class="pl-pds">"</span></span> &lt;&lt; req.<span class="pl-smi">path</span> &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span> -&gt; <span class="pl-pds">"</span></span> &lt;&lt; res.<span class="pl-smi">status</span> &lt;&lt; std::endl;
 });</pre></div>
-<p dir="auto">You can also set a pre-compression logger to capture request/response data before compression is applied. This is useful for debugging and monitoring purposes when you need to see the original, uncompressed response content:</p>
-<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="svr.set_pre_compression_logger([](const auto&amp; req, const auto&amp; res) {
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Pre-compression Logging</h4><a id="user-content-pre-compression-logging" class="anchor" aria-label="Permalink: Pre-compression Logging" href="#pre-compression-logging"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">You can also set a pre-compression logger to capture request/response data before compression is applied:</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="svr.set_pre_compression_logger([](const httplib::Request&amp; req, const httplib::Response&amp; res) {
   // Log before compression - res.body contains uncompressed content
   // Content-Encoding header is not yet set
   your_pre_compression_logger(req, res);
-});"><pre>svr.set_pre_compression_logger([](<span class="pl-k">const</span> <span class="pl-k">auto</span>&amp; req, <span class="pl-k">const</span> <span class="pl-k">auto</span>&amp; res) {
+});"><pre>svr.set_pre_compression_logger([](<span class="pl-k">const</span> httplib::Request&amp; req, <span class="pl-k">const</span> httplib::Response&amp; res) {
   <span class="pl-c"><span class="pl-c">//</span> Log before compression - res.body contains uncompressed content</span>
   <span class="pl-c"><span class="pl-c">//</span> Content-Encoding header is not yet set</span>
   <span class="pl-c1">your_pre_compression_logger</span>(req, res);
 });</pre></div>
-<p dir="auto">The pre-compression logger is only called when compression would be applied. For responses without compression, only the regular logger is called.</p>
+<p dir="auto">The pre-compression logger is only called when compression would be applied. For responses without compression, only the access logger is called.</p>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Error Logging</h4><a id="user-content-error-logging" class="anchor" aria-label="Permalink: Error Logging" href="#error-logging"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Error loggers capture failed requests and connection issues. Unlike access loggers, error loggers only receive the Error and Request information, as errors typically occur before a meaningful Response can be generated.</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="svr.set_error_logger([](const httplib::Error&amp; err, const httplib::Request* req) {
+  std::cerr &lt;&lt; httplib::to_string(err) &lt;&lt; &quot; while processing request&quot;;
+  if (req) {
+    std::cerr &lt;&lt; &quot;, client: &quot; &lt;&lt; req-&gt;get_header_value(&quot;X-Forwarded-For&quot;)
+              &lt;&lt; &quot;, request: '&quot; &lt;&lt; req-&gt;method &lt;&lt; &quot; &quot; &lt;&lt; req-&gt;path &lt;&lt; &quot; &quot; &lt;&lt; req-&gt;version &lt;&lt; &quot;'&quot;
+              &lt;&lt; &quot;, host: &quot; &lt;&lt; req-&gt;get_header_value(&quot;Host&quot;);
+  }
+  std::cerr &lt;&lt; std::endl;
+});"><pre>svr.set_error_logger([](<span class="pl-k">const</span> httplib::Error&amp; err, <span class="pl-k">const</span> httplib::Request* req) {
+  std::cerr &lt;&lt; <span class="pl-c1">httplib::to_string</span>(err) &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span> while processing request<span class="pl-pds">"</span></span>;
+  <span class="pl-k">if</span> (req) {
+    std::cerr &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>, client: <span class="pl-pds">"</span></span> &lt;&lt; req-&gt;<span class="pl-c1">get_header_value</span>(<span class="pl-s"><span class="pl-pds">"</span>X-Forwarded-For<span class="pl-pds">"</span></span>)
+              &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>, request: '<span class="pl-pds">"</span></span> &lt;&lt; req-&gt;<span class="pl-smi">method</span> &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span> <span class="pl-pds">"</span></span> &lt;&lt; req-&gt;<span class="pl-smi">path</span> &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span> <span class="pl-pds">"</span></span> &lt;&lt; req-&gt;<span class="pl-smi">version</span> &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>'<span class="pl-pds">"</span></span>
+              &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>, host: <span class="pl-pds">"</span></span> &lt;&lt; req-&gt;<span class="pl-c1">get_header_value</span>(<span class="pl-s"><span class="pl-pds">"</span>Host<span class="pl-pds">"</span></span>);
+  }
+  std::cerr &lt;&lt; std::endl;
+});</pre></div>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Error handler</h3><a id="user-content-error-handler" class="anchor" aria-label="Permalink: Error handler" href="#error-handler"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="svr.set_error_handler([](const auto&amp; req, auto&amp; res) {
   auto fmt = &quot;&lt;p&gt;Error Status: &lt;span style='color:red;'&gt;%d&lt;/span&gt;&lt;/p&gt;&quot;;
@@ -1080,6 +1103,73 @@ httplib::SSLClient <span class="pl-en">cli</span>(<span class="pl-s"><span class
   ConnectionTimeout,
   ProxyConnection,
 };</pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Client Logging</h3><a id="user-content-client-logging" class="anchor" aria-label="Permalink: Client Logging" href="#client-logging"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Access Logging</h4><a id="user-content-access-logging-1" class="anchor" aria-label="Permalink: Access Logging" href="#access-logging-1"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="cli.set_logger([](const httplib::Request&amp; req, const httplib::Response&amp; res) {
+  auto duration = std::chrono::duration_cast&lt;std::chrono::milliseconds&gt;(
+    std::chrono::steady_clock::now() - start_time).count();
+  std::cout &lt;&lt; &quot;✓ &quot; &lt;&lt; req.method &lt;&lt; &quot; &quot; &lt;&lt; req.path
+            &lt;&lt; &quot; -&gt; &quot; &lt;&lt; res.status &lt;&lt; &quot; (&quot; &lt;&lt; res.body.size() &lt;&lt; &quot; bytes, &quot;
+            &lt;&lt; duration &lt;&lt; &quot;ms)&quot; &lt;&lt; std::endl;
+});"><pre>cli.set_logger([](<span class="pl-k">const</span> httplib::Request&amp; req, <span class="pl-k">const</span> httplib::Response&amp; res) {
+  <span class="pl-k">auto</span> duration = std::chrono::duration_cast&lt;std::chrono::milliseconds&gt;(
+    <span class="pl-c1">std::chrono::steady_clock::now</span>() - start_time).<span class="pl-c1">count</span>();
+  std::cout &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>✓ <span class="pl-pds">"</span></span> &lt;&lt; req.<span class="pl-smi">method</span> &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span> <span class="pl-pds">"</span></span> &lt;&lt; req.<span class="pl-smi">path</span>
+            &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span> -&gt; <span class="pl-pds">"</span></span> &lt;&lt; res.<span class="pl-smi">status</span> &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span> (<span class="pl-pds">"</span></span> &lt;&lt; res.<span class="pl-smi">body</span>.<span class="pl-c1">size</span>() &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span> bytes, <span class="pl-pds">"</span></span>
+            &lt;&lt; duration &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>ms)<span class="pl-pds">"</span></span> &lt;&lt; std::endl;
+});</pre></div>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Error Logging</h4><a id="user-content-error-logging-1" class="anchor" aria-label="Permalink: Error Logging" href="#error-logging-1"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="cli.set_error_logger([](const httplib::Error&amp; err, const httplib::Request* req) {
+  std::cerr &lt;&lt; &quot;✗ &quot;;
+  if (req) {
+    std::cerr &lt;&lt; req-&gt;method &lt;&lt; &quot; &quot; &lt;&lt; req-&gt;path &lt;&lt; &quot; &quot;;
+  }
+  std::cerr &lt;&lt; &quot;failed: &quot; &lt;&lt; httplib::to_string(err);
+
+  // Add specific guidance based on error type
+  switch (err) {
+    case httplib::Error::Connection:
+      std::cerr &lt;&lt; &quot; (verify server is running and reachable)&quot;;
+      break;
+    case httplib::Error::SSLConnection:
+      std::cerr &lt;&lt; &quot; (check SSL certificate and TLS configuration)&quot;;
+      break;
+    case httplib::Error::ConnectionTimeout:
+      std::cerr &lt;&lt; &quot; (increase timeout or check network latency)&quot;;
+      break;
+    case httplib::Error::Read:
+      std::cerr &lt;&lt; &quot; (server may have closed connection prematurely)&quot;;
+      break;
+    default:
+      break;
+  }
+  std::cerr &lt;&lt; std::endl;
+});"><pre>cli.set_error_logger([](<span class="pl-k">const</span> httplib::Error&amp; err, <span class="pl-k">const</span> httplib::Request* req) {
+  std::cerr &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>✗ <span class="pl-pds">"</span></span>;
+  <span class="pl-k">if</span> (req) {
+    std::cerr &lt;&lt; req-&gt;<span class="pl-smi">method</span> &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span> <span class="pl-pds">"</span></span> &lt;&lt; req-&gt;<span class="pl-smi">path</span> &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span> <span class="pl-pds">"</span></span>;
+  }
+  std::cerr &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>failed: <span class="pl-pds">"</span></span> &lt;&lt; <span class="pl-c1">httplib::to_string</span>(err);
+
+  <span class="pl-c"><span class="pl-c">//</span> Add specific guidance based on error type</span>
+  <span class="pl-k">switch</span> (err) {
+    <span class="pl-k">case</span> httplib::Error::Connection:
+      std::cerr &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span> (verify server is running and reachable)<span class="pl-pds">"</span></span>;
+      <span class="pl-k">break</span>;
+    <span class="pl-k">case</span> httplib::Error::SSLConnection:
+      std::cerr &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span> (check SSL certificate and TLS configuration)<span class="pl-pds">"</span></span>;
+      <span class="pl-k">break</span>;
+    <span class="pl-k">case</span> httplib::Error::ConnectionTimeout:
+      std::cerr &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span> (increase timeout or check network latency)<span class="pl-pds">"</span></span>;
+      <span class="pl-k">break</span>;
+    <span class="pl-k">case</span> httplib::Error::Read:
+      std::cerr &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span> (server may have closed connection prematurely)<span class="pl-pds">"</span></span>;
+      <span class="pl-k">break</span>;
+    <span class="pl-k">default</span>:
+      <span class="pl-k">break</span>;
+  }
+  std::cerr &lt;&lt; std::endl;
+});</pre></div>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">GET with HTTP headers</h3><a id="user-content-get-with-http-headers" class="anchor" aria-label="Permalink: GET with HTTP headers" href="#get-with-http-headers"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="httplib::Headers headers = {
   { &quot;Hello&quot;, &quot;World!&quot; }
