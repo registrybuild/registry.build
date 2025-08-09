@@ -1,0 +1,379 @@
+<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><div align="center" dir="auto">
+<p dir="auto"><a target="_blank" rel="noopener noreferrer" href="/.github/logo/light_hero.jpg#gh-light-mode-only"><img src="/.github/logo/light_hero.jpg#gh-light-mode-only" alt="rules_img logo" style="max-width: 100%;"></a>
+<a target="_blank" rel="noopener noreferrer" href="/.github/logo/dark_hero.jpg#gh-dark-mode-only"><img src="/.github/logo/dark_hero.jpg#gh-dark-mode-only" alt="rules_img logo" style="max-width: 100%;"></a></p>
+<p dir="auto"><strong>Modern Bazel rules for building OCI container images with advanced performance optimizations</strong></p>
+</div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Features</h2><a id="user-content-features" class="anchor" aria-label="Permalink: Features" href="#features"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li>🚀 <strong>High Performance</strong> - Minimizes data transfer and embraces <em>Build without the Bytes</em> from source code to container runtime</li>
+<li>📦 <strong>OCI Compliant</strong> - Builds standard OCI images compatible with any container runtime</li>
+<li>🔧 <strong>Bazel Native</strong> - No Docker daemon required, fully hermetic builds</li>
+<li>🌍 <strong>Multi-Platform</strong> - Native cross-platform support through Bazel transitions</li>
+<li>⚡ <strong>eStargz Support</strong> - Lazy pulling optimization for faster container starts</li>
+<li>🪶 <strong>Smaller layers</strong> - Deduplicates files using hardlinks</li>
+<li>🎯 <strong>Shallow Base Images</strong> - Avoid downloading layers from huge base images like CUDA</li>
+<li>🏢 <strong>Enterprise Ready</strong> - Remote Build Execution and Content Addressable Storage integration</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Installation</h2><a id="user-content-installation" class="anchor" aria-label="Permalink: Installation" href="#installation"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Add to your <code>MODULE.bazel</code>:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel_dep(name = &quot;rules_img&quot;, version = &quot;0.1.3&quot;)"><pre><span class="pl-en">bazel_dep</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_img"</span>, <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"0.1.3"</span>)</pre></div>
+<p dir="auto">Configure default settings (optional) in <code>.bazelrc</code>:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="# The compression algorithm to use (&quot;gzip&quot; or &quot;zstd&quot;)
+common --@rules_img//img/settings:compress=zstd
+
+# Support for seekable eStargz layers
+# with the containerd stargz-snapshotter
+common --@rules_img//img/settings:estargz=enabled
+
+# The push strategy to use (see below for more info).
+# &quot;eager&quot;, &quot;lazy&quot;, &quot;cas_registry&quot;, or &quot;bes&quot;
+common --@rules_img//img/settings:push_strategy=eager
+
+# Opt-in to stamping of image_push rules
+common --@rules_img//img/settings:stamp=disabled"><pre class="notranslate"><code># The compression algorithm to use ("gzip" or "zstd")
+common --@rules_img//img/settings:compress=zstd
+
+# Support for seekable eStargz layers
+# with the containerd stargz-snapshotter
+common --@rules_img//img/settings:estargz=enabled
+
+# The push strategy to use (see below for more info).
+# "eager", "lazy", "cas_registry", or "bes"
+common --@rules_img//img/settings:push_strategy=eager
+
+# Opt-in to stamping of image_push rules
+common --@rules_img//img/settings:stamp=disabled
+</code></pre></div>
+<p dir="auto">You also need a credential helper to pull base images from container registries.
+We recommend <a href="https://github.com/tweag/credential-helper">tweag-credential-helper</a>. Refer to the <a href="https://github.com/tweag/credential-helper/blob/main/docs/providers/oci.md">container registry setup</a> for more information.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Quick Start</h2><a id="user-content-quick-start" class="anchor" aria-label="Permalink: Quick Start" href="#quick-start"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Building a Simple Image</h3><a id="user-content-building-a-simple-image" class="anchor" aria-label="Permalink: Building a Simple Image" href="#building-a-simple-image"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Add base image to <code>MODULE.bazel</code>:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="pull = use_repo_rule(&quot;@rules_img//img:pull.bzl&quot;, &quot;pull&quot;)
+
+pull(
+    name = &quot;ubuntu&quot;,
+    digest = &quot;sha256:1e622c5f073b4f6bfad6632f2616c7f59ef256e96fe78bf6a595d1dc4376ac02&quot;,
+    registry = &quot;index.docker.io&quot;,
+    repository = &quot;library/ubuntu&quot;,
+    tag = &quot;24.04&quot;,
+)
+
+pull(
+    name = &quot;cuda&quot;,
+    digest = &quot;sha256:f353ffca86e0cd93ab2470fe274ecf766519c24c37ed58cc2f91d915f7ebe53c&quot;,
+    registry = &quot;index.docker.io&quot;,
+    repository = &quot;nvidia/cuda&quot;,
+    tag = &quot;12.8.1-cudnn-devel-ubuntu20.04&quot;,
+)"><pre><span class="pl-s1">pull</span> <span class="pl-c1">=</span> <span class="pl-en">use_repo_rule</span>(<span class="pl-s">"@rules_img//img:pull.bzl"</span>, <span class="pl-s">"pull"</span>)
+
+<span class="pl-en">pull</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"ubuntu"</span>,
+    <span class="pl-s1">digest</span> <span class="pl-c1">=</span> <span class="pl-s">"sha256:1e622c5f073b4f6bfad6632f2616c7f59ef256e96fe78bf6a595d1dc4376ac02"</span>,
+    <span class="pl-s1">registry</span> <span class="pl-c1">=</span> <span class="pl-s">"index.docker.io"</span>,
+    <span class="pl-s1">repository</span> <span class="pl-c1">=</span> <span class="pl-s">"library/ubuntu"</span>,
+    <span class="pl-s1">tag</span> <span class="pl-c1">=</span> <span class="pl-s">"24.04"</span>,
+)
+
+<span class="pl-en">pull</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"cuda"</span>,
+    <span class="pl-s1">digest</span> <span class="pl-c1">=</span> <span class="pl-s">"sha256:f353ffca86e0cd93ab2470fe274ecf766519c24c37ed58cc2f91d915f7ebe53c"</span>,
+    <span class="pl-s1">registry</span> <span class="pl-c1">=</span> <span class="pl-s">"index.docker.io"</span>,
+    <span class="pl-s1">repository</span> <span class="pl-c1">=</span> <span class="pl-s">"nvidia/cuda"</span>,
+    <span class="pl-s1">tag</span> <span class="pl-c1">=</span> <span class="pl-s">"12.8.1-cudnn-devel-ubuntu20.04"</span>,
+)</pre></div>
+<p dir="auto">Compose images in <code>BUILD.bazel</code>:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@rules_img//img:layer.bzl&quot;, &quot;image_layer&quot;)
+load(&quot;@rules_img//img:image.bzl&quot;, &quot;image_manifest&quot;)
+
+# Create a layer from files
+image_layer(
+    name = &quot;app_layer&quot;,
+    srcs = {
+        &quot;/app/bin/server&quot;: &quot;//cmd/server&quot;,
+        &quot;/app/config&quot;: &quot;//configs:prod&quot;,
+    },
+    compress = &quot;zstd&quot;,  # Use zstd compression (optional, uses global default otherwise)
+)
+
+# Build a container image
+image_manifest(
+    name = &quot;app_image&quot;,
+    base = &quot;@ubuntu&quot;, # Optional: build &quot;from scratch&quot; without base.
+    layers = [
+        &quot;:app_layer&quot;,
+    ],
+    config_fragment = &quot;config.json&quot;,  # Optional image configuration, uses sane defaults.
+)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@rules_img//img:layer.bzl"</span>, <span class="pl-s">"image_layer"</span>)
+<span class="pl-en">load</span>(<span class="pl-s">"@rules_img//img:image.bzl"</span>, <span class="pl-s">"image_manifest"</span>)
+
+<span class="pl-c"># Create a layer from files</span>
+<span class="pl-en">image_layer</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"app_layer"</span>,
+    <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> {
+        <span class="pl-s">"/app/bin/server"</span>: <span class="pl-s">"//cmd/server"</span>,
+        <span class="pl-s">"/app/config"</span>: <span class="pl-s">"//configs:prod"</span>,
+    },
+    <span class="pl-s1">compress</span> <span class="pl-c1">=</span> <span class="pl-s">"zstd"</span>,  <span class="pl-c"># Use zstd compression (optional, uses global default otherwise)</span>
+)
+
+<span class="pl-c"># Build a container image</span>
+<span class="pl-en">image_manifest</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"app_image"</span>,
+    <span class="pl-s1">base</span> <span class="pl-c1">=</span> <span class="pl-s">"@ubuntu"</span>, <span class="pl-c"># Optional: build "from scratch" without base.</span>
+    <span class="pl-s1">layers</span> <span class="pl-c1">=</span> [
+        <span class="pl-s">":app_layer"</span>,
+    ],
+    <span class="pl-s1">config_fragment</span> <span class="pl-c1">=</span> <span class="pl-s">"config.json"</span>,  <span class="pl-c"># Optional image configuration, uses sane defaults.</span>
+)</pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Multi-Platform Images</h3><a id="user-content-multi-platform-images" class="anchor" aria-label="Permalink: Multi-Platform Images" href="#multi-platform-images"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">In most cases, you can just use the builtin transitions feature:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@rules_img//img:image.bzl&quot;, &quot;image_manifest&quot;, &quot;image_index&quot;)
+
+# Create platform-specific images
+image_manifest(
+    name = &quot;app&quot;,
+    layers = [&quot;:app_layer&quot;],
+)
+
+# Combine into multi-platform index
+image_index(
+    name = &quot;app&quot;,
+    manifests = [&quot;:app_amd&quot;],
+    platforms = [
+        &quot;//:linux_amd64&quot;,
+        &quot;//:linux_arm64&quot;,
+    ],
+)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@rules_img//img:image.bzl"</span>, <span class="pl-s">"image_manifest"</span>, <span class="pl-s">"image_index"</span>)
+
+<span class="pl-c"># Create platform-specific images</span>
+<span class="pl-en">image_manifest</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"app"</span>,
+    <span class="pl-s1">layers</span> <span class="pl-c1">=</span> [<span class="pl-s">":app_layer"</span>],
+)
+
+<span class="pl-c"># Combine into multi-platform index</span>
+<span class="pl-en">image_index</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"app"</span>,
+    <span class="pl-s1">manifests</span> <span class="pl-c1">=</span> [<span class="pl-s">":app_amd"</span>],
+    <span class="pl-s1">platforms</span> <span class="pl-c1">=</span> [
+        <span class="pl-s">"//:linux_amd64"</span>,
+        <span class="pl-s">"//:linux_arm64"</span>,
+    ],
+)</pre></div>
+<details>
+<summary>You are in full control over the images you put into an image index</summary>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@rules_img//img:image.bzl&quot;, &quot;image_manifest&quot;, &quot;image_index&quot;)
+
+# Create platform-specific images
+image_manifest(
+    name = &quot;app_amd64&quot;,
+    layers = [&quot;:app_layer&quot;],
+    architecture = &quot;amd64&quot;,
+    os = &quot;linux&quot;,
+)
+
+image_manifest(
+    name = &quot;app_arm64&quot;,
+    layers = [&quot;:app_layer&quot;],
+    architecture = &quot;arm64&quot;,
+    os = &quot;linux&quot;,
+)
+
+# Combine into multi-platform index
+image_index(
+    name = &quot;app&quot;,
+    manifests = [
+        &quot;:app_amd64&quot;,
+        &quot;:app_arm64&quot;,
+    ],
+)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@rules_img//img:image.bzl"</span>, <span class="pl-s">"image_manifest"</span>, <span class="pl-s">"image_index"</span>)
+
+<span class="pl-c"># Create platform-specific images</span>
+<span class="pl-en">image_manifest</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"app_amd64"</span>,
+    <span class="pl-s1">layers</span> <span class="pl-c1">=</span> [<span class="pl-s">":app_layer"</span>],
+    <span class="pl-s1">architecture</span> <span class="pl-c1">=</span> <span class="pl-s">"amd64"</span>,
+    <span class="pl-s1">os</span> <span class="pl-c1">=</span> <span class="pl-s">"linux"</span>,
+)
+
+<span class="pl-en">image_manifest</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"app_arm64"</span>,
+    <span class="pl-s1">layers</span> <span class="pl-c1">=</span> [<span class="pl-s">":app_layer"</span>],
+    <span class="pl-s1">architecture</span> <span class="pl-c1">=</span> <span class="pl-s">"arm64"</span>,
+    <span class="pl-s1">os</span> <span class="pl-c1">=</span> <span class="pl-s">"linux"</span>,
+)
+
+<span class="pl-c"># Combine into multi-platform index</span>
+<span class="pl-en">image_index</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"app"</span>,
+    <span class="pl-s1">manifests</span> <span class="pl-c1">=</span> [
+        <span class="pl-s">":app_amd64"</span>,
+        <span class="pl-s">":app_arm64"</span>,
+    ],
+)</pre></div>
+</details>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Pushing to a Registry</h3><a id="user-content-pushing-to-a-registry" class="anchor" aria-label="Permalink: Pushing to a Registry" href="#pushing-to-a-registry"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@rules_img//img:push.bzl&quot;, &quot;image_push&quot;)
+
+image_push(
+    name = &quot;push&quot;,
+    image = &quot;:app&quot;,
+    registry = &quot;ghcr.io&quot;,
+    repository = &quot;my-project/app&quot;,
+    tag = &quot;latest&quot;,
+)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@rules_img//img:push.bzl"</span>, <span class="pl-s">"image_push"</span>)
+
+<span class="pl-en">image_push</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"push"</span>,
+    <span class="pl-s1">image</span> <span class="pl-c1">=</span> <span class="pl-s">":app"</span>,
+    <span class="pl-s1">registry</span> <span class="pl-c1">=</span> <span class="pl-s">"ghcr.io"</span>,
+    <span class="pl-s1">repository</span> <span class="pl-c1">=</span> <span class="pl-s">"my-project/app"</span>,
+    <span class="pl-s1">tag</span> <span class="pl-c1">=</span> <span class="pl-s">"latest"</span>,
+)</pre></div>
+<p dir="auto">Run with:</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel run //:push"><pre>bazel run //:push</pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Language-specific examples</h3><a id="user-content-language-specific-examples" class="anchor" aria-label="Permalink: Language-specific examples" href="#language-specific-examples"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li><a href="/e2e/cc/">C++</a></li>
+<li><a href="/e2e/go/">Go</a></li>
+</ul>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Comparison with rules_oci</h2><a id="user-content-comparison-with-rules_oci" class="anchor" aria-label="Permalink: Comparison with rules_oci" href="#comparison-with-rules_oci"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Both <code>rules_img</code> and <code>rules_oci</code> are modern Bazel rulesets for building OCI container images. While they share the goal of hermetic, reproducible container builds, they take fundamentally different architectural approaches.
+<code>rules_oci</code> uses the <a href="https://github.com/opencontainers/image-spec/blob/v1.1.1/image-layout.md">oci image layout</a> as an on-disk representation of container images at every step (base image pull, <code>oci_image</code> rule, <code>oci_image_index</code> rule).
+Additionally, <code>rules_oci</code> chooses to use only off-the-shelf, pre-built tools for assembling images.
+<code>rules_img</code> chooses to use providers that contain just enough information as needed for subsequent steps. We also use customized tools, instead of prebuilt ones.
+This results in a more complex implementation, but also allows for interesting optimizations.</p>
+<ul dir="auto">
+<li>✅ <a href="#shallow-base-image-pulling">Shallow base image pulling</a></li>
+<li>✅ <a href="#single-action-layers">Layers are produced in a single action</a></li>
+<li>✅ <a href="#layer-optimization">Deduplication of layer contents</a></li>
+<li>✅ <a href="#advanced-push-strategies">Advanced push strategies</a></li>
+<li>✅ <a href="#estargz-lazy-pulling">eStargz support for lazy pulling</a></li>
+</ul>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Documentation</h2><a id="user-content-documentation" class="anchor" aria-label="Permalink: Documentation" href="#documentation"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li><a href="docs/">API Reference</a>
+<ul dir="auto">
+<li><strong>Layer Rules</strong>
+<ul dir="auto">
+<li><a href="docs/layer.md#image_layer"><code>image_layer</code></a> - Create layers from files</li>
+<li><a href="docs/layer.md#layer_from_tar"><code>layer_from_tar</code></a> - Create layers from tar archives</li>
+</ul>
+</li>
+<li><strong>Image Rules</strong>
+<ul dir="auto">
+<li><a href="docs/image.md#image_manifest"><code>image_manifest</code></a> - Build single-platform images</li>
+<li><a href="docs/image.md#image_index"><code>image_index</code></a> - Build multi-platform image indexes</li>
+</ul>
+</li>
+<li><strong>Push and Pull Rules</strong>
+<ul dir="auto">
+<li><a href="docs/push.md#image_push"><code>image_push</code></a> - Push images to registries</li>
+<li><a href="docs/pull.md#pull"><code>pull</code></a> - Pull base images</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Key Differences Explained</h2><a id="user-content-key-differences-explained" class="anchor" aria-label="Permalink: Key Differences Explained" href="#key-differences-explained"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Shallow Base Image Pulling</h3><a id="user-content-shallow-base-image-pulling" class="anchor" aria-label="Permalink: Shallow Base Image Pulling" href="#shallow-base-image-pulling"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Unlike rules_oci which downloads all layers of a base image, rules_img uses a "shallow pull" approach. When you reference a base image like CUDA (which can be 10+ GB), rules_img only downloads the manifest and config - not the actual layer blobs. The layers are only downloaded when and if they're needed during push operations.</p>
+<p dir="auto">This results in:</p>
+<ul dir="auto">
+<li><strong>Faster builds</strong> - No waiting for large base image downloads</li>
+<li><strong>Reduced bandwidth</strong> - Only download what you actually use</li>
+<li><strong>True Build-without-the-bytes</strong> - Other rulesets download base layers to your local machine in a repository rule. This step cannot be remotely executed and is repeated on every machine running Bazel.</li>
+</ul>
+<p dir="auto">Example with a large CUDA base image:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="# This won't download the 10GB of CUDA layers!
+pull(
+    name = &quot;cuda&quot;,
+    digest = &quot;sha256:...&quot;,
+    registry = &quot;index.docker.io&quot;,
+    repository = &quot;nvidia/cuda&quot;,
+)"><pre><span class="pl-c"># This won't download the 10GB of CUDA layers!</span>
+<span class="pl-en">pull</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"cuda"</span>,
+    <span class="pl-s1">digest</span> <span class="pl-c1">=</span> <span class="pl-s">"sha256:..."</span>,
+    <span class="pl-s1">registry</span> <span class="pl-c1">=</span> <span class="pl-s">"index.docker.io"</span>,
+    <span class="pl-s1">repository</span> <span class="pl-c1">=</span> <span class="pl-s">"nvidia/cuda"</span>,
+)</pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Single Action Layers</h3><a id="user-content-single-action-layers" class="anchor" aria-label="Permalink: Single Action Layers" href="#single-action-layers"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">rules_img produces both the layer blob and its metadata in a single Bazel action. This design has several advantages:</p>
+<ul dir="auto">
+<li><strong>Remote execution friendly</strong> - Single action works better with RBE</li>
+<li><strong>Image Manifest only depends on metadata</strong> - In rules_oci, image actions depend on the actual blobs of their base image and layers, which must be available during the manifest writing action.</li>
+</ul>
+<p dir="auto">The metadata includes the layer's digest, size, and diff ID, all computed during layer creation.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Layer Optimization</h3><a id="user-content-layer-optimization" class="anchor" aria-label="Permalink: Layer Optimization" href="#layer-optimization"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">When writing a tar layer, rules_img uses hardlinks to deduplicate identical files.
+This allows for smaller container images.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Advanced Push Strategies</h3><a id="user-content-advanced-push-strategies" class="anchor" aria-label="Permalink: Advanced Push Strategies" href="#advanced-push-strategies"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">rules_img offers four sophisticated push strategies compared to rules_oci's traditional approach. These strategies enable:</p>
+<ul dir="auto">
+<li><strong>Faster CI/CD</strong> - Avoid unnecesary file transfer</li>
+<li><strong>Build without the bytes</strong> - Never materialize container layers on your local machine</li>
+<li><strong>Scalability</strong> - Designed for organizations with thousands of builds per day</li>
+</ul>
+<markdown-accessiblity-table><table>
+<thead>
+<tr>
+<th>Strategy</th>
+<th>Description</th>
+<th>Use Case</th>
+<th>Requirements</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="docs/push-strategies.md#eager-push"><code>eager</code></a></td>
+<td>Traditional push, download all blobs to the machine running Bazel, then uploads all blobs.</td>
+<td>Simple deployments</td>
+<td>Normal container registry</td>
+</tr>
+<tr>
+<td><a href="docs/push-strategies.md#lazy-push"><code>lazy</code></a></td>
+<td>Checks registry first, skips existing blobs and streams missing blobs from Bazel's remote cache</td>
+<td>Faster CI/CD and Build without the Bytes</td>
+<td>Bazel remote cache</td>
+</tr>
+<tr>
+<td><a href="docs/push-strategies.md#cas-registry-push"><code>cas_registry</code></a></td>
+<td>Uses special container registry that is directly connected to Bazel's remote cache</td>
+<td>Fast development cycles.</td>
+<td>Special container registry (<code>cmd/registry</code>), Bazel remote cache</td>
+</tr>
+<tr>
+<td><a href="docs/push-strategies.md#bes-push"><code>bes</code></a></td>
+<td>Image push happens as side-effect of BES upload. Requires self-hosted BES server.</td>
+<td>Extremely fast and efficient for large organizations.</td>
+<td>Special BES backend (<code>cmd/bes</code>), Bazel remote cache</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p dir="auto">See the <a href="docs/push-strategies.md">Push Strategies Guide</a> for detailed information about each strategy.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">eStargz Lazy Pulling</h3><a id="user-content-estargz-lazy-pulling" class="anchor" aria-label="Permalink: eStargz Lazy Pulling" href="#estargz-lazy-pulling"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">rules_img has first-class support for eStargz (enhanced stargz), enabling "lazy pulling" at container runtime. This means:</p>
+<ul dir="auto">
+<li><strong>Instant container starts</strong> - Containers can start before all layers download</li>
+<li><strong>Bandwidth savings</strong> - Only accessed files are downloaded</li>
+<li><strong>Seekable layers</strong> - Random access to files within compressed layers</li>
+</ul>
+<p dir="auto">Combined with containerd's stargz-snapshotter, this can reduce container startup time from minutes to seconds for large images.</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="image_layer(
+    name = &quot;optimized_layer&quot;,
+    srcs = {...},
+    estargz = &quot;enabled&quot;,  # Enable seekable compression
+)"><pre><span class="pl-en">image_layer</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"optimized_layer"</span>,
+    <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> {...},
+    <span class="pl-s1">estargz</span> <span class="pl-c1">=</span> <span class="pl-s">"enabled"</span>,  <span class="pl-c"># Enable seekable compression</span>
+)</pre></div>
+<p dir="auto">The same setting can be globally enabled using <code>--@rules_img//img/settings:estargz=enabled</code>.
+Read the <a href="https://github.com/containerd/stargz-snapshotter">stargz-snapshotter documentation</a> for more information.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Hacking &amp; Contributing</h2><a id="user-content-hacking--contributing" class="anchor" aria-label="Permalink: Hacking &amp; Contributing" href="#hacking--contributing"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">We invite external contributions and are eager to work together with the build systems community. Please refer to the <a href="/CONTRIBUTING.md">CONTRIBUTING</a> guide to learn more. If you want to check out the code and run a development version, follow the <a href="/HACKING.md">HACKING</a> guide to get started.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Acknowledgments</h2><a id="user-content-acknowledgments" class="anchor" aria-label="Permalink: Acknowledgments" href="#acknowledgments"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Special thanks to <strong>Sushain Cherivirala</strong> from Stripe for the inspiring BazelCon talk <a href="https://www.youtube.com/watch?v=c-yvIQooOSA" rel="nofollow">"Building 1300 Container Images in 4 Minutes"</a>. This talk introduced the groundbreaking idea of using the Build Event Service (BES) to sync container images between the remote cache and registry as a side effect. While their implementation was based on the now-archived rules_docker and was never published, it laid the conceptual foundation for our BES push strategy. Their work demonstrated how to achieve dramatic performance improvements in container image builds at scale, inspiring many of the optimizations in rules_img.</p>
+</article></div>
