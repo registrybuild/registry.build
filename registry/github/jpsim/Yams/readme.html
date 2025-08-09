@@ -206,6 +206,35 @@ yaml <span class="pl-c1">==</span> <span class="pl-s">"""</span><span class="pl-
 <span class="pl-s"></span><span class="pl-s">"""</span>
 <span class="pl-k">let</span> <span class="pl-s1">node</span> <span class="pl-c1">=</span> <span class="pl-c1"><span class="pl-k">try</span></span> <span class="pl-smi">Yams</span><span class="pl-kos">.</span><span class="pl-en">compose</span><span class="pl-kos">(</span>yaml<span class="pl-kos">:</span> yaml<span class="pl-kos">)</span>
 map <span class="pl-c1">==</span> node</pre></div>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">NSMutable* compatibility</h4><a id="user-content-nsmutable-compatibility" class="anchor" aria-label="Permalink: NSMutable* compatibility" href="#nsmutable-compatibility"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Yams also supports deep conversion of YAML into <code>NSMutableDictionary</code> and <code>NSMutableArray</code>,
+which is useful when working with mutable Cocoa-style collections, such as NSMutableDictionary and NSMutableArray.</p>
+<p dir="auto">To produce <code>NSMutable*</code> results, use a custom constructor:</p>
+<div class="highlight highlight-source-swift notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="let yaml = &quot;&quot;&quot;
+names:
+  - Alice
+  - Bob
+&quot;&quot;&quot;
+
+let constructor = Constructor(Constructor.defaultScalarMap,
+                              Constructor.nsMutableMappingMap,
+                              Constructor.nsMutableSequenceMap)
+
+let result = try Yams.load(yaml: yaml, .default, constructor) as? NSMutableDictionary
+let names = result?[&quot;names&quot;] as? NSMutableArray
+print(names ?? &quot;No data&quot;) // -&gt; (Alice, Bob)"><pre><span class="pl-k">let</span> <span class="pl-s1">yaml</span> <span class="pl-c1">=</span> <span class="pl-s">"""</span><span class="pl-s"></span>
+<span class="pl-s">names:</span>
+<span class="pl-s">  - Alice</span>
+<span class="pl-s">  - Bob</span>
+<span class="pl-s"></span><span class="pl-s">"""</span>
+
+<span class="pl-k">let</span> <span class="pl-s1">constructor</span> <span class="pl-c1">=</span> <span class="pl-en">Constructor</span><span class="pl-kos">(</span><span class="pl-smi">Constructor</span><span class="pl-kos">.</span>defaultScalarMap<span class="pl-kos">,</span>
+                              <span class="pl-smi">Constructor</span><span class="pl-kos">.</span>nsMutableMappingMap<span class="pl-kos">,</span>
+                              <span class="pl-smi">Constructor</span><span class="pl-kos">.</span>nsMutableSequenceMap<span class="pl-kos">)</span>
+
+<span class="pl-k">let</span> <span class="pl-s1">result</span> <span class="pl-c1">=</span> <span class="pl-c1"><span class="pl-k">try</span></span> <span class="pl-smi">Yams</span><span class="pl-kos">.</span><span class="pl-en">load</span><span class="pl-kos">(</span>yaml<span class="pl-kos">:</span> yaml<span class="pl-kos">,</span> <span class="pl-kos">.</span>default<span class="pl-kos">,</span> constructor<span class="pl-kos">)</span> <span class="pl-k">as?</span> <span class="pl-smi">NSMutableDictionary</span>
+<span class="pl-k">let</span> <span class="pl-s1">names</span> <span class="pl-c1">=</span> <span class="pl-en">result</span><span class="pl-c1"><span class="pl-c1">?</span></span><span class="pl-kos">[</span><span class="pl-s">"</span><span class="pl-s">names</span><span class="pl-s">"</span><span class="pl-kos">]</span> <span class="pl-k">as?</span> <span class="pl-smi">NSMutableArray</span>
+<span class="pl-en">print</span><span class="pl-kos">(</span>names <span class="pl-c1">??</span> <span class="pl-s">"</span><span class="pl-s">No data</span><span class="pl-s">"</span><span class="pl-kos">)</span> // -&gt; (Alice, Bob)</pre></div>
 <div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Integrating with <a href="https://developer.apple.com/documentation/combine" rel="nofollow">Combine</a></h4><a id="user-content-integrating-with-combine" class="anchor" aria-label="Permalink: Integrating with Combine" href="#integrating-with-combine"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">When Apple's Combine framework is available, <code>YAMLDecoder</code> conforms to the
 <code>TopLevelDecoder</code> protocol, which allows it to be used with the
