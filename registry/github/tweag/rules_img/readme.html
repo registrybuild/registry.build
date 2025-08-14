@@ -16,7 +16,7 @@
 </ul>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Installation</h2><a id="user-content-installation" class="anchor" aria-label="Permalink: Installation" href="#installation"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">Add to your <code>MODULE.bazel</code>:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel_dep(name = &quot;rules_img&quot;, version = &quot;0.1.4&quot;)"><pre><span class="pl-en">bazel_dep</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_img"</span>, <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"0.1.4"</span>)</pre></div>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel_dep(name = &quot;rules_img&quot;, version = &quot;0.1.5&quot;)"><pre><span class="pl-en">bazel_dep</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_img"</span>, <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"0.1.5"</span>)</pre></div>
 <details>
 <summary>Configure default settings (optional) in <code>.bazelrc</code></summary>
 <div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="# The compression algorithm to use (&quot;gzip&quot; or &quot;zstd&quot;)
@@ -32,6 +32,14 @@ common --@rules_img//img/settings:stamp=disabled
 # The push strategy to use (see below for more info).
 # &quot;eager&quot;, &quot;lazy&quot;, &quot;cas_registry&quot;, or &quot;bes&quot;
 common --@rules_img//img/settings:push_strategy=eager
+
+# The load strategy to use.
+# &quot;eager&quot; or &quot;lazy&quot;
+common --@rules_img//img/settings:load_strategy=eager
+
+# The daemon to target with image_load
+# &quot;docker&quot; or &quot;containerd&quot;
+common --@rules_img//img/settings:load_daemon=docker
 
 # Bazel remote cache to use for lazy pushing of container images.
 # Uses the same format as Bazel's --remote_cache flag.
@@ -55,6 +63,14 @@ common --@rules_img//img/settings:stamp=disabled
 # The push strategy to use (see below for more info).
 # "eager", "lazy", "cas_registry", or "bes"
 common --@rules_img//img/settings:push_strategy=eager
+
+# The load strategy to use.
+# "eager" or "lazy"
+common --@rules_img//img/settings:load_strategy=eager
+
+# The daemon to target with image_load
+# "docker" or "containerd"
+common --@rules_img//img/settings:load_daemon=docker
 
 # Bazel remote cache to use for lazy pushing of container images.
 # Uses the same format as Bazel's --remote_cache flag.
@@ -275,6 +291,7 @@ This results in a more complex implementation, but also allows for interesting o
 <li>✅ <a href="#layer-optimization">Deduplication of layer contents</a></li>
 <li>✅ <a href="#advanced-push-strategies">Advanced push strategies</a></li>
 <li>✅ <a href="#estargz-lazy-pulling">eStargz support for lazy pulling</a></li>
+<li>✅ <a href="#incremental-loading">Incremental loading into daemons</a></li>
 </ul>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Documentation</h2><a id="user-content-documentation" class="anchor" aria-label="Permalink: Documentation" href="#documentation"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <ul dir="auto">
@@ -293,9 +310,10 @@ This results in a more complex implementation, but also allows for interesting o
 <li><a href="docs/image.md#image_index"><code>image_index</code></a> - Build multi-platform image indexes</li>
 </ul>
 </li>
-<li><strong>Push and Pull Rules</strong>
+<li><strong>Push, Pull and Load Rules</strong>
 <ul dir="auto">
 <li><a href="docs/push.md#image_push"><code>image_push</code></a> - Push images to registries</li>
+<li><a href="docs/load.md#image_load"><code>image_load</code></a> - Load images into container daemons</li>
 <li><a href="docs/pull.md#pull"><code>pull</code></a> - Pull base images</li>
 </ul>
 </li>
@@ -398,6 +416,29 @@ This allows for smaller container images.</p>
 )</pre></div>
 <p dir="auto">The same setting can be globally enabled using <code>--@rules_img//img/settings:estargz=enabled</code>.
 Read the <a href="https://github.com/containerd/stargz-snapshotter">stargz-snapshotter documentation</a> for more information.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Incremental Loading</h3><a id="user-content-incremental-loading" class="anchor" aria-label="Permalink: Incremental Loading" href="#incremental-loading"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">rules_img loads images incrementally and efficiently by directly interfacing with the containerd API. This provides significant performance advantages over traditional approaches:</p>
+<ul dir="auto">
+<li><strong>Direct containerd integration</strong> - When Docker is configured with containerd storage, rules_img bypasses <code>docker load</code> entirely</li>
+<li><strong>Incremental blob loading</strong> - Only new or changed layers are loaded, existing blobs are skipped</li>
+<li><strong>Streaming architecture</strong> - No temporary tar files or buffering entire images in memory</li>
+<li><strong>Platform selection</strong> - Load only the platforms you need from multi-platform images</li>
+</ul>
+<p dir="auto">The performance difference is dramatic, especially for large images:</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="# Load only the platform you need
+bazel run //my:image_load -- --platform linux/amd64
+
+# Incremental loading: only new layers are transferred
+# Second load of a slightly modified image is near-instant
+bazel run //my:image_load  # Only changed layers loaded!"><pre><span class="pl-c"><span class="pl-c">#</span> Load only the platform you need</span>
+bazel run //my:image_load -- --platform linux/amd64
+
+<span class="pl-c"><span class="pl-c">#</span> Incremental loading: only new layers are transferred</span>
+<span class="pl-c"><span class="pl-c">#</span> Second load of a slightly modified image is near-instant</span>
+bazel run //my:image_load  <span class="pl-c"><span class="pl-c">#</span> Only changed layers loaded!</span></pre></div>
+<p dir="auto">When Docker doesn't support containerd storage, rules_img automatically falls back to <code>docker load</code> with a clear warning about the performance impact.</p>
+<p dir="auto">This is particularly powerful in development workflows where you're iterating on application layers while keeping large base images (like CUDA) unchanged - subsequent loads only transfer your small application layers.</p>
+<p dir="auto"><strong>Future Docker Support</strong>: Docker is planning to expose its contentstore API in version 29.0.0, which will enable native incremental loading (<a href="https://github.com/moby/moby/issues/44369" data-hovercard-type="issue" data-hovercard-url="/moby/moby/issues/44369/hovercard">moby/moby#44369</a>). Once this ships, rules_img will adopt it to provide incremental loading performance even when the containerd socket isn't directly accesible by users. This will bring the same efficiency benefits to all Docker users, regardless of their platform or configuration.</p>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Hacking &amp; Contributing</h2><a id="user-content-hacking--contributing" class="anchor" aria-label="Permalink: Hacking &amp; Contributing" href="#hacking--contributing"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">We invite external contributions and are eager to work together with the build systems community. Please refer to the <a href="/CONTRIBUTING.md">CONTRIBUTING</a> guide to learn more. If you want to check out the code and run a development version, follow the <a href="/HACKING.md">HACKING</a> guide to get started.</p>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Acknowledgments</h2><a id="user-content-acknowledgments" class="anchor" aria-label="Permalink: Acknowledgments" href="#acknowledgments"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
