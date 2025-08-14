@@ -17,7 +17,8 @@
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Installation</h2><a id="user-content-installation" class="anchor" aria-label="Permalink: Installation" href="#installation"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">Add to your <code>MODULE.bazel</code>:</p>
 <div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel_dep(name = &quot;rules_img&quot;, version = &quot;0.1.4&quot;)"><pre><span class="pl-en">bazel_dep</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_img"</span>, <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"0.1.4"</span>)</pre></div>
-<p dir="auto">Configure default settings (optional) in <code>.bazelrc</code>:</p>
+<details>
+<summary>Configure default settings (optional) in <code>.bazelrc</code></summary>
 <div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="# The compression algorithm to use (&quot;gzip&quot; or &quot;zstd&quot;)
 common --@rules_img//img/settings:compress=zstd
 
@@ -25,25 +26,49 @@ common --@rules_img//img/settings:compress=zstd
 # with the containerd stargz-snapshotter
 common --@rules_img//img/settings:estargz=enabled
 
+# Opt-in to stamping of image_push rules
+common --@rules_img//img/settings:stamp=disabled
+
 # The push strategy to use (see below for more info).
 # &quot;eager&quot;, &quot;lazy&quot;, &quot;cas_registry&quot;, or &quot;bes&quot;
 common --@rules_img//img/settings:push_strategy=eager
 
-# Opt-in to stamping of image_push rules
-common --@rules_img//img/settings:stamp=disabled"><pre class="notranslate"><code># The compression algorithm to use ("gzip" or "zstd")
+# Bazel remote cache to use for lazy pushing of container images.
+# Uses the same format as Bazel's --remote_cache flag.
+# Falls back to $IMG_REAPI_ENDPOINT env var.
+common --@rules_img//img/settings:remote_cache=grpcs://remote.buildbuddy.io
+
+# Credential helper to use for authenticating gRPC connections during push operations
+# in some push strategies.
+# This can be the same as Bazel's credential helper.
+# Falls back to $IMG_CREDENTIAL_HELPER env var.
+common --@rules_img//img/settings:credential_helper=grpcs://remote.buildbuddy.io"><pre class="notranslate"><code># The compression algorithm to use ("gzip" or "zstd")
 common --@rules_img//img/settings:compress=zstd
 
 # Support for seekable eStargz layers
 # with the containerd stargz-snapshotter
 common --@rules_img//img/settings:estargz=enabled
 
+# Opt-in to stamping of image_push rules
+common --@rules_img//img/settings:stamp=disabled
+
 # The push strategy to use (see below for more info).
 # "eager", "lazy", "cas_registry", or "bes"
 common --@rules_img//img/settings:push_strategy=eager
 
-# Opt-in to stamping of image_push rules
-common --@rules_img//img/settings:stamp=disabled
+# Bazel remote cache to use for lazy pushing of container images.
+# Uses the same format as Bazel's --remote_cache flag.
+# Falls back to $IMG_REAPI_ENDPOINT env var.
+common --@rules_img//img/settings:remote_cache=grpcs://remote.buildbuddy.io
+
+# Credential helper to use for authenticating gRPC connections during push operations
+# in some push strategies.
+# This can be the same as Bazel's credential helper.
+# Falls back to $IMG_CREDENTIAL_HELPER env var.
+common --@rules_img//img/settings:credential_helper=grpcs://remote.buildbuddy.io
 </code></pre></div>
+</details>
+<br>
 <p dir="auto">You also need a credential helper to pull base images from container registries.
 We recommend <a href="https://github.com/tweag/credential-helper">tweag-credential-helper</a>. Refer to the <a href="https://github.com/tweag/credential-helper/blob/main/docs/providers/oci.md">container registry setup</a> for more information.</p>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Quick Start</h2><a id="user-content-quick-start" class="anchor" aria-label="Permalink: Quick Start" href="#quick-start"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
