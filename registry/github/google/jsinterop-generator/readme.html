@@ -1,0 +1,82 @@
+<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">JsInterop Generator · <a href="https://github.com/google/jsinterop-generator/actions/workflows/ci.yaml"><img src="https://github.com/google/jsinterop-generator/actions/workflows/ci.yaml/badge.svg" alt="Build Status" style="max-width: 100%;"></a></h1><a id="user-content-jsinterop-generator--" class="anchor" aria-label="Permalink: JsInterop Generator · " href="#jsinterop-generator--"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The jsinterop generator is a java program that takes closure extern files as input and generates
+Java classes annotated with <a href="https://goo.gl/agme3T" rel="nofollow">JsInterop annotations</a>.</p>
+<blockquote>
+<p dir="auto"><em>This project is used for building Elemental2.
+Any other uses are experimental. You can use it to generate java APIs for other javascript libraries but we don't provide any official support. Feel free to open issues on the github issue tracker, though.</em></p>
+</blockquote>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Run with Bazel</h2><a id="user-content-run-with-bazel" class="anchor" aria-label="Permalink: Run with Bazel" href="#run-with-bazel"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Using Bazel 8 or later, add to your <code>MODULE.bazel</code> file:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel_dep(name = &quot;jsinterop_generator&quot;, version = &quot;&lt;RELEASE_VERSION&gt;&quot;)"><pre><span class="pl-en">bazel_dep</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"jsinterop_generator"</span>, <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"&lt;RELEASE_VERSION&gt;"</span>)</pre></div>
+<p dir="auto">Replace <code>RELEASE_VERSION</code> with an actual <a href="https://github.com/google/jsinterop-generator/releases">release version</a>.</p>
+<p dir="auto">Then, in your <code>BUILD</code> file, load the generator rule and use it:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@jsinterop_generator//:jsinterop_generator.bzl&quot;, &quot;jsinterop_generator&quot;)
+
+jsinterop_generator(
+        name = &quot;my_thirdparty_lib&quot;,
+        srcs = [&quot;my_externs.js&quot;],
+)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@jsinterop_generator//:jsinterop_generator.bzl"</span>, <span class="pl-s">"jsinterop_generator"</span>)
+
+<span class="pl-en">jsinterop_generator</span>(
+        <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"my_thirdparty_lib"</span>,
+        <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> [<span class="pl-s">"my_externs.js"</span>],
+)</pre></div>
+<p dir="auto">You can now directly depend on <code>:my_thirdparty_lib</code> target in your <code>java_library</code> rules or build the jar files with <code>bazel build //path/to/your/BUILD/file/directory:my_thirdparty_lib</code>.
+The jar files with the generated source will created in <code>bazel-bin/path/to/your/BUILD/file/directory</code>.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Run as a standalone java program</h2><a id="user-content-run-as-a-standalone-java-program" class="anchor" aria-label="Permalink: Run as a standalone java program" href="#run-as-a-standalone-java-program"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Build the generator from source</h3><a id="user-content-build-the-generator-from-source" class="anchor" aria-label="Permalink: Build the generator from source" href="#build-the-generator-from-source"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li>Install <a href="https://github.com/bazelbuild/bazelisk">Bazelisk</a>:</li>
+</ul>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="    $ npm install -g @bazel/bazelisk
+    $ alias bazel=bazelisk"><pre>    $ npm install -g @bazel/bazelisk
+    $ <span class="pl-c1">alias</span> bazel=bazelisk</pre></div>
+<ul dir="auto">
+<li>Clone this git repository:
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="$ git clone https://github.com/google/jsinterop-generator.git"><pre>$ git clone https://github.com/google/jsinterop-generator.git</pre></div>
+</li>
+<li>Build the binary:
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="    $ cd jsinterop-generator
+    $ bazel build //java/jsinterop/generator/closure:ClosureJsinteropGenerator_deploy.jar"><pre>    $ <span class="pl-c1">cd</span> jsinterop-generator
+    $ bazel build //java/jsinterop/generator/closure:ClosureJsinteropGenerator_deploy.jar</pre></div>
+</li>
+</ul>
+<p dir="auto">The generated jar file can be found at <code>bazel-bin/java/jsinterop/generator/closure/ClosureJsinteropGenerator_deploy.jar</code></p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Run the generator</h3><a id="user-content-run-the-generator" class="anchor" aria-label="Permalink: Run the generator" href="#run-the-generator"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Now you have the jar file, just invoke</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="java -jar /path/to/ClosureJsinteropGenerator_deploy.jar [options] externs_file..."><pre class="notranslate"><code>java -jar /path/to/ClosureJsinteropGenerator_deploy.jar [options] externs_file...
+</code></pre></div>
+<p dir="auto">List of required <code>options</code> :</p>
+<markdown-accessiblity-table><table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>--output <em>file</em></td>
+<td>Path to the jar file that will contain the generated java classes</td>
+</tr>
+<tr>
+<td>--output_dependency_file <em>file</em></td>
+<td>Path to the dependency file generated by the generator.</td>
+</tr>
+<tr>
+<td>--package_prefix <em>string</em></td>
+<td>Prefix used when we build the java package</td>
+</tr>
+<tr>
+<td>--extension_type_prefix <em>string</em></td>
+<td>Value used for prefixing extension types. It's a good practice to pass the name of the library in upper camel case.</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Contributing</h2><a id="user-content-contributing" class="anchor" aria-label="Permalink: Contributing" href="#contributing"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Please refer to <a href="CONTRIBUTING.md">the contributing document</a>.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Licensing</h2><a id="user-content-licensing" class="anchor" aria-label="Permalink: Licensing" href="#licensing"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Please refer to <a href="LICENSE">the license file</a>.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Disclaimer</h2><a id="user-content-disclaimer" class="anchor" aria-label="Permalink: Disclaimer" href="#disclaimer"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">This is not an official Google product.</p>
+</article></div>
