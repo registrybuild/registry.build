@@ -6,48 +6,53 @@ and build them in into a reusable Docker image.</p>
 then run it with <code>docker run --rm -p 3000:3000 bazel/example:grafana</code>.
 Then load Grafana in your browser at <code>http://localhost:3000</code>!</p>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Installing</h2><a id="user-content-installing" class="anchor" aria-label="Permalink: Installing" href="#installing"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<p dir="auto">Load <code>io_bazel_rules_grafana</code> by adding the following to your <code>WORKSPACE</code>:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@bazel_tools//tools/build_defs/repo:git.bzl&quot;, &quot;git_repository&quot;)
-git_repository(
-    name = &quot;io_bazel_rules_grafana&quot;,
-    commit = &quot;{HEAD}&quot;, # replace with a real commit hash
-    remote = &quot;https://github.com/etsy/rules_grafana.git&quot;,
-)
+<p dir="auto">Load <code>rules_grafana</code> by adding the following to your <code>MODULE.bazel</code>:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel_dep(name = &quot;rules_grafana&quot;, version = &quot;1.0.0&quot;)
 
-load(&quot;@io_bazel_rules_grafana//grafana:workspace.bzl&quot;, grafana_repositories=&quot;repositories&quot;)
-grafana_repositories()"><pre><span class="pl-en">load</span>(<span class="pl-s">"@bazel_tools//tools/build_defs/repo:git.bzl"</span>, <span class="pl-s">"git_repository"</span>)
-<span class="pl-en">git_repository</span>(
-    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"io_bazel_rules_grafana"</span>,
-    <span class="pl-s1">commit</span> <span class="pl-c1">=</span> <span class="pl-s">"{HEAD}"</span>, <span class="pl-c"># replace with a real commit hash</span>
-    <span class="pl-s1">remote</span> <span class="pl-c1">=</span> <span class="pl-s">"https://github.com/etsy/rules_grafana.git"</span>,
-)
+# For plugins and container setup
+grafana_ext = use_extension(&quot;@rules_grafana//grafana:extensions.bzl&quot;, &quot;grafana&quot;)
+use_repo(grafana_ext, &quot;grafana_oci&quot;)
 
-<span class="pl-en">load</span>(<span class="pl-s">"@io_bazel_rules_grafana//grafana:workspace.bzl"</span>, <span class="pl-s1">grafana_repositories</span><span class="pl-c1">=</span><span class="pl-s">"repositories"</span>)
-<span class="pl-en">grafana_repositories</span>()</pre></div>
-<p dir="auto"><code>rules_grafana</code> also depends on <a href="https://github.com/bazelbuild/rules_python"><code>rules_python</code></a> and
-<a href="https://github.com/bazel-contrib/rules_oci?tab=readme-ov-file#installation"><code>rules_oci</code></a>.
-If you don't already have these libraries in your <code>WORKSPACE</code>,
-add them above the previous block:</p>
-<ul dir="auto">
-<li><a href="https://github.com/bazelbuild/rules_python#setup"><code>rules_python</code> setup</a>.</li>
-<li><a href="https://github.com/bazel-contrib/rules_oci?tab=readme-ov-file#installation"><code>rules_oci</code> setup</a>.</li>
-</ul>
+# Optional: Add plugins
+grafana_ext.plugin(
+    name = &quot;my_plugin&quot;,
+    urls = [&quot;https://grafana.com/api/plugins/my-plugin/versions/1.0.0/download&quot;],
+    sha256 = &quot;...&quot;,
+    type = &quot;zip&quot;,
+)
+use_repo(grafana_ext, &quot;my_plugin&quot;)"><pre><span class="pl-en">bazel_dep</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_grafana"</span>, <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"1.0.0"</span>)
+
+<span class="pl-c"># For plugins and container setup</span>
+<span class="pl-s1">grafana_ext</span> <span class="pl-c1">=</span> <span class="pl-en">use_extension</span>(<span class="pl-s">"@rules_grafana//grafana:extensions.bzl"</span>, <span class="pl-s">"grafana"</span>)
+<span class="pl-en">use_repo</span>(<span class="pl-s1">grafana_ext</span>, <span class="pl-s">"grafana_oci"</span>)
+
+<span class="pl-c"># Optional: Add plugins</span>
+<span class="pl-s1">grafana_ext</span>.<span class="pl-c1">plugin</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"my_plugin"</span>,
+    <span class="pl-s1">urls</span> <span class="pl-c1">=</span> [<span class="pl-s">"https://grafana.com/api/plugins/my-plugin/versions/1.0.0/download"</span>],
+    <span class="pl-s1">sha256</span> <span class="pl-c1">=</span> <span class="pl-s">"..."</span>,
+    <span class="pl-s1">type</span> <span class="pl-c1">=</span> <span class="pl-s">"zip"</span>,
+)
+<span class="pl-en">use_repo</span>(<span class="pl-s1">grafana_ext</span>, <span class="pl-s">"my_plugin"</span>)</pre></div>
+<p dir="auto"><code>rules_grafana</code> depends on <a href="https://github.com/bazelbuild/rules_python"><code>rules_python</code></a> and
+<a href="https://github.com/bazel-contrib/rules_oci"><code>rules_oci</code></a>, but these are automatically managed
+through Bazel's module system.</p>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Bazel compatibility</h2><a id="user-content-bazel-compatibility" class="anchor" aria-label="Permalink: Bazel compatibility" href="#bazel-compatibility"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<p dir="auto">The current version has only been tested to work with Bazel 2.0.0, but may work with other versions.</p>
+<p dir="auto">Requires Bazel 7.0.0 or later with bzlmod enabled.</p>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Usage</h2><a id="user-content-usage" class="anchor" aria-label="Permalink: Usage" href="#usage"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto"><code>rules_grafana</code> makes it easy to build dashboards and incorporate them into your Bazel build,
 and to build a complete, runnable Docker image.</p>
 <p dir="auto">Dashboards can be either hard-coded JSON files or Python scripts that generate dashboards.</p>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">JSON dashboards</h3><a id="user-content-json-dashboards" class="anchor" aria-label="Permalink: JSON dashboards" href="#json-dashboards"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">Use <code>json_dashboards</code> to add JSON files containing dashboard to your build.
-The JSON must be a complete, valid Grafana 5.0 dashboard;
+The JSON must be a complete, valid Grafana dashboard;
 see the <a href="http://docs.grafana.org/reference/dashboard/" rel="nofollow">Grafana docs</a> for details on the JSON format.</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@io_bazel_rules_grafana//grafana:grafana.bzl&quot;, &quot;json_dashboards&quot;)
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@rules_grafana//grafana:grafana.bzl&quot;, &quot;json_dashboards&quot;)
 
 json_dashboards(
     name = &quot;dashboards&quot;,
     srcs = [&quot;awesome_graphs.json&quot;],
-)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@io_bazel_rules_grafana//grafana:grafana.bzl"</span>, <span class="pl-s">"json_dashboards"</span>)
+)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@rules_grafana//grafana:grafana.bzl"</span>, <span class="pl-s">"json_dashboards"</span>)
 
 <span class="pl-en">json_dashboards</span>(
     <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"dashboards"</span>,
@@ -62,9 +67,6 @@ to ensure it has a <a href="http://docs.grafana.org/administration/provisioning/
 using the <a href="https://github.com/weaveworks/grafanalib"><code>grafanalib</code></a> library.
 <code>grafanalib</code> is automatically imported,
 and you can also add other <code>deps</code> to help build your dashboard.</p>
-<blockquote>
-<p dir="auto">You can override <code>grafanalib</code> with a <a href="https://pip.pypa.io/en/stable/reference/pip_install/#requirements-file-format" rel="nofollow">different version</a> via <code>grafana_repositories(grafanalib_pip_specifier=YOUR_REQUIREMENT)</code> in your <code>WORKSPACE</code>.</p>
-</blockquote>
 <p dir="auto">Each Python dashboard file should print the complete JSON of a Grafana dashboard.
 An easy way to do that is to follow a template like this:</p>
 <div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="from grafanalib.core import *
@@ -82,20 +84,17 @@ print_dashboard(dashboard.auto_panel_ids()) # `auto_panel_ids()` call is require
 )
 
 <span class="pl-en">print_dashboard</span>(<span class="pl-s1">dashboard</span>.<span class="pl-c1">auto_panel_ids</span>()) <span class="pl-c"># `auto_panel_ids()` call is required!</span></pre></div>
-<p dir="auto">Use <code>py_dashboards</code> to add Python files that generate dashboards to your build.
-You need to set python_version to either <code>PY2</code> or <code>PY3</code>, depending if you write your code in python2 or python3.</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@io_bazel_rules_grafana//grafana:grafana.bzl&quot;, &quot;py_dashboards&quot;)
+<p dir="auto">Use <code>py_dashboards</code> to add Python files that generate dashboards to your build.</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@rules_grafana//grafana:grafana.bzl&quot;, &quot;py_dashboards&quot;)
 
 py_dashboards(
     name = &quot;dashboards&quot;,
     srcs = [&quot;amazing_graphs.py&quot;, &quot;even_better_graphs.py&quot;],
-    python_version = &quot;PY2&quot;,
-)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@io_bazel_rules_grafana//grafana:grafana.bzl"</span>, <span class="pl-s">"py_dashboards"</span>)
+)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@rules_grafana//grafana:grafana.bzl"</span>, <span class="pl-s">"py_dashboards"</span>)
 
 <span class="pl-en">py_dashboards</span>(
     <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"dashboards"</span>,
     <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> [<span class="pl-s">"amazing_graphs.py"</span>, <span class="pl-s">"even_better_graphs.py"</span>],
-    <span class="pl-s1">python_version</span> <span class="pl-c1">=</span> <span class="pl-s">"PY2"</span>,
 )</pre></div>
 <p dir="auto">You can run the Python and see the generated JSON with the <code>FOO_builder</code> target created by <code>py_dashboards</code>,
 where <code>FOO</code> is the Python filename without <code>.py</code>.
@@ -112,40 +111,28 @@ alongside all the dashboards.
 You must provide a <code>datasources.yaml</code> file declaring your datasources;
 see the <a href="http://docs.grafana.org/administration/provisioning/#datasources" rel="nofollow">Grafana datasources docs</a> for details of the format.</p>
 <p dir="auto">Grafana plugins can be installed into the image too.
-Use the <code>grafana_plugin</code> WORKSPACE rule to download the plugin ZIP,
-providing the URL from the "download the .zip file" on the Grafana plugin page's Installation tab.
-Then pass the plugin to the image rule's <code>plugins</code> list as <code>@grafana_plugin_repository_name//:plugin</code>.</p>
+Use the <code>grafana</code> module extension to download plugins:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="# In your MODULE.bazel
+grafana_ext = use_extension(&quot;@rules_grafana//grafana:extensions.bzl&quot;, &quot;grafana&quot;)
+grafana_ext.plugin(
+    name = &quot;grafana_plotly_plugin&quot;,
+    urls = [&quot;https://grafana.com/api/plugins/natel-plotly-panel/versions/0.0.7/download&quot;],
+    sha256 = &quot;818ab33b42a1421b561f4e44f0cd19cd1a56767d3952045b8042a4da58bd470e&quot;,
+    type = &quot;zip&quot;,
+)
+use_repo(grafana_ext, &quot;grafana_plotly_plugin&quot;)"><pre><span class="pl-c"># In your MODULE.bazel</span>
+<span class="pl-s1">grafana_ext</span> <span class="pl-c1">=</span> <span class="pl-en">use_extension</span>(<span class="pl-s">"@rules_grafana//grafana:extensions.bzl"</span>, <span class="pl-s">"grafana"</span>)
+<span class="pl-s1">grafana_ext</span>.<span class="pl-c1">plugin</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"grafana_plotly_plugin"</span>,
+    <span class="pl-s1">urls</span> <span class="pl-c1">=</span> [<span class="pl-s">"https://grafana.com/api/plugins/natel-plotly-panel/versions/0.0.7/download"</span>],
+    <span class="pl-s1">sha256</span> <span class="pl-c1">=</span> <span class="pl-s">"818ab33b42a1421b561f4e44f0cd19cd1a56767d3952045b8042a4da58bd470e"</span>,
+    <span class="pl-s1">type</span> <span class="pl-c1">=</span> <span class="pl-s">"zip"</span>,
+)
+<span class="pl-en">use_repo</span>(<span class="pl-s1">grafana_ext</span>, <span class="pl-s">"grafana_plotly_plugin"</span>)</pre></div>
+<p dir="auto">Then pass the plugin to the image rule's <code>plugins</code> list as <code>@grafana_plotly_plugin//:plugin</code>.</p>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Custom grafana image</h3><a id="user-content-custom-grafana-image" class="anchor" aria-label="Permalink: Custom grafana image" href="#custom-grafana-image"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<p dir="auto">The default version of grafana shipped with this module may not suit your needs.
-You can use a custom image by setting the <code>use_custom_container</code> arg for <code>repositories()</code>
-macro and defining a container_pull rule named <code>io_bazel_rules_grafana_docker</code>:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(
-    &quot;@io_bazel_rules_grafana//grafana:workspace.bzl&quot;,
-    grafana_repositories = &quot;repositories&quot;,
-)
-
-grafana_repositories(use_custom_container = True)
-
-container_pull(
-    name = &quot;io_bazel_rules_grafana_docker&quot;,
-    registry = &quot;gcr.io&quot;,
-    repository = &quot;etsy-searchinfra-tools-sandbox/grafana&quot;,
-    tag = &quot;6.5.2&quot;,
-    digest = &quot;sha256:24fcb753c050522ebc36f70873f081ff937f41a6adad133407709513aac3b016&quot;,
-)"><pre><span class="pl-en">load</span>(
-    <span class="pl-s">"@io_bazel_rules_grafana//grafana:workspace.bzl"</span>,
-    <span class="pl-s1">grafana_repositories</span> <span class="pl-c1">=</span> <span class="pl-s">"repositories"</span>,
-)
-
-<span class="pl-en">grafana_repositories</span>(<span class="pl-s1">use_custom_container</span> <span class="pl-c1">=</span> <span class="pl-c1">True</span>)
-
-<span class="pl-en">container_pull</span>(
-    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"io_bazel_rules_grafana_docker"</span>,
-    <span class="pl-s1">registry</span> <span class="pl-c1">=</span> <span class="pl-s">"gcr.io"</span>,
-    <span class="pl-s1">repository</span> <span class="pl-c1">=</span> <span class="pl-s">"etsy-searchinfra-tools-sandbox/grafana"</span>,
-    <span class="pl-s1">tag</span> <span class="pl-c1">=</span> <span class="pl-s">"6.5.2"</span>,
-    <span class="pl-s1">digest</span> <span class="pl-c1">=</span> <span class="pl-s">"sha256:24fcb753c050522ebc36f70873f081ff937f41a6adad133407709513aac3b016"</span>,
-)</pre></div>
+<p dir="auto">The default version of Grafana (12.0) may not suit your needs.
+You can override the container by modifying the grafana extension in your MODULE.bazel.</p>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">API reference</h2><a id="user-content-api-reference" class="anchor" aria-label="Permalink: API reference" href="#api-reference"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto"><code>json_dashboards</code></h3><a id="user-content-json_dashboards" class="anchor" aria-label="Permalink: json_dashboards" href="#json_dashboards"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">Processes a set of <code>.json</code> Grafana dashboards for inclusion in the image.</p>
@@ -159,7 +146,6 @@ container_pull(
 <p dir="auto">Arguments:</p>
 <ul dir="auto">
 <li><code>name</code>: Unique name for this target.  Required.</li>
-<li><code>python_version</code>: Version of python used.</li>
 <li><code>srcs</code>: List of labels of <code>.py</code> files to build into dashboards.  Required.</li>
 <li><code>deps</code>: List of labels of additional <code>py_library</code> targets to use while executing the Python dashboards.  Optional, default <code>[]</code>.</li>
 </ul>
@@ -170,15 +156,17 @@ container_pull(
 <li><code>name</code>: Unique name for this target.  Required.</li>
 <li><code>dashboards</code>: List of labels of <code>json_dashboards</code> and/or <code>py_dashboards</code> targets to include in the image.  Required.</li>
 <li><code>datasources</code>: List of labels of <code>datasources.yaml</code> files to include in the image (<a href="http://docs.grafana.org/administration/provisioning/#datasources" rel="nofollow">Grafana datasources docs</a>).  Required.</li>
-<li><code>plugins</code>: List of labels of <code>grafana_plugin</code> targets, like <code>@your_repository_name//:plugin</code>.  Optional.</li>
+<li><code>plugins</code>: List of labels of plugin targets from the grafana extension, like <code>@your_plugin_name//:plugin</code>.  Optional.</li>
 <li><code>env</code>: Dictionary of environment variant names to values, set in the Docker image when Grafana is run.  Optional.
 Useful for setting runtime configs with <code>GF_</code> variables.</li>
 </ul>
-<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto"><code>grafana_plugin</code></h3><a id="user-content-grafana_plugin" class="anchor" aria-label="Permalink: grafana_plugin" href="#grafana_plugin"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<p dir="auto">Repository rule to download a Grafana plugin for inclusion in a <code>grafana_image</code>.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Module extension: <code>grafana</code></h3><a id="user-content-module-extension-grafana" class="anchor" aria-label="Permalink: Module extension: grafana" href="#module-extension-grafana"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Module extension for managing Grafana plugins and container configuration.</p>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto"><code>grafana.plugin</code></h4><a id="user-content-grafanaplugin" class="anchor" aria-label="Permalink: grafana.plugin" href="#grafanaplugin"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Downloads a Grafana plugin for inclusion in a <code>grafana_image</code>.</p>
 <p dir="auto">Arguments:</p>
 <ul dir="auto">
-<li><code>name</code>: Unique name for this target.  Required.</li>
+<li><code>name</code>: Unique name for this plugin repository.  Required.</li>
 <li><code>urls</code>: List of strings of mirror URLs referencing the plugin archive.  Required.</li>
 <li><code>sha256</code>: String of the expected SHA-256 hash of the download.  Required.</li>
 <li><code>type</code>: The archive type of the downloaded file as a string;
