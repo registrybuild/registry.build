@@ -7,30 +7,30 @@
 mapping (SAM) in robotics and vision, using Factor Graphs and Bayes
 Networks as the underlying computing paradigm rather than sparse
 matrices.</p>
-<p dir="auto">The current support matrix is:</p>
+
 <markdown-accessiblity-table><table>
 <thead>
 <tr>
-<th align="center">Platform</th>
-<th align="center">Compiler</th>
-<th align="center">Build Status</th>
+<th align="left">CI Status</th>
+<th align="left">Platform</th>
+<th align="left">Compiler</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td align="center">Ubuntu 22.04/24.04</td>
-<td align="center">gcc/clang</td>
-<td align="center"><a target="_blank" rel="noopener noreferrer" href="https://github.com/borglab/gtsam/workflows/Linux%20CI/badge.svg"><img src="https://github.com/borglab/gtsam/workflows/Linux%20CI/badge.svg" alt="Linux CI" style="max-width: 100%;"></a></td>
+<td align="left"><a href="https://github.com/borglab/gtsam/actions/workflows/build-python.yml?query=branch%3Adevelop"><img src="https://github.com/borglab/gtsam/actions/workflows/build-python.yml/badge.svg?branch=develop" alt="Python CI" style="max-width: 100%;"></a></td>
+<td align="left">Ubuntu 22.04, MacOS 13-14, Windows</td>
+<td align="left">gcc/clang,MSVC</td>
 </tr>
 <tr>
-<td align="center">macOS</td>
-<td align="center">clang</td>
-<td align="center"><a target="_blank" rel="noopener noreferrer" href="https://github.com/borglab/gtsam/workflows/macOS%20CI/badge.svg"><img src="https://github.com/borglab/gtsam/workflows/macOS%20CI/badge.svg" alt="macOS CI" style="max-width: 100%;"></a></td>
+<td align="left"><a href="https://github.com/borglab/gtsam/actions/workflows/vcpkg.yml?query=branch%3Adevelop"><img src="https://github.com/borglab/gtsam/actions/workflows/vcpkg.yml/badge.svg?branch=develop" alt="vcpkg" style="max-width: 100%;"></a></td>
+<td align="left">Latest Windows/Ubuntu/Mac</td>
+<td align="left">-</td>
 </tr>
 <tr>
-<td align="center">Windows</td>
-<td align="center">MSVC</td>
-<td align="center"><a target="_blank" rel="noopener noreferrer" href="https://github.com/borglab/gtsam/workflows/Windows%20CI/badge.svg"><img src="https://github.com/borglab/gtsam/workflows/Windows%20CI/badge.svg" alt="Windows CI" style="max-width: 100%;"></a></td>
+<td align="left"><a href="https://github.com/borglab/gtsam/actions/workflows/build-cibw.yml?query=branch%3Adevelop"><img src="https://github.com/borglab/gtsam/actions/workflows/build-cibw.yml/badge.svg?branch=develop" alt="Build Wheels for Develop" style="max-width: 100%;"></a></td>
+<td align="left">See <a href="https://pypi.org/project/gtsam-develop/#files" rel="nofollow">pypi files</a>; no Windows</td>
+<td align="left">-</td>
 </tr>
 </tbody>
 </table></markdown-accessiblity-table>
@@ -41,19 +41,38 @@ matrices.</p>
 mkdir build
 cd build
 cmake ..
-make check (optional, runs unit tests)
+make check  # optional, runs all unit tests
 make install"><pre><span class="pl-c"><span class="pl-c">#!</span>bash</span>
 mkdir build
 <span class="pl-c1">cd</span> build
 cmake ..
-make check (optional, runs unit tests)
+make check  <span class="pl-c"><span class="pl-c">#</span> optional, runs all unit tests</span>
 make install</pre></div>
 <p dir="auto">Prerequisites:</p>
 <ul dir="auto">
-<li><a href="http://www.boost.org/users/download/" rel="nofollow">Boost</a> &gt;= 1.65 (Ubuntu: <code>sudo apt-get install libboost-all-dev</code>)</li>
-<li><a href="http://www.cmake.org/cmake/resources/software.html" rel="nofollow">CMake</a> &gt;= 3.0 (Ubuntu: <code>sudo apt-get install cmake</code>)</li>
-<li>A modern compiler, i.e., at least gcc 4.7.3 on Linux.</li>
+<li>A modern compiler:
+<ul dir="auto">
+<li>Mac: at least xcode-14.2</li>
+<li>Linux: at least clang-11 or gcc-9</li>
+<li>Windows: at least msvc-14.2</li>
 </ul>
+</li>
+<li><a href="http://www.cmake.org/cmake/resources/software.html" rel="nofollow">CMake</a> &gt;= 3.0
+<ul dir="auto">
+<li>Ubuntu: <code>sudo apt-get install cmake</code></li>
+</ul>
+</li>
+</ul>
+<p dir="auto">Optional Boost prerequisite:</p>
+<p dir="auto">Boost is now <em>optional</em>. Two cmake flags govern its behavior:</p>
+<ul dir="auto">
+<li><code>GTSAM_USE_BOOST_FEATURES</code> = <code>ON|OFF</code>: some of our timers and concept checking in the tests still depend on boost.</li>
+<li><code>GTSAM_ENABLE_BOOST_SERIALIZATION</code> = <code>ON|OFF</code>: serialization of factor graphs, factors, etc still is done using boost</li>
+</ul>
+<p dir="auto">If one or both of these flags are <code>ON</code>, you need to install <a href="http://www.boost.org/users/download/" rel="nofollow">Boost</a> &gt;= 1.70
+- Mac: <code>brew install boost</code>
+- Ubuntu: <code>sudo apt-get install libboost-all-dev</code>
+- Windows: We highly recommend using the <a href="https://github.com/microsoft/vcpkg">vcpkg</a> package manager. For other installation methods or troubleshooting, please see the guidance in the <a href="cmake/HandleBoost.cmake">cmake/HandleBoost.cmake</a> script.</p>
 <p dir="auto">Optional prerequisites - used automatically if findable by CMake:</p>
 <ul dir="auto">
 <li><a href="http://www.threadingbuildingblocks.org/" rel="nofollow">Intel Threaded Building Blocks (TBB)</a> (Ubuntu: <code>sudo apt-get install libtbb-dev</code>)</li>
