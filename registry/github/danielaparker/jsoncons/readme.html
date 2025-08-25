@@ -17,8 +17,8 @@ in the XML world.</p>
 <p dir="auto">Compared to other JSON libraries, jsoncons has been designed to handle very large JSON texts. At its heart are
 SAX-style parsers and serializers. It supports reading an entire JSON text in memory in a variant-like structure.
 But it also supports efficient access to the underlying data using StAX-style pull parsing and push serializing.
-And it supports incremental parsing into a user's preferred form, using
-information about user types provided by specializations of <a href="doc/ref/corelib/json_type_traits.md">json_type_traits</a>.</p>
+And it supports incremental parsing into a user's preferred types, using
+information about user types provided by specializations of <a href="doc/ref/corelib/reflect.md">reflection traits</a>.</p>
 <p dir="auto">The <a href="doc/ref/corelib/data-model.md">jsoncons data model</a> supports the familiar JSON types - nulls,
 booleans, numbers, strings, arrays, objects - plus byte strings. In addition, jsoncons
 supports semantic tagging of datetimes, epoch times, big integers,
@@ -255,7 +255,7 @@ The functions <a href="doc/ref/corelib/decode_json.md">decode_json</a> and <a hr
 convert strings or streams of JSON data to C++ data structures and back.
 Decode and encode work for all C++ classes that implement jsoncons reflection traits.
 defined. jsoncons already supports many types in the standard library,
-and your own types will be supported too if you specialize <a href="doc/ref/corelib/json_type_traits.md">json_type_traits</a>
+and your own types will be supported too if you specialize <a href="doc/ref/corelib/reflect.md">reflection traits</a>
 in the <code>jsoncons</code> namespace.</p>
 <div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="namespace ns {
     enum class hiking_experience {beginner,intermediate,advanced};
@@ -348,7 +348,7 @@ int main()
 
     // Encode the c++ structure into a string
     std::string s;
-    encode_json(v, s, indenting::indent);
+    encode_json_pretty(v, s);
     std::cout &lt;&lt; &quot;(2)\n&quot;;
     std::cout &lt;&lt; s &lt;&lt; &quot;\n&quot;;
 }"><pre><span class="pl-k">namespace</span> <span class="pl-en">ns</span> {
@@ -442,7 +442,7 @@ int main()
 
     <span class="pl-c"><span class="pl-c">//</span> Encode the c++ structure into a string</span>
     std::string s;
-    <span class="pl-c1">encode_json</span>(v, s, indenting::indent);
+    <span class="pl-c1">encode_json_pretty</span>(v, s);
     std::cout &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>(2)<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>;
     std::cout &lt;&lt; s &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span><span class="pl-cce">\n</span><span class="pl-pds">"</span></span>;
 }</pre></div>
@@ -479,7 +479,7 @@ Marilyn C, 0.9, 1514862245
 </code></pre></div>
 <p dir="auto">This example makes use of the convenience macros <code>JSONCONS_ENUM_TRAITS</code>,
 <code>JSONCONS_N_CTOR_GETTER_TRAITS</code>, and <code>JSONCONS_ALL_CTOR_GETTER_TRAITS</code> to specialize the
-<a href="doc/ref/corelib/json_type_traits.md">json_type_traits</a> for the enum type
+<a href="doc/ref/corelib/reflect.md">reflection traits</a> for the enum type
 <code>ns::hiking_experience</code>, the class <code>ns::hiking_reputon</code> (with some non-mandatory members), and the class
 <code>ns::hiking_reputation</code> (with all mandatory members.)
 The macro <code>JSONCONS_ENUM_TRAITS</code> generates the code from
@@ -487,7 +487,7 @@ the enum identifiers, and the macros <code>JSONCONS_N_CTOR_GETTER_TRAITS</code>
 and <code>JSONCONS_ALL_CTOR_GETTER_TRAITS</code>
 generate the code from the get functions and a constructor.
 These macro declarations must be placed outside any namespace blocks.</p>
-<p dir="auto">See <a href="doc/Examples.md#G0">examples</a> for other ways of specializing <code>json_type_traits</code>.</p>
+<p dir="auto">See <a href="doc/Examples.md#G0">examples</a> for other ways of specializing reflection traits.</p>
 <div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">With cursor-level access</h4><a id="user-content-with-cursor-level-access" class="anchor" aria-label="Permalink: With cursor-level access" href="#with-cursor-level-access"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">A typical pull parsing application will repeatedly process the <code>current()</code>
 event and call <code>next()</code> to advance to the next event, until <code>done()</code>
@@ -779,7 +779,7 @@ const std::vector&lt;uint8_t&gt; data = {
 <p dir="auto">As a variant-like data structure, <a href="doc/ref/corelib/basic_json.md">basic_json</a></p>
 </li>
 <li>
-<p dir="auto">As a strongly typed C++ data structure that implements <a href="doc/ref/corelib/json_type_traits.md">json_type_traits</a></p>
+<p dir="auto">As a strongly typed C++ data structure that implements <a href="doc/ref/corelib/reflect.md">reflection traits</a></p>
 </li>
 <li>
 <p dir="auto">With <a href="doc/ref/cbor/basic_cbor_cursor.md">cursor-level access</a> to a stream of parse events</p>
