@@ -36,7 +36,11 @@ set with a simple and intuitive interface.</p>
 <li><a href="#option-types">Option types</a></li>
 <li><a href="#example">Example</a></li>
 <li><a href="#option-options">Option options</a></li>
-<li><a href="#validators">Validators</a>
+<li><a href="#validators">Validators</a></li>
+<li><a href="#default-validators">Default Validators</a></li>
+<li><a href="#validatrs-that-may-be-disabled-">Validatrs that may be disabled 🚧</a></li>
+<li><a href="#extra-validators-">Extra Validators 🚧</a></li>
+<li><a href="#validator-usage">Validator Usage</a>
 <ul dir="auto">
 <li><a href="#transforming-validators">Transforming Validators</a></li>
 <li><a href="#validator-operations">Validator operations</a></li>
@@ -623,22 +627,13 @@ that an input meets certain criteria or transform it into another value. They
 are added through the <code>check</code> or <code>transform</code> functions. The differences between
 the two function are that checks do not modify the input whereas transforms can
 and are executed before any Validators added through <code>check</code>.</p>
-<p dir="auto">CLI11 has several Validators built-in that perform some common checks</p>
+<p dir="auto">CLI11 has several Validators included that perform some common checks. By
+default the most commonly used ones are available. 🚧 If some are not needed
+they can be disabled by using</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="#define CLI11_DISABLE_EXTRA_VALIDATORS 1"><pre>#<span class="pl-k">define</span> <span class="pl-en">CLI11_DISABLE_EXTRA_VALIDATORS</span> <span class="pl-c1">1</span></pre></div>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Default Validators</h4><a id="user-content-default-validators" class="anchor" aria-label="Permalink: Default Validators" href="#default-validators"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">These validators are always available regardless of definitions</p>
 <ul dir="auto">
-<li><code>CLI::IsMember(...)</code>: Require an option be a member of a given set. See
-<a href="#transforming-validators">Transforming Validators</a> for more details.</li>
-<li><code>CLI::Transformer(...)</code>: Modify the input using a map. See
-<a href="#transforming-validators">Transforming Validators</a> for more details.</li>
-<li><code>CLI::CheckedTransformer(...)</code>: Modify the input using a map, and require that
-the input is either in the set or already one of the outputs of the set. See
-<a href="#transforming-validators">Transforming Validators</a> for more details.</li>
-<li><code>CLI::AsNumberWithUnit(...)</code>: Modify the <code>&lt;NUMBER&gt; &lt;UNIT&gt;</code> pair by matching
-the unit and multiplying the number by the corresponding factor. It can be
-used as a base for transformers, that accept things like size values (<code>1 KB</code>)
-or durations (<code>0.33 ms</code>).</li>
-<li><code>CLI::AsSizeValue(...)</code>: Convert inputs like <code>100b</code>, <code>42 KB</code>, <code>101 Mb</code>,
-<code>11 Mib</code> to absolute values. <code>KB</code> can be configured to be interpreted as 10^3
-or 2^10.</li>
 <li><code>CLI::ExistingFile</code>: Requires that the file exists if given.</li>
 <li><code>CLI::ExistingDirectory</code>: Requires that the directory exists.</li>
 <li><code>CLI::ExistingPath</code>: Requires that the path (file or directory) exists.</li>
@@ -648,21 +643,61 @@ exists either directly or in a default path and update the path appropriately.
 See <a href="#transforming-validators">Transforming Validators</a> for more details</li>
 <li><code>CLI::Range(min,max)</code>: Requires that the option be between min and max (make
 sure to use floating point if needed). Min defaults to 0.</li>
-<li><code>CLI::Bounded(min,max)</code>: Modify the input such that it is always between min
-and max (make sure to use floating point if needed). Min defaults to 0. Will
-produce an error if conversion is not possible.</li>
 <li><code>CLI::PositiveNumber</code>: Requires the number be greater than 0</li>
 <li><code>CLI::NonNegativeNumber</code>: Requires the number be greater or equal to 0</li>
 <li><code>CLI::Number</code>: Requires the input be a number.</li>
-<li><code>CLI::ValidIPV4</code>: Requires that the option be a valid IPv4 string e.g.
-<code>'255.255.255.255'</code>, <code>'10.1.1.7'</code>.</li>
-<li><code>CLI::TypeValidator&lt;TYPE&gt;</code>:Requires that the option be convertible to the
+</ul>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Validatrs that may be disabled 🚧</h4><a id="user-content-validatrs-that-may-be-disabled-" class="anchor" aria-label="Permalink: Validatrs that may be disabled 🚧" href="#validatrs-that-may-be-disabled-"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Validators that may be disabled by setting <code>CLI11_DISABLE_EXTRA_VALIDATORS</code> to 1
+or enabled by setting <code>CLI11_ENABLE_EXTRA_VALIDATORS</code> to 1. By default they are
+enabled.</p>
+<ul dir="auto">
+<li>
+<p dir="auto"><code>CLI::IsMember(...)</code>: Require an option be a member of a given set. See
+<a href="#transforming-validators">Transforming Validators</a> for more details.</p>
+</li>
+<li>
+<p dir="auto"><code>CLI::Transformer(...)</code>: Modify the input using a map. See
+<a href="#transforming-validators">Transforming Validators</a> for more details.</p>
+</li>
+<li>
+<p dir="auto"><code>CLI::CheckedTransformer(...)</code>: Modify the input using a map, and require that
+the input is either in the set or already one of the outputs of the set. See
+<a href="#transforming-validators">Transforming Validators</a> for more details.</p>
+</li>
+<li>
+<p dir="auto"><code>CLI::AsNumberWithUnit(...)</code>: Modify the <code>&lt;NUMBER&gt; &lt;UNIT&gt;</code> pair by matching
+the unit and multiplying the number by the corresponding factor. It can be
+used as a base for transformers, that accept things like size values (<code>1 KB</code>)
+or durations (<code>0.33 ms</code>).</p>
+</li>
+<li>
+<p dir="auto"><code>CLI::AsSizeValue(...)</code>: Convert inputs like <code>100b</code>, <code>42 KB</code>, <code>101 Mb</code>,
+<code>11 Mib</code> to absolute values. <code>KB</code> can be configured to be interpreted as 10^3
+or 2^10.</p>
+</li>
+<li>
+<p dir="auto"><code>CLI::Bounded(min,max)</code>: Modify the input such that it is always between min
+and max (make sure to use floating point if needed). Min defaults to 0. Will
+produce an error if conversion is not possible.</p>
+</li>
+<li>
+<p dir="auto"><code>CLI::ValidIPV4</code>: Requires that the option be a valid IPv4 string e.g.
+<code>'255.255.255.255'</code>, <code>'10.1.1.7'</code>.</p>
+</li>
+<li>
+<p dir="auto"><code>CLI::TypeValidator&lt;TYPE&gt;</code>:Requires that the option be convertible to the
 specified type e.g. <code>CLI::TypeValidator&lt;unsigned int&gt;()</code> would require that
 the input be convertible to an <code>unsigned int</code> regardless of the end
-conversion.</li>
+conversion.</p>
+</li>
 </ul>
-<p dir="auto">These Validators can be used by simply passing the name into the <code>check</code> or
-<code>transform</code> methods on an option</p>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Extra Validators 🚧</h4><a id="user-content-extra-validators-" class="anchor" aria-label="Permalink: Extra Validators 🚧" href="#extra-validators-"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">New validators will go into code sections that must be explicitly enabled by
+setting <code>CLI11_ENABLE_EXTRA_VALIDATORS</code> to 1</p>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Validator Usage</h4><a id="user-content-validator-usage" class="anchor" aria-label="Permalink: Validator Usage" href="#validator-usage"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">These Validators once enabled can be used by simply passing the name into the
+<code>check</code> or <code>transform</code> methods on an option</p>
 <div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="-&gt;check(CLI::ExistingFile);
 -&gt;check(CLI::Range(0,10));"><pre>-&gt;<span class="pl-en">check</span>(CLI::ExistingFile);
 -&gt;<span class="pl-en">check</span>(CLI::Range(<span class="pl-c1">0</span>,<span class="pl-c1">10</span>));</pre></div>
@@ -795,15 +830,23 @@ time being. The check can later be activated through</p>
 <p dir="auto">or if the operation function is set later they can be created with</p>
 <div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="CLI::Validator(validator_description);"><pre><span class="pl-en">CLI::Validator</span>(validator_description);</pre></div>
 <p dir="auto">It is also possible to create a subclass of <code>CLI::Validator</code>, in which case it
-can also set a custom description function, and operation function.</p>
+can also set a custom description function, and operation function. One example
+of this is in the
+<a href="https://github.com/CLIUtils/CLI11/blob/main/examples/custom_validator.cpp">custom validator example</a>.
+example. The <code>check</code> and <code>transform</code> operations can also take a shared_ptr 🚧 to
+a validator if you wish to reuse the validator in multiple locations or it is
+mutating and the check is dependent on other operations or is variable. Note
+that in this case it is not recommended to use the same object for both check
+and transform operations, the check will modify some internal flags on the
+object so it will not be usable for transform operations.</p>
 <div class="markdown-heading" dir="auto"><h5 class="heading-element" dir="auto">Querying Validators</h5><a id="user-content-querying-validators" class="anchor" aria-label="Permalink: Querying Validators" href="#querying-validators"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">Once loaded into an Option, a pointer to a named Validator can be retrieved via</p>
-<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="opt-&gt;get_validator(name);"><pre>opt-&gt;<span class="pl-en">get_validator</span>(name);</pre></div>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="auto *validator = opt-&gt;get_validator(name);"><pre><span class="pl-k">auto</span> *validator = opt-&gt;<span class="pl-en">get_validator</span>(name);</pre></div>
 <p dir="auto">This will retrieve a Validator with the given name or throw a
 <code>CLI::OptionNotFound</code> error. If no name is given or name is empty the first
 unnamed Validator will be returned or the first Validator if there is only one.</p>
 <p dir="auto">or</p>
-<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="opt-&gt;get_validator(index);"><pre>opt-&gt;<span class="pl-en">get_validator</span>(index);</pre></div>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="auto *validator = opt-&gt;get_validator(index);"><pre><span class="pl-k">auto</span> *validator = opt-&gt;<span class="pl-en">get_validator</span>(index);</pre></div>
 <p dir="auto">Which will return a validator in the index it is applied which isn't necessarily
 the order in which was defined. The pointer can be <code>nullptr</code> if an invalid index
 is given. Validators have a few functions to query the current values:</p>
@@ -1624,6 +1667,10 @@ main app later.</li>
 <li><a href="https://github.com/CLIUtils/CLI11/blob/main/examples/subcommands.cpp">subcommands</a>:
 Short example of subcommands</li>
 <li><a href="https://github.com/CLIUtils/CLI11/blob/main/examples/validators.cpp">validators</a>:
+Example illustrating use of validators</li>
+<li><a href="https://github.com/CLIUtils/CLI11/blob/main/examples/custom_validators.cpp">custom validators</a>:
+Example illustrating use of validators</li>
+<li><a href="https://github.com/CLIUtils/CLI11/blob/main/examples/date_validators.cpp">date validators</a>:
 Example illustrating use of validators</li>
 </ul>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Contribute</h2><a id="user-content-contribute" class="anchor" aria-label="Permalink: Contribute" href="#contribute"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
