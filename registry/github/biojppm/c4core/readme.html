@@ -1,0 +1,683 @@
+<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">c4core - C++ core utilities</h1><a id="user-content-c4core---c-core-utilities" class="anchor" aria-label="Permalink: c4core - C++ core utilities" href="#c4core---c-core-utilities"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><a href="https://github.com/biojppm/c4core/blob/master/LICENSE.txt"><img src="https://camo.githubusercontent.com/28f4d479bf0a9b033b3a3b95ab2adc343da448a025b01aefdc0fbc7f0e169eb8/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f4c6963656e73652d4d49542d677265656e2e737667" alt="MIT Licensed" data-canonical-src="https://img.shields.io/badge/License-MIT-green.svg" style="max-width: 100%;"></a>
+<a href="https://github.com/biojppm/c4core/actions?query=ci"><img src="https://github.com/biojppm/c4core/workflows/ci/badge.svg" alt="ci" style="max-width: 100%;"></a>
+<a href="https://codecov.io/gh/biojppm/c4core" rel="nofollow"><img src="https://camo.githubusercontent.com/fd16492940ac1c023e9e4c3363a1d612563f55078d1dc7c489469ee5c46ed08a/68747470733a2f2f636f6465636f762e696f2f67682f62696f6a70706d2f6334636f72652f6272616e63682f6d61737465722f67726170682f62616467652e737667" alt="Codecov" data-canonical-src="https://codecov.io/gh/biojppm/c4core/branch/master/graph/badge.svg" style="max-width: 100%;"></a></p>
+
+<p dir="auto">c4core is a library of low-level C++ utilities, written with low-latency
+projects in mind.</p>
+<p dir="auto">Some of the utilities provided by c4core have already equivalent
+functionality in the C++ standard, but they are provided as the existing C++
+equivalent may be insufficient (eg, std::string_view), inefficient (eg,
+std::string), heavy (eg streams), or plainly unusable on some
+platforms/projects, (eg exceptions); some other utilities have equivalent
+under consideration for C++ standardisation; and yet some other utilities
+have (to my knowledge) no equivalent under consideration. Be that as it may,
+I've been using these utilities in this or similar forms for some years now,
+and I've found them incredibly useful in my projects. I'm packing these as a
+separate library, as all of my projects use it.</p>
+<p dir="auto">c4core is <a href="https://github.com/biojppm/c4core/actions">extensively unit-tested in Linux, Windows and
+MacOS</a>. The tests cover
+x64, x86, arm, wasm (emscripten), aarch64, ppc64le and s390x
+architectures, and include analysing c4core with:</p>
+<ul dir="auto">
+<li>valgrind</li>
+<li>clang-tidy</li>
+<li>clang sanitizers:
+<ul dir="auto">
+<li>memory</li>
+<li>address</li>
+<li>undefined behavior</li>
+<li>thread</li>
+</ul>
+</li>
+<li><a href="https://lgtm.com/projects/g/biojppm/c4core" rel="nofollow">LGTM.com</a></li>
+</ul>
+<p dir="auto">c4core also works <a href="https://github.com/biojppm/c4core/issues/63" data-hovercard-type="issue" data-hovercard-url="/biojppm/c4core/issues/63/hovercard">in
+bare-metal</a>, as well as
+<a href="https://github.com/biojppm/c4core/pull/69" data-hovercard-type="pull_request" data-hovercard-url="/biojppm/c4core/pull/69/hovercard">in RISC-V</a>, and <a href="https://github.com/biojppm/c4core/pull/119" data-hovercard-type="pull_request" data-hovercard-url="/biojppm/c4core/pull/119/hovercard">in
+LoongArch</a>, but at the
+moment it's not easy to add automated tests to the CI, so for now
+these are not in the list of official architectures.</p>
+
+<ul dir="auto">
+<li><a href="#c4core---c-core-utilities">c4core - C++ core utilities</a>
+<ul dir="auto">
+<li><a href="#obtaining-c4core">Obtaining c4core</a></li>
+<li><a href="#using-c4core-in-your-project">Using c4core in your project</a>
+<ul dir="auto">
+<li><a href="#cmake">CMake</a></li>
+<li><a href="#bazel">Bazel</a></li>
+<li><a href="#header-only">Header-only</a></li>
+<li><a href="#package-managers">Package managers</a></li>
+</ul>
+</li>
+<li><a href="#quick-tour">Quick tour</a>
+<ul dir="auto">
+<li><a href="#writeable-string-views-c4substr-and-c4csubstr">Writeable string views: c4::substr and c4::csubstr</a></li>
+<li><a href="#value---character-interoperation">Value &lt;-&gt; character interoperation</a></li>
+<li><a href="#string-formatting-and-parsing">String formatting and parsing</a></li>
+<li><a href="#c4span-and-c4blob"><code>c4::span</code> and <code>c4::blob</code></a></li>
+<li><a href="#enums-and-enum-symbols">Enums and enum symbols</a></li>
+<li><a href="#bitmasks-and-bitmask-symbols">Bitmasks and bitmask symbols</a></li>
+<li><a href="#base64-encoding--decoding">Base64 encoding / decoding</a></li>
+<li><a href="#fuzzy-float-comparison">Fuzzy float comparison</a></li>
+<li><a href="#multi-platform--multi-compiler-utilities">Multi-platform / multi-compiler utilities</a></li>
+<li><a href="#runtime-assertions-and-error-handling">Runtime assertions and error handling</a></li>
+<li><a href="#memory-allocation">Memory allocation</a></li>
+<li><a href="#mass-initializationconstructiondestruction">Mass initialization/construction/destruction</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Obtaining c4core</h2><a id="user-content-obtaining-c4core" class="anchor" aria-label="Permalink: Obtaining c4core" href="#obtaining-c4core"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">c4core uses git submodules. It is best to clone c4core with the <code>--recursive</code>
+option:</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="# using --recursive makes sure git submodules are also cloned at the same time
+git clone --recursive https://github.com/biojppm/c4core"><pre><span class="pl-c"><span class="pl-c">#</span> using --recursive makes sure git submodules are also cloned at the same time</span>
+git clone --recursive https://github.com/biojppm/c4core</pre></div>
+<p dir="auto">If you ommit the <code>--recursive</code> option, then after cloning you will have to
+make git checkout the current version of the submodules, using <code>git submodule init</code> followed by <code>git submodule update</code>.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Using c4core in your project</h2><a id="user-content-using-c4core-in-your-project" class="anchor" aria-label="Permalink: Using c4core in your project" href="#using-c4core-in-your-project"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">c4core can be built with <a href="#cmake">cmake</a>, or can be used header only. It can also be obtained through some package managers.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">CMake</h3><a id="user-content-cmake" class="anchor" aria-label="Permalink: CMake" href="#cmake"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The recommended way to use c4core is by making it part of your project
+by using <code>add_subdirectory(${path_to_c4core_root})</code> in your
+CMakeLists.txt. Doing this is not intrusive to your cmake project
+because c4core is fast to build, also prefixes every cmake
+variable with <code>C4CORE_</code>. But more importantly, this will enable you to
+compile c4core with the exact same compile settings used by your
+project.</p>
+<p dir="auto">Here's a very quick complete example of setting up your project to use
+c4core as a cmake subproject:</p>
+<div class="highlight highlight-source-cmake notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="project(foo)
+
+add_subdirectory(c4core)
+
+add_library(foo foo.cpp)
+target_link_libraries(foo PUBLIC c4core) # that's it!"><pre><span class="pl-c1">project</span>(<span class="pl-s">foo</span>)
+
+<span class="pl-c1">add_subdirectory</span>(<span class="pl-s">c4core</span>)
+
+<span class="pl-c1">add_library</span>(<span class="pl-s">foo</span> <span class="pl-s">foo.cpp</span>)
+<span class="pl-c1">target_link_libraries</span>(<span class="pl-s">foo</span> <span class="pl-c1">PUBLIC</span> <span class="pl-s">c4core</span>) <span class="pl-c">#<span class="pl-c"> that's it!</span></span></pre></div>
+<p dir="auto">Note above that the call to <code>target_link_libraries()</code> is using PUBLIC
+linking. This is required to make sure the include directories from <code>c4core</code>
+are transitively used by clients of <code>foo</code>.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Header-only</h3><a id="user-content-header-only" class="anchor" aria-label="Permalink: Header-only" href="#header-only"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">If you prefer to pick a single header to get you quickly going, <a href="tools/amalgamate.py">there is an amalgamation tool</a> which generates this header:</p>
+<div class="highlight highlight-text-shell-session notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="[user@host c4core]$ python tools/amalgamate.py -h
+usage: amalgamate.py [-h] [--fastfloat | --no-fastfloat] [--stl | --no-stl] [output]
+
+positional arguments:
+  output          output file. defaults to stdout
+
+options:
+  -h, --help      show this help message and exit
+  --fastfloat     enable fastfloat library. this is the default.
+  --no-fastfloat  enable fastfloat library. the default is --fastfloat.
+  --stl           enable stl interop. this is the default.
+  --no-stl        enable stl interop. the default is --stl."><pre><span class="pl-e">[user@host c4core]</span>$ <span class="pl-s1">python tools/amalgamate.py -h</span>
+<span class="pl-c1">usage: amalgamate.py [-h] [--fastfloat | --no-fastfloat] [--stl | --no-stl] [output]</span>
+
+<span class="pl-c1">positional arguments:</span>
+<span class="pl-c1">  output          output file. defaults to stdout</span>
+
+<span class="pl-c1">options:</span>
+<span class="pl-c1">  -h, --help      show this help message and exit</span>
+<span class="pl-c1">  --fastfloat     enable fastfloat library. this is the default.</span>
+<span class="pl-c1">  --no-fastfloat  enable fastfloat library. the default is --fastfloat.</span>
+<span class="pl-c1">  --stl           enable stl interop. this is the default.</span>
+<span class="pl-c1">  --no-stl        enable stl interop. the default is --stl.</span></pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Package managers</h3><a id="user-content-package-managers" class="anchor" aria-label="Permalink: Package managers" href="#package-managers"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">c4core is available through the following package managers:</p>
+<ul dir="auto">
+<li><a href="https://vcpkg.io/en/packages.html" rel="nofollow">vcpkg</a>: <code>vcpkg install c4core</code></li>
+<li>Arch Linux/Manjaro:
+<ul dir="auto">
+<li><a href="https://aur.archlinux.org/packages/rapidyaml/" rel="nofollow">rapidyaml</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Quick tour</h2><a id="user-content-quick-tour" class="anchor" aria-label="Permalink: Quick tour" href="#quick-tour"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">All of the utilities in this library are under the namespace <code>c4</code>; any
+exposed macros use the prefix <code>C4_</code>: eg <code>C4_ASSERT()</code>.</p>
+<p dir="auto">See partial documentation in <a href="https://rapidyaml.readthedocs.io/latest/doxygen/index.html" rel="nofollow">rapidyaml's doxygen docs</a>.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Writeable string views: c4::substr and c4::csubstr</h3><a id="user-content-writeable-string-views-c4substr-and-c4csubstr" class="anchor" aria-label="Permalink: Writeable string views: c4::substr and c4::csubstr" href="#writeable-string-views-c4substr-and-c4csubstr"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Here: <a href="src/c4/substr.hpp"><code>#include &lt;c4/substr.hpp&gt;</code></a>.</p>
+<p dir="auto">There is a <a href="https://rapidyaml.readthedocs.io/latest/doxygen/group__doc__quickstart.html#ga43e253da0692c13967019446809c1113" rel="nofollow">useful quickstart
+sample</a>
+in rapidyaml's doxygen docs.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">charconv: Value &lt;-&gt; character interoperation</h3><a id="user-content-charconv-value---character-interoperation" class="anchor" aria-label="Permalink: charconv: Value &lt;-&gt; character interoperation" href="#charconv-value---character-interoperation"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Here: <a href="src/c4/charconv.hpp"><code>#include &lt;c4/charconv.hpp&gt;</code></a></p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="// TODO: elaborate on the topics:
+
+c4::digits_dec(), c4::read_dec(), c4::write_dec()
+c4::digits_hex(), c4::read_hex(), c4::write_hex()
+c4::digits_oct(), c4::read_oct(), c4::write_oct()
+c4::digits_bin(), c4::read_bin(), c4::write_bin()
+
+c4::utoa(), c4::atou()
+c4::itoa(), c4::atoi()
+c4::ftoa(), c4::atof()
+c4::dtoa(), c4::atod()
+c4::xtoa(), c4::atox()
+
+c4::to_chars(), c4::from_chars()
+c4::to_chars_sub()
+c4::to_chars_first()"><pre><span class="pl-c"><span class="pl-c">//</span> TODO: elaborate on the topics:</span>
+
+<span class="pl-en">c4::digits_dec</span>(), c4::read_dec(), c4::write_dec()
+c4::digits_hex(), c4::read_hex(), c4::write_hex()
+c4::digits_oct(), c4::read_oct(), c4::write_oct()
+c4::digits_bin(), c4::read_bin(), c4::write_bin()
+
+c4::utoa(), c4::atou()
+c4::itoa(), c4::atoi()
+c4::ftoa(), c4::atof()
+c4::dtoa(), c4::atod()
+c4::xtoa(), c4::atox()
+
+c4::to_chars(), c4::from_chars()
+c4::to_chars_sub()
+c4::to_chars_first()</pre></div>
+<p dir="auto">The charconv funcions above are very fast; even faster than C++'s fastest facility <code>std::from_chars()</code>, <code>std::to_chars()</code>. For continuous benchmark results, browse through c4core's <a href="https://github.com/biojppm/c4core/actions/workflows/benchmarks.yml">github CI benchmark runs</a>. For example, a benchmark run on Linux/g++11.2 shows that:</p>
+<ul dir="auto">
+<li><code>c4::to_chars()</code> can be expected to be roughly...
+<ul dir="auto">
+<li>~40% to 2x faster than <code>std::to_chars()</code></li>
+<li>~10x-30x faster than <code>sprintf()</code></li>
+<li>~50x-100x faster than a naive <code>stringstream::operator&lt;&lt;()</code> followed by <code>stringstream::str()</code></li>
+</ul>
+</li>
+<li><code>c4::from_chars()</code> can be expected to be roughly...
+<ul dir="auto">
+<li>~10%-30% faster than <code>std::from_chars()</code></li>
+<li>~10x faster than <code>scanf()</code></li>
+<li>~30x-50x faster than a naive <code>stringstream::str()</code> followed by <code>stringstream::operator&gt;&gt;()</code></li>
+</ul>
+</li>
+</ul>
+<p dir="auto">Here are the results:</p>
+<markdown-accessiblity-table><table>
+<thead>
+<tr>
+<th align="left">Write throughput</th>
+<th align="right"></th>
+<th align="left">Read throughput</th>
+<th align="right"></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left"><strong>write <code>uint8_t</code></strong></td>
+<td align="right"><strong>MB/s</strong></td>
+<td align="left"><strong>read <code>uint8_t</code></strong></td>
+<td align="right"><strong>MB/s</strong></td>
+</tr>
+<tr>
+<td align="left"><code>c4::to_chars&lt;u8&gt;</code></td>
+<td align="right">526.86</td>
+<td align="left"><code>c4::from_chars&lt;u8&gt;</code></td>
+<td align="right">163.06</td>
+</tr>
+<tr>
+<td align="left"><code>std::to_chars&lt;u8&gt;</code></td>
+<td align="right">379.03</td>
+<td align="left"><code>std::from_chars&lt;u8&gt;</code></td>
+<td align="right">154.85</td>
+</tr>
+<tr>
+<td align="left"><code>std::sprintf&lt;u8&gt;</code></td>
+<td align="right">20.49</td>
+<td align="left"><code>std::scanf&lt;u8&gt;</code></td>
+<td align="right">15.75</td>
+</tr>
+<tr>
+<td align="left"><code>std::stringstream&lt;u8&gt;</code></td>
+<td align="right">3.82</td>
+<td align="left"><code>std::stringstream&lt;u8&gt;</code></td>
+<td align="right">3.83</td>
+</tr>
+<tr>
+<td align="left"><strong>write <code>int8_t</code></strong></td>
+<td align="right"><strong>MB/s</strong></td>
+<td align="left"><strong>read <code>int8_t</code></strong></td>
+<td align="right"><strong>MB/s</strong></td>
+</tr>
+<tr>
+<td align="left"><code>c4::to_chars&lt;i8&gt;</code></td>
+<td align="right">599.98</td>
+<td align="left"><code>c4::from_chars&lt;i8&gt;</code></td>
+<td align="right">184.20</td>
+</tr>
+<tr>
+<td align="left"><code>std::to_chars&lt;i8&gt;</code></td>
+<td align="right">246.32</td>
+<td align="left"><code>std::from_chars&lt;i8&gt;</code></td>
+<td align="right">156.40</td>
+</tr>
+<tr>
+<td align="left"><code>std::sprintf&lt;i8&gt;</code></td>
+<td align="right">19.15</td>
+<td align="left"><code>std::scanf&lt;i8&gt;</code></td>
+<td align="right">16.44</td>
+</tr>
+<tr>
+<td align="left"><code>std::stringstream&lt;i8&gt;</code></td>
+<td align="right">3.83</td>
+<td align="left"><code>std::stringstream&lt;i8&gt;</code></td>
+<td align="right">3.89</td>
+</tr>
+<tr>
+<td align="left"><strong>write <code>uint16_t</code></strong></td>
+<td align="right"><strong>MB/s</strong></td>
+<td align="left"><strong>read <code>uint16_t</code></strong></td>
+<td align="right"><strong>MB/s</strong></td>
+</tr>
+<tr>
+<td align="left"><code>c4::to_chars&lt;u16&gt;</code></td>
+<td align="right">486.40</td>
+<td align="left"><code>c4::from_chars&lt;u16&gt;</code></td>
+<td align="right">349.48</td>
+</tr>
+<tr>
+<td align="left"><code>std::to_chars&lt;u16&gt;</code></td>
+<td align="right">454.24</td>
+<td align="left"><code>std::from_chars&lt;u16&gt;</code></td>
+<td align="right">319.13</td>
+</tr>
+<tr>
+<td align="left"><code>std::sprintf&lt;u16&gt;</code></td>
+<td align="right">38.74</td>
+<td align="left"><code>std::scanf&lt;u16&gt;</code></td>
+<td align="right">28.12</td>
+</tr>
+<tr>
+<td align="left"><code>std::stringstream&lt;u16&gt;</code></td>
+<td align="right">7.08</td>
+<td align="left"><code>std::stringstream&lt;u16&gt;</code></td>
+<td align="right">6.73</td>
+</tr>
+<tr>
+<td align="left"><strong>write <code>int16_t</code></strong></td>
+<td align="right"><strong>MB/s</strong></td>
+<td align="left"><strong>read <code>int16_t</code></strong></td>
+<td align="right"><strong>MB/s</strong></td>
+</tr>
+<tr>
+<td align="left"><code>c4::to_chars&lt;i16&gt;</code></td>
+<td align="right">507.44</td>
+<td align="left"><code>c4::from_chars&lt;i16&gt;</code></td>
+<td align="right">282.95</td>
+</tr>
+<tr>
+<td align="left"><code>std::to_chars&lt;i16&gt;</code></td>
+<td align="right">297.49</td>
+<td align="left"><code>std::from_chars&lt;i16&gt;</code></td>
+<td align="right">186.18</td>
+</tr>
+<tr>
+<td align="left"><code>std::sprintf&lt;i16&gt;</code></td>
+<td align="right">39.03</td>
+<td align="left"><code>std::scanf&lt;i16&gt;</code></td>
+<td align="right">28.45</td>
+</tr>
+<tr>
+<td align="left"><code>std::stringstream&lt;i16&gt;</code></td>
+<td align="right">6.98</td>
+<td align="left"><code>std::stringstream&lt;i16&gt;</code></td>
+<td align="right">6.49</td>
+</tr>
+<tr>
+<td align="left"><strong>write <code>uint32_t</code></strong></td>
+<td align="right"><strong>MB/s</strong></td>
+<td align="left"><strong>read <code>uint32_t</code></strong></td>
+<td align="right"><strong>MB/s</strong></td>
+</tr>
+<tr>
+<td align="left"><code>c4::to_chars&lt;u32&gt;</code></td>
+<td align="right">730.12</td>
+<td align="left"><code>c4::from_chars&lt;u32&gt;</code></td>
+<td align="right">463.95</td>
+</tr>
+<tr>
+<td align="left"><code>std::to_chars&lt;u32&gt;</code></td>
+<td align="right">514.76</td>
+<td align="left"><code>std::from_chars&lt;u32&gt;</code></td>
+<td align="right">329.42</td>
+</tr>
+<tr>
+<td align="left"><code>std::sprintf&lt;u32&gt;</code></td>
+<td align="right">71.19</td>
+<td align="left"><code>std::scanf&lt;u32&gt;</code></td>
+<td align="right">44.97</td>
+</tr>
+<tr>
+<td align="left"><code>std::stringstream&lt;u32&gt;</code></td>
+<td align="right">14.05</td>
+<td align="left"><code>std::stringstream&lt;u32&gt;</code></td>
+<td align="right">12.57</td>
+</tr>
+<tr>
+<td align="left"><strong>write <code>int32_t</code></strong></td>
+<td align="right"><strong>MB/s</strong></td>
+<td align="left"><strong>read <code>int32_t</code></strong></td>
+<td align="right"><strong>MB/s</strong></td>
+</tr>
+<tr>
+<td align="left"><code>c4::to_chars&lt;i32&gt;</code></td>
+<td align="right">618.76</td>
+<td align="left"><code>c4::from_chars&lt;i32&gt;</code></td>
+<td align="right">345.53</td>
+</tr>
+<tr>
+<td align="left"><code>std::to_chars&lt;i32&gt;</code></td>
+<td align="right">394.72</td>
+<td align="left"><code>std::from_chars&lt;i32&gt;</code></td>
+<td align="right">224.46</td>
+</tr>
+<tr>
+<td align="left"><code>std::sprintf&lt;i32&gt;</code></td>
+<td align="right">71.14</td>
+<td align="left"><code>std::scanf&lt;i32&gt;</code></td>
+<td align="right">43.49</td>
+</tr>
+<tr>
+<td align="left"><code>std::stringstream&lt;i32&gt;</code></td>
+<td align="right">13.91</td>
+<td align="left"><code>std::stringstream&lt;i32&gt;</code></td>
+<td align="right">12.03</td>
+</tr>
+<tr>
+<td align="left"><strong>write <code>uint64_t</code></strong></td>
+<td align="right"><strong>MB/s</strong></td>
+<td align="left"><strong>read <code>uint64_t</code></strong></td>
+<td align="right"><strong>MB/s</strong></td>
+</tr>
+<tr>
+<td align="left"><code>c4::to_chars&lt;u64&gt;</code></td>
+<td align="right">1118.87</td>
+<td align="left"><code>c4::from_chars&lt;u64&gt;</code></td>
+<td align="right">928.49</td>
+</tr>
+<tr>
+<td align="left"><code>std::to_chars&lt;u64&gt;</code></td>
+<td align="right">886.58</td>
+<td align="left"><code>std::from_chars&lt;u64&gt;</code></td>
+<td align="right">759.03</td>
+</tr>
+<tr>
+<td align="left"><code>std::sprintf&lt;u64&gt;</code></td>
+<td align="right">140.96</td>
+<td align="left"><code>std::scanf&lt;u64&gt;</code></td>
+<td align="right">91.60</td>
+</tr>
+<tr>
+<td align="left"><code>std::stringstream&lt;u64&gt;</code></td>
+<td align="right">28.01</td>
+<td align="left"><code>std::stringstream&lt;u64&gt;</code></td>
+<td align="right">25.00</td>
+</tr>
+<tr>
+<td align="left"><strong>write <code>int64_t</code></strong></td>
+<td align="right"><strong>MB/s</strong></td>
+<td align="left"><strong>read <code>int64_t</code></strong></td>
+<td align="right"><strong>MB/s</strong></td>
+</tr>
+<tr>
+<td align="left"><code>c4::to_chars&lt;i64&gt;</code></td>
+<td align="right">1198.78</td>
+<td align="left"><code>c4::from_chars&lt;i64&gt;</code></td>
+<td align="right">713.76</td>
+</tr>
+<tr>
+<td align="left"><code>std::to_chars&lt;i64&gt;</code></td>
+<td align="right">882.17</td>
+<td align="left"><code>std::from_chars&lt;i64&gt;</code></td>
+<td align="right">646.18</td>
+</tr>
+<tr>
+<td align="left"><code>std::sprintf&lt;i64&gt;</code></td>
+<td align="right">138.79</td>
+<td align="left"><code>std::scanf&lt;i64&gt;</code></td>
+<td align="right">90.07</td>
+</tr>
+<tr>
+<td align="left"><code>std::stringstream&lt;i64&gt;</code></td>
+<td align="right">27.62</td>
+<td align="left"><code>std::stringstream&lt;i64&gt;</code></td>
+<td align="right">25.12</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p dir="auto">Or here are plots for g++12.1 and VS2019 (from the same computer):</p>
+<markdown-accessiblity-table><table>
+<thead>
+<tr>
+<th>Linux gxx12.1</th>
+<th>Windows VS2019</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a target="_blank" rel="noopener noreferrer" href="doc/img/linux-x86_64-gxx12.1-Release/c4core-bm-charconv-atox-mega_bytes_per_second-u32.png"><img src="doc/img/linux-x86_64-gxx12.1-Release/c4core-bm-charconv-atox-mega_bytes_per_second-u32.png" alt="atox-u32-linux" title="atox-u32-linux" style="max-width: 100%;"></a></td>
+<td><a target="_blank" rel="noopener noreferrer" href="doc/img/windows-x86_64-vs2019-Release/c4core-bm-charconv-atox-mega_bytes_per_second-u32.png"><img src="doc/img/windows-x86_64-vs2019-Release/c4core-bm-charconv-atox-mega_bytes_per_second-u32.png" alt="atox-u32-windows" title="atox-u32-windows" style="max-width: 100%;"></a></td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener noreferrer" href="doc/img/linux-x86_64-gxx12.1-Release/c4core-bm-charconv-atox-mega_bytes_per_second-i32.png"><img src="doc/img/linux-x86_64-gxx12.1-Release/c4core-bm-charconv-atox-mega_bytes_per_second-i32.png" alt="atox-i32-linux" title="atox-i32-linux" style="max-width: 100%;"></a></td>
+<td><a target="_blank" rel="noopener noreferrer" href="doc/img/windows-x86_64-vs2019-Release/c4core-bm-charconv-atox-mega_bytes_per_second-i32.png"><img src="doc/img/windows-x86_64-vs2019-Release/c4core-bm-charconv-atox-mega_bytes_per_second-i32.png" alt="atox-i32-windows" title="atox-i32-windows" style="max-width: 100%;"></a></td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener noreferrer" href="doc/img/linux-x86_64-gxx12.1-Release/c4core-bm-charconv-atox-mega_bytes_per_second-u64.png"><img src="doc/img/linux-x86_64-gxx12.1-Release/c4core-bm-charconv-atox-mega_bytes_per_second-u64.png" alt="atox-u64-linux" title="atox-u64-linux" style="max-width: 100%;"></a></td>
+<td><a target="_blank" rel="noopener noreferrer" href="doc/img/windows-x86_64-vs2019-Release/c4core-bm-charconv-atox-mega_bytes_per_second-u64.png"><img src="doc/img/windows-x86_64-vs2019-Release/c4core-bm-charconv-atox-mega_bytes_per_second-u64.png" alt="atox-u64-windows" title="atox-u64-windows" style="max-width: 100%;"></a></td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener noreferrer" href="doc/img/linux-x86_64-gxx12.1-Release/c4core-bm-charconv-atox-mega_bytes_per_second-i64.png"><img src="doc/img/linux-x86_64-gxx12.1-Release/c4core-bm-charconv-atox-mega_bytes_per_second-i64.png" alt="atox-i64-linux" title="atox-i64-linux" style="max-width: 100%;"></a></td>
+<td><a target="_blank" rel="noopener noreferrer" href="doc/img/windows-x86_64-vs2019-Release/c4core-bm-charconv-atox-mega_bytes_per_second-i64.png"><img src="doc/img/windows-x86_64-vs2019-Release/c4core-bm-charconv-atox-mega_bytes_per_second-i64.png" alt="atox-i64-windows" title="atox-i64-windows" style="max-width: 100%;"></a></td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener noreferrer" href="doc/img/linux-x86_64-gxx12.1-Release/c4core-bm-charconv-atof-mega_bytes_per_second-double.png"><img src="doc/img/linux-x86_64-gxx12.1-Release/c4core-bm-charconv-atof-mega_bytes_per_second-double.png" alt="atof-double-linux" title="atof-double-linux" style="max-width: 100%;"></a></td>
+<td><a target="_blank" rel="noopener noreferrer" href="doc/img/windows-x86_64-vs2019-Release/c4core-bm-charconv-atof-mega_bytes_per_second-double.png"><img src="doc/img/windows-x86_64-vs2019-Release/c4core-bm-charconv-atof-mega_bytes_per_second-double.png" alt="atof-double-windows" title="atof-double-windows" style="max-width: 100%;"></a></td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener noreferrer" href="doc/img/linux-x86_64-gxx12.1-Release/c4core-bm-charconv-atof-mega_bytes_per_second-float.png"><img src="doc/img/linux-x86_64-gxx12.1-Release/c4core-bm-charconv-atof-mega_bytes_per_second-float.png" alt="atof-float-linux" title="atof-float-linux" style="max-width: 100%;"></a></td>
+<td><a target="_blank" rel="noopener noreferrer" href="doc/img/windows-x86_64-vs2019-Release/c4core-bm-charconv-atof-mega_bytes_per_second-float.png"><img src="doc/img/windows-x86_64-vs2019-Release/c4core-bm-charconv-atof-mega_bytes_per_second-float.png" alt="atof-float-windows" title="atof-float-windows" style="max-width: 100%;"></a></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener noreferrer" href="doc/img/linux-x86_64-gxx12.1-Release/c4core-bm-charconv-xtoa-mega_bytes_per_second-u32.png"><img src="doc/img/linux-x86_64-gxx12.1-Release/c4core-bm-charconv-xtoa-mega_bytes_per_second-u32.png" alt="xtoa-u32-linux" title="xtoa-u32-linux" style="max-width: 100%;"></a></td>
+<td><a target="_blank" rel="noopener noreferrer" href="doc/img/windows-x86_64-vs2019-Release/c4core-bm-charconv-xtoa-mega_bytes_per_second-u32.png"><img src="doc/img/windows-x86_64-vs2019-Release/c4core-bm-charconv-xtoa-mega_bytes_per_second-u32.png" alt="xtoa-u32-windows" title="xtoa-u32-windows" style="max-width: 100%;"></a></td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener noreferrer" href="doc/img/linux-x86_64-gxx12.1-Release/c4core-bm-charconv-xtoa-mega_bytes_per_second-i32.png"><img src="doc/img/linux-x86_64-gxx12.1-Release/c4core-bm-charconv-xtoa-mega_bytes_per_second-i32.png" alt="xtoa-i32-linux" title="xtoa-i32-linux" style="max-width: 100%;"></a></td>
+<td><a target="_blank" rel="noopener noreferrer" href="doc/img/windows-x86_64-vs2019-Release/c4core-bm-charconv-xtoa-mega_bytes_per_second-i32.png"><img src="doc/img/windows-x86_64-vs2019-Release/c4core-bm-charconv-xtoa-mega_bytes_per_second-i32.png" alt="xtoa-i32-windows" title="xtoa-i32-windows" style="max-width: 100%;"></a></td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener noreferrer" href="doc/img/linux-x86_64-gxx12.1-Release/c4core-bm-charconv-xtoa-mega_bytes_per_second-u64.png"><img src="doc/img/linux-x86_64-gxx12.1-Release/c4core-bm-charconv-xtoa-mega_bytes_per_second-u64.png" alt="xtoa-u64-linux" title="xtoa-u64-linux" style="max-width: 100%;"></a></td>
+<td><a target="_blank" rel="noopener noreferrer" href="doc/img/windows-x86_64-vs2019-Release/c4core-bm-charconv-xtoa-mega_bytes_per_second-u64.png"><img src="doc/img/windows-x86_64-vs2019-Release/c4core-bm-charconv-xtoa-mega_bytes_per_second-u64.png" alt="xtoa-u64-windows" title="xtoa-u64-windows" style="max-width: 100%;"></a></td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener noreferrer" href="doc/img/linux-x86_64-gxx12.1-Release/c4core-bm-charconv-xtoa-mega_bytes_per_second-i64.png"><img src="doc/img/linux-x86_64-gxx12.1-Release/c4core-bm-charconv-xtoa-mega_bytes_per_second-i64.png" alt="xtoa-i64-linux" title="xtoa-i64-linux" style="max-width: 100%;"></a></td>
+<td><a target="_blank" rel="noopener noreferrer" href="doc/img/windows-x86_64-vs2019-Release/c4core-bm-charconv-xtoa-mega_bytes_per_second-i64.png"><img src="doc/img/windows-x86_64-vs2019-Release/c4core-bm-charconv-xtoa-mega_bytes_per_second-i64.png" alt="xtoa-i64-windows" title="xtoa-i64-windows" style="max-width: 100%;"></a></td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">String formatting and parsing</h3><a id="user-content-string-formatting-and-parsing" class="anchor" aria-label="Permalink: String formatting and parsing" href="#string-formatting-and-parsing"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li>
+<p dir="auto"><a href="src/c4/format.hpp"><code>#include &lt;c4/format.hpp&gt;</code></a></p>
+</li>
+<li>
+<p dir="auto">There is a <a href="https://rapidyaml.readthedocs.io/latest/doxygen/group__doc__quickstart.html#gac2425b515eb552589708cfff70c52b14" rel="nofollow">useful quickstart
+sample</a>
+in rapidyaml's doxygen docs.</p>
+</li>
+</ul>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="// TODO: elaborate on the topics:
+
+c4::cat(), c4::uncat()
+c4::catsep(), c4::uncatsep()
+c4::format(), c4::unformat()
+
+c4::catrs()
+c4::catseprs()
+c4::formatrs()
+
+// formatting:
+c4::fmt::overflow_checked
+c4::fmt::real
+c4::fmt::boolalpha
+c4::fmt::dec
+c4::fmt::hex
+c4::fmt::oct
+c4::fmt::bin
+c4::fmt::zpad
+c4::fmt::right
+c4::fmt::left
+c4::fmt::raw, c4::fmt::craw
+c4::fmt::base64, c4::fmt::cbase64"><pre><span class="pl-c"><span class="pl-c">//</span> TODO: elaborate on the topics:</span>
+
+<span class="pl-en">c4::cat</span>(), c4::uncat()
+c4::catsep(), c4::uncatsep()
+c4::format(), c4::unformat()
+
+c4::catrs()
+c4::catseprs()
+c4::formatrs()
+
+<span class="pl-c"><span class="pl-c">//</span> formatting:</span>
+c4::fmt::overflow_checked
+c4::fmt::real
+c4::fmt::boolalpha
+c4::fmt::dec
+c4::fmt::hex
+c4::fmt::oct
+c4::fmt::bin
+c4::fmt::zpad
+c4::fmt::right
+c4::fmt::left
+c4::fmt::raw, c4::fmt::craw
+c4::fmt::base64, c4::fmt::cbase64</pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto"><code>c4::span</code> and <code>c4::blob</code></h3><a id="user-content-c4span-and-c4blob" class="anchor" aria-label="Permalink: c4::span and c4::blob" href="#c4span-and-c4blob"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li><a href="src/c4/span.hpp"><code>#include &lt;c4/span.hpp&gt;</code></a></li>
+<li><a href="src/c4/blob.hpp"><code>#include &lt;c4/blob.hpp&gt;</code></a></li>
+</ul>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Enums and enum symbols</h3><a id="user-content-enums-and-enum-symbols" class="anchor" aria-label="Permalink: Enums and enum symbols" href="#enums-and-enum-symbols"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><a href="src/c4/enum.hpp"><code>#include &lt;c4/enum.hpp&gt;</code></a></p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="// TODO: elaborate on the topics:
+
+c4::e2str(), c4::str2e()"><pre><span class="pl-c"><span class="pl-c">//</span> TODO: elaborate on the topics:</span>
+
+<span class="pl-en">c4::e2str</span>(), c4::str2e()</pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Bitmasks and bitmask symbols</h3><a id="user-content-bitmasks-and-bitmask-symbols" class="anchor" aria-label="Permalink: Bitmasks and bitmask symbols" href="#bitmasks-and-bitmask-symbols"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><a href="src/c4/bitmask.hpp"><code>#include &lt;c4/bitmask.hpp&gt;</code></a></p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="// TODO: elaborate on the topics:
+
+c4::bm2str(), c4::str2bm()"><pre><span class="pl-c"><span class="pl-c">//</span> TODO: elaborate on the topics:</span>
+
+<span class="pl-en">c4::bm2str</span>(), c4::str2bm()</pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Base64 encoding / decoding</h3><a id="user-content-base64-encoding--decoding" class="anchor" aria-label="Permalink: Base64 encoding / decoding" href="#base64-encoding--decoding"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><a href="src/c4/base64.hpp"><code>#include &lt;c4/base64.hpp&gt;</code></a></p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Fuzzy float comparison</h3><a id="user-content-fuzzy-float-comparison" class="anchor" aria-label="Permalink: Fuzzy float comparison" href="#fuzzy-float-comparison"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Multi-platform / multi-compiler utilities</h3><a id="user-content-multi-platform--multi-compiler-utilities" class="anchor" aria-label="Permalink: Multi-platform / multi-compiler utilities" href="#multi-platform--multi-compiler-utilities"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="// TODO: elaborate on the topics:
+#include &lt;c4/error.hpp&gt;
+
+C4_RESTRICT, $, c$, $$, c$$
+#include &lt;c4/restrict.hpp&gt;
+#include &lt;c4/unrestrict.hpp&gt;
+
+#include &lt;c4/windows_push.hpp&gt;
+#include &lt;c4/windows_pop.hpp&gt;
+
+C4_UNREACHABLE()
+
+c4::type_name()
+
+// portable attributes
+C4_LIKELY()/C4_UNLIKELY()
+C4_ALWAYS_INLINE
+C4_CONST
+C4_PURE
+C4_HOT
+C4_COLD"><pre><span class="pl-c"><span class="pl-c">//</span> TODO: elaborate on the topics:</span>
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>c4/error.hpp<span class="pl-pds">&gt;</span></span>
+
+C4_RESTRICT, $, c$, $$, c$$
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>c4/restrict.hpp<span class="pl-pds">&gt;</span></span>
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>c4/unrestrict.hpp<span class="pl-pds">&gt;</span></span>
+
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>c4/windows_push.hpp<span class="pl-pds">&gt;</span></span>
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>c4/windows_pop.hpp<span class="pl-pds">&gt;</span></span>
+
+<span class="pl-en">C4_UNREACHABLE</span>()
+
+c4::type_name()
+
+<span class="pl-c"><span class="pl-c">//</span> portable attributes</span>
+C4_LIKELY()/C4_UNLIKELY()
+C4_ALWAYS_INLINE
+C4_CONST
+C4_PURE
+C4_HOT
+C4_COLD</pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Runtime assertions and error handling</h3><a id="user-content-runtime-assertions-and-error-handling" class="anchor" aria-label="Permalink: Runtime assertions and error handling" href="#runtime-assertions-and-error-handling"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="// TODO: elaborate on the topics:
+
+error callback
+
+C4_ASSERT()
+C4_XASSERT()
+C4_CHECK()
+
+C4_ERROR()
+C4_NOT_IMPLEMENTED()"><pre><span class="pl-c"><span class="pl-c">//</span> TODO: elaborate on the topics:</span>
+
+error callback
+
+<span class="pl-en">C4_ASSERT</span>()
+C4_XASSERT()
+C4_CHECK()
+
+C4_ERROR()
+C4_NOT_IMPLEMENTED()</pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Memory allocation</h3><a id="user-content-memory-allocation" class="anchor" aria-label="Permalink: Memory allocation" href="#memory-allocation"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="// TODO: elaborate on the topics:
+
+c4::aalloc(), c4::afree() // aligned allocation
+
+c4::MemoryResource // global and scope
+
+c4::Allocator"><pre><span class="pl-c"><span class="pl-c">//</span> TODO: elaborate on the topics:</span>
+
+<span class="pl-en">c4::aalloc</span>(), c4::afree() <span class="pl-c"><span class="pl-c">//</span> aligned allocation</span>
+
+c4::MemoryResource <span class="pl-c"><span class="pl-c">//</span> global and scope</span>
+
+c4::Allocator</pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Mass initialization/construction/destruction</h3><a id="user-content-mass-initializationconstructiondestruction" class="anchor" aria-label="Permalink: Mass initialization/construction/destruction" href="#mass-initializationconstructiondestruction"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="// TODO: elaborate on the topics:
+
+c4::make_room()/c4::destroy_room()
+c4::construct()/c4::construct_n()
+c4::destroy()/c4::destroy_n()
+c4::copy_construct()/c4::copy_construct_n()
+c4::copy_assign()/c4::copy_assign_n()
+c4::move_construct()/c4::move_construct_n()
+c4::move_assign()/c4::move_assign_n()"><pre><span class="pl-c"><span class="pl-c">//</span> TODO: elaborate on the topics:</span>
+
+<span class="pl-en">c4::make_room</span>()/c4::destroy_room()
+c4::construct()/c4::construct_n()
+c4::destroy()/c4::destroy_n()
+c4::copy_construct()/c4::copy_construct_n()
+c4::copy_assign()/c4::copy_assign_n()
+c4::move_construct()/c4::move_construct_n()
+c4::move_assign()/c4::move_assign_n()</pre></div>
+</article></div>
