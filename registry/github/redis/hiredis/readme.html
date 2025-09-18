@@ -1,0 +1,885 @@
+<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><p dir="auto"><a href="https://github.com/redis/hiredis/actions/workflows/build.yml"><img src="https://github.com/redis/hiredis/actions/workflows/build.yml/badge.svg" alt="Build Status" style="max-width: 100%;"></a></p>
+<p dir="auto"><strong>This Readme reflects the latest changed in the master branch. See <a href="https://github.com/redis/hiredis/tree/v1.0.0">v1.0.0</a> for the Readme and documentation for the latest release (<a href="https://abi-laboratory.pro/?view=timeline&amp;l=hiredis" rel="nofollow">API/ABI history</a>).</strong></p>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">HIREDIS</h1><a id="user-content-hiredis" class="anchor" aria-label="Permalink: HIREDIS" href="#hiredis"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Hiredis is a minimalistic C client library for the <a href="https://redis.io/" rel="nofollow">Redis</a> database.</p>
+<p dir="auto">It is minimalistic because it just adds minimal support for the protocol, but
+at the same time it uses a high level printf-alike API in order to make it
+much higher level than otherwise suggested by its minimal code base and the
+lack of explicit bindings for every Redis command.</p>
+<p dir="auto">Apart from supporting sending commands and receiving replies, it comes with
+a reply parser that is decoupled from the I/O layer. It
+is a stream parser designed for easy reusability, which can for instance be used
+in higher level language bindings for efficient reply parsing.</p>
+<p dir="auto">Hiredis only supports the binary-safe Redis protocol, so you can use it with any
+Redis version &gt;= 1.2.0.</p>
+<p dir="auto">The library comes with multiple APIs. There is the
+<em>synchronous API</em>, the <em>asynchronous API</em> and the <em>reply parsing API</em>.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Upgrading to &gt; 1.2.0 (<strong>PRERELEASE</strong>)</h2><a id="user-content-upgrading-to--120-prerelease" class="anchor" aria-label="Permalink: Upgrading to &gt; 1.2.0 (PRERELEASE)" href="#upgrading-to--120-prerelease"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li>
+<p dir="auto">After v1.2.0 we modified how we invoke <code>poll(2)</code> to wait for connections to complete, such that we will now retry
+the call if it is interrupted by a signal until:</p>
+<p dir="auto">a) The connection succeeds or fails.
+b) The overall connection timeout is reached.</p>
+<p dir="auto">In previous versions, an interrupted <code>poll(2)</code> call would cause the connection to fail
+with <code>c-&gt;err</code> set to <code>REDIS_ERR_IO</code> and <code>c-&gt;errstr</code> set to <code>poll(2): Interrupted system call</code>.</p>
+</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Upgrading to <code>1.1.0</code></h2><a id="user-content-upgrading-to-110" class="anchor" aria-label="Permalink: Upgrading to 1.1.0" href="#upgrading-to-110"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Almost all users will simply need to recompile their applications against the newer version of hiredis.</p>
+<p dir="auto"><strong>NOTE</strong>:  Hiredis can now return <code>nan</code> in addition to <code>-inf</code> and <code>inf</code> in a <code>REDIS_REPLY_DOUBLE</code>.
+Applications that deal with <code>RESP3</code> doubles should make sure to account for this.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Upgrading to <code>1.0.2</code></h2><a id="user-content-upgrading-to-102" class="anchor" aria-label="Permalink: Upgrading to 1.0.2" href="#upgrading-to-102"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><span>NOTE:  v1.0.1 erroneously bumped SONAME, which is why it is skipped here.</span></p>
+<p dir="auto">Version 1.0.2 is simply 1.0.0 with a fix for <a href="https://github.com/redis/hiredis/security/advisories/GHSA-hfm9-39pp-55p2">CVE-2021-32765</a>.  They are otherwise identical.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Upgrading to <code>1.0.0</code></h2><a id="user-content-upgrading-to-100" class="anchor" aria-label="Permalink: Upgrading to 1.0.0" href="#upgrading-to-100"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Version 1.0.0 marks the first stable release of Hiredis.
+It includes some minor breaking changes, mostly to make the exposed API more uniform and self-explanatory.
+It also bundles the updated <code>sds</code> library, to sync up with upstream and Redis.
+For code changes see the <a href="CHANGELOG.md">Changelog</a>.</p>
+<p dir="auto"><em>Note:  As described below, a few member names have been changed but most applications should be able to upgrade with minor code changes and recompiling.</em></p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">IMPORTANT:  Breaking changes from <code>0.14.1</code> -&gt; <code>1.0.0</code></h2><a id="user-content-important--breaking-changes-from-0141---100" class="anchor" aria-label="Permalink: IMPORTANT:  Breaking changes from 0.14.1 -&gt; 1.0.0" href="#important--breaking-changes-from-0141---100"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li><code>redisContext</code> has two additional members (<code>free_privdata</code>, and <code>privctx</code>).</li>
+<li><code>redisOptions.timeout</code> has been renamed to <code>redisOptions.connect_timeout</code>, and we've added <code>redisOptions.command_timeout</code>.</li>
+<li><code>redisReplyObjectFunctions.createArray</code> now takes <code>size_t</code> instead of <code>int</code> for its length parameter.</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">IMPORTANT:  Breaking changes when upgrading from 0.13.x -&gt; 0.14.x</h2><a id="user-content-important--breaking-changes-when-upgrading-from-013x---014x" class="anchor" aria-label="Permalink: IMPORTANT:  Breaking changes when upgrading from 0.13.x -&gt; 0.14.x" href="#important--breaking-changes-when-upgrading-from-013x---014x"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Bulk and multi-bulk lengths less than -1 or greater than <code>LLONG_MAX</code> are now
+protocol errors. This is consistent with the RESP specification. On 32-bit
+platforms, the upper bound is lowered to <code>SIZE_MAX</code>.</p>
+<p dir="auto">Change <code>redisReply.len</code> to <code>size_t</code>, as it denotes the the size of a string</p>
+<p dir="auto">User code should compare this to <code>size_t</code> values as well.  If it was used to
+compare to other values, casting might be necessary or can be removed, if
+casting was applied before.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Upgrading from <code>&lt;0.9.0</code></h2><a id="user-content-upgrading-from-090" class="anchor" aria-label="Permalink: Upgrading from &lt;0.9.0" href="#upgrading-from-090"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Version 0.9.0 is a major overhaul of hiredis in every aspect. However, upgrading existing
+code using hiredis should not be a big pain. The key thing to keep in mind when
+upgrading is that hiredis &gt;= 0.9.0 uses a <code>redisContext*</code> to keep state, in contrast to
+the stateless 0.0.1 that only has a file descriptor to work with.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Synchronous API</h2><a id="user-content-synchronous-api" class="anchor" aria-label="Permalink: Synchronous API" href="#synchronous-api"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">To consume the synchronous API, there are only a few function calls that need to be introduced:</p>
+<div class="highlight highlight-source-c notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="redisContext *redisConnect(const char *ip, int port);
+void *redisCommand(redisContext *c, const char *format, ...);
+void freeReplyObject(void *reply);"><pre><span class="pl-smi">redisContext</span> <span class="pl-c1">*</span><span class="pl-en">redisConnect</span>(<span class="pl-k">const</span> <span class="pl-smi">char</span> <span class="pl-c1">*</span><span class="pl-s1">ip</span>, <span class="pl-smi">int</span> <span class="pl-s1">port</span>);
+<span class="pl-smi">void</span> <span class="pl-c1">*</span><span class="pl-en">redisCommand</span>(<span class="pl-smi">redisContext</span> <span class="pl-c1">*</span><span class="pl-s1">c</span>, <span class="pl-k">const</span> <span class="pl-smi">char</span> <span class="pl-c1">*</span><span class="pl-s1">format</span>, ...);
+<span class="pl-smi">void</span> <span class="pl-en">freeReplyObject</span>(<span class="pl-smi">void</span> <span class="pl-c1">*</span><span class="pl-s1">reply</span>);</pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Connecting</h3><a id="user-content-connecting" class="anchor" aria-label="Permalink: Connecting" href="#connecting"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The function <code>redisConnect</code> is used to create a so-called <code>redisContext</code>. The
+context is where Hiredis holds state for a connection. The <code>redisContext</code>
+struct has an integer <code>err</code> field that is non-zero when the connection is in
+an error state. The field <code>errstr</code> will contain a string with a description of
+the error. More information on errors can be found in the <strong>Errors</strong> section.
+After trying to connect to Redis using <code>redisConnect</code> you should
+check the <code>err</code> field to see if establishing the connection was successful:</p>
+<div class="highlight highlight-source-c notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="redisContext *c = redisConnect(&quot;127.0.0.1&quot;, 6379);
+if (c == NULL || c-&gt;err) {
+    if (c) {
+        printf(&quot;Error: %s\n&quot;, c-&gt;errstr);
+        // handle error
+    } else {
+        printf(&quot;Can't allocate redis context\n&quot;);
+    }
+}"><pre><span class="pl-smi">redisContext</span> <span class="pl-c1">*</span><span class="pl-s1">c</span> <span class="pl-c1">=</span> <span class="pl-en">redisConnect</span>(<span class="pl-s">"127.0.0.1"</span>, <span class="pl-c1">6379</span>);
+<span class="pl-k">if</span> (<span class="pl-s1">c</span> <span class="pl-c1">==</span> <span class="pl-c1">NULL</span> <span class="pl-c1">||</span> <span class="pl-s1">c</span><span class="pl-c1">-&gt;</span><span class="pl-c1">err</span>) {
+    <span class="pl-k">if</span> (<span class="pl-s1">c</span>) {
+        <span class="pl-en">printf</span>(<span class="pl-s">"Error: %s\n"</span>, <span class="pl-s1">c</span><span class="pl-c1">-&gt;</span><span class="pl-c1">errstr</span>);
+        <span class="pl-c">// handle error</span>
+    } <span class="pl-k">else</span> {
+        <span class="pl-en">printf</span>(<span class="pl-s">"Can't allocate redis context\n"</span>);
+    }
+}</pre></div>
+<p dir="auto">One can also use <code>redisConnectWithOptions</code> which takes a <code>redisOptions</code> argument
+that can be configured with endpoint information as well as many different flags
+to change how the <code>redisContext</code> will be configured.</p>
+<div class="highlight highlight-source-c notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="redisOptions opt = {0};
+
+/* One can set the endpoint with one of our helper macros */
+if (tcp) {
+    REDIS_OPTIONS_SET_TCP(&amp;opt, &quot;localhost&quot;, 6379);
+} else {
+    REDIS_OPTIONS_SET_UNIX(&amp;opt, &quot;/tmp/redis.sock&quot;);
+}
+
+/* And privdata can be specified with another helper */
+REDIS_OPTIONS_SET_PRIVDATA(&amp;opt, myPrivData, myPrivDataDtor);
+
+/* Finally various options may be set via the `options` member, as described below */
+opt-&gt;options |= REDIS_OPT_PREFER_IPV4;"><pre><span class="pl-smi">redisOptions</span> <span class="pl-s1">opt</span> <span class="pl-c1">=</span> {<span class="pl-c1">0</span>};
+
+<span class="pl-c">/* One can set the endpoint with one of our helper macros */</span>
+<span class="pl-k">if</span> (<span class="pl-s1">tcp</span>) {
+    <span class="pl-en">REDIS_OPTIONS_SET_TCP</span>(<span class="pl-c1">&amp;</span><span class="pl-s1">opt</span>, <span class="pl-s">"localhost"</span>, <span class="pl-c1">6379</span>);
+} <span class="pl-k">else</span> {
+    <span class="pl-en">REDIS_OPTIONS_SET_UNIX</span>(<span class="pl-c1">&amp;</span><span class="pl-s1">opt</span>, <span class="pl-s">"/tmp/redis.sock"</span>);
+}
+
+<span class="pl-c">/* And privdata can be specified with another helper */</span>
+<span class="pl-en">REDIS_OPTIONS_SET_PRIVDATA</span>(<span class="pl-c1">&amp;</span><span class="pl-s1">opt</span>, <span class="pl-s1">myPrivData</span>, <span class="pl-s1">myPrivDataDtor</span>);
+
+<span class="pl-c">/* Finally various options may be set via the `options` member, as described below */</span>
+<span class="pl-s1">opt</span><span class="pl-c1">-&gt;</span><span class="pl-c1">options</span> |= <span class="pl-c1">REDIS_OPT_PREFER_IPV4</span>;</pre></div>
+<p dir="auto">If a connection is lost, <code>int redisReconnect(redisContext *c)</code> can be used to restore the connection using the same endpoint and options as the given context.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Configurable redisOptions flags</h3><a id="user-content-configurable-redisoptions-flags" class="anchor" aria-label="Permalink: Configurable redisOptions flags" href="#configurable-redisoptions-flags"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">There are several flags you may set in the <code>redisOptions</code> struct to change default behavior.  You can specify the flags via the <code>redisOptions-&gt;options</code> member.</p>
+<markdown-accessiblity-table><table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>REDIS_OPT_NONBLOCK</td>
+<td>Tells hiredis to make a non-blocking connection.</td>
+</tr>
+<tr>
+<td>REDIS_OPT_REUSEADDR</td>
+<td>Tells hiredis to set the <a href="https://man7.org/linux/man-pages/man7/socket.7.html" rel="nofollow">SO_REUSEADDR</a> socket option</td>
+</tr>
+<tr>
+<td>REDIS_OPT_PREFER_IPV4<br>REDIS_OPT_PREFER_IPV6<br>REDIS_OPT_PREFER_IP_UNSPEC</td>
+<td>Informs hiredis to either prefer IPv4 or IPv6 when invoking <a href="https://man7.org/linux/man-pages/man3/gai_strerror.3.html" rel="nofollow">getaddrinfo</a>.  <code>REDIS_OPT_PREFER_IP_UNSPEC</code> will cause hiredis to specify <code>AF_UNSPEC</code> in the getaddrinfo call, which means both IPv4 and IPv6 addresses will be searched simultaneously.<br>Hiredis prefers IPv4 by default.</td>
+</tr>
+<tr>
+<td>REDIS_OPT_NO_PUSH_AUTOFREE</td>
+<td>Tells hiredis to not install the default RESP3 PUSH handler (which just intercepts and frees the replies).  This is useful in situations where you want to process these messages in-band.</td>
+</tr>
+<tr>
+<td>REDIS_OPT_NOAUTOFREEREPLIES</td>
+<td><strong>ASYNC</strong>: tells hiredis not to automatically invoke <code>freeReplyObject</code> after executing the reply callback.</td>
+</tr>
+<tr>
+<td>REDIS_OPT_NOAUTOFREE</td>
+<td><strong>ASYNC</strong>: Tells hiredis not to automatically free the <code>redisAsyncContext</code> on connection/communication failure, but only if the user makes an explicit call to <code>redisAsyncDisconnect</code> or <code>redisAsyncFree</code></td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p dir="auto"><em>Note: A <code>redisContext</code> is not thread-safe.</em></p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Other configuration using socket options</h3><a id="user-content-other-configuration-using-socket-options" class="anchor" aria-label="Permalink: Other configuration using socket options" href="#other-configuration-using-socket-options"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The following socket options are applied directly to the underlying socket.
+The values are not stored in the <code>redisContext</code>, so they are not automatically applied when reconnecting using <code>redisReconnect()</code>.
+These functions return <code>REDIS_OK</code> on success.
+On failure, <code>REDIS_ERR</code> is returned and the underlying connection is closed.</p>
+<p dir="auto">To configure these for an asynchronous context (see <em>Asynchronous API</em> below), use <code>ac-&gt;c</code> to get the redisContext out of an asyncRedisContext.</p>
+<div class="highlight highlight-source-c notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="int redisEnableKeepAlive(redisContext *c);
+int redisEnableKeepAliveWithInterval(redisContext *c, int interval);"><pre><span class="pl-smi">int</span> <span class="pl-en">redisEnableKeepAlive</span>(<span class="pl-smi">redisContext</span> <span class="pl-c1">*</span><span class="pl-s1">c</span>);
+<span class="pl-smi">int</span> <span class="pl-en">redisEnableKeepAliveWithInterval</span>(<span class="pl-smi">redisContext</span> <span class="pl-c1">*</span><span class="pl-s1">c</span>, <span class="pl-smi">int</span> <span class="pl-s1">interval</span>);</pre></div>
+<p dir="auto">Enables TCP keepalive by setting the following socket options (with some variations depending on OS):</p>
+<ul dir="auto">
+<li><code>SO_KEEPALIVE</code>;</li>
+<li><code>TCP_KEEPALIVE</code> or <code>TCP_KEEPIDLE</code>, value configurable using the <code>interval</code> parameter, default 15 seconds;</li>
+<li><code>TCP_KEEPINTVL</code> set to 1/3 of <code>interval</code>;</li>
+<li><code>TCP_KEEPCNT</code> set to 3.</li>
+</ul>
+<div class="highlight highlight-source-c notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="int redisSetTcpUserTimeout(redisContext *c, unsigned int timeout);"><pre><span class="pl-smi">int</span> <span class="pl-en">redisSetTcpUserTimeout</span>(<span class="pl-smi">redisContext</span> <span class="pl-c1">*</span><span class="pl-s1">c</span>, <span class="pl-smi">unsigned <span class="pl-smi">int</span></span> <span class="pl-s1">timeout</span>);</pre></div>
+<p dir="auto">Set the <code>TCP_USER_TIMEOUT</code> Linux-specific socket option which is as described in the <code>tcp</code> man page:</p>
+<blockquote>
+<p dir="auto">When the value is greater than 0, it specifies the maximum amount of time in milliseconds that trans mitted data may remain unacknowledged before TCP will forcibly close the corresponding connection and return ETIMEDOUT to the application.
+If the option value is specified as 0, TCP will use the system default.</p>
+</blockquote>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Sending commands</h3><a id="user-content-sending-commands" class="anchor" aria-label="Permalink: Sending commands" href="#sending-commands"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">There are several ways to issue commands to Redis. The first that will be introduced is
+<code>redisCommand</code>. This function takes a format similar to printf. In the simplest form,
+it is used like this:</p>
+<div class="highlight highlight-source-c notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="reply = redisCommand(context, &quot;SET foo bar&quot;);"><pre><span class="pl-s1">reply</span> <span class="pl-c1">=</span> <span class="pl-en">redisCommand</span>(<span class="pl-s1">context</span>, <span class="pl-s">"SET foo bar"</span>);</pre></div>
+<p dir="auto">The specifier <code>%s</code> interpolates a string in the command, and uses <code>strlen</code> to
+determine the length of the string:</p>
+<div class="highlight highlight-source-c notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="reply = redisCommand(context, &quot;SET foo %s&quot;, value);"><pre><span class="pl-s1">reply</span> <span class="pl-c1">=</span> <span class="pl-en">redisCommand</span>(<span class="pl-s1">context</span>, <span class="pl-s">"SET foo %s"</span>, <span class="pl-s1">value</span>);</pre></div>
+<p dir="auto">When you need to pass binary safe strings in a command, the <code>%b</code> specifier can be
+used. Together with a pointer to the string, it requires a <code>size_t</code> length argument
+of the string:</p>
+<div class="highlight highlight-source-c notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="reply = redisCommand(context, &quot;SET foo %b&quot;, value, (size_t) valuelen);"><pre><span class="pl-s1">reply</span> <span class="pl-c1">=</span> <span class="pl-en">redisCommand</span>(<span class="pl-s1">context</span>, <span class="pl-s">"SET foo %b"</span>, <span class="pl-s1">value</span>, (<span class="pl-smi">size_t</span>) <span class="pl-s1">valuelen</span>);</pre></div>
+<p dir="auto">Internally, Hiredis splits the command in different arguments and will
+convert it to the protocol used to communicate with Redis.
+One or more spaces separates arguments, so you can use the specifiers
+anywhere in an argument:</p>
+<div class="highlight highlight-source-c notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="reply = redisCommand(context, &quot;SET key:%s %s&quot;, myid, value);"><pre><span class="pl-s1">reply</span> <span class="pl-c1">=</span> <span class="pl-en">redisCommand</span>(<span class="pl-s1">context</span>, <span class="pl-s">"SET key:%s %s"</span>, <span class="pl-s1">myid</span>, <span class="pl-s1">value</span>);</pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Using replies</h3><a id="user-content-using-replies" class="anchor" aria-label="Permalink: Using replies" href="#using-replies"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The return value of <code>redisCommand</code> holds a reply when the command was
+successfully executed. When an error occurs, the return value is <code>NULL</code> and
+the <code>err</code> field in the context will be set (see section on <strong>Errors</strong>).
+Once an error is returned the context cannot be reused and you should set up
+a new connection.</p>
+<p dir="auto">The standard replies that <code>redisCommand</code> are of the type <code>redisReply</code>. The
+<code>type</code> field in the <code>redisReply</code> should be used to test what kind of reply
+was received:</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">RESP2</h3><a id="user-content-resp2" class="anchor" aria-label="Permalink: RESP2" href="#resp2"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li>
+<p dir="auto"><strong><code>REDIS_REPLY_STATUS</code></strong>:</p>
+<ul dir="auto">
+<li>The command replied with a status reply. The status string can be accessed using <code>reply-&gt;str</code>.
+The length of this string can be accessed using <code>reply-&gt;len</code>.</li>
+</ul>
+</li>
+<li>
+<p dir="auto"><strong><code>REDIS_REPLY_ERROR</code></strong>:</p>
+<ul dir="auto">
+<li>The command replied with an error. The error string can be accessed identical to <code>REDIS_REPLY_STATUS</code>.</li>
+</ul>
+</li>
+<li>
+<p dir="auto"><strong><code>REDIS_REPLY_INTEGER</code></strong>:</p>
+<ul dir="auto">
+<li>The command replied with an integer. The integer value can be accessed using the
+<code>reply-&gt;integer</code> field of type <code>long long</code>.</li>
+</ul>
+</li>
+<li>
+<p dir="auto"><strong><code>REDIS_REPLY_NIL</code></strong>:</p>
+<ul dir="auto">
+<li>The command replied with a <strong>nil</strong> object. There is no data to access.</li>
+</ul>
+</li>
+<li>
+<p dir="auto"><strong><code>REDIS_REPLY_STRING</code></strong>:</p>
+<ul dir="auto">
+<li>A bulk (string) reply. The value of the reply can be accessed using <code>reply-&gt;str</code>.
+The length of this string can be accessed using <code>reply-&gt;len</code>.</li>
+</ul>
+</li>
+<li>
+<p dir="auto"><strong><code>REDIS_REPLY_ARRAY</code></strong>:</p>
+<ul dir="auto">
+<li>A multi bulk reply. The number of elements in the multi bulk reply is stored in
+<code>reply-&gt;elements</code>. Every element in the multi bulk reply is a <code>redisReply</code> object as well
+and can be accessed via <code>reply-&gt;element[..index..]</code>.
+Redis may reply with nested arrays but this is fully supported.</li>
+</ul>
+</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">RESP3</h3><a id="user-content-resp3" class="anchor" aria-label="Permalink: RESP3" href="#resp3"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Hiredis also supports every new <code>RESP3</code> data type which are as follows.  For more information about the protocol see the <code>RESP3</code> <a href="https://github.com/antirez/RESP3/blob/master/spec.md">specification.</a></p>
+<ul dir="auto">
+<li>
+<p dir="auto"><strong><code>REDIS_REPLY_DOUBLE</code></strong>:</p>
+<ul dir="auto">
+<li>The command replied with a double-precision floating point number.
+The value is stored as a string in the <code>str</code> member, and can be converted with <code>strtod</code> or similar.</li>
+</ul>
+</li>
+<li>
+<p dir="auto"><strong><code>REDIS_REPLY_BOOL</code></strong>:</p>
+<ul dir="auto">
+<li>A boolean true/false reply.
+The value is stored in the <code>integer</code> member and will be either <code>0</code> or <code>1</code>.</li>
+</ul>
+</li>
+<li>
+<p dir="auto"><strong><code>REDIS_REPLY_MAP</code></strong>:</p>
+<ul dir="auto">
+<li>An array with the added invariant that there will always be an even number of elements.
+The MAP is functionally equivalent to <code>REDIS_REPLY_ARRAY</code> except for the previously mentioned invariant.</li>
+</ul>
+</li>
+<li>
+<p dir="auto"><strong><code>REDIS_REPLY_SET</code></strong>:</p>
+<ul dir="auto">
+<li>An array response where each entry is unique.
+Like the MAP type, the data is identical to an array response except there are no duplicate values.</li>
+</ul>
+</li>
+<li>
+<p dir="auto"><strong><code>REDIS_REPLY_PUSH</code></strong>:</p>
+<ul dir="auto">
+<li>An array that can be generated spontaneously by Redis.
+This array response will always contain at least two subelements.  The first contains the type of <code>PUSH</code> message (e.g. <code>message</code>, or <code>invalidate</code>), and the second being a sub-array with the <code>PUSH</code> payload itself.</li>
+</ul>
+</li>
+<li>
+<p dir="auto"><strong><code>REDIS_REPLY_ATTR</code></strong>:</p>
+<ul dir="auto">
+<li>An array structurally identical to a <code>MAP</code> but intended as meta-data about a reply.
+<em>As of Redis 6.0.6 this reply type is not used in Redis</em></li>
+</ul>
+</li>
+<li>
+<p dir="auto"><strong><code>REDIS_REPLY_BIGNUM</code></strong>:</p>
+<ul dir="auto">
+<li>A string representing an arbitrarily large signed or unsigned integer value.
+The number will be encoded as a string in the <code>str</code> member of <code>redisReply</code>.</li>
+</ul>
+</li>
+<li>
+<p dir="auto"><strong><code>REDIS_REPLY_VERB</code></strong>:</p>
+<ul dir="auto">
+<li>A verbatim string, intended to be presented to the user without modification.
+The string payload is stored in the <code>str</code> member, and type data is stored in the <code>vtype</code> member (e.g. <code>txt</code> for raw text or <code>md</code> for markdown).</li>
+</ul>
+</li>
+</ul>
+<p dir="auto">Replies should be freed using the <code>freeReplyObject()</code> function.
+Note that this function will take care of freeing sub-reply objects
+contained in arrays and nested arrays, so there is no need for the user to
+free the sub replies (it is actually harmful and will corrupt the memory).</p>
+<p dir="auto"><strong>Important:</strong> the current version of hiredis (1.0.0) frees replies when the
+asynchronous API is used. This means you should not call <code>freeReplyObject</code> when
+you use this API. The reply is cleaned up by hiredis <em>after</em> the callback
+returns.  We may introduce a flag to make this configurable in future versions of the library.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Cleaning up</h3><a id="user-content-cleaning-up" class="anchor" aria-label="Permalink: Cleaning up" href="#cleaning-up"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">To disconnect and free the context the following function can be used:</p>
+<div class="highlight highlight-source-c notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="void redisFree(redisContext *c);"><pre><span class="pl-smi">void</span> <span class="pl-en">redisFree</span>(<span class="pl-smi">redisContext</span> <span class="pl-c1">*</span><span class="pl-s1">c</span>);</pre></div>
+<p dir="auto">This function immediately closes the socket and then frees the allocations done in
+creating the context.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Sending commands (continued)</h3><a id="user-content-sending-commands-continued" class="anchor" aria-label="Permalink: Sending commands (continued)" href="#sending-commands-continued"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Together with <code>redisCommand</code>, the function <code>redisCommandArgv</code> can be used to issue commands.
+It has the following prototype:</p>
+<div class="highlight highlight-source-c notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="void *redisCommandArgv(redisContext *c, int argc, const char **argv, const size_t *argvlen);"><pre><span class="pl-smi">void</span> <span class="pl-c1">*</span><span class="pl-en">redisCommandArgv</span>(<span class="pl-smi">redisContext</span> <span class="pl-c1">*</span><span class="pl-s1">c</span>, <span class="pl-smi">int</span> <span class="pl-s1">argc</span>, <span class="pl-k">const</span> <span class="pl-smi">char</span> <span class="pl-c1">*</span><span class="pl-c1">*</span><span class="pl-s1">argv</span>, <span class="pl-k">const</span> <span class="pl-smi">size_t</span> <span class="pl-c1">*</span><span class="pl-s1">argvlen</span>);</pre></div>
+<p dir="auto">It takes the number of arguments <code>argc</code>, an array of strings <code>argv</code> and the lengths of the
+arguments <code>argvlen</code>. For convenience, <code>argvlen</code> may be set to <code>NULL</code> and the function will
+use <code>strlen(3)</code> on every argument to determine its length. Obviously, when any of the arguments
+need to be binary safe, the entire array of lengths <code>argvlen</code> should be provided.</p>
+<p dir="auto">The return value has the same semantic as <code>redisCommand</code>.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Pipelining</h3><a id="user-content-pipelining" class="anchor" aria-label="Permalink: Pipelining" href="#pipelining"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">To explain how Hiredis supports pipelining in a blocking connection, there needs to be
+understanding of the internal execution flow.</p>
+<p dir="auto">When any of the functions in the <code>redisCommand</code> family is called, Hiredis first formats the
+command according to the Redis protocol. The formatted command is then put in the output buffer
+of the context. This output buffer is dynamic, so it can hold any number of commands.
+After the command is put in the output buffer, <code>redisGetReply</code> is called. This function has the
+following two execution paths:</p>
+<ol dir="auto">
+<li>The input buffer is non-empty:
+<ul dir="auto">
+<li>Try to parse a single reply from the input buffer and return it</li>
+<li>If no reply could be parsed, continue at <em>2</em></li>
+</ul>
+</li>
+<li>The input buffer is empty:
+<ul dir="auto">
+<li>Write the <strong>entire</strong> output buffer to the socket</li>
+<li>Read from the socket until a single reply could be parsed</li>
+</ul>
+</li>
+</ol>
+<p dir="auto">The function <code>redisGetReply</code> is exported as part of the Hiredis API and can be used when a reply
+is expected on the socket. To pipeline commands, the only thing that needs to be done is
+filling up the output buffer. For this cause, two commands can be used that are identical
+to the <code>redisCommand</code> family, apart from not returning a reply:</p>
+<div class="highlight highlight-source-c notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="void redisAppendCommand(redisContext *c, const char *format, ...);
+void redisAppendCommandArgv(redisContext *c, int argc, const char **argv, const size_t *argvlen);"><pre><span class="pl-smi">void</span> <span class="pl-en">redisAppendCommand</span>(<span class="pl-smi">redisContext</span> <span class="pl-c1">*</span><span class="pl-s1">c</span>, <span class="pl-k">const</span> <span class="pl-smi">char</span> <span class="pl-c1">*</span><span class="pl-s1">format</span>, ...);
+<span class="pl-smi">void</span> <span class="pl-en">redisAppendCommandArgv</span>(<span class="pl-smi">redisContext</span> <span class="pl-c1">*</span><span class="pl-s1">c</span>, <span class="pl-smi">int</span> <span class="pl-s1">argc</span>, <span class="pl-k">const</span> <span class="pl-smi">char</span> <span class="pl-c1">*</span><span class="pl-c1">*</span><span class="pl-s1">argv</span>, <span class="pl-k">const</span> <span class="pl-smi">size_t</span> <span class="pl-c1">*</span><span class="pl-s1">argvlen</span>);</pre></div>
+<p dir="auto">After calling either function one or more times, <code>redisGetReply</code> can be used to receive the
+subsequent replies. The return value for this function is either <code>REDIS_OK</code> or <code>REDIS_ERR</code>, where
+the latter means an error occurred while reading a reply. Just as with the other commands,
+the <code>err</code> field in the context can be used to find out what the cause of this error is.</p>
+<p dir="auto">The following examples shows a simple pipeline (resulting in only a single call to <code>write(2)</code> and
+a single call to <code>read(2)</code>):</p>
+<div class="highlight highlight-source-c notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="redisReply *reply;
+redisAppendCommand(context,&quot;SET foo bar&quot;);
+redisAppendCommand(context,&quot;GET foo&quot;);
+redisGetReply(context,(void**)&amp;reply); // reply for SET
+freeReplyObject(reply);
+redisGetReply(context,(void**)&amp;reply); // reply for GET
+freeReplyObject(reply);"><pre><span class="pl-smi">redisReply</span> <span class="pl-c1">*</span><span class="pl-s1">reply</span>;
+<span class="pl-en">redisAppendCommand</span>(<span class="pl-s1">context</span>,<span class="pl-s">"SET foo bar"</span>);
+<span class="pl-en">redisAppendCommand</span>(<span class="pl-s1">context</span>,<span class="pl-s">"GET foo"</span>);
+<span class="pl-en">redisGetReply</span>(<span class="pl-s1">context</span>,(<span class="pl-smi">void</span><span class="pl-c1">*</span><span class="pl-c1">*</span>)<span class="pl-c1">&amp;</span><span class="pl-s1">reply</span>); <span class="pl-c">// reply for SET</span>
+<span class="pl-en">freeReplyObject</span>(<span class="pl-s1">reply</span>);
+<span class="pl-en">redisGetReply</span>(<span class="pl-s1">context</span>,(<span class="pl-smi">void</span><span class="pl-c1">*</span><span class="pl-c1">*</span>)<span class="pl-c1">&amp;</span><span class="pl-s1">reply</span>); <span class="pl-c">// reply for GET</span>
+<span class="pl-en">freeReplyObject</span>(<span class="pl-s1">reply</span>);</pre></div>
+<p dir="auto">This API can also be used to implement a blocking subscriber:</p>
+<div class="highlight highlight-source-c notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="reply = redisCommand(context,&quot;SUBSCRIBE foo&quot;);
+freeReplyObject(reply);
+while(redisGetReply(context,(void *)&amp;reply) == REDIS_OK) {
+    // consume message
+    freeReplyObject(reply);
+}"><pre><span class="pl-s1">reply</span> <span class="pl-c1">=</span> <span class="pl-en">redisCommand</span>(<span class="pl-s1">context</span>,<span class="pl-s">"SUBSCRIBE foo"</span>);
+<span class="pl-en">freeReplyObject</span>(<span class="pl-s1">reply</span>);
+<span class="pl-k">while</span>(<span class="pl-en">redisGetReply</span>(<span class="pl-s1">context</span>,(<span class="pl-smi">void</span> <span class="pl-c1">*</span>)<span class="pl-c1">&amp;</span><span class="pl-s1">reply</span>) <span class="pl-c1">==</span> <span class="pl-c1">REDIS_OK</span>) {
+    <span class="pl-c">// consume message</span>
+    <span class="pl-en">freeReplyObject</span>(<span class="pl-s1">reply</span>);
+}</pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Errors</h3><a id="user-content-errors" class="anchor" aria-label="Permalink: Errors" href="#errors"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">When a function call is not successful, depending on the function either <code>NULL</code> or <code>REDIS_ERR</code> is
+returned. The <code>err</code> field inside the context will be non-zero and set to one of the
+following constants:</p>
+<ul dir="auto">
+<li>
+<p dir="auto"><strong><code>REDIS_ERR_IO</code></strong>:
+There was an I/O error while creating the connection, trying to write
+to the socket or read from the socket. If you included <code>errno.h</code> in your
+application, you can use the global <code>errno</code> variable to find out what is
+wrong.</p>
+</li>
+<li>
+<p dir="auto"><strong><code>REDIS_ERR_EOF</code></strong>:
+The server closed the connection which resulted in an empty read.</p>
+</li>
+<li>
+<p dir="auto"><strong><code>REDIS_ERR_PROTOCOL</code></strong>:
+There was an error while parsing the protocol.</p>
+</li>
+<li>
+<p dir="auto"><strong><code>REDIS_ERR_OTHER</code></strong>:
+Any other error. Currently, it is only used when a specified hostname to connect
+to cannot be resolved.</p>
+</li>
+</ul>
+<p dir="auto">In every case, the <code>errstr</code> field in the context will be set to hold a string representation
+of the error.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Asynchronous API</h2><a id="user-content-asynchronous-api" class="anchor" aria-label="Permalink: Asynchronous API" href="#asynchronous-api"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Hiredis comes with an asynchronous API that works easily with any event library.
+Examples are bundled that show using Hiredis with <a href="http://software.schmorp.de/pkg/libev.html" rel="nofollow">libev</a>
+and <a href="http://monkey.org/~provos/libevent/" rel="nofollow">libevent</a>.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Connecting</h3><a id="user-content-connecting-1" class="anchor" aria-label="Permalink: Connecting" href="#connecting-1"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The function <code>redisAsyncConnect</code> can be used to establish a non-blocking connection to
+Redis. It returns a pointer to the newly created <code>redisAsyncContext</code> struct. The <code>err</code> field
+should be checked after creation to see if there were errors creating the connection.
+Because the connection that will be created is non-blocking, the kernel is not able to
+instantly return if the specified host and port is able to accept a connection.
+In case of error, it is the caller's responsibility to free the context using <code>redisAsyncFree()</code></p>
+<p dir="auto"><em>Note: A <code>redisAsyncContext</code> is not thread-safe.</em></p>
+<p dir="auto">An application function creating a connection might look like this:</p>
+<div class="highlight highlight-source-c notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="void appConnect(myAppData *appData)
+{
+    redisAsyncContext *c = redisAsyncConnect(&quot;127.0.0.1&quot;, 6379);
+    if (c-&gt;err) {
+        printf(&quot;Error: %s\n&quot;, c-&gt;errstr);
+        // handle error
+        redisAsyncFree(c);
+        c = NULL;
+    } else {
+        appData-&gt;context = c;
+        appData-&gt;connecting = 1;
+        c-&gt;data = appData; /* store application pointer for the callbacks */
+        redisAsyncSetConnectCallback(c, appOnConnect);
+        redisAsyncSetDisconnectCallback(c, appOnDisconnect);
+    }
+}
+"><pre><span class="pl-smi">void</span> <span class="pl-en">appConnect</span>(<span class="pl-smi">myAppData</span> <span class="pl-c1">*</span><span class="pl-s1">appData</span>)
+{
+    <span class="pl-smi">redisAsyncContext</span> <span class="pl-c1">*</span><span class="pl-s1">c</span> <span class="pl-c1">=</span> <span class="pl-en">redisAsyncConnect</span>(<span class="pl-s">"127.0.0.1"</span>, <span class="pl-c1">6379</span>);
+    <span class="pl-k">if</span> (<span class="pl-s1">c</span><span class="pl-c1">-&gt;</span><span class="pl-c1">err</span>) {
+        <span class="pl-en">printf</span>(<span class="pl-s">"Error: %s\n"</span>, <span class="pl-s1">c</span><span class="pl-c1">-&gt;</span><span class="pl-c1">errstr</span>);
+        <span class="pl-c">// handle error</span>
+        <span class="pl-en">redisAsyncFree</span>(<span class="pl-s1">c</span>);
+        <span class="pl-s1">c</span> <span class="pl-c1">=</span> <span class="pl-c1">NULL</span>;
+    } <span class="pl-k">else</span> {
+        <span class="pl-s1">appData</span><span class="pl-c1">-&gt;</span><span class="pl-c1">context</span> <span class="pl-c1">=</span> <span class="pl-s1">c</span>;
+        <span class="pl-s1">appData</span><span class="pl-c1">-&gt;</span><span class="pl-c1">connecting</span> <span class="pl-c1">=</span> <span class="pl-c1">1</span>;
+        <span class="pl-s1">c</span><span class="pl-c1">-&gt;</span><span class="pl-c1">data</span> <span class="pl-c1">=</span> <span class="pl-s1">appData</span>; <span class="pl-c">/* store application pointer for the callbacks */</span>
+        <span class="pl-en">redisAsyncSetConnectCallback</span>(<span class="pl-s1">c</span>, <span class="pl-s1">appOnConnect</span>);
+        <span class="pl-en">redisAsyncSetDisconnectCallback</span>(<span class="pl-s1">c</span>, <span class="pl-s1">appOnDisconnect</span>);
+    }
+}</pre></div>
+<p dir="auto">The asynchronous context <em>should</em> hold a <em>connect</em> callback function that is called when the connection
+attempt completes, either successfully or with an error.
+It <em>can</em> also hold a <em>disconnect</em> callback function that is called when the
+connection is disconnected (either because of an error or per user request). Both callbacks should
+have the following prototype:</p>
+<div class="highlight highlight-source-c notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="void(const redisAsyncContext *c, int status);"><pre><span class="pl-smi">void</span>(<span class="pl-s1">const</span> <span class="pl-s1">redisAsyncContext</span> <span class="pl-c1">*</span><span class="pl-s1">c</span>, <span class="pl-s1">int</span> <span class="pl-s1">status</span>);</pre></div>
+<p dir="auto">On a <em>connect</em>, the <code>status</code> argument is set to <code>REDIS_OK</code> if the connection attempt succeeded.  In this
+case, the context is ready to accept commands.  If it is called with <code>REDIS_ERR</code> then the
+connection attempt failed. The <code>err</code> field in the context can be accessed to find out the cause of the error.
+After a failed connection attempt, the context object is automatically freed by the library after calling
+the connect callback.  This may be a good point to create a new context and retry the connection.</p>
+<p dir="auto">On a disconnect, the <code>status</code> argument is set to <code>REDIS_OK</code> when disconnection was initiated by the
+user, or <code>REDIS_ERR</code> when the disconnection was caused by an error. When it is <code>REDIS_ERR</code>, the <code>err</code>
+field in the context can be accessed to find out the cause of the error.</p>
+<p dir="auto">The context object is always freed after the disconnect callback fired. When a reconnect is needed,
+the disconnect callback is a good point to do so.</p>
+<p dir="auto">Setting the connect or disconnect callbacks can only be done once per context. For subsequent calls the
+api will return <code>REDIS_ERR</code>. The function to set the callbacks have the following prototype:</p>
+<div class="highlight highlight-source-c notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="/* Alternatively you can use redisAsyncSetConnectCallbackNC which will be passed a non-const
+   redisAsyncContext* on invocation (e.g. allowing writes to the privdata member). */
+int redisAsyncSetConnectCallback(redisAsyncContext *ac, redisConnectCallback *fn);
+int redisAsyncSetDisconnectCallback(redisAsyncContext *ac, redisDisconnectCallback *fn);"><pre><span class="pl-c">/* Alternatively you can use redisAsyncSetConnectCallbackNC which will be passed a non-const</span>
+<span class="pl-c">   redisAsyncContext* on invocation (e.g. allowing writes to the privdata member). */</span>
+<span class="pl-smi">int</span> <span class="pl-en">redisAsyncSetConnectCallback</span>(<span class="pl-smi">redisAsyncContext</span> <span class="pl-c1">*</span><span class="pl-s1">ac</span>, <span class="pl-smi">redisConnectCallback</span> <span class="pl-c1">*</span><span class="pl-s1">fn</span>);
+<span class="pl-smi">int</span> <span class="pl-en">redisAsyncSetDisconnectCallback</span>(<span class="pl-smi">redisAsyncContext</span> <span class="pl-c1">*</span><span class="pl-s1">ac</span>, <span class="pl-smi">redisDisconnectCallback</span> <span class="pl-c1">*</span><span class="pl-s1">fn</span>);</pre></div>
+<p dir="auto"><code>ac-&gt;data</code> may be used to pass user data to both callbacks.  A typical implementation
+might look something like this:</p>
+<div class="highlight highlight-source-c notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="void appOnConnect(redisAsyncContext *c, int status)
+{
+    myAppData *appData = (myAppData*)c-&gt;data; /* get my application specific context*/
+    appData-&gt;connecting = 0;
+    if (status == REDIS_OK) {
+        appData-&gt;connected = 1;
+    } else {
+        appData-&gt;connected = 0;
+        appData-&gt;err = c-&gt;err;
+        appData-&gt;context = NULL; /* avoid stale pointer when callback returns */
+    }
+    appAttemptReconnect();
+}
+
+void appOnDisconnect(redisAsyncContext *c, int status)
+{
+    myAppData *appData = (myAppData*)c-&gt;data; /* get my application specific context*/
+    appData-&gt;connected = 0;
+    appData-&gt;err = c-&gt;err;
+    appData-&gt;context = NULL; /* avoid stale pointer when callback returns */
+    if (status == REDIS_OK) {
+        appNotifyDisconnectCompleted(mydata);
+    } else {
+        appNotifyUnexpectedDisconnect(mydata);
+        appAttemptReconnect();
+    }
+}"><pre><span class="pl-smi">void</span> <span class="pl-en">appOnConnect</span>(<span class="pl-smi">redisAsyncContext</span> <span class="pl-c1">*</span><span class="pl-s1">c</span>, <span class="pl-smi">int</span> <span class="pl-s1">status</span>)
+{
+    <span class="pl-smi">myAppData</span> <span class="pl-c1">*</span><span class="pl-s1">appData</span> <span class="pl-c1">=</span> (<span class="pl-smi">myAppData</span><span class="pl-c1">*</span>)<span class="pl-s1">c</span><span class="pl-c1">-&gt;</span><span class="pl-c1">data</span>; <span class="pl-c">/* get my application specific context*/</span>
+    <span class="pl-s1">appData</span><span class="pl-c1">-&gt;</span><span class="pl-c1">connecting</span> <span class="pl-c1">=</span> <span class="pl-c1">0</span>;
+    <span class="pl-k">if</span> (<span class="pl-s1">status</span> <span class="pl-c1">==</span> <span class="pl-c1">REDIS_OK</span>) {
+        <span class="pl-s1">appData</span><span class="pl-c1">-&gt;</span><span class="pl-c1">connected</span> <span class="pl-c1">=</span> <span class="pl-c1">1</span>;
+    } <span class="pl-k">else</span> {
+        <span class="pl-s1">appData</span><span class="pl-c1">-&gt;</span><span class="pl-c1">connected</span> <span class="pl-c1">=</span> <span class="pl-c1">0</span>;
+        <span class="pl-s1">appData</span><span class="pl-c1">-&gt;</span><span class="pl-c1">err</span> <span class="pl-c1">=</span> <span class="pl-s1">c</span><span class="pl-c1">-&gt;</span><span class="pl-c1">err</span>;
+        <span class="pl-s1">appData</span><span class="pl-c1">-&gt;</span><span class="pl-c1">context</span> <span class="pl-c1">=</span> <span class="pl-c1">NULL</span>; <span class="pl-c">/* avoid stale pointer when callback returns */</span>
+    }
+    <span class="pl-en">appAttemptReconnect</span>();
+}
+
+<span class="pl-smi">void</span> <span class="pl-en">appOnDisconnect</span>(<span class="pl-smi">redisAsyncContext</span> <span class="pl-c1">*</span><span class="pl-s1">c</span>, <span class="pl-smi">int</span> <span class="pl-s1">status</span>)
+{
+    <span class="pl-smi">myAppData</span> <span class="pl-c1">*</span><span class="pl-s1">appData</span> <span class="pl-c1">=</span> (<span class="pl-smi">myAppData</span><span class="pl-c1">*</span>)<span class="pl-s1">c</span><span class="pl-c1">-&gt;</span><span class="pl-c1">data</span>; <span class="pl-c">/* get my application specific context*/</span>
+    <span class="pl-s1">appData</span><span class="pl-c1">-&gt;</span><span class="pl-c1">connected</span> <span class="pl-c1">=</span> <span class="pl-c1">0</span>;
+    <span class="pl-s1">appData</span><span class="pl-c1">-&gt;</span><span class="pl-c1">err</span> <span class="pl-c1">=</span> <span class="pl-s1">c</span><span class="pl-c1">-&gt;</span><span class="pl-c1">err</span>;
+    <span class="pl-s1">appData</span><span class="pl-c1">-&gt;</span><span class="pl-c1">context</span> <span class="pl-c1">=</span> <span class="pl-c1">NULL</span>; <span class="pl-c">/* avoid stale pointer when callback returns */</span>
+    <span class="pl-k">if</span> (<span class="pl-s1">status</span> <span class="pl-c1">==</span> <span class="pl-c1">REDIS_OK</span>) {
+        <span class="pl-en">appNotifyDisconnectCompleted</span>(<span class="pl-s1">mydata</span>);
+    } <span class="pl-k">else</span> {
+        <span class="pl-en">appNotifyUnexpectedDisconnect</span>(<span class="pl-s1">mydata</span>);
+        <span class="pl-en">appAttemptReconnect</span>();
+    }
+}</pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Sending commands and their callbacks</h3><a id="user-content-sending-commands-and-their-callbacks" class="anchor" aria-label="Permalink: Sending commands and their callbacks" href="#sending-commands-and-their-callbacks"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">In an asynchronous context, commands are automatically pipelined due to the nature of an event loop.
+Therefore, unlike the synchronous API, there is only a single way to send commands.
+Because commands are sent to Redis asynchronously, issuing a command requires a callback function
+that is called when the reply is received. Reply callbacks should have the following prototype:</p>
+<div class="highlight highlight-source-c notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="void(redisAsyncContext *c, void *reply, void *privdata);"><pre><span class="pl-smi">void</span>(<span class="pl-s1">redisAsyncContext</span> <span class="pl-c1">*</span><span class="pl-s1">c</span>, <span class="pl-smi">void</span> <span class="pl-c1">*</span><span class="pl-s1">reply</span>, <span class="pl-s1">void</span> <span class="pl-c1">*</span><span class="pl-s1">privdata</span>);</pre></div>
+<p dir="auto">The <code>privdata</code> argument can be used to curry arbitrary data to the callback from the point where
+the command is initially queued for execution.</p>
+<p dir="auto">The functions that can be used to issue commands in an asynchronous context are:</p>
+<div class="highlight highlight-source-c notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="int redisAsyncCommand(
+  redisAsyncContext *ac, redisCallbackFn *fn, void *privdata,
+  const char *format, ...);
+int redisAsyncCommandArgv(
+  redisAsyncContext *ac, redisCallbackFn *fn, void *privdata,
+  int argc, const char **argv, const size_t *argvlen);"><pre><span class="pl-smi">int</span> <span class="pl-en">redisAsyncCommand</span>(
+  <span class="pl-smi">redisAsyncContext</span> <span class="pl-c1">*</span><span class="pl-s1">ac</span>, <span class="pl-smi">redisCallbackFn</span> <span class="pl-c1">*</span><span class="pl-s1">fn</span>, <span class="pl-smi">void</span> <span class="pl-c1">*</span><span class="pl-s1">privdata</span>,
+  <span class="pl-k">const</span> <span class="pl-smi">char</span> <span class="pl-c1">*</span><span class="pl-s1">format</span>, ...);
+<span class="pl-smi">int</span> <span class="pl-en">redisAsyncCommandArgv</span>(
+  <span class="pl-smi">redisAsyncContext</span> <span class="pl-c1">*</span><span class="pl-s1">ac</span>, <span class="pl-smi">redisCallbackFn</span> <span class="pl-c1">*</span><span class="pl-s1">fn</span>, <span class="pl-smi">void</span> <span class="pl-c1">*</span><span class="pl-s1">privdata</span>,
+  <span class="pl-smi">int</span> <span class="pl-s1">argc</span>, <span class="pl-k">const</span> <span class="pl-smi">char</span> <span class="pl-c1">*</span><span class="pl-c1">*</span><span class="pl-s1">argv</span>, <span class="pl-k">const</span> <span class="pl-smi">size_t</span> <span class="pl-c1">*</span><span class="pl-s1">argvlen</span>);</pre></div>
+<p dir="auto">Both functions work like their blocking counterparts. The return value is <code>REDIS_OK</code> when the command
+was successfully added to the output buffer and <code>REDIS_ERR</code> otherwise. Example: when the connection
+is being disconnected per user-request, no new commands may be added to the output buffer and <code>REDIS_ERR</code> is
+returned on calls to the <code>redisAsyncCommand</code> family.</p>
+<p dir="auto">If the reply for a command with a <code>NULL</code> callback is read, it is immediately freed. When the callback
+for a command is non-<code>NULL</code>, the memory is freed immediately following the callback: the reply is only
+valid for the duration of the callback.</p>
+<p dir="auto">All pending callbacks are called with a <code>NULL</code> reply when the context encountered an error.</p>
+<p dir="auto">For every command issued, with the exception of <strong>SUBSCRIBE</strong> and <strong>PSUBSCRIBE</strong>, the callback is
+called exactly once.  Even if the context object id disconnected or deleted, every pending callback
+will be called with a <code>NULL</code> reply.</p>
+<p dir="auto">For <strong>SUBSCRIBE</strong> and <strong>PSUBSCRIBE</strong>, the callbacks may be called repeatedly until an <code>unsubscribe</code>
+message arrives.  This will be the last invocation of the callback. In case of error, the callbacks
+may receive a final <code>NULL</code> reply instead.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Disconnecting</h3><a id="user-content-disconnecting" class="anchor" aria-label="Permalink: Disconnecting" href="#disconnecting"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">An asynchronous connection can be terminated using:</p>
+<div class="highlight highlight-source-c notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="void redisAsyncDisconnect(redisAsyncContext *ac);"><pre><span class="pl-smi">void</span> <span class="pl-en">redisAsyncDisconnect</span>(<span class="pl-smi">redisAsyncContext</span> <span class="pl-c1">*</span><span class="pl-s1">ac</span>);</pre></div>
+<p dir="auto">When this function is called, the connection is <strong>not</strong> immediately terminated. Instead, new
+commands are no longer accepted and the connection is only terminated when all pending commands
+have been written to the socket, their respective replies have been read and their respective
+callbacks have been executed. After this, the disconnection callback is executed with the
+<code>REDIS_OK</code> status and the context object is freed.</p>
+<p dir="auto">The connection can be forcefully disconnected using</p>
+<div class="highlight highlight-source-c notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="void redisAsyncFree(redisAsyncContext *ac);"><pre><span class="pl-smi">void</span> <span class="pl-en">redisAsyncFree</span>(<span class="pl-smi">redisAsyncContext</span> <span class="pl-c1">*</span><span class="pl-s1">ac</span>);</pre></div>
+<p dir="auto">In this case, nothing more is written to the socket, all pending callbacks are called with a <code>NULL</code>
+reply and the disconnection callback is called with <code>REDIS_OK</code>, after which the context object
+is freed.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Hooking it up to event library <em>X</em></h3><a id="user-content-hooking-it-up-to-event-library-x" class="anchor" aria-label="Permalink: Hooking it up to event library X" href="#hooking-it-up-to-event-library-x"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">There are a few hooks that need to be set on the context object after it is created.
+See the <code>adapters/</code> directory for bindings to <em>libev</em> and <em>libevent</em>.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Reply parsing API</h2><a id="user-content-reply-parsing-api" class="anchor" aria-label="Permalink: Reply parsing API" href="#reply-parsing-api"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Hiredis comes with a reply parsing API that makes it easy for writing higher
+level language bindings.</p>
+<p dir="auto">The reply parsing API consists of the following functions:</p>
+<div class="highlight highlight-source-c notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="redisReader *redisReaderCreate(void);
+void redisReaderFree(redisReader *reader);
+int redisReaderFeed(redisReader *reader, const char *buf, size_t len);
+int redisReaderGetReply(redisReader *reader, void **reply);"><pre><span class="pl-smi">redisReader</span> <span class="pl-c1">*</span><span class="pl-en">redisReaderCreate</span>(<span class="pl-smi">void</span>);
+<span class="pl-smi">void</span> <span class="pl-en">redisReaderFree</span>(<span class="pl-smi">redisReader</span> <span class="pl-c1">*</span><span class="pl-s1">reader</span>);
+<span class="pl-smi">int</span> <span class="pl-en">redisReaderFeed</span>(<span class="pl-smi">redisReader</span> <span class="pl-c1">*</span><span class="pl-s1">reader</span>, <span class="pl-k">const</span> <span class="pl-smi">char</span> <span class="pl-c1">*</span><span class="pl-s1">buf</span>, <span class="pl-smi">size_t</span> <span class="pl-s1">len</span>);
+<span class="pl-smi">int</span> <span class="pl-en">redisReaderGetReply</span>(<span class="pl-smi">redisReader</span> <span class="pl-c1">*</span><span class="pl-s1">reader</span>, <span class="pl-smi">void</span> <span class="pl-c1">*</span><span class="pl-c1">*</span><span class="pl-s1">reply</span>);</pre></div>
+<p dir="auto">The same set of functions are used internally by hiredis when creating a
+normal Redis context, the above API just exposes it to the user for a direct
+usage.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Usage</h3><a id="user-content-usage" class="anchor" aria-label="Permalink: Usage" href="#usage"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The function <code>redisReaderCreate</code> creates a <code>redisReader</code> structure that holds a
+buffer with unparsed data and state for the protocol parser.</p>
+<p dir="auto">Incoming data -- most likely from a socket -- can be placed in the internal
+buffer of the <code>redisReader</code> using <code>redisReaderFeed</code>. This function will make a
+copy of the buffer pointed to by <code>buf</code> for <code>len</code> bytes. This data is parsed
+when <code>redisReaderGetReply</code> is called. This function returns an integer status
+and a reply object (as described above) via <code>void **reply</code>. The returned status
+can be either <code>REDIS_OK</code> or <code>REDIS_ERR</code>, where the latter means something went
+wrong (either a protocol error, or an out of memory error).</p>
+<p dir="auto">The parser limits the level of nesting for multi bulk payloads to 7. If the
+multi bulk nesting level is higher than this, the parser returns an error.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Customizing replies</h3><a id="user-content-customizing-replies" class="anchor" aria-label="Permalink: Customizing replies" href="#customizing-replies"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The function <code>redisReaderGetReply</code> creates <code>redisReply</code> and makes the function
+argument <code>reply</code> point to the created <code>redisReply</code> variable. For instance, if
+the response of type <code>REDIS_REPLY_STATUS</code> then the <code>str</code> field of <code>redisReply</code>
+will hold the status as a vanilla C string. However, the functions that are
+responsible for creating instances of the <code>redisReply</code> can be customized by
+setting the <code>fn</code> field on the <code>redisReader</code> struct. This should be done
+immediately after creating the <code>redisReader</code>.</p>
+<p dir="auto">For example, <a href="https://github.com/pietern/hiredis-rb/blob/master/ext/hiredis_ext/reader.c">hiredis-rb</a>
+uses customized reply object functions to create Ruby objects.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Reader max buffer</h3><a id="user-content-reader-max-buffer" class="anchor" aria-label="Permalink: Reader max buffer" href="#reader-max-buffer"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Both when using the Reader API directly or when using it indirectly via a
+normal Redis context, the redisReader structure uses a buffer in order to
+accumulate data from the server.
+Usually this buffer is destroyed when it is empty and is larger than 16
+KiB in order to avoid wasting memory in unused buffers</p>
+<p dir="auto">However when working with very big payloads destroying the buffer may slow
+down performances considerably, so it is possible to modify the max size of
+an idle buffer changing the value of the <code>maxbuf</code> field of the reader structure
+to the desired value. The special value of 0 means that there is no maximum
+value for an idle buffer, so the buffer will never get freed.</p>
+<p dir="auto">For instance if you have a normal Redis context you can set the maximum idle
+buffer to zero (unlimited) just with:</p>
+<div class="highlight highlight-source-c notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="context-&gt;reader-&gt;maxbuf = 0;"><pre><span class="pl-s1">context</span><span class="pl-c1">-&gt;</span><span class="pl-c1">reader</span><span class="pl-c1">-&gt;</span><span class="pl-c1">maxbuf</span> <span class="pl-c1">=</span> <span class="pl-c1">0</span>;</pre></div>
+<p dir="auto">This should be done only in order to maximize performances when working with
+large payloads. The context should be set back to <code>REDIS_READER_MAX_BUF</code> again
+as soon as possible in order to prevent allocation of useless memory.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Reader max array elements</h3><a id="user-content-reader-max-array-elements" class="anchor" aria-label="Permalink: Reader max array elements" href="#reader-max-array-elements"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">By default the hiredis reply parser sets the maximum number of multi-bulk elements
+to 2^32 - 1 or 4,294,967,295 entries.  If you need to process multi-bulk replies
+with more than this many elements you can set the value higher or to zero, meaning
+unlimited with:</p>
+<div class="highlight highlight-source-c notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="context-&gt;reader-&gt;maxelements = 0;"><pre><span class="pl-s1">context</span><span class="pl-c1">-&gt;</span><span class="pl-c1">reader</span><span class="pl-c1">-&gt;</span><span class="pl-c1">maxelements</span> <span class="pl-c1">=</span> <span class="pl-c1">0</span>;</pre></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">SSL/TLS Support</h2><a id="user-content-ssltls-support" class="anchor" aria-label="Permalink: SSL/TLS Support" href="#ssltls-support"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Building</h3><a id="user-content-building" class="anchor" aria-label="Permalink: Building" href="#building"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">SSL/TLS support is not built by default and requires an explicit flag:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="make USE_SSL=1"><pre class="notranslate"><code>make USE_SSL=1
+</code></pre></div>
+<p dir="auto">This requires OpenSSL development package (e.g. including header files to be
+available.</p>
+<p dir="auto">When enabled, SSL/TLS support is built into extra <code>libhiredis_ssl.a</code> and
+<code>libhiredis_ssl.so</code> static/dynamic libraries. This leaves the original libraries
+unaffected so no additional dependencies are introduced.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Using it</h3><a id="user-content-using-it" class="anchor" aria-label="Permalink: Using it" href="#using-it"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">First, you'll need to make sure you include the SSL header file:</p>
+<div class="highlight highlight-source-c notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="#include &lt;hiredis/hiredis.h&gt;
+#include &lt;hiredis/hiredis_ssl.h&gt;"><pre><span class="pl-k">#include</span> <span class="pl-s">&lt;hiredis/hiredis.h&gt;</span>
+<span class="pl-k">#include</span> <span class="pl-s">&lt;hiredis/hiredis_ssl.h&gt;</span></pre></div>
+<p dir="auto">You will also need to link against <code>libhiredis_ssl</code>, <strong>in addition</strong> to
+<code>libhiredis</code> and add <code>-lssl -lcrypto</code> to satisfy its dependencies.</p>
+<p dir="auto">Hiredis implements SSL/TLS on top of its normal <code>redisContext</code> or
+<code>redisAsyncContext</code>, so you will need to establish a connection first and then
+initiate an SSL/TLS handshake.</p>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Hiredis OpenSSL Wrappers</h4><a id="user-content-hiredis-openssl-wrappers" class="anchor" aria-label="Permalink: Hiredis OpenSSL Wrappers" href="#hiredis-openssl-wrappers"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Before Hiredis can negotiate an SSL/TLS connection, it is necessary to
+initialize OpenSSL and create a context. You can do that in two ways:</p>
+<ol dir="auto">
+<li>Work directly with the OpenSSL API to initialize the library's global context
+and create <code>SSL_CTX *</code> and <code>SSL *</code> contexts. With an <code>SSL *</code> object you can
+call <code>redisInitiateSSL()</code>.</li>
+<li>Work with a set of Hiredis-provided wrappers around OpenSSL, create a
+<code>redisSSLContext</code> object to hold configuration and use
+<code>redisInitiateSSLWithContext()</code> to initiate the SSL/TLS handshake.</li>
+</ol>
+<div class="highlight highlight-source-c notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="/* An Hiredis SSL context. It holds SSL configuration and can be reused across
+ * many contexts.
+ */
+redisSSLContext *ssl_context;
+
+/* An error variable to indicate what went wrong, if the context fails to
+ * initialize.
+ */
+redisSSLContextError ssl_error = REDIS_SSL_CTX_NONE;
+
+/* Initialize global OpenSSL state.
+ *
+ * You should call this only once when your app initializes, and only if
+ * you don't explicitly or implicitly initialize OpenSSL it elsewhere.
+ */
+redisInitOpenSSL();
+
+/* Create SSL context */
+ssl_context = redisCreateSSLContext(
+    &quot;cacertbundle.crt&quot;,     /* File name of trusted CA/ca bundle file, optional */
+    &quot;/path/to/certs&quot;,       /* Path of trusted certificates, optional */
+    &quot;client_cert.pem&quot;,      /* File name of client certificate file, optional */
+    &quot;client_key.pem&quot;,       /* File name of client private key, optional */
+    &quot;redis.mydomain.com&quot;,   /* Server name to request (SNI), optional */
+    &amp;ssl_error);
+
+if(ssl_context == NULL || ssl_error != REDIS_SSL_CTX_NONE) {
+    /* Handle error and abort... */
+    /* e.g.
+    printf(&quot;SSL error: %s\n&quot;,
+        (ssl_error != REDIS_SSL_CTX_NONE) ?
+            redisSSLContextGetError(ssl_error) : &quot;Unknown error&quot;);
+    // Abort
+    */
+}
+
+/* Create Redis context and establish connection */
+c = redisConnect(&quot;localhost&quot;, 6443);
+if (c == NULL || c-&gt;err) {
+    /* Handle error and abort... */
+}
+
+/* Negotiate SSL/TLS */
+if (redisInitiateSSLWithContext(c, ssl_context) != REDIS_OK) {
+    /* Handle error, in c-&gt;err / c-&gt;errstr */
+}"><pre><span class="pl-c">/* An Hiredis SSL context. It holds SSL configuration and can be reused across</span>
+<span class="pl-c"> * many contexts.</span>
+<span class="pl-c"> */</span>
+<span class="pl-smi">redisSSLContext</span> <span class="pl-c1">*</span><span class="pl-s1">ssl_context</span>;
+
+<span class="pl-c">/* An error variable to indicate what went wrong, if the context fails to</span>
+<span class="pl-c"> * initialize.</span>
+<span class="pl-c"> */</span>
+<span class="pl-smi">redisSSLContextError</span> <span class="pl-s1">ssl_error</span> <span class="pl-c1">=</span> <span class="pl-c1">REDIS_SSL_CTX_NONE</span>;
+
+<span class="pl-c">/* Initialize global OpenSSL state.</span>
+<span class="pl-c"> *</span>
+<span class="pl-c"> * You should call this only once when your app initializes, and only if</span>
+<span class="pl-c"> * you don't explicitly or implicitly initialize OpenSSL it elsewhere.</span>
+<span class="pl-c"> */</span>
+<span class="pl-en">redisInitOpenSSL</span>();
+
+<span class="pl-c">/* Create SSL context */</span>
+<span class="pl-s1">ssl_context</span> <span class="pl-c1">=</span> <span class="pl-en">redisCreateSSLContext</span>(
+    <span class="pl-s">"cacertbundle.crt"</span>,     <span class="pl-c">/* File name of trusted CA/ca bundle file, optional */</span>
+    <span class="pl-s">"/path/to/certs"</span>,       <span class="pl-c">/* Path of trusted certificates, optional */</span>
+    <span class="pl-s">"client_cert.pem"</span>,      <span class="pl-c">/* File name of client certificate file, optional */</span>
+    <span class="pl-s">"client_key.pem"</span>,       <span class="pl-c">/* File name of client private key, optional */</span>
+    <span class="pl-s">"redis.mydomain.com"</span>,   <span class="pl-c">/* Server name to request (SNI), optional */</span>
+    <span class="pl-c1">&amp;</span><span class="pl-s1">ssl_error</span>);
+
+<span class="pl-k">if</span>(<span class="pl-s1">ssl_context</span> <span class="pl-c1">==</span> <span class="pl-c1">NULL</span> <span class="pl-c1">||</span> <span class="pl-s1">ssl_error</span> <span class="pl-c1">!=</span> <span class="pl-c1">REDIS_SSL_CTX_NONE</span>) {
+    <span class="pl-c">/* Handle error and abort... */</span>
+    <span class="pl-c">/* e.g.</span>
+<span class="pl-c">    printf("SSL error: %s\n",</span>
+<span class="pl-c">        (ssl_error != REDIS_SSL_CTX_NONE) ?</span>
+<span class="pl-c">            redisSSLContextGetError(ssl_error) : "Unknown error");</span>
+<span class="pl-c">    // Abort</span>
+<span class="pl-c">    */</span>
+}
+
+<span class="pl-c">/* Create Redis context and establish connection */</span>
+<span class="pl-s1">c</span> <span class="pl-c1">=</span> <span class="pl-en">redisConnect</span>(<span class="pl-s">"localhost"</span>, <span class="pl-c1">6443</span>);
+<span class="pl-k">if</span> (<span class="pl-s1">c</span> <span class="pl-c1">==</span> <span class="pl-c1">NULL</span> <span class="pl-c1">||</span> <span class="pl-s1">c</span><span class="pl-c1">-&gt;</span><span class="pl-c1">err</span>) {
+    <span class="pl-c">/* Handle error and abort... */</span>
+}
+
+<span class="pl-c">/* Negotiate SSL/TLS */</span>
+<span class="pl-k">if</span> (<span class="pl-en">redisInitiateSSLWithContext</span>(<span class="pl-s1">c</span>, <span class="pl-s1">ssl_context</span>) <span class="pl-c1">!=</span> <span class="pl-c1">REDIS_OK</span>) {
+    <span class="pl-c">/* Handle error, in c-&gt;err / c-&gt;errstr */</span>
+}</pre></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">RESP3 PUSH replies</h2><a id="user-content-resp3-push-replies" class="anchor" aria-label="Permalink: RESP3 PUSH replies" href="#resp3-push-replies"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Redis 6.0 introduced PUSH replies with the reply-type <code>&gt;</code>.  These messages are generated spontaneously and can arrive at any time, so must be handled using callbacks.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Default behavior</h3><a id="user-content-default-behavior" class="anchor" aria-label="Permalink: Default behavior" href="#default-behavior"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Hiredis installs handlers on <code>redisContext</code> and <code>redisAsyncContext</code> by default, which will intercept and free any PUSH replies detected.  This means existing code will work as-is after upgrading to Redis 6 and switching to <code>RESP3</code>.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Custom PUSH handler prototypes</h3><a id="user-content-custom-push-handler-prototypes" class="anchor" aria-label="Permalink: Custom PUSH handler prototypes" href="#custom-push-handler-prototypes"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The callback prototypes differ between <code>redisContext</code> and <code>redisAsyncContext</code>.</p>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">redisContext</h4><a id="user-content-rediscontext" class="anchor" aria-label="Permalink: redisContext" href="#rediscontext"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="highlight highlight-source-c notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="void my_push_handler(void *privdata, void *reply) {
+    /* Handle the reply */
+
+    /* Note: We need to free the reply in our custom handler for
+             blocking contexts.  This lets us keep the reply if
+             we want. */
+    freeReplyObject(reply);
+}"><pre><span class="pl-smi">void</span> <span class="pl-en">my_push_handler</span>(<span class="pl-smi">void</span> <span class="pl-c1">*</span><span class="pl-s1">privdata</span>, <span class="pl-smi">void</span> <span class="pl-c1">*</span><span class="pl-s1">reply</span>) {
+    <span class="pl-c">/* Handle the reply */</span>
+
+    <span class="pl-c">/* Note: We need to free the reply in our custom handler for</span>
+<span class="pl-c">             blocking contexts.  This lets us keep the reply if</span>
+<span class="pl-c">             we want. */</span>
+    <span class="pl-en">freeReplyObject</span>(<span class="pl-s1">reply</span>);
+}</pre></div>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">redisAsyncContext</h4><a id="user-content-redisasynccontext" class="anchor" aria-label="Permalink: redisAsyncContext" href="#redisasynccontext"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="highlight highlight-source-c notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="void my_async_push_handler(redisAsyncContext *ac, void *reply) {
+    /* Handle the reply */
+
+    /* Note:  Because async hiredis always frees replies, you should
+              not call freeReplyObject in an async push callback. */
+}"><pre><span class="pl-smi">void</span> <span class="pl-en">my_async_push_handler</span>(<span class="pl-smi">redisAsyncContext</span> <span class="pl-c1">*</span><span class="pl-s1">ac</span>, <span class="pl-smi">void</span> <span class="pl-c1">*</span><span class="pl-s1">reply</span>) {
+    <span class="pl-c">/* Handle the reply */</span>
+
+    <span class="pl-c">/* Note:  Because async hiredis always frees replies, you should</span>
+<span class="pl-c">              not call freeReplyObject in an async push callback. */</span>
+}</pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Installing a custom handler</h3><a id="user-content-installing-a-custom-handler" class="anchor" aria-label="Permalink: Installing a custom handler" href="#installing-a-custom-handler"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">There are two ways to set your own PUSH handlers.</p>
+<ol dir="auto">
+<li>
+<p dir="auto">Set <code>push_cb</code> or <code>async_push_cb</code> in the <code>redisOptions</code> struct and connect with <code>redisConnectWithOptions</code> or <code>redisAsyncConnectWithOptions</code>.</p>
+<div class="highlight highlight-source-c notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="redisOptions = {0};
+REDIS_OPTIONS_SET_TCP(&amp;options, &quot;127.0.0.1&quot;, 6379);
+options-&gt;push_cb = my_push_handler;
+redisContext *context = redisConnectWithOptions(&amp;options);"><pre><span class="pl-s1">redisOptions</span> <span class="pl-c1">=</span> {<span class="pl-c1">0</span>};
+<span class="pl-en">REDIS_OPTIONS_SET_TCP</span>(<span class="pl-c1">&amp;</span><span class="pl-s1">options</span>, <span class="pl-s">"127.0.0.1"</span>, <span class="pl-c1">6379</span>);
+<span class="pl-s1">options</span><span class="pl-c1">-&gt;</span><span class="pl-c1">push_cb</span> <span class="pl-c1">=</span> <span class="pl-s1">my_push_handler</span>;
+<span class="pl-smi">redisContext</span> <span class="pl-c1">*</span><span class="pl-s1">context</span> <span class="pl-c1">=</span> <span class="pl-en">redisConnectWithOptions</span>(<span class="pl-c1">&amp;</span><span class="pl-s1">options</span>);</pre></div>
+</li>
+<li>
+<p dir="auto">Call <code>redisSetPushCallback</code> or <code>redisAsyncSetPushCallback</code> on a connected context.</p>
+<div class="highlight highlight-source-c notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="redisContext *context = redisConnect(&quot;127.0.0.1&quot;, 6379);
+redisSetPushCallback(context, my_push_handler);"><pre><span class="pl-smi">redisContext</span> <span class="pl-c1">*</span><span class="pl-s1">context</span> <span class="pl-c1">=</span> <span class="pl-en">redisConnect</span>(<span class="pl-s">"127.0.0.1"</span>, <span class="pl-c1">6379</span>);
+<span class="pl-en">redisSetPushCallback</span>(<span class="pl-s1">context</span>, <span class="pl-s1">my_push_handler</span>);</pre></div>
+<p dir="auto"><em>Note <code>redisSetPushCallback</code> and <code>redisAsyncSetPushCallback</code> both return any currently configured handler,  making it easy to override and then return to the old value.</em></p>
+</li>
+</ol>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Specifying no handler</h3><a id="user-content-specifying-no-handler" class="anchor" aria-label="Permalink: Specifying no handler" href="#specifying-no-handler"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">If you have a unique use-case where you don't want hiredis to automatically intercept and free PUSH replies, you will want to configure no handler at all.  This can be done in two ways.</p>
+<ol dir="auto">
+<li>
+<p dir="auto">Set the <code>REDIS_OPT_NO_PUSH_AUTOFREE</code> flag in <code>redisOptions</code> and leave the callback function pointer <code>NULL</code>.</p>
+<div class="highlight highlight-source-c notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="redisOptions = {0};
+REDIS_OPTIONS_SET_TCP(&amp;options, &quot;127.0.0.1&quot;, 6379);
+options-&gt;options |= REDIS_OPT_NO_PUSH_AUTOFREE;
+redisContext *context = redisConnectWithOptions(&amp;options);"><pre><span class="pl-s1">redisOptions</span> <span class="pl-c1">=</span> {<span class="pl-c1">0</span>};
+<span class="pl-en">REDIS_OPTIONS_SET_TCP</span>(<span class="pl-c1">&amp;</span><span class="pl-s1">options</span>, <span class="pl-s">"127.0.0.1"</span>, <span class="pl-c1">6379</span>);
+<span class="pl-s1">options</span><span class="pl-c1">-&gt;</span><span class="pl-c1">options</span> |= <span class="pl-c1">REDIS_OPT_NO_PUSH_AUTOFREE</span>;
+<span class="pl-smi">redisContext</span> <span class="pl-c1">*</span><span class="pl-s1">context</span> <span class="pl-c1">=</span> <span class="pl-en">redisConnectWithOptions</span>(<span class="pl-c1">&amp;</span><span class="pl-s1">options</span>);</pre></div>
+</li>
+<li>
+<p dir="auto">Call <code>redisSetPushCallback</code> with <code>NULL</code> once connected.</p>
+<div class="highlight highlight-source-c notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="redisContext *context = redisConnect(&quot;127.0.0.1&quot;, 6379);
+redisSetPushCallback(context, NULL);"><pre><span class="pl-smi">redisContext</span> <span class="pl-c1">*</span><span class="pl-s1">context</span> <span class="pl-c1">=</span> <span class="pl-en">redisConnect</span>(<span class="pl-s">"127.0.0.1"</span>, <span class="pl-c1">6379</span>);
+<span class="pl-en">redisSetPushCallback</span>(<span class="pl-s1">context</span>, <span class="pl-c1">NULL</span>);</pre></div>
+<p dir="auto"><em>Note:  With no handler configured, calls to <code>redisCommand</code> may generate more than one reply, so this strategy is only applicable when there's some kind of blocking <code>redisGetReply()</code> loop (e.g. <code>MONITOR</code> or <code>SUBSCRIBE</code> workloads).</em></p>
+</li>
+</ol>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Allocator injection</h2><a id="user-content-allocator-injection" class="anchor" aria-label="Permalink: Allocator injection" href="#allocator-injection"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Hiredis uses a pass-thru structure of function pointers defined in <a href="https://github.com/redis/hiredis/blob/f5d25850/alloc.h#L41">alloc.h</a> that contain the currently configured allocation and deallocation functions.  By default they just point to libc (<code>malloc</code>, <code>calloc</code>, <code>realloc</code>, etc).</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Overriding</h3><a id="user-content-overriding" class="anchor" aria-label="Permalink: Overriding" href="#overriding"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">One can override the allocators like so:</p>
+<div class="highlight highlight-source-c notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="hiredisAllocFuncs myfuncs = {
+    .mallocFn = my_malloc,
+    .callocFn = my_calloc,
+    .reallocFn = my_realloc,
+    .strdupFn = my_strdup,
+    .freeFn = my_free,
+};
+
+// Override allocators (function returns current allocators if needed)
+hiredisAllocFuncs orig = hiredisSetAllocators(&amp;myfuncs);"><pre><span class="pl-smi">hiredisAllocFuncs</span> <span class="pl-s1">myfuncs</span> <span class="pl-c1">=</span> {
+    .<span class="pl-c1">mallocFn</span> <span class="pl-c1">=</span> <span class="pl-s1">my_malloc</span>,
+    .<span class="pl-c1">callocFn</span> <span class="pl-c1">=</span> <span class="pl-s1">my_calloc</span>,
+    .<span class="pl-c1">reallocFn</span> <span class="pl-c1">=</span> <span class="pl-s1">my_realloc</span>,
+    .<span class="pl-c1">strdupFn</span> <span class="pl-c1">=</span> <span class="pl-s1">my_strdup</span>,
+    .<span class="pl-c1">freeFn</span> <span class="pl-c1">=</span> <span class="pl-s1">my_free</span>,
+};
+
+<span class="pl-c">// Override allocators (function returns current allocators if needed)</span>
+<span class="pl-smi">hiredisAllocFuncs</span> <span class="pl-s1">orig</span> <span class="pl-c1">=</span> <span class="pl-en">hiredisSetAllocators</span>(<span class="pl-c1">&amp;</span><span class="pl-s1">myfuncs</span>);</pre></div>
+<p dir="auto">To reset the allocators to their default libc function simply call:</p>
+<div class="highlight highlight-source-c notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="hiredisResetAllocators();"><pre><span class="pl-en">hiredisResetAllocators</span>();</pre></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">AUTHORS</h2><a id="user-content-authors" class="anchor" aria-label="Permalink: AUTHORS" href="#authors"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Salvatore Sanfilippo (antirez at gmail),<br>
+Pieter Noordhuis (pcnoordhuis at gmail)<br>
+Michael Grunder (michael dot grunder at gmail)</p>
+<p dir="auto"><em>Hiredis is released under the BSD license.</em></p>
+</article></div>

@@ -1,0 +1,1139 @@
+<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Rapid YAML</h1><a id="user-content-rapid-yaml" class="anchor" aria-label="Permalink: Rapid YAML" href="#rapid-yaml"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><a href="https://github.com/biojppm/rapidyaml/blob/master/LICENSE.txt"><img src="https://camo.githubusercontent.com/28f4d479bf0a9b033b3a3b95ab2adc343da448a025b01aefdc0fbc7f0e169eb8/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f4c6963656e73652d4d49542d677265656e2e737667" alt="MIT Licensed" data-canonical-src="https://img.shields.io/badge/License-MIT-green.svg" style="max-width: 100%;"></a>
+<a href="https://github.com/biojppm/rapidyaml/releases"><img src="https://camo.githubusercontent.com/c15f011f8faf04fa370faa2e68079c4ba7777750980075cc2e240e5b6f94dd4d/68747470733a2f2f696d672e736869656c64732e696f2f6769746875622f762f72656c656173652f62696f6a70706d2f726170696479616d6c3f636f6c6f723d6726696e636c7564655f70726572656c6561736573266c6162656c3d72656c6561736525323026736f72743d73656d766572" alt="release" data-canonical-src="https://img.shields.io/github/v/release/biojppm/rapidyaml?color=g&amp;include_prereleases&amp;label=release%20&amp;sort=semver" style="max-width: 100%;"></a>
+<a href="https://rapidyaml.readthedocs.io/latest/?badge=latest" rel="nofollow"><img src="https://camo.githubusercontent.com/9f70bf65262b9182fd568062877500e9d7f92c7bcef73390727a0f04cc499d5b/68747470733a2f2f72656164746865646f63732e6f72672f70726f6a656374732f726170696479616d6c2f62616467652f3f76657273696f6e3d6c6174657374" alt="Documentation Status" data-canonical-src="https://readthedocs.org/projects/rapidyaml/badge/?version=latest" style="max-width: 100%;"></a></p>
+<p dir="auto"><a href="https://pypi.org/project/rapidyaml/" rel="nofollow"><img src="https://camo.githubusercontent.com/5f59da300cbec3694effde51017c0b7b1eadfd377d0d6e7165cd24fa13ac1aaa/68747470733a2f2f696d672e736869656c64732e696f2f707970692f762f726170696479616d6c3f636f6c6f723d67" alt="PyPI" data-canonical-src="https://img.shields.io/pypi/v/rapidyaml?color=g" style="max-width: 100%;"></a></p>
+<p dir="auto"><a href="https://coveralls.io/github/biojppm/rapidyaml" rel="nofollow"><img src="https://camo.githubusercontent.com/88fe7ea9690f7a2331442607374295aa61093e2c0f641a32b62c5a4f25735599/68747470733a2f2f636f766572616c6c732e696f2f7265706f732f6769746875622f62696f6a70706d2f726170696479616d6c2f62616467652e7376673f6272616e63683d6d6173746572" alt="Coveralls" data-canonical-src="https://coveralls.io/repos/github/biojppm/rapidyaml/badge.svg?branch=master" style="max-width: 100%;"></a>
+<a href="https://codecov.io/gh/biojppm/rapidyaml" rel="nofollow"><img src="https://camo.githubusercontent.com/9f8d440144e0e0413c768f4a18981ae39e4729d80380abe086705b7139d7b8fb/68747470733a2f2f636f6465636f762e696f2f67682f62696f6a70706d2f726170696479616d6c2f6272616e63682f6d61737465722f67726170682f62616467652e7376673f6272616e63683d6d6173746572" alt="Codecov" data-canonical-src="https://codecov.io/gh/biojppm/rapidyaml/branch/master/graph/badge.svg?branch=master" style="max-width: 100%;"></a></p>
+<p dir="auto">Or ryml, for short. ryml is a C++ library to parse and emit YAML,
+and do it fast, on everything from x64 to bare-metal chips without
+operating system. (If you are looking to use your programs with a YAML tree
+as a configuration tree with override facilities, take a look at
+<a href="https://github.com/biojppm/c4conf">c4conf</a>).</p>
+<p dir="auto">ryml parses both read-only and in-situ source buffers; the resulting
+data nodes hold only views to sub-ranges of the source buffer. No
+string copies or duplications are done, and no virtual functions are
+used. The data tree is a flat index-based structure stored in a single
+array. Serialization happens only at your direct request, after
+parsing / before emitting. Internally, the data tree representation
+stores only string views and has no knowledge of types, but of course,
+every node can have a YAML type tag. ryml makes it easy and fast to
+read and modify the data tree.</p>
+<p dir="auto">ryml is available as a single header file, or it can be used as a
+simple library with cmake -- both separately (ie
+build-&gt;install-&gt;<code>find_package()</code>) or together with your project (ie with
+<code>add_subdirectory()</code>). (See below for examples).</p>
+<p dir="auto">ryml can use custom global and per-tree memory allocators and error
+handler callbacks, and is exception-agnostic. ryml provides a default
+implementation for the allocator (using <code>std::malloc()</code>) and error
+handlers (using using either exceptions, <code>longjmp()</code> or
+<code>std::abort()</code>), but you can opt out and provide your own memory
+allocation and eg, exception-throwing callbacks.</p>
+<p dir="auto">ryml does not depend on the STL, ie, it does not use any std container
+as part of its data structures), but it can serialize and deserialize
+these containers into the data tree, with the use of optional
+headers. ryml ships with <a href="https://github.com/biojppm/c4core">c4core</a>, a
+small C++ utilities multiplatform library.</p>
+<p dir="auto">ryml is written in C++11, and compiles cleanly with:</p>
+<ul dir="auto">
+<li>Visual Studio 2015 and later</li>
+<li>clang++ 3.9 and later</li>
+<li>g++ 4.8 and later</li>
+<li>Intel Compiler</li>
+</ul>
+<p dir="auto">ryml's API documentation is <a href="https://rapidyaml.readthedocs.io/latest/" rel="nofollow">available at
+ReadTheDocs</a>.</p>
+<p dir="auto">ryml is <a href="https://github.com/biojppm/rapidyaml/actions">extensively unit-tested in Linux, Windows and
+MacOS</a>. The tests cover
+x64, x86, wasm (emscripten), arm, aarch64, ppc64le and s390x
+architectures, and include analysing ryml with:</p>
+<ul dir="auto">
+<li>valgrind</li>
+<li>clang-tidy</li>
+<li>gcc/clang sanitizers:
+<ul dir="auto">
+<li>memory</li>
+<li>address</li>
+<li>undefined behavior</li>
+</ul>
+</li>
+</ul>
+<p dir="auto">ryml also <a href="https://github.com/biojppm/rapidyaml/issues/193" data-hovercard-type="issue" data-hovercard-url="/biojppm/rapidyaml/issues/193/hovercard">runs in
+bare-metal</a>, and
+<a href="https://github.com/biojppm/c4core/pull/69" data-hovercard-type="pull_request" data-hovercard-url="/biojppm/c4core/pull/69/hovercard">RISC-V
+architectures</a>. Both of
+these are pending implementation of CI actions for continuous
+validation, but ryml has been proven to work there.</p>
+<p dir="auto">ryml is <a href="https://pypi.org/project/rapidyaml/" rel="nofollow">available in Python</a>,
+and can very easily be compiled to JavaScript through emscripten (see
+below).</p>
+<p dir="auto">See also <a href="https://github.com/biojppm/rapidyaml/tree/master/changelog">the changelog</a>
+and <a href="https://github.com/biojppm/rapidyaml/tree/master/ROADMAP.md">the roadmap</a>.</p>
+
+<hr>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Table of contents</h2><a id="user-content-table-of-contents" class="anchor" aria-label="Permalink: Table of contents" href="#table-of-contents"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li><a href="#license">License</a></li>
+<li><a href="#is-it-rapid">Is it rapid?</a>
+<ul dir="auto">
+<li><a href="#comparison-with-yaml-cpp">Comparison with yaml-cpp</a></li>
+<li><a href="#performance-reading-json">Performance reading JSON</a></li>
+<li><a href="#performance-emitting">Performance emitting</a></li>
+</ul>
+</li>
+<li><a href="#quick-start">Quick start</a></li>
+<li><a href="#using-ryml-in-your-project">Using ryml in your project</a>
+<ul dir="auto">
+<li><a href="#package-managers">Package managers</a></li>
+<li><a href="#single-header-file">Single header file</a></li>
+<li><a href="#as-a-library">As a library</a></li>
+<li><a href="#quickstart-samples">Quickstart samples</a></li>
+<li><a href="#cmake-build-settings-for-ryml">CMake build settings for ryml</a>
+<ul dir="auto">
+<li><a href="#forcing-ryml-to-use-a-different-c4core-version">Forcing ryml to use a different c4core version</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#other-languages">Other languages</a>
+<ul dir="auto">
+<li><a href="#javascript">JavaScript</a></li>
+<li><a href="#python">Python</a></li>
+</ul>
+</li>
+<li><a href="#yaml-standard-conformance">YAML standard conformance</a>
+<ul dir="auto">
+<li><a href="#test-suite-status">Test suite status</a></li>
+</ul>
+</li>
+<li><a href="#known-limitations">Known limitations</a></li>
+<li><a href="#alternative-libraries">Alternative libraries</a></li>
+</ul>
+<hr>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">License</h2><a id="user-content-license" class="anchor" aria-label="Permalink: License" href="#license"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">ryml is permissively licensed under the <a href="LICENSE.txt">MIT license</a>.</p>
+<hr>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Is it rapid?</h2><a id="user-content-is-it-rapid" class="anchor" aria-label="Permalink: Is it rapid?" href="#is-it-rapid"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">You bet! On a i7-6800K CPU @3.40GHz:</p>
+<ul dir="auto">
+<li>ryml parses YAML at about ~150MB/s on Linux and ~100MB/s on Windows (vs2017).</li>
+<li><strong>ryml parses JSON at about ~450MB/s on Linux</strong>, faster than sajson (didn't
+try yet on Windows).</li>
+<li>compared against the other existing YAML libraries for C/C++:
+<ul dir="auto">
+<li>ryml is in general between 2 and 3 times faster than <a href="https://github.com/yaml/libyaml">libyaml</a></li>
+<li>ryml is in general between 10 and 70 times faster than
+<a href="https://github.com/jbeder/yaml-cpp">yaml-cpp</a>, and in some cases as
+much as 100x and <a href="https://github.com/biojppm/c4core/pull/16#issuecomment-700972614" data-hovercard-type="pull_request" data-hovercard-url="/biojppm/c4core/pull/16/hovercard">even
+200x</a> faster.</li>
+</ul>
+</li>
+</ul>
+<p dir="auto"><a href="./bm/bm_parse.cpp">Here's the benchmark</a>. Using different
+approaches within ryml (in-situ/read-only vs. with/without reuse), a YAML /
+JSON buffer is repeatedly parsed, and compared against other libraries.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Comparison with yaml-cpp</h3><a id="user-content-comparison-with-yaml-cpp" class="anchor" aria-label="Permalink: Comparison with yaml-cpp" href="#comparison-with-yaml-cpp"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The first result set is for Windows, and is using a <a href="./bm/cases/appveyor.yml">appveyor.yml config
+file</a>. A comparison of these results is
+summarized on the table below:</p>
+<markdown-accessiblity-table><table>
+<thead>
+<tr>
+<th>Read rates (MB/s)</th>
+<th>ryml</th>
+<th>yamlcpp</th>
+<th>compared</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>appveyor / vs2017 / Release</td>
+<td>101.5</td>
+<td>5.3</td>
+<td>20x / 5.2%</td>
+</tr>
+<tr>
+<td>appveyor / vs2017 / Debug</td>
+<td>6.4</td>
+<td>0.0844</td>
+<td>76x / 1.3%</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p dir="auto">The next set of results is taken in Linux, comparing g++ 8.2 and clang++ 7.0.1 in
+parsing a YAML buffer from a <a href="./bm/cases/travis.yml">travis.yml config
+file</a> or a JSON buffer from a <a href="./bm/cases/compile_commands.json">compile_commands.json
+file</a>. You
+can <a href="./bm/results/parse.linux.i7_6800K.md">see the full results here</a>.
+Summarizing:</p>
+<markdown-accessiblity-table><table>
+<thead>
+<tr>
+<th>Read rates (MB/s)</th>
+<th>ryml</th>
+<th>yamlcpp</th>
+<th>compared</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>json   / clang++ / Release</td>
+<td>453.5</td>
+<td>15.1</td>
+<td>30x / 3%</td>
+</tr>
+<tr>
+<td>json   /     g++ / Release</td>
+<td>430.5</td>
+<td>16.3</td>
+<td>26x / 4%</td>
+</tr>
+<tr>
+<td>json   / clang++ / Debug</td>
+<td>61.9</td>
+<td>1.63</td>
+<td>38x / 3%</td>
+</tr>
+<tr>
+<td>json   /     g++ / Debug</td>
+<td>72.6</td>
+<td>1.53</td>
+<td>47x / 2%</td>
+</tr>
+<tr>
+<td>travis / clang++ / Release</td>
+<td>131.6</td>
+<td>8.08</td>
+<td>16x / 6%</td>
+</tr>
+<tr>
+<td>travis /     g++ / Release</td>
+<td>176.4</td>
+<td>8.23</td>
+<td>21x / 5%</td>
+</tr>
+<tr>
+<td>travis / clang++ / Debug</td>
+<td>10.2</td>
+<td>1.08</td>
+<td>9x / 1%</td>
+</tr>
+<tr>
+<td>travis /     g++ / Debug</td>
+<td>12.5</td>
+<td>1.01</td>
+<td>12x / 8%</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p dir="auto">The 450MB/s read rate for JSON puts ryml squarely in the same ballpark
+as <a href="https://github.com/Tencent/rapidjson">RapidJSON</a> and other fast json
+readers
+(<a href="https://lemire.me/blog/2018/05/03/how-fast-can-you-parse-json/" rel="nofollow">data from here</a>).
+Even parsing full YAML is at ~150MB/s, which is still in that performance
+ballpark, albeit at its lower end. This is something to be proud of, as the
+YAML specification is much more complex than JSON: <a href="https://www.arp242.net/yaml-config.html#its-pretty-complex" rel="nofollow">23449 vs 1969 words</a>.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Performance reading JSON</h3><a id="user-content-performance-reading-json" class="anchor" aria-label="Permalink: Performance reading JSON" href="#performance-reading-json"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">So how does ryml compare against other JSON readers? Well, it's one of the
+fastest!</p>
+<p dir="auto">The benchmark is the <a href="./bm/parse.cpp">same as above</a>, and it is reading
+the <a href="./bm/cases/compile_commands.json">compile_commands.json</a>, The <code>_arena</code>
+suffix notes parsing a read-only buffer (so buffer copies are performed),
+while the <code>_inplace</code> suffix means that the source buffer can be parsed in
+place. The <code>_reuse</code> means the data tree and/or parser are reused on each
+benchmark repeat.</p>
+<p dir="auto">Here's what we get with g++ 8.2:</p>
+<markdown-accessiblity-table><table>
+<thead>
+<tr>
+<th align="left">Benchmark</th>
+<th align="right">Release,MB/s</th>
+<th align="right">Debug,MB/s</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">rapidjson_arena</td>
+<td align="right">509.9</td>
+<td align="right">43.4</td>
+</tr>
+<tr>
+<td align="left">rapidjson_inplace</td>
+<td align="right">1329.4</td>
+<td align="right">68.2</td>
+</tr>
+<tr>
+<td align="left">sajson_inplace</td>
+<td align="right">434.2</td>
+<td align="right">176.5</td>
+</tr>
+<tr>
+<td align="left">sajson_arena</td>
+<td align="right">430.7</td>
+<td align="right">175.6</td>
+</tr>
+<tr>
+<td align="left">jsoncpp_arena</td>
+<td align="right">183.6</td>
+<td align="right">? 187.9</td>
+</tr>
+<tr>
+<td align="left">nlohmann_json_arena</td>
+<td align="right">115.8</td>
+<td align="right">21.5</td>
+</tr>
+<tr>
+<td align="left">yamlcpp_arena</td>
+<td align="right">16.6</td>
+<td align="right">1.6</td>
+</tr>
+<tr>
+<td align="left">libyaml_arena</td>
+<td align="right">113.9</td>
+<td align="right">35.7</td>
+</tr>
+<tr>
+<td align="left">libyaml_arena_reuse</td>
+<td align="right">114.6</td>
+<td align="right">35.9</td>
+</tr>
+<tr>
+<td align="left">ryml_arena</td>
+<td align="right">388.6</td>
+<td align="right">36.9</td>
+</tr>
+<tr>
+<td align="left">ryml_inplace</td>
+<td align="right">393.7</td>
+<td align="right">36.9</td>
+</tr>
+<tr>
+<td align="left">ryml_arena_reuse</td>
+<td align="right">446.2</td>
+<td align="right">74.6</td>
+</tr>
+<tr>
+<td align="left">ryml_inplace_reuse</td>
+<td align="right">457.1</td>
+<td align="right">74.9</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p dir="auto">You can verify that (at least for this test) ryml beats most json
+parsers at their own game, with the only exception of
+<a href="https://github.com/Tencent/rapidjson">rapidjson</a>. And actually, in
+Debug, <a href="https://github.com/Tencent/rapidjson">rapidjson</a> is slower
+than ryml, and <a href="https://github.com/chadaustin/sajson">sajson</a>
+manages to be faster (but not sure about jsoncpp; need to scrutinize there
+the suspicious fact that the Debug result is faster than the Release result).</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Performance emitting</h3><a id="user-content-performance-emitting" class="anchor" aria-label="Permalink: Performance emitting" href="#performance-emitting"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><a href="bm/bm_emit.cpp">Emitting benchmarks</a> also show similar speedups from
+the existing libraries, also anecdotally reported by some users <a href="https://github.com/biojppm/rapidyaml/issues/28#issue-553855608" data-hovercard-type="issue" data-hovercard-url="/biojppm/rapidyaml/issues/28/hovercard">(eg,
+here's a user reporting 25x speedup from
+yaml-cpp)</a>. Also, in
+some cases (eg, block folded multiline scalars), the speedup is as
+high as 200x (eg, 7.3MB/s -&gt; 1.416MG/s).</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">CI results and request for files</h3><a id="user-content-ci-results-and-request-for-files" class="anchor" aria-label="Permalink: CI results and request for files" href="#ci-results-and-request-for-files"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">While a more effective way of showing the benchmark results is not
+available yet, you can browse through the <a href="https://github.com/biojppm/rapidyaml/actions/workflows/benchmarks.yml">runs of the benchmark
+workflow in the
+CI</a>
+to scroll through the results for yourself.</p>
+<p dir="auto">Also, if you have a case where ryml behaves very nicely or not as
+nicely as claimed above, we would definitely like to see it! Please
+open an issue, or submit a pull request adding the file to
+<a href="bm/cases">bm/cases</a>, or just send us the files.</p>
+<hr>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Quick start</h2><a id="user-content-quick-start" class="anchor" aria-label="Permalink: Quick start" href="#quick-start"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">If you're wondering whether ryml's speed comes at a usage cost, you
+need not: with ryml, you can have your cake and eat it too. Being
+rapid is definitely NOT the same as being unpractical, so ryml was
+written with easy AND efficient usage in mind, and comes with a two
+level API for accessing and traversing the data tree.</p>
+<p dir="auto">The following snippet is a very quick overview taken from quickstart
+sample (<a href="https://rapidyaml.readthedocs.io/latest/group__doc__quickstart.html" rel="nofollow">see on
+doxygen</a>/<a href="samples/quickstart.cpp">see
+on github</a>. After cloning ryml
+(don't forget the <code>--recursive</code> flag for git), you can very easily
+build and run this executable using any of the build samples, eg the
+<a href="samples/add_subdirectory/"><code>add_subdirectory()</code> sample</a> (see <a href="#quickstart-samples">the relevant section</a>).</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="// Parse YAML code in place, potentially mutating the buffer:
+char yml_buf[] = &quot;{foo: 1, bar: [2, 3], john: doe}&quot;;
+ryml::Tree tree = ryml::parse_in_place(yml_buf);
+
+// ryml has a two-level API:
+//
+// The lower level index API is based on the indices of nodes,
+// where the node's id is the node's position in the tree's data
+// array. This API is very efficient, but somewhat difficult to use:
+size_t root_id = tree.root_id();
+size_t bar_id = tree.find_child(root_id, &quot;bar&quot;); // need to get the index right
+CHECK(tree.is_map(root_id)); // all of the index methods are in the tree
+CHECK(tree.is_seq(bar_id));  // ... and receive the subject index
+
+// The node API is a lightweight abstraction sitting on top of the
+// index API, but offering a much more convenient interaction:
+ryml::ConstNodeRef root = tree.rootref();  // a const node reference
+ryml::ConstNodeRef bar = tree[&quot;bar&quot;];
+CHECK(root.is_map());
+CHECK(bar.is_seq());
+
+// The resulting tree stores only string views to the YAML source buffer.
+CHECK(root[&quot;foo&quot;] == &quot;1&quot;);
+CHECK(root[&quot;foo&quot;].key().str == yml_buf + 1);
+CHECK(bar[0] == &quot;2&quot;);
+CHECK(root[&quot;john&quot;] == &quot;doe&quot;);
+
+//------------------------------------------------------------------
+// To get actual values, you need to deserialize the nodes.
+// Deserializing: use operator&gt;&gt;
+{
+    int foo = 0, bar0 = 0, bar1 = 0;
+    std::string john_str;
+    std::string bar_str;
+    root[&quot;foo&quot;] &gt;&gt; foo;
+    root[&quot;bar&quot;][0] &gt;&gt; bar0;
+    root[&quot;bar&quot;][1] &gt;&gt; bar1;
+    root[&quot;john&quot;] &gt;&gt; john_str; // requires from_chars(std::string). see API doc.
+    root[&quot;bar&quot;] &gt;&gt; ryml::key(bar_str); // to deserialize the key, use the tag function ryml::key()
+    CHECK(foo == 1);
+    CHECK(bar0 == 2);
+    CHECK(bar1 == 3);
+    CHECK(john_str == &quot;doe&quot;);
+    CHECK(bar_str == &quot;bar&quot;);
+}
+
+//------------------------------------------------------------------
+// To modify existing nodes, use operator= or operator&lt;&lt;.
+
+// operator= assigns an existing string to the receiving node.
+// The contents are NOT copied, and this pointer will be in effect
+// until the tree goes out of scope! So BEWARE to only assign from
+// strings outliving the tree.
+wroot[&quot;foo&quot;] = &quot;says you&quot;;
+wroot[&quot;bar&quot;][0] = &quot;-2&quot;;
+wroot[&quot;bar&quot;][1] = &quot;-3&quot;;
+wroot[&quot;john&quot;] = &quot;ron&quot;;
+// Now the tree is _pointing_ at the memory of the strings above.
+// In this case it is OK because those are static strings and will
+// outlive the tree.
+CHECK(root[&quot;foo&quot;].val() == &quot;says you&quot;);
+CHECK(root[&quot;bar&quot;][0].val() == &quot;-2&quot;);
+CHECK(root[&quot;bar&quot;][1].val() == &quot;-3&quot;);
+CHECK(root[&quot;john&quot;].val() == &quot;ron&quot;);
+// But WATCHOUT: do not assign from temporary objects:
+// {
+//     std::string crash(&quot;will dangle&quot;);
+//     root[&quot;john&quot;] = ryml::to_csubstr(crash);
+// }
+// CHECK(root[&quot;john&quot;] == &quot;dangling&quot;); // CRASH! the string was deallocated
+
+// operator&lt;&lt; first serializes the input to the tree's arena, then
+// assigns the serialized string to the receiving node. This avoids
+// constraints with the lifetime, since the arena lives with the tree.
+CHECK(tree.arena().empty());
+wroot[&quot;foo&quot;] &lt;&lt; &quot;says who&quot;;  // requires to_chars(). see serialization samples below.
+wroot[&quot;bar&quot;][0] &lt;&lt; 20;
+wroot[&quot;bar&quot;][1] &lt;&lt; 30;
+wroot[&quot;john&quot;] &lt;&lt; &quot;deere&quot;;
+CHECK(root[&quot;foo&quot;].val() == &quot;says who&quot;);
+CHECK(root[&quot;bar&quot;][0].val() == &quot;20&quot;);
+CHECK(root[&quot;bar&quot;][1].val() == &quot;30&quot;);
+CHECK(root[&quot;john&quot;].val() == &quot;deere&quot;);
+CHECK(tree.arena() == &quot;says who2030deere&quot;); // the result of serializations to the tree arena
+
+
+//------------------------------------------------------------------
+// Adding new nodes:
+
+// adding a keyval node to a map:
+CHECK(root.num_children() == 5);
+wroot[&quot;newkeyval&quot;] = &quot;shiny and new&quot;; // using these strings
+wroot.append_child() &lt;&lt; ryml::key(&quot;newkeyval (serialized)&quot;) &lt;&lt; &quot;shiny and new (serialized)&quot;; // serializes and assigns the serialization
+CHECK(root.num_children() == 7);
+CHECK(root[&quot;newkeyval&quot;].key() == &quot;newkeyval&quot;);
+CHECK(root[&quot;newkeyval&quot;].val() == &quot;shiny and new&quot;);
+CHECK(root[&quot;newkeyval (serialized)&quot;].key() == &quot;newkeyval (serialized)&quot;);
+CHECK(root[&quot;newkeyval (serialized)&quot;].val() == &quot;shiny and new (serialized)&quot;);
+
+
+//------------------------------------------------------------------
+// Emitting:
+
+ryml::csubstr expected_result = R&quot;(foo: says who
+bar:
+- 20
+- 30
+- oh so nice
+- oh so nice (serialized)
+john: in_scope
+float: 2.4
+digits: 2.400000
+newkeyval: shiny and new
+newkeyval (serialized): shiny and new (serialized)
+newseq: []
+newseq (serialized): []
+newmap: {}
+newmap (serialized): {}
+I am something: indeed
+)&quot;;
+
+// emit to a FILE*
+ryml::emit_yaml(tree, stdout);
+// emit to a stream
+std::stringstream ss;
+ss &lt;&lt; tree;
+std::string stream_result = ss.str();
+// emit to a buffer:
+std::string str_result = ryml::emitrs_yaml&lt;std::string&gt;(tree);
+// can emit to any given buffer:
+char buf[1024];
+ryml::csubstr buf_result = ryml::emit_yaml(tree, buf);
+// now check
+CHECK(buf_result == expected_result);
+CHECK(str_result == expected_result);
+CHECK(stream_result == expected_result);
+
+//------------------------------------------------------------------
+// UTF8
+ryml::Tree langs = ryml::parse_in_arena(R&quot;(
+en: Planet (Gas)
+fr: Planète (Gazeuse)
+ru: Планета (Газ)
+ja: 惑星（ガス）
+zh: 行星（气体）
+# UTF8 decoding only happens in double-quoted strings,
+# as per the YAML standard
+decode this: &quot;\u263A c\x61f\xE9&quot;
+and this as well: &quot;\u2705 \U0001D11E&quot;
+not decoded: '\u263A \xE2\x98\xBA'
+neither this: '\u2705 \U0001D11E'
+)&quot;);
+// in-place UTF8 just works:
+CHECK(langs[&quot;en&quot;].val() == &quot;Planet (Gas)&quot;);
+CHECK(langs[&quot;fr&quot;].val() == &quot;Planète (Gazeuse)&quot;);
+CHECK(langs[&quot;ru&quot;].val() == &quot;Планета (Газ)&quot;);
+CHECK(langs[&quot;ja&quot;].val() == &quot;惑星（ガス）&quot;);
+CHECK(langs[&quot;zh&quot;].val() == &quot;行星（气体）&quot;);
+// and \x \u \U codepoints are decoded, but only when they appear
+// inside double-quoted strings, as dictated by the YAML
+// standard:
+CHECK(langs[&quot;decode this&quot;].val() == &quot;A&quot;);
+CHECK(langs[&quot;decode this&quot;].val() == &quot;☺ café&quot;);
+CHECK(langs[&quot;and this as well&quot;].val() == &quot;✅ 𝄞&quot;);
+CHECK(langs[&quot;not decoded&quot;].val() == &quot;\\u263A \\xE2\\x98\\xBA&quot;);
+CHECK(langs[&quot;neither this&quot;].val() == &quot;\\u2705 \\U0001D11E&quot;);
+
+
+//------------------------------------------------------------------
+// Getting the location of nodes in the source:
+//
+// Location tracking is opt-in:
+ryml::Parser parser(ryml::ParserOptions().locations(true));
+// Now the parser will start by building the accelerator structure:
+ryml::Tree tree2 = parser.parse_in_arena(&quot;expected.yml&quot;, expected_result);
+// ... and use it when querying
+ryml::Location loc = parser.location(tree2[&quot;bar&quot;][1]);
+CHECK(parser.location_contents(loc).begins_with(&quot;30&quot;));
+CHECK(loc.line == 3u);
+CHECK(loc.col == 4u);"><pre><span class="pl-c"><span class="pl-c">//</span> Parse YAML code in place, potentially mutating the buffer:</span>
+<span class="pl-k">char</span> yml_buf[] = <span class="pl-s"><span class="pl-pds">"</span>{foo: 1, bar: [2, 3], john: doe}<span class="pl-pds">"</span></span>;
+ryml::Tree tree = ryml::parse_in_place(yml_buf);
+
+<span class="pl-c"><span class="pl-c">//</span> ryml has a two-level API:</span>
+<span class="pl-c"><span class="pl-c">//</span></span>
+<span class="pl-c"><span class="pl-c">//</span> The lower level index API is based on the indices of nodes,</span>
+<span class="pl-c"><span class="pl-c">//</span> where the node's id is the node's position in the tree's data</span>
+<span class="pl-c"><span class="pl-c">//</span> array. This API is very efficient, but somewhat difficult to use:</span>
+<span class="pl-c1">size_t</span> root_id = tree.root_id();
+<span class="pl-c1">size_t</span> bar_id = tree.find_child(root_id, <span class="pl-s"><span class="pl-pds">"</span>bar<span class="pl-pds">"</span></span>); <span class="pl-c"><span class="pl-c">//</span> need to get the index right</span>
+<span class="pl-en">CHECK</span>(tree.is_map(root_id)); <span class="pl-c"><span class="pl-c">//</span> all of the index methods are in the tree</span>
+<span class="pl-en">CHECK</span>(tree.is_seq(bar_id));  <span class="pl-c"><span class="pl-c">//</span> ... and receive the subject index</span>
+
+<span class="pl-c"><span class="pl-c">//</span> The node API is a lightweight abstraction sitting on top of the</span>
+<span class="pl-c"><span class="pl-c">//</span> index API, but offering a much more convenient interaction:</span>
+ryml::ConstNodeRef root = tree.rootref();  <span class="pl-c"><span class="pl-c">//</span> a const node reference</span>
+ryml::ConstNodeRef bar = tree[<span class="pl-s"><span class="pl-pds">"</span>bar<span class="pl-pds">"</span></span>];
+<span class="pl-en">CHECK</span>(root.is_map());
+<span class="pl-en">CHECK</span>(bar.is_seq());
+
+<span class="pl-c"><span class="pl-c">//</span> The resulting tree stores only string views to the YAML source buffer.</span>
+<span class="pl-en">CHECK</span>(root[<span class="pl-s"><span class="pl-pds">"</span>foo<span class="pl-pds">"</span></span>] == <span class="pl-s"><span class="pl-pds">"</span>1<span class="pl-pds">"</span></span>);
+<span class="pl-en">CHECK</span>(root[<span class="pl-s"><span class="pl-pds">"</span>foo<span class="pl-pds">"</span></span>].key().str == yml_buf + 1);
+<span class="pl-en">CHECK</span>(bar[<span class="pl-c1">0</span>] == <span class="pl-s"><span class="pl-pds">"</span>2<span class="pl-pds">"</span></span>);
+<span class="pl-en">CHECK</span>(root[<span class="pl-s"><span class="pl-pds">"</span>john<span class="pl-pds">"</span></span>] == <span class="pl-s"><span class="pl-pds">"</span>doe<span class="pl-pds">"</span></span>);
+
+<span class="pl-c"><span class="pl-c">//</span>------------------------------------------------------------------</span>
+<span class="pl-c"><span class="pl-c">//</span> To get actual values, you need to deserialize the nodes.</span>
+<span class="pl-c"><span class="pl-c">//</span> Deserializing: use operator&gt;&gt;</span>
+{
+    <span class="pl-k">int</span> foo = <span class="pl-c1">0</span>, bar0 = <span class="pl-c1">0</span>, bar1 = <span class="pl-c1">0</span>;
+    std::string john_str;
+    std::string bar_str;
+    root[<span class="pl-s"><span class="pl-pds">"</span>foo<span class="pl-pds">"</span></span>] &gt;&gt; foo;
+    root[<span class="pl-s"><span class="pl-pds">"</span>bar<span class="pl-pds">"</span></span>][<span class="pl-c1">0</span>] &gt;&gt; bar0;
+    root[<span class="pl-s"><span class="pl-pds">"</span>bar<span class="pl-pds">"</span></span>][<span class="pl-c1">1</span>] &gt;&gt; bar1;
+    root[<span class="pl-s"><span class="pl-pds">"</span>john<span class="pl-pds">"</span></span>] &gt;&gt; john_str; <span class="pl-c"><span class="pl-c">//</span> requires from_chars(std::string). see API doc.</span>
+    root[<span class="pl-s"><span class="pl-pds">"</span>bar<span class="pl-pds">"</span></span>] &gt;&gt; <span class="pl-c1">ryml::key</span>(bar_str); <span class="pl-c"><span class="pl-c">//</span> to deserialize the key, use the tag function ryml::key()</span>
+    <span class="pl-c1">CHECK</span>(foo == <span class="pl-c1">1</span>);
+    <span class="pl-c1">CHECK</span>(bar0 == <span class="pl-c1">2</span>);
+    <span class="pl-c1">CHECK</span>(bar1 == <span class="pl-c1">3</span>);
+    <span class="pl-c1">CHECK</span>(john_str == <span class="pl-s"><span class="pl-pds">"</span>doe<span class="pl-pds">"</span></span>);
+    <span class="pl-c1">CHECK</span>(bar_str == <span class="pl-s"><span class="pl-pds">"</span>bar<span class="pl-pds">"</span></span>);
+}
+
+<span class="pl-c"><span class="pl-c">//</span>------------------------------------------------------------------</span>
+<span class="pl-c"><span class="pl-c">//</span> To modify existing nodes, use operator= or operator&lt;&lt;.</span>
+
+<span class="pl-c"><span class="pl-c">//</span> operator= assigns an existing string to the receiving node.</span>
+<span class="pl-c"><span class="pl-c">//</span> The contents are NOT copied, and this pointer will be in effect</span>
+<span class="pl-c"><span class="pl-c">//</span> until the tree goes out of scope! So BEWARE to only assign from</span>
+<span class="pl-c"><span class="pl-c">//</span> strings outliving the tree.</span>
+wroot[<span class="pl-s"><span class="pl-pds">"</span>foo<span class="pl-pds">"</span></span>] = <span class="pl-s"><span class="pl-pds">"</span>says you<span class="pl-pds">"</span></span>;
+wroot[<span class="pl-s"><span class="pl-pds">"</span>bar<span class="pl-pds">"</span></span>][<span class="pl-c1">0</span>] = <span class="pl-s"><span class="pl-pds">"</span>-2<span class="pl-pds">"</span></span>;
+wroot[<span class="pl-s"><span class="pl-pds">"</span>bar<span class="pl-pds">"</span></span>][<span class="pl-c1">1</span>] = <span class="pl-s"><span class="pl-pds">"</span>-3<span class="pl-pds">"</span></span>;
+wroot[<span class="pl-s"><span class="pl-pds">"</span>john<span class="pl-pds">"</span></span>] = <span class="pl-s"><span class="pl-pds">"</span>ron<span class="pl-pds">"</span></span>;
+<span class="pl-c"><span class="pl-c">//</span> Now the tree is _pointing_ at the memory of the strings above.</span>
+<span class="pl-c"><span class="pl-c">//</span> In this case it is OK because those are static strings and will</span>
+<span class="pl-c"><span class="pl-c">//</span> outlive the tree.</span>
+<span class="pl-en">CHECK</span>(root[<span class="pl-s"><span class="pl-pds">"</span>foo<span class="pl-pds">"</span></span>].val() == "says you");
+<span class="pl-en">CHECK</span>(root[<span class="pl-s"><span class="pl-pds">"</span>bar<span class="pl-pds">"</span></span>][<span class="pl-c1">0</span>].val() == "-2");
+<span class="pl-en">CHECK</span>(root[<span class="pl-s"><span class="pl-pds">"</span>bar<span class="pl-pds">"</span></span>][<span class="pl-c1">1</span>].val() == "-3");
+<span class="pl-en">CHECK</span>(root[<span class="pl-s"><span class="pl-pds">"</span>john<span class="pl-pds">"</span></span>].val() == "ron");
+<span class="pl-c"><span class="pl-c">//</span> But WATCHOUT: do not assign from temporary objects:</span>
+<span class="pl-c"><span class="pl-c">//</span> {</span>
+<span class="pl-c"><span class="pl-c">//</span>     std::string crash("will dangle");</span>
+<span class="pl-c"><span class="pl-c">//</span>     root["john"] = ryml::to_csubstr(crash);</span>
+<span class="pl-c"><span class="pl-c">//</span> }</span>
+<span class="pl-c"><span class="pl-c">//</span> CHECK(root["john"] == "dangling"); // CRASH! the string was deallocated</span>
+
+<span class="pl-c"><span class="pl-c">//</span> operator&lt;&lt; first serializes the input to the tree's arena, then</span>
+<span class="pl-c"><span class="pl-c">//</span> assigns the serialized string to the receiving node. This avoids</span>
+<span class="pl-c"><span class="pl-c">//</span> constraints with the lifetime, since the arena lives with the tree.</span>
+<span class="pl-en">CHECK</span>(tree.arena().empty());
+wroot[<span class="pl-s"><span class="pl-pds">"</span>foo<span class="pl-pds">"</span></span>] &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>says who<span class="pl-pds">"</span></span>;  <span class="pl-c"><span class="pl-c">//</span> requires to_chars(). see serialization samples below.</span>
+wroot[<span class="pl-s"><span class="pl-pds">"</span>bar<span class="pl-pds">"</span></span>][<span class="pl-c1">0</span>] &lt;&lt; <span class="pl-c1">20</span>;
+wroot[<span class="pl-s"><span class="pl-pds">"</span>bar<span class="pl-pds">"</span></span>][<span class="pl-c1">1</span>] &lt;&lt; <span class="pl-c1">30</span>;
+wroot[<span class="pl-s"><span class="pl-pds">"</span>john<span class="pl-pds">"</span></span>] &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>deere<span class="pl-pds">"</span></span>;
+<span class="pl-en">CHECK</span>(root[<span class="pl-s"><span class="pl-pds">"</span>foo<span class="pl-pds">"</span></span>].val() == "says who");
+<span class="pl-en">CHECK</span>(root[<span class="pl-s"><span class="pl-pds">"</span>bar<span class="pl-pds">"</span></span>][<span class="pl-c1">0</span>].val() == "20");
+<span class="pl-en">CHECK</span>(root[<span class="pl-s"><span class="pl-pds">"</span>bar<span class="pl-pds">"</span></span>][<span class="pl-c1">1</span>].val() == "30");
+<span class="pl-en">CHECK</span>(root[<span class="pl-s"><span class="pl-pds">"</span>john<span class="pl-pds">"</span></span>].val() == "deere");
+<span class="pl-en">CHECK</span>(tree.arena() == "says who2030deere"); <span class="pl-c"><span class="pl-c">//</span> the result of serializations to the tree arena</span>
+
+
+<span class="pl-c"><span class="pl-c">//</span>------------------------------------------------------------------</span>
+<span class="pl-c"><span class="pl-c">//</span> Adding new nodes:</span>
+
+<span class="pl-c"><span class="pl-c">//</span> adding a keyval node to a map:</span>
+<span class="pl-en">CHECK</span>(root.num_children() == 5);
+wroot[<span class="pl-s"><span class="pl-pds">"</span>newkeyval<span class="pl-pds">"</span></span>] = <span class="pl-s"><span class="pl-pds">"</span>shiny and new<span class="pl-pds">"</span></span>; <span class="pl-c"><span class="pl-c">//</span> using these strings</span>
+wroot.append_child() &lt;&lt; ryml::key(<span class="pl-s"><span class="pl-pds">"</span>newkeyval (serialized)<span class="pl-pds">"</span></span>) &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>shiny and new (serialized)<span class="pl-pds">"</span></span>; <span class="pl-c"><span class="pl-c">//</span> serializes and assigns the serialization</span>
+<span class="pl-en">CHECK</span>(root.num_children() == 7);
+<span class="pl-en">CHECK</span>(root[<span class="pl-s"><span class="pl-pds">"</span>newkeyval<span class="pl-pds">"</span></span>].key() == "newkeyval");
+<span class="pl-en">CHECK</span>(root[<span class="pl-s"><span class="pl-pds">"</span>newkeyval<span class="pl-pds">"</span></span>].val() == "shiny and new");
+<span class="pl-en">CHECK</span>(root[<span class="pl-s"><span class="pl-pds">"</span>newkeyval (serialized)<span class="pl-pds">"</span></span>].key() == "newkeyval (serialized)");
+<span class="pl-en">CHECK</span>(root[<span class="pl-s"><span class="pl-pds">"</span>newkeyval (serialized)<span class="pl-pds">"</span></span>].val() == "shiny and new (serialized)");
+
+
+<span class="pl-c"><span class="pl-c">//</span>------------------------------------------------------------------</span>
+<span class="pl-c"><span class="pl-c">//</span> Emitting:</span>
+
+ryml::csubstr expected_result = <span class="pl-s"><span class="pl-pds">R"(</span>foo: says who</span>
+<span class="pl-s">bar:</span>
+<span class="pl-s">- 20</span>
+<span class="pl-s">- 30</span>
+<span class="pl-s">- oh so nice</span>
+<span class="pl-s">- oh so nice (serialized)</span>
+<span class="pl-s">john: in_scope</span>
+<span class="pl-s">float: 2.4</span>
+<span class="pl-s">digits: 2.400000</span>
+<span class="pl-s">newkeyval: shiny and new</span>
+<span class="pl-s">newkeyval (serialized): shiny and new (serialized)</span>
+<span class="pl-s">newseq: []</span>
+<span class="pl-s">newseq (serialized): []</span>
+<span class="pl-s">newmap: {}</span>
+<span class="pl-s">newmap (serialized): {}</span>
+<span class="pl-s">I am something: indeed</span>
+<span class="pl-s"><span class="pl-pds">)"</span></span>;
+
+<span class="pl-c"><span class="pl-c">//</span> emit to a FILE*</span>
+<span class="pl-en">ryml::emit_yaml</span>(tree, stdout);
+<span class="pl-c"><span class="pl-c">//</span> emit to a stream</span>
+std::stringstream ss;
+ss &lt;&lt; tree;
+std::string stream_result = ss.str();
+<span class="pl-c"><span class="pl-c">//</span> emit to a buffer:</span>
+std::string str_result = ryml::emitrs_yaml&lt;std::string&gt;(tree);
+<span class="pl-c"><span class="pl-c">//</span> can emit to any given buffer:</span>
+<span class="pl-k">char</span> buf[<span class="pl-c1">1024</span>];
+ryml::csubstr buf_result = ryml::emit_yaml(tree, buf);
+<span class="pl-c"><span class="pl-c">//</span> now check</span>
+<span class="pl-en">CHECK</span>(buf_result == expected_result);
+<span class="pl-en">CHECK</span>(str_result == expected_result);
+<span class="pl-en">CHECK</span>(stream_result == expected_result);
+
+<span class="pl-c"><span class="pl-c">//</span>------------------------------------------------------------------</span>
+<span class="pl-c"><span class="pl-c">//</span> UTF8</span>
+ryml::Tree langs = ryml::parse_in_arena(<span class="pl-s"><span class="pl-pds">R"(</span></span>
+<span class="pl-s">en: Planet (Gas)</span>
+<span class="pl-s">fr: Planète (Gazeuse)</span>
+<span class="pl-s">ru: Планета (Газ)</span>
+<span class="pl-s">ja: 惑星（ガス）</span>
+<span class="pl-s">zh: 行星（气体）</span>
+<span class="pl-s"># UTF8 decoding only happens in double-quoted strings,</span>
+<span class="pl-s"># as per the YAML standard</span>
+<span class="pl-s">decode this: "\u263A c\x61f\xE9"</span>
+<span class="pl-s">and this as well: "\u2705 \U0001D11E"</span>
+<span class="pl-s">not decoded: '\u263A \xE2\x98\xBA'</span>
+<span class="pl-s">neither this: '\u2705 \U0001D11E'</span>
+<span class="pl-s"><span class="pl-pds">)"</span></span>);
+<span class="pl-c"><span class="pl-c">//</span> in-place UTF8 just works:</span>
+<span class="pl-en">CHECK</span>(langs[<span class="pl-s"><span class="pl-pds">"</span>en<span class="pl-pds">"</span></span>].val() == "Planet (Gas)");
+<span class="pl-en">CHECK</span>(langs[<span class="pl-s"><span class="pl-pds">"</span>fr<span class="pl-pds">"</span></span>].val() == "Planète (Gazeuse)");
+<span class="pl-en">CHECK</span>(langs[<span class="pl-s"><span class="pl-pds">"</span>ru<span class="pl-pds">"</span></span>].val() == "Планета (Газ)");
+<span class="pl-en">CHECK</span>(langs[<span class="pl-s"><span class="pl-pds">"</span>ja<span class="pl-pds">"</span></span>].val() == "惑星（ガス）");
+<span class="pl-en">CHECK</span>(langs[<span class="pl-s"><span class="pl-pds">"</span>zh<span class="pl-pds">"</span></span>].val() == "行星（气体）");
+<span class="pl-c"><span class="pl-c">//</span> and \x \u \U codepoints are decoded, but only when they appear</span>
+<span class="pl-c"><span class="pl-c">//</span> inside double-quoted strings, as dictated by the YAML</span>
+<span class="pl-c"><span class="pl-c">//</span> standard:</span>
+<span class="pl-en">CHECK</span>(langs[<span class="pl-s"><span class="pl-pds">"</span>decode this<span class="pl-pds">"</span></span>].val() == "A");
+<span class="pl-en">CHECK</span>(langs[<span class="pl-s"><span class="pl-pds">"</span>decode this<span class="pl-pds">"</span></span>].val() == "☺ café");
+<span class="pl-en">CHECK</span>(langs[<span class="pl-s"><span class="pl-pds">"</span>and this as well<span class="pl-pds">"</span></span>].val() == "✅ 𝄞");
+<span class="pl-en">CHECK</span>(langs[<span class="pl-s"><span class="pl-pds">"</span>not decoded<span class="pl-pds">"</span></span>].val() == "\\u263A \\xE2\\x98\\xBA");
+<span class="pl-en">CHECK</span>(langs[<span class="pl-s"><span class="pl-pds">"</span>neither this<span class="pl-pds">"</span></span>].val() == "\\u2705 \\U0001D11E");
+
+
+<span class="pl-c"><span class="pl-c">//</span>------------------------------------------------------------------</span>
+<span class="pl-c"><span class="pl-c">//</span> Getting the location of nodes in the source:</span>
+<span class="pl-c"><span class="pl-c">//</span></span>
+<span class="pl-c"><span class="pl-c">//</span> Location tracking is opt-in:</span>
+ryml::Parser <span class="pl-en">parser</span>(ryml::ParserOptions().locations(<span class="pl-c1">true</span>));
+<span class="pl-c"><span class="pl-c">//</span> Now the parser will start by building the accelerator structure:</span>
+ryml::Tree tree2 = parser.parse_in_arena(<span class="pl-s"><span class="pl-pds">"</span>expected.yml<span class="pl-pds">"</span></span>, expected_result);
+<span class="pl-c"><span class="pl-c">//</span> ... and use it when querying</span>
+ryml::Location loc = parser.location(tree2[<span class="pl-s"><span class="pl-pds">"</span>bar<span class="pl-pds">"</span></span>][<span class="pl-c1">1</span>]);
+<span class="pl-en">CHECK</span>(parser.location_contents(loc).begins_with(<span class="pl-s"><span class="pl-pds">"</span>30<span class="pl-pds">"</span></span>));
+<span class="pl-en">CHECK</span>(loc.line == <span class="pl-c1">3u</span>);
+<span class="pl-en">CHECK</span>(loc.col == <span class="pl-c1">4u</span>);</pre></div>
+<hr>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Using ryml in your project</h2><a id="user-content-using-ryml-in-your-project" class="anchor" aria-label="Permalink: Using ryml in your project" href="#using-ryml-in-your-project"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Note that ryml uses submodules. Take care to use the <code>--recursive</code>
+flag when cloning the repo, to ensure ryml's submodules are checked
+out as well:</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="git clone --recursive https://github.com/biojppm/rapidyaml"><pre>git clone --recursive https://github.com/biojppm/rapidyaml</pre></div>
+<p dir="auto">If you omit <code>--recursive</code>, after cloning you will have to do <code>git submodule update --init --recursive</code> to ensure ryml's submodules are
+checked out.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Single header file</h3><a id="user-content-single-header-file" class="anchor" aria-label="Permalink: Single header file" href="#single-header-file"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">ryml is provided chiefly as a cmake library project, but it can also
+be used as a single header file, and there is a <a href="./tools/amalgamate.py">tool to
+amalgamate</a> the code into a single header
+file. The amalgamated header file is provided with each release, but
+you can also generate a customized file suiting your particular needs
+(or commit):</p>
+<div class="highlight highlight-text-shell-session notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="[user@host rapidyaml]$ python3 tools/amalgamate.py -h
+usage: amalgamate.py [-h] [--c4core | --no-c4core] [--fastfloat | --no-fastfloat] [--stl | --no-stl] [output]
+
+positional arguments:
+  output          output file. defaults to stdout
+
+optional arguments:
+  -h, --help      show this help message and exit
+  --c4core        amalgamate c4core together with ryml. this is the default.
+  --no-c4core     amalgamate c4core together with ryml. the default is --c4core.
+  --fastfloat     enable fastfloat library. this is the default.
+  --no-fastfloat  enable fastfloat library. the default is --fastfloat.
+  --stl           enable stl interop. this is the default.
+  --no-stl        enable stl interop. the default is --stl."><pre><span class="pl-e">[user@host rapidyaml]</span>$ <span class="pl-s1">python3 tools/amalgamate.py -h</span>
+<span class="pl-c1">usage: amalgamate.py [-h] [--c4core | --no-c4core] [--fastfloat | --no-fastfloat] [--stl | --no-stl] [output]</span>
+
+<span class="pl-c1">positional arguments:</span>
+<span class="pl-c1">  output          output file. defaults to stdout</span>
+
+<span class="pl-c1">optional arguments:</span>
+<span class="pl-c1">  -h, --help      show this help message and exit</span>
+<span class="pl-c1">  --c4core        amalgamate c4core together with ryml. this is the default.</span>
+<span class="pl-c1">  --no-c4core     amalgamate c4core together with ryml. the default is --c4core.</span>
+<span class="pl-c1">  --fastfloat     enable fastfloat library. this is the default.</span>
+<span class="pl-c1">  --no-fastfloat  enable fastfloat library. the default is --fastfloat.</span>
+<span class="pl-c1">  --stl           enable stl interop. this is the default.</span>
+<span class="pl-c1">  --no-stl        enable stl interop. the default is --stl.</span></pre></div>
+<p dir="auto">The amalgamated header file contains all the function declarations and
+definitions. To use it in the project, <code>#include</code> the header at will
+in any header or source file in the project, but in one source file,
+and only in that one source file, <code>#define</code> the macro
+<code>RYML_SINGLE_HDR_DEFINE_NOW</code> <strong>before including the header</strong>. This
+will enable the function definitions. For example:</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="// foo.h
+#include &lt;ryml_all.hpp&gt;
+
+// foo.cpp
+// ensure that foo.h is not included before this define!
+#define RYML_SINGLE_HDR_DEFINE_NOW
+#include &lt;ryml_all.hpp&gt;"><pre><span class="pl-c"><span class="pl-c">//</span> foo.h</span>
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>ryml_all.hpp<span class="pl-pds">&gt;</span></span>
+
+<span class="pl-c"><span class="pl-c">//</span> foo.cpp</span>
+<span class="pl-c"><span class="pl-c">//</span> ensure that foo.h is not included before this define!</span>
+#<span class="pl-k">define</span> <span class="pl-en">RYML_SINGLE_HDR_DEFINE_NOW</span>
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>ryml_all.hpp<span class="pl-pds">&gt;</span></span></pre></div>
+<p dir="auto">If you wish to package the single header into a shared library, then
+you will need to define the preprocessor symbol <code>RYML_SHARED</code> during
+compilation.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">As a library</h3><a id="user-content-as-a-library" class="anchor" aria-label="Permalink: As a library" href="#as-a-library"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The single header file is a good approach to quickly try the library,
+but if you wish to make good use of CMake and its tooling ecosystem,
+(and get better compile times), then ryml has you covered.</p>
+<p dir="auto">As with any other cmake library, you have the option to integrate ryml into
+your project's build setup, thereby building ryml together with your
+project, or -- prior to configuring your project -- you can have ryml
+installed either manually or through package managers.</p>
+<p dir="auto">Currently <a href="https://cmake.org/" rel="nofollow">cmake</a> is required to build ryml; we
+recommend a recent cmake version, at least 3.13.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Package managers</h3><a id="user-content-package-managers" class="anchor" aria-label="Permalink: Package managers" href="#package-managers"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">ryml is available in most package managers (thanks to all the
+contributors!) and linux distributions. But please be aware: those
+packages are maintained downstream of this repository, so if you have
+issues with the package, file a report with the respective maintainer.</p>
+<p dir="auto">Here's a quick roundup (not maintained):</p>
+<ul dir="auto">
+<li>Package managers:
+<ul dir="auto">
+<li><a href="https://conan.io/center/recipes/rapidyaml" rel="nofollow">conan</a></li>
+<li><a href="https://vcpkg.io/en/packages.html" rel="nofollow">vcpkg</a>: <code>vcpkg install ryml</code></li>
+<li><a href="https://pypi.org/project/rapidyaml/" rel="nofollow">PyPI</a></li>
+<li><a href="https://github.com/Homebrew/homebrew-core/blob/master/Formula/r/rapidyaml.rb">brew</a></li>
+</ul>
+</li>
+<li>Linux distributions:
+<ul dir="auto">
+<li>Arch Linux/Manjaro:
+<ul dir="auto">
+<li><a href="https://archlinuxarm.org/packages/aarch64/rapidyaml" rel="nofollow">rapidyaml (aarch64)</a></li>
+<li><a href="https://aur.archlinux.org/packages/rapidyaml-git/" rel="nofollow">rapidyaml-git (AUR)</a></li>
+<li><a href="https://aur.archlinux.org/packages/python-rapidyaml-git/" rel="nofollow">python-rapidyaml-git (AUR)</a></li>
+</ul>
+</li>
+<li><a href="https://getfedora.org/" rel="nofollow">Fedora Linux</a>/<a href="https://docs.fedoraproject.org/en-US/epel/" rel="nofollow">EPEL</a>:
+<ul dir="auto">
+<li><code>dnf install rapidyaml-devel</code></li>
+<li><code>dnf install python3-rapidyaml</code></li>
+</ul>
+</li>
+<li><a href="https://packages.gentoo.org/packages/dev-cpp/rapidyaml" rel="nofollow">Gentoo</a></li>
+<li><a href="https://build.openbuildservice.org/package/show/Emulators/rapidyaml" rel="nofollow">OpenSuse</a></li>
+<li><a href="https://slackbuilds.org/repository/15.0/libraries/rapidyaml/" rel="nofollow">Slackbuilds</a></li>
+<li><a href="https://packages.altlinux.org/en/sisyphus/srpms/rapidyaml/3006055151670528141" rel="nofollow">AltLinux</a></li>
+</ul>
+</li>
+</ul>
+<p dir="auto">Although package managers are very useful for quickly getting up to
+speed, the advised way is still to bring ryml as a submodule of your
+project, building both together. This makes it easy to track any
+upstream changes in ryml. Also, ryml is small and quick to build, so
+there's not much of a cost for building it with your project.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Quickstart samples</h3><a id="user-content-quickstart-samples" class="anchor" aria-label="Permalink: Quickstart samples" href="#quickstart-samples"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">These samples show different ways of getting ryml into your application. All the
+samples use <a href="./samples/quickstart.cpp">the same quickstart executable
+source</a>, but are built in different ways,
+showing several alternatives to integrate ryml into your project. We
+also encourage you to refer to the <a href="./samples/quickstart.cpp">quickstart source</a> itself, which
+extensively covers most of the functionality that you may want out of
+ryml.</p>
+<p dir="auto">Each sample brings a <code>run.sh</code> script with the sequence of commands
+required to successfully build and run the application (this is a bash
+script and runs in Linux and MacOS, but it is also possible to run in
+Windows via Git Bash or the WSL). Click on the links below to find out
+more about each sample:</p>
+<markdown-accessiblity-table><table>
+<thead>
+<tr>
+<th align="left">Sample name</th>
+<th>ryml is part of build?</th>
+<th align="left">cmake file</th>
+<th align="left">commands</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left"><a href="./samples/singleheader"><code>singleheader</code></a></td>
+<td><strong>yes</strong><br>ryml brought as a single header file,<br>not as a library</td>
+<td align="left"><a href="./samples/singleheader/CMakeLists.txt"><code>CMakeLists.txt</code></a></td>
+<td align="left"><a href="./samples/singleheader/run.sh"><code>run.sh</code></a></td>
+</tr>
+<tr>
+<td align="left"><a href="./samples/singleheaderlib"><code>singleheaderlib</code></a></td>
+<td><strong>yes</strong><br>ryml brought as a library<br>but from the single header file</td>
+<td align="left"><a href="./samples/singleheaderlib/CMakeLists.txt"><code>CMakeLists.txt</code></a></td>
+<td align="left"><a href="./samples/singleheaderlib/run_shared.sh"><code>run_shared.sh</code> (shared library)</a><br> <a href="./samples/singleheaderlib/run_static.sh"><code>run_static.sh</code> (static library)</a></td>
+</tr>
+<tr>
+<td align="left"><a href="./samples/add_subdirectory"><code>add_subdirectory</code></a></td>
+<td><strong>yes</strong></td>
+<td align="left"><a href="./samples/add_subdirectory/CMakeLists.txt"><code>CMakeLists.txt</code></a></td>
+<td align="left"><a href="./samples/add_subdirectory/run.sh"><code>run.sh</code></a></td>
+</tr>
+<tr>
+<td align="left"><a href="./samples/fetch_content"><code>fetch_content</code></a></td>
+<td><strong>yes</strong></td>
+<td align="left"><a href="./samples/fetch_content/CMakeLists.txt"><code>CMakeLists.txt</code></a></td>
+<td align="left"><a href="./samples/fetch_content/run.sh"><code>run.sh</code></a></td>
+</tr>
+<tr>
+<td align="left"><a href="./samples/find_package"><code>find_package</code></a></td>
+<td><strong>no</strong><br>needs prior install or package</td>
+<td align="left"><a href="./samples/find_package/CMakeLists.txt"><code>CMakeLists.txt</code></a></td>
+<td align="left"><a href="./samples/find_package/run.sh"><code>run.sh</code></a></td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">CMake build settings for ryml</h3><a id="user-content-cmake-build-settings-for-ryml" class="anchor" aria-label="Permalink: CMake build settings for ryml" href="#cmake-build-settings-for-ryml"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The following cmake variables can be used to control the build behavior of
+ryml:</p>
+<ul dir="auto">
+<li><code>RYML_WITH_TAB_TOKENS=ON/OFF</code>. Enable/disable support for tabs as
+valid container tokens after <code>:</code> and <code>-</code>. Defaults to <code>OFF</code>,
+because this may cost up to 10% in processing time.</li>
+<li><code>RYML_DEFAULT_CALLBACKS=ON/OFF</code>. Enable/disable ryml's default
+implementation of error and allocation callbacks. Defaults to <code>ON</code>.</li>
+<li><code>RYML_DEFAULT_CALLBACK_USES_EXCEPTIONS=ON/OFF</code> - Enable/disable
+the same-named macro, which will make the default error handler
+provided by ryml throw a <code>std::runtime_error</code> exception.</li>
+<li><code>RYML_USE_ASSERT</code> - enable assertions in the code regardless of
+build type. This is disabled by default. Failed assertions will
+trigger a call to the error callback.</li>
+<li><code>RYML_STANDALONE=ON/OFF</code>. ryml uses
+<a href="https://github.com/biojppm/c4core">c4core</a>, a C++ library with low-level
+multi-platform utilities for C++. When <code>RYML_STANDALONE=ON</code>, c4core is
+incorporated into ryml as if it is the same library. Defaults to <code>ON</code>.</li>
+<li><code>RYML_INSTALL=ON/OFF</code>. enable/disable install target. Defaults to <code>ON</code>.</li>
+</ul>
+<p dir="auto">If you're developing ryml or just debugging problems with ryml itself, the
+following cmake variables can be helpful:</p>
+<ul dir="auto">
+<li><code>RYML_DEV=ON/OFF</code>: a bool variable which enables development targets such as
+unit tests, benchmarks, etc. Defaults to <code>OFF</code>.</li>
+<li><code>RYML_DBG=ON/OFF</code>: a bool variable which enables verbose prints from
+parsing code; can be useful to figure out parsing problems. Defaults to
+<code>OFF</code>.</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Forcing ryml to use a different c4core version</h4><a id="user-content-forcing-ryml-to-use-a-different-c4core-version" class="anchor" aria-label="Permalink: Forcing ryml to use a different c4core version" href="#forcing-ryml-to-use-a-different-c4core-version"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">ryml is strongly coupled to c4core, and this is reinforced by the fact
+that c4core is a submodule of the current repo. However, it is still
+possible to use a c4core version different from the one in the repo
+(of course, only if there are no incompatibilities between the
+versions). You can find out how to achieve this by looking at the
+<a href="./samples/custom_c4core/CMakeLists.txt"><code>custom_c4core</code> sample</a>.</p>
+<hr>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Other languages</h2><a id="user-content-other-languages" class="anchor" aria-label="Permalink: Other languages" href="#other-languages"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">One of the aims of ryml is to provide an efficient YAML API for other
+languages. JavaScript is fully available, and there is already a
+cursory implementation for Python using only the low-level API. After
+ironing out the general approach, other languages are likely to
+follow (all of this is possible because we're using
+<a href="http://www.swig.org/" rel="nofollow">SWIG</a>, which makes it easy to do so).</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">JavaScript</h3><a id="user-content-javascript" class="anchor" aria-label="Permalink: JavaScript" href="#javascript"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">A JavaScript+WebAssembly port is available, compiled through <a href="https://emscripten.org/" rel="nofollow">emscripten</a>.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Python</h3><a id="user-content-python" class="anchor" aria-label="Permalink: Python" href="#python"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">(Note that this is a work in progress. Additions will be made and
+things will be changed.). The python port is using only the
+index-based low-level API, which works with node indices and string
+views. This API is fast, but you may find it hard to use: it does not
+build a python structure of dicts/seqs/scalars, and all the scalars
+are strings, and not typed. With that said, it is really fast, and
+once you have the tree you can still walk over the tree to create the
+native python structure. Have a look at this <a href="api/python/tests/test_readme.py">test
+file</a> to see how the python API
+works, and to judge whether it may be useful to your case.</p>
+<p dir="auto">As for performance, in a <a href="api/python/bm/parse_bm.py">timeit benchmark</a>
+compared against <a href="https://pyyaml.org/" rel="nofollow">PyYaml</a> and
+<a href="https://yaml.readthedocs.io/en/latest/" rel="nofollow">ruamel.yaml</a>, ryml parses
+quicker by generally 100x and up to 400x:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="+----------------------------------------+-------+----------+----------+-----------+
+| style_seqs_blck_outer1000_inner100.yml | count | time(ms) | avg(ms)  | avg(MB/s) |
++----------------------------------------+-------+----------+----------+-----------+
+| parse:RuamelYamlParse                  |     1 | 4564.812 | 4564.812 |     0.173 |
+| parse:PyYamlParse                      |     1 | 2815.426 | 2815.426 |     0.280 |
+| parse:RymlParseInArena                 |    38 |  588.024 |   15.474 |    50.988 |
+| parse:RymlParseInArenaReuse            |    38 |  466.997 |   12.289 |    64.202 |
+| parse:RymlParseInPlace                 |    38 |  579.770 |   15.257 |    51.714 |
+| parse:RymlParseInPlaceReuse            |    38 |  462.932 |   12.182 |    64.765 |
++----------------------------------------+-------+----------+----------+-----------+"><pre class="notranslate"><code>+----------------------------------------+-------+----------+----------+-----------+
+| style_seqs_blck_outer1000_inner100.yml | count | time(ms) | avg(ms)  | avg(MB/s) |
++----------------------------------------+-------+----------+----------+-----------+
+| parse:RuamelYamlParse                  |     1 | 4564.812 | 4564.812 |     0.173 |
+| parse:PyYamlParse                      |     1 | 2815.426 | 2815.426 |     0.280 |
+| parse:RymlParseInArena                 |    38 |  588.024 |   15.474 |    50.988 |
+| parse:RymlParseInArenaReuse            |    38 |  466.997 |   12.289 |    64.202 |
+| parse:RymlParseInPlace                 |    38 |  579.770 |   15.257 |    51.714 |
+| parse:RymlParseInPlaceReuse            |    38 |  462.932 |   12.182 |    64.765 |
++----------------------------------------+-------+----------+----------+-----------+
+</code></pre></div>
+<p dir="auto">(Note that the parse timings above are somewhat biased towards ryml, because
+it does not perform any type conversions in Python-land: return types
+are merely <code>memoryviews</code> to the source buffer, possibly copied to the tree's
+arena).</p>
+<p dir="auto">As for emitting, the improvement can be as high as 3000x:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="+----------------------------------------+-------+-----------+-----------+-----------+
+| style_maps_blck_outer1000_inner100.yml | count |  time(ms) |  avg(ms)  | avg(MB/s) |
++----------------------------------------+-------+-----------+-----------+-----------+
+| emit_yaml:RuamelYamlEmit               |     1 | 18149.288 | 18149.288 |     0.054 |
+| emit_yaml:PyYamlEmit                   |     1 |  2683.380 |  2683.380 |     0.365 |
+| emit_yaml:RymlEmitToNewBuffer          |    88 |   861.726 |     9.792 |    99.976 |
+| emit_yaml:RymlEmitReuse                |    88 |   437.931 |     4.976 |   196.725 |
++----------------------------------------+-------+-----------+-----------+-----------+"><pre class="notranslate"><code>+----------------------------------------+-------+-----------+-----------+-----------+
+| style_maps_blck_outer1000_inner100.yml | count |  time(ms) |  avg(ms)  | avg(MB/s) |
++----------------------------------------+-------+-----------+-----------+-----------+
+| emit_yaml:RuamelYamlEmit               |     1 | 18149.288 | 18149.288 |     0.054 |
+| emit_yaml:PyYamlEmit                   |     1 |  2683.380 |  2683.380 |     0.365 |
+| emit_yaml:RymlEmitToNewBuffer          |    88 |   861.726 |     9.792 |    99.976 |
+| emit_yaml:RymlEmitReuse                |    88 |   437.931 |     4.976 |   196.725 |
++----------------------------------------+-------+-----------+-----------+-----------+
+</code></pre></div>
+<hr>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">YAML standard conformance</h2><a id="user-content-yaml-standard-conformance" class="anchor" aria-label="Permalink: YAML standard conformance" href="#yaml-standard-conformance"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">ryml is feature complete with regards to the YAML specification. All
+the YAML features are well covered in the unit tests, and expected to
+work, unless in the exceptions noted below.</p>
+<p dir="auto">Of course, there are many dark corners in YAML, and there certainly
+can appear cases which ryml fails to parse. Your <a href="https://github.com/biojppm/rapidyaml/issues">bug reports or pull
+requests</a> are very
+welcome.</p>
+<p dir="auto">See also <a href="./ROADMAP.md">the roadmap</a> for a list of future work.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Known limitations</h3><a id="user-content-known-limitations" class="anchor" aria-label="Permalink: Known limitations" href="#known-limitations"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">ryml deliberately makes no effort to follow the YAML standard in the
+following situations:</p>
+<ul dir="auto">
+<li>ryml's tree does NOT accept containers as map keys: keys stored in
+the tree must always be scalars. HOWEVER, this is a limitation only
+of the final tree. The event-based parse engine DOES parse container
+keys, as it is is meant to be used by other programming languages to
+create their native data-structures, and it is fully tested and
+fully conformant (other than the general error permissiveness noted
+below).</li>
+<li>Tab characters after <code>:</code> and <code>-</code> are not accepted tokens, unless
+ryml is compiled with the macro <code>RYML_WITH_TAB_TOKENS</code>. This
+requirement exists because checking for tabs introduces branching
+into the parser's hot code and in some cases costs as much as 10%
+in parsing time.</li>
+<li>Non-unique map keys are allowed. Enforcing key uniqueness in the
+parser or in the tree would cause log-linear parsing complexity (for
+root children on a mostly flat tree), and would increase code size
+through added structural, logical and cyclomatic complexity. So
+enforcing uniqueness in the parser would hurt users who may not care
+about it (they may not care either because non-uniqueness is OK for
+their use case, or because it is impossible to occur). On the other
+hand, any user who requires uniqueness can easily enforce it by
+doing a post-parse walk through the tree. So choosing to not enforce
+key uniqueness adheres to the spirit of "don't pay for what you
+don't use".</li>
+<li><code>%YAML</code> directives have no effect and are ignored.</li>
+<li><code>%TAG</code> directives are limited to a default maximum of 4 instances
+per <code>Tree</code>. To increase this maximum, define the preprocessor symbol
+<code>RYML_MAX_TAG_DIRECTIVES</code> to a suitable value. This arbitrary limit
+reflects the usual practice of having at most 1 or 2 tag directives;
+also, be aware that this feature is under consideration for removal
+in YAML 1.3.</li>
+<li>Byte Order Marks: while ryml correctly handles BOMs at the beginning
+of the stream or documents (as per the standard), BOMs inside
+scalars are ignored. The <a href="https://yaml.org/spec/1.2.2/#52-character-encodings" rel="nofollow">standard mandates that they should be
+quoted</a> when
+emitted, this is not done.</li>
+<li>ryml tends to be on the permissive side in several cases where the
+YAML standard dictates that there should be an error; in many of these
+cases, ryml will tolerate the input. This may be good or bad, but in
+any case is being improved on, meaning ryml will grow progressively
+less tolerant of YAML errors in the coming releases. So we strongly
+suggest to stay away from those dark corners of YAML which are
+generally a source of problems; this is good practice anyway.</li>
+</ul>
+<p dir="auto">If you do run into trouble and would like to investigate conformance
+of your YAML code, <strong>beware</strong> of existing online YAML linters, many of
+which are not fully conformant. Instead, try using
+<a href="https://play.yaml.io" rel="nofollow">https://play.yaml.io</a>, an amazingly useful tool
+which lets you dynamically input your YAML and continuously see the
+results from all the existing parsers (kudos to @ingydotnet and the
+people from the YAML test suite). And of course, if you detect
+anything wrong with ryml, please <a href="https://github.com/biojppm/rapidyaml/issues">open an
+issue</a> so that we can
+improve.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Test suite status</h3><a id="user-content-test-suite-status" class="anchor" aria-label="Permalink: Test suite status" href="#test-suite-status"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">As part of its CI testing, ryml uses the <a href="https://github.com/yaml/yaml-test-suite">YAML test
+suite</a>. (See also the test
+suite results at
+<a href="https://matrix.yaml.info/" rel="nofollow">https://matrix.yaml.info/</a>, but be aware
+that the results there may be using an older version of ryml.) This is
+an extensive and merciless set of reference cases covering the full
+YAML spec. Each of these cases has several subparts:</p>
+<ul dir="auto">
+<li><code>in-yaml</code>: mildly, plainly or extremely difficult-to-parse YAML</li>
+<li><code>in-json</code>: equivalent JSON (where possible/meaningful)</li>
+<li><code>out-yaml</code>: equivalent standard YAML</li>
+<li><code>emit-yaml</code>: equivalent standard YAML</li>
+<li><code>events</code>: reference events according to the YAML standard</li>
+</ul>
+<p dir="auto">When testing, ryml parses each of the yaml/json parts, then emits the
+parsed tree, then parses the emitted result and verifies that emission
+is idempotent, ie that the round trip emitted result is semantically
+the same as its input without any loss of information.</p>
+<p dir="auto">To ensure consistency, this happens over four successive levels of
+parse-&gt;emit round trips. And to ensure correctness, each of the stages
+is compared against the <code>events</code> spec from the test, which constitutes
+the reference. The tests also check for equality between the reference
+events in the test case and the events emitted by ryml from the data
+tree parsed from the test case input. All of this is then carried out
+with several variations: both unix <code>\n</code> vs windows <code>\r\n</code> line
+endings, emitting to string, file or streams, which results in ~250
+tests per case part.</p>
+<p dir="auto">With multiple parts per case and ~400 reference
+cases in the test suite, this makes over several hundred thousand
+individual tests to which ryml is subjected, which are added to the
+unit tests in ryml, which also employ the same extensive combinatorial
+approach.</p>
+<p dir="auto">Also, note that in <a href="http://matrix.yaml.info/" rel="nofollow">their own words</a>, the
+tests from the YAML test suite <em>contain a lot of edge cases that don't
+play such an important role in real world examples</em>. And yet, despite
+the extreme focus of the test suite, currently ryml only fails a minor
+fraction of the test cases, mostly related with the deliberate
+limitations noted above.</p>
+<p dir="auto">Other than those limitations, by far the main issue with ryml is that
+several standard-mandated parse errors fail to materialize (this will
+be addressed in the coming releases). For the up-to-date list of ryml
+failures in the test-suite, refer to the <a href="test/test_suite/test_suite_parts.cpp">list of known
+exceptions</a> from ryml's test
+suite runner, which is used as part of ryml's CI setup.</p>
+<hr>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Alternative libraries</h2><a id="user-content-alternative-libraries" class="anchor" aria-label="Permalink: Alternative libraries" href="#alternative-libraries"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Why this library? Because none of the existing libraries was quite
+what I wanted. When I started this project in 2018, I was aware of these two
+alternative C/C++ libraries:</p>
+<ul dir="auto">
+<li><a href="https://github.com/yaml/libyaml">libyaml</a>. This is a bare C
+library. It does not create a representation of the data tree, so
+I don't see it as practical. My initial idea was to wrap parsing
+and emitting around libyaml's convenient event handling, but to my
+surprise I found out it makes heavy use of allocations and string
+duplications when parsing. I briefly pondered on sending PRs to
+reduce these allocation needs, but not having a permanent tree to
+store the parsed data was too much of a downside.</li>
+<li><a href="https://github.com/jbeder/yaml-cpp">yaml-cpp</a>. This library may
+be full of functionality, but is heavy on the use of
+node-pointer-based structures like <code>std::map</code>, allocations, string
+copies, polymorphism and slow C++ stream serializations. This is
+generally a sure way of making your code slower, and strong
+evidence of this can be seen in the benchmark results above.</li>
+</ul>
+<p dir="auto">Recently <a href="https://github.com/pantoniou/libfyaml">libfyaml</a>
+appeared. This is a newer C library, fully conformant to the YAML
+standard with an amazing 100% success in the test suite; it also offers
+the tree as a data structure. As a downside, it does not work in
+Windows, and it is also multiple times slower parsing and emitting.</p>
+<p dir="auto">When performance and low latency are important, using contiguous
+structures for better cache behavior and to prevent the library from
+trampling caches, parsing in place and using non-owning strings is of
+central importance. Hence this Rapid YAML library which, with minimal
+compromise, bridges the gap from efficiency to usability. This library
+takes inspiration from
+<a href="https://github.com/Tencent/rapidjson">RapidJSON</a> and
+<a href="http://rapidxml.sourceforge.net/" rel="nofollow">RapidXML</a>.</p>
+</article></div>
