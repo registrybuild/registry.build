@@ -40,6 +40,7 @@ or <code>malloc</code>).</p>
 <p dir="auto">Example:</p>
 <div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="#include &quot;fast_float/fast_float.h&quot;
 #include &lt;iostream&gt;
+#include &lt;string&gt;
 
 int main() {
   std::string input = &quot;3.1416 xyz &quot;;
@@ -50,6 +51,7 @@ int main() {
   return EXIT_SUCCESS;
 }"><pre>#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">"</span>fast_float/fast_float.h<span class="pl-pds">"</span></span>
 #<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>iostream<span class="pl-pds">&gt;</span></span>
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>string<span class="pl-pds">&gt;</span></span>
 
 <span class="pl-k">int</span> <span class="pl-en">main</span>() {
   std::string input = <span class="pl-s"><span class="pl-pds">"</span>3.1416 xyz <span class="pl-pds">"</span></span>;
@@ -58,6 +60,34 @@ int main() {
   <span class="pl-k">if</span> (answer.<span class="pl-smi">ec</span> != <span class="pl-c1">std::errc</span>()) { std::cerr &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>parsing failure<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>; <span class="pl-k">return</span> EXIT_FAILURE; }
   std::cout &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>parsed the number <span class="pl-pds">"</span></span> &lt;&lt; result &lt;&lt; std::endl;
   <span class="pl-k">return</span> EXIT_SUCCESS;
+}</pre></div>
+<p dir="auto">Though the C++17 standard has you do a comparison with <code>std::errc()</code> to check whether the conversion worked, you can avoid it by casting the result to a <code>bool</code> like so:</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="#include &quot;fast_float/fast_float.h&quot;
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+
+int main() {
+  std::string input = &quot;3.1416 xyz &quot;;
+  double result;
+  if(auto answer = fast_float::from_chars(input.data(), input.data() + input.size(), result)) {
+    std::cout &lt;&lt; &quot;parsed the number &quot; &lt;&lt; result &lt;&lt; std::endl;
+    return EXIT_SUCCESS;
+  }
+  std::cerr &lt;&lt; &quot;failed to parse &quot; &lt;&lt; result &lt;&lt; std::endl;
+  return EXIT_FAILURE;
+}"><pre>#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">"</span>fast_float/fast_float.h<span class="pl-pds">"</span></span>
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>iostream<span class="pl-pds">&gt;</span></span>
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>string<span class="pl-pds">&gt;</span></span>
+
+<span class="pl-k">int</span> <span class="pl-en">main</span>() {
+  std::string input = <span class="pl-s"><span class="pl-pds">"</span>3.1416 xyz <span class="pl-pds">"</span></span>;
+  <span class="pl-k">double</span> result;
+  <span class="pl-k">if</span>(<span class="pl-k">auto</span> answer = <span class="pl-c1">fast_float::from_chars</span>(input.<span class="pl-c1">data</span>(), input.<span class="pl-c1">data</span>() + input.<span class="pl-c1">size</span>(), result)) {
+    std::cout &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>parsed the number <span class="pl-pds">"</span></span> &lt;&lt; result &lt;&lt; std::endl;
+    <span class="pl-k">return</span> EXIT_SUCCESS;
+  }
+  std::cerr &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>failed to parse <span class="pl-pds">"</span></span> &lt;&lt; result &lt;&lt; std::endl;
+  <span class="pl-k">return</span> EXIT_FAILURE;
 }</pre></div>
 <p dir="auto">You can parse delimited numbers:</p>
 <div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="  std::string input = &quot;234532.3426362,7869234.9823,324562.645&quot;;
@@ -424,12 +454,41 @@ int main() {
   <span class="pl-k">if</span> (answer.<span class="pl-smi">ec</span> != <span class="pl-c1">std::errc</span>() || (!<span class="pl-c1">std::isinf</span>(result))) { std::cerr &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>should have parsed infinity<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>; <span class="pl-k">return</span> EXIT_FAILURE; }
   <span class="pl-k">return</span> EXIT_SUCCESS;
 }</pre></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Multiplication of an integer by a power of 10</h2><a id="user-content-multiplication-of-an-integer-by-a-power-of-10" class="anchor" aria-label="Permalink: Multiplication of an integer by a power of 10" href="#multiplication-of-an-integer-by-a-power-of-10"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">An integer <code>W</code> can be multiplied by a power of ten <code>10^Q</code> and
+converted to <code>double</code> with correctly rounded value
+(in "round to nearest, tie to even" fashion) using
+<code>fast_float::integer_times_pow10()</code>, e.g.:</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="const uint64_t W = 12345678901234567;
+const int Q = 23;
+const double result = fast_float::integer_times_pow10(W, Q);
+std::cout.precision(17);
+std::cout &lt;&lt; W &lt;&lt; &quot; * 10^&quot; &lt;&lt; Q &lt;&lt; &quot; = &quot; &lt;&lt; result &lt;&lt; &quot; (&quot;
+  &lt;&lt; (result == 12345678901234567e23 ? &quot;==&quot; : &quot;!=&quot;) &lt;&lt; &quot;expected)\n&quot;;"><pre><span class="pl-k">const</span> <span class="pl-c1">uint64_t</span> W = <span class="pl-c1">12345678901234567</span>;
+<span class="pl-k">const</span> <span class="pl-k">int</span> Q = <span class="pl-c1">23</span>;
+<span class="pl-k">const</span> <span class="pl-k">double</span> result = fast_float::integer_times_pow10(W, Q);
+std::cout.precision(<span class="pl-c1">17</span>);
+std::cout &lt;&lt; W &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span> * 10^<span class="pl-pds">"</span></span> &lt;&lt; Q &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span> = <span class="pl-pds">"</span></span> &lt;&lt; result &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span> (<span class="pl-pds">"</span></span>
+  &lt;&lt; (result == <span class="pl-c1">12345678901234567e23</span> ? <span class="pl-s"><span class="pl-pds">"</span>==<span class="pl-pds">"</span></span> : <span class="pl-s"><span class="pl-pds">"</span>!=<span class="pl-pds">"</span></span>) &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>expected)<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>;</pre></div>
+<p dir="auto">outputs</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="12345678901234567 * 10^23 = 1.2345678901234567e+39 (==expected)"><pre class="notranslate"><code>12345678901234567 * 10^23 = 1.2345678901234567e+39 (==expected)
+</code></pre></div>
+<p dir="auto"><code>fast_float::integer_times_pow10()</code> gives the same result as
+using <code>fast_float::from_chars()</code> when parsing the string <code>"WeQ"</code>
+(in this example <code>"12345678901234567e23"</code>),
+except <code>fast_float::integer_times_pow10()</code> does not report out-of-range errors, and
+underflows to zero or overflows to infinity when the resulting value is
+out of range.</p>
+<p dir="auto">Overloads of <code>fast_float::integer_times_pow10()</code> are provided for
+signed and unsigned integer types: <code>int64_t</code>, <code>uint64_t</code>, etc.</p>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Users and Related Work</h2><a id="user-content-users-and-related-work" class="anchor" aria-label="Permalink: Users and Related Work" href="#users-and-related-work"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">The fast_float library is part of:</p>
 <ul dir="auto">
 <li>GCC (as of version 12): the <code>from_chars</code> function in GCC relies on fast_float,</li>
 <li><a href="https://github.com/Chromium/Chromium">Chromium</a>, the engine behind Google
 Chrome, Microsoft Edge, and Opera,</li>
+<li>Boost JSON, MySQL, etc.</li>
+<li>Blender</li>
 <li><a href="https://github.com/WebKit/WebKit">WebKit</a>, the engine behind Safari (Apple's
 web browser),</li>
 <li><a href="https://duckdb.org" rel="nofollow">DuckDB</a>,</li>
@@ -514,14 +573,14 @@ sufficiently recent version of CMake (3.11 or better at least):</p>
 <div class="highlight highlight-source-cmake notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="FetchContent_Declare(
   fast_float
   GIT_REPOSITORY https://github.com/fastfloat/fast_float.git
-  GIT_TAG tags/v8.0.2
+  GIT_TAG tags/v8.1.0
   GIT_SHALLOW TRUE)
 
 FetchContent_MakeAvailable(fast_float)
 target_link_libraries(myprogram PUBLIC fast_float)"><pre><span class="pl-en">FetchContent_Declare</span>(
   <span class="pl-en">fast_float</span>
   <span class="pl-s">GIT_REPOSITORY</span> <span class="pl-s">https://github.com/fastfloat/fast_float.git</span>
-  <span class="pl-s">GIT_TAG</span> <span class="pl-s">tags/v8.0.2</span>
+  <span class="pl-s">GIT_TAG</span> <span class="pl-s">tags/v8.1.0</span>
   <span class="pl-s">GIT_SHALLOW</span> <span class="pl-c1">TRUE</span>)
 
 <span class="pl-en">FetchContent_MakeAvailable</span>(<span class="pl-s">fast_float</span>)
@@ -532,17 +591,17 @@ use.</p>
 <div class="highlight highlight-source-cmake notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="CPMAddPackage(
   NAME fast_float
   GITHUB_REPOSITORY &quot;fastfloat/fast_float&quot;
-  GIT_TAG v8.0.2)"><pre><span class="pl-en">CPMAddPackage</span>(
+  GIT_TAG v8.1.0)"><pre><span class="pl-en">CPMAddPackage</span>(
   <span class="pl-c1">NAME</span> <span class="pl-en">fast_float</span>
   <span class="pl-s">GITHUB_REPOSITORY</span> <span class="pl-s">"fastfloat/fast_float"</span>
-  <span class="pl-s">GIT_TAG</span> <span class="pl-s">v8.0.2</span>)</pre></div>
+  <span class="pl-s">GIT_TAG</span> <span class="pl-s">v8.1.0</span>)</pre></div>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Using as single header</h2><a id="user-content-using-as-single-header" class="anchor" aria-label="Permalink: Using as single header" href="#using-as-single-header"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">The script <code>script/amalgamate.py</code> may be used to generate a single header
 version of the library if so desired. Just run the script from the root
 directory of this repository. You can customize the license type and output file
 if desired as described in the command line help.</p>
 <p dir="auto">You may directly download automatically generated single-header files:</p>
-<p dir="auto"><a href="https://github.com/fastfloat/fast_float/releases/download/v8.0.2/fast_float.h">https://github.com/fastfloat/fast_float/releases/download/v8.0.2/fast_float.h</a></p>
+<p dir="auto"><a href="https://github.com/fastfloat/fast_float/releases/download/v8.1.0/fast_float.h">https://github.com/fastfloat/fast_float/releases/download/v8.1.0/fast_float.h</a></p>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Benchmarking</h2><a id="user-content-benchmarking" class="anchor" aria-label="Permalink: Benchmarking" href="#benchmarking"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">The project has its own benchmarks with realistic data inputs. Under Linux or macOS,
 you can use it as follows if your system supports C++17:</p>

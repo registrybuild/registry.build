@@ -35,7 +35,7 @@ sufficient to invoke <code>lib-headers</code>.</p>
 just a plain table easy to process with e.g. <code>awk</code> and <code>grep</code>, but
 s-expressions and json are structured outputs interesting in other contexts).</p>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">dwyu : Depend-on What You Use</h3><a id="user-content-dwyu--depend-on-what-you-use" class="anchor" aria-label="Permalink: dwyu : Depend-on What You Use" href="#dwyu--depend-on-what-you-use"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<p dir="auto"><strong><code>dwyu</code></strong> Depend on What You Use (DWYU)<sup><a href="#user-content-fn-1-a5ecf8a1be17794494bb6d79aa77a290" id="user-content-fnref-1-a5ecf8a1be17794494bb6d79aa77a290" data-footnote-ref="" aria-describedby="footnote-label">1</a></sup>: Determine which dependencies
+<p dir="auto"><strong><code>dwyu</code></strong> Depend on What You Use (DWYU)<sup><a href="#user-content-fn-1-784335dc68c2817cb9668af42685ddc5" id="user-content-fnref-1-784335dc68c2817cb9668af42685ddc5" data-footnote-ref="" aria-describedby="footnote-label">1</a></sup>: Determine which dependencies
 are needed in <code>cc_library()</code>, <code>cc_binary()</code>, and <code>cc_test()</code> targets.</p>
 <p dir="auto">If a source file <code>#include</code>s a header, DWYU determines if the library
 that provides that header is mentioned in the <code>deps = [ ... ]</code>.</p>
@@ -283,7 +283,7 @@ used for some of the internal IO operations.</p>
 On a commonly used fast SSD, this will not make a difference, probably adding
 overhead.</p>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Synopsis</h3><a id="user-content-synopsis" class="anchor" aria-label="Permalink: Synopsis" href="#synopsis"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="bant v0.2.0+ &lt;http://bant.build/&gt;
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="bant v0.2.xx &lt;http://bant.build/&gt;
 Copyright (c) 2024-2025 Henner Zeller. This program is free software; GPL 3.0.
 Usage: bant [options] &lt;command&gt; [bazel-target-pattern...]
 Options
@@ -336,7 +336,16 @@ Commands (unique prefix sufficient):
                      → 2 column table: (target, dependency*)
     has-dependent  : List cc library targets and the libraries that depend on it
                      → 2 column table: (target, dependent*)
-    lib-headers    : Print headers provided by cc_library()s matching pattern.
+    target-hdrs    : Print hdrs mentioned in targets (-P: only physical files)
+                     → 2 column table: (header-filename, target)
+    target-srcs    : Print srcs mentioned in targets (-P: only physical files)
+                     → 2 column table: (srcs-filename, target)
+    target-data    : Print data mentioned in targets (-P: only physical files)
+                     → 2 column table: (data-filename, target)
+    lib-headers    : Like target-hdrs, but all reachable paths expanded with all
+                     combinations of includes = [], include_prefix, etc.
+                     So same header can show up multiple times with different
+                     paths. This is the relevant list used by dwyu.
                      → 2 column table: (header-filename, cc-library-target)
     genrule-outputs: Print generated files by genrule()s matching pattern.
                      → 2 column table: (filename, genrule-target)
@@ -349,7 +358,7 @@ Commands (unique prefix sufficient):
     compile-flags  : (experimental) Emit compile flags. Redirect or output with
                      -o compile_flags.txt
     compilation-db : (experimental) Emit compilation db. Redirect or output with
-                     -o compile_commands.json"><pre class="notranslate"><code>bant v0.2.0+ &lt;http://bant.build/&gt;
+                     -o compile_commands.json"><pre class="notranslate"><code>bant v0.2.xx &lt;http://bant.build/&gt;
 Copyright (c) 2024-2025 Henner Zeller. This program is free software; GPL 3.0.
 Usage: bant [options] &lt;command&gt; [bazel-target-pattern...]
 Options
@@ -402,7 +411,16 @@ Commands (unique prefix sufficient):
                      → 2 column table: (target, dependency*)
     has-dependent  : List cc library targets and the libraries that depend on it
                      → 2 column table: (target, dependent*)
-    lib-headers    : Print headers provided by cc_library()s matching pattern.
+    target-hdrs    : Print hdrs mentioned in targets (-P: only physical files)
+                     → 2 column table: (header-filename, target)
+    target-srcs    : Print srcs mentioned in targets (-P: only physical files)
+                     → 2 column table: (srcs-filename, target)
+    target-data    : Print data mentioned in targets (-P: only physical files)
+                     → 2 column table: (data-filename, target)
+    lib-headers    : Like target-hdrs, but all reachable paths expanded with all
+                     combinations of includes = [], include_prefix, etc.
+                     So same header can show up multiple times with different
+                     paths. This is the relevant list used by dwyu.
                      → 2 column table: (header-filename, cc-library-target)
     genrule-outputs: Print generated files by genrule()s matching pattern.
                      → 2 column table: (filename, genrule-target)
@@ -493,8 +511,8 @@ bant macros.</p>
 </ul>
 <section data-footnotes="" class="footnotes"><h2 id="footnote-label" class="sr-only" dir="auto">Footnotes</h2>
 <ol dir="auto">
-<li id="user-content-fn-1-a5ecf8a1be17794494bb6d79aa77a290">
-<p dir="auto">Build-dependency analog to what <a href="https://include-what-you-use.org/">Include What You Use</a> is for source files. <a href="#user-content-fnref-1-a5ecf8a1be17794494bb6d79aa77a290" data-footnote-backref="" aria-label="Back to reference 1" class="data-footnote-backref">↩</a></p>
+<li id="user-content-fn-1-784335dc68c2817cb9668af42685ddc5">
+<p dir="auto">Build-dependency analog to what <a href="https://include-what-you-use.org/">Include What You Use</a> is for source files. <a href="#user-content-fnref-1-784335dc68c2817cb9668af42685ddc5" data-footnote-backref="" aria-label="Back to reference 1" class="data-footnote-backref">↩</a></p>
 </li>
 </ol>
 </section>
