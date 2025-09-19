@@ -1,0 +1,164 @@
+<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Hermetic <code>Clang</code> Toolchain for <code>Bazel</code></h1><a id="user-content-hermetic-clang-toolchain-for-bazel" class="anchor" aria-label="Permalink: Hermetic Clang Toolchain for Bazel" href="#hermetic-clang-toolchain-for-bazel"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">A fully hermetic <code>Clang/LLVM</code> toolchain for <code>Bazel</code> that produces completely
+self-contained, statically linked binaries with zero host system dependencies.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Hermeticity</h2><a id="user-content-hermeticity" class="anchor" aria-label="Permalink: Hermeticity" href="#hermeticity"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li><strong>hermetic</strong>: Produces statically linked binaries with no host dependencies</li>
+<li><strong><code>musl libc</code></strong>: <code>c/c++</code> standard libraries fetched from Alpine repo</li>
+<li><strong><code>libstdc++ 14.2.0</code></strong>: Alpine's C++ standard library built for <code>musl</code></li>
+<li><strong>statically linked</strong>: All binaries are statically linked (no dynamic dependencies)</li>
+</ul>
+<ol dir="auto">
+<li>Compiling</li>
+</ol>
+<ul dir="auto">
+<li>Uses <code>-nostdinc</code> and <code>-nostdinc++</code> flags to prevent host header inclusion</li>
+<li>All headers come from the toolchain's <code>sysroot</code> (<code>musl</code> and Alpine <code>libstdc++</code>)</li>
+<li>No host system headers are used during compilation</li>
+</ul>
+<ol start="2" dir="auto">
+<li>Linking</li>
+</ol>
+<ul dir="auto">
+<li>Uses <code>-nostdlib</code> flag to prevent host library linking</li>
+<li>Uses <code>-static</code> flag to force static linking</li>
+<li>All libraries (<code>musl libc</code>, <code>libstdc++</code>, <code>libunwind</code>) come from the toolchain's <code>sysroot</code></li>
+<li>Produces completely statically linked binaries with no dynamic dependencies</li>
+</ul>
+<ol start="3" dir="auto">
+<li>Execution/Runtime</li>
+</ol>
+<ul dir="auto">
+<li>The produced binaries are statically linked</li>
+<li>No dynamic loader or shared library dependencies</li>
+<li>Binaries can run on any Linux <code>x86-64</code> system without requiring any host libraries</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Available Versions</h2><a id="user-content-available-versions" class="anchor" aria-label="Permalink: Available Versions" href="#available-versions"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Supported versions with prebuilt binaries:</p>
+<ul dir="auto">
+<li>21.1.0 (default - latest)</li>
+<li>20.1.8</li>
+<li>19.1.7</li>
+<li>18.1.8</li>
+<li>17.0.6</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Note on the compiler itself</h3><a id="user-content-note-on-the-compiler-itself" class="anchor" aria-label="Permalink: Note on the compiler itself" href="#note-on-the-compiler-itself"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The clang compiler binary does require host libraries to run, but this only
+affects the build environment, not the produced binaries. The toolchain
+provides <code>libtinfo5</code> to minimize host dependencies for the compiler.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">How It Works</h2><a id="user-content-how-it-works" class="anchor" aria-label="Permalink: How It Works" href="#how-it-works"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The toolchain achieves hermeticity through several mechanisms:</p>
+<ol dir="auto">
+<li><strong>Separate Library Paths</strong>:
+<ul dir="auto">
+<li><code>lib/</code>: Contains libraries needed by Clang itself to run (<code>Ubuntu</code>/<code>LLVM</code> libraries)</li>
+<li><code>sysroot/</code>: Contains <code>musl</code>, <code>libstdc++</code> libraries used for compiling</li>
+</ul>
+</li>
+<li><strong>Compiler Flags</strong>:
+<ul dir="auto">
+<li><code>-nostdinc</code> and <code>-nostdinc++</code>: Prevents using host system headers</li>
+<li><code>-nostdlib</code>: Prevents linking against host system libraries</li>
+<li><code>-static</code>: Forces static linking of all dependencies</li>
+</ul>
+</li>
+<li><strong>Library Stack</strong>:
+<ul dir="auto">
+<li><strong>C Library</strong>: <code>musl</code> from Alpine Linux (for static linking)</li>
+<li><strong>C++ Library</strong>: <code>libstdc++</code> from Alpine Linux (built against <code>musl</code>)</li>
+<li><strong>Unwinding</strong>: <code>libunwind</code> from <code>LLVM</code> (for exception handling)</li>
+<li><strong>Linker</strong>: <code>LLD</code> from <code>LLVM</code></li>
+</ul>
+</li>
+</ol>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Usage</h2><a id="user-content-usage" class="anchor" aria-label="Permalink: Usage" href="#usage"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Add this to your <code>MODULE.bazel</code>:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel_dep(name = &quot;hermetic_clang_toolchain&quot;, version = &quot;1.0.0&quot;)
+
+hermetic_clang = use_extension(&quot;@hermetic_clang_toolchain//clang_toolchain:hermetic_clang.bzl&quot;, &quot;hermetic_clang_extension&quot;)
+hermetic_clang.use(version = &quot;21.1.0&quot;)
+use_repo(hermetic_clang, &quot;hermetic_clang&quot;)
+
+register_toolchains(&quot;@hermetic_clang_toolchain//clang_toolchain:hermetic_clang_toolchain&quot;)"><pre><span class="pl-en">bazel_dep</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"hermetic_clang_toolchain"</span>, <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"1.0.0"</span>)
+
+<span class="pl-s1">hermetic_clang</span> <span class="pl-c1">=</span> <span class="pl-en">use_extension</span>(<span class="pl-s">"@hermetic_clang_toolchain//clang_toolchain:hermetic_clang.bzl"</span>, <span class="pl-s">"hermetic_clang_extension"</span>)
+<span class="pl-s1">hermetic_clang</span>.<span class="pl-c1">use</span>(<span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"21.1.0"</span>)
+<span class="pl-en">use_repo</span>(<span class="pl-s1">hermetic_clang</span>, <span class="pl-s">"hermetic_clang"</span>)
+
+<span class="pl-en">register_toolchains</span>(<span class="pl-s">"@hermetic_clang_toolchain//clang_toolchain:hermetic_clang_toolchain"</span>)</pre></div>
+<p dir="auto">Add this to your <code>.bazelrc</code>:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="# Disable default C++ toolchain detection
+build --incompatible_enable_cc_toolchain_resolution
+build --action_env=BAZEL_DO_NOT_DETECT_CPP_TOOLCHAIN=1
+
+# Use hermetic clang toolchain
+build --extra_toolchains=@hermetic_clang//:toolchain"><pre lang="bazelrc" class="notranslate"><code># Disable default C++ toolchain detection
+build --incompatible_enable_cc_toolchain_resolution
+build --action_env=BAZEL_DO_NOT_DETECT_CPP_TOOLCHAIN=1
+
+# Use hermetic clang toolchain
+build --extra_toolchains=@hermetic_clang//:toolchain
+</code></pre></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Example</h2><a id="user-content-example" class="anchor" aria-label="Permalink: Example" href="#example"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">See the <code>example/</code> directory for a working example:</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel build //example:simple_test
+
+# Run the test
+./bazel-bin/example/simple_test
+
+# Verify it's hermetic (should show &quot;not a dynamic executable&quot;)
+ldd bazel-bin/example/simple_test
+
+# Check the binary info
+file bazel-bin/example/simple_test
+# Output: ELF 64-bit LSB executable, x86-64, version 1 (SYSV), statically linked
+readelf -p .comment bazel-bin/example/simple_test
+# String dump of section '.comment':
+#  [     0]  clang version 18.1.8
+#  [    16]  Linker: LLD 18.1.8
+#  [    29]  GCC: (Alpine 14.2.0) 14.2.0"><pre>bazel build //example:simple_test
+
+<span class="pl-c"><span class="pl-c">#</span> Run the test</span>
+./bazel-bin/example/simple_test
+
+<span class="pl-c"><span class="pl-c">#</span> Verify it's hermetic (should show "not a dynamic executable")</span>
+ldd bazel-bin/example/simple_test
+
+<span class="pl-c"><span class="pl-c">#</span> Check the binary info</span>
+file bazel-bin/example/simple_test
+<span class="pl-c"><span class="pl-c">#</span> Output: ELF 64-bit LSB executable, x86-64, version 1 (SYSV), statically linked</span>
+readelf -p .comment bazel-bin/example/simple_test
+<span class="pl-c"><span class="pl-c">#</span> String dump of section '.comment':</span>
+<span class="pl-c"><span class="pl-c">#</span>  [     0]  clang version 18.1.8</span>
+<span class="pl-c"><span class="pl-c">#</span>  [    16]  Linker: LLD 18.1.8</span>
+<span class="pl-c"><span class="pl-c">#</span>  [    29]  GCC: (Alpine 14.2.0) 14.2.0</span></pre></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Architecture Details</h2><a id="user-content-architecture-details" class="anchor" aria-label="Permalink: Architecture Details" href="#architecture-details"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Downloaded Components</h3><a id="user-content-downloaded-components" class="anchor" aria-label="Permalink: Downloaded Components" href="#downloaded-components"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ol dir="auto">
+<li><strong><code>LLVM/Clang 18.1.8</code></strong>: Pre-built compiler toolchain from <code>LLVM</code> project
+<ul dir="auto">
+<li>Provides: <code>clang</code>, <code>clang++</code>, <code>lld</code>, <code>llvm-ar</code>, and other <code>LLVM</code> tools</li>
+<li>Source: GitHub releases</li>
+</ul>
+</li>
+<li><strong>Alpine Packages</strong>:
+<ul dir="auto">
+<li><code>musl-dev</code>: C standard library</li>
+<li><code>libstdc++</code>: C++ standard library</li>
+<li><code>libstdc++-dev</code>: C++ headers</li>
+<li>Source: Alpine Linux v3.22 repository</li>
+</ul>
+</li>
+<li><strong>Ubuntu Packages</strong> (for <code>Clang</code> runtime only):
+<ul dir="auto">
+<li><code>libtinfo5</code>: Terminal info library needed by <code>Clang</code></li>
+</ul>
+</li>
+</ol>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Build Process</h3><a id="user-content-build-process" class="anchor" aria-label="Permalink: Build Process" href="#build-process"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ol dir="auto">
+<li><strong>Compilation</strong>: Uses <code>Clang</code> with hermetic headers from <code>sysroot</code></li>
+<li><strong>Linking</strong>: Statically links all libraries (<code>musl</code>, <code>libstdc++</code>, <code>libunwind</code>)</li>
+<li><strong>Result</strong>: Self-contained binary with no external dependencies</li>
+</ol>
+</article></div>

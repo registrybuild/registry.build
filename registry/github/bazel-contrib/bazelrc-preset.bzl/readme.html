@@ -13,21 +13,21 @@ Read <a href="https://bazel.build/run/bazelrc" rel="nofollow">the Bazel bazelrc 
 <p dir="auto"><a href="https://www.youtube.com/watch?v=-iLgTR1J47g&amp;list=PLLU28e_DRwdtpojOqWM5UeFyxad7m9gCF&amp;index=1" rel="nofollow"><img src="https://camo.githubusercontent.com/85a671d46e6a6acd08cc62e3624264f7796b721d561237243bfe2be8496d499a/68747470733a2f2f696d672e796f75747562652e636f6d2f76692f2d694c675452314a3437672f302e6a7067" alt="Better Bazel Flag Defaults" data-canonical-src="https://img.youtube.com/vi/-iLgTR1J47g/0.jpg" style="max-width: 100%;"></a></p>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Install</h2><a id="user-content-install" class="anchor" aria-label="Permalink: Install" href="#install"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <ol dir="auto">
-<li>Add <code>bazelrc-preset.bzl</code> to your <code>MODULE.bazel</code> file.</li>
-<li>Call it from a BUILD file, for example in <code>tools/BUILD</code>:</li>
-</ol>
+<li>
+<p dir="auto">Add <code>bazelrc-preset.bzl</code> to your <code>MODULE.bazel</code> file.</p>
+</li>
+<li>
+<p dir="auto">Call it from a <code>BUILD</code> file, for example in <code>tools/BUILD</code>:</p>
 <div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@bazelrc-preset.bzl&quot;, &quot;bazelrc_preset&quot;)
 
 bazelrc_preset(
     name = &quot;preset&quot;,
-    strict = True, # Enable this to opt-in to flags that are flipped in the upcoming major release
 )"><pre><span class="pl-en">load</span>(<span class="pl-s">"@bazelrc-preset.bzl"</span>, <span class="pl-s">"bazelrc_preset"</span>)
 
 <span class="pl-en">bazelrc_preset</span>(
     <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"preset"</span>,
-    <span class="pl-s1">strict</span> <span class="pl-c1">=</span> <span class="pl-c1">True</span>, <span class="pl-c"># Enable this to opt-in to flags that are flipped in the upcoming major release</span>
 )</pre></div>
-<ol start="3" dir="auto">
+</li>
 <li>
 <p dir="auto">Create the preset by running <code>bazel run //tools:preset.update</code>.
 Note that you don't need to remember the command.
@@ -37,8 +37,6 @@ A test target <code>preset.update_test</code> is also created, which prints the 
 <p dir="auto">Import it into your project's <code>/.bazelrc</code> file.
 We suggest you add it at the top, so that project-specific flags may override values.
 See <a href="https://bazel.build/configure/best-practices#bazelrc-file" rel="nofollow">https://bazel.build/configure/best-practices#bazelrc-file</a></p>
-</li>
-</ol>
 <p dir="auto">You can copy this template to get started:</p>
 <div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="########################
 # Import bazelrc presets
@@ -74,31 +72,48 @@ import %workspace%/tools/preset.bazelrc
 # This should be last statement in this config so the user configuration overrides anything above.
 try-import %workspace%/user.bazelrc
 </code></pre></div>
-<ol start="5" dir="auto">
-<li>Some flags are enabled only under a given config.
+</li>
+<li>
+<p dir="auto">Some flags are enabled only under a given config.
 For example, many flags apply only when running on CI.
-Configure your CI system to always pass <code>--config=ci</code> when running Bazel (for example, put it in the system bazelrc on CI runner machines).</li>
+Configure your CI system to always pass <code>--config=ci</code> when running Bazel (for example, put it in the system bazelrc on CI runner machines).</p>
+</li>
 </ol>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Migrating to stricter flags</h2><a id="user-content-migrating-to-stricter-flags" class="anchor" aria-label="Permalink: Migrating to stricter flags" href="#migrating-to-stricter-flags"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<p dir="auto">Bazel major releases include flag-flips.</p>
-<p dir="auto">Bazelisk provides <a href="https://github.com/bazelbuild/bazelisk?tab=readme-ov-file#other-features">extra command-line options</a> to migrate to stricter flags. A common migration pattern is:</p>
+<p dir="auto">Bazel major releases include flag-flips.
+We provide a strict preset that includes all flags that will be flipped in the upcoming major release.
+To opt-in to these flags, you can set the <code>strict</code> attribute to <code>True</code> when calling <code>bazelrc_preset</code>.</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@bazelrc-preset.bzl&quot;, &quot;bazelrc_preset&quot;)
+
+bazelrc_preset(
+    name = &quot;preset&quot;,
+    strict = True, # Enable this to opt-in to flags that are flipped in the upcoming major release
+)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@bazelrc-preset.bzl"</span>, <span class="pl-s">"bazelrc_preset"</span>)
+
+<span class="pl-en">bazelrc_preset</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"preset"</span>,
+    <span class="pl-s1">strict</span> <span class="pl-c1">=</span> <span class="pl-c1">True</span>, <span class="pl-c"># Enable this to opt-in to flags that are flipped in the upcoming major release</span>
+)</pre></div>
+<p dir="auto">Bazelisk provides <a href="https://github.com/bazelbuild/bazelisk?tab=readme-ov-file#other-features">extra command-line options</a> to migrate to stricter flags.
+A common migration pattern is:</p>
 <ol dir="auto">
 <li>Run <code>bazelisk --migrate build --nobuild //...</code> to try upgrading new strict flags.</li>
-<li>For flags that don't work, either</li>
-</ol>
+<li>For flags that don't work, either
 <ul dir="auto">
 <li>disable them by explicitly setting the value in your .bazelrc</li>
 <li>fix the issues they report</li>
 </ul>
-<ol start="3" dir="auto">
+</li>
 <li>Add <code>common --@bazelrc-preset.bzl//:strict</code> to the project <code>.bazelrc</code>. This is a superset of running <code>bazelisk --strict build ...</code></li>
 </ol>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Project-specific Presets</h2><a id="user-content-project-specific-presets" class="anchor" aria-label="Permalink: Project-specific Presets" href="#project-specific-presets"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">If your project defines specific flags that users should set, you can define them in your project as follows:</p>
 <ol dir="auto">
-<li>Define your own flags using the same data structure as <a href="flags.bzl"><code>flags.bzl</code></a> or <a href="tests/extra_test_presets.bzl"><code>tests/extra_test_presets.bzl</code></a>.</li>
-<li>Add a <code>bazelrc_preset_test</code> to make sure your presets format is correct.</li>
-</ol>
+<li>
+<p dir="auto">Define your own flags using the same data structure as <a href="flags.bzl"><code>flags.bzl</code></a> or <a href="tests/extra_test_presets.bzl"><code>tests/extra_test_presets.bzl</code></a>.</p>
+</li>
+<li>
+<p dir="auto">Add a <code>bazelrc_preset_test</code> to make sure your presets format is correct.</p>
 <div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazelrc_preset_test(
     name = &quot;test_project_preset&quot;,
     extra_presets = CUSTOM_PROJECT_PRESETS,
@@ -106,9 +121,9 @@ Configure your CI system to always pass <code>--config=ci</code> when running Ba
     <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"test_project_preset"</span>,
     <span class="pl-s1">extra_presets</span> <span class="pl-c1">=</span> <span class="pl-c1">CUSTOM_PROJECT_PRESETS</span>,
 )</pre></div>
-<ol start="3" dir="auto">
-<li>Any user of your project can now consume your presets and add them to their presets</li>
-</ol>
+</li>
+<li>
+<p dir="auto">Any user of your project can now consume your presets and add them to their presets</p>
 <div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@my_project//:flags.bzl&quot;, &quot;CUSTOM_PROJECT_PRESETS&quot;)
 
 bazelrc_preset(
@@ -120,6 +135,8 @@ bazelrc_preset(
     <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"preset"</span>,
     <span class="pl-s1">extra_presets</span> <span class="pl-c1">=</span> <span class="pl-c1">CUSTOM_PROJECT_PRESETS</span>
 )</pre></div>
+</li>
+</ol>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">References and Credits</h2><a id="user-content-references-and-credits" class="anchor" aria-label="Permalink: References and Credits" href="#references-and-credits"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">This was originally a feature of Aspect's bazel-lib:
 <a href="https://github.com/bazel-contrib/bazel-lib/tree/main/.aspect/bazelrc">https://github.com/bazel-contrib/bazel-lib/tree/main/.aspect/bazelrc</a></p>

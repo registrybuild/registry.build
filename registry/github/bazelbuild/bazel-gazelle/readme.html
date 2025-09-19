@@ -1130,6 +1130,29 @@ the <code>srcs</code> attribute of generated rules.</p>
 with the string <code>"github.com/x/y/a/b.proto"</code>.</p>
 </td>
 </tr>
+<tr><td><code># gazelle:proto_search strip prefix</code></td>
+<td colspan="2">n/a</td>
+</tr>
+<tr><td colspan="3"><p dir="auto">When lazy indexing is enabled (<code>-index=lazy</code>), this directive tells Gazelle how to
+transform a proto import string into a repo-root-relative directory path where the proto
+might be found.</p>
+<p dir="auto">Like <code>go_search</code>, this directive configures lazy indexing. However, the arguments are more
+similar to <a href="https://github.com/EngFlow/gazelle_cc?tab=readme-ov-file#-gazellecc_search-strip_include_prefix-include_prefix">cc_search</a> because protobuf rules handle import strings similarly to how C++
+handles include strings.</p>
+<p dir="auto">As an example, suppose you have a library in <code>third_party/foo/</code> with the label
+<code>//third_party/foo</code>. It has a proto file <code>third_party/foo/proto/api.proto</code> that you
+include as <code>foo/api.proto</code>. The library's <code>proto_library</code> target might be written as:</p>
+<p dir="auto">You can tell Gazelle how to find this library when lazy indexing is enabled with the
+directive:</p>
+<p dir="auto">The first argument is a prefix to remove from an import string. The second is a prefix
+to add. So when Gazelle sees the import string <code>foo/api.proto</code> in a file, it's transformed
+to <code>third_party/foo/proto/api.proto</code>. Gazelle then indexes the directory
+<code>third_party/foo/proto</code> after removing the base name.</p>
+<p dir="auto">You can specify the <code>proto_search</code> directive multiple times. It applies in the directory
+where it's written and to subdirectories. An empty <code>proto_search</code> directory resets the
+list of translation rules for the current directory.</p>
+</td>
+</tr>
 <tr><td><code># gazelle:proto_strip_import_prefix path</code></td>
 <td colspan="2">n/a</td>
 </tr>
