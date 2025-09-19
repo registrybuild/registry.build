@@ -97,18 +97,35 @@ metadata:
  )</pre></div>
 <p dir="auto">By default, the <a href="#kustomization">kustomization</a> rule assumes the <em>kustomization</em> file is named <em>kustomization.yaml</em>, but you can also point it at other file names, such as the <em>kustomization.yml</em> or <em>kustomization</em> alternatives that the <em>kustomize</em> tool accepts.</p>
 <p dir="auto">This "base" target we've defined doesn't produce any artifacts. It prepares the recipe for building artifacts, in the same way that a <em>kustomization</em>'s files are inert input for the <em>kustomize</em> tool. When we'd like to build the <em>kustomization</em> using particular options—as we would by invoking <em>kustomize build</em>—we define another target in a <em>BUILD.bazel</em> file. Here we'll add to the same Bazel package, this time using the <a href="#kustomized-resources">kustomized_resources</a> rule.</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(
+    &quot;@rules_kustomize//kustomize:kustomize.bzl&quot;,
+    &quot;kustomized_resources&quot;,
+)
+
+kustomized_resources(
+    name = &quot;simple&quot;,
+    kustomization = &quot;:base&quot;,
+)"><pre><span class="pl-en">load</span>(
+    <span class="pl-s">"@rules_kustomize//kustomize:kustomize.bzl"</span>,
+    <span class="pl-s">"kustomized_resources"</span>,
+)
+
+<span class="pl-en">kustomized_resources</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"simple"</span>,
+    <span class="pl-s1">kustomization</span> <span class="pl-c1">=</span> <span class="pl-s">":base"</span>,
+)</pre></div>
 <p dir="auto">When we tell Bazel to build this new "simple" target, it will invoke <em>kustomize build</em> and write the output to a file named <em>simple.yaml</em>. That's the default mapping from target name to output file name, but you can change it with the <a href="#kustomized-resources">kustomized_resources</a> rule's <kbd>result</kbd> attribute. Other Bazel targets can then demand this file as input, forcing Bazel to rebuild the file whenever—and only when—any of the input files change.</p>
 <a name="user-content-integrating-into-your-project"></a>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto"><a href="#id6">Integrating Into Your Project</a></h2><a id="user-content-integrating-into-your-project" class="anchor" aria-label="Permalink: Integrating Into Your Project" href="#integrating-into-your-project"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">In order to use these rules in your Bazel project, you must instruct Bazel to download the source and run the functions that make the rules available. Add the following to your project's <em>MODULE.bazel</em> file.</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel_dep(name = &quot;rules_kustomize&quot;, version = &quot;0.4.0&quot;)"><pre><span class="pl-en">bazel_dep</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_kustomize"</span>, <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"0.4.0"</span>)</pre></div>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel_dep(name = &quot;rules_kustomize&quot;, version = &quot;0.5.1&quot;)"><pre><span class="pl-en">bazel_dep</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_kustomize"</span>, <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"0.5.1"</span>)</pre></div>
 <p dir="auto">This declaration registers a particular version of the <em>helm</em> and <em>kustomize</em> tools, respectively. By default, it registers <a href="#tool-versions">the latest version known to the rules</a>. You can specify a preferred version for each tool by supplying the known version slug (e.g. "v5.5.0") as an argument to the respective module extension's <code>download</code> tag.</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel_dep(name = &quot;rules_kustomize&quot;, version = &quot;0.4.0&quot;)
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel_dep(name = &quot;rules_kustomize&quot;, version = &quot;0.5.1&quot;)
 
 kustomize = use_extension(&quot;@rules_kustomize//kustomize:extensions.bzl&quot;, &quot;kustomize&quot;)
 kustomize.download(version = &quot;v5.5.0&quot;)
 helm = use_extension(&quot;@rules_kustomize//kustomize:extensions.bzl&quot;, &quot;helm&quot;)
-helm.download(version = &quot;v3.13.1&quot;)"><pre><span class="pl-en">bazel_dep</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_kustomize"</span>, <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"0.4.0"</span>)
+helm.download(version = &quot;v3.13.1&quot;)"><pre><span class="pl-en">bazel_dep</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_kustomize"</span>, <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"0.5.1"</span>)
 
 <span class="pl-s1">kustomize</span> <span class="pl-c1">=</span> <span class="pl-en">use_extension</span>(<span class="pl-s">"@rules_kustomize//kustomize:extensions.bzl"</span>, <span class="pl-s">"kustomize"</span>)
 <span class="pl-s1">kustomize</span>.<span class="pl-c1">download</span>(<span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"v5.5.0"</span>)
@@ -121,13 +138,15 @@ helm.download(version = &quot;v3.13.1&quot;)"><pre><span class="pl-en">bazel_dep
 <p dir="auto">At present, these rules can load the following versions of these tools:</p>
 <ul dir="auto">
 <li><em>kustomize</em><ul dir="auto">
-<li><a href="https://github.com/kubernetes-sigs/kustomize/releases/tag/kustomize%2Fv5.7.0">v5.7.0</a> (default)</li>
+<li><a href="https://github.com/kubernetes-sigs/kustomize/releases/tag/kustomize%2Fv5.7.1">v5.7.1</a> (default)</li>
+<li><a href="https://github.com/kubernetes-sigs/kustomize/releases/tag/kustomize%2Fv5.7.0">v5.7.0</a></li>
 <li><a href="https://github.com/kubernetes-sigs/kustomize/releases/tag/kustomize%2Fv5.6.0">v5.6.0</a></li>
 <li><a href="https://github.com/kubernetes-sigs/kustomize/releases/tag/kustomize%2Fv5.5.0">v5.5.0</a></li>
 </ul>
 </li>
 <li><em>helm</em><ul dir="auto">
-<li><a href="https://github.com/helm/helm/releases/tag/v3.17.4">v3.17.4</a> (default)</li>
+<li><a href="https://github.com/helm/helm/releases/tag/v3.19.0">v3.19.0</a> (default)</li>
+<li><a href="https://github.com/helm/helm/releases/tag/v3.17.4">v3.17.4</a></li>
 <li><a href="https://github.com/helm/helm/releases/tag/v3.17.3">v3.17.3</a></li>
 <li><a href="https://github.com/helm/helm/releases/tag/v3.13.1">v3.13.1</a></li>
 </ul>
