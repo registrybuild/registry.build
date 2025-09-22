@@ -1,0 +1,297 @@
+<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto"><code>gotopt2</code>: a self-contained shell flags or options parser, written in go</h1><a id="user-content-gotopt2-a-self-contained-shell-flags-or-options-parser-written-in-go" class="anchor" aria-label="Permalink: gotopt2: a self-contained shell flags or options parser, written in go" href="#gotopt2-a-self-contained-shell-flags-or-options-parser-written-in-go"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><a target="_blank" rel="noopener noreferrer" href="https://github.com/filmil/gotopt2/actions/workflows/publish-bcr.yml/badge.svg"><img src="https://github.com/filmil/gotopt2/actions/workflows/publish-bcr.yml/badge.svg" alt="Publish on Bazel Central Registry" style="max-width: 100%;"></a> | <a target="_blank" rel="noopener noreferrer" href="https://github.com/filmil/gotopt2/actions/workflows/publish.yml/badge.svg"><img src="https://github.com/filmil/gotopt2/actions/workflows/publish.yml/badge.svg" alt="Publish to my Bazel registry" style="max-width: 100%;"></a> | <a target="_blank" rel="noopener noreferrer" href="https://github.com/filmil/gotopt2/actions/workflows/release.yml/badge.svg"><img src="https://github.com/filmil/gotopt2/actions/workflows/release.yml/badge.svg" alt="Release" style="max-width: 100%;"></a> | <a target="_blank" rel="noopener noreferrer" href="https://github.com/filmil/gotopt2/actions/workflows/tag-and-release.yml/badge.svg"><img src="https://github.com/filmil/gotopt2/actions/workflows/tag-and-release.yml/badge.svg" alt="Tag and Release" style="max-width: 100%;"></a> | <a target="_blank" rel="noopener noreferrer" href="https://github.com/filmil/gotopt2/actions/workflows/test.yml/badge.svg"><img src="https://github.com/filmil/gotopt2/actions/workflows/test.yml/badge.svg" alt="Test" style="max-width: 100%;"></a></p>
+<p dir="auto"><code>gotopt2</code> is a program that outputs its command line arguments as a snippet of
+shell script that can be readily evaluated.</p>
+<p dir="auto">You can use it to parse command line options in your shell script instead of
+rolling your own flag parsing code, or using <code>getopt</code> or similar.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Quick example</h2><a id="user-content-quick-example" class="anchor" aria-label="Permalink: Quick example" href="#quick-example"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Here is how to check, quickly, what <code>gotopt2</code> does for you.</p>
+<div class="highlight highlight-text-shell-session notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="gotopt2 -a -b=foo -c=10 --name value arg1 arg2 --things=eenie,meenie &lt;&lt;EOF
+flags:
+- name: a
+  type: bool
+  help: &quot;A boolean value&quot;
+- name: b
+  type: string
+  help: &quot;A string value&quot;
+- name: c
+  type: int
+  help: &quot;An int value&quot;
+- name: &quot;name&quot;
+  type: string
+  help: &quot;A string name&quot;
+- name: &quot;last_name&quot;
+  type: string
+  default: &quot;Smith&quot;
+- name: &quot;things&quot;
+  type: stringlist
+EOF
+# gotopt2:generated:begin
+gotopt2_a=true
+gotopt2_b=&quot;foo&quot;
+gotopt2_c=10
+gotopt2_name=&quot;value&quot;
+gotopt2_things__list=(&quot;eenie&quot; &quot;meenie&quot;)
+gotopt2_args__=(&quot;arg1&quot; &quot;arg2&quot;)
+# gotopt2:generated:end"><pre><span class="pl-c1">gotopt2 -a -b=foo -c=10 --name value arg1 arg2 --things=eenie,meenie &lt;&lt;EOF</span>
+<span class="pl-c1">flags:</span>
+<span class="pl-c1">- name: a</span>
+<span class="pl-c1">  type: bool</span>
+<span class="pl-c1">  help: "A boolean value"</span>
+<span class="pl-c1">- name: b</span>
+<span class="pl-c1">  type: string</span>
+<span class="pl-c1">  help: "A string value"</span>
+<span class="pl-c1">- name: c</span>
+<span class="pl-c1">  type: int</span>
+<span class="pl-c1">  help: "An int value"</span>
+<span class="pl-c1">- name: "name"</span>
+<span class="pl-c1">  type: string</span>
+<span class="pl-c1">  help: "A string name"</span>
+<span class="pl-c1">- name: "last_name"</span>
+<span class="pl-c1">  type: string</span>
+<span class="pl-c1">  default: "Smith"</span>
+<span class="pl-c1">- name: "things"</span>
+<span class="pl-c1">  type: stringlist</span>
+<span class="pl-c1">EOF</span>
+# <span class="pl-s1">gotopt2:generated:begin</span>
+<span class="pl-c1">gotopt2_a=true</span>
+<span class="pl-c1">gotopt2_b="foo"</span>
+<span class="pl-c1">gotopt2_c=10</span>
+<span class="pl-c1">gotopt2_name="value"</span>
+<span class="pl-c1">gotopt2_things__list=("eenie" "meenie")</span>
+<span class="pl-c1">gotopt2_args__=("arg1" "arg2")</span>
+# <span class="pl-s1">gotopt2:generated:end</span></pre></div>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Installation</h1><a id="user-content-installation" class="anchor" aria-label="Permalink: Installation" href="#installation"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="highlight highlight-text-shell-session notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="go install github.com/filmil/gotopt2/..."><pre><span class="pl-c1">go install github.com/filmil/gotopt2/...</span></pre></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Prerequisites</h2><a id="user-content-prerequisites" class="anchor" aria-label="Permalink: Prerequisites" href="#prerequisites"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">To test the binary, you will need to use <code>bazel</code>.  <code>go test</code> gets you part of
+the way, but with it you can not test the interaction with shell scripts.</p>
+<ul dir="auto">
+<li>bazel: <a href="http://bazel.build" rel="nofollow">http://bazel.build</a></li>
+</ul>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Getting the source</h2><a id="user-content-getting-the-source" class="anchor" aria-label="Permalink: Getting the source" href="#getting-the-source"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="highlight highlight-text-shell-session notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="git clone https://github.com/filmil/gotopt2"><pre><span class="pl-c1">git clone https://github.com/filmil/gotopt2</span></pre></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Testing the source code</h2><a id="user-content-testing-the-source-code" class="anchor" aria-label="Permalink: Testing the source code" href="#testing-the-source-code"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="highlight highlight-text-shell-session notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel test //..."><pre><span class="pl-c1">bazel test //...</span></pre></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Building the gotopt2 binary</h2><a id="user-content-building-the-gotopt2-binary" class="anchor" aria-label="Permalink: Building the gotopt2 binary" href="#building-the-gotopt2-binary"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="bazel build //cmd/..."><pre class="notranslate"><code>bazel build //cmd/...
+</code></pre></div>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Example use in a shell script</h1><a id="user-content-example-use-in-a-shell-script" class="anchor" aria-label="Permalink: Example use in a shell script" href="#example-use-in-a-shell-script"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Here is how you would use <code>gotopt2</code> in a shell script.  Note how <code>gotopt2</code> does
+all the parsing for you and provides you with environment variables with
+already parsed values.</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="#!/bin/bash
+GOTOPT2_OUTPUT=$(gotopt2 &quot;${@}&quot; &lt;&lt;EOF
+flags:
+- name: &quot;foo&quot;
+  type: string
+  default: &quot;something&quot;
+- name: &quot;bar&quot;
+  type: int
+  default: 42
+- name: &quot;baz&quot;
+  type: bool
+  default: true
+EOF
+)
+if [[ &quot;$?&quot; == &quot;11&quot; ]]; then
+  # When --help option is used, gotopt2 exits with code 11.
+  exit 1
+fi
+
+# Evaluate the output of the call to gotopt2, shell vars assignment is here.
+eval &quot;${GOTOPT2_OUTPUT}&quot;
+if [[ &quot;${gotopt2_foo}&quot; != &quot;bar&quot; ]]; then
+  echo &quot;Want: bar; got: '${gotopt_foo}'&quot;
+  exit 1
+fi"><pre><span class="pl-c"><span class="pl-c">#!</span>/bin/bash</span>
+GOTOPT2_OUTPUT=<span class="pl-s"><span class="pl-pds">$(</span>gotopt2 <span class="pl-s"><span class="pl-pds">"</span><span class="pl-smi">${<span class="pl-k">@</span>}</span><span class="pl-pds">"</span></span> <span class="pl-s"><span class="pl-k">&lt;&lt;</span><span class="pl-k">EOF</span></span></span>
+<span class="pl-s"><span class="pl-s">flags:</span></span>
+<span class="pl-s"><span class="pl-s">- name: "foo"</span></span>
+<span class="pl-s"><span class="pl-s">  type: string</span></span>
+<span class="pl-s"><span class="pl-s">  default: "something"</span></span>
+<span class="pl-s"><span class="pl-s">- name: "bar"</span></span>
+<span class="pl-s"><span class="pl-s">  type: int</span></span>
+<span class="pl-s"><span class="pl-s">  default: 42</span></span>
+<span class="pl-s"><span class="pl-s">- name: "baz"</span></span>
+<span class="pl-s"><span class="pl-s">  type: bool</span></span>
+<span class="pl-s"><span class="pl-s">  default: true</span></span>
+<span class="pl-s"><span class="pl-s"><span class="pl-k">EOF</span></span></span>
+<span class="pl-s"><span class="pl-pds">)</span></span>
+<span class="pl-k">if</span> [[ <span class="pl-s"><span class="pl-pds">"</span><span class="pl-smi">$?</span><span class="pl-pds">"</span></span> <span class="pl-k">==</span> <span class="pl-s"><span class="pl-pds">"</span>11<span class="pl-pds">"</span></span> ]]<span class="pl-k">;</span> <span class="pl-k">then</span>
+  <span class="pl-c"><span class="pl-c">#</span> When --help option is used, gotopt2 exits with code 11.</span>
+  <span class="pl-c1">exit</span> 1
+<span class="pl-k">fi</span>
+
+<span class="pl-c"><span class="pl-c">#</span> Evaluate the output of the call to gotopt2, shell vars assignment is here.</span>
+<span class="pl-c1">eval</span> <span class="pl-s"><span class="pl-pds">"</span><span class="pl-smi">${GOTOPT2_OUTPUT}</span><span class="pl-pds">"</span></span>
+<span class="pl-k">if</span> [[ <span class="pl-s"><span class="pl-pds">"</span><span class="pl-smi">${gotopt2_foo}</span><span class="pl-pds">"</span></span> <span class="pl-k">!=</span> <span class="pl-s"><span class="pl-pds">"</span>bar<span class="pl-pds">"</span></span> ]]<span class="pl-k">;</span> <span class="pl-k">then</span>
+  <span class="pl-c1">echo</span> <span class="pl-s"><span class="pl-pds">"</span>Want: bar; got: '<span class="pl-smi">${gotopt_foo}</span>'<span class="pl-pds">"</span></span>
+  <span class="pl-c1">exit</span> 1
+<span class="pl-k">fi</span></pre></div>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Configuration</h1><a id="user-content-configuration" class="anchor" aria-label="Permalink: Configuration" href="#configuration"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><code>gotopt2</code> is configured by passing a configuration into standard input. The
+configuration is a valid YAML text.  The program is configured this way so that
+no flag settings end up polluting the command line.</p>
+<p dir="auto">There is an implicit flag <code>--help</code> which prints the usage, based on the
+information provided in the configuration.</p>
+<markdown-accessiblity-table><table>
+<thead>
+<tr>
+<th>Config Element</th>
+<th>Child Elements</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>top level</td>
+<td>falseValue, flags</td>
+<td>This is the entire configuration file.</td>
+</tr>
+<tr>
+<td>ALL_CAPS</td>
+<td></td>
+<td>bool (false): if set, generates ALL_CAPS variables.</td>
+</tr>
+<tr>
+<td>prefix</td>
+<td></td>
+<td>string: "": If set, this string is prepended to generated variable names.</td>
+</tr>
+<tr>
+<td>declaration</td>
+<td></td>
+<td>string: "": If set, this string is used as the declaration (e.g. "readonly", or "local")</td>
+</tr>
+<tr>
+<td>falseValue</td>
+<td></td>
+<td>string: "": Value used for the value of "false".</td>
+</tr>
+<tr>
+<td>flags</td>
+<td>name, type, default, help</td>
+<td>A sequence of flag configurations</td>
+</tr>
+<tr>
+<td>name</td>
+<td></td>
+<td>Flag name, e.g. "foo"</td>
+</tr>
+<tr>
+<td>type</td>
+<td></td>
+<td>Flag type to parse, one of: "string", "int", "bool", "stringlist"</td>
+</tr>
+<tr>
+<td>default</td>
+<td></td>
+<td>The default value to set for the flag if left unspecified. Optional.</td>
+</tr>
+<tr>
+<td>help</td>
+<td></td>
+<td>The help text to set for the flag value.</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Use Case</h1><a id="user-content-use-case" class="anchor" aria-label="Permalink: Use Case" href="#use-case"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Though it's 2019, I ofter find myself needing to write <code>bash</code> scripts.  As you
+may be aware, there isn't really a canned way in <code>bash</code> to parse command line
+options: you can either roll your own, or you can rely on a preexisting solution
+like GNU <code>getopt</code>.</p>
+<p dir="auto">As an alternative you could pass options easily in environment variables, but
+that ends up being spooky action at a distance when you have your flags passed
+through multiple levels of scripts, all alike.</p>
+<p dir="auto">Rolling your own means either you write custom parsing code in each script.
+Or, you make it a library, in which case you have to worry about how you
+package and load the library in your script when you want to use it.  All
+doable, just doesn't feel very efficient when alternatives exist.</p>
+<p dir="auto">If you don't want to roll your own, you could use GNU <code>getopt</code> for example.
+However, then you need to make sure that you have exactly the version of
+<code>getopt</code> you need on the target system.  Ensuring this is the job of GNU
+<code>autotools</code> but as soon as you touch <code>autotools</code> it is probably an overkill.
+Remember, the only thing you actually wanted is to parse some command line
+options. And if you are on OSX, who knows which <code>getopt</code> you will be up
+against. This was fine in the eighties, but not today. <em>There must be an easier
+way.</em></p>
+<p dir="auto">There are libraries like <code>argbash.io</code>.  Which I liked very much untl I learned
+that (1) I need <code>m4</code> to use it and (2) I need a Makefile to generate the actual
+running script from my code. At that point it becomes obvious to me that a small
+binary works better.</p>
+<p dir="auto">And even if <code>getopt</code> fits your bill, you still need to figure out its arcane
+flag parsing syntax. Again this was fine in the 1970's, and even desirable as
+few computers had actual monitors but printed output on paper instead and pithy
+was king.</p>
+<p dir="auto">So I set out to write something to improve on the situation.</p>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Requirements</h1><a id="user-content-requirements" class="anchor" aria-label="Permalink: Requirements" href="#requirements"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><em>Option parsing should be embeddable in <code>bash</code> scripts.</em></p>
+<p dir="auto">This is pretty much the main functional requirement; we need to convert command
+line arguments into some bash code, and evaluate that.</p>
+<p dir="auto"><em>Option parsing should be easily portable.</em></p>
+<p dir="auto">We get portability by making the program small and self-contained.  So if is
+not available as a binary for your platform you can compile it yourself on the
+spot.</p>
+<p dir="auto"><em>Option parsing configuration should be easily readable.</em></p>
+<p dir="auto">While I appreciate compact notations as much as the next person, I appreciate
+being able to maintain my scripts more. And I appreciate even more the ability
+to maintain scripts that <em>someone else</em> wrote. For this reason, configuration
+should be in an easily understandable, preferably self-documenting forms.</p>
+<p dir="auto"><em>Option parsing approach should be contemporary.</em></p>
+<p dir="auto">This means for example that you get <code>--help</code> for free.  And that the help
+text is auto-generated from the information you pass at configuration time.
+And that both long and short option names are supported.</p>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Error codes</h1><a id="user-content-error-codes" class="anchor" aria-label="Permalink: Error codes" href="#error-codes"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">When <code>gotopt2</code> exits, it sets one of the following numerical error codes:</p>
+<p dir="auto">| Error code | Meaning |
+| 0 | OK
+| 11 | The flag <code>--help</code> was used and <code>gotopt2</code> printed usage. Note that this flag can also be defined in the config, in which case it is up to the script author to handle it. |
+| 12 | No configuration has been given to <code>gotopt2</code>.  Have you forgotten to pass it a configuration
+at stdin? |
+| 142 | Any other error |</p>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Q&amp;A</h1><a id="user-content-qa" class="anchor" aria-label="Permalink: Q&amp;A" href="#qa"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Why is it named gotopt2?</h2><a id="user-content-why-is-it-named-gotopt2" class="anchor" aria-label="Permalink: Why is it named gotopt2?" href="#why-is-it-named-gotopt2"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">I thought I was being original by riffing on the very well known name "getopt"
+and weaving in the name of the language the program is written in at the same
+time.</p>
+<p dir="auto">However, I was not the first who came to that idea, as you can readily see at
+<a href="https://github.com/akutz/gotopt">https://github.com/akutz/gotopt</a>.  But the intention of that <code>gotopt</code> is to
+replicate the functionality of getopt in go (why would you if you had a chance
+to redo it?!), so I thought it appropriate to name this <code>getopt2</code>.  Looking
+forward to <code>getopt3</code> if you feel so inclined.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">What's wrong with getopt?</h2><a id="user-content-whats-wrong-with-getopt" class="anchor" aria-label="Permalink: What's wrong with getopt?" href="#whats-wrong-with-getopt"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Nothing, if it fulfills your use case.</p>
+<p dir="auto">I have a few remarks on the way getopt does its work, though, and if you agree
+with those, you may find <code>gotopt2</code> useful:</p>
+<ul dir="auto">
+<li>The configuration syntax is a bit arcane.</li>
+<li>Once <code>getopt</code> finishes, you still need to parse the options yourself, they
+are just ordered nicely.</li>
+</ul>
+<p dir="auto">In contrast, <code>gotopt2</code> is a self-contained binary.  You can simply carry it
+around and include in your own code, so I opted for that.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">What's wrong with <code>gotopt</code>?</h2><a id="user-content-whats-wrong-with-gotopt" class="anchor" aria-label="Permalink: What's wrong with gotopt?" href="#whats-wrong-with-gotopt"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Nothing, if it fulfills your use case.</p>
+<p dir="auto">It's reimplementing <code>getopt</code>.  I don't see why one would want to do that
+given the opportunity to implement a user-friendlier approach.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">What's wrong with argbash (<a href="https://argbash.io" rel="nofollow">https://argbash.io</a>)?</h2><a id="user-content-whats-wrong-with-argbash-httpsargbashio" class="anchor" aria-label="Permalink: What's wrong with argbash (https://argbash.io)?" href="#whats-wrong-with-argbash-httpsargbashio"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Nothing, if it fulfills your use case.</p>
+<p dir="auto">I didn't like that you need to carry <code>m4</code> around with you.  <code>m4</code> is a relic
+that should no longer be used.</p>
+<p dir="auto">You need to have a <code>Makefile</code> that builds your final script, which is not
+necessarily something you'd want to do.  All else being equal, a small go
+program is in my experience a much more robust building block than an untested
+and  sprawling <code>bash</code> string parsing library.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Why does it matter which programming language it is written in?</h2><a id="user-content-why-does-it-matter-which-programming-language-it-is-written-in" class="anchor" aria-label="Permalink: Why does it matter which programming language it is written in?" href="#why-does-it-matter-which-programming-language-it-is-written-in"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">You are right, it doesn't really matter.  However, for some reason in my head
+go programs are associated with small static binaries that you can build very
+easily and deploy alongside anything you do.  So it's a signal that it is
+something small, simple and portable.</p>
+<p dir="auto">Simplicity and portability become important in a world where packaging is a
+solved problem: you can easily build a container image that has this as the
+only one additional component.  Compare to say needing to install the whole GNU
+<code>autotools</code> package if you want to use <code>argbash</code>. Or, compare to <code>getopt</code> where
+the expectation is that your system has one, but it's never the version you
+need.</p>
+</article></div>
