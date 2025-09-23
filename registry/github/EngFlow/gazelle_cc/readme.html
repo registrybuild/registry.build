@@ -112,6 +112,75 @@ When resolving dependencies, indexes are visited in the same order as the corres
 <li><code>error_fast</code>: Raise an error on the first encountered unresolved <code>#include</code> and immediately stop further processing with a non-zero return code; <code>BUILD</code> files won't be changed then</li>
 <li><code>error</code>: Raise an error after collecting all unresolved <code>#include</code> directives and stop further processing with a non-zero return code; <code>BUILD</code> files won't be changed then</li>
 </ul>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto"><code># gazelle:cc_platform &lt;os&gt; &lt;arch&gt; &lt;constraint_label&gt; [&lt;macro&gt;=&lt;value&gt; …]</code></h3><a id="user-content--gazellecc_platform-os-arch-constraint_label-macrovalue-" class="anchor" aria-label="Permalink: # gazelle:cc_platform &lt;os&gt; &lt;arch&gt; &lt;constraint_label&gt; [&lt;macro&gt;=&lt;value&gt; …]" href="#-gazellecc_platform-os-arch-constraint_label-macrovalue-"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Tells gazelle_cc to emit a platform-aware <code>select()</code> statement for header dependencies whose <code>#include</code> directives are wrapped in pre-processor conditions (<code>#if</code>, <code>#ifdef</code>, etc).</p>
+<markdown-accessiblity-table><table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>&lt;os&gt;</code></td>
+<td>Operating-system that identifies the platform (e.g. <code>linux</code>, <code>darwin</code>).<br>Valid values follow the constraint settings in <a href="https://github.com/bazelbuild/platforms/blob/1.0.0/os/BUILD"><code>@platforms//os</code></a>.<br>This value combined with <code>&lt;arch&gt;</code> is also used to setup default, well known platform specific macro definitions, e.g. <code>_WIN32</code>, <code>__APPLE__</code>, <code>__unix__</code></td>
+</tr>
+<tr>
+<td><code>&lt;arch&gt;</code></td>
+<td>The CPU architecture that identifies the platform (e.g. <code>amd64</code>, <code>aarch64</code>).Valid values follow the constraint settings in  <a href="https://github.com/bazelbuild/platforms/blob/1.0.0/cpu/BUILD"><code>@platforms//cpu</code></a>.</td>
+</tr>
+<tr>
+<td><code>&lt;constraint_label&gt;</code></td>
+<td>A Bazel label that will be used inside the generated <code>select()</code> for this platform.</td>
+</tr>
+<tr>
+<td><code>[&lt;macro&gt;=&lt;value&gt;]</code></td>
+<td>Optional compile-time macros that are <strong>always</strong> true on this platform.<br>Only integer literals are allowed. A bare identifier (e.g. <code>TARGET_OS_MAC</code>) is treated as <code>&lt;macro&gt;=1</code>.</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p dir="auto">Example:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="# BUILD.bazel
+# gazelle:cc_platform windows x86_64 @platforms//os:windows
+# gazelle:cc_platform osx aarch64 //platforms/macos_arm USING_MAC USING_ARM64=1"><pre><span class="pl-c"># BUILD.bazel</span>
+<span class="pl-c"># gazelle:cc_platform windows x86_64 @platforms//os:windows</span>
+<span class="pl-c"># gazelle:cc_platform osx aarch64 //platforms/macos_arm USING_MAC USING_ARM64=1</span></pre></div>
+<div class="highlight highlight-source-c notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="// source.cc
+#include &quot;shared.h&quot;
+#if defined(_WIN32)
+   #include &quot;win_impl.h&quot;
+#elif USING_MAC
+   #include &quot;mac_impl.h&quot;
+#else
+   #include &quot;unix_impl.h&quot;
+#endif"><pre><span class="pl-c">// source.cc</span>
+<span class="pl-k">#include</span> <span class="pl-s">"shared.h"</span>
+<span class="pl-k">#if</span> defined(<span class="pl-s1">_WIN32</span>)
+   <span class="pl-k">#include</span> <span class="pl-s">"win_impl.h"</span>
+<span class="pl-k">#elif</span> <span class="pl-c1">USING_MAC</span>
+   <span class="pl-k">#include</span> <span class="pl-s">"mac_impl.h"</span>
+<span class="pl-k">#else</span>
+   <span class="pl-k">#include</span> <span class="pl-s">"unix_impl.h"</span>
+<span class="pl-k">#endif</span></pre></div>
+<p dir="auto">Running the <code>gazelle_cc</code> would emit</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="cc_library(
+   name = &quot;source&quot;,
+   srcs = [&quot;source.cc&quot;],
+   implementation_deps = [&quot;:shared&quot;] + select({
+      &quot;@platforms//os:windows&quot;: [&quot;:win_impl&quot;],
+      &quot;//platforms:macos_arm&quot;:  [&quot;:mac_impl&quot;],
+      &quot;//conditions:default&quot;:   [&quot;:unix_impl&quot;],
+   })
+)"><pre><span class="pl-en">cc_library</span>(
+   <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"source"</span>,
+   <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> [<span class="pl-s">"source.cc"</span>],
+   <span class="pl-s1">implementation_deps</span> <span class="pl-c1">=</span> [<span class="pl-s">":shared"</span>] <span class="pl-c1">+</span> <span class="pl-en">select</span>({
+      <span class="pl-s">"@platforms//os:windows"</span>: [<span class="pl-s">":win_impl"</span>],
+      <span class="pl-s">"//platforms:macos_arm"</span>:  [<span class="pl-s">":mac_impl"</span>],
+      <span class="pl-s">"//conditions:default"</span>:   [<span class="pl-s">":unix_impl"</span>],
+   })
+)</pre></div>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Rules for target rule selection</h2><a id="user-content-rules-for-target-rule-selection" class="anchor" aria-label="Permalink: Rules for target rule selection" href="#rules-for-target-rule-selection"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">The extension automatically selects the appropriate rule type based on the following criteria:</p>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Rule Type Selection</h3><a id="user-content-rule-type-selection" class="anchor" aria-label="Permalink: Rule Type Selection" href="#rule-type-selection"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
