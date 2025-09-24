@@ -140,8 +140,7 @@ and your project can be depended on by non-Bazel projects.</p>
 <p dir="auto">If you need to use the <code>go</code> command to perform tasks that Bazel doesn't cover
 (such as adding a new dependency to <code>go.mod</code>), you can use the following Bazel
 invocation to run the <code>go</code> binary of the Bazel-configured Go SDK:</p>
-<pre lang="bash">bazel run @io_bazel_rules_go//go -- &lt;args&gt;
-</pre>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel run @io_bazel_rules_go//go -- &lt;args&gt;"><pre>bazel run @io_bazel_rules_go//go -- <span class="pl-k">&lt;</span>args<span class="pl-k">&gt;</span></pre></div>
 <p dir="auto">Prefer this to running <code>go</code> directly since it ensures that the version of Go
 is identical to the one used by rules_go.</p>
 <a name="user-content-does-this-work-with-go-modules"></a>
@@ -187,23 +186,37 @@ cross-compiling C/C++ toolchain with Bazel for this to work.</p>
 <p dir="auto">Platform-specific sources with build tags or filename suffixes are filtered
 automatically at compile time. You can selectively include platform-specific
 dependencies with <code>select</code> expressions (Gazelle does this automatically).</p>
-<pre lang="bzl">go_library(
-    name = "foo",
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="go_library(
+    name = &quot;foo&quot;,
     srcs = [
-        "foo_linux.go",
-        "foo_windows.go",
+        &quot;foo_linux.go&quot;,
+        &quot;foo_windows.go&quot;,
     ],
     deps = select({
-        "@io_bazel_rules_go//go/platform:linux_amd64": [
-            "//bar_linux",
+        &quot;@io_bazel_rules_go//go/platform:linux_amd64&quot;: [
+            &quot;//bar_linux&quot;,
         ],
-        "@io_bazel_rules_go//go/platform:windows_amd64": [
-            "//bar_windows",
+        &quot;@io_bazel_rules_go//go/platform:windows_amd64&quot;: [
+            &quot;//bar_windows&quot;,
         ],
-        "//conditions:default": [],
+        &quot;//conditions:default&quot;: [],
     }),
-)
-</pre>
+)"><pre><span class="pl-en">go_library</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"foo"</span>,
+    <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> [
+        <span class="pl-s">"foo_linux.go"</span>,
+        <span class="pl-s">"foo_windows.go"</span>,
+    ],
+    <span class="pl-s1">deps</span> <span class="pl-c1">=</span> <span class="pl-en">select</span>({
+        <span class="pl-s">"@io_bazel_rules_go//go/platform:linux_amd64"</span>: [
+            <span class="pl-s">"//bar_linux"</span>,
+        ],
+        <span class="pl-s">"@io_bazel_rules_go//go/platform:windows_amd64"</span>: [
+            <span class="pl-s">"//bar_windows"</span>,
+        ],
+        <span class="pl-s">"//conditions:default"</span>: [],
+    }),
+)</pre></div>
 <p dir="auto">To build a specific <a href="docs/go/core/rules.md#go_binary">go_binary</a> target for a target platform or using a
 specific golang SDK version, use the <a href="docs/go/core/rules.md#go_cross_binary">go_cross_binary</a> rule. This is useful
 for producing multiple binaries for different platforms in a single build.</p>
@@ -217,13 +230,17 @@ a Bazel <a href="https://docs.bazel.build/versions/master/skylark/lib/transition
 <p dir="auto">Bazel executes tests in a sandbox, which means tests don't automatically have
 access to files. You must include test files using the <code>data</code> attribute.
 For example, if you want to include everything in the <code>testdata</code> directory:</p>
-<pre lang="bzl">go_test(
-    name = "foo_test",
-    srcs = ["foo_test.go"],
-    data = glob(["testdata/**"]),
-    importpath = "github.com/example/project/foo",
-)
-</pre>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="go_test(
+    name = &quot;foo_test&quot;,
+    srcs = [&quot;foo_test.go&quot;],
+    data = glob([&quot;testdata/**&quot;]),
+    importpath = &quot;github.com/example/project/foo&quot;,
+)"><pre><span class="pl-en">go_test</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"foo_test"</span>,
+    <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> [<span class="pl-s">"foo_test.go"</span>],
+    <span class="pl-s1">data</span> <span class="pl-c1">=</span> <span class="pl-en">glob</span>([<span class="pl-s">"testdata/**"</span>]),
+    <span class="pl-s1">importpath</span> <span class="pl-c1">=</span> <span class="pl-s">"github.com/example/project/foo"</span>,
+)</pre></div>
 <p dir="auto">By default, tests are run in the directory of the build file that defined them.
 Note that this follows the Go testing convention, not the Bazel convention
 followed by other languages, which run in the repository root. This means
@@ -247,35 +264,53 @@ basename may also be platform-dependent: on Windows, we add an .exe extension.</
 in the <code>data</code> attribute (to make it visible), then expand the location
 in <code>args</code>. The real location will be passed to the test on the command line.
 For example:</p>
-<pre lang="bzl">go_binary(
-    name = "cmd",
-    srcs = ["cmd.go"],
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="go_binary(
+    name = &quot;cmd&quot;,
+    srcs = [&quot;cmd.go&quot;],
 )
 
 go_test(
-    name = "cmd_test",
-    srcs = ["cmd_test.go"],
-    args = ["$(location :cmd)"],
-    data = [":cmd"],
+    name = &quot;cmd_test&quot;,
+    srcs = [&quot;cmd_test.go&quot;],
+    args = [&quot;$(location :cmd)&quot;],
+    data = [&quot;:cmd&quot;],
+)"><pre><span class="pl-en">go_binary</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"cmd"</span>,
+    <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> [<span class="pl-s">"cmd.go"</span>],
 )
-</pre>
+
+<span class="pl-en">go_test</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"cmd_test"</span>,
+    <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> [<span class="pl-s">"cmd_test.go"</span>],
+    <span class="pl-s1">args</span> <span class="pl-c1">=</span> [<span class="pl-s">"$(location :cmd)"</span>],
+    <span class="pl-s1">data</span> <span class="pl-c1">=</span> [<span class="pl-s">":cmd"</span>],
+)</pre></div>
 <p dir="auto">See <a href="https://github.com/bazelbuild/rules_go/blob/master/tests/core/cross/BUILD.bazel">//tests/core/cross</a> for a full example of a test that
 accesses a binary.</p>
 <p dir="auto">Alternatively, you can set the <code>out</code> attribute of <a href="docs/go/core/rules.md#go_binary">go_binary</a> to a specific
 filename. Note that when <code>out</code> is set, the binary won't be cached when
 changing configurations.</p>
-<pre lang="bzl">go_binary(
-    name = "cmd",
-    srcs = ["cmd.go"],
-    out = "cmd",
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="go_binary(
+    name = &quot;cmd&quot;,
+    srcs = [&quot;cmd.go&quot;],
+    out = &quot;cmd&quot;,
 )
 
 go_test(
-    name = "cmd_test",
-    srcs = ["cmd_test.go"],
-    data = [":cmd"],
+    name = &quot;cmd_test&quot;,
+    srcs = [&quot;cmd_test.go&quot;],
+    data = [&quot;:cmd&quot;],
+)"><pre><span class="pl-en">go_binary</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"cmd"</span>,
+    <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> [<span class="pl-s">"cmd.go"</span>],
+    <span class="pl-s1">out</span> <span class="pl-c1">=</span> <span class="pl-s">"cmd"</span>,
 )
-</pre>
+
+<span class="pl-en">go_test</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"cmd_test"</span>,
+    <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> [<span class="pl-s">"cmd_test.go"</span>],
+    <span class="pl-s1">data</span> <span class="pl-c1">=</span> [<span class="pl-s">":cmd"</span>],
+)</pre></div>
 <a name="user-content-how-do-i-avoid-conflicts-with-protocol-buffers"></a>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">How do I avoid conflicts with protocol buffers?</h3><a id="user-content-how-do-i-avoid-conflicts-with-protocol-buffers" class="anchor" aria-label="Permalink: How do I avoid conflicts with protocol buffers?" href="#how-do-i-avoid-conflicts-with-protocol-buffers"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">See <a href="proto/core.rst#avoiding-conflicts">Avoiding conflicts</a> in the proto documentation.</p>
@@ -304,11 +339,14 @@ declared in <a href="go/dependencies.rst#go_rules_dependencies">go_rules_depende
 <p dir="auto">rules_go only supports official releases of the Go SDK. However, you can still
 test beta and RC versions by passing a <code>version</code> like <code>"1.16beta1"</code> to
 <a href="go/toolchains.rst#go_register_toolchains">go_register_toolchains</a>. See also <a href="go/toolchains.rst#go_download_sdk">go_download_sdk</a>.</p>
-<pre lang="bzl">load("@io_bazel_rules_go//go:deps.bzl", "go_register_toolchains", "go_rules_dependencies")
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@io_bazel_rules_go//go:deps.bzl&quot;, &quot;go_register_toolchains&quot;, &quot;go_rules_dependencies&quot;)
 
 go_rules_dependencies()
 
-go_register_toolchains(version = "1.17beta1")
-</pre>
+go_register_toolchains(version = &quot;1.17beta1&quot;)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@io_bazel_rules_go//go:deps.bzl"</span>, <span class="pl-s">"go_register_toolchains"</span>, <span class="pl-s">"go_rules_dependencies"</span>)
+
+<span class="pl-en">go_rules_dependencies</span>()
+
+<span class="pl-en">go_register_toolchains</span>(<span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"1.17beta1"</span>)</pre></div>
 
 </article></div>
