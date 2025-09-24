@@ -31,13 +31,14 @@ and say hello!</em></p>
 <li><a href="#command-line" id="user-content-id11">Command line</a></li>
 <li><a href="#bazel-rule" id="user-content-id12">Bazel rule</a></li>
 <li><a href="#fix-and-update" id="user-content-id13"><code>fix</code> and <code>update</code></a></li>
-<li><a href="#update-repos" id="user-content-id14"><code>update-repos</code></a></li>
-<li><a href="#directives" id="user-content-id15">Directives</a></li>
-<li><a href="#keep-comments" id="user-content-id16">Keep comments</a></li>
+<li><a href="#lazy-indexing-in-fix-and-update" id="user-content-id14">Lazy indexing in <code>fix</code> and <code>update</code></a></li>
+<li><a href="#update-repos" id="user-content-id15"><code>update-repos</code></a></li>
+<li><a href="#directives" id="user-content-id16">Directives</a></li>
+<li><a href="#keep-comments" id="user-content-id17">Keep comments</a></li>
 </ul>
 </li>
-<li><a href="#dependency-resolution" id="user-content-id17">Dependency resolution</a></li>
-<li><a href="#fix-command-transformations" id="user-content-id18">Fix command transformations</a></li>
+<li><a href="#dependency-resolution" id="user-content-id18">Dependency resolution</a></li>
+<li><a href="#fix-command-transformations" id="user-content-id19">Fix command transformations</a></li>
 </ul>
 </div>
 <p dir="auto"><strong>See also:</strong></p>
@@ -425,7 +426,7 @@ to each command and are documented below.</p>
 </dl>
 <a name="user-content-bazel-rule"></a>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto"><a href="#id12">Bazel rule</a></h3><a id="user-content-bazel-rule" class="anchor" aria-label="Permalink: Bazel rule" href="#bazel-rule"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<p dir="auto">Gazelle may be run via a rule. See <a href="#id19"><span id="user-content-id20">`Running Gazelle with Bazel`_</span></a> for setup
+<p dir="auto">Gazelle may be run via a rule. See <a href="#id20"><span id="user-content-id21">`Running Gazelle with Bazel`_</span></a> for setup
 instructions. This rule builds Gazelle and generates a wrapper script that
 executes Gazelle with baked-in set of arguments. You can run this script
 with <code>bazel run</code>, or you can copy it into your workspace and run it directly.</p>
@@ -697,8 +698,31 @@ memory a profile information from the command and save it to a file.</p>
 </tr>
 </tbody>
 </table></markdown-accessiblity-table>
+<a name="user-content-lazy-indexing-in-fix-and-update"></a>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto"><a href="#id14">Lazy indexing in <code>fix</code> and <code>update</code></a></h3><a id="user-content-lazy-indexing-in-fix-and-update" class="anchor" aria-label="Permalink: Lazy indexing in fix and update" href="#lazy-indexing-in-fix-and-update"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">By default, <code>fix</code> and <code>update</code> read all build files in a repo to build an
+index of library rules (see <a href="#dependency-resolution">Dependency resolution</a>) when Gazelle starts.
+This can take a long time on a large repo. To avoid this problem, Gazelle can
+lazily index specific directories, with help from extensions that support
+lazy indexing.</p>
+<p dir="auto">To configure lazy indexing with Go, add <code>go_search</code> directives like this:</p>
+<p dir="auto">These directives point to directories that contain Go code outside the current
+module, with an optional package prefix. <code>go_search</code> directives are not
+necessary if you're following regular Go module conventions or are using
+a Go <code>vendor</code> directory.</p>
+<p dir="auto">To configure lazy indexing with protobuf, add <code>proto_search</code> directives
+like this:</p>
+<p dir="auto">The two arguments are a prefix to remove from the import path and a prefix to
+add. These correspond to the <a href="https://docs.bazel.build/versions/master/be/protocol-buffer.html#proto_library.strip_import_prefix" rel="nofollow">strip_import_prefix</a> and <a href="https://docs.bazel.build/versions/master/be/protocol-buffer.html#proto_library.import_prefix" rel="nofollow">import_prefix</a>
+attributes of <a href="https://bazel.build/reference/be/protocol-buffer#proto_library" rel="nofollow">proto_library</a>. They tell Gazelle how to transform an import
+path read from a .proto source file into a repo-root-relative path to a
+directory that may contain the imported file.</p>
+<p dir="auto">To use Gazelle with lazy indexing, run with <code>-r=false -index=lazy</code>, and pass
+the directories to update on the command line.</p>
+<p dir="auto">You can configure your <code>gazelle</code> Bazel target to pass these flags
+automatically:</p>
 <a name="user-content-update-repos"></a>
-<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto"><a href="#id14"><code>update-repos</code></a></h3><a id="user-content-update-repos" class="anchor" aria-label="Permalink: update-repos" href="#update-repos"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto"><a href="#id15"><code>update-repos</code></a></h3><a id="user-content-update-repos" class="anchor" aria-label="Permalink: update-repos" href="#update-repos"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">The <code>update-repos</code> command updates repository rules.  It can write the rules
 to either the WORKSPACE (by default) or a .bzl file macro function.  It can be
 used to add new repository rules or update existing rules to the specified
@@ -817,7 +841,7 @@ $ gazelle update-repos -from_file=go.work -to_macro=repositories.bzl%go_reposito
 </tbody>
 </table></markdown-accessiblity-table>
 <a name="user-content-directives"></a>
-<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto"><a href="#id15">Directives</a></h3><a id="user-content-directives" class="anchor" aria-label="Permalink: Directives" href="#directives"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto"><a href="#id16">Directives</a></h3><a id="user-content-directives" class="anchor" aria-label="Permalink: Directives" href="#directives"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">Gazelle can be configured with <em>directives</em>, which are written as top-level
 comments in build files. Most options that can be set on the command line
 can also be set using directives. Some options can only be set with
@@ -1283,7 +1307,7 @@ could be overriden with the directive:</p>
 </tbody>
 </table></markdown-accessiblity-table>
 <a name="user-content-keep-comments"></a>
-<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto"><a href="#id16">Keep comments</a></h3><a id="user-content-keep-comments" class="anchor" aria-label="Permalink: Keep comments" href="#keep-comments"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto"><a href="#id17">Keep comments</a></h3><a id="user-content-keep-comments" class="anchor" aria-label="Permalink: Keep comments" href="#keep-comments"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">In addition to directives, Gazelle supports <code># keep</code> comments that protect
 parts of build files from being modified. <code># keep</code> may be written before
 a rule, before an attribute, or after a string within a list.</p>
@@ -1330,7 +1354,7 @@ go_library(
     ],
 )</pre></div>
 <a name="user-content-dependency-resolution"></a>
-<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto"><a href="#id17">Dependency resolution</a></h2><a id="user-content-dependency-resolution" class="anchor" aria-label="Permalink: Dependency resolution" href="#dependency-resolution"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto"><a href="#id18">Dependency resolution</a></h2><a id="user-content-dependency-resolution" class="anchor" aria-label="Permalink: Dependency resolution" href="#dependency-resolution"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">One of Gazelle's most important jobs is resolving library import strings
 (like <code>import "golang.org/x/sys/unix"</code>) to Bazel labels (like
 <code>@org_golang_x_sys//unix:go_default_library</code>). Gazelle follows the rules
@@ -1394,7 +1418,7 @@ resolved using rule 4.</li>
 </li>
 </ol>
 <a name="user-content-fix-command-transformations"></a>
-<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto"><a href="#id18">Fix command transformations</a></h2><a id="user-content-fix-command-transformations" class="anchor" aria-label="Permalink: Fix command transformations" href="#fix-command-transformations"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto"><a href="#id19">Fix command transformations</a></h2><a id="user-content-fix-command-transformations" class="anchor" aria-label="Permalink: Fix command transformations" href="#fix-command-transformations"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">Gazelle will generate and update build files when invoked with either
 <code>gazelle update</code> or <code>gazelle fix</code> (<code>update</code> is the default). Both commands
 perform several transformations to fix deprecated usage of the Go rules.
