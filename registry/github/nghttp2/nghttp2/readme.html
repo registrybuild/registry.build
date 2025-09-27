@@ -1,0 +1,1528 @@
+<div id="readme" class="rst" data-path="README.rst"><article class="markdown-body entry-content container-lg" itemprop="text"><div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">nghttp2 - HTTP/2 C Library</h1><a id="user-content-nghttp2---http2-c-library" class="anchor" aria-label="Permalink: nghttp2 - HTTP/2 C Library" href="#nghttp2---http2-c-library"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">This is an implementation of the Hypertext Transfer Protocol version 2
+in C.</p>
+<p dir="auto">The framing layer of HTTP/2 is implemented as a reusable C library.
+On top of that, we have implemented an HTTP/2 client, server and
+proxy.  We have also developed load test and benchmarking tools for
+HTTP/2.</p>
+<p dir="auto">An HPACK encoder and decoder are available as a public API.</p>
+<a name="user-content-development-status"></a>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Development Status</h2><a id="user-content-development-status" class="anchor" aria-label="Permalink: Development Status" href="#development-status"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">nghttp2 was originally developed based on <a href="https://tools.ietf.org/html/rfc7540" rel="nofollow">RFC 7540</a> HTTP/2 and <a href="https://tools.ietf.org/html/rfc7541" rel="nofollow">RFC 7541</a> HPACK - Header Compression for
+HTTP/2.  Now we are updating our code to implement <a href="https://datatracker.ietf.org/doc/html/rfc9113" rel="nofollow">RFC 9113</a>.</p>
+<p dir="auto">The nghttp2 code base was forked from the spdylay
+(<a href="https://github.com/tatsuhiro-t/spdylay">https://github.com/tatsuhiro-t/spdylay</a>) project.</p>
+<a name="user-content-public-test-server"></a>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Public Test Server</h2><a id="user-content-public-test-server" class="anchor" aria-label="Permalink: Public Test Server" href="#public-test-server"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The following endpoints are available to try out our nghttp2
+implementation.</p>
+<ul dir="auto">
+<li><p dir="auto"><a href="https://nghttp2.org/" rel="nofollow">https://nghttp2.org/</a> (TLS + ALPN and HTTP/3)</p>
+<p dir="auto">This endpoint supports <code>h2</code> and <code>http/1.1</code> via ALPN and requires
+TLSv1.2 for HTTP/2 connection.</p>
+<p dir="auto">It also supports HTTP/3.</p>
+</li>
+<li><p dir="auto"><a href="http://nghttp2.org/" rel="nofollow">http://nghttp2.org/</a> (HTTP Upgrade and HTTP/2 Direct)</p>
+<p dir="auto"><code>h2c</code> and <code>http/1.1</code>.</p>
+</li>
+</ul>
+<a name="user-content-requirements"></a>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Requirements</h2><a id="user-content-requirements" class="anchor" aria-label="Permalink: Requirements" href="#requirements"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The following package is required to build the libnghttp2 library:</p>
+<ul dir="auto">
+<li>pkg-config &gt;= 0.20</li>
+</ul>
+<p dir="auto">To build the documentation, you need to install:</p>
+<ul dir="auto">
+<li>sphinx (<a href="http://sphinx-doc.org/" rel="nofollow">http://sphinx-doc.org/</a>)</li>
+</ul>
+<p dir="auto">If you need libnghttp2 (C library) only, then the above packages are
+all you need.  Use <code>--enable-lib-only</code> to ensure that only
+libnghttp2 is built.  This avoids potential build error related to
+building bundled applications.</p>
+<p dir="auto">To build and run the application programs (<code>nghttp</code>, <code>nghttpd</code>,
+<code>nghttpx</code> and <code>h2load</code>) in the <code>src</code> directory, the following packages
+are required:</p>
+<ul dir="auto">
+<li>OpenSSL &gt;= 1.1.1; or wolfSSL &gt;= 5.7.0; or LibreSSL &gt;= 3.8.1; or
+aws-lc &gt;= 1.19.0; or BoringSSL</li>
+<li>libev &gt;= 4.11</li>
+<li>zlib &gt;= 1.2.3</li>
+<li>libc-ares &gt;= 1.7.5</li>
+</ul>
+<p dir="auto">To enable <code>-a</code> option (getting linked assets from the downloaded
+resource) in <code>nghttp</code>, the following package is required:</p>
+<ul dir="auto">
+<li>libxml2 &gt;= 2.6.26</li>
+</ul>
+<p dir="auto">To enable systemd support in nghttpx, the following package is
+required:</p>
+<ul dir="auto">
+<li>libsystemd-dev &gt;= 209</li>
+</ul>
+<p dir="auto">The HPACK tools require the following package:</p>
+<ul dir="auto">
+<li>jansson &gt;= 2.5</li>
+</ul>
+<p dir="auto">To build sources under the examples directory, libevent is required:</p>
+<ul dir="auto">
+<li>libevent-openssl &gt;= 2.0.8</li>
+</ul>
+<p dir="auto">To mitigate heap fragmentation in long running server programs
+(<code>nghttpd</code> and <code>nghttpx</code>), jemalloc is recommended:</p>
+<ul dir="auto">
+<li><p dir="auto">jemalloc</p>
+<div dir="auto">
+<p dir="auto">Note</p>
+<p dir="auto">Alpine Linux currently does not support malloc replacement
+due to musl limitations. See details in issue <a href="https://github.com/nghttp2/nghttp2/issues/762" data-hovercard-type="issue" data-hovercard-url="/nghttp2/nghttp2/issues/762/hovercard">#762</a>.</p>
+</div>
+</li>
+</ul>
+<p dir="auto">For BoringSSL or aws-lc build, to enable <a href="http://tools.ietf.org/html/rfc8879.html" rel="nofollow">RFC 8879</a> TLS Certificate
+Compression in applications, the following library is required:</p>
+<ul dir="auto">
+<li>libbrotli-dev &gt;= 1.0.9</li>
+</ul>
+<p dir="auto">To enable mruby support for nghttpx, <a href="https://github.com/mruby/mruby">mruby</a> is required.  We need to build
+mruby with C++ ABI explicitly turned on, and probably need other
+mrgems, mruby is managed by git submodule under third-party/mruby
+directory.  Currently, mruby support for nghttpx is disabled by
+default.  To enable mruby support, use <code>--with-mruby</code> configure
+option.  Note that at the time of this writing, libmruby-dev and mruby
+packages in Debian/Ubuntu are not usable for nghttp2, since they do
+not enable C++ ABI.  To build mruby, the following packages are
+required:</p>
+<ul dir="auto">
+<li>ruby</li>
+<li>bison</li>
+</ul>
+<p dir="auto">nghttpx supports <a href="https://github.com/h2o/neverbleed">neverbleed</a>,
+privilege separation engine for OpenSSL.  In short, it minimizes the
+risk of private key leakage when serious bug like Heartbleed is
+exploited.  The neverbleed is disabled by default.  To enable it, use
+<code>--with-neverbleed</code> configure option.</p>
+<p dir="auto">To enable the experimental HTTP/3 support for h2load and nghttpx, the
+following libraries are required:</p>
+<ul dir="auto">
+<li><a href="https://github.com/quictls/openssl/tree/OpenSSL_1_1_1w+quic">quictls</a>; or
+wolfSSL; or LibreSSL (does not support 0RTT); or aws-lc; or
+<a href="https://boringssl.googlesource.com/boringssl/" rel="nofollow">BoringSSL</a> (commit
+fa47b1d0f9d3d30601d7e5ed158d3055cbe6ff44); or OpenSSL &gt;= 3.5.0</li>
+<li><a href="https://github.com/ngtcp2/ngtcp2">ngtcp2</a> &gt;= 1.16.0</li>
+<li><a href="https://github.com/ngtcp2/nghttp3">nghttp3</a> &gt;= 1.12.0</li>
+</ul>
+<p dir="auto">Use <code>--enable-http3</code> configure option to enable HTTP/3 feature for
+h2load and nghttpx.</p>
+<p dir="auto">In order to build optional eBPF program to direct an incoming QUIC UDP
+datagram to a correct socket for nghttpx, the following libraries are
+required:</p>
+<ul dir="auto">
+<li>libbpf-dev &gt;= 0.7.0</li>
+</ul>
+<p dir="auto">Use <code>--with-libbpf</code> configure option to build eBPF program.
+libelf-dev is needed to build libbpf.</p>
+<p dir="auto">For Ubuntu 20.04, you can build libbpf from <a href="https://github.com/libbpf/libbpf/releases">the source code</a>.  nghttpx requires eBPF
+program for reloading its configuration and hot swapping its
+executable.</p>
+<p dir="auto">Compiling libnghttp2 C source code requires a C99 compiler.  gcc 4.8
+is known to be adequate.  In order to compile the C++ source code,
+C++20 compliant compiler is required.  At least g++ &gt;= 12 and
+clang++ &gt;= 18 are known to work.</p>
+<div dir="auto">
+<p dir="auto">Note</p>
+<p dir="auto">To enable mruby support in nghttpx, and use <code>--with-mruby</code>
+configure option.</p>
+</div>
+<div dir="auto">
+<p dir="auto">Note</p>
+<p dir="auto">Mac OS X users may need the <code>--disable-threads</code> configure option to
+disable multi-threading in nghttpd, nghttpx and h2load to prevent
+them from crashing. A patch is welcome to make multi threading work
+on Mac OS X platform.</p>
+</div>
+<div dir="auto">
+<p dir="auto">Note</p>
+<p dir="auto">To compile the associated applications (nghttp, nghttpd, nghttpx
+and h2load), you must use the <code>--enable-app</code> configure option and
+ensure that the specified requirements above are met.  Normally,
+configure script checks required dependencies to build these
+applications, and enable <code>--enable-app</code> automatically, so you
+don't have to use it explicitly.  But if you found that
+applications were not built, then using <code>--enable-app</code> may find
+that cause, such as the missing dependency.</p>
+</div>
+<div dir="auto">
+<p dir="auto">Note</p>
+<p dir="auto">In order to detect third party libraries, pkg-config is used
+(however we don't use pkg-config for some libraries (e.g., libev)).
+By default, pkg-config searches <code>*.pc</code> file in the standard
+locations (e.g., /usr/lib/pkgconfig).  If it is necessary to use
+<code>*.pc</code> file in the custom location, specify paths to
+<code>PKG_CONFIG_PATH</code> environment variable, and pass it to configure
+script, like so:</p>
+<pre lang="text">$ ./configure PKG_CONFIG_PATH=/path/to/pkgconfig
+</pre>
+<p dir="auto">For pkg-config managed libraries, <code>*_CFLAG</code> and <code>*_LIBS</code>
+environment variables are defined (e.g., <code>OPENSSL_CFLAGS</code>,
+<code>OPENSSL_LIBS</code>).  Specifying non-empty string to these variables
+completely overrides pkg-config.  In other words, if they are
+specified, pkg-config is not used for detection, and user is
+responsible to specify the correct values to these variables.  For
+complete list of these variables, run <code>./configure -h</code>.</p>
+</div>
+<p dir="auto">If you are using Ubuntu 22.04 LTS, run the following to install the
+required packages:</p>
+<pre lang="text">sudo apt-get install g++ clang make binutils autoconf automake \
+  autotools-dev libtool pkg-config \
+  zlib1g-dev libssl-dev libxml2-dev libev-dev \
+  libevent-dev libjansson-dev \
+  libc-ares-dev libjemalloc-dev libsystemd-dev \
+  ruby-dev bison libelf-dev
+</pre>
+<a name="user-content-building-nghttp2-from-release-tar-archive"></a>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Building nghttp2 from release tar archive</h2><a id="user-content-building-nghttp2-from-release-tar-archive" class="anchor" aria-label="Permalink: Building nghttp2 from release tar archive" href="#building-nghttp2-from-release-tar-archive"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The nghttp2 project regularly releases tar archives which includes
+nghttp2 source code, and generated build files.  They can be
+downloaded from <a href="https://github.com/nghttp2/nghttp2/releases">Releases</a> page.</p>
+<p dir="auto">Building nghttp2 from git requires autotools development packages.
+Building from tar archives does not require them, and thus it is much
+easier.  The usual build step is as follows:</p>
+<pre lang="text">$ tar xf nghttp2-X.Y.Z.tar.bz2
+$ cd nghttp2-X.Y.Z
+$ ./configure
+$ make
+</pre>
+<a name="user-content-building-from-git"></a>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Building from git</h2><a id="user-content-building-from-git" class="anchor" aria-label="Permalink: Building from git" href="#building-from-git"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Building from git is easy, but please be sure that at least autoconf 2.68 is
+used:</p>
+<pre lang="text">$ git submodule update --init
+$ autoreconf -i
+$ automake
+$ autoconf
+$ ./configure
+$ make
+</pre>
+<a name="user-content-notes-for-building-on-windows-msvc"></a>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Notes for building on Windows (MSVC)</h2><a id="user-content-notes-for-building-on-windows-msvc" class="anchor" aria-label="Permalink: Notes for building on Windows (MSVC)" href="#notes-for-building-on-windows-msvc"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The easiest way to build native Windows nghttp2 dll is use <a href="https://cmake.org/" rel="nofollow">cmake</a>.  The free version of <a href="http://landinghub.visualstudio.com/visual-cpp-build-tools" rel="nofollow">Visual C++ Build Tools</a> works
+fine.</p>
+<ol dir="auto">
+<li>Install cmake for windows</li>
+<li>Open "Visual C++ ... Native Build Tool Command Prompt", and inside
+nghttp2 directly, run <code>cmake</code>.</li>
+<li>Then run <code>cmake --build</code> to build library.</li>
+<li>nghttp2.dll, nghttp2.lib, nghttp2.exp are placed under lib directory.</li>
+</ol>
+<p dir="auto">Note that the above steps most likely produce nghttp2 library only.
+No bundled applications are compiled.</p>
+<a name="user-content-notes-for-building-on-windows-mingw-cygwin"></a>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Notes for building on Windows (Mingw/Cygwin)</h2><a id="user-content-notes-for-building-on-windows-mingwcygwin" class="anchor" aria-label="Permalink: Notes for building on Windows (Mingw/Cygwin)" href="#notes-for-building-on-windows-mingwcygwin"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Under Mingw environment, you can only compile the library, it's
+<code>libnghttp2-X.dll</code> and <code>libnghttp2.a</code>.</p>
+<p dir="auto">If you want to compile the applications(<code>h2load</code>, <code>nghttp</code>,
+<code>nghttpx</code>, <code>nghttpd</code>), you need to use the Cygwin environment.</p>
+<p dir="auto">Under Cygwin environment, to compile the applications you need to
+compile and install the libev first.</p>
+<p dir="auto">Secondly, you need to undefine the macro <code>__STRICT_ANSI__</code>, if you
+not, the functions <code>fdopen</code>, <code>fileno</code> and <code>strptime</code> will not
+available.</p>
+<p dir="auto">the sample command like this:</p>
+<pre lang="text">$ export CFLAGS="-U__STRICT_ANSI__ -I$libev_PREFIX/include -L$libev_PREFIX/lib"
+$ export CXXFLAGS=$CFLAGS
+$ ./configure
+$ make
+</pre>
+<p dir="auto">If you want to compile the applications under <code>examples/</code>, you need
+to remove or rename the <code>event.h</code> from libev's installation, because
+it conflicts with libevent's installation.</p>
+<a name="user-content-notes-for-installation-on-linux-systems"></a>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Notes for installation on Linux systems</h2><a id="user-content-notes-for-installation-on-linux-systems" class="anchor" aria-label="Permalink: Notes for installation on Linux systems" href="#notes-for-installation-on-linux-systems"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">After installing nghttp2 tool suite with <code>make install</code> one might experience a similar error:</p>
+<pre lang="text">nghttpx: error while loading shared libraries: libnghttp2.so.14: cannot open shared object file: No such file or directory
+</pre>
+<p dir="auto">This means that the tool is unable to locate the <code>libnghttp2.so</code> shared library.</p>
+<p dir="auto">To update the shared library cache run <code>sudo ldconfig</code>.</p>
+<a name="user-content-building-the-documentation"></a>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Building the documentation</h2><a id="user-content-building-the-documentation" class="anchor" aria-label="Permalink: Building the documentation" href="#building-the-documentation"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div dir="auto">
+<p dir="auto">Note</p>
+<p dir="auto">Documentation is still incomplete.</p>
+</div>
+<p dir="auto">To build the documentation, run:</p>
+<pre lang="text">$ make html
+</pre>
+<p dir="auto">The documents will be generated under <code>doc/manual/html/</code>.</p>
+<p dir="auto">The generated documents will not be installed with <code>make install</code>.</p>
+<p dir="auto">The online documentation is available at
+<a href="https://nghttp2.org/documentation/" rel="nofollow">https://nghttp2.org/documentation/</a></p>
+<a name="user-content-build-http-3-enabled-h2load-and-nghttpx"></a>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Build HTTP/3 enabled h2load and nghttpx</h2><a id="user-content-build-http3-enabled-h2load-and-nghttpx" class="anchor" aria-label="Permalink: Build HTTP/3 enabled h2load and nghttpx" href="#build-http3-enabled-h2load-and-nghttpx"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">To build h2load and nghttpx with HTTP/3 feature enabled, run the
+configure script with <code>--enable-http3</code>.</p>
+<p dir="auto">For nghttpx to reload configurations and swapping its executable while
+gracefully terminating old worker processes, eBPF is required.  Run
+the configure script with <code>--enable-http3 --with-libbpf</code> to build
+eBPF program.  The QUIC keying material must be set with
+<code>--frontend-quic-secret-file</code> in order to keep the existing
+connections alive during reload.</p>
+<p dir="auto">The detailed steps to build HTTP/3 enabled h2load and nghttpx follow.</p>
+<p dir="auto">Build aws-lc:</p>
+<pre lang="text">$ git clone --depth 1 -b v1.61.2 https://github.com/aws/aws-lc
+$ cd aws-lc
+$ cmake -B build -DDISABLE_GO=ON --install-prefix=$PWD/opt
+$ make -j$(nproc) -C build
+$ cmake --install build
+$ cd ..
+</pre>
+<p dir="auto">Build nghttp3:</p>
+<pre lang="text">$ git clone --depth 1 -b v1.12.0 https://github.com/ngtcp2/nghttp3
+$ cd nghttp3
+$ git submodule update --init --depth 1
+$ autoreconf -i
+$ ./configure --prefix=$PWD/build --enable-lib-only
+$ make -j$(nproc)
+$ make install
+$ cd ..
+</pre>
+<p dir="auto">Build ngtcp2:</p>
+<pre lang="text">$ git clone --depth 1 -b v1.16.0 https://github.com/ngtcp2/ngtcp2
+$ cd ngtcp2
+$ git submodule update --init --depth 1
+$ autoreconf -i
+$ ./configure --prefix=$PWD/build --enable-lib-only --with-boringssl \
+      BORINGSSL_CFLAGS="-I$PWD/../aws-lc/opt/include" \
+      BORINGSSL_LIBS="-L$PWD/../aws-lc/opt/lib -lssl -lcrypto"
+$ make -j$(nproc)
+$ make install
+$ cd ..
+</pre>
+<p dir="auto">If your Linux distribution does not have libbpf-dev &gt;= 0.7.0, build
+from source:</p>
+<pre lang="text">$ git clone --depth 1 -b v1.6.2 https://github.com/libbpf/libbpf
+$ cd libbpf
+$ PREFIX=$PWD/build make -C src install
+$ cd ..
+</pre>
+<p dir="auto">Build nghttp2:</p>
+<pre lang="text">$ git clone https://github.com/nghttp2/nghttp2
+$ cd nghttp2
+$ git submodule update --init
+$ autoreconf -i
+$ ./configure --with-mruby --enable-http3 --with-libbpf \
+      CC=clang-19 CXX=clang++-19 \
+      PKG_CONFIG_PATH="$PWD/../aws-lc/opt/lib/pkgconfig:$PWD/../nghttp3/build/lib/pkgconfig:$PWD/../ngtcp2/build/lib/pkgconfig:$PWD/../libbpf/build/lib64/pkgconfig" \
+      LDFLAGS="$LDFLAGS -Wl,-rpath,$PWD/../aws-lc/opt/lib -Wl,-rpath,$PWD/../libbpf/build/lib64"
+$ make -j$(nproc)
+</pre>
+<p dir="auto">The eBPF program <code>reuseport_kern.o</code> should be found under bpf
+directory.  Pass <code>--quic-bpf-program-file=bpf/reuseport_kern.o</code>
+option to nghttpx to load it.  See also <a href="https://nghttp2.org/documentation/nghttpx-howto.html#http-3" rel="nofollow">HTTP/3 section in nghttpx -
+HTTP/2 proxy - HOW-TO</a>.</p>
+<a name="user-content-unit-tests"></a>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Unit tests</h2><a id="user-content-unit-tests" class="anchor" aria-label="Permalink: Unit tests" href="#unit-tests"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Unit tests are done by simply running <code>make check</code>.</p>
+<a name="user-content-integration-tests"></a>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Integration tests</h2><a id="user-content-integration-tests" class="anchor" aria-label="Permalink: Integration tests" href="#integration-tests"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">We have the integration tests for the nghttpx proxy server.  The tests are
+written in the <a href="http://golang.org/" rel="nofollow">Go programming language</a> and uses
+its testing framework.  We depend on the following libraries:</p>
+<ul dir="auto">
+<li>golang.org/x/net/http2</li>
+<li>golang.org/x/net/websocket</li>
+<li><a href="https://github.com/tatsuhiro-t/go-nghttp2">https://github.com/tatsuhiro-t/go-nghttp2</a></li>
+</ul>
+<p dir="auto">Go modules will download these dependencies automatically.</p>
+<p dir="auto">To run the tests, run the following command under
+<code>integration-tests</code> directory:</p>
+<pre lang="text">$ make it
+</pre>
+<p dir="auto">Inside the tests, we use port 3009 to run the test subject server.</p>
+<a name="user-content-migration-from-v0-7-15-or-earlier"></a>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Migration from v0.7.15 or earlier</h2><a id="user-content-migration-from-v0715-or-earlier" class="anchor" aria-label="Permalink: Migration from v0.7.15 or earlier" href="#migration-from-v0715-or-earlier"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">nghttp2 v1.0.0 introduced several backward incompatible changes.  In
+this section, we describe these changes and how to migrate to v1.0.0.</p>
+<a name="user-content-alpn-protocol-id-is-now-h2-and-h2c"></a>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">ALPN protocol ID is now <code>h2</code> and <code>h2c</code></h3><a id="user-content-alpn-protocol-id-is-now-h2-and-h2c" class="anchor" aria-label="Permalink: ALPN protocol ID is now h2 and h2c" href="#alpn-protocol-id-is-now-h2-and-h2c"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Previously we announced <code>h2-14</code> and <code>h2c-14</code>.  v1.0.0 implements
+final protocol version, and we changed ALPN ID to <code>h2</code> and <code>h2c</code>.
+The macros <code>NGHTTP2_PROTO_VERSION_ID</code>,
+<code>NGHTTP2_PROTO_VERSION_ID_LEN</code>,
+<code>NGHTTP2_CLEARTEXT_PROTO_VERSION_ID</code>, and
+<code>NGHTTP2_CLEARTEXT_PROTO_VERSION_ID_LEN</code> have been updated to
+reflect this change.</p>
+<p dir="auto">Basically, existing applications do not have to do anything, just
+recompiling is enough for this change.</p>
+<a name="user-content-use-word-client-magic-where-we-use-client-connection-preface"></a>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Use word "client magic" where we use "client connection preface"</h3><a id="user-content-use-word-client-magic-where-we-use-client-connection-preface" class="anchor" aria-label="Permalink: Use word &quot;client magic&quot; where we use &quot;client connection preface&quot;" href="#use-word-client-magic-where-we-use-client-connection-preface"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">We use "client connection preface" to mean first 24 bytes of client
+connection preface.  This is technically not correct, since client
+connection preface is composed of 24 bytes client magic byte string
+followed by SETTINGS frame.  For clarification, we call "client magic"
+for this 24 bytes byte string and updated API.</p>
+<ul dir="auto">
+<li><code>NGHTTP2_CLIENT_CONNECTION_PREFACE</code> was replaced with
+<code>NGHTTP2_CLIENT_MAGIC</code>.</li>
+<li><code>NGHTTP2_CLIENT_CONNECTION_PREFACE_LEN</code> was replaced with
+<code>NGHTTP2_CLIENT_MAGIC_LEN</code>.</li>
+<li><code>NGHTTP2_BAD_PREFACE</code> was renamed as <code>NGHTTP2_BAD_CLIENT_MAGIC</code></li>
+</ul>
+<p dir="auto">The already deprecated <code>NGHTTP2_CLIENT_CONNECTION_HEADER</code> and
+<code>NGHTTP2_CLIENT_CONNECTION_HEADER_LEN</code> were removed.</p>
+<p dir="auto">If application uses these macros, just replace old ones with new ones.
+Since v1.0.0, client magic is sent by library (see next subsection),
+so client application may just remove these macro use.</p>
+<a name="user-content-client-magic-is-sent-by-library"></a>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Client magic is sent by library</h3><a id="user-content-client-magic-is-sent-by-library" class="anchor" aria-label="Permalink: Client magic is sent by library" href="#client-magic-is-sent-by-library"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Previously nghttp2 library did not send client magic, which is first
+24 bytes byte string of client connection preface, and client
+applications have to send it by themselves.  Since v1.0.0, client
+magic is sent by library via first call of <code>nghttp2_session_send()</code>
+or <code>nghttp2_session_mem_send2()</code>.</p>
+<p dir="auto">The client applications which send client magic must remove the
+relevant code.</p>
+<a name="user-content-remove-http-alternative-services-alt-svc-related-code"></a>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Remove HTTP Alternative Services (Alt-Svc) related code</h3><a id="user-content-remove-http-alternative-services-alt-svc-related-code" class="anchor" aria-label="Permalink: Remove HTTP Alternative Services (Alt-Svc) related code" href="#remove-http-alternative-services-alt-svc-related-code"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Alt-Svc specification is not finalized yet.  To make our API stable,
+we have decided to remove all Alt-Svc related API from nghttp2.</p>
+<ul dir="auto">
+<li><code>NGHTTP2_EXT_ALTSVC</code> was removed.</li>
+<li><code>nghttp2_ext_altsvc</code> was removed.</li>
+</ul>
+<p dir="auto">We have already removed the functionality of Alt-Svc in v0.7 series
+and they have been essentially noop.  The application using these
+macro and struct, remove those lines.</p>
+<a name="user-content-use-nghttp2-error-in-nghttp2-on-invalid-frame-recv-callback"></a>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Use nghttp2_error in nghttp2_on_invalid_frame_recv_callback</h3><a id="user-content-use-nghttp2_error-in-nghttp2_on_invalid_frame_recv_callback" class="anchor" aria-label="Permalink: Use nghttp2_error in nghttp2_on_invalid_frame_recv_callback" href="#use-nghttp2_error-in-nghttp2_on_invalid_frame_recv_callback"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Previously <code>nghttp2_on_invalid_frame_recv_cb_called</code> took the
+<code>error_code</code>, defined in <code>nghttp2_error_code</code>, as parameter.  But
+they are not detailed enough to debug.  Therefore, we decided to use
+more detailed <code>nghttp2_error</code> values instead.</p>
+<p dir="auto">The application using this callback should update the callback
+signature.  If it treats <code>error_code</code> as HTTP/2 error code, update
+the code so that it is treated as <code>nghttp2_error</code>.</p>
+<a name="user-content-receive-client-magic-by-default"></a>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Receive client magic by default</h3><a id="user-content-receive-client-magic-by-default" class="anchor" aria-label="Permalink: Receive client magic by default" href="#receive-client-magic-by-default"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Previously nghttp2 did not process client magic (24 bytes byte
+string).  To make it deal with it, we had to use
+<code>nghttp2_option_set_recv_client_preface()</code>.  Since v1.0.0, nghttp2
+processes client magic by default and
+<code>nghttp2_option_set_recv_client_preface()</code> was removed.</p>
+<p dir="auto">Some application may want to disable this behaviour, so we added
+<code>nghttp2_option_set_no_recv_client_magic()</code> to achieve this.</p>
+<p dir="auto">The application using <code>nghttp2_option_set_recv_client_preface()</code>
+with nonzero value, just remove it.</p>
+<p dir="auto">The application using <code>nghttp2_option_set_recv_client_preface()</code>
+with zero value or not using it must use
+<code>nghttp2_option_set_no_recv_client_magic()</code> with nonzero value.</p>
+<a name="user-content-client-server-and-proxy-programs"></a>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Client, Server and Proxy programs</h2><a id="user-content-client-server-and-proxy-programs" class="anchor" aria-label="Permalink: Client, Server and Proxy programs" href="#client-server-and-proxy-programs"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The <code>src</code> directory contains the HTTP/2 client, server and proxy programs.</p>
+<a name="user-content-nghttp-client"></a>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">nghttp - client</h3><a id="user-content-nghttp---client" class="anchor" aria-label="Permalink: nghttp - client" href="#nghttp---client"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><code>nghttp</code> is a HTTP/2 client.  It can connect to the HTTP/2 server
+with prior knowledge, HTTP Upgrade and ALPN TLS extension.</p>
+<p dir="auto">It has verbose output mode for framing information.  Here is sample
+output from <code>nghttp</code> client:</p>
+<pre lang="text">$ nghttp -nv https://nghttp2.org
+[  0.190] Connected
+The negotiated protocol: h2
+[  0.212] recv SETTINGS frame &lt;length=12, flags=0x00, stream_id=0&gt;
+          (niv=2)
+          [SETTINGS_MAX_CONCURRENT_STREAMS(0x03):100]
+          [SETTINGS_INITIAL_WINDOW_SIZE(0x04):65535]
+[  0.212] send SETTINGS frame &lt;length=12, flags=0x00, stream_id=0&gt;
+          (niv=2)
+          [SETTINGS_MAX_CONCURRENT_STREAMS(0x03):100]
+          [SETTINGS_INITIAL_WINDOW_SIZE(0x04):65535]
+[  0.212] send SETTINGS frame &lt;length=0, flags=0x01, stream_id=0&gt;
+          ; ACK
+          (niv=0)
+[  0.212] send PRIORITY frame &lt;length=5, flags=0x00, stream_id=3&gt;
+          (dep_stream_id=0, weight=201, exclusive=0)
+[  0.212] send PRIORITY frame &lt;length=5, flags=0x00, stream_id=5&gt;
+          (dep_stream_id=0, weight=101, exclusive=0)
+[  0.212] send PRIORITY frame &lt;length=5, flags=0x00, stream_id=7&gt;
+          (dep_stream_id=0, weight=1, exclusive=0)
+[  0.212] send PRIORITY frame &lt;length=5, flags=0x00, stream_id=9&gt;
+          (dep_stream_id=7, weight=1, exclusive=0)
+[  0.212] send PRIORITY frame &lt;length=5, flags=0x00, stream_id=11&gt;
+          (dep_stream_id=3, weight=1, exclusive=0)
+[  0.212] send HEADERS frame &lt;length=39, flags=0x25, stream_id=13&gt;
+          ; END_STREAM | END_HEADERS | PRIORITY
+          (padlen=0, dep_stream_id=11, weight=16, exclusive=0)
+          ; Open new stream
+          :method: GET
+          :path: /
+          :scheme: https
+          :authority: nghttp2.org
+          accept: */*
+          accept-encoding: gzip, deflate
+          user-agent: nghttp2/1.0.1-DEV
+[  0.221] recv SETTINGS frame &lt;length=0, flags=0x01, stream_id=0&gt;
+          ; ACK
+          (niv=0)
+[  0.221] recv (stream_id=13) :method: GET
+[  0.221] recv (stream_id=13) :scheme: https
+[  0.221] recv (stream_id=13) :path: /stylesheets/screen.css
+[  0.221] recv (stream_id=13) :authority: nghttp2.org
+[  0.221] recv (stream_id=13) accept-encoding: gzip, deflate
+[  0.222] recv (stream_id=13) user-agent: nghttp2/1.0.1-DEV
+[  0.222] recv PUSH_PROMISE frame &lt;length=50, flags=0x04, stream_id=13&gt;
+          ; END_HEADERS
+          (padlen=0, promised_stream_id=2)
+[  0.222] recv (stream_id=13) :status: 200
+[  0.222] recv (stream_id=13) date: Thu, 21 May 2015 16:38:14 GMT
+[  0.222] recv (stream_id=13) content-type: text/html
+[  0.222] recv (stream_id=13) last-modified: Fri, 15 May 2015 15:38:06 GMT
+[  0.222] recv (stream_id=13) etag: W/"555612de-19f6"
+[  0.222] recv (stream_id=13) link: &lt;/stylesheets/screen.css&gt;; rel=preload; as=stylesheet
+[  0.222] recv (stream_id=13) content-encoding: gzip
+[  0.222] recv (stream_id=13) server: nghttpx nghttp2/1.0.1-DEV
+[  0.222] recv (stream_id=13) via: 1.1 nghttpx
+[  0.222] recv (stream_id=13) strict-transport-security: max-age=31536000
+[  0.222] recv HEADERS frame &lt;length=166, flags=0x04, stream_id=13&gt;
+          ; END_HEADERS
+          (padlen=0)
+          ; First response header
+[  0.222] recv DATA frame &lt;length=2601, flags=0x01, stream_id=13&gt;
+          ; END_STREAM
+[  0.222] recv (stream_id=2) :status: 200
+[  0.222] recv (stream_id=2) date: Thu, 21 May 2015 16:38:14 GMT
+[  0.222] recv (stream_id=2) content-type: text/css
+[  0.222] recv (stream_id=2) last-modified: Fri, 15 May 2015 15:38:06 GMT
+[  0.222] recv (stream_id=2) etag: W/"555612de-9845"
+[  0.222] recv (stream_id=2) content-encoding: gzip
+[  0.222] recv (stream_id=2) server: nghttpx nghttp2/1.0.1-DEV
+[  0.222] recv (stream_id=2) via: 1.1 nghttpx
+[  0.222] recv (stream_id=2) strict-transport-security: max-age=31536000
+[  0.222] recv HEADERS frame &lt;length=32, flags=0x04, stream_id=2&gt;
+          ; END_HEADERS
+          (padlen=0)
+          ; First push response header
+[  0.228] recv DATA frame &lt;length=8715, flags=0x01, stream_id=2&gt;
+          ; END_STREAM
+[  0.228] send GOAWAY frame &lt;length=8, flags=0x00, stream_id=0&gt;
+          (last_stream_id=2, error_code=NO_ERROR(0x00), opaque_data(0)=[])
+</pre>
+<p dir="auto">The HTTP Upgrade is performed like so:</p>
+<pre lang="text">$ nghttp -nvu http://nghttp2.org
+[  0.011] Connected
+[  0.011] HTTP Upgrade request
+GET / HTTP/1.1
+Host: nghttp2.org
+Connection: Upgrade, HTTP2-Settings
+Upgrade: h2c
+HTTP2-Settings: AAMAAABkAAQAAP__
+Accept: */*
+User-Agent: nghttp2/1.0.1-DEV
+
+
+[  0.018] HTTP Upgrade response
+HTTP/1.1 101 Switching Protocols
+Connection: Upgrade
+Upgrade: h2c
+
+
+[  0.018] HTTP Upgrade success
+[  0.018] recv SETTINGS frame &lt;length=12, flags=0x00, stream_id=0&gt;
+          (niv=2)
+          [SETTINGS_MAX_CONCURRENT_STREAMS(0x03):100]
+          [SETTINGS_INITIAL_WINDOW_SIZE(0x04):65535]
+[  0.018] send SETTINGS frame &lt;length=12, flags=0x00, stream_id=0&gt;
+          (niv=2)
+          [SETTINGS_MAX_CONCURRENT_STREAMS(0x03):100]
+          [SETTINGS_INITIAL_WINDOW_SIZE(0x04):65535]
+[  0.018] send SETTINGS frame &lt;length=0, flags=0x01, stream_id=0&gt;
+          ; ACK
+          (niv=0)
+[  0.018] send PRIORITY frame &lt;length=5, flags=0x00, stream_id=3&gt;
+          (dep_stream_id=0, weight=201, exclusive=0)
+[  0.018] send PRIORITY frame &lt;length=5, flags=0x00, stream_id=5&gt;
+          (dep_stream_id=0, weight=101, exclusive=0)
+[  0.018] send PRIORITY frame &lt;length=5, flags=0x00, stream_id=7&gt;
+          (dep_stream_id=0, weight=1, exclusive=0)
+[  0.018] send PRIORITY frame &lt;length=5, flags=0x00, stream_id=9&gt;
+          (dep_stream_id=7, weight=1, exclusive=0)
+[  0.018] send PRIORITY frame &lt;length=5, flags=0x00, stream_id=11&gt;
+          (dep_stream_id=3, weight=1, exclusive=0)
+[  0.018] send PRIORITY frame &lt;length=5, flags=0x00, stream_id=1&gt;
+          (dep_stream_id=11, weight=16, exclusive=0)
+[  0.019] recv (stream_id=1) :method: GET
+[  0.019] recv (stream_id=1) :scheme: http
+[  0.019] recv (stream_id=1) :path: /stylesheets/screen.css
+[  0.019] recv (stream_id=1) host: nghttp2.org
+[  0.019] recv (stream_id=1) user-agent: nghttp2/1.0.1-DEV
+[  0.019] recv PUSH_PROMISE frame &lt;length=49, flags=0x04, stream_id=1&gt;
+          ; END_HEADERS
+          (padlen=0, promised_stream_id=2)
+[  0.019] recv (stream_id=1) :status: 200
+[  0.019] recv (stream_id=1) date: Thu, 21 May 2015 16:39:16 GMT
+[  0.019] recv (stream_id=1) content-type: text/html
+[  0.019] recv (stream_id=1) content-length: 6646
+[  0.019] recv (stream_id=1) last-modified: Fri, 15 May 2015 15:38:06 GMT
+[  0.019] recv (stream_id=1) etag: "555612de-19f6"
+[  0.019] recv (stream_id=1) link: &lt;/stylesheets/screen.css&gt;; rel=preload; as=stylesheet
+[  0.019] recv (stream_id=1) accept-ranges: bytes
+[  0.019] recv (stream_id=1) server: nghttpx nghttp2/1.0.1-DEV
+[  0.019] recv (stream_id=1) via: 1.1 nghttpx
+[  0.019] recv HEADERS frame &lt;length=157, flags=0x04, stream_id=1&gt;
+          ; END_HEADERS
+          (padlen=0)
+          ; First response header
+[  0.019] recv DATA frame &lt;length=6646, flags=0x01, stream_id=1&gt;
+          ; END_STREAM
+[  0.019] recv (stream_id=2) :status: 200
+[  0.019] recv (stream_id=2) date: Thu, 21 May 2015 16:39:16 GMT
+[  0.019] recv (stream_id=2) content-type: text/css
+[  0.019] recv (stream_id=2) content-length: 38981
+[  0.019] recv (stream_id=2) last-modified: Fri, 15 May 2015 15:38:06 GMT
+[  0.019] recv (stream_id=2) etag: "555612de-9845"
+[  0.019] recv (stream_id=2) accept-ranges: bytes
+[  0.019] recv (stream_id=2) server: nghttpx nghttp2/1.0.1-DEV
+[  0.019] recv (stream_id=2) via: 1.1 nghttpx
+[  0.019] recv HEADERS frame &lt;length=36, flags=0x04, stream_id=2&gt;
+          ; END_HEADERS
+          (padlen=0)
+          ; First push response header
+[  0.026] recv DATA frame &lt;length=16384, flags=0x00, stream_id=2&gt;
+[  0.027] recv DATA frame &lt;length=7952, flags=0x00, stream_id=2&gt;
+[  0.027] send WINDOW_UPDATE frame &lt;length=4, flags=0x00, stream_id=0&gt;
+          (window_size_increment=33343)
+[  0.032] send WINDOW_UPDATE frame &lt;length=4, flags=0x00, stream_id=2&gt;
+          (window_size_increment=33707)
+[  0.032] recv DATA frame &lt;length=14645, flags=0x01, stream_id=2&gt;
+          ; END_STREAM
+[  0.032] recv SETTINGS frame &lt;length=0, flags=0x01, stream_id=0&gt;
+          ; ACK
+          (niv=0)
+[  0.032] send GOAWAY frame &lt;length=8, flags=0x00, stream_id=0&gt;
+          (last_stream_id=2, error_code=NO_ERROR(0x00), opaque_data(0)=[])
+</pre>
+<p dir="auto">Using the <code>-s</code> option, <code>nghttp</code> prints out some timing information for
+requests, sorted by completion time:</p>
+<pre lang="text">$ nghttp -nas https://nghttp2.org/
+***** Statistics *****
+
+Request timing:
+  responseEnd: the  time  when  last  byte of  response  was  received
+               relative to connectEnd
+ requestStart: the time  just before  first byte  of request  was sent
+               relative  to connectEnd.   If  '*' is  shown, this  was
+               pushed by server.
+      process: responseEnd - requestStart
+         code: HTTP status code
+         size: number  of  bytes  received as  response  body  without
+               inflation.
+          URI: request URI
+
+see http://www.w3.org/TR/resource-timing/#processing-model
+
+sorted by 'complete'
+
+id  responseEnd requestStart  process code size request path
+ 13    +37.19ms       +280us  36.91ms  200   2K /
+  2    +72.65ms *   +36.38ms  36.26ms  200   8K /stylesheets/screen.css
+ 17    +77.43ms     +38.67ms  38.75ms  200   3K /javascripts/octopress.js
+ 15    +78.12ms     +38.66ms  39.46ms  200   3K /javascripts/modernizr-2.0.js
+</pre>
+<p dir="auto">Using the <code>-r</code> option, <code>nghttp</code> writes more detailed timing data to
+the given file in HAR format.</p>
+<a name="user-content-nghttpd-server"></a>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">nghttpd - server</h3><a id="user-content-nghttpd---server" class="anchor" aria-label="Permalink: nghttpd - server" href="#nghttpd---server"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><code>nghttpd</code> is a multi-threaded static web server.</p>
+<p dir="auto">By default, it uses SSL/TLS connection.  Use <code>--no-tls</code> option to
+disable it.</p>
+<p dir="auto"><code>nghttpd</code> only accepts HTTP/2 connections via ALPN or direct HTTP/2
+connections.  No HTTP Upgrade is supported.</p>
+<p dir="auto">The <code>-p</code> option allows users to configure server push.</p>
+<p dir="auto">Just like <code>nghttp</code>, it has a verbose output mode for framing
+information.  Here is sample output from <code>nghttpd</code>:</p>
+<pre lang="text">$ nghttpd --no-tls -v 8080
+IPv4: listen 0.0.0.0:8080
+IPv6: listen :::8080
+[id=1] [  1.521] send SETTINGS frame &lt;length=6, flags=0x00, stream_id=0&gt;
+          (niv=1)
+          [SETTINGS_MAX_CONCURRENT_STREAMS(0x03):100]
+[id=1] [  1.521] recv SETTINGS frame &lt;length=12, flags=0x00, stream_id=0&gt;
+          (niv=2)
+          [SETTINGS_MAX_CONCURRENT_STREAMS(0x03):100]
+          [SETTINGS_INITIAL_WINDOW_SIZE(0x04):65535]
+[id=1] [  1.521] recv SETTINGS frame &lt;length=0, flags=0x01, stream_id=0&gt;
+          ; ACK
+          (niv=0)
+[id=1] [  1.521] recv PRIORITY frame &lt;length=5, flags=0x00, stream_id=3&gt;
+          (dep_stream_id=0, weight=201, exclusive=0)
+[id=1] [  1.521] recv PRIORITY frame &lt;length=5, flags=0x00, stream_id=5&gt;
+          (dep_stream_id=0, weight=101, exclusive=0)
+[id=1] [  1.521] recv PRIORITY frame &lt;length=5, flags=0x00, stream_id=7&gt;
+          (dep_stream_id=0, weight=1, exclusive=0)
+[id=1] [  1.521] recv PRIORITY frame &lt;length=5, flags=0x00, stream_id=9&gt;
+          (dep_stream_id=7, weight=1, exclusive=0)
+[id=1] [  1.521] recv PRIORITY frame &lt;length=5, flags=0x00, stream_id=11&gt;
+          (dep_stream_id=3, weight=1, exclusive=0)
+[id=1] [  1.521] recv (stream_id=13) :method: GET
+[id=1] [  1.521] recv (stream_id=13) :path: /
+[id=1] [  1.521] recv (stream_id=13) :scheme: http
+[id=1] [  1.521] recv (stream_id=13) :authority: localhost:8080
+[id=1] [  1.521] recv (stream_id=13) accept: */*
+[id=1] [  1.521] recv (stream_id=13) accept-encoding: gzip, deflate
+[id=1] [  1.521] recv (stream_id=13) user-agent: nghttp2/1.0.0-DEV
+[id=1] [  1.521] recv HEADERS frame &lt;length=41, flags=0x25, stream_id=13&gt;
+          ; END_STREAM | END_HEADERS | PRIORITY
+          (padlen=0, dep_stream_id=11, weight=16, exclusive=0)
+          ; Open new stream
+[id=1] [  1.521] send SETTINGS frame &lt;length=0, flags=0x01, stream_id=0&gt;
+          ; ACK
+          (niv=0)
+[id=1] [  1.521] send HEADERS frame &lt;length=86, flags=0x04, stream_id=13&gt;
+          ; END_HEADERS
+          (padlen=0)
+          ; First response header
+          :status: 200
+          server: nghttpd nghttp2/1.0.0-DEV
+          content-length: 10
+          cache-control: max-age=3600
+          date: Fri, 15 May 2015 14:49:04 GMT
+          last-modified: Tue, 30 Sep 2014 12:40:52 GMT
+[id=1] [  1.522] send DATA frame &lt;length=10, flags=0x01, stream_id=13&gt;
+          ; END_STREAM
+[id=1] [  1.522] stream_id=13 closed
+[id=1] [  1.522] recv GOAWAY frame &lt;length=8, flags=0x00, stream_id=0&gt;
+          (last_stream_id=0, error_code=NO_ERROR(0x00), opaque_data(0)=[])
+[id=1] [  1.522] closed
+</pre>
+<a name="user-content-nghttpx-proxy"></a>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">nghttpx - proxy</h3><a id="user-content-nghttpx---proxy" class="anchor" aria-label="Permalink: nghttpx - proxy" href="#nghttpx---proxy"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><code>nghttpx</code> is a multi-threaded reverse proxy for HTTP/3, HTTP/2, and
+HTTP/1.1, and powers <a href="http://nghttp2.org" rel="nofollow">http://nghttp2.org</a> and supports HTTP/2 server
+push.</p>
+<p dir="auto">We reworked <code>nghttpx</code> command-line interface, and as a result, there
+are several incompatibles from 1.8.0 or earlier.  This is necessary to
+extend its capability, and secure the further feature enhancements in
+the future release.  Please read <a href="https://nghttp2.org/documentation/nghttpx-howto.html#migration-from-nghttpx-v1-8-0-or-earlier" rel="nofollow">Migration from nghttpx v1.8.0 or
+earlier</a>
+to know how to migrate from earlier releases.</p>
+<p dir="auto"><code>nghttpx</code> implements <a href="https://istlsfastyet.com/#server-performance" rel="nofollow">important performance-oriented features</a> in TLS, such as
+session IDs, session tickets (with automatic key rotation), dynamic
+record sizing, ALPN, forward secrecy and HTTP/2.  <code>nghttpx</code> also
+offers the functionality to share ticket keys among multiple
+<code>nghttpx</code> instances via memcached.</p>
+<p dir="auto"><code>nghttpx</code> has 2 operation modes:</p>
+<markdown-accessiblity-table><table>
+
+
+
+
+
+
+<thead valign="bottom">
+<tr><th>Mode option</th>
+<th>Frontend</th>
+<th>Backend</th>
+<th>Note</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>default mode</td>
+<td>HTTP/3, HTTP/2, HTTP/1.1</td>
+<td>HTTP/1.1, HTTP/2</td>
+<td>Reverse proxy</td>
+</tr>
+<tr><td><code>--http2-proxy</code></td>
+<td>HTTP/3, HTTP/2, HTTP/1.1</td>
+<td>HTTP/1.1, HTTP/2</td>
+<td>Forward proxy</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p dir="auto">The interesting mode at the moment is the default mode.  It works like
+a reverse proxy and listens for HTTP/3, HTTP/2, and HTTP/1.1 and can
+be deployed as a SSL/TLS terminator for existing web server.</p>
+<p dir="auto">In all modes, the frontend connections are encrypted by SSL/TLS by
+default.  To disable encryption, use the <code>no-tls</code> keyword in
+<code>--frontend</code> option.  If encryption is disabled, incoming HTTP/1.1
+connections can be upgraded to HTTP/2 through HTTP Upgrade.  On the
+other hard, backend connections are not encrypted by default.  To
+encrypt backend connections, use <code>tls</code> keyword in <code>--backend</code>
+option.</p>
+<p dir="auto"><code>nghttpx</code> supports a configuration file.  See the <code>--conf</code> option and
+sample configuration file <code>nghttpx.conf.sample</code>.</p>
+<p dir="auto">In the default mode, <code>nghttpx</code> works as reverse proxy to the backend
+server:</p>
+<pre lang="text">Client &lt;-- (HTTP/3, HTTP/2, HTTP/1.1) --&gt; nghttpx &lt;-- (HTTP/1.1, HTTP/2) --&gt; Web Server
+                                        [reverse proxy]
+</pre>
+<p dir="auto">With the <code>--http2-proxy</code> option, it works as forward proxy, and it
+is so called secure HTTP/2 proxy:</p>
+<pre lang="text">Client &lt;-- (HTTP/3, HTTP/2, HTTP/1.1) --&gt; nghttpx &lt;-- (HTTP/1.1) --&gt; Proxy
+                                         [secure proxy]          (e.g., Squid, ATS)
+</pre>
+<p dir="auto">The <code>Client</code> in the above example needs to be configured to use
+<code>nghttpx</code> as secure proxy.</p>
+<p dir="auto">At the time of this writing, both Chrome and Firefox support secure
+HTTP/2 proxy.  One way to configure Chrome to use a secure proxy is to
+create a proxy.pac script like this:</p>
+<div class="highlight highlight-source-js notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="function FindProxyForURL(url, host) {
+    return &quot;HTTPS SERVERADDR:PORT&quot;;
+}"><pre><span class="pl-k">function</span> <span class="pl-v">FindProxyForURL</span><span class="pl-kos">(</span><span class="pl-s1">url</span><span class="pl-kos">,</span> <span class="pl-s1">host</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
+    <span class="pl-k">return</span> <span class="pl-s">"HTTPS SERVERADDR:PORT"</span><span class="pl-kos">;</span>
+<span class="pl-kos">}</span></pre></div>
+<p dir="auto"><code>SERVERADDR</code> and <code>PORT</code> is the hostname/address and port of the
+machine nghttpx is running on.  Please note that Chrome requires a valid
+certificate for secure proxy.</p>
+<p dir="auto">Then run Chrome with the following arguments:</p>
+<pre lang="text">$ google-chrome --proxy-pac-url=file:///path/to/proxy.pac --use-npn
+</pre>
+<p dir="auto">The backend HTTP/2 connections can be tunneled through an HTTP proxy.
+The proxy is specified using <code>--backend-http-proxy-uri</code>.  The
+following figure illustrates how nghttpx talks to the outside HTTP/2
+proxy through an HTTP proxy:</p>
+<pre lang="text">Client &lt;-- (HTTP/3, HTTP/2, HTTP/1.1) --&gt; nghttpx &lt;-- (HTTP/2) --
+
+        --===================---&gt; HTTP/2 Proxy
+          (HTTP proxy tunnel)     (e.g., nghttpx -s)
+</pre>
+<a name="user-content-benchmarking-tool"></a>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Benchmarking tool</h2><a id="user-content-benchmarking-tool" class="anchor" aria-label="Permalink: Benchmarking tool" href="#benchmarking-tool"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The <code>h2load</code> program is a benchmarking tool for HTTP/3, HTTP/2, and
+HTTP/1.1.  The UI of <code>h2load</code> is heavily inspired by <code>weighttp</code>
+(<a href="https://github.com/lighttpd/weighttp">https://github.com/lighttpd/weighttp</a>).  The typical usage is as
+follows:</p>
+<pre lang="text">$ h2load -n100000 -c100 -m100 https://localhost:8443/
+starting benchmark...
+spawning thread #0: 100 concurrent clients, 100000 total requests
+Protocol: TLSv1.2
+Cipher: ECDHE-RSA-AES128-GCM-SHA256
+Server Temp Key: ECDH P-256 256 bits
+progress: 10% done
+progress: 20% done
+progress: 30% done
+progress: 40% done
+progress: 50% done
+progress: 60% done
+progress: 70% done
+progress: 80% done
+progress: 90% done
+progress: 100% done
+
+finished in 771.26ms, 129658 req/s, 4.71MB/s
+requests: 100000 total, 100000 started, 100000 done, 100000 succeeded, 0 failed, 0 errored
+status codes: 100000 2xx, 0 3xx, 0 4xx, 0 5xx
+traffic: 3812300 bytes total, 1009900 bytes headers, 1000000 bytes data
+                     min         max         mean         sd        +/- sd
+time for request:    25.12ms    124.55ms     51.07ms     15.36ms    84.87%
+time for connect:   208.94ms    254.67ms    241.38ms      7.95ms    63.00%
+time to 1st byte:   209.11ms    254.80ms    241.51ms      7.94ms    63.00%
+</pre>
+<p dir="auto">The above example issued total 100,000 requests, using 100 concurrent
+clients (in other words, 100 HTTP/2 sessions), and a maximum of 100 streams
+per client.  With the <code>-t</code> option, <code>h2load</code> will use multiple native
+threads to avoid saturating a single core on client side.</p>
+<div dir="auto">
+<p dir="auto">Warning</p>
+<p dir="auto"><strong>Don't use this tool against publicly available servers.</strong> That is
+considered a DOS attack.  Please only use it against your private
+servers.</p>
+</div>
+<p dir="auto">If the experimental HTTP/3 is enabled, h2load can send requests to
+HTTP/3 server.  To do this, specify <code>h3</code> to <code>--alpn-list</code> option
+like so:</p>
+<pre lang="text">$ h2load --alpn-list h3 https://127.0.0.1:4433
+</pre>
+<p dir="auto">For nghttp2 v1.58 or earlier, use <code>--npn-list</code> instead of
+<code>--alpn-list</code>.</p>
+<a name="user-content-hpack-tools"></a>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">HPACK tools</h2><a id="user-content-hpack-tools" class="anchor" aria-label="Permalink: HPACK tools" href="#hpack-tools"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The <code>src</code> directory contains the HPACK tools.  The <code>deflatehd</code> program is a
+command-line header compression tool.  The <code>inflatehd</code> program is a
+command-line header decompression tool.  Both tools read input from
+stdin and write output to stdout.  Errors are written to stderr.
+They take JSON as input and output.  We  (mostly) use the same JSON data
+format described at <a href="https://github.com/http2jp/hpack-test-case">https://github.com/http2jp/hpack-test-case</a>.</p>
+<a name="user-content-deflatehd-header-compressor"></a>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">deflatehd - header compressor</h3><a id="user-content-deflatehd---header-compressor" class="anchor" aria-label="Permalink: deflatehd - header compressor" href="#deflatehd---header-compressor"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The <code>deflatehd</code> program reads JSON data or HTTP/1-style header fields from
+stdin and outputs compressed header block in JSON.</p>
+<p dir="auto">For the JSON input, the root JSON object must include a <code>cases</code> key.
+Its value has to include the sequence of input header set.  They share
+the same compression context and are processed in the order they
+appear.  Each item in the sequence is a JSON object and it must
+include a <code>headers</code> key.  Its value is an array of JSON objects,
+which includes exactly one name/value pair.</p>
+<p dir="auto">Example:</p>
+<div class="highlight highlight-source-json notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="{
+  &quot;cases&quot;:
+  [
+    {
+      &quot;headers&quot;: [
+        { &quot;:method&quot;: &quot;GET&quot; },
+        { &quot;:path&quot;: &quot;/&quot; }
+      ]
+    },
+    {
+      &quot;headers&quot;: [
+        { &quot;:method&quot;: &quot;POST&quot; },
+        { &quot;:path&quot;: &quot;/&quot; }
+      ]
+    }
+  ]
+}"><pre>{
+  <span class="pl-ent">"cases"</span>:
+  [
+    {
+      <span class="pl-ent">"headers"</span>: [
+        { <span class="pl-ent">":method"</span>: <span class="pl-s"><span class="pl-pds">"</span>GET<span class="pl-pds">"</span></span> },
+        { <span class="pl-ent">":path"</span>: <span class="pl-s"><span class="pl-pds">"</span>/<span class="pl-pds">"</span></span> }
+      ]
+    },
+    {
+      <span class="pl-ent">"headers"</span>: [
+        { <span class="pl-ent">":method"</span>: <span class="pl-s"><span class="pl-pds">"</span>POST<span class="pl-pds">"</span></span> },
+        { <span class="pl-ent">":path"</span>: <span class="pl-s"><span class="pl-pds">"</span>/<span class="pl-pds">"</span></span> }
+      ]
+    }
+  ]
+}</pre></div>
+<p dir="auto">With the <code>-t</code> option, the program can accept more familiar HTTP/1 style
+header field blocks.  Each header set is delimited by an empty line:</p>
+<p dir="auto">Example:</p>
+<pre lang="text">:method: GET
+:scheme: https
+:path: /
+
+:method: POST
+user-agent: nghttp2
+</pre>
+<p dir="auto">The output is in JSON object.  It should include a <code>cases</code> key and its
+value is an array of JSON objects, which has at least the following keys:</p>
+<dl>
+<dt>seq</dt>
+<dd>The index of header set in the input.</dd>
+<dt>input_length</dt>
+<dd>The sum of the length of the name/value pairs in the input.</dd>
+<dt>output_length</dt>
+<dd>The length of the compressed header block.</dd>
+<dt>percentage_of_original_size</dt>
+<dd><code>output_length</code> / <code>input_length</code> * 100</dd>
+<dt>wire</dt>
+<dd>The compressed header block as a hex string.</dd>
+<dt>headers</dt>
+<dd>The input header set.</dd>
+<dt>header_table_size</dt>
+<dd>The header table size adjusted before deflating the header set.</dd>
+</dl>
+<p dir="auto">Examples:</p>
+<div class="highlight highlight-source-json notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="{
+  &quot;cases&quot;:
+  [
+    {
+      &quot;seq&quot;: 0,
+      &quot;input_length&quot;: 66,
+      &quot;output_length&quot;: 20,
+      &quot;percentage_of_original_size&quot;: 30.303030303030305,
+      &quot;wire&quot;: &quot;01881f3468e5891afcbf83868a3d856659c62e3f&quot;,
+      &quot;headers&quot;: [
+        {
+          &quot;:authority&quot;: &quot;example.org&quot;
+        },
+        {
+          &quot;:method&quot;: &quot;GET&quot;
+        },
+        {
+          &quot;:path&quot;: &quot;/&quot;
+        },
+        {
+          &quot;:scheme&quot;: &quot;https&quot;
+        },
+        {
+          &quot;user-agent&quot;: &quot;nghttp2&quot;
+        }
+      ],
+      &quot;header_table_size&quot;: 4096
+    }
+    ,
+    {
+      &quot;seq&quot;: 1,
+      &quot;input_length&quot;: 74,
+      &quot;output_length&quot;: 10,
+      &quot;percentage_of_original_size&quot;: 13.513513513513514,
+      &quot;wire&quot;: &quot;88448504252dd5918485&quot;,
+      &quot;headers&quot;: [
+        {
+          &quot;:authority&quot;: &quot;example.org&quot;
+        },
+        {
+          &quot;:method&quot;: &quot;POST&quot;
+        },
+        {
+          &quot;:path&quot;: &quot;/account&quot;
+        },
+        {
+          &quot;:scheme&quot;: &quot;https&quot;
+        },
+        {
+          &quot;user-agent&quot;: &quot;nghttp2&quot;
+        }
+      ],
+      &quot;header_table_size&quot;: 4096
+    }
+  ]
+}"><pre>{
+  <span class="pl-ent">"cases"</span>:
+  [
+    {
+      <span class="pl-ent">"seq"</span>: <span class="pl-c1">0</span>,
+      <span class="pl-ent">"input_length"</span>: <span class="pl-c1">66</span>,
+      <span class="pl-ent">"output_length"</span>: <span class="pl-c1">20</span>,
+      <span class="pl-ent">"percentage_of_original_size"</span>: <span class="pl-c1">30.303030303030305</span>,
+      <span class="pl-ent">"wire"</span>: <span class="pl-s"><span class="pl-pds">"</span>01881f3468e5891afcbf83868a3d856659c62e3f<span class="pl-pds">"</span></span>,
+      <span class="pl-ent">"headers"</span>: [
+        {
+          <span class="pl-ent">":authority"</span>: <span class="pl-s"><span class="pl-pds">"</span>example.org<span class="pl-pds">"</span></span>
+        },
+        {
+          <span class="pl-ent">":method"</span>: <span class="pl-s"><span class="pl-pds">"</span>GET<span class="pl-pds">"</span></span>
+        },
+        {
+          <span class="pl-ent">":path"</span>: <span class="pl-s"><span class="pl-pds">"</span>/<span class="pl-pds">"</span></span>
+        },
+        {
+          <span class="pl-ent">":scheme"</span>: <span class="pl-s"><span class="pl-pds">"</span>https<span class="pl-pds">"</span></span>
+        },
+        {
+          <span class="pl-ent">"user-agent"</span>: <span class="pl-s"><span class="pl-pds">"</span>nghttp2<span class="pl-pds">"</span></span>
+        }
+      ],
+      <span class="pl-ent">"header_table_size"</span>: <span class="pl-c1">4096</span>
+    }
+    ,
+    {
+      <span class="pl-ent">"seq"</span>: <span class="pl-c1">1</span>,
+      <span class="pl-ent">"input_length"</span>: <span class="pl-c1">74</span>,
+      <span class="pl-ent">"output_length"</span>: <span class="pl-c1">10</span>,
+      <span class="pl-ent">"percentage_of_original_size"</span>: <span class="pl-c1">13.513513513513514</span>,
+      <span class="pl-ent">"wire"</span>: <span class="pl-s"><span class="pl-pds">"</span>88448504252dd5918485<span class="pl-pds">"</span></span>,
+      <span class="pl-ent">"headers"</span>: [
+        {
+          <span class="pl-ent">":authority"</span>: <span class="pl-s"><span class="pl-pds">"</span>example.org<span class="pl-pds">"</span></span>
+        },
+        {
+          <span class="pl-ent">":method"</span>: <span class="pl-s"><span class="pl-pds">"</span>POST<span class="pl-pds">"</span></span>
+        },
+        {
+          <span class="pl-ent">":path"</span>: <span class="pl-s"><span class="pl-pds">"</span>/account<span class="pl-pds">"</span></span>
+        },
+        {
+          <span class="pl-ent">":scheme"</span>: <span class="pl-s"><span class="pl-pds">"</span>https<span class="pl-pds">"</span></span>
+        },
+        {
+          <span class="pl-ent">"user-agent"</span>: <span class="pl-s"><span class="pl-pds">"</span>nghttp2<span class="pl-pds">"</span></span>
+        }
+      ],
+      <span class="pl-ent">"header_table_size"</span>: <span class="pl-c1">4096</span>
+    }
+  ]
+}</pre></div>
+<p dir="auto">The output can be used as the input for <code>inflatehd</code> and
+<code>deflatehd</code>.</p>
+<p dir="auto">With the <code>-d</code> option, the extra <code>header_table</code> key is added and its
+associated value includes the state of dynamic header table after the
+corresponding header set was processed.  The value includes at least
+the following keys:</p>
+<dl>
+<dt>entries</dt>
+<dd>The entry in the header table.  If <code>referenced</code> is <code>true</code>, it
+is in the reference set.  The <code>size</code> includes the overhead (32
+bytes).  The <code>index</code> corresponds to the index of header table.
+The <code>name</code> is the header field name and the <code>value</code> is the
+header field value.</dd>
+<dt>size</dt>
+<dd>The sum of the spaces entries occupied, this includes the
+entry overhead.</dd>
+<dt>max_size</dt>
+<dd>The maximum header table size.</dd>
+<dt>deflate_size</dt>
+<dd>The sum of the spaces entries occupied within
+<code>max_deflate_size</code>.</dd>
+<dt>max_deflate_size</dt>
+<dd>The maximum header table size the encoder uses.  This can be smaller
+than <code>max_size</code>.  In this case, the encoder only uses up to first
+<code>max_deflate_size</code> buffer.  Since the header table size is still
+<code>max_size</code>, the encoder has to keep track of entries outside the
+<code>max_deflate_size</code> but inside the <code>max_size</code> and make sure
+that they are no longer referenced.</dd>
+</dl>
+<p dir="auto">Example:</p>
+<div class="highlight highlight-source-json notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="{
+  &quot;cases&quot;:
+  [
+    {
+      &quot;seq&quot;: 0,
+      &quot;input_length&quot;: 66,
+      &quot;output_length&quot;: 20,
+      &quot;percentage_of_original_size&quot;: 30.303030303030305,
+      &quot;wire&quot;: &quot;01881f3468e5891afcbf83868a3d856659c62e3f&quot;,
+      &quot;headers&quot;: [
+        {
+          &quot;:authority&quot;: &quot;example.org&quot;
+        },
+        {
+          &quot;:method&quot;: &quot;GET&quot;
+        },
+        {
+          &quot;:path&quot;: &quot;/&quot;
+        },
+        {
+          &quot;:scheme&quot;: &quot;https&quot;
+        },
+        {
+          &quot;user-agent&quot;: &quot;nghttp2&quot;
+        }
+      ],
+      &quot;header_table_size&quot;: 4096,
+      &quot;header_table&quot;: {
+        &quot;entries&quot;: [
+          {
+            &quot;index&quot;: 1,
+            &quot;name&quot;: &quot;user-agent&quot;,
+            &quot;value&quot;: &quot;nghttp2&quot;,
+            &quot;referenced&quot;: true,
+            &quot;size&quot;: 49
+          },
+          {
+            &quot;index&quot;: 2,
+            &quot;name&quot;: &quot;:scheme&quot;,
+            &quot;value&quot;: &quot;https&quot;,
+            &quot;referenced&quot;: true,
+            &quot;size&quot;: 44
+          },
+          {
+            &quot;index&quot;: 3,
+            &quot;name&quot;: &quot;:path&quot;,
+            &quot;value&quot;: &quot;/&quot;,
+            &quot;referenced&quot;: true,
+            &quot;size&quot;: 38
+          },
+          {
+            &quot;index&quot;: 4,
+            &quot;name&quot;: &quot;:method&quot;,
+            &quot;value&quot;: &quot;GET&quot;,
+            &quot;referenced&quot;: true,
+            &quot;size&quot;: 42
+          },
+          {
+            &quot;index&quot;: 5,
+            &quot;name&quot;: &quot;:authority&quot;,
+            &quot;value&quot;: &quot;example.org&quot;,
+            &quot;referenced&quot;: true,
+            &quot;size&quot;: 53
+          }
+        ],
+        &quot;size&quot;: 226,
+        &quot;max_size&quot;: 4096,
+        &quot;deflate_size&quot;: 226,
+        &quot;max_deflate_size&quot;: 4096
+      }
+    }
+    ,
+    {
+      &quot;seq&quot;: 1,
+      &quot;input_length&quot;: 74,
+      &quot;output_length&quot;: 10,
+      &quot;percentage_of_original_size&quot;: 13.513513513513514,
+      &quot;wire&quot;: &quot;88448504252dd5918485&quot;,
+      &quot;headers&quot;: [
+        {
+          &quot;:authority&quot;: &quot;example.org&quot;
+        },
+        {
+          &quot;:method&quot;: &quot;POST&quot;
+        },
+        {
+          &quot;:path&quot;: &quot;/account&quot;
+        },
+        {
+          &quot;:scheme&quot;: &quot;https&quot;
+        },
+        {
+          &quot;user-agent&quot;: &quot;nghttp2&quot;
+        }
+      ],
+      &quot;header_table_size&quot;: 4096,
+      &quot;header_table&quot;: {
+        &quot;entries&quot;: [
+          {
+            &quot;index&quot;: 1,
+            &quot;name&quot;: &quot;:method&quot;,
+            &quot;value&quot;: &quot;POST&quot;,
+            &quot;referenced&quot;: true,
+            &quot;size&quot;: 43
+          },
+          {
+            &quot;index&quot;: 2,
+            &quot;name&quot;: &quot;user-agent&quot;,
+            &quot;value&quot;: &quot;nghttp2&quot;,
+            &quot;referenced&quot;: true,
+            &quot;size&quot;: 49
+          },
+          {
+            &quot;index&quot;: 3,
+            &quot;name&quot;: &quot;:scheme&quot;,
+            &quot;value&quot;: &quot;https&quot;,
+            &quot;referenced&quot;: true,
+            &quot;size&quot;: 44
+          },
+          {
+            &quot;index&quot;: 4,
+            &quot;name&quot;: &quot;:path&quot;,
+            &quot;value&quot;: &quot;/&quot;,
+            &quot;referenced&quot;: false,
+            &quot;size&quot;: 38
+          },
+          {
+            &quot;index&quot;: 5,
+            &quot;name&quot;: &quot;:method&quot;,
+            &quot;value&quot;: &quot;GET&quot;,
+            &quot;referenced&quot;: false,
+            &quot;size&quot;: 42
+          },
+          {
+            &quot;index&quot;: 6,
+            &quot;name&quot;: &quot;:authority&quot;,
+            &quot;value&quot;: &quot;example.org&quot;,
+            &quot;referenced&quot;: true,
+            &quot;size&quot;: 53
+          }
+        ],
+        &quot;size&quot;: 269,
+        &quot;max_size&quot;: 4096,
+        &quot;deflate_size&quot;: 269,
+        &quot;max_deflate_size&quot;: 4096
+      }
+    }
+  ]
+}"><pre>{
+  <span class="pl-ent">"cases"</span>:
+  [
+    {
+      <span class="pl-ent">"seq"</span>: <span class="pl-c1">0</span>,
+      <span class="pl-ent">"input_length"</span>: <span class="pl-c1">66</span>,
+      <span class="pl-ent">"output_length"</span>: <span class="pl-c1">20</span>,
+      <span class="pl-ent">"percentage_of_original_size"</span>: <span class="pl-c1">30.303030303030305</span>,
+      <span class="pl-ent">"wire"</span>: <span class="pl-s"><span class="pl-pds">"</span>01881f3468e5891afcbf83868a3d856659c62e3f<span class="pl-pds">"</span></span>,
+      <span class="pl-ent">"headers"</span>: [
+        {
+          <span class="pl-ent">":authority"</span>: <span class="pl-s"><span class="pl-pds">"</span>example.org<span class="pl-pds">"</span></span>
+        },
+        {
+          <span class="pl-ent">":method"</span>: <span class="pl-s"><span class="pl-pds">"</span>GET<span class="pl-pds">"</span></span>
+        },
+        {
+          <span class="pl-ent">":path"</span>: <span class="pl-s"><span class="pl-pds">"</span>/<span class="pl-pds">"</span></span>
+        },
+        {
+          <span class="pl-ent">":scheme"</span>: <span class="pl-s"><span class="pl-pds">"</span>https<span class="pl-pds">"</span></span>
+        },
+        {
+          <span class="pl-ent">"user-agent"</span>: <span class="pl-s"><span class="pl-pds">"</span>nghttp2<span class="pl-pds">"</span></span>
+        }
+      ],
+      <span class="pl-ent">"header_table_size"</span>: <span class="pl-c1">4096</span>,
+      <span class="pl-ent">"header_table"</span>: {
+        <span class="pl-ent">"entries"</span>: [
+          {
+            <span class="pl-ent">"index"</span>: <span class="pl-c1">1</span>,
+            <span class="pl-ent">"name"</span>: <span class="pl-s"><span class="pl-pds">"</span>user-agent<span class="pl-pds">"</span></span>,
+            <span class="pl-ent">"value"</span>: <span class="pl-s"><span class="pl-pds">"</span>nghttp2<span class="pl-pds">"</span></span>,
+            <span class="pl-ent">"referenced"</span>: <span class="pl-c1">true</span>,
+            <span class="pl-ent">"size"</span>: <span class="pl-c1">49</span>
+          },
+          {
+            <span class="pl-ent">"index"</span>: <span class="pl-c1">2</span>,
+            <span class="pl-ent">"name"</span>: <span class="pl-s"><span class="pl-pds">"</span>:scheme<span class="pl-pds">"</span></span>,
+            <span class="pl-ent">"value"</span>: <span class="pl-s"><span class="pl-pds">"</span>https<span class="pl-pds">"</span></span>,
+            <span class="pl-ent">"referenced"</span>: <span class="pl-c1">true</span>,
+            <span class="pl-ent">"size"</span>: <span class="pl-c1">44</span>
+          },
+          {
+            <span class="pl-ent">"index"</span>: <span class="pl-c1">3</span>,
+            <span class="pl-ent">"name"</span>: <span class="pl-s"><span class="pl-pds">"</span>:path<span class="pl-pds">"</span></span>,
+            <span class="pl-ent">"value"</span>: <span class="pl-s"><span class="pl-pds">"</span>/<span class="pl-pds">"</span></span>,
+            <span class="pl-ent">"referenced"</span>: <span class="pl-c1">true</span>,
+            <span class="pl-ent">"size"</span>: <span class="pl-c1">38</span>
+          },
+          {
+            <span class="pl-ent">"index"</span>: <span class="pl-c1">4</span>,
+            <span class="pl-ent">"name"</span>: <span class="pl-s"><span class="pl-pds">"</span>:method<span class="pl-pds">"</span></span>,
+            <span class="pl-ent">"value"</span>: <span class="pl-s"><span class="pl-pds">"</span>GET<span class="pl-pds">"</span></span>,
+            <span class="pl-ent">"referenced"</span>: <span class="pl-c1">true</span>,
+            <span class="pl-ent">"size"</span>: <span class="pl-c1">42</span>
+          },
+          {
+            <span class="pl-ent">"index"</span>: <span class="pl-c1">5</span>,
+            <span class="pl-ent">"name"</span>: <span class="pl-s"><span class="pl-pds">"</span>:authority<span class="pl-pds">"</span></span>,
+            <span class="pl-ent">"value"</span>: <span class="pl-s"><span class="pl-pds">"</span>example.org<span class="pl-pds">"</span></span>,
+            <span class="pl-ent">"referenced"</span>: <span class="pl-c1">true</span>,
+            <span class="pl-ent">"size"</span>: <span class="pl-c1">53</span>
+          }
+        ],
+        <span class="pl-ent">"size"</span>: <span class="pl-c1">226</span>,
+        <span class="pl-ent">"max_size"</span>: <span class="pl-c1">4096</span>,
+        <span class="pl-ent">"deflate_size"</span>: <span class="pl-c1">226</span>,
+        <span class="pl-ent">"max_deflate_size"</span>: <span class="pl-c1">4096</span>
+      }
+    }
+    ,
+    {
+      <span class="pl-ent">"seq"</span>: <span class="pl-c1">1</span>,
+      <span class="pl-ent">"input_length"</span>: <span class="pl-c1">74</span>,
+      <span class="pl-ent">"output_length"</span>: <span class="pl-c1">10</span>,
+      <span class="pl-ent">"percentage_of_original_size"</span>: <span class="pl-c1">13.513513513513514</span>,
+      <span class="pl-ent">"wire"</span>: <span class="pl-s"><span class="pl-pds">"</span>88448504252dd5918485<span class="pl-pds">"</span></span>,
+      <span class="pl-ent">"headers"</span>: [
+        {
+          <span class="pl-ent">":authority"</span>: <span class="pl-s"><span class="pl-pds">"</span>example.org<span class="pl-pds">"</span></span>
+        },
+        {
+          <span class="pl-ent">":method"</span>: <span class="pl-s"><span class="pl-pds">"</span>POST<span class="pl-pds">"</span></span>
+        },
+        {
+          <span class="pl-ent">":path"</span>: <span class="pl-s"><span class="pl-pds">"</span>/account<span class="pl-pds">"</span></span>
+        },
+        {
+          <span class="pl-ent">":scheme"</span>: <span class="pl-s"><span class="pl-pds">"</span>https<span class="pl-pds">"</span></span>
+        },
+        {
+          <span class="pl-ent">"user-agent"</span>: <span class="pl-s"><span class="pl-pds">"</span>nghttp2<span class="pl-pds">"</span></span>
+        }
+      ],
+      <span class="pl-ent">"header_table_size"</span>: <span class="pl-c1">4096</span>,
+      <span class="pl-ent">"header_table"</span>: {
+        <span class="pl-ent">"entries"</span>: [
+          {
+            <span class="pl-ent">"index"</span>: <span class="pl-c1">1</span>,
+            <span class="pl-ent">"name"</span>: <span class="pl-s"><span class="pl-pds">"</span>:method<span class="pl-pds">"</span></span>,
+            <span class="pl-ent">"value"</span>: <span class="pl-s"><span class="pl-pds">"</span>POST<span class="pl-pds">"</span></span>,
+            <span class="pl-ent">"referenced"</span>: <span class="pl-c1">true</span>,
+            <span class="pl-ent">"size"</span>: <span class="pl-c1">43</span>
+          },
+          {
+            <span class="pl-ent">"index"</span>: <span class="pl-c1">2</span>,
+            <span class="pl-ent">"name"</span>: <span class="pl-s"><span class="pl-pds">"</span>user-agent<span class="pl-pds">"</span></span>,
+            <span class="pl-ent">"value"</span>: <span class="pl-s"><span class="pl-pds">"</span>nghttp2<span class="pl-pds">"</span></span>,
+            <span class="pl-ent">"referenced"</span>: <span class="pl-c1">true</span>,
+            <span class="pl-ent">"size"</span>: <span class="pl-c1">49</span>
+          },
+          {
+            <span class="pl-ent">"index"</span>: <span class="pl-c1">3</span>,
+            <span class="pl-ent">"name"</span>: <span class="pl-s"><span class="pl-pds">"</span>:scheme<span class="pl-pds">"</span></span>,
+            <span class="pl-ent">"value"</span>: <span class="pl-s"><span class="pl-pds">"</span>https<span class="pl-pds">"</span></span>,
+            <span class="pl-ent">"referenced"</span>: <span class="pl-c1">true</span>,
+            <span class="pl-ent">"size"</span>: <span class="pl-c1">44</span>
+          },
+          {
+            <span class="pl-ent">"index"</span>: <span class="pl-c1">4</span>,
+            <span class="pl-ent">"name"</span>: <span class="pl-s"><span class="pl-pds">"</span>:path<span class="pl-pds">"</span></span>,
+            <span class="pl-ent">"value"</span>: <span class="pl-s"><span class="pl-pds">"</span>/<span class="pl-pds">"</span></span>,
+            <span class="pl-ent">"referenced"</span>: <span class="pl-c1">false</span>,
+            <span class="pl-ent">"size"</span>: <span class="pl-c1">38</span>
+          },
+          {
+            <span class="pl-ent">"index"</span>: <span class="pl-c1">5</span>,
+            <span class="pl-ent">"name"</span>: <span class="pl-s"><span class="pl-pds">"</span>:method<span class="pl-pds">"</span></span>,
+            <span class="pl-ent">"value"</span>: <span class="pl-s"><span class="pl-pds">"</span>GET<span class="pl-pds">"</span></span>,
+            <span class="pl-ent">"referenced"</span>: <span class="pl-c1">false</span>,
+            <span class="pl-ent">"size"</span>: <span class="pl-c1">42</span>
+          },
+          {
+            <span class="pl-ent">"index"</span>: <span class="pl-c1">6</span>,
+            <span class="pl-ent">"name"</span>: <span class="pl-s"><span class="pl-pds">"</span>:authority<span class="pl-pds">"</span></span>,
+            <span class="pl-ent">"value"</span>: <span class="pl-s"><span class="pl-pds">"</span>example.org<span class="pl-pds">"</span></span>,
+            <span class="pl-ent">"referenced"</span>: <span class="pl-c1">true</span>,
+            <span class="pl-ent">"size"</span>: <span class="pl-c1">53</span>
+          }
+        ],
+        <span class="pl-ent">"size"</span>: <span class="pl-c1">269</span>,
+        <span class="pl-ent">"max_size"</span>: <span class="pl-c1">4096</span>,
+        <span class="pl-ent">"deflate_size"</span>: <span class="pl-c1">269</span>,
+        <span class="pl-ent">"max_deflate_size"</span>: <span class="pl-c1">4096</span>
+      }
+    }
+  ]
+}</pre></div>
+<a name="user-content-inflatehd-header-decompressor"></a>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">inflatehd - header decompressor</h3><a id="user-content-inflatehd---header-decompressor" class="anchor" aria-label="Permalink: inflatehd - header decompressor" href="#inflatehd---header-decompressor"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The <code>inflatehd</code> program reads JSON data from stdin and outputs decompressed
+name/value pairs in JSON.</p>
+<p dir="auto">The root JSON object must include the <code>cases</code> key.  Its value has to
+include the sequence of compressed header blocks.  They share the same
+compression context and are processed in the order they appear.  Each
+item in the sequence is a JSON object and it must have at least a
+<code>wire</code> key.  Its value is a compressed header block as a hex string.</p>
+<p dir="auto">Example:</p>
+<div class="highlight highlight-source-json notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="{
+  &quot;cases&quot;:
+  [
+    { &quot;wire&quot;: &quot;8285&quot; },
+    { &quot;wire&quot;: &quot;8583&quot; }
+  ]
+}"><pre>{
+  <span class="pl-ent">"cases"</span>:
+  [
+    { <span class="pl-ent">"wire"</span>: <span class="pl-s"><span class="pl-pds">"</span>8285<span class="pl-pds">"</span></span> },
+    { <span class="pl-ent">"wire"</span>: <span class="pl-s"><span class="pl-pds">"</span>8583<span class="pl-pds">"</span></span> }
+  ]
+}</pre></div>
+<p dir="auto">The output is a JSON object.  It should include a <code>cases</code> key and its
+value is an array of JSON objects, which has at least following keys:</p>
+<dl>
+<dt>seq</dt>
+<dd>The index of the header set in the input.</dd>
+<dt>headers</dt>
+<dd>A JSON array that includes decompressed name/value pairs.</dd>
+<dt>wire</dt>
+<dd>The compressed header block as a hex string.</dd>
+<dt>header_table_size</dt>
+<dd>The header table size adjusted before inflating compressed header
+block.</dd>
+</dl>
+<p dir="auto">Example:</p>
+<div class="highlight highlight-source-json notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="{
+  &quot;cases&quot;:
+  [
+    {
+      &quot;seq&quot;: 0,
+      &quot;wire&quot;: &quot;01881f3468e5891afcbf83868a3d856659c62e3f&quot;,
+      &quot;headers&quot;: [
+        {
+          &quot;:authority&quot;: &quot;example.org&quot;
+        },
+        {
+          &quot;:method&quot;: &quot;GET&quot;
+        },
+        {
+          &quot;:path&quot;: &quot;/&quot;
+        },
+        {
+          &quot;:scheme&quot;: &quot;https&quot;
+        },
+        {
+          &quot;user-agent&quot;: &quot;nghttp2&quot;
+        }
+      ],
+      &quot;header_table_size&quot;: 4096
+    }
+    ,
+    {
+      &quot;seq&quot;: 1,
+      &quot;wire&quot;: &quot;88448504252dd5918485&quot;,
+      &quot;headers&quot;: [
+        {
+          &quot;:method&quot;: &quot;POST&quot;
+        },
+        {
+          &quot;:path&quot;: &quot;/account&quot;
+        },
+        {
+          &quot;user-agent&quot;: &quot;nghttp2&quot;
+        },
+        {
+          &quot;:scheme&quot;: &quot;https&quot;
+        },
+        {
+          &quot;:authority&quot;: &quot;example.org&quot;
+        }
+      ],
+      &quot;header_table_size&quot;: 4096
+    }
+  ]
+}"><pre>{
+  <span class="pl-ent">"cases"</span>:
+  [
+    {
+      <span class="pl-ent">"seq"</span>: <span class="pl-c1">0</span>,
+      <span class="pl-ent">"wire"</span>: <span class="pl-s"><span class="pl-pds">"</span>01881f3468e5891afcbf83868a3d856659c62e3f<span class="pl-pds">"</span></span>,
+      <span class="pl-ent">"headers"</span>: [
+        {
+          <span class="pl-ent">":authority"</span>: <span class="pl-s"><span class="pl-pds">"</span>example.org<span class="pl-pds">"</span></span>
+        },
+        {
+          <span class="pl-ent">":method"</span>: <span class="pl-s"><span class="pl-pds">"</span>GET<span class="pl-pds">"</span></span>
+        },
+        {
+          <span class="pl-ent">":path"</span>: <span class="pl-s"><span class="pl-pds">"</span>/<span class="pl-pds">"</span></span>
+        },
+        {
+          <span class="pl-ent">":scheme"</span>: <span class="pl-s"><span class="pl-pds">"</span>https<span class="pl-pds">"</span></span>
+        },
+        {
+          <span class="pl-ent">"user-agent"</span>: <span class="pl-s"><span class="pl-pds">"</span>nghttp2<span class="pl-pds">"</span></span>
+        }
+      ],
+      <span class="pl-ent">"header_table_size"</span>: <span class="pl-c1">4096</span>
+    }
+    ,
+    {
+      <span class="pl-ent">"seq"</span>: <span class="pl-c1">1</span>,
+      <span class="pl-ent">"wire"</span>: <span class="pl-s"><span class="pl-pds">"</span>88448504252dd5918485<span class="pl-pds">"</span></span>,
+      <span class="pl-ent">"headers"</span>: [
+        {
+          <span class="pl-ent">":method"</span>: <span class="pl-s"><span class="pl-pds">"</span>POST<span class="pl-pds">"</span></span>
+        },
+        {
+          <span class="pl-ent">":path"</span>: <span class="pl-s"><span class="pl-pds">"</span>/account<span class="pl-pds">"</span></span>
+        },
+        {
+          <span class="pl-ent">"user-agent"</span>: <span class="pl-s"><span class="pl-pds">"</span>nghttp2<span class="pl-pds">"</span></span>
+        },
+        {
+          <span class="pl-ent">":scheme"</span>: <span class="pl-s"><span class="pl-pds">"</span>https<span class="pl-pds">"</span></span>
+        },
+        {
+          <span class="pl-ent">":authority"</span>: <span class="pl-s"><span class="pl-pds">"</span>example.org<span class="pl-pds">"</span></span>
+        }
+      ],
+      <span class="pl-ent">"header_table_size"</span>: <span class="pl-c1">4096</span>
+    }
+  ]
+}</pre></div>
+<p dir="auto">The output can be used as the input for <code>deflatehd</code> and
+<code>inflatehd</code>.</p>
+<p dir="auto">With the <code>-d</code> option, the extra <code>header_table</code> key is added and its
+associated value includes the state of the dynamic header table after the
+corresponding header set was processed.  The format is the same as
+<code>deflatehd</code>.</p>
+<a name="user-content-contribution"></a>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Contribution</h2><a id="user-content-contribution" class="anchor" aria-label="Permalink: Contribution" href="#contribution"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">[This text was composed based on 1.2. License section of curl/libcurl
+project.]</p>
+<p dir="auto">When contributing with code, you agree to put your changes and new
+code under the same license nghttp2 is already using unless stated and
+agreed otherwise.</p>
+<p dir="auto">When changing existing source code, do not alter the copyright of
+the original file(s).  The copyright will still be owned by the
+original creator(s) or those who have been assigned copyright by the
+original author(s).</p>
+<p dir="auto">By submitting a patch to the nghttp2 project, you (or your employer, as
+the case may be) agree to assign the copyright of your submission to us.
+.. the above really needs to be reworded to pass legal muster.
+We will credit you for your
+changes as far as possible, to give credit but also to keep a trace
+back to who made what changes.  Please always provide us with your
+full real name when contributing!</p>
+<p dir="auto">See <a href="https://nghttp2.org/documentation/contribute.html" rel="nofollow">Contribution Guidelines</a> for more
+details.</p>
+<a name="user-content-versioning"></a>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Versioning</h2><a id="user-content-versioning" class="anchor" aria-label="Permalink: Versioning" href="#versioning"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">In general, we follow <a href="http://semver.org/" rel="nofollow">Semantic Versioning</a>.</p>
+<p dir="auto">We may release PATCH releases between the regular releases, mainly for
+severe security bug fixes.</p>
+<p dir="auto">We have no plan to break API compatibility changes involving soname
+bump, so MAJOR version will stay 1 for the foreseeable future.</p>
+<a name="user-content-license"></a>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">License</h2><a id="user-content-license" class="anchor" aria-label="Permalink: License" href="#license"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The MIT License</p>
+
+</article></div>
