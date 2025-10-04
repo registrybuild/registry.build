@@ -706,12 +706,16 @@ This can take a long time on a large repo. To avoid this problem, Gazelle can
 lazily index specific directories, with help from extensions that support
 lazy indexing.</p>
 <p dir="auto">To configure lazy indexing with Go, add <code>go_search</code> directives like this:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="# gazelle:go_search third_party/go
+# gazelle:go_search replace/b example.com/b"><pre><span class="pl-c"># gazelle:go_search third_party/go</span>
+<span class="pl-c"># gazelle:go_search replace/b example.com/b</span></pre></div>
 <p dir="auto">These directives point to directories that contain Go code outside the current
 module, with an optional package prefix. <code>go_search</code> directives are not
 necessary if you're following regular Go module conventions or are using
 a Go <code>vendor</code> directory.</p>
 <p dir="auto">To configure lazy indexing with protobuf, add <code>proto_search</code> directives
 like this:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="# gazelle:proto_search third_party/proto api"><pre><span class="pl-c"># gazelle:proto_search third_party/proto api</span></pre></div>
 <p dir="auto">The two arguments are a prefix to remove from the import path and a prefix to
 add. These correspond to the <a href="https://docs.bazel.build/versions/master/be/protocol-buffer.html#proto_library.strip_import_prefix" rel="nofollow">strip_import_prefix</a> and <a href="https://docs.bazel.build/versions/master/be/protocol-buffer.html#proto_library.import_prefix" rel="nofollow">import_prefix</a>
 attributes of <a href="https://bazel.build/reference/be/protocol-buffer#proto_library" rel="nofollow">proto_library</a>. They tell Gazelle how to transform an import
@@ -719,8 +723,34 @@ path read from a .proto source file into a repo-root-relative path to a
 directory that may contain the imported file.</p>
 <p dir="auto">To use Gazelle with lazy indexing, run with <code>-r=false -index=lazy</code>, and pass
 the directories to update on the command line.</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="gazelle -r=false -index=lazy path/to/dir1 path/to/dir2"><pre><span class="pl-s1">gazelle</span> <span class="pl-c1">-</span><span class="pl-s1">r</span><span class="pl-c1">=</span><span class="pl-s1">false</span> <span class="pl-c1">-</span><span class="pl-s1">index</span><span class="pl-c1">=</span><span class="pl-s1">lazy</span> <span class="pl-s1">path</span><span class="pl-c1">/</span><span class="pl-s1">to</span><span class="pl-c1">/</span><span class="pl-s1">dir1</span> <span class="pl-s1">path</span><span class="pl-c1">/</span><span class="pl-s1">to</span><span class="pl-c1">/</span><span class="pl-s1">dir2</span></pre></div>
 <p dir="auto">You can configure your <code>gazelle</code> Bazel target to pass these flags
 automatically:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@gazelle//:def.bzl&quot;, &quot;gazelle&quot;, &quot;gazelle_binary&quot;)
+
+gazelle(
+    name = &quot;gazelle&quot;,
+    command = &quot;fix&quot;,
+    extra_args = [&quot;-r=false&quot;, &quot;-index=lazy&quot;],
+    gazelle = &quot;:gazelle_binary&quot;,
+)
+
+gazelle_binary(
+    name = &quot;gazelle_binary&quot;,
+    ...
+)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@gazelle//:def.bzl"</span>, <span class="pl-s">"gazelle"</span>, <span class="pl-s">"gazelle_binary"</span>)
+
+<span class="pl-en">gazelle</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"gazelle"</span>,
+    <span class="pl-s1">command</span> <span class="pl-c1">=</span> <span class="pl-s">"fix"</span>,
+    <span class="pl-s1">extra_args</span> <span class="pl-c1">=</span> [<span class="pl-s">"-r=false"</span>, <span class="pl-s">"-index=lazy"</span>],
+    <span class="pl-s1">gazelle</span> <span class="pl-c1">=</span> <span class="pl-s">":gazelle_binary"</span>,
+)
+
+<span class="pl-en">gazelle_binary</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"gazelle_binary"</span>,
+    ...
+)</pre></div>
 <a name="user-content-update-repos"></a>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto"><a href="#id15"><code>update-repos</code></a></h3><a id="user-content-update-repos" class="anchor" aria-label="Permalink: update-repos" href="#update-repos"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">The <code>update-repos</code> command updates repository rules.  It can write the rules
@@ -957,6 +987,9 @@ it clears the current list of search paths.</p>
 <p dir="auto">As an example, suppose you have a vendor directory with a non-standard name,
 <code>third_party/go</code>, and a module replacement directory <code>replace/b</code>. You can index
 these directories with:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="# gazelle:go_search third_party/go
+# gazelle:go_search replace/b example.com/b"><pre><span class="pl-c"># gazelle:go_search third_party/go</span>
+<span class="pl-c"># gazelle:go_search replace/b example.com/b</span></pre></div>
 </td>
 </tr>
 <tr><td><code># gazelle:go_test mode</code></td>
@@ -1166,8 +1199,22 @@ handles include strings.</p>
 <p dir="auto">As an example, suppose you have a library in <code>third_party/foo/</code> with the label
 <code>//third_party/foo</code>. It has a proto file <code>third_party/foo/proto/api.proto</code> that you
 include as <code>foo/api.proto</code>. The library's <code>proto_library</code> target might be written as:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content=" proto_library(
+     name = &quot;foo&quot;,
+     srcs = [&quot;api.proto&quot;],
+     strip_import_prefix = &quot;third_party/foo/proto&quot;,
+     import_prefix = &quot;foo&quot;,
+     visibility = [&quot;//visibility:public&quot;],
+)"><pre> <span class="pl-en">proto_library</span>(
+     <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"foo"</span>,
+     <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> [<span class="pl-s">"api.proto"</span>],
+     <span class="pl-s1">strip_import_prefix</span> <span class="pl-c1">=</span> <span class="pl-s">"third_party/foo/proto"</span>,
+     <span class="pl-s1">import_prefix</span> <span class="pl-c1">=</span> <span class="pl-s">"foo"</span>,
+     <span class="pl-s1">visibility</span> <span class="pl-c1">=</span> [<span class="pl-s">"//visibility:public"</span>],
+)</pre></div>
 <p dir="auto">You can tell Gazelle how to find this library when lazy indexing is enabled with the
 directive:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="# gazelle:proto_search foo third_party/foo/proto"><pre><span class="pl-c"># gazelle:proto_search foo third_party/foo/proto</span></pre></div>
 <p dir="auto">The first argument is a prefix to remove from an import string. The second is a prefix
 to add. So when Gazelle sees the import string <code>foo/api.proto</code> in a file, it's transformed
 to <code>third_party/foo/proto/api.proto</code>. Gazelle then indexes the directory
