@@ -277,7 +277,7 @@ or <code>OPTION_V6_SZTP_REDIRECT</code> (136).</li>
 </li>
 <li>Bootstrapping Service
 <ol dir="auto">
-<li>Device initiates a gRPC connection <code>Bootstrap.GetBootstrappingData</code> to
+<li>Device initiates a gRPC connection <code>Bootstrap.GetBootstrapData</code> to
 the bootz-server whose address was obtained from the DHCP server.</li>
 <li>The TLS connection <strong>MUST</strong> be secured on the client-side with the
 IDevID of the active control card.</li>
@@ -305,16 +305,16 @@ uses OC (Ownership Certificate) and PDC (Pinned Domain Cert)
 interchangeably for convenience. However, we should keep in mind that OV
 (Ownership Voucher) authenticates a PDC, and OC might be a distinct
 certificate with a chain of trust to the PDC.</li>
-<li>The contents of the <code>GetBootstrappingDataResponse</code> has an inner message
+<li>The contents of the <code>GetBootstrapDataResponse</code> has an inner message
 body. The outer message contains the Ownership Voucher, the Ownership
 Certificate and a signature over the inner message body. The signature
 is generated using the OC and the nonce.</li>
 </ol>
 </li>
-<li>GetBootstrappingData
+<li>GetBootstrapDataRequest
 <ol dir="auto">
 <li>The bootz workflow is initiated by the device sending a
-<code>GetBootstrappingData</code> gRPC to the bootz-server.</li>
+<code>GetBootstrapData</code> gRPC to the bootz-server.</li>
 <li>The device describes itself, by listing out all available control cards,
 and their states.</li>
 <li>For a full device install, the state of all control cards is
@@ -324,7 +324,7 @@ its state to <code>INITIALIZED</code>, and that of the swapped module to
 <code>NOT_INITIALIZED</code>.</li>
 </ol>
 </li>
-<li>GetBootstrappingDataResponse
+<li>GetBootstrapDataResponse
 <ol dir="auto">
 <li>The server responds with the intent for the device's baseline state.
 This includes the OS version and boot password hash, and an initial
@@ -348,11 +348,11 @@ install the OS.
 <li>A reboot may be performed, if required.</li>
 </ol>
 </li>
-<li>The <code>GetBootstrappingData</code> gRPC can be performed as many times as
+<li>The <code>GetBootstrapData</code> gRPC can be performed as many times as
 required (i.e. it is idempotent).</li>
 </ol>
 </li>
-<li>ReportProgress
+<li>ReportStatus
 <ol dir="auto">
 <li>This gRPC method is used by the device to inform the bootz server that
 the bootstrapping process is complete. Success or failure is indicated
@@ -360,7 +360,7 @@ using an enum.</li>
 <li>In case of failure, the device should retry this process from Step 1.</li>
 <li>When making this gRPC, the device should verify the identity of the
 server using the "<code>server_trust_cert</code>" certificate obtained from
-<code>GetBootstrappingDataResponse</code>.</li>
+<code>GetBootstrapDataResponse</code>.</li>
 <li>"<code>server_trust_cert</code>" plays the same role as "trust-anchor" in the sZTP
 RFC (i.e. allows the device to verify the identity of the server).</li>
 </ol>
@@ -448,16 +448,10 @@ or <code>OPTION_V6_SZTP_REDIRECT</code> (136).</li>
 </li>
 <li>Bootstrapping Service
 <ol dir="auto">
-<li>Device initiates a gRPC connection <code>Bootstrap.GetBootstrappingData</code> to
+<li>Device initiates a gRPC connection <code>Bootstrap.BootstrapStream</code> to
 the bootz-server whose address was obtained from the DHCP server.</li>
 <li>The device <strong>MUST NOT</strong> present a client certificate in the TLS
 handshake.</li>
-<li>The responses from the bootz-server are signed by ownership-certificate.
-The device validates the ownership-voucher, which authenticates the
-ownership-certificate. The device verifies the signature of the message
-body before accepting the message.</li>
-<li>If the signature could not be verified, the bootstrap process starts
-from Step 1.</li>
 </ol>
 </li>
 <li>BootstrapStreamRequest.bootstrap_request
@@ -472,67 +466,99 @@ and their states.</li>
 <li>For installing hot-swapped modules (RMA), the primary control card sets
 its state to <code>INITIALIZED</code>, and that of the swapped module to
 <code>NOT_INITIALIZED</code>.</li>
-<li>The device sets <code>Identity.ek_pub=true</code> in the <code>bootstrap_request</code> if it
-has a TPM 1.2.</li>
+<li>The device should set the <code>bootstrap_request.identity</code> field as below:
+<ul dir="auto">
+<li>For TPM 2.0 with IDevID, populate <code>idevid_cert</code> with the IDevID
+certificate.</li>
+<li>For TPM 2.0 without IDevID, set <code>ek_ppk_pub</code> to true.</li>
+<li>For TPM 1.2, set <code>ek_pub</code> to true.</li>
+</ul>
+</li>
 </ol>
 </li>
 <li>BootstrapStreamResponse.challenge
 <ol dir="auto">
 <li>The server will provide a challenge depending on the data fetched from
 OVGS (Ownership Voucher gRPC Service) server based on the
-<code>GetBootstrapDataRequest.identity</code>.</li>
-<li>For TPM2.0 with IDevID
+<code>GetBootstrapDataRequest.identity</code>.
+<ul dir="auto">
+<li>For TPM 2.0 with IDevID:
 <ol dir="auto">
 <li>The IDevID cert will be validated and the S/N will be used to
 validate the device.</li>
-<li>The Challenge will be returned.</li>
+<li>A nonce challenge will be sent to the device.</li>
 </ol>
 </li>
-<li>For non-IDevID systems
+<li>For TPM 2.0 without IDevID:
 <ol dir="auto">
 <li>The <code>GetBootstrapDataRequest.chassis_descriptor</code> data will be used
-to validate the S/N.</li>
-<li>This will then be validated by lookup in OVGS and then use the keys
-returned to encrypt the challenge.</li>
-<li>For devices which have TPM 1.2, the server sends its certificate
-authority's public key so that the device can send a CSR-like
-request securely.</li>
+to get the S/N.</li>
+<li>The S/N will be validated by lookup in OVGS and then use the key
+returned (EK/PPK) to encrypt an importable HMAC challenge.</li>
 </ol>
+</li>
+<li>For TPM 1.2:
+<ol dir="auto">
+<li>The <code>GetBootstrapDataRequest.chassis_descriptor</code> data will be used
+to get the S/N.</li>
+<li>The server sends its certificate authority's public key so that the
+device can send a CSR-like request securely.</li>
+</ol>
+</li>
+</ul>
 </li>
 </ol>
 </li>
 <li>EkIdentityRequest - Applicable only for devices having TPM 1.2
 <ol dir="auto">
-<li>The device sends the EK public key and an Identity request to the
+<li>The device sends the EK public key and an identity request to the
 server.</li>
 </ol>
 </li>
 <li>EkIdentityResponse - Applicable only for devices having TPM 1.2
 <ol dir="auto">
 <li>The server extracts the modulus and exponent from the EK public key, and
-sends a challenge which can be responded only by the intended TPM.</li>
+sends a nonce challenge which can be responded only by the intended TPM.</li>
 </ol>
 </li>
 <li>BootstrapStreamRequest.response
 <ol dir="auto">
-<li>The <code>Response</code> message will contain the nonce signed via IAK for TPM 2.0
-system with IDevID. This will validate that the device is in fact the
+<li>The device should populate the <code>Response</code> message as below:
+<ul dir="auto">
+<li>For TPM 2.0 with IDevID, the <code>Response</code> message contains the nonce
+signed via IDevID, which can validate that the device is in fact the
 device expected.</li>
-<li>For all other systems the returned value will be the unencryted nonce.</li>
-<li>If the challenge response is valid the server will send the bootstrap
-data.</li>
-<li>If the challenge fails an error will be returned and the device must
-start over from Step 1.</li>
+<li>For TPM 2.0 without IDevID, the <code>Response</code> message contains the
+HMAC challenge response, which can validate that the device is in
+possession of the EK/PPK.</li>
+<li>For TPM 1.2, the <code>Response</code> message contains the decrypted nonce,
+which can validate that the device is in possession of the EK.</li>
+</ul>
+</li>
 </ol>
 </li>
 <li>BootstrapStreamResponse.bootstrap_response
 <ol dir="auto">
+<li>Bootz-server verifies the challenge response received from the device:
+<ul dir="auto">
+<li>If the challenge response is valid the server will send the bootstrap
+data.</li>
+<li>If the challenge fails an error will be returned and the device must
+start over from Step 1.</li>
+</ul>
+</li>
 <li>The server responds with the intent for the device's baseline state.
 This includes the OS version and boot password hash, and an initial
 device configuration. This would include initial gNSI artifacts such as:
 certz,pathz,authz,credentialz artifacts to allow the device to progress
 to enrollment and attestation or even bring the device fully into a
 production state.</li>
+<li>The <code>BootstrapDataResponse</code> message from the bootz-server is signed by
+ownership-certificate. The device validates the ownership-voucher,
+which authenticates the ownership-certificate. The device verifies the
+signature of the message body before accepting the message.</li>
+<li>If the signature could not be verified, the bootstrap process starts
+from Step 1.</li>
 <li>The proto allows us to return multiple sets of configurations, one per
 control card. However, in practice, we usually apply the same
 configuration to both cards.</li>
@@ -540,40 +566,46 @@ configuration to both cards.</li>
 RMA'd module.</li>
 <li>The device/modules should download the OS image, verify its hash and
 install the OS.
-<ol dir="auto">
+<ul dir="auto">
 <li>A reboot may be performed, if required.</li>
-</ol>
+</ul>
 </li>
 <li>The device/modules will then apply the configuration.
-<ol dir="auto">
+<ul dir="auto">
 <li>A reboot may be performed, if required.</li>
-</ol>
+</ul>
 </li>
 </ol>
 </li>
 <li>BootstrapStreamRequest.report_status_request
 <ol dir="auto">
-<li>The device sends a <code>ReportStatusRequest</code> message to the bootz-server.</li>
+<li>The device sends a <code>ReportStatusRequest</code> message to the bootz-server.
+<ul dir="auto">
 <li>If bootstrapping is successful, the device should report all control
 cards as <code>CONTROL_CARD_STATUS_INITIALIZED</code> and
 <code>BOOTSTRAP_STATUS_SUCCESS</code>.</li>
 <li>If bootstrapping is not successful, the device <em>may</em> report status as
 <code>BOOTSTRAP_STATUS_FAILURE</code> and then should restart the process from
 Step 1.</li>
-<li>If the device terminated the previous stream (due to a reboot or to
-apply a configuration).
-<ol dir="auto">
-<li>The server responds with a <code>BootstrapStreamResponse.challenge</code> to
-re-authenticate with the device (i.e restart from Step 4).</li>
-</ol>
-</li>
-<li>If the device <em>did not</em> terminate the previous stream.
-<ol dir="auto">
-<li>the server responds with an empty <code>ReportStatusResponse</code> message to
-acknowledge the status report.</li>
-</ol>
+</ul>
 </li>
 </ol>
+</li>
+<li>BootstrapStreamResponse.report_status_response
+<ul dir="auto">
+<li>If the device <em>did not</em> terminate the current stream (i.e., no reboot
+ever happened during this entire process), the bootz-server will
+respond with an empty <code>ReportStatusResponse</code> message to acknowledge
+the status report.</li>
+<li>If the device terminated the previous stream (e.g., due to a reboot),
+so that the <code>ReportStatusRequest</code> message received by the bootz-server
+is the first message in a new stream, then bootz-server will send out
+a new challenge again (refer to Step 4 through 7) to verify the identity
+of the device. Once the challenge passes, bootz-server will finally send
+out an empty <code>ReportStatusResponse</code> message to acknowledge the status
+report. If the challenge fails, an error will be returned and the device
+must start over from Step 9.</li>
+</ul>
 </li>
 </ol>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">A Note on Modular Devices</h3><a id="user-content-a-note-on-modular-devices" class="anchor" aria-label="Permalink: A Note on Modular Devices" href="#a-note-on-modular-devices"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
