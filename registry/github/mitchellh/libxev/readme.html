@@ -1,0 +1,321 @@
+<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">libxev</h1><a id="user-content-libxev" class="anchor" aria-label="Permalink: libxev" href="#libxev"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">libxev is a cross-platform event loop. libxev provides a unified event loop
+abstraction for non-blocking IO, timers, signals, events, and more that
+works on macOS, Windows, Linux, and WebAssembly (browser and WASI). It is
+written in <a href="https://ziglang.org/" rel="nofollow">Zig</a> but exports a C-compatible API (which
+further makes it compatible with any language out there that can communicate
+with C APIs).</p>
+<p dir="auto"><strong>Project Status: Stable for most use cases.</strong> libxev is in daily use by
+large projects such as <a href="https://ghostty.org" rel="nofollow">Ghostty</a>,
+<a href="https://github.com/zml/zml">zml</a>, and more. For most use cases, libxev
+has been shown to be stable at scale. libxev has a broad featureset and
+there are likely less well-used corners of the library, but for most
+use cases libxev is already heavily used in production environments.</p>
+<p dir="auto"><strong>Why a new event loop library?</strong> A few reasons. One, I think Zig lacks
+a generalized event loop comparable to libuv in features ("generalized"
+being a key word here). Two, I wanted to build a library like this around
+the design patterns of <a href="https://unixism.net/loti/what_is_io_uring.html" rel="nofollow">io_uring</a>,
+even mimicking its style on top of other OS primitives (
+<a href="https://tigerbeetle.com/blog/a-friendly-abstraction-over-iouring-and-kqueue/" rel="nofollow">credit to this awesome blog post</a>).
+Three, I wanted an event loop library that could build to WebAssembly
+(both WASI and freestanding) and that didn't really fit well
+into the goals of API style of existing libraries without bringing in
+something super heavy like Emscripten. The motivation for this library
+primarily though is scratching my own itch!</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Features</h2><a id="user-content-features" class="anchor" aria-label="Permalink: Features" href="#features"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><strong>Cross-platform.</strong> Linux (<code>io_uring</code> and <code>epoll</code>), macOS (<code>kqueue</code>),
+WebAssembly + WASI (<code>poll_oneoff</code>, threaded and non-threaded runtimes).
+(Windows support is planned and coming soon)</p>
+<p dir="auto"><strong><a href="https://en.wikipedia.org/wiki/Proactor_pattern" rel="nofollow">Proactor API</a>.</strong> Work
+is submitted to the libxev event loop and the caller is notified of
+work <em>completion</em>, as opposed to work <em>readiness</em>.</p>
+<p dir="auto"><strong>Zero runtime allocations.</strong> This helps make runtime performance more
+predictable and makes libxev well suited for embedded environments.</p>
+<p dir="auto"><strong>Timers, TCP, UDP, Files, Processes.</strong> High-level platform-agnostic APIs for
+interacting with timers, TCP/UDP sockets, files, processes, and more. For
+platforms that don't support async IO, the file operations are automatically
+scheduled to a thread pool.</p>
+<p dir="auto"><strong>Generic Thread Pool (Optional).</strong> You can create a generic thread pool,
+configure its resource utilization, and use this to perform custom background
+tasks. The thread pool is used by some backends to do non-blocking tasks that
+don't have reliable non-blocking APIs (such as local file operations with
+<code>kqueue</code>). The thread pool can be shared across multiple threads and event
+loops to optimize resource utilization.</p>
+<p dir="auto"><strong>Low-level and High-Level API.</strong> The high-level API is platform-agnostic
+but has some  opinionated behavior and limited flexibility. The high-level
+API is recommended but the low-level API is always an available escape hatch.
+The low-level API is platform-specific and provides a mechanism for libxev
+users to squeeze out maximum performance. The low-level API is <em>just enough
+abstraction</em> above the OS interface to make it easier to use without
+sacrificing noticable performance.</p>
+<p dir="auto"><strong>Tree Shaking (Zig).</strong> This is a feature of Zig, but substantially benefits
+libraries such as libxev. Zig will only include function calls and features
+that you actually use. If you don't use a particular kind of high-level
+watcher (such as UDP sockets), then the functionality related to that
+abstraction is not compiled into your final binary at all. This lets libxev
+support optional "nice-to-have" functionality that may be considered
+"bloat" in some cases, but the end user doesn't have to pay for it.</p>
+<p dir="auto"><strong>Dependency-free.</strong> libxev has no dependencies other than the built-in
+OS APIs at runtime. The C library depends on libc. This makes it very
+easy to cross-compile.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Roadmap</h3><a id="user-content-roadmap" class="anchor" aria-label="Permalink: Roadmap" href="#roadmap"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">There are plenty of missing features that I still want to add:</p>
+<ul dir="auto">
+<li>Pipe high-level API</li>
+<li>Signal handlers</li>
+<li>Filesystem events</li>
+<li>Windows backend</li>
+<li>Freestanding WebAssembly support via an external event loop (i.e. the browser)</li>
+</ul>
+<p dir="auto">And more...</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Performance</h3><a id="user-content-performance" class="anchor" aria-label="Permalink: Performance" href="#performance"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">There is plenty of room for performance improvements, and I want to be
+fully clear that I haven't done a lot of optimization work. Still,
+performance is looking good. I've tried to port many of
+<a href="https://github.com/libuv/libuv">libuv benchmarks</a> to use the libxev
+API.</p>
+<p dir="auto">I won't post specific benchmark results until I have a better
+environment to run them in. As a <em>very broad generalization</em>,
+you shouldn't notice a slowdown using libxev compared to other
+major event loops. This may differ on a feature-by-feature basis, and
+if you can show really poor performance in an issue I'm interested
+in resolving it!</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Example</h2><a id="user-content-example" class="anchor" aria-label="Permalink: Example" href="#example"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The example below shows an identical program written in Zig and in C
+that uses libxev to run a single 5s timer. This is almost silly how
+simple it is but is meant to just convey the overall feel of the library
+rather than a practical use case.</p>
+<markdown-accessiblity-table><table>
+<tbody><tr>
+<td> Zig </td> <td> C </td>
+</tr>
+<tr>
+<td>
+<div class="highlight highlight-source-zig notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="const xev = @import(&quot;xev&quot;);
+
+pub fn main() !void {
+    var loop = try xev.Loop.init(.{});
+    defer loop.deinit();
+
+    const w = try xev.Timer.init();
+    defer w.deinit();
+
+    // 5s timer
+    var c: xev.Completion = undefined;
+    w.run(&amp;loop, &amp;c, 5000, void, null, &amp;timerCallback);
+
+    try loop.run(.until_done);
+}
+
+fn timerCallback(
+    userdata: ?*void,
+    loop: *xev.Loop,
+    c: *xev.Completion,
+    result: xev.Timer.RunError!void,
+) xev.CallbackAction {
+   _ = userdata;
+   _ = loop;
+   _ = c;
+   _ = result catch unreachable;
+   return .disarm;
+}"><pre><span class="pl-k">const</span> <span class="pl-v">xev</span> <span class="pl-k">=</span> <span class="pl-k">@import</span>(<span class="pl-s">"xev"</span>);
+
+<span class="pl-k">pub</span> <span class="pl-k">fn</span> <span class="pl-en">main</span>() <span class="pl-k">!</span><span class="pl-k">void</span> {
+    <span class="pl-k">var</span> <span class="pl-v">loop</span> <span class="pl-k">=</span> <span class="pl-k">try</span> <span class="pl-v">xev</span>.<span class="pl-en">Loop</span>.<span class="pl-v">init</span>(.{});
+    <span class="pl-k">defer</span> <span class="pl-v">loop</span>.<span class="pl-v">deinit</span>();
+
+    <span class="pl-k">const</span> <span class="pl-v">w</span> <span class="pl-k">=</span> <span class="pl-k">try</span> <span class="pl-v">xev</span>.<span class="pl-en">Timer</span>.<span class="pl-v">init</span>();
+    <span class="pl-k">defer</span> <span class="pl-v">w</span>.<span class="pl-v">deinit</span>();
+
+    <span class="pl-c">// 5s timer</span>
+    <span class="pl-k">var</span> <span class="pl-smi">c</span>: <span class="pl-k">xev.Completion</span> <span class="pl-k">=</span> <span class="pl-c1">undefined</span>;
+    <span class="pl-v">w</span>.<span class="pl-v">run</span>(<span class="pl-k">&amp;</span><span class="pl-v">loop</span>, <span class="pl-k">&amp;</span><span class="pl-v">c</span>, <span class="pl-c1">5000</span>, <span class="pl-k">void</span>, <span class="pl-c1">null</span>, <span class="pl-k">&amp;</span><span class="pl-v">timerCallback</span>);
+
+    <span class="pl-k">try</span> <span class="pl-v">loop</span>.<span class="pl-v">run</span>(<span class="pl-c1">.until_done</span>);
+}
+
+<span class="pl-k">fn</span> <span class="pl-en">timerCallback</span>(
+    <span class="pl-v">userdata</span>: <span class="pl-k">?</span><span class="pl-k">*</span><span class="pl-k">void</span>,
+    <span class="pl-v">loop</span>: <span class="pl-k">*</span><span class="pl-k">xev.Loop</span>,
+    <span class="pl-v">c</span>: <span class="pl-k">*</span><span class="pl-k">xev.Completion</span>,
+    <span class="pl-v">result</span>: <span class="pl-v">xev</span>.<span class="pl-en">Timer</span>.<span class="pl-en">RunError</span><span class="pl-k">!</span><span class="pl-k">void</span>,
+) <span class="pl-k">xev.CallbackAction</span> {
+   <span class="pl-c1">_</span> <span class="pl-k">=</span> <span class="pl-v">userdata</span>;
+   <span class="pl-c1">_</span> <span class="pl-k">=</span> <span class="pl-v">loop</span>;
+   <span class="pl-c1">_</span> <span class="pl-k">=</span> <span class="pl-v">c</span>;
+   <span class="pl-c1">_</span> <span class="pl-k">=</span> <span class="pl-v">result</span> <span class="pl-k">catch</span> <span class="pl-k">unreachable</span>;
+   <span class="pl-k">return</span> <span class="pl-c1">.disarm</span>;
+}</pre></div>
+</td>
+<td>
+<div class="highlight highlight-source-c notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="#include &lt;stddef.h&gt;
+#include &lt;stdio.h&gt;
+#include &lt;xev.h&gt;
+
+xev_cb_action timerCallback(xev_loop* loop, xev_completion* c, int result, void *userdata) {
+    return XEV_DISARM;
+}
+
+int main(void) {
+    xev_loop loop;
+    if (xev_loop_init(&amp;loop) != 0) {
+        printf(&quot;xev_loop_init failure\n&quot;);
+        return 1;
+    }
+
+    xev_watcher w;
+    if (xev_timer_init(&amp;w) != 0) {
+        printf(&quot;xev_timer_init failure\n&quot;);
+        return 1;
+    }
+
+    xev_completion c;
+    xev_timer_run(&amp;w, &amp;loop, &amp;c, 5000, NULL, &amp;timerCallback);
+
+    xev_loop_run(&amp;loop, XEV_RUN_UNTIL_DONE);
+
+    xev_timer_deinit(&amp;w);
+    xev_loop_deinit(&amp;loop);
+    return 0;
+}"><pre><span class="pl-k">#include</span> <span class="pl-s">&lt;stddef.h&gt;</span>
+<span class="pl-k">#include</span> <span class="pl-s">&lt;stdio.h&gt;</span>
+<span class="pl-k">#include</span> <span class="pl-s">&lt;xev.h&gt;</span>
+
+<span class="pl-smi">xev_cb_action</span> <span class="pl-en">timerCallback</span>(<span class="pl-smi">xev_loop</span><span class="pl-c1">*</span> <span class="pl-s1">loop</span>, <span class="pl-smi">xev_completion</span><span class="pl-c1">*</span> <span class="pl-s1">c</span>, <span class="pl-smi">int</span> <span class="pl-s1">result</span>, <span class="pl-smi">void</span> <span class="pl-c1">*</span><span class="pl-s1">userdata</span>) {
+    <span class="pl-k">return</span> <span class="pl-c1">XEV_DISARM</span>;
+}
+
+<span class="pl-smi">int</span> <span class="pl-en">main</span>(<span class="pl-smi">void</span>) {
+    <span class="pl-smi">xev_loop</span> <span class="pl-s1">loop</span>;
+    <span class="pl-k">if</span> (<span class="pl-en">xev_loop_init</span>(<span class="pl-c1">&amp;</span><span class="pl-s1">loop</span>) <span class="pl-c1">!=</span> <span class="pl-c1">0</span>) {
+        <span class="pl-en">printf</span>(<span class="pl-s">"xev_loop_init failure\n"</span>);
+        <span class="pl-k">return</span> <span class="pl-c1">1</span>;
+    }
+
+    <span class="pl-smi">xev_watcher</span> <span class="pl-s1">w</span>;
+    <span class="pl-k">if</span> (<span class="pl-en">xev_timer_init</span>(<span class="pl-c1">&amp;</span><span class="pl-s1">w</span>) <span class="pl-c1">!=</span> <span class="pl-c1">0</span>) {
+        <span class="pl-en">printf</span>(<span class="pl-s">"xev_timer_init failure\n"</span>);
+        <span class="pl-k">return</span> <span class="pl-c1">1</span>;
+    }
+
+    <span class="pl-smi">xev_completion</span> <span class="pl-s1">c</span>;
+    <span class="pl-en">xev_timer_run</span>(<span class="pl-c1">&amp;</span><span class="pl-s1">w</span>, <span class="pl-c1">&amp;</span><span class="pl-s1">loop</span>, <span class="pl-c1">&amp;</span><span class="pl-s1">c</span>, <span class="pl-c1">5000</span>, <span class="pl-c1">NULL</span>, <span class="pl-c1">&amp;</span><span class="pl-s1">timerCallback</span>);
+
+    <span class="pl-en">xev_loop_run</span>(<span class="pl-c1">&amp;</span><span class="pl-s1">loop</span>, <span class="pl-c1">XEV_RUN_UNTIL_DONE</span>);
+
+    <span class="pl-en">xev_timer_deinit</span>(<span class="pl-c1">&amp;</span><span class="pl-s1">w</span>);
+    <span class="pl-en">xev_loop_deinit</span>(<span class="pl-c1">&amp;</span><span class="pl-s1">loop</span>);
+    <span class="pl-k">return</span> <span class="pl-c1">0</span>;
+}</pre></div>
+</td>
+</tr>
+</tbody></table></markdown-accessiblity-table>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Installation (Zig)</h2><a id="user-content-installation-zig" class="anchor" aria-label="Permalink: Installation (Zig)" href="#installation-zig"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><strong>These instructions are for Zig downstream users only.</strong> If you are
+using the C API to libxev, see the "Build" section.</p>
+<p dir="auto">This package works with the Zig package manager introduced in Zig 0.11.
+Create a <code>build.zig.zon</code> file like this:</p>
+<div class="highlight highlight-source-zig notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content=".{
+    .name = &quot;my-project&quot;,
+    .version = &quot;0.0.0&quot;,
+    .dependencies = .{
+        .libxev = .{
+            .url = &quot;https://github.com/mitchellh/libxev/archive/&lt;git-ref-here&gt;.tar.gz&quot;,
+            .hash = &quot;12208070233b17de6be05e32af096a6760682b48598323234824def41789e993432c&quot;,
+        },
+    },
+}"><pre>.{
+    .<span class="pl-v">name</span> <span class="pl-k">=</span> <span class="pl-s">"my-project"</span>,
+    .<span class="pl-v">version</span> <span class="pl-k">=</span> <span class="pl-s">"0.0.0"</span>,
+    .<span class="pl-v">dependencies</span> <span class="pl-k">=</span> .{
+        .<span class="pl-v">libxev</span> <span class="pl-k">=</span> .{
+            .<span class="pl-v">url</span> <span class="pl-k">=</span> <span class="pl-s">"https://github.com/mitchellh/libxev/archive/&lt;git-ref-here&gt;.tar.gz"</span>,
+            .<span class="pl-v">hash</span> <span class="pl-k">=</span> <span class="pl-s">"12208070233b17de6be05e32af096a6760682b48598323234824def41789e993432c"</span>,
+        },
+    },
+}</pre></div>
+<p dir="auto">And in your <code>build.zig</code>:</p>
+<div class="highlight highlight-source-zig notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="const xev = b.dependency(&quot;libxev&quot;, .{ .target = target, .optimize = optimize });
+exe.addModule(&quot;xev&quot;, xev.module(&quot;xev&quot;));"><pre><span class="pl-k">const</span> <span class="pl-v">xev</span> <span class="pl-k">=</span> <span class="pl-v">b</span>.<span class="pl-v">dependency</span>(<span class="pl-s">"libxev"</span>, .{ .<span class="pl-v">target</span> <span class="pl-k">=</span> <span class="pl-v">target</span>, .<span class="pl-v">optimize</span> <span class="pl-k">=</span> <span class="pl-v">optimize</span> });
+<span class="pl-v">exe</span>.<span class="pl-v">addModule</span>(<span class="pl-s">"xev"</span>, <span class="pl-v">xev</span>.<span class="pl-v">module</span>(<span class="pl-s">"xev"</span>));</pre></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Documentation</h2><a id="user-content-documentation" class="anchor" aria-label="Permalink: Documentation" href="#documentation"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">🚧 Documentation is a work-in-progress. 🚧</p>
+<p dir="auto">Currently, documentation is available in three forms: <strong>man pages</strong>,
+<strong>examples</strong>, and <strong>code comments.</strong> In the future, I plan on writing detailed
+guides and API documentation in website form, but that isn't currently
+available.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Man Pages</h3><a id="user-content-man-pages" class="anchor" aria-label="Permalink: Man Pages" href="#man-pages"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The man pages are relatively detailed! <code>xev(7)</code> will
+give you a good overview of the entire library. <code>xev-zig(7)</code> and
+<code>xev-c(7)</code> will provide overviews of the Zig and C API, respectively.
+From there, API-specifc man pages such as <code>xev_loop_init(3)</code> are
+available. This is the best documentation currently.</p>
+<p dir="auto">There are multiple ways to browse the man pages. The most immediately friendly
+is to just browse the raw man page sources in the <code>docs/</code> directory in
+your web browser. The man page source is a <em>markdown-like</em> syntax so it
+renders <em>okay</em> in your browser via GitHub.</p>
+<p dir="auto">Another approach is to run <code>zig build -Dman-pages</code> and the man pages
+will be available in <code>zig-out</code>. This requires
+<a href="https://git.sr.ht/~sircmpwn/scdoc" rel="nofollow">scdoc</a>
+to be installed (this is available in most package managers).
+Once you've built the man pages, you can render them by path:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="man zig-out/share/man/man7/xev.7"><pre class="notranslate"><code>man zig-out/share/man/man7/xev.7
+</code></pre></div>
+<p dir="auto">And the final approach is to install libxev via your favorite package
+manager (if and when available), which should hopefully put your man pages
+into your man path, so you can just do <code>man 7 xev</code>.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Examples</h3><a id="user-content-examples" class="anchor" aria-label="Permalink: Examples" href="#examples"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">There are examples available in the <code>examples/</code> folder. The examples are
+available in both C and Zig, and you can tell which one is which using
+the file extension.</p>
+<p dir="auto">To build an example, use the following:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="$ zig build -Dexample-name=_basic.zig
+...
+$ zig-out/bin/example-basic
+..."><pre class="notranslate"><code>$ zig build -Dexample-name=_basic.zig
+...
+$ zig-out/bin/example-basic
+...
+</code></pre></div>
+<p dir="auto">The <code>-Dexample-name</code> value should be the filename including the extension.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Code Comments</h3><a id="user-content-code-comments" class="anchor" aria-label="Permalink: Code Comments" href="#code-comments"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The Zig code is well commented. If you're comfortable reading code comments
+you can find a lot of insight within them. The source is in the <code>src/</code>
+directory.</p>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Build</h1><a id="user-content-build" class="anchor" aria-label="Permalink: Build" href="#build"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Build requires the installation of the Zig 0.15.1. libxev follows stable
+Zig releases and generally does not support nightly builds. When a stable
+release is imminent we may have a branch that supports it.
+<strong>libxev has no other build dependencies.</strong></p>
+<p dir="auto">Once installed, <code>zig build install</code> on its own will build the full library and output
+a <a href="https://en.wikipedia.org/wiki/Filesystem_Hierarchy_Standard" rel="nofollow">FHS-compatible</a>
+directory in <code>zig-out</code>. You can customize the output directory with the
+<code>--prefix</code> flag.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Tests</h2><a id="user-content-tests" class="anchor" aria-label="Permalink: Tests" href="#tests"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">libxev has a large and growing test suite. To run the tests for the current
+platform:</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="$ zig build test
+..."><pre>$ zig build <span class="pl-c1">test</span>
+...</pre></div>
+<p dir="auto">This will run all the tests for all the supported features for the current
+host platform. For example, on Linux this will run both the full io_uring
+and epoll test suite.</p>
+<p dir="auto"><strong>You can build and run tests for other platforms</strong> by cross-compiling the
+test executable, copying it to a target machine and executing it. For example,
+the below shows how to cross-compile and build the tests for macOS from Linux:</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="$ zig build -Dtarget=aarch64-macos -Dinstall-tests
+...
+
+$ file zig-out/bin/xev-test
+zig-out/bin/xev-test: Mach-O 64-bit arm64 executable"><pre>$ zig build -Dtarget=aarch64-macos -Dinstall-tests
+...
+
+$ file zig-out/bin/xev-test
+zig-out/bin/xev-test: Mach-O 64-bit arm64 executable</pre></div>
+<p dir="auto"><strong>WASI is a special-case.</strong> You can run tests for WASI if you have
+<a href="https://wasmtime.dev/" rel="nofollow">wasmtime</a> installed:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="$ zig build test -Dtarget=wasm32-wasi -Dwasmtime
+..."><pre class="notranslate"><code>$ zig build test -Dtarget=wasm32-wasi -Dwasmtime
+...
+</code></pre></div>
+</article></div>
