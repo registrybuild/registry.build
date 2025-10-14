@@ -1,0 +1,464 @@
+<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">TPM Enrollment and Attestation of Networking Devices for Device Owners </h1><a id="user-content-tpm-enrollment-and-attestation-of-networking-devices-for-device-owners-" class="anchor" aria-label="Permalink: TPM Enrollment and Attestation of Networking Devices for Device Owners " href="#tpm-enrollment-and-attestation-of-networking-devices-for-device-owners-"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">TPM (Trusted Platform Module) enrollment workflow is responsible for cryptographically verifying switches' TPM-rooted identities and provisioning devices with switch owner's attestation and TLS certificates.
+TPM attestation workflow ensures the integrity of networking devices throughout the entire boot process. The goal of this repository is to specify TPM enrollment and attestation workflow steps, design/APIs, and suggest a corresponding reference implementation of both switch and switch-owner sides of logic.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Table of Contents </h2><a id="user-content-table-of-contents-" class="anchor" aria-label="Permalink: Table of Contents " href="#table-of-contents-"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li><a href="#terminology">Terminology</a></li>
+<li><a href="#design">Design</a>
+<ul dir="auto">
+<li><a href="#tpm-20-enrollment-for-switch-owners">TPM 2.0 Enrollment for Switch Owners</a>
+<ul dir="auto">
+<li><a href="#tpm-20-enrollment-workflow-steps">TPM 2.0 Enrollment Workflow Steps</a></li>
+<li><a href="#tpm-20-enrollment-workflow-diagram">TPM 2.0 Enrollment Workflow Diagram</a></li>
+<li><a href="#tpm-20-enrollment-alternatives-considered">TPM 2.0 Enrollment Alternatives Considered</a>
+<ul dir="auto">
+<li><a href="#1-enrollz-service-serves-tpm-enrollment-api-endpoints">1. EnrollZ service serves TPM enrollment API endpoints</a></li>
+<li><a href="#2-use-iak-cert-as-is-signed-by-the-switch-vendor-ca">2. Use IAK cert (as is) signed by the switch vendor CA</a></li>
+<li><a href="#3-switch-owner-uses-ek-or-ek-cert-to-issue-lak-cert">3. Switch owner uses EK (or EK cert) to issue LAK cert</a></li>
+<li><a href="#4-switch-owner-issues-lak-cert-based-on-iak-cert-signed-by-switch-vendor-ca">4. Switch owner issues LAK cert based on IAK cert signed by switch vendor CA</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#tpm-20-attestation-for-switch-owners">TPM 2.0 Attestation for Switch Owners</a>
+<ul dir="auto">
+<li><a href="#general-guidelines-on-what-to-attest">General Guidelines on What to Attest</a></li>
+<li><a href="#conceptual-flow-for-offline-pcr-precomputation">Conceptual Flow for <em>Offline</em> PCR Precomputation</a></li>
+<li><a href="#tpm-20-attestation-workflow-steps">TPM 2.0 Attestation Workflow Steps</a></li>
+<li><a href="#tpm-20-attestation-workflow-diagram">TPM 2.0 Attestation Workflow Diagram</a></li>
+<li><a href="#tpm-20-attestation-alternatives-considered">TPM 2.0 Attestation Alternatives Considered</a></li>
+</ul>
+</li>
+<li><a href="#special-considerations">Special Considerations</a>
+<ul dir="auto">
+<li><a href="#switch-owner-prod-tls-cert-issuance">Switch Owner Prod TLS Cert Issuance</a></li>
+<li><a href="#rma-scenario">RMA Scenario</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#implementation">Implementation</a>
+<ul dir="auto">
+<li><a href="#code-structure">Code Structure</a></li>
+<li><a href="#use-cases-for-various-packages">Use Cases for Various Packages</a></li>
+<li><a href="#handy-commands">Handy Commands</a></li>
+</ul>
+</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Terminology</h2><a id="user-content-terminology" class="anchor" aria-label="Permalink: Terminology" href="#terminology"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li><a href="https://github.com/openconfig/bootz">Bootz</a> is an evolution of <a href="https://www.rfc-editor.org/rfc/rfc8572.html" rel="nofollow">sZTP</a>.</li>
+<li>TPM EnrollZ service (or simply EnrollZ service) is the switch owner's internal infrastructure service responsible for the TPM 2.0 enrollment workflow.</li>
+<li>TPM AttestZ service (or simply AttestZ service) is switch owner's internal infrastructure service responsible for TPM 2.0 attestation workflow.</li>
+<li>Switch owner CA is the switch owner's internal Certificate Authority service.</li>
+<li>Switch chassis consists of one or more <em>“control cards”</em> (or <em>“control cards”</em>, <em>“routing engines”</em>, <em>“routing processors”</em>, etc.), each of which is equipped with its own CPU and TPM. The term control card will be used throughout the doc.</li>
+</ul>
+<p dir="auto"><strong>Differences between various certs</strong> <em>(more details in the <a href="https://trustedcomputinggroup.org/wp-content/uploads/TPM-2p0-Keys-for-Device-Identity-and-Attestation_v1_r12_pub10082021.pdf" rel="nofollow">TCG spec</a>)</em>:</p>
+<markdown-accessiblity-table><table>
+<thead>
+<tr>
+<th align="center"><strong>Cert type</strong></th>
+<th align="center"><strong>On which pub key is the cert based on?</strong></th>
+<th align="center"><strong>Can there be more than one underlying keypair for a given TPM?</strong></th>
+<th align="center"><strong>Which CA issues/signs the cert?</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center">Initial Attestation Key (IAK)</td>
+<td align="center">IAK pub</td>
+<td align="center">No</td>
+<td align="center">Switch Vendor</td>
+</tr>
+<tr>
+<td align="center">Local Attestation Key (LAK)</td>
+<td align="center">LAK pub</td>
+<td align="center">Yes</td>
+<td align="center">Switch Owner</td>
+</tr>
+<tr>
+<td align="center">Owner IAK (oIAK)</td>
+<td align="center">IAK pub</td>
+<td align="center">No</td>
+<td align="center">Switch Owner</td>
+</tr>
+<tr>
+<td align="center">Initial Device Identity (IDevID)</td>
+<td align="center">IDevID pub</td>
+<td align="center">No</td>
+<td align="center">Switch Vendor</td>
+</tr>
+<tr>
+<td align="center">Local Device Identity (LDevID)</td>
+<td align="center">LDevID pub</td>
+<td align="center">Yes</td>
+<td align="center">Switch Owner</td>
+</tr>
+<tr>
+<td align="center">Owner Device Identity (oIDevID)</td>
+<td align="center">IDevID pub</td>
+<td align="center">No</td>
+<td align="center">Switch Owner</td>
+</tr>
+<tr>
+<td align="center">Endorsement Key (EK)</td>
+<td align="center">EK pub</td>
+<td align="center">No</td>
+<td align="center">TPM Vendor</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Design</h2><a id="user-content-design" class="anchor" aria-label="Permalink: Design" href="#design"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">TPM 2.0 Enrollment for Switch Owners</h3><a id="user-content-tpm-20-enrollment-for-switch-owners" class="anchor" aria-label="Permalink: TPM 2.0 Enrollment for Switch Owners" href="#tpm-20-enrollment-for-switch-owners"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">In this workflow switch owner verifies device's Initial Attestation Key (IAK) and Initial DevID (IDevID) certificates (signed by the switch vendor CA) and installs/rotates owner IAK (oIAK) and owner IDevID (oIDevID) certificates (signed by switch owner CA). oIAK and oIDevID certs are based on the same underlying keys as IAK and IDevID certs, respectively, and give switch owner the ability to (1)
+fully control certificate structure, revocation and expiration policies and (2) remove external dependency on switch vendor CA during TPM attestation workflow. The assumption is that before the device is shipped to the switch owner, a switch vendor provisions each control card with IAK and IDevID certificates following the TCG specification in
+<a href="https://trustedcomputinggroup.org/wp-content/uploads/TPM-2p0-Keys-for-Device-Identity-and-Attestation_v1_r12_pub10082021.pdf#page=20" rel="nofollow">Section 5.2</a> and <a href="https://trustedcomputinggroup.org/wp-content/uploads/TPM-2p0-Keys-for-Device-Identity-and-Attestation_v1_r12_pub10082021.pdf#page=30" rel="nofollow">Section 6.2</a>.</p>
+<p dir="auto">The latest <a href="https://trustedcomputinggroup.org/wp-content/uploads/PC-Client-Specific-Platform-TPM-Profile-for-TPM-2p0-v1p05p_r14_pub.pdf" rel="nofollow">TCG spec</a> makes it mandatory to support ECC P384, RSA 3072 and SHA 384, while ECC P521, RSA 4096 and SHA 512 are optional.
+Even though it is strongly preferred to rely on ECC P521 and SHA-512 where possible, switch vendors must at the very least support:</p>
+<ol dir="auto">
+<li>ECC P384 for EK, IAK and IDevID key pairs.</li>
+<li>SHA 384 for PCR hash bank (specified as <code>hash_algo</code> in <code>AttestRequest</code>).</li>
+<li>SHA 384 for PCR quote digest (part of signature scheme of the IAK key used in <a href="https://www.trustedcomputinggroup.org/wp-content/uploads/TPM-Rev-2.0-Part-2-Structures-01.38.pdf#page=123" rel="nofollow">TPM2_Quote()</a>).</li>
+<li>ECC P384 for switch vendor CA (IAK and IDevID) certificate-signing keys.</li>
+</ol>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">TPM 2.0 Enrollment Workflow Steps</h4><a id="user-content-tpm-20-enrollment-workflow-steps" class="anchor" aria-label="Permalink: TPM 2.0 Enrollment Workflow Steps" href="#tpm-20-enrollment-workflow-steps"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ol dir="auto">
+<li>On completion of Bootz workflow, device obtains all necessary credentials and configurations to start serving TPM enrollment gRPC API endpoints on the same port as gNOI/gNSI/gNMI (9339).
+<ul dir="auto">
+<li><em>Note: A device is shipped to the switch owner with a default SSL profile configured to rely on the IDevID key pair and IDevID TLS cert (signed by the switch vendor CA) for all RPCs.</em></li>
+</ul>
+</li>
+<li>On completion of Bootz, EnrollZ service is notified to enroll a TPM on a specific control card and calls the device's <code>GetIakCert</code> API to get back an IAK and IDevID certs.
+<ul dir="auto">
+<li>During initial bootstrapping, an active control card must use its IDevID cert (part of switch's default SSL profile) for securing TLS connection. Once the device is provisioned with switch-owner-issued prod TLS cert in <code>certz</code> workflow, the device must always use that cert for all subsequent enrollz RPCs (such as <code>RotateOIakCert</code>).</li>
+<li>Primary/active control card is also responsible for all RPCs directed to the secondary/standby control card. The mechanism of internal communication between the two control cards depends on the switch vendor and is out of scope of this doc.
+Since the switch owner cannot directly TLS authenticate standby card, it is the responsibility of an active card to do an auth handshake with the standby card based on the IDevID key pair/cert as described in <a href="#rma-scenario">RMA Scenario</a>.</li>
+</ul>
+</li>
+<li>EnrollZ service uses the trust bundle/anchor obtained (in advance) from the switch vendor to verify signature over the IAK cert, and ensure that the control card serial number in IAK cert and IDevID cert is the same.
+<ul dir="auto">
+<li><em>Note: EnrollZ service must have access to the up-to-date switch vendor trust bundle/anchor needed to verify the signature over the IAK and IDevID certificates. The mechanics of this workflow are out of scope of this doc, but the trust bundle could be retrieved from a trusted vendor portal on a scheduled basis.</em></li>
+</ul>
+</li>
+<li>EnrollZ service ensures that device identity fields in IAK and IDevID certs match its expectations.</li>
+<li>EnrollZ service asks switch owner CA to issue an oIAK and oIDevID certs based on the IAK and IDevID pub keys, respectively.</li>
+<li>EnrollZ service obtains the oIAK and oIDevID certs from the CA and calls the device's <code>RotateOIakCert</code> API to persist the oIAK and oIDevID certs on the control card.</li>
+<li>The switch verifies that the IAK pub key in oIAK cert matches the one in IAK cert and that IDevID pub key in oIDevID cert matches the one in IDevID cert.</li>
+<li>The switch stores oIAK and oIDevID certs in non-volatile memory and will present them in the TPM attestation <code>attestz</code> workflow.</li>
+<li>The switch must use the profile created during bootz which provided the trust bundle. This will rotate the profiles cert to be the provided Owner IDevID cert and
+sets the Owner IAK cert.
+<ul dir="auto">
+<li><em>Note: This implies that after successful enrollment the switch must force all its gRPC servers/services (such as <code>attestz</code> and <code>certz</code>) to respect the updated SSL profile relying on oIDevID cert. This should have already been set as part of bootz but this should again be forced at part of enrollment</em>
+<em>Note: Further Rotate calls may only require the rotation of the Owner IAK cert so those messages
+will not contain the <code>ssl_profile_id</code> nor <code>oidevid_cert</code> fields.</em></li>
+</ul>
+</li>
+<li>EnrollZ service repeats the workflow for the second control card if one is available.</li>
+</ol>
+<p dir="auto"><strong>Pros:</strong></p>
+<ul dir="auto">
+<li>The approach effectively delegates much of the TPM enrollment workflow to the switch vendor which aligns with the TCG guidance/intention.</li>
+<li>Simplicity of TPM enrollment workflow on switch owner side which should streamline the implementation of the workflow for both switch owner and switch vendors and thus make it easier to onboard new and scale across vendors.</li>
+<li>Using oIAK and oIDevID certs gives switch owners more flexibility and control over the cert structure, management (e.g. revocation) and lifecycle.</li>
+<li>AttestZ service does not have an external dependency on switch vendor CA on every switch attestation.</li>
+<li>Switch vendors do not need to support issuance of LAKs.</li>
+</ul>
+<p dir="auto"><strong>Cons:</strong></p>
+<ul dir="auto">
+<li>Need to trust that switch vendors actually performed proper TPM enrollment following TCG spec.</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">TPM 2.0 Enrollment Workflow Diagram</h4><a id="user-content-tpm-20-enrollment-workflow-diagram" class="anchor" aria-label="Permalink: TPM 2.0 Enrollment Workflow Diagram" href="#tpm-20-enrollment-workflow-diagram"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><a target="_blank" rel="noopener noreferrer" href="assets/tpm-20-enrollment-workflow-diagram.svg"><img src="assets/tpm-20-enrollment-workflow-diagram.svg" alt="Alt text" title="TPM 2.0 enrollment workflow diagram" style="max-width: 100%;"></a></p>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">TPM 2.0 Enrollment Alternatives Considered</h4><a id="user-content-tpm-20-enrollment-alternatives-considered" class="anchor" aria-label="Permalink: TPM 2.0 Enrollment Alternatives Considered" href="#tpm-20-enrollment-alternatives-considered"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="markdown-heading" dir="auto"><h5 class="heading-element" dir="auto">1. EnrollZ service serves TPM enrollment API endpoints</h5><a id="user-content-1-enrollz-service-serves-tpm-enrollment-api-endpoints" class="anchor" aria-label="Permalink: 1. EnrollZ service serves TPM enrollment API endpoints" href="#1-enrollz-service-serves-tpm-enrollment-api-endpoints"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><strong>Pros:</strong></p>
+<ul dir="auto">
+<li>A device knows exactly when it is ready to kick off TPM enrollment workflow (right after Bootz workflow and potential subsequent reboot are complete) whereas in the proposed workflow EnrollZ service will likely need to repeatedly try to reach out to the device until it is ready for TPM enrollment.</li>
+<li>Can be achieved with a single <code>ExchangeIakCert</code> API: given an IAK cert return an oIAK cert.</li>
+</ul>
+<p dir="auto"><strong>Cons:</strong></p>
+<ul dir="auto">
+<li>From a security standpoint, switches generally should not be initiating connections.</li>
+<li>The design will be cleaner if TPM enrollment followed the same pattern as TPM attestation and gNxI APIs where the device serves the endpoints.</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h5 class="heading-element" dir="auto">2. Use IAK cert (as is) signed by the switch vendor CA</h5><a id="user-content-2-use-iak-cert-as-is-signed-by-the-switch-vendor-ca" class="anchor" aria-label="Permalink: 2. Use IAK cert (as is) signed by the switch vendor CA" href="#2-use-iak-cert-as-is-signed-by-the-switch-vendor-ca"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The workflow would follow the TCG specification documented in <a href="https://trustedcomputinggroup.org/wp-content/uploads/TPM-2p0-Keys-for-Device-Identity-and-Attestation_v1_r12_pub10082021.pdf#page=19" rel="nofollow">section 5.1</a> and <a href="https://trustedcomputinggroup.org/wp-content/uploads/TPM-2p0-Keys-for-Device-Identity-and-Attestation_v1_r12_pub10082021.pdf#page=27" rel="nofollow">section 6.1</a>.</p>
+<p dir="auto"><strong>Pros:</strong></p>
+<ul dir="auto">
+<li>Simplifies the workflow and practically removes the TPM enrollment workflow on the switch owner side.</li>
+</ul>
+<p dir="auto"><strong>Cons:</strong></p>
+<ul dir="auto">
+<li>Introduces a strong runtime dependency on switch vendor CA every time AttestZ service performs TPM attestation.</li>
+<li>Using a switch-vendor-issued IAK cert gives the switch owner no control over the cert structure, management (e.g. revocation) and lifecycle.</li>
+<li>Need to trust that the switch vendor actually performed proper TPM enrollment following TCG spec.</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h5 class="heading-element" dir="auto">3. Switch owner uses EK (or EK cert) to issue LAK cert</h5><a id="user-content-3-switch-owner-uses-ek-or-ek-cert-to-issue-lak-cert" class="anchor" aria-label="Permalink: 3. Switch owner uses EK (or EK cert) to issue LAK cert" href="#3-switch-owner-uses-ek-or-ek-cert-to-issue-lak-cert"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The workflow would follow the TCG specification documented in <a href="https://trustedcomputinggroup.org/wp-content/uploads/TPM-2p0-Keys-for-Device-Identity-and-Attestation_v1_r12_pub10082021.pdf#page=24" rel="nofollow">section 5.6</a> and <a href="https://trustedcomputinggroup.org/wp-content/uploads/TPM-2p0-Keys-for-Device-Identity-and-Attestation_v1_r12_pub10082021.pdf#page=34" rel="nofollow">section 6.6</a>. In this case the switch vendor would
+not perform TPM enrollment at all.</p>
+<p dir="auto"><strong>Pros:</strong></p>
+<ul dir="auto">
+<li>Using LAK gives switch owners more flexibility and control over the cert structure, management (e.g. revocation) and lifecycle.</li>
+<li>No need to trust that the switch vendor actually performed proper TPM enrollment following TCG spec.</li>
+<li>Switch vendors do not need to do TPM enrollment and provision the switch with an IAK.</li>
+<li>AttestZ service does not have an external dependency on switch vendor CA on every switch attestation.</li>
+</ul>
+<p dir="auto"><strong>Cons:</strong></p>
+<ul dir="auto">
+<li>Switch owner has to develop and support complex TPM enrollment logic that verifies that the device indeed possesses EK private key.</li>
+<li>Either (1) all switch vendors have to publish EK pub on their portal and switch owner to build an automatic system (for each vendor) to fetch and persist it in advance of device shipment or (2) switch owner to obtain and manage a TPM manufacturer trust bundle to verify EK cert with which all switches must be provisioned.</li>
+<li>Switch vendors need to support issuance of LAKs.</li>
+<li>LAKs are also primarily used in scenarios where device/user privacy is important. In the case of network switches (especially the ones running in switch owner's own data centers), however, infra components would actually want to know exactly the identities of the switches, so their privacy is not desirable. Consult
+<a href="https://trustedcomputinggroup.org/wp-content/uploads/TPM-2p0-Keys-for-Device-Identity-and-Attestation_v1_r12_pub10082021.pdf#page=64" rel="nofollow">section 11</a> of the TCG spec for more details.</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h5 class="heading-element" dir="auto">4. Switch owner issues LAK cert based on IAK cert signed by switch vendor CA</h5><a id="user-content-4-switch-owner-issues-lak-cert-based-on-iak-cert-signed-by-switch-vendor-ca" class="anchor" aria-label="Permalink: 4. Switch owner issues LAK cert based on IAK cert signed by switch vendor CA" href="#4-switch-owner-issues-lak-cert-based-on-iak-cert-signed-by-switch-vendor-ca"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The workflow would follow the TCG specification documented in <a href="https://trustedcomputinggroup.org/wp-content/uploads/TPM-2p0-Keys-for-Device-Identity-and-Attestation_v1_r12_pub10082021.pdf#page=21" rel="nofollow">section 5.3</a> and <a href="https://trustedcomputinggroup.org/wp-content/uploads/TPM-2p0-Keys-for-Device-Identity-and-Attestation_v1_r12_pub10082021.pdf#page=32" rel="nofollow">section 6.3</a>.</p>
+<p dir="auto"><strong>Pros:</strong></p>
+<ul dir="auto">
+<li>Using LAK gives switch owners more flexibility and control over the cert structure, management (e.g. revocation) and lifecycle.</li>
+<li>AttestZ service (a performance-critical service) does not have an external dependency on switch vendor CA on every switch attestation.</li>
+</ul>
+<p dir="auto"><strong>Cons:</strong></p>
+<ul dir="auto">
+<li>Need to trust that the switch vendor actually performed proper TPM enrollment following TCG spec.</li>
+<li>The most expensive approach in terms of software development/maintenance perspective as both switch vendors and switch owners will need to engineer complex TPM enrollment logic (see TCG spec for more details).</li>
+<li>Switch vendors need to support issuance of LAKs.</li>
+<li>LAKs are also primarily used in scenarios where device/user privacy is important. In the case of network switches (especially the ones running in switch owner's own data centers), however, infra components would actually want to know exactly the identities of the switches, so their privacy is not desirable. Consult
+<a href="https://trustedcomputinggroup.org/wp-content/uploads/TPM-2p0-Keys-for-Device-Identity-and-Attestation_v1_r12_pub10082021.pdf#page=64" rel="nofollow">section 11</a> of the TCG spec for more details.</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">TPM 2.0 Attestation for Switch Owners</h3><a id="user-content-tpm-20-attestation-for-switch-owners" class="anchor" aria-label="Permalink: TPM 2.0 Attestation for Switch Owners" href="#tpm-20-attestation-for-switch-owners"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">In this workflow switch owner verifies that the device's end-to-end boot state (bootloader, OS, secure boot policy, etc.) matches owner's expectations. This approach assumes that expected final PCR values were precomputed beforehand and are available during the attestation workflow. Thus, on a high level for each control card AttestZ service will (1) fetch final observed PCR values, PCR quote
+(signed with IAK private key) and oIAK cert from the device, (2) verify oIAK cert, (3) verify PCR quote signature with oIAK cert, (4) verify PCRs digest, (5) compare observed PCR final values to the expected ones.</p>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">General Guidelines on What to Attest</h4><a id="user-content-general-guidelines-on-what-to-attest" class="anchor" aria-label="Permalink: General Guidelines on What to Attest" href="#general-guidelines-on-what-to-attest"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">This section is out of scope of the broader openconfig initiative and instead serves more as a guideline. The general question one should ask when thinking of what to attest is "does changing X on the device change the fundamental boot posture of the device?".
+If the answer is yes, then attest it, otherwise it is not required. Examples of such software that should be attested are bootloader image, OS image and secure boot policy.</p>
+<p dir="auto">Similarly, TCG discourages attesting device-specific configurations/software or things that may change after a reboot. In section <a href="https://trustedcomputinggroup.org/wp-content/uploads/TCG_PCClient_PFP_r1p05_v23_pub.pdf#page=40" rel="nofollow">3.3.4.2</a> and 3.3.4.4 for PCR [1] and PCR[3] (both of which measure configuration related data) TCG spec states:
+<em>"Entities that MUST NOT be measured as part of the above measurements: System-unique information such as asset, serial numbers, etc., as they would prevent sealing to PCR[3] with a common configuration in a fleet of devices"</em> and <em>"The event data MUST not vary across boot cycles if the set of potential PCR[1] measurements measured does not vary"</em>.
+Instead of attesting such configurations, it should be software's (e.g. OS or application layer) responsibility to verify/validate such configs, while the switch owner may attest the underlying software image containing the verification logic.</p>
+<p dir="auto">Attesting secrets is an anti-pattern. Even if one is attesting password <em>hashes</em> and even if a hash has strong entropy, it is still a good practice to avoid attesting secrets or potentially-secrets-revealing data.
+This is mainly because all the attestable measurements are considered to be public and are logged in plain into the bootlog, which is intended (although not required) to be publicly shared during attestation.</p>
+<p dir="auto">Finally, although the exact PCR allocation may vary across vendors, the expectation is that switch vendors will follow standardized <a href="https://trustedcomputinggroup.org/wp-content/uploads/TCG_PCClient_PFP_r1p05_v23_pub.pdf#page=36" rel="nofollow">TCG guidance</a> (which measurements are measured in which PCRs, who makes those measurements, the order of measurements, etc.) for these measurements:</p>
+<markdown-accessiblity-table><table>
+<thead>
+<tr>
+<th align="left"><strong>PCR Index</strong></th>
+<th align="left"><strong>PCR Usage</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">0</td>
+<td align="left">SRTM, BIOS, Host Platform Extensions, Embedded Option ROMs and PI Drivers</td>
+</tr>
+<tr>
+<td align="left">1</td>
+<td align="left">Host Platform Configuration</td>
+</tr>
+<tr>
+<td align="left">2</td>
+<td align="left">UEFI driver and application Code</td>
+</tr>
+<tr>
+<td align="left">3</td>
+<td align="left">UEFI driver and application Configuration and Data</td>
+</tr>
+<tr>
+<td align="left">4</td>
+<td align="left">UEFI Boot Manager Code (usually the MBR) and Boot Attempts</td>
+</tr>
+<tr>
+<td align="left">5</td>
+<td align="left">Boot Manager Code Configuration and Data (for use by the Boot Manager Code) and GPT/Partition Table</td>
+</tr>
+<tr>
+<td align="left">6</td>
+<td align="left">Host Platform Manufacturer Specific</td>
+</tr>
+<tr>
+<td align="left">7</td>
+<td align="left">Secure Boot Policy</td>
+</tr>
+<tr>
+<td align="left">8-15</td>
+<td align="left">Defined for use by the Static OS</td>
+</tr>
+<tr>
+<td align="left">16</td>
+<td align="left">Debug</td>
+</tr>
+<tr>
+<td align="left">23</td>
+<td align="left">Application Support</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Conceptual Flow for <em>Offline</em> PCR Precomputation</h4><a id="user-content-conceptual-flow-for-offline-pcr-precomputation" class="anchor" aria-label="Permalink: Conceptual Flow for Offline PCR Precomputation" href="#conceptual-flow-for-offline-pcr-precomputation"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The idea is that before devices are even shipped to a switch owner, switch vendors give switch owners (through an API endpoint) final expected PCR values for those PCRs that are the same across all devices for a given product model and bootloader/OS version (PCRs that do not change between reboots and are not device-specific). Such PCR values can include measurements of BIOS image, bootloader
+image, OS image, security boot policy, etc. A switch owner would simply
+ingest these values and persist them in an internal DB, so that later when AttestZ service actually performs attestation, it can just compare final expected PCRs to the actual PCRs reported by the device, instead of recomputing these PCRs from the boot log for every attestation.</p>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">TPM 2.0 Attestation Workflow Steps</h4><a id="user-content-tpm-20-attestation-workflow-steps" class="anchor" aria-label="Permalink: TPM 2.0 Attestation Workflow Steps" href="#tpm-20-attestation-workflow-steps"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ol dir="auto">
+<li>Device serves gRPC TPM 2.0 attestation endpoints on the same port as gNOI/gNSI/gNMI (9339). At this point the device must be booted with the correct OS image and with correct configurations/credentials applied.
+<ul dir="auto">
+<li>Primary/active control card is also responsible for all RPCs directed to the secondary/standby control card. The mechanism of internal communication between the two control cards depends on the switch vendor and is out of scope of this doc.
+Since the switch owner cannot directly TLS authenticate standby card, it is the responsibility of an active card to do an auth handshake with the standby card based on the IDevID key pair/cert as described in <a href="#rma-scenario">RMA Scenario</a>.</li>
+<li>Device uses active control card’s IDevID private key and oIDevID cert for securing TLS for the <strong>initial</strong> attestation RPCs. On successful completion of initial attestation, the device will be provisioned with switch owner’s prod credentials/certs and will rely on those for securing TLS in subsequent attestation workflows.</li>
+</ul>
+</li>
+<li>AttestZ service calls device’s <code>Attest</code> endpoint for a given control card (and a random nonce) to get back:
+<ul dir="auto">
+<li>An oIAK cert (received by the device during the TPM enrollment workflow) signed by the switch owner’s CA.</li>
+<li>Final observed PCR hashes/values.</li>
+<li>PCR Quote structure and signature over it signed by IAK private key.</li>
+<li>(Optional - only when the call is intended for the standby control card) oIDevID cert of the standby control card.</li>
+</ul>
+</li>
+<li>AttestZ service uses the trust bundle/anchor from switch owner CA to verify oIAK cert and its validity/revocations status.</li>
+<li>AttestZ service verifies that the control card serial number in oIAK cert and oIDevID cert is the same.</li>
+<li>AttestZ service uses oIAK cert to verify signature over device’s PCR quote.</li>
+<li>AttestZ service recomputes PCR digest and matches it against the one used in PCR quote.</li>
+<li>AttestZ service fetches expected final PCR values from its DB and compares those to the observed ones reported by the device.</li>
+<li>AttestZ service records a successful attestation status for a given control card and repeats the workflow for the secondary/standby control card if one is available.</li>
+</ol>
+<p dir="auto"><strong>Pros:</strong></p>
+<ul dir="auto">
+<li>No dependency on device boot log that needs to be standardized across all switch vendors.</li>
+<li>Attestation logic is simple as it boils down to just comparing final PCR hashes and does not involve PCR recomputation from the boot log.</li>
+<li>Expected final PCR values are computed only once, for all devices and offline (before devices arrive to switch owners as opposed to on every attestation while switches are already serving production traffic). This is both efficiency and reliability gain.</li>
+<li>The design can be extended to attest device-specific PCRs if needed. In this case switch vendors will also provide (along with final expected PCRs) a structured vendor-agnostic PCR measurement manifest object which describes how to calculate final PCRs and at the very least specifies (1) what measurements go into which PCR, (2) the order of measurements, (3) cryptographic hash algorithm used.
+<ul dir="auto">
+<li>
+<p dir="auto"><em>Note: For the actual manifest structure definition, we should consider getting ideas from the <a href="https://datatracker.ietf.org/doc/pdf/draft-ietf-rats-yang-tpm-charra-21#page=6" rel="nofollow">attestation log-retrieval API</a> by IETF ChaRRA and re-using/expanding the design from the <a href="https://trustedcomputinggroup.org/wp-content/uploads/TCG_RIM_Model_v1p01_r0p16_pub.pdf" rel="nofollow">Reference Integrity Manifest</a> by TCG.
+The goal is for a switch owner, given a vendor-agnostic PCR measurement manifest (the API/object/format definition is vendor-agnostic, but the actual instance of that object is vendor-specific) and PCR measurement inputs (e.g. boot configuration), to have the ability to pre-calculate the expected final PCRs for a given device using standard TPM folding hash technique. For example:</em></p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="PCR[5]  ← 0
+PCR[5]  ← Hash(PCR[5] || sha-256(“config-Y”))
+PCR[5]  ← Hash(PCR[5] || sha-256(“config-Z”))"><pre lang="text" class="notranslate"><code>PCR[5]  ← 0
+PCR[5]  ← Hash(PCR[5] || sha-256(“config-Y”))
+PCR[5]  ← Hash(PCR[5] || sha-256(“config-Z”))
+</code></pre></div>
+</li>
+</ul>
+</li>
+</ul>
+<p dir="auto"><strong>Cons:</strong></p>
+<ul dir="auto">
+<li>Pre-computation approach deviates from the general TCG specification and IETF ChaRRA draft.</li>
+</ul>
+<p dir="auto">Once the attestation workflow is complete for both control cards, AttestZ service will provision the device with mTLS credentials/certs. Although this workflow is out of scope of this doc, on a high level it may look like this:</p>
+<ol dir="auto">
+<li>AttestZ service completes attestation workflow for all switch chassis control cards.</li>
+<li>AttestZ service asks the device to generate and send back a standard signed OpenSSL Certificate Signing Request (CSR) for issuance of the mTLS credential/cert.
+<ul dir="auto">
+<li><em>Note: in future, we can further improve the security posture of switches by sealing the private key to the TPM state. This would ensure that a device (1) has to have certain PCR final values to be able to access (unseal) the credential and (2) that only the intended device/control card can access the credential.</em></li>
+</ul>
+</li>
+<li>AttestZ service verifies CSR and sends the request to issue a mTLS cert to switch owner CA.</li>
+<li>AttestZ service calls the device to persist the mTLS cert.</li>
+<li>The device ensures that the cert pub key matches the one it created earlier and persists the cert in non-volatile memory.</li>
+</ol>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">TPM 2.0 Attestation Workflow Diagram</h4><a id="user-content-tpm-20-attestation-workflow-diagram" class="anchor" aria-label="Permalink: TPM 2.0 Attestation Workflow Diagram" href="#tpm-20-attestation-workflow-diagram"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><a target="_blank" rel="noopener noreferrer" href="assets/tpm-20-attestation-workflow-diagram.svg"><img src="assets/tpm-20-attestation-workflow-diagram.svg" alt="Alt text" title="TPM 2.0 attestation workflow diagram" style="max-width: 100%;"></a></p>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">TPM 2.0 Attestation Alternatives Considered</h4><a id="user-content-tpm-20-attestation-alternatives-considered" class="anchor" aria-label="Permalink: TPM 2.0 Attestation Alternatives Considered" href="#tpm-20-attestation-alternatives-considered"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Before the device is shipped to the switch owner, the switch owner fetches individual PCR measurement artifacts such as bootloader image hash and OS image hash from the switch vendor portal and stores those in the internal DB.</p>
+<p dir="auto">Attestation workflow with differences from the proposed approach in <strong>bold</strong>:</p>
+<ol dir="auto">
+<li>Device serves gRPC TPM 2.0 attestation APIs. At this point the device must be booted with the correct OS image and with correct configurations/credentials applied.
+<ul dir="auto">
+<li>Primary/active control card is also responsible for all RPCs directed to the secondary/standby control card. The mechanism of internal communication between the two control cards depends on the switch vendor and is out of scope of this doc.</li>
+<li>Device uses active control card’s IDevID private key and oIDevID cert for securing TLS for the initial attestation RPCs. Once the device successfully completes attestation and is provisioned with switch owner’s prod credentials/certs, the device will rely on those for securing TLS in subsequent attestation workflows.</li>
+</ul>
+</li>
+<li>AttestZ service calls device’s <code>Attest</code> endpoint for a given control card (and a random nonce) to get back <em>(note: the API can borrow ideas from <a href="https://datatracker.ietf.org/doc/pdf/draft-ietf-rats-yang-tpm-charra-21#page=5" rel="nofollow">log-retrieval</a> and <a href="https://datatracker.ietf.org/doc/pdf/draft-ietf-rats-yang-tpm-charra-21#page=4" rel="nofollow">tpm20-challenge-response-attestation</a> APIs):</em>
+<ul dir="auto">
+<li>An oIAK cert signed by the switch owner’s CA and received by the device during the TPM enrollment workflow.</li>
+<li>Final observed PCR hashes.</li>
+<li>Quote structure and signature over it signed by IAK private.</li>
+<li><strong>Boot log</strong>.</li>
+<li>(Optional - only when the call is intended for the standby control card) oIDevID cert of the standby control card.</li>
+</ul>
+</li>
+<li>AttestZ service uses the trust bundle/anchor from switch owner CA to verify oIAK cert and its validity/revocations status.</li>
+<li>AttestZ service verifies that the control card serial number in oIAK cert and oIDevID cert is the same.</li>
+<li>AttestZ service uses oIAK cert to verify signature over device’s PCR quotes.</li>
+<li>AttestZ service recomputes PCR digest and matches it against the one used in PCR quote.</li>
+<li><strong>AttestZ service recomputes final PCR values from the boot log and compares those to the PCR values that the device’s TPM reported. If those match, it can trust the boot log.</strong></li>
+<li><strong>AttestZ service fetches the hashes of PCR measurement events (e.g. OS image hash, bootloader image hash, etc.) it is interested in from the device’s boot log.</strong></li>
+<li><strong>AttestZ service fetches expected PCR measurement (bootloader image, OS image) hashes from internal DB and compares those to the ones from the device’s boot log.</strong></li>
+<li>AttestZ service records a successful attestation status for a given control card.</li>
+<li>AttestZ service repeats the workflow for the secondary/standby control card if one is available.</li>
+</ol>
+<p dir="auto"><strong>Pros:</strong></p>
+<ul dir="auto">
+<li>Switch owners can adapt to changes in PCR measurements (for example, if there is new artifact measured to a given PCR) on the fly.</li>
+<li>Switch vendors do not need to host an API to give the switch owner PCR measurement manifest with every bootloader/OS release.
+<ul dir="auto">
+<li><em>Note: this is only valid when attestation of device-specific PCRs is needed.</em></li>
+</ul>
+</li>
+<li>Aligns with the general TCG specification and IETF ChaRRA draft.</li>
+</ul>
+<p dir="auto"><strong>Cons:</strong></p>
+<ul dir="auto">
+<li>AttestZ service has a dependency on device boot log that needs to be standardized across all switch vendors.</li>
+<li>Attestation logic becomes more complex as it involves parsing (hopefully vendor-agnostic) boot log and recomputing all PCRs.</li>
+<li>PCR recomputation from the boot log happens in AttestZ service on every attestation when the switches already serve prod traffic. For most (if not all) of the PCRs the recomputed values should be the same for all devices which is also inefficient.</li>
+<li>AttestZ service needs to “know” the measurement events it is looking for in the log or internal DB. This may not scale well if the events are expected to change over time or if they differ between different switch vendors. Most likely this would imply for switch vendors to provide a simpler version of PCR measurement manifest which defeats the purpose of the approach.</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Special Considerations</h3><a id="user-content-special-considerations" class="anchor" aria-label="Permalink: Special Considerations" href="#special-considerations"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Switch Owner Prod TLS Cert Issuance</h4><a id="user-content-switch-owner-prod-tls-cert-issuance" class="anchor" aria-label="Permalink: Switch Owner Prod TLS Cert Issuance" href="#switch-owner-prod-tls-cert-issuance"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Although TLS cert/keys issuance workflow/APIs is outside of the scope of this document, attestz and enrollz require the following handling of private TLS keys for TPM-equipped networking devices. Each control card has its own separate prod TLS key pair and cert that it never shares with the other card.
+Each card can perform CSR-style TLS key pair/cert issuance, where TLS pair key is issued by a control card and the private key never leaves a given control card (never shares the key with another card within the same switch chassis either).
+Switch owner will always attest a given control card before issuing a new or rotating an existing prod TLS cert.
+In other words, <strong>switch-owner-issued production TLS credentials/certs can only be accessible to control cards that have been TPM enrolled and attested by switch owner</strong>. If a standby control card becomes active/primary, it must use its own TLS cert for all connections with switch owner infra.</p>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">RMA Scenario</h4><a id="user-content-rma-scenario" class="anchor" aria-label="Permalink: RMA Scenario" href="#rma-scenario"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">One benefit of having multiple control cards is a redundancy model where one control card (active) is serving traffic while another card is unavailable. In such a scenario a switch owner would typically want to replace the failed control card, while the active card is still serving traffic (aka hot-swapping).
+The newly inserted (standby) card must be TPM enrolled and attested by the switch owner before the card gets access to switch-owner-issued prod TLS cert. Thus, conceptually the RMA workflow would be the following:</p>
+<ol dir="auto">
+<li>During the initial device secure install, switch owner TPM enrolls and attests both control cards. One of the cards acts as primary, serving prod traffic. Each control card has its own switch-owner-issued TLS cert.</li>
+<li>One of the cards fails and a new standby card is inserted, while the active card is serving prod traffic.</li>
+<li>Active control card conducts an auth handshake with a newly inserted control card.
+<ol dir="auto">
+<li>Active card sends a nonce to the new standby card.</li>
+<li>Standby card signs the nonce with its IDevID private key and sends it back along with its IDevID cert.</li>
+<li>Active card verifies nonce signature and IDevID cert.</li>
+</ol>
+</li>
+<li>Active card notifies switch owner infra that a new control card is inserted.</li>
+<li>Switch owner initiates enrollz and attestz workflow for the new standby card. Once attestz succeeds, switch owner issues to the standby control card its own TLS credentials/cert.</li>
+</ol>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Implementation</h2><a id="user-content-implementation" class="anchor" aria-label="Permalink: Implementation" href="#implementation"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Code Structure</h3><a id="user-content-code-structure" class="anchor" aria-label="Permalink: Code Structure" href="#code-structure"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">This diagram describes the expected relationship between OpenConfig OSS, switch vendor and switch owner codebases.</p>
+<p dir="auto"><a target="_blank" rel="noopener noreferrer" href="assets/attestz-code-structure.png"><img src="assets/attestz-code-structure.png" alt="Alt text" title="Code Structure" style="max-width: 100%;"></a></p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Use Cases for Various Packages</h3><a id="user-content-use-cases-for-various-packages" class="anchor" aria-label="Permalink: Use Cases for Various Packages" href="#use-cases-for-various-packages"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">This diagram highlights various use cases for different packages.</p>
+<p dir="auto"><a target="_blank" rel="noopener noreferrer" href="assets/attestz-scenarios.png"><img src="assets/attestz-scenarios.png" alt="Alt text" title="Use Cases for Various Packages" style="max-width: 100%;"></a></p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Handy Commands</h3><a id="user-content-handy-commands" class="anchor" aria-label="Permalink: Handy Commands" href="#handy-commands"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="# Completely remove the entire working tree created by a Bazel instance.
+bazel clean --expunge
+
+# Regenerate Go protobuf and gRPC client/service files.
+sh regenerate-files.sh
+
+# Build all targets.
+bazel build //...
+
+# Update Go dependencies in go.mod and go.sum.
+go mod tidy
+
+# Run a specific test.
+go test -v ./service/biz -run TestVerifyAndParseIakAndIDevIdCerts --alsologtostderr"><pre><span class="pl-c"><span class="pl-c">#</span> Completely remove the entire working tree created by a Bazel instance.</span>
+bazel clean --expunge
+
+<span class="pl-c"><span class="pl-c">#</span> Regenerate Go protobuf and gRPC client/service files.</span>
+sh regenerate-files.sh
+
+<span class="pl-c"><span class="pl-c">#</span> Build all targets.</span>
+bazel build //...
+
+<span class="pl-c"><span class="pl-c">#</span> Update Go dependencies in go.mod and go.sum.</span>
+go mod tidy
+
+<span class="pl-c"><span class="pl-c">#</span> Run a specific test.</span>
+go <span class="pl-c1">test</span> -v ./service/biz -run TestVerifyAndParseIakAndIDevIdCerts --alsologtostderr</pre></div>
+</article></div>
