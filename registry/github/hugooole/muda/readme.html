@@ -1,0 +1,228 @@
+<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><p dir="auto">[TOC]</p>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">MUDA</h1><a id="user-content-muda" class="anchor" aria-label="Permalink: MUDA" href="#muda"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">MUDA is <strong>μ-CUDA</strong>, yet another painless CUDA programming <strong>paradigm</strong>.</p>
+<blockquote>
+<p dir="auto">COVER THE LAST MILE OF CUDA</p>
+</blockquote>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Quick Overview</h2><a id="user-content-quick-overview" class="anchor" aria-label="Permalink: Quick Overview" href="#quick-overview"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><strong>Detailed Introduction And Overview [Highly Recommended]</strong>  ➡️ <a href="https://mugdxy.github.io/muda-doc/" rel="nofollow">https://mugdxy.github.io/muda-doc/</a></p>
+<p dir="auto"><strong>Project Templates</strong> ➡️ <a href="https://github.com/MuGdxy/muda-app">https://github.com/MuGdxy/muda-app</a>, start your project with minimal effort.</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="#include &lt;muda/muda.h&gt;
+#include &lt;muda/logger.h&gt;
+#include &lt;iostream&gt;
+using namespace muda;
+
+int main()
+{
+    constexpr int N = 8;
+    
+    // resizable buffer
+    DeviceBuffer&lt;int&gt; buffer;
+    buffer.resize(N);
+    buffer.fill(1);
+    
+    // std::cout like logger
+    Logger logger;
+    
+    // parallel for loop
+    ParallelFor()
+        .kernel_name(&quot;hello_muda&quot;) 
+        .apply(N,
+      	[
+            buffer = buffer.viewer().name(&quot;buffer&quot;),
+            logger = logger.viewer()
+        ] __device__(int i) 
+        {
+            logger &lt;&lt; &quot;buffer(&quot; &lt;&lt; i &lt;&lt; &quot;)=&quot; &lt;&lt; buffer(i) &lt;&lt; &quot;\n&quot;;
+        });
+    
+    logger.retrieve(std::cout); // show print on std::cout
+}"><pre>#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>muda/muda.h<span class="pl-pds">&gt;</span></span>
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>muda/logger.h<span class="pl-pds">&gt;</span></span>
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>iostream<span class="pl-pds">&gt;</span></span>
+<span class="pl-k">using</span> <span class="pl-k">namespace</span> <span class="pl-en">muda</span><span class="pl-k">;</span>
+
+<span class="pl-k">int</span> <span class="pl-en">main</span>()
+{
+    <span class="pl-k">constexpr</span> <span class="pl-k">int</span> N = <span class="pl-c1">8</span>;
+    
+    <span class="pl-c"><span class="pl-c">//</span> resizable buffer</span>
+    DeviceBuffer&lt;<span class="pl-k">int</span>&gt; buffer;
+    buffer.<span class="pl-c1">resize</span>(N);
+    buffer.<span class="pl-c1">fill</span>(<span class="pl-c1">1</span>);
+    
+    <span class="pl-c"><span class="pl-c">//</span> std::cout like logger</span>
+    Logger logger;
+    
+    <span class="pl-c"><span class="pl-c">//</span> parallel for loop</span>
+    <span class="pl-c1">ParallelFor</span>()
+        .<span class="pl-c1">kernel_name</span>(<span class="pl-s"><span class="pl-pds">"</span>hello_muda<span class="pl-pds">"</span></span>) 
+        .<span class="pl-c1">apply</span>(N,
+      	[
+            buffer = buffer.<span class="pl-c1">viewer</span>().<span class="pl-c1">name</span>(<span class="pl-s"><span class="pl-pds">"</span>buffer<span class="pl-pds">"</span></span>),
+            logger = logger.<span class="pl-c1">viewer</span>()
+        ] <span class="pl-c1">__device__</span>(<span class="pl-k">int</span> i) 
+        {
+            logger &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>buffer(<span class="pl-pds">"</span></span> &lt;&lt; i &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>)=<span class="pl-pds">"</span></span> &lt;&lt; <span class="pl-c1">buffer</span>(i) &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span><span class="pl-cce">\n</span><span class="pl-pds">"</span></span>;
+        });
+    
+    logger.<span class="pl-c1">retrieve</span>(std::cout); <span class="pl-c"><span class="pl-c">//</span> show print on std::cout</span>
+}</pre></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Build</h2><a id="user-content-build" class="anchor" aria-label="Permalink: Build" href="#build"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Cmake</h3><a id="user-content-cmake" class="anchor" aria-label="Permalink: Cmake" href="#cmake"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="$ mkdir CMakeBuild
+$ cd CMakeBuild
+$ cmake -S ..
+$ cmake --build ."><pre>$ mkdir CMakeBuild
+$ <span class="pl-c1">cd</span> CMakeBuild
+$ cmake -S ..
+$ cmake --build <span class="pl-c1">.</span></pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Xmake</h3><a id="user-content-xmake" class="anchor" aria-label="Permalink: Xmake" href="#xmake"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Run example:</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="$ xmake f --example=true
+$ xmake 
+$ xmake run muda_example hello_muda"><pre>$ xmake f --example=true
+$ xmake 
+$ xmake run muda_example hello_muda</pre></div>
+<p dir="auto">To show all examples:</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="$ xmake run muda_example -l"><pre>$ xmake run muda_example -l</pre></div>
+<p dir="auto">Play all examples:</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="$ xmake run muda_example"><pre>$ xmake run muda_example</pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Copy Headers</h3><a id="user-content-copy-headers" class="anchor" aria-label="Permalink: Copy Headers" href="#copy-headers"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Because <strong>muda</strong> is header-only, copy the <code>src/muda/</code> folder to your project, set the include directory, and everything is done.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Macro</h3><a id="user-content-macro" class="anchor" aria-label="Permalink: Macro" href="#macro"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<markdown-accessiblity-table><table>
+<thead>
+<tr>
+<th>Macro</th>
+<th>Value</th>
+<th>Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>MUDA_CHECK_ON</code></td>
+<td><code>1</code>(default) or <code>0</code></td>
+<td><code>MUDA_CHECK_ON=1</code> for turn on all muda runtime check(for safety)</td>
+</tr>
+<tr>
+<td><code>MUDA_WITH_COMPUTE_GRAPH</code></td>
+<td><code>1</code>or<code>0</code>(default)</td>
+<td><code>MUDA_WITH_COMPUTE_GRAPH=1</code> for turn on muda compute graph feature</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p dir="auto">If you manually copy the header files, don't forget to define the macros yourself. If you use cmake or xmake, just set the project dependency to muda.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Tutorial</h2><a id="user-content-tutorial" class="anchor" aria-label="Permalink: Tutorial" href="#tutorial"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li><a href="https://zhuanlan.zhihu.com/p/659664377" rel="nofollow">tutorial_zh</a></li>
+<li><a href="https://mugdxy.github.io/muda-doc/tutorial/tutorial/" rel="nofollow">tutorial_en</a></li>
+</ul>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Documentation</h2><a id="user-content-documentation" class="anchor" aria-label="Permalink: Documentation" href="#documentation"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Documentation is maintained on <a href="https://mugdxy.github.io/muda-doc/" rel="nofollow">https://mugdxy.github.io/muda-doc/</a>. And you can also build the doc by yourself.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Build Document</h3><a id="user-content-build-document" class="anchor" aria-label="Permalink: Build Document" href="#build-document"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Download and install doxygen <a href="https://www.doxygen.nl/download.html" rel="nofollow">https://www.doxygen.nl/download.html</a>.</p>
+<p dir="auto">Install <a href="https://www.mkdocs.org/" rel="nofollow">mkdocs</a> and its plugins:</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="pip install mkdocs mkdocs-material mkdocs-literate-nav mkdoxy"><pre>pip install mkdocs mkdocs-material mkdocs-literate-nav mkdoxy</pre></div>
+<p dir="auto">Turn on the local server:</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="mkdocs serve"><pre>mkdocs serve</pre></div>
+<p dir="auto">If you are writing the document, you can use the following command to avoid generating the API documentation all the time:</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="mkdocs serve -f mkdocs-no-api.yaml"><pre>mkdocs serve -f mkdocs-no-api.yaml</pre></div>
+<p dir="auto">Open the browser and visit the <a href="http://127.0.0.1:8000/" rel="nofollow">localhost:8000</a></p>
+<p dir="auto">To update the document on the website, run:</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="cd muda/scripts
+python build_docs.py -o &lt;path of your local muda-doc repo&gt;"><pre><span class="pl-c1">cd</span> muda/scripts
+python build_docs.py -o <span class="pl-k">&lt;</span>path of your <span class="pl-k">local</span> muda-doc repo<span class="pl-k">&gt;</span></pre></div>
+<p dir="auto">If you put the local muda-doc repo in the same directory as muda like:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="- PARENT_FOLDER
+  - muda
+  - muda-doc"><pre class="notranslate"><code>- PARENT_FOLDER
+  - muda
+  - muda-doc
+</code></pre></div>
+<p dir="auto">Then the following instruction is enough:</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="cd muda/scripts
+python build_docs.py"><pre><span class="pl-c1">cd</span> muda/scripts
+python build_docs.py</pre></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Examples</h2><a id="user-content-examples" class="anchor" aria-label="Permalink: Examples" href="#examples"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li><a href="./example/">examples</a></li>
+</ul>
+<p dir="auto">All examples in <code>muda/example</code> are self-explanatory,  enjoy it.</p>
+<p dir="auto"><a target="_blank" rel="noopener noreferrer" href="./docs/img/example-img.png"><img src="./docs/img/example-img.png" alt="image-20231102030703199" style="max-width: 100%;"></a></p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Contributing</h2><a id="user-content-contributing" class="anchor" aria-label="Permalink: Contributing" href="#contributing"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Contributions are welcome. We are looking for or are working on:</p>
+<ol dir="auto">
+<li>
+<p dir="auto"><strong>muda</strong> development</p>
+</li>
+<li>
+<p dir="auto">fancy simulation demos using <strong>muda</strong></p>
+</li>
+<li>
+<p dir="auto">better documentation of <strong>muda</strong></p>
+</li>
+</ol>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Related Work</h2><a id="user-content-related-work" class="anchor" aria-label="Permalink: Related Work" href="#related-work"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li>
+<p dir="auto"><a href="https://github.com/spiriMirror/libuipc">Libuipc</a> using <strong>muda</strong> for GPU IPC simulation.</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="@article{10.1145/3735126,
+author = {Huang, Kemeng and Lu, Xinyu and Lin, Huancheng and Komura, Taku and Li, Minchen},
+title = {StiffGIPC: Advancing GPU IPC for Stiff Affine-Deformable Simulation},
+year = {2025},
+publisher = {Association for Computing Machinery},
+volume = {44},
+number = {3},
+issn = {0730-0301},
+doi = {10.1145/3735126},
+journal = {ACM Trans. Graph.},
+month = may,
+articleno = {31},
+numpages = {20}
+}"><pre class="notranslate"><code>@article{10.1145/3735126,
+author = {Huang, Kemeng and Lu, Xinyu and Lin, Huancheng and Komura, Taku and Li, Minchen},
+title = {StiffGIPC: Advancing GPU IPC for Stiff Affine-Deformable Simulation},
+year = {2025},
+publisher = {Association for Computing Machinery},
+volume = {44},
+number = {3},
+issn = {0730-0301},
+doi = {10.1145/3735126},
+journal = {ACM Trans. Graph.},
+month = may,
+articleno = {31},
+numpages = {20}
+}
+</code></pre></div>
+<p dir="auto"><a target="_blank" rel="noopener noreferrer" href="./docs/img/libuipc.png"><img src="./docs/img/libuipc.png" alt="libuipc" style="max-width: 100%;"></a></p>
+</li>
+<li>
+<p dir="auto">Topological braiding simulation using <strong>muda</strong> (old version)</p>
+<div class="highlight highlight-text-tex-latex notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="@article{article,
+author = {Lu, Xinyu and Bo, Pengbo and Wang, Linqin},
+year = {2023},
+month = {07},
+pages = {},
+title = {Real-Time 3D Topological Braiding Simulation with Penetration-Free Guarantee},
+volume = {164},
+journal = {Computer-Aided Design},
+doi = {10.1016/j.cad.2023.103594}
+}"><pre>@article{article,
+author = {Lu, Xinyu and Bo, Pengbo and Wang, Linqin},
+year = {2023},
+month = {07},
+pages = {},
+title = {Real-Time 3D Topological Braiding Simulation with Penetration-Free Guarantee},
+volume = {164},
+journal = {Computer-Aided Design},
+doi = {10.1016/j.cad.2023.103594}
+}</pre></div>
+<p dir="auto"><a target="_blank" rel="noopener noreferrer" href="./docs/img/braiding.png"><img src="./docs/img/braiding.png" alt="braiding" style="max-width: 100%;"></a></p>
+</li>
+<li>
+<p dir="auto"><a href="https://github.com/Roushelfy/solid-sim-muda">solid-sim-muda</a>: a tiny solid simulator using muda.</p>
+<p dir="auto"><a target="_blank" rel="noopener noreferrer" href="./docs/img/solid-sim-muda.png"><img src="./docs/img/solid-sim-muda.png" alt="solid-sim-muda" style="max-width: 100%;"></a></p>
+</li>
+</ul>
+</article></div>
