@@ -277,7 +277,10 @@ this:</p>
     <span class="pl-c1">CLI11_PARSE</span>(app, argc, argv);
     <span class="pl-k">return</span> <span class="pl-c1">0</span>;
 }</pre></div>
-<p dir="auto">For more information about <code>ensure_utf8</code> the section on
+<p dir="auto">When adding options the names should not conflict with each other, if an option
+is added, or a modifier changed that would cause naming conflicts a run time
+error will be thrown in the add_option method. This includes default options for
+help <code>-h, --help</code>. For more information about <code>ensure_utf8</code> the section on
 <a href="#unicode-support">Unicode support</a> below.</p>
 <details><summary>Note: If you don't like macros, this is what that macro expands to: (click to expand)</summary><p dir="auto">
 </p><div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="try {
@@ -568,6 +571,33 @@ even if the option was not present in parsing.</li>
 validation checks for the option to be executed when the option value is
 parsed vs. at the end of all parsing. This could cause the callback to be
 executed multiple times. Also works with positional options.</li>
+<li><code>-&gt;callback_priority(CallbackPriority priority)</code>: 🚧 changes the order in
+which the option callback is executed. Four principal callback call-points are
+available. <code>CallbackPriority::First</code> executes at the very beginning of
+processing, before configuration files are read and environment variables are
+interpreted. <code>CallbackPriority::PreRequirementsCheck</code> executes after
+configuration and environment processing but before requirements checking.
+<code>CallbackPriority::Normal</code> executes after the requirements check but before
+any previously potentially raised exceptions are re-thrown.
+<code>CallbackPriority::Last</code> executes after exception handling is completed. For
+each position, both ordinary option callbacks and help callbacks are invoked.
+The relative order between them can be controlled using the corresponding
+<code>PreHelp</code> variants. <code>CallbackPriority::FirstPreHelp</code> executes ordinary option
+callbacks before help callbacks at the very beginning of processing.
+<code>CallbackPriority::PreRequirementsCheckPreHelp</code> executes ordinary option
+callbacks before help callbacks after configuration and environment processing
+but before requirements checking. <code>CallbackPriority::NormalPreHelp</code> executes
+ordinary option callbacks before help callbacks after the requirements check
+but before exception re-throwing. <code>CallbackPriority::LastPreHelp</code> executes
+ordinary option callbacks before help callbacks after exception handling has
+completed. When using the standard priorities (<code>CallbackPriority::First</code>,
+<code>CallbackPriority::PreRequirementsCheck</code>, <code>CallbackPriority::Normal</code>,
+<code>CallbackPriority::Last</code>), help callbacks are executed before ordinary option
+callbacks. By default, help callbacks use <code>CallbackPriority::First</code>, and
+ordinary option callbacks use <code>CallbackPriority::Normal</code>. This mechanism
+provides fine-grained control over when option values are set and when help or
+requirement checks occur, enabling precise customization of the processing
+sequence.</li>
 </ul>
 <p dir="auto">These options return the <code>Option</code> pointer, so you can chain them together, and
 even skip storing the pointer entirely. The <code>each</code> function takes any function
@@ -709,9 +739,11 @@ setting <code>CLI11_ENABLE_EXTRA_VALIDATORS</code> to 1</p>
 read permission. Requires C++17.</li>
 <li><code>CLI::WritePermission</code>: Requires that the file or folder given exist and have
 write permission. Requires C++17.</li>
-<li><code>CLI::ExecPermission</code>: Requires that the file given exist and have execution
-permission. Requires C++17.</li>
-<li></li>
+<li>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto"><code>CLI::ExecPermission</code>: Requires that the file given exist and have execution
+permission. Requires C++17.</h2><a id="user-content-cliexecpermission-requires-that-the-file-given-exist-and-have-executionpermission-requires-c17" class="anchor" aria-label="Permalink: CLI::ExecPermission: Requires that the file given exist and have execution
+permission. Requires C++17." href="#cliexecpermission-requires-that-the-file-given-exist-and-have-executionpermission-requires-c17"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+</li>
 </ul>
 <div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Validator Usage</h4><a id="user-content-validator-usage" class="anchor" aria-label="Permalink: Validator Usage" href="#validator-usage"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">These Validators once enabled can be used by simply passing the name into the
@@ -1798,33 +1830,34 @@ thanks to all the contributors
       <td align="center" valign="top" width="14.28%"><a href="https://theoparis.com/" rel="nofollow"><img src="https://avatars.githubusercontent.com/u/11761863?v=4?s=100" width="100px;" alt="Theo Paris" style="max-width: 100%;"><br><sub><b>Theo Paris</b></sub></a><br><a href="https://github.com/CLIUtils/CLI11/commits?author=theoparis" title="Code">💻</a></td>
     </tr>
     <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/TheodorNEngoy"><img src="https://avatars.githubusercontent.com/u/140903820?v=4?s=100" width="100px;" alt="Theodor Nesfeldt Engøy" style="max-width: 100%;"><br><sub><b>Theodor Nesfeldt Engøy</b></sub></a><br><a href="#infra-TheodorNEngoy" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://uilianries.github.io/" rel="nofollow"><img src="https://avatars.githubusercontent.com/u/4870173?v=4?s=100" width="100px;" alt="Uilian Ries" style="max-width: 100%;"><br><sub><b>Uilian Ries</b></sub></a><br><a href="https://github.com/CLIUtils/CLI11/commits?author=uilianries" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/metopa"><img src="https://avatars2.githubusercontent.com/u/3974178?v=4?s=100" width="100px;" alt="Viacheslav Kroilov" style="max-width: 100%;"><br><sub><b>Viacheslav Kroilov</b></sub></a><br><a href="https://github.com/CLIUtils/CLI11/commits?author=metopa" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/VolkerChristian"><img src="https://avatars.githubusercontent.com/u/18554540?v=4?s=100" width="100px;" alt="Volker Christian" style="max-width: 100%;"><br><sub><b>Volker Christian</b></sub></a><br><a href="https://github.com/CLIUtils/CLI11/commits?author=VolkerChristian" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/almikhayl"><img src="https://avatars2.githubusercontent.com/u/6747040?v=4?s=100" width="100px;" alt="almikhayl" style="max-width: 100%;"><br><sub><b>almikhayl</b></sub></a><br><a href="https://github.com/CLIUtils/CLI11/commits?author=almikhayl" title="Code">💻</a> <a href="#platform-almikhayl" title="Packaging/porting to new platform">📦</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/ayum"><img src="https://avatars.githubusercontent.com/u/6747040?v=4?s=100" width="100px;" alt="ayum" style="max-width: 100%;"><br><sub><b>ayum</b></sub></a><br><a href="https://github.com/CLIUtils/CLI11/commits?author=ayum" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/captainurist"><img src="https://avatars.githubusercontent.com/u/73941350?v=4?s=100" width="100px;" alt="captainurist" style="max-width: 100%;"><br><sub><b>captainurist</b></sub></a><br><a href="https://github.com/CLIUtils/CLI11/commits?author=captainurist" title="Code">💻</a></td>
-      <td align="center" valign="top" width="14.28%"><a href="http://cs.odu.edu/~ctsolakis" rel="nofollow"><img src="https://avatars0.githubusercontent.com/u/6725596?v=4?s=100" width="100px;" alt="christos" style="max-width: 100%;"><br><sub><b>christos</b></sub></a><br><a href="https://github.com/CLIUtils/CLI11/commits?author=ChristosT" title="Code">💻</a></td>
     </tr>
     <tr>
+      <td align="center" valign="top" width="14.28%"><a href="http://cs.odu.edu/~ctsolakis" rel="nofollow"><img src="https://avatars0.githubusercontent.com/u/6725596?v=4?s=100" width="100px;" alt="christos" style="max-width: 100%;"><br><sub><b>christos</b></sub></a><br><a href="https://github.com/CLIUtils/CLI11/commits?author=ChristosT" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/deining"><img src="https://avatars3.githubusercontent.com/u/18169566?v=4?s=100" width="100px;" alt="deining" style="max-width: 100%;"><br><sub><b>deining</b></sub></a><br><a href="https://github.com/CLIUtils/CLI11/commits?author=deining" title="Documentation">📖</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/dherrera-fb"><img src="https://avatars.githubusercontent.com/u/89840711?v=4?s=100" width="100px;" alt="dherrera-fb" style="max-width: 100%;"><br><sub><b>dherrera-fb</b></sub></a><br><a href="https://github.com/CLIUtils/CLI11/commits?author=dherrera-fb" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/dherrera-meta"><img src="https://avatars.githubusercontent.com/u/161629485?v=4?s=100" width="100px;" alt="dherrera-meta" style="max-width: 100%;"><br><sub><b>dherrera-meta</b></sub></a><br><a href="https://github.com/CLIUtils/CLI11/commits?author=dherrera-meta" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/djerius"><img src="https://avatars.githubusercontent.com/u/196875?v=4?s=100" width="100px;" alt="djerius" style="max-width: 100%;"><br><sub><b>djerius</b></sub></a><br><a href="https://github.com/CLIUtils/CLI11/commits?author=djerius" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/dryleev"><img src="https://avatars.githubusercontent.com/u/83670813?v=4?s=100" width="100px;" alt="dryleev" style="max-width: 100%;"><br><sub><b>dryleev</b></sub></a><br><a href="https://github.com/CLIUtils/CLI11/commits?author=dryleev" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/elszon"><img src="https://avatars0.githubusercontent.com/u/2971495?v=4?s=100" width="100px;" alt="elszon" style="max-width: 100%;"><br><sub><b>elszon</b></sub></a><br><a href="https://github.com/CLIUtils/CLI11/commits?author=elszon" title="Code">💻</a></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/ferdymercury"><img src="https://avatars3.githubusercontent.com/u/10653970?v=4?s=100" width="100px;" alt="ferdymercury" style="max-width: 100%;"><br><sub><b>ferdymercury</b></sub></a><br><a href="https://github.com/CLIUtils/CLI11/commits?author=ferdymercury" title="Documentation">📖</a></td>
     </tr>
     <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/ferdymercury"><img src="https://avatars3.githubusercontent.com/u/10653970?v=4?s=100" width="100px;" alt="ferdymercury" style="max-width: 100%;"><br><sub><b>ferdymercury</b></sub></a><br><a href="https://github.com/CLIUtils/CLI11/commits?author=ferdymercury" title="Documentation">📖</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/fpeng1985"><img src="https://avatars1.githubusercontent.com/u/87981?v=4?s=100" width="100px;" alt="fpeng1985" style="max-width: 100%;"><br><sub><b>fpeng1985</b></sub></a><br><a href="https://github.com/CLIUtils/CLI11/commits?author=fpeng1985" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/geir-t"><img src="https://avatars3.githubusercontent.com/u/35292136?v=4?s=100" width="100px;" alt="geir-t" style="max-width: 100%;"><br><sub><b>geir-t</b></sub></a><br><a href="#platform-geir-t" title="Packaging/porting to new platform">📦</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/gostefan"><img src="https://avatars.githubusercontent.com/u/2479455?v=4?s=100" width="100px;" alt="gostefan" style="max-width: 100%;"><br><sub><b>gostefan</b></sub></a><br><a href="https://github.com/CLIUtils/CLI11/commits?author=gostefan" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/huangqinjin"><img src="https://avatars.githubusercontent.com/u/8402260?v=4?s=100" width="100px;" alt="huangqinjin" style="max-width: 100%;"><br><sub><b>huangqinjin</b></sub></a><br><a href="https://github.com/CLIUtils/CLI11/commits?author=huangqinjin" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/ncihnegn"><img src="https://avatars3.githubusercontent.com/u/12021721?v=4?s=100" width="100px;" alt="ncihnegn" style="max-width: 100%;"><br><sub><b>ncihnegn</b></sub></a><br><a href="https://github.com/CLIUtils/CLI11/commits?author=ncihnegn" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/nshaheed"><img src="https://avatars.githubusercontent.com/u/6963603?v=4?s=100" width="100px;" alt="nshaheed" style="max-width: 100%;"><br><sub><b>nshaheed</b></sub></a><br><a href="#platform-nshaheed" title="Packaging/porting to new platform">📦</a></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/nurelin"><img src="https://avatars3.githubusercontent.com/u/5276274?v=4?s=100" width="100px;" alt="nurelin" style="max-width: 100%;"><br><sub><b>nurelin</b></sub></a><br><a href="https://github.com/CLIUtils/CLI11/commits?author=nurelin" title="Code">💻</a></td>
     </tr>
     <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/nurelin"><img src="https://avatars3.githubusercontent.com/u/5276274?v=4?s=100" width="100px;" alt="nurelin" style="max-width: 100%;"><br><sub><b>nurelin</b></sub></a><br><a href="https://github.com/CLIUtils/CLI11/commits?author=nurelin" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="http://polistern.i2p/" rel="nofollow"><img src="https://avatars.githubusercontent.com/u/55511995?v=4?s=100" width="100px;" alt="polistern" style="max-width: 100%;"><br><sub><b>polistern</b></sub></a><br><a href="https://github.com/CLIUtils/CLI11/commits?author=polistern" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/romanholidaypancakes"><img src="https://avatars.githubusercontent.com/u/51652878?v=4?s=100" width="100px;" alt="romanholidaypancakes" style="max-width: 100%;"><br><sub><b>romanholidaypancakes</b></sub></a><br><a href="https://github.com/CLIUtils/CLI11/commits?author=romanholidaypancakes" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/ryan4729"><img src="https://avatars3.githubusercontent.com/u/40183301?v=4?s=100" width="100px;" alt="ryan4729" style="max-width: 100%;"><br><sub><b>ryan4729</b></sub></a><br><a href="https://github.com/CLIUtils/CLI11/commits?author=ryan4729" title="Tests"><g-emoji class="g-emoji" alias="warning">⚠️</g-emoji></a></td>
