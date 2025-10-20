@@ -313,22 +313,6 @@ func main() {
 				}
 				d.Repo = metadata
 
-				// Use canonical repository name from GitHub for deduplication
-				canonicalKey := r
-				if metadata.FullName != "" {
-					canonicalKey = metadata.FullName
-					if canonicalKey != r {
-						log.Printf("Using canonical name %s instead of %s", canonicalKey, r)
-					}
-				}
-
-				// Update owner/name to match canonical
-				parts := strings.Split(canonicalKey, "/")
-				if len(parts) == 2 {
-					d.Owner = parts[0]
-					d.Name = parts[1]
-				}
-
 				f, err = os.ReadFile(repoPath(r, "registry.json"))
 				if err == nil {
 					var registry Registry
@@ -344,26 +328,16 @@ func main() {
 					d.Root.Readme = string(f)
 				}
 
-				if existingData, ok := data[canonicalKey]; ok {
+				if existingData, ok := data[r]; ok {
 					if module.Name != "" {
-						// Check if module already exists before appending
-						found := false
-						for _, m := range existingData.Modules {
-							if m.Name == module.Name {
-								found = true
-								break
-							}
-						}
-						if !found {
-							existingData.Modules = append(existingData.Modules, module)
-						}
-						data[canonicalKey] = existingData
+						existingData.Modules = append(existingData.Modules, module)
+						data[r] = existingData
 					}
 				} else {
 					if module.Name != "" {
 						d.Modules = append(d.Modules, module)
 					}
-					data[canonicalKey] = d
+					data[r] = d
 				}
 			}
 		}
