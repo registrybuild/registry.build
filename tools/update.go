@@ -33,6 +33,25 @@ var md = goldmark.New(
 	),
 )
 
+func normalizedRepoPath(repo string) string {
+	parts := strings.Split(repo, "/")
+	if len(parts) < 2 {
+		return strings.ToLower(repo)
+	}
+	parts[0] = strings.ToLower(parts[0])
+	return strings.Join(parts, "/")
+}
+
+func repoDir(repo string) string {
+	return filepath.Join(*dir, normalizedRepoPath(repo))
+}
+
+func repoPath(repo string, elems ...string) string {
+	parts := []string{repoDir(repo)}
+	parts = append(parts, elems...)
+	return filepath.Join(parts...)
+}
+
 func main() {
 	flag.Parse()
 
@@ -218,7 +237,7 @@ func main() {
 		Name:       "eigen",
 	})
 
-	rand.Shuffle(len(modules), func (i, j int) {modules[i], modules[j] = modules[j], modules[i]})
+	rand.Shuffle(len(modules), func(i, j int) { modules[i], modules[j] = modules[j], modules[i] })
 
 	for _, module := range modules[:200] {
 		for _, repo := range module.Repository {
@@ -253,11 +272,11 @@ func main() {
 			if strings.HasPrefix(repo, "github:") {
 				r := strings.TrimPrefix(repo, "github:")
 
-				parts := strings.Split(r, "/")
+				parts := strings.Split(normalizedRepoPath(r), "/")
 				d.Owner = parts[0]
 				d.Name = parts[1]
 
-				f, err := os.ReadFile(*dir + "/" + r + "/releases.json")
+				f, err := os.ReadFile(repoPath(r, "releases.json"))
 				if err != nil {
 					log.Printf("Error reading releases.json for %s: %s", r, err)
 				}
@@ -282,7 +301,7 @@ func main() {
 				}
 				d.Releases = modifiedReleases
 
-				f, err = os.ReadFile(*dir + "/" + r + "/metadata.json")
+				f, err = os.ReadFile(repoPath(r, "metadata.json"))
 				if err != nil {
 					log.Printf("Error reading metadata.json for %s: %s", r, err)
 				}
@@ -294,7 +313,7 @@ func main() {
 				}
 				d.Repo = metadata
 
-				f, err = os.ReadFile(*dir + "/" + r + "/registry.json")
+				f, err = os.ReadFile(repoPath(r, "registry.json"))
 				if err == nil {
 					var registry Registry
 					err = json.Unmarshal(f, &registry)
@@ -304,7 +323,7 @@ func main() {
 					d.Registry = registry
 				}
 
-				f, err = os.ReadFile(*dir + "/" + r + "/readme.html")
+				f, err = os.ReadFile(repoPath(r, "readme.html"))
 				if err == nil {
 					d.Root.Readme = string(f)
 				}
@@ -343,7 +362,7 @@ func main() {
 func getReleases(repo string) error {
 	err := os.MkdirAll(*dir, 0777)
 
-	if _, err := os.Stat(*dir + "/" + repo + "/releases.json"); !*fetch && !os.IsNotExist(err) {
+	if _, err := os.Stat(repoPath(repo, "releases.json")); !*fetch && !os.IsNotExist(err) {
 		log.Printf("Already got releases for %s; skipping", repo)
 		return nil
 	}
@@ -371,12 +390,12 @@ func getReleases(repo string) error {
 		return err
 	}
 
-	err = os.MkdirAll(*dir+"/"+repo, 0777)
+	err = os.MkdirAll(repoDir(repo), 0777)
 	if err != nil {
 		return err
 	}
 
-	os.WriteFile(*dir+"/"+repo+"/releases.json", body, 0777)
+	os.WriteFile(repoPath(repo, "releases.json"), body, 0777)
 	log.Printf("Fetched releases for %s", repo)
 
 	return nil
@@ -385,7 +404,7 @@ func getReleases(repo string) error {
 func getReadme(repo string) error {
 	err := os.MkdirAll(*dir, 0777)
 
-	if _, err := os.Stat(*dir + "/" + repo + "/readme.html"); !*fetch && !os.IsNotExist(err) {
+	if _, err := os.Stat(repoPath(repo, "readme.html")); !*fetch && !os.IsNotExist(err) {
 		log.Printf("Already got readme for %s; skipping", repo)
 		return nil
 	}
@@ -413,12 +432,12 @@ func getReadme(repo string) error {
 		return err
 	}
 
-	err = os.MkdirAll(*dir+"/"+repo, 0777)
+	err = os.MkdirAll(repoDir(repo), 0777)
 	if err != nil {
 		return err
 	}
 
-	os.WriteFile(*dir+"/"+repo+"/readme.html", body, 0777)
+	os.WriteFile(repoPath(repo, "readme.html"), body, 0777)
 	log.Printf("Fetched readme for %s", repo)
 
 	return nil
@@ -427,7 +446,7 @@ func getReadme(repo string) error {
 func getMetadata(repo string) error {
 	err := os.MkdirAll(*dir, 0777)
 
-	if _, err := os.Stat(*dir + "/" + repo + "/metadata.json"); !*fetch && !os.IsNotExist(err) {
+	if _, err := os.Stat(repoPath(repo, "metadata.json")); !*fetch && !os.IsNotExist(err) {
 		log.Printf("Already got metadata for %s; skipping", repo)
 		return nil
 	}
@@ -455,12 +474,12 @@ func getMetadata(repo string) error {
 		return err
 	}
 
-	err = os.MkdirAll(*dir+"/"+repo, 0777)
+	err = os.MkdirAll(repoDir(repo), 0777)
 	if err != nil {
 		return err
 	}
 
-	os.WriteFile(*dir+"/"+repo+"/metadata.json", body, 0777)
+	os.WriteFile(repoPath(repo, "metadata.json"), body, 0777)
 	log.Printf("Fetched metadata for %s", repo)
 
 	return nil
@@ -468,14 +487,14 @@ func getMetadata(repo string) error {
 
 func clone(repo string, sparse bool) error {
 	if *cloneBCR {
-		os.RemoveAll(*dir + "/" + repo + "/clone")
+		os.RemoveAll(filepath.Join(repoDir(repo), "clone"))
 	}
 
 	err := os.MkdirAll(*dir, 0777)
 	if err != nil {
 		return err
 	}
-	if _, err := os.Stat(*dir + "/" + repo + "/clone"); !*fetch && !os.IsNotExist(err) {
+	if _, err := os.Stat(filepath.Join(repoDir(repo), "clone")); !*fetch && !os.IsNotExist(err) {
 		log.Printf("Already cloned %s; skipping", repo)
 		return nil
 	}
@@ -486,11 +505,11 @@ func clone(repo string, sparse bool) error {
 		opts = append(opts, "--sparse")
 	}
 	opts = append(opts, "https://github.com/"+repo+".git")
-	opts = append(opts, *dir+"/"+repo+"/clone")
+	opts = append(opts, filepath.Join(repoDir(repo), "clone"))
 
 	out, err := exec.Command("git", opts...).CombinedOutput()
 	if err != nil {
-		os.RemoveAll(*dir + "/" + repo + "/clone")
+		os.RemoveAll(filepath.Join(repoDir(repo), "clone"))
 		log.Printf(string(out))
 		return err
 	}
@@ -499,7 +518,7 @@ func clone(repo string, sparse bool) error {
 
 func walk() ([]Module, error) {
 	modules := map[string]Module{}
-	err := filepath.Walk(*dir+"/bazelbuild/bazel-central-registry/clone",
+	err := filepath.Walk(filepath.Join(repoDir("bazelbuild/bazel-central-registry"), "clone"),
 		func(path string, info os.FileInfo, err error) error {
 			if err != nil {
 				return err
@@ -608,13 +627,13 @@ type Maintainer struct {
 }
 
 type Module struct {
-	Name           string                 `json:"name"`
-	Homepage       string                 `json:"homepage"`
-	Maintainers    []Maintainer           `json:"maintainers"`
-	Repository     []string               `json:"repository"`
-	Versions       []string               `json:"versions"`
+	Name        string       `json:"name"`
+	Homepage    string       `json:"homepage"`
+	Maintainers []Maintainer `json:"maintainers"`
+	Repository  []string     `json:"repository"`
+	Versions    []string     `json:"versions"`
 	// YankedVersions map[string]interface{} `json:"yanked_versions"`
-	VersionData    map[string]Version     `json:"version_data"`
+	VersionData map[string]Version `json:"version_data"`
 }
 
 type Data struct {
