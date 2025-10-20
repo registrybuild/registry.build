@@ -1,0 +1,147 @@
+<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text">
+<p dir="auto"><a href="https://opensource.fb.com/support-ukraine" rel="nofollow"><img src="https://camo.githubusercontent.com/47fb53bace1b764845ce5df32f7677eeab4c53fba93fc292c04933d8be0931ed/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f537570706f72742d556b7261696e652d4646443530303f7374796c653d666c6174266c6162656c436f6c6f723d303035424242" alt="Support Ukraine" data-canonical-src="https://img.shields.io/badge/Support-Ukraine-FFD500?style=flat&amp;labelColor=005BBB" style="max-width: 100%;"></a> <a href="https://bazel.build/" rel="nofollow"><img src="docs/logo/bazel_logo.svg" alt="Bazel logo" width="24" height="24" style="max-width: 100%; height: auto; max-height: 24px;"></a> <a href="https://www.qt.io/product/qt6" rel="nofollow"><img src="docs/logo/qt-svgrepo-com.svg" alt="Qt logo" width="24" height="24" style="max-width: 100%; height: auto; max-height: 24px;"></a></p>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Bazel rules for Qt6</h1><a id="user-content-bazel-rules-for-qt6" class="anchor" aria-label="Permalink: Bazel rules for Qt6" href="#bazel-rules-for-qt6"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Goal</h2><a id="user-content-goal" class="anchor" aria-label="Permalink: Goal" href="#goal"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The goal of these rules is to be able to build <a href="https://www.qt.io/product/qt6" rel="nofollow">Qt6</a> applications using <a href="https://bazel.build/" rel="nofollow">Bazel</a> on <strong>Linux</strong>, <strong>macOS</strong> and <strong>Windows</strong> without the need to preinstall Qt6.
+All the magic to set up Qt6 should be done by Bazel with as little effort as possible.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Why rules and not a simple dependency?</h2><a id="user-content-why-rules-and-not-a-simple-dependency" class="anchor" aria-label="Permalink: Why rules and not a simple dependency?" href="#why-rules-and-not-a-simple-dependency"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">To get Qt working with C++, you need different tools, e.g., the Meta-Object Compiler (moc).
+This is needed since Qt introduces some language extensions to C++, such as the signal, slot concept.
+There is also the User Interface Compiler (uic), Resource Compiler (rcc), and translation tools.
+To get all of those things working, Qt is a bit more than a simple third-party dependency.
+The idea of this project is to introduce own rules that simplify the usage of Qt using Bazel.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Current status</h2><a id="user-content-current-status" class="anchor" aria-label="Permalink: Current status" href="#current-status"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">These rules were tested with Bazel 8.x.
+There is a chance that you also get this working with Bazel 7.x.
+If you need support for older versions of Bazel, please check out an older state of this repository.
+Initially, this repository had support for Bazel 4.x.</p>
+<p dir="auto">When using these rules,
+a prebuild version of Qt is fetched from <a href="https://download.qt.io/" rel="nofollow">download.qt.io</a>.
+Previously a prebuild version of Qt was fetched from <a href="https://vertexwahn.de/" rel="nofollow">vertexwahn.de</a> (this approach was taken for example in release 0.0.4 of these rules).
+There is a vaiable <code>QT_BASE_DOWNLOAD_URL</code> that you can change to fetch qt from a different source.</p>
+<p dir="auto">I created a <a href="tests/.bazelrc"><code>.bazelrc</code></a> file that contains different configs: <code>vs2019</code>, <code>vs2022</code>, <code>gcc11</code>, <code>gcc13</code>, and <code>macos</code>.
+This is necessary since Qt6 requires at least C++17 standard to be enabled, and different C++ compilers require different flags to enable this.</p>
+<p dir="auto">The current targeted version of these rules is Qt 6.8.3. Qt 6.8 is the latest LTS version.
+Also, there is the idea that these rules can support different versions of Qt,
+but currently, only version 6.8.3 is tested and supported. When checking the code of these rules,
+you can also find version 6.4.0 and get a rough idea of how different versions of Qt can be supported at the same time using these rules.
+Anyways, due to some differences between different Qt versions,
+it is not always trivial to get everything working easily.
+The release 0.0.4 of these rules supports only Qt version 6.4.0.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Quick start</h2><a id="user-content-quick-start" class="anchor" aria-label="Permalink: Quick start" href="#quick-start"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">This project uses <a href="https://bazel.build/" rel="nofollow">Bazel</a> as a build system.
+The current used version of Bazel is defined in <a href="tests/.bazelversion">.bazelversion</a>.</p>
+<p dir="auto"><strong>Prerequisites:</strong></p>
+<p dir="auto">The following tools should be installed:</p>
+<ul dir="auto">
+<li><a href="https://git-scm.com/" rel="nofollow">Git</a></li>
+<li><a href="https://bazel.build/install" rel="nofollow">Bazel</a></li>
+<li>A C++ compiler (GCC, Visual Studio, Clang, etc.)</li>
+</ul>
+<p dir="auto"><strong>Checkout, build, and run:</strong></p>
+<p dir="auto"><em>All platforms:</em></p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="git clone https://github.com/Vertexwahn/rules_qt6
+cd rules_qt6/tests"><pre>git clone https://github.com/Vertexwahn/rules_qt6
+<span class="pl-c1">cd</span> rules_qt6/tests</pre></div>
+<p dir="auto"><em>Run Hello World demo with Windows 10/11 x64 with Visual Studio 2022:</em></p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel run --config=vs2022 //hello_world:hello_world"><pre>bazel run --config=vs2022 //hello_world:hello_world</pre></div>
+<p dir="auto"><em>Run Hello World demo with Ubuntu 24.04:</em></p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel run --config=gcc13 //hello_world:hello_world"><pre>bazel run --config=gcc13 //hello_world:hello_world</pre></div>
+<p dir="auto"><em>Run Hello World demo with macOS:</em></p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel run --config=macos //hello_world:hello_world"><pre>bazel run --config=macos //hello_world:hello_world</pre></div>
+<p dir="auto"><strong>Expected output</strong></p>
+<p dir="auto">The expected output should be similar (depending on your platform) to the following screenshots:</p>
+<p dir="auto"><em>Windows</em></p>
+<p dir="auto"><a target="_blank" rel="noopener noreferrer" href="/docs/screenshots/hello_world_Windows11.png"><img src="/docs/screenshots/hello_world_Windows11.png" alt="Screenshot of HelloWorld demo on Windows 11" style="max-width: 100%;"></a></p>
+<p dir="auto"><em>Ubuntu</em></p>
+<p dir="auto"><a target="_blank" rel="noopener noreferrer" href="/docs/screenshots/hello_world_Ubuntu24.04.png"><img src="/docs/screenshots/hello_world_Ubuntu24.04.png" alt="Screenshot of HelloWorld demo on Ubuntu 24.04" style="max-width: 100%;"></a></p>
+<p dir="auto"><em>macOS</em></p>
+<p dir="auto"><a target="_blank" rel="noopener noreferrer" href="/docs/screenshots/hello_world_macOS12_M1.png"><img src="/docs/screenshots/hello_world_macOS12_M1.png" alt="Screenshot of HelloWorld demo on macOS" style="max-width: 100%;"></a></p>
+<p dir="auto"><strong>More Examples</strong></p>
+<p dir="auto">More examples can be found in the <a href="tests">tests</a> directory.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Contributions</h2><a id="user-content-contributions" class="anchor" aria-label="Permalink: Contributions" href="#contributions"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Any improvements to the Qt6 build experience using Bazel are welcome.
+Maybe you have solved this problem already.
+In this case,
+I would appreciate it if you could share your efforts under some permissive license.
+If you name no specific license, I assume you are fine with the current used license of this project (Apache 2.0 License).</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Similar projects</h2><a id="user-content-similar-projects" class="anchor" aria-label="Permalink: Similar projects" href="#similar-projects"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<markdown-accessiblity-table><table>
+<thead>
+<tr>
+<th>Project</th>
+<th>Bzlmod Support</th>
+<th>Platform Support</th>
+<th>Build Type</th>
+<th>Last Commit</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/aabtop/rules_qt">aabtop/rules_qt</a></td>
+<td>no</td>
+<td>Windows, Linux</td>
+<td>Prebuild</td>
+<td>June 21, 2021</td>
+</tr>
+<tr>
+<td><a href="https://github.com/bbreslauer/qt-bazel-example">bbreslauer/qt-bazel-example</a></td>
+<td>no</td>
+<td>Linux</td>
+<td>Prebuild</td>
+<td>April 5, 2020</td>
+</tr>
+<tr>
+<td><a href="https://github.com/FirasRomaneh/QT5WithBazel">FirasRomaneh/QT5WithBazel</a></td>
+<td>no</td>
+<td>Linux</td>
+<td>Prebuild</td>
+<td>August 2, 2022</td>
+</tr>
+<tr>
+<td><a href="https://github.com/gwkawano/bazel_qt">gwkawano/bazel_qt</a></td>
+<td>no</td>
+<td>Linux</td>
+<td>Prebuild</td>
+<td>June 5, 2020</td>
+</tr>
+<tr>
+<td><a href="https://github.com/jheaff1/rules_qt">jheaff1/rules_qt</a></td>
+<td>no</td>
+<td>Linux, macOS, Windows</td>
+<td>Prebuild</td>
+<td>June 19, 2023</td>
+</tr>
+<tr>
+<td><a href="https://github.com/justbuchanan/bazel_rules_qt">justbuchanan/bazel_rules_qt</a></td>
+<td>no</td>
+<td>Linux, macOS, Windows</td>
+<td>Prebuild</td>
+<td>November 13, 2024</td>
+</tr>
+<tr>
+<td><a href="https://github.com/kklochkov/rules_qt">kklochkov/rules_qt</a></td>
+<td>no</td>
+<td>Linux, macOS</td>
+<td>Prebuild</td>
+<td>February 21, 2024</td>
+</tr>
+<tr>
+<td><a href="https://github.com/The-OpenROAD-Project/qt_bazel_prebuilts">The-OpenROAD-Project/qt_bazel_prebuilts</a></td>
+<td>yes</td>
+<td>???</td>
+<td>From Source</td>
+<td>Jul 15, 2025</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">License</h2><a id="user-content-license" class="anchor" aria-label="Permalink: License" href="#license"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">This work is published under Apache 2.0 License.</p>
+<p dir="auto">This work builds on top of <a href="https://github.com/justbuchanan/bazel_rules_qt">justbuchanan/bazel_rules_qt</a> which is also licensed under Apache 2.0 and
+was forked from <a href="https://github.com/bbreslauer/qt-bazel-example">bbreslauer/qt-bazel-example</a>.
+See <a href="https://github.com/justbuchanan/bazel_rules_qt/graphs/contributors">here</a> for details.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Thanks to all contributors ❤</h2><a id="user-content-thanks-to-all-contributors-" class="anchor" aria-label="Permalink: Thanks to all contributors ❤" href="#thanks-to-all-contributors-"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+ <a href="https://github.com/Vertexwahn/rules_qt6/graphs/contributors">
+   <img src="https://camo.githubusercontent.com/0402f367b16edf6d0dc083f049946cef290c7970ff0c61f63257c86f3b648628/68747470733a2f2f636f6e747269622e726f636b732f696d6167653f7265706f3d5665727465787761686e2f72756c65735f717436" data-canonical-src="https://contrib.rocks/image?repo=Vertexwahn/rules_qt6" style="max-width: 100%;">
+ </a>
+</article></div>
