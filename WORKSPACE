@@ -1,9 +1,14 @@
+# This WORKSPACE file is maintained for the website build only.
+# Go dependencies are managed in MODULE.bazel.
+# DO NOT let Gazelle modify this file - Go deps should go in MODULE.bazel.
+
 workspace(
     name = "registry_build",
 )
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
+# Node.js rules for website build
 http_archive(
     name = "build_bazel_rules_nodejs",
     sha256 = "a1295b168f183218bc88117cf00674bcd102498f294086ff58318f830dd9d9d1",
