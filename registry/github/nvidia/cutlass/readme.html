@@ -1,0 +1,944 @@
+<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><p dir="auto"><a target="_blank" rel="noopener noreferrer" href="./media/images/gemm-hierarchy-with-epilogue-no-labels.png"><img src="./media/images/gemm-hierarchy-with-epilogue-no-labels.png" alt="ALT" title="Complete CUDA GEMM decomposition" style="max-width: 100%;"></a></p>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Overview</h1><a id="user-content-overview" class="anchor" aria-label="Permalink: Overview" href="#overview"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">CUTLASS 4.2.1</h1><a id="user-content-cutlass-421" class="anchor" aria-label="Permalink: CUTLASS 4.2.1" href="#cutlass-421"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><em>CUTLASS 4.2.1 - Sept 2025</em></p>
+<p dir="auto">CUTLASS is a collection of abstractions for implementing high-performance matrix-matrix multiplication (GEMM)
+and related computations at all levels and scales within CUDA. It incorporates strategies for
+hierarchical decomposition and data movement. CUTLASS decomposes these "moving parts" into reusable, modular
+software components and abstractions.</p>
+<p dir="auto">Primitives for different levels of a conceptual parallelization hierarchy can be specialized and tuned
+via custom tiling sizes, data types, and other algorithmic policy. The resulting flexibility simplifies
+their use as building blocks within custom kernels and applications.</p>
+<p dir="auto">CUTLASS has been providing CUDA C++ template abstractions for high-performance linear algebra since 2017 and
+these abstractions provide extensive support for a wide range of computations including
+mixed-precision computations, specialized data-movement (async copy) and
+multiply-accumulate abstractions for FP64, FP32, TF32, FP16, BF16,
+<a href="https://github.com/NVIDIA/cutlass/tree/main/examples/27_ampere_3xtf32_fast_accurate_tensorop_gemm">FP32 emulation via tensor core instruction</a>,
+8b floating point types (e5m2 and e4m3),
+block scaled data types (NVIDIA NVFP4 and OCP standard MXFP4, MXFP6, MXFP8),
+narrow integer types (4 and 8b signed and unsigned integers),
+and binary 1b data types (where architectures allow for the
+native support of such data types) across NVIDIA's Volta, Turing, Ampere, Ada, Hopper, and Blackwell architectures.</p>
+<p dir="auto">To this rich ecosystem of C++ based kernel programming abstractions, CUTLASS 4 adds CUTLASS DSLs. These are Python native interfaces for writing high-performance CUDA kernels based on core CUTLASS and CuTe concepts without any performance compromises. This allows for a much smoother learning curve, orders of magnitude faster compile times, native integration with DL frameworks without writing glue code, and much more intuitive metaprogramming that does not require deep C++ expertise.</p>
+<p dir="auto">Overall we envision CUTLASS DSLs as a family of domain-specific languages (DSLs). With the release of 4.0, we are releasing the first of these in CuTe DSL. This is a low level programming model that is fully consistent with CuTe C++ abstractions -- exposing core concepts such as layouts, tensors, hardware atoms, and full control over the hardware thread and data hierarchy.</p>
+<p dir="auto">CuTe DSL demonstrates optimal matrix multiply and other linear algebra operations
+targeting the programmable, high-throughput <em>Tensor Cores</em> implemented by
+NVIDIA's Ampere, Hopper, and Blackwell architectures.</p>
+<p dir="auto">We believe it will become an indispensable tool for students, researchers, and performance
+engineers alike -- flattening the learning curve of GPU programming, rapidly prototyping kernel
+designs, and bringing optimized solutions into production.</p>
+<p dir="auto">CuTe DSL is currently in public beta and will graduate out of beta by end of summer 2025.</p>
+<p dir="auto">To get started quickly - please refer :</p>
+<ul dir="auto">
+<li><a href="https://docs.nvidia.com/cutlass/media/docs/cpp/quickstart.html" rel="nofollow">CUTLASS C++ Quick Start Guide</a>.</li>
+<li><a href="https://docs.nvidia.com/cutlass/media/docs/pythonDSL/quick_start.html" rel="nofollow">CuTe DSL Quick Start Guide</a>.</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">What's New in CUTLASS 4.2</h1><a id="user-content-whats-new-in-cutlass-42" class="anchor" aria-label="Permalink: What's New in CUTLASS 4.2" href="#whats-new-in-cutlass-42"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">CuTe DSL</h2><a id="user-content-cute-dsl" class="anchor" aria-label="Permalink: CuTe DSL" href="#cute-dsl"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li>More Python versions are now supported for both x86-64 and aarch64, including
+<ul dir="auto">
+<li>Python 3.10, 3.11, 3.12, and 3.13</li>
+</ul>
+</li>
+<li>Added new example and updated notebook to get started with CuTe DSL
+<ul dir="auto">
+<li><a href="https://github.com/NVIDIA/cutlass/tree/main/examples/python/CuTeDSL/ampere/call_bypass_dlpack.py">Call kernels with dlpack bypassed</a></li>
+<li>Updates on <a href="https://github.com/NVIDIA/cutlass/tree/main/examples/python/CuTeDSL/notebooks/tensorssa.ipynb">TensorSSA demonstration</a>
+<ul dir="auto">
+<li>Added a section for introducing the broadcast</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>API updates
+<ul dir="auto">
+<li>Please refer to <a href="https://docs.nvidia.com/cutlass/media/docs/pythonDSL/cute_dsl_api/changelog.html" rel="nofollow">DSL API changelog</a> for details</li>
+</ul>
+</li>
+<li>Bug fixings and improvements
+<ul dir="auto">
+<li>Fixed <code>cute.print_tensor</code> for coordinate tensor</li>
+<li>Fixed <code>cute.print</code> for tuple of layouts</li>
+<li>Fixed frozen object is not properly updated after fully assigned in dynamic control flow</li>
+<li>Fixed assign tuple/list element in a dynamic control flow may cause compilation failure</li>
+<li>Improved error message when CUDA context is not initialized</li>
+<li>Improved docstring of congruent and weakly_congruent</li>
+</ul>
+</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">CUTLASS C++</h2><a id="user-content-cutlass-c" class="anchor" aria-label="Permalink: CUTLASS C++" href="#cutlass-c"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li>Support for Blackwell SM103 kernels for B300 GPUs.
+<ul dir="auto">
+<li>Collective mainloop codes: <a href="https://github.com/NVIDIA/cutlass/tree/main/include/cutlass/gemm/collective/sm103_blockscaled_mma_warpspecialized.hpp">Blockscaled datatypes with support for dense GEMM mainloop</a></li>
+<li>New <a href="https://github.com/NVIDIA/cutlass/tree/main/include/cutlass/gemm/dispatch_policy.hpp">GEMM</a> and <a href="https://github.com/NVIDIA/cutlass/tree/main/include/cutlass/epilogue/dispatch_policy.hpp">epilogue</a> dispatch policies for collectives, kernel layers, and builders.</li>
+<li>Kernel codes: <a href="https://github.com/NVIDIA/cutlass/tree/main/include/cutlass/gemm/kernel/sm103_blockscaled_gemm_tma_warpspecialized.hpp">Blockscaled datatypes with support for dense GEMM kernel</a>.</li>
+</ul>
+</li>
+<li>Set of examples that demonstrate the usage of the 3.x API for targeting Blackwell SM103 architecture:
+<ul dir="auto">
+<li><a href="https://github.com/NVIDIA/cutlass/tree/main/examples/89_sm103_fp4_ultra_gemm/">Blockscaled ultra fp4 dense GEMM</a>.</li>
+<li><a href="https://github.com/NVIDIA/cutlass/tree/main/examples/90_sm103_fp4_ultra_grouped_gemm">Blockscaled ultra fp4 dense grouped GEMM</a>.</li>
+</ul>
+</li>
+<li>Set of unit tests that demonstrate the usage of Blackwell SM103 blockscaled GEMM
+<ul dir="auto">
+<li>Unit test files with prefix name of <code>sm103_</code> under <a href="https://github.com/NVIDIA/cutlass/tree/main/test/unit/gemm/device/">GEMM device unit tests</a>.</li>
+</ul>
+</li>
+<li>Support for Blackwell SM121 kernels for DGX Spark GPUs.
+<ul dir="auto">
+<li>Share the major codes with Blackwell SM120 kernels.</li>
+</ul>
+</li>
+<li>Add support for heuristics-based kernel filtering and autotuning using <code>nvidia-matmul-heuristics</code> to find the best kernels for a given scenario.
+<ul dir="auto">
+<li>Details please refer to <a href="https://github.com/NVIDIA/cutlass/tree/main/media/docs/cpp/heuristics.md">heuristics doc</a>.</li>
+</ul>
+</li>
+<li>Further enhance Blackwell SM100 Attention kernels in <a href="https://github.com/NVIDIA/cutlass/tree/main/examples/77_blackwell_fmha/">example 77</a>.
+<ul dir="auto">
+<li>Add fused reduction kernel support for cutlass MLA.</li>
+<li>Add softmax skip correction.</li>
+<li>Support for GQA in FMHA backward kernel.</li>
+<li>Fix an issue where <code>get_unmasked_trip_count</code> may return a negative value.</li>
+<li>Fix an issue where mbarriers are initialized with a zero arrival count.</li>
+<li>Fix a corner case issue where the sequence length of q is not a multiple of tile_q.</li>
+<li>Remove tma padding for forward kernel inputs.</li>
+</ul>
+</li>
+<li>Add Blackwell SM100 kernels for MoEs (focusing on Low-Latency inference performance): <a href="https://github.com/NVIDIA/cutlass/tree/main/examples/92_blackwell_moe_gemm/">example 92</a>.  It uses TMA (for weights) and CPASYNC (for tokens) to load input matrices and allow only one problem dimension to vary across groups/experts, unlike general Grouped GEMMs.  Note: further API simplifications and kernel improvements are upcoming. Any feedback on API is welcome.</li>
+<li>Further enhance blockwise and groupwise GEMMs on Hopper and Blackwell
+<ul dir="auto">
+<li>On Blackwell SM120, a blockwise gemm kernel is added: <a href="https://github.com/NVIDIA/cutlass/tree/main/examples/87_blackwell_geforce_gemm_blockwise/">example 87</a>.</li>
+<li>On Hopper, add K major scale factor support for SM90 blockwise kernels.</li>
+<li>On Hopper, relax the restriction that the k dimension of the problem size has to be the multiple of the k dimension of the tile size.</li>
+<li>On Hopper, grouped version supports the case when k = 0.</li>
+</ul>
+</li>
+<li>Support for Blackwell SM100 fp4 gemv kernels.
+<ul dir="auto">
+<li>Kernel codes: <a href="https://github.com/NVIDIA/cutlass/tree/main/include/cutlass/gemm/kernel/gemv_blockscaled.h">Gemv kernel</a>.</li>
+<li>Example codes: <a href="https://github.com/NVIDIA/cutlass/tree/main/examples/91_fp4_gemv/">example 91</a></li>
+</ul>
+</li>
+<li>Support for Blackwell SM100 legacy mixed input GEMM kernels.
+<ul dir="auto">
+<li>Collective mainloop codes: <a href="https://github.com/NVIDIA/cutlass/tree/main/include/cutlass/gemm/collective/sm100_mma_warpspecialized_mixed_input.hpp">Mixed input mainloop</a>.</li>
+<li>Kernel codes: <a href="https://github.com/NVIDIA/cutlass/tree/main/include/cutlass/gemm/kernel/sm100_gemm_tma_warpspecialized_mixed_input_transform.hpp">Mixed input kernel</a>.</li>
+<li>Example codes: <a href="https://github.com/NVIDIA/cutlass/tree/main/examples/86_blackwell_mixed_dtype_gemm/">example 86</a>.</li>
+</ul>
+</li>
+<li>Support for Blackwell SM100 cpasync kernel.
+<ul dir="auto">
+<li>Collective mainloop codes: <a href="https://github.com/NVIDIA/cutlass/tree/main/include/cutlass/gemm/collective/sm100_mma_cpasync_warpspecialized.hpp">cpasync mainloop</a>.</li>
+<li>Kernel codes: <a href="https://github.com/NVIDIA/cutlass/tree/main/include/cutlass/gemm/kernel/sm100_gemm_cpasync_warpspecialized.hpp">cpasync kernel</a>.</li>
+</ul>
+</li>
+<li>Support Blackwell SM120 mixed input blockscaled grouped GEMM.</li>
+<li>Instantiating more Blackwell kernels in profiler.
+<ul dir="auto">
+<li>Blackwell SM100 and SM103 kernels support <code>CUTLASS_LIBRARY_INSTANTIATION_LEVEL</code> to instantiate all possible combinations.</li>
+<li>To use this feature, <code>CUTLASS_LIBRARY_KERNELS</code> must be non-empty. Profiler will combine <code>CUTLASS_LIBRARY_KERNELS</code> and <code>CUTLASS_LIBRARY_INSTANTIATION_LEVEL</code> to instantiate specific kernels.</li>
+<li>Details please check <a href="https://github.com/NVIDIA/cutlass/tree/main/media/docs/cpp/profiler.md">Profiler Doc</a>.</li>
+</ul>
+</li>
+<li>Fix some profiler issues:
+<ul dir="auto">
+<li>Modify default cluster callback values to none 0 to avoid profiler failure when these values are not set in command line.</li>
+<li>Fix some no output and timeout issues.</li>
+<li>Fix Pingpong Blockwise Hopper library generation.</li>
+</ul>
+</li>
+<li>From CUDA 13.0, the Blackwell SM101 for Thor GPUs is renamed to SM110.
+<ul dir="auto">
+<li>For CUDA toolkit version &lt; 13.0, SM101 is still used for Thor GPUs.</li>
+<li>For CUDA toolkit version &gt;= 13.0, SM110 is used for Thor GPUs and SM101 is no longer valid.</li>
+</ul>
+</li>
+<li>Rename legacy Python API package from <code>cutlass</code> to <code>cutlass_cppgen</code> and add Blackwell EVT support to legacy Python interface.
+<ul dir="auto">
+<li>Restructuring the C++ Blackwell SM100 Collective Epilogue Builder to work with the Python interface's <code>EpilogueDescriptors</code>.</li>
+<li>Added Blackwell SM100 EVT Emitter on the Python side and routed most emission through Hopper SM90 Emitter.</li>
+<li>Added some support for running SM100 kernels via the Python interface.</li>
+</ul>
+</li>
+<li>CuTe changes:
+<ul dir="auto">
+<li>Fix inaccurate GridDim calculation under <a href="https://github.com/NVIDIA/cutlass/tree/main/examples/cute/tutorial/blackwell/">CuTe tutorial</a>.</li>
+<li>Add <a href="https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#warp-level-matrix-instructions-movmatrix" rel="nofollow">movmatrix</a> support.</li>
+<li>Fix smallest MMA-N allowed for Blackwell fp8 and fp16 gemm kernels.</li>
+<li>Support fp16 accmulator for sm89 fp8 mma.</li>
+<li>Shorten <code>nullspace</code> implementation.</li>
+<li>Isolate and comment on <code>cosize</code> hacks.</li>
+<li>Important documentation correction: <code>E&lt;0,1&gt; == 1@0@1</code>.</li>
+</ul>
+</li>
+<li>Fix some kernel issues:
+<ul dir="auto">
+<li>Fix Hopper SM90 group gemm kernel to only use the commit group and wait group instead of also waiting on mbarriers.</li>
+<li>Fix a tiny bug when K is large for Blackwell SM103 fp4 grouped GEMM kernel.</li>
+</ul>
+</li>
+<li>Add following unit tests:
+<ul dir="auto">
+<li><a href="https://github.com/NVIDIA/cutlass/tree/main/test/unit/cute/ampere/cooperative_gemm.cu">fp16 accmulator for sm89 fp8 mma</a></li>
+<li><a href="https://github.com/NVIDIA/cutlass/tree/main/test/unit/cute/turing/movm.cu">movmatrix test</a></li>
+<li><a href="https://github.com/NVIDIA/cutlass/tree/main/test/unit/gemm/device/sm100_tensorop_gemm/f16_f16_void_f32_narrow_mma_n.cu">fp8 narrow mma n</a> and <a href="test/unit/gemm/device/sm100_tensorop_gemm/f8_f8_void_bf16_narrow_mma_n.cu">fp16 narrow mma n</a></li>
+</ul>
+</li>
+</ul>
+<p dir="auto">Note: CUTLASS 4.x builds are known to be down on Windows platforms for all CUDA toolkits.
+CUTLASS team is working on a fix.</p>
+<p dir="auto"><strong>See the <a href="https://docs.nvidia.com/cutlass/CHANGELOG.html" rel="nofollow">CHANGELOG</a> for details of all past releases and updates.</strong></p>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Performance</h1><a id="user-content-performance" class="anchor" aria-label="Permalink: Performance" href="#performance"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">CUTLASS primitives are very efficient.  When used to construct device-wide GEMM kernels,
+they exhibit nearly optimal utilization of peak theoretical throughput. The figure below
+shows CUTLASS 3.8's performance as a % of theoretical peak utilization
+on various input and output data types when run on NVIDIA Blackwell SM100 architecture GPU.</p>
+<p dir="auto"><a target="_blank" rel="noopener noreferrer" href="media/images/cutlass-3.8-blackwell-gemm-peak-performance.svg"><img src="media/images/cutlass-3.8-blackwell-gemm-peak-performance.svg" alt="ALT" style="max-width: 100%;"></a></p>
+<p dir="auto">The two figures below show the continual CUTLASS performance improvements
+on an <a href="https://www.nvidia.com/en-us/data-center/h100/" rel="nofollow">NVIDIA H100</a> (NVIDIA Hopper architecture) since
+CUTLASS 3.1.
+CUTLASS 3.5.1 was compiled with the <a href="https://developer.nvidia.com/cuda-downloads" rel="nofollow">CUDA 12.5u1 Toolkit</a>.
+Tensor Core operations are implemented using CUDA's
+<a href="https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#warp-level-matrix-instructions-mma" rel="nofollow">mma</a> and
+<a href="https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#asynchronous-warpgroup-level-matrix-instructions" rel="nofollow">wgmma</a> instructions.</p>
+<p dir="auto"><a target="_blank" rel="noopener noreferrer" href="media/images/cutlass-3.5.1-gemm-peak-performance.png"><img src="media/images/cutlass-3.5.1-gemm-peak-performance.png" alt="ALT" style="max-width: 100%;"></a>
+<a target="_blank" rel="noopener noreferrer" href="media/images/cutlass-3.5.1-gemm-peak-performance-fp8.png"><img src="media/images/cutlass-3.5.1-gemm-peak-performance-fp8.png" alt="ALT" style="max-width: 100%;"></a></p>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">CuTe</h1><a id="user-content-cute" class="anchor" aria-label="Permalink: CuTe" href="#cute"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">CUTLASS 3.0 introduced a new core library, CuTe, to describe and manipulate tensors of threads and data.
+CuTe is a collection of C++ CUDA template abstractions for
+defining and operating on hierarchically multidimensional layouts of threads and data.
+CuTe provides <code>Layout</code> and <code>Tensor</code> objects that compactly package the type,
+shape, memory space, and layout of data, while performing the complicated indexing for the user.
+This lets programmers focus on the logical descriptions of their algorithms while
+CuTe does the mechanical bookkeeping for them. With these tools, we can quickly design,
+implement, and modify all dense linear algebra operations.</p>
+<p dir="auto">The core abstractions of CuTe are hierarchically multidimensional layouts
+which can be composed with data arrays to represent tensors.
+The representation of layouts is powerful enough to represent nearly
+everything we need to implement efficient dense linear algebra.
+Layouts can also be combined and manipulated via functional composition, on which we build a large set of common operations such as tiling and partitioning.</p>
+<p dir="auto">CUTLASS 3.0 and beyond adopts CuTe throughout the GEMM hierarchy in its templates.
+This greatly simplifies the design and improves code composability and readability.
+More documentation specific to CuTe can be found in its
+<a href="https://docs.nvidia.com/cutlass/media/docs/cpp/cute/00_quickstart.html" rel="nofollow">dedicated documentation directory</a>.</p>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Compatibility</h1><a id="user-content-compatibility" class="anchor" aria-label="Permalink: Compatibility" href="#compatibility"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Minimum requirements:</p>
+<ul dir="auto">
+<li>Architecture: Volta (compute capability 7.0)</li>
+<li>Compiler: Must support at least C++17</li>
+<li>CUDA Toolkit version: 11.4</li>
+</ul>
+<p dir="auto">CUTLASS requires a C++17 host compiler and
+performs best when built with the <a href="https://developer.nvidia.com/cuda-downloads" rel="nofollow"><strong>CUDA 12.8 Toolkit</strong></a>.
+It is also compatible with CUDA 11.4, CUDA 11.5, CUDA 11.6, CUDA 11.7, CUDA 11.8, and all other CUDA 12.x versions.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Operating Systems</h2><a id="user-content-operating-systems" class="anchor" aria-label="Permalink: Operating Systems" href="#operating-systems"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">We have tested the following environments.</p>
+<markdown-accessiblity-table><table>
+<thead>
+<tr>
+<th><strong>Operating System</strong></th>
+<th><strong>Compiler</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Ubuntu 18.04</td>
+<td>GCC 7.5.0</td>
+</tr>
+<tr>
+<td>Ubuntu 20.04</td>
+<td>GCC 10.3.0</td>
+</tr>
+<tr>
+<td>Ubuntu 22.04</td>
+<td>GCC 11.2.0</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p dir="auto">Note: GCC 8.5.0 has known regressions regarding fold expressions and overloaded operators. Using GCC 7.5.0 or (preferred) GCC &gt;= 9 is recommended.</p>
+<p dir="auto">Note: CUTLASS 3.x builds are known to be down on Windows platforms for all CUDA toolkits.
+CUTLASS team is working on a fix.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Hardware</h2><a id="user-content-hardware" class="anchor" aria-label="Permalink: Hardware" href="#hardware"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">CUTLASS runs successfully on the following NVIDIA GPUs, and it is expected to be efficient on Volta, Turing, Ampere, Ada, and Hopper architecture based NVIDIA GPUs.</p>
+<markdown-accessiblity-table><table>
+<thead>
+<tr>
+<th><strong>GPU</strong></th>
+<th><strong>CUDA Compute Capability</strong></th>
+<th><strong>Minimum CUDA Toolkit Required by CUTLASS-3</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>NVIDIA V100 Tensor Core GPU</td>
+<td>7.0</td>
+<td>11.4</td>
+</tr>
+<tr>
+<td>NVIDIA TitanV</td>
+<td>7.0</td>
+<td>11.4</td>
+</tr>
+<tr>
+<td>NVIDIA GeForce RTX 20x0 series</td>
+<td>7.5</td>
+<td>11.4</td>
+</tr>
+<tr>
+<td>NVIDIA T4</td>
+<td>7.5</td>
+<td>11.4</td>
+</tr>
+<tr>
+<td>NVIDIA A100 Tensor Core GPU</td>
+<td>8.0</td>
+<td>11.4</td>
+</tr>
+<tr>
+<td>NVIDIA A10</td>
+<td>8.6</td>
+<td>11.4</td>
+</tr>
+<tr>
+<td>NVIDIA GeForce RTX 30x0 series</td>
+<td>8.6</td>
+<td>11.4</td>
+</tr>
+<tr>
+<td>NVIDIA GeForce RTX 40x0 series</td>
+<td>8.9</td>
+<td>11.8</td>
+</tr>
+<tr>
+<td>NVIDIA L40</td>
+<td>8.9</td>
+<td>11.8</td>
+</tr>
+<tr>
+<td>NVIDIA H100 Tensor Core GPU</td>
+<td>9.0</td>
+<td>11.8</td>
+</tr>
+<tr>
+<td>NVIDIA H200 Tensor Core GPU</td>
+<td>9.0</td>
+<td>11.8</td>
+</tr>
+<tr>
+<td>NVIDIA B200 Tensor Core GPU</td>
+<td>10.0</td>
+<td>12.8</td>
+</tr>
+<tr>
+<td>NVIDIA B300 Tensor Core GPU</td>
+<td>10.3</td>
+<td>13.0</td>
+</tr>
+<tr>
+<td>NVIDIA DRIVE Thor</td>
+<td>11.0</td>
+<td>13.0</td>
+</tr>
+<tr>
+<td>NVIDIA GeForce RTX 50x0 series</td>
+<td>12.0</td>
+<td>12.8</td>
+</tr>
+<tr>
+<td>NVIDIA DGX Spark</td>
+<td>12.1</td>
+<td>13.0</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Target Architecture</h2><a id="user-content-target-architecture" class="anchor" aria-label="Permalink: Target Architecture" href="#target-architecture"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">In general, PTX code generated for one target architecture can be run on future architectures
+(i.e., it is forward compatible).
+However, CUDA 12.0 introduced the concept of "architecture-accelerated features" whose
+PTX does not have forward compatibility guarantees.
+Several Hopper and Blackwell PTX instructions fall under this category of
+architecture-accelerated features, and thus require a <code>sm_90a</code> or <code>sm100a</code> target architecture
+(note the "a" appended). For more details on this and other architecture-accelerated instructions,
+please refer to the <a href="https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#feature-availability" rel="nofollow">CUDA Documentation</a>.</p>
+<p dir="auto">The target architecture information is passed on to CUTLASS via the cmake flag
+<code>CUTLASS_NVCC_ARCHS</code>. In order to maximize performance on Hopper GH100,
+users are required to build CUTLASS with <code>90a</code> as the target architecture.
+If a user accidentally builds a kernel which uses SM90a features
+(e.g. Hopper Tensor Core Instructions), using the SM90 target
+(note the lack of "a"), with either CUDA Toolkit 12 or 11.8,
+the kernel is expected to fail with a runtime error.</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="cmake .. -DCUTLASS_NVCC_ARCHS=&quot;90a&quot;"><pre class="notranslate"><code>cmake .. -DCUTLASS_NVCC_ARCHS="90a"
+</code></pre></div>
+<p dir="auto">Or</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="cmake .. -DCUTLASS_NVCC_ARCHS=&quot;100a&quot;"><pre class="notranslate"><code>cmake .. -DCUTLASS_NVCC_ARCHS="100a"
+</code></pre></div>
+<p dir="auto">Note: The NVIDIA Blackwell SM100 architecture used in the datacenter
+products has a different compute capability than the one underpinning
+NVIDIA Blackwell GeForce RTX 50 series GPUs (SM120). As a result, kernels
+compiled for Blackwell SM100 architecture with arch conditional features
+(using <code>sm100a</code>) are not compatible with RTX 50 series GPUs.</p>
+<p dir="auto">Please refer to the <a href="https://docs.nvidia.com/cutlass/media/docs/cpp/functionality.html" rel="nofollow">functionality documentation</a>
+for details on which kernels require which target architectures.</p>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Documentation</h1><a id="user-content-documentation" class="anchor" aria-label="Permalink: Documentation" href="#documentation"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">CUTLASS is described in the following documents and the accompanying
+<a href="https://nvidia.github.io/cutlass" rel="nofollow">Doxygen documentation</a>.</p>
+<ul dir="auto">
+<li><a href="https://docs.nvidia.com/cutlass/media/docs/cpp/quickstart.html" rel="nofollow">Quick Start Guide</a> - basics of building and running CUTLASS</li>
+<li><a href="https://docs.nvidia.com/cutlass/media/docs/cpp/functionality.html" rel="nofollow">Functionality</a> - summarizes functionality available in CUTLASS</li>
+<li><a href="https://docs.nvidia.com/cutlass/media/docs/cpp/efficient_gemm.html" rel="nofollow">Efficient GEMM in CUDA</a> - describes how GEMM kernels may be implemented efficiently in CUDA</li>
+<li><a href="https://docs.nvidia.com/cutlass/media/docs/cpp/cutlass_3x_design.html" rel="nofollow">CUTLASS 3.x Design</a> - describes the CUTLASS 3.x design, its benefits, and how CuTe enables us to write much more composable components</li>
+<li><a href="https://docs.nvidia.com/cutlass/media/docs/cpp/gemm_api_3x.html" rel="nofollow">GEMM API 3.x</a> - describes the CUTLASS 3.x GEMM model and C++ template concepts</li>
+<li><a href="https://docs.nvidia.com/cutlass/media/docs/cpp/gemm_api.html" rel="nofollow">GEMM API 2.x</a> - describes the CUTLASS 2.x GEMM model and C++ template concepts</li>
+<li><a href="https://docs.nvidia.com/cutlass/media/docs/cpp/implicit_gemm_convolution.html" rel="nofollow">Implicit GEMM Convolution</a> - describes 2-D and 3-D convolution in CUTLASS</li>
+<li><a href="https://docs.nvidia.com/cutlass/media/docs/cpp/code_organization.html" rel="nofollow">Code Organization</a> - describes the organization and contents of the CUTLASS project</li>
+<li><a href="https://docs.nvidia.com/cutlass/media/docs/cpp/terminology.html" rel="nofollow">Terminology</a> - describes terms used in the code</li>
+<li><a href="https://docs.nvidia.com/cutlass/media/docs/cpp/programming_guidelines.html" rel="nofollow">Programming Guidelines</a> - guidelines for writing efficient modern CUDA C++</li>
+<li><a href="https://docs.nvidia.com/cutlass/media/docs/cpp/fundamental_types.html" rel="nofollow">Fundamental types</a> - describes basic C++ classes used in CUTLASS to represent numeric quantities and arrays</li>
+<li><a href="https://docs.nvidia.com/cutlass/media/docs/cpp/layout.html" rel="nofollow">Layouts</a> - describes layouts of matrices and tensors in memory</li>
+<li><a href="https://docs.nvidia.com/cutlass/media/docs/cpp/tile_iterator_concept.html" rel="nofollow">Tile Iterators</a> - describes C++ concepts for iterating over tiles of matrices in memory</li>
+<li><a href="https://docs.nvidia.com/cutlass/media/docs/cpp/profiler.html" rel="nofollow">CUTLASS Profiler</a> - command-line driven profiling application</li>
+<li><a href="https://docs.nvidia.com/cutlass/media/docs/cpp/utilities.html" rel="nofollow">CUTLASS Utilities</a> - additional templates used to facilitate rapid development</li>
+<li><a href="https://docs.nvidia.com/cutlass/media/docs/cpp/dependent_kernel_launch.html" rel="nofollow">Dependent kernel launch</a> - describes a new feature in Hopper which allows overlapping dependent
+kernels in the same stream, and how it is used in CUTLASS.</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Resources</h1><a id="user-content-resources" class="anchor" aria-label="Permalink: Resources" href="#resources"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">We have also described the structure of an efficient GEMM in our talk at the
+<a href="http://on-demand.gputechconf.com/gtc/2018/presentation/s8854-cutlass-software-primitives-for-dense-linear-algebra-at-all-levels-and-scales-within-cuda.pdf" rel="nofollow">GPU Technology Conference 2018</a>.</p>
+<ul dir="auto">
+<li><a href="https://www.nvidia.com/en-us/on-demand/session/gtcsiliconvalley2018-s8854/" rel="nofollow">CUTLASS: Software Primitives for Dense Linear Algebra at All Levels and Scales within CUDA</a></li>
+<li><a href="https://www.nvidia.com/en-us/on-demand/session/gtcsj20-s21745/" rel="nofollow">Developing CUDA Kernels to Push Tensor Cores to the Absolute Limit on NVIDIA A100</a></li>
+<li><a href="https://www.nvidia.com/en-us/on-demand/session/gtcspring21-s31883/" rel="nofollow">Accelerating Convolution with Tensor Cores in CUTLASS</a></li>
+<li><a href="https://www.nvidia.com/en-us/on-demand/session/gtcspring22-s41996/" rel="nofollow">Accelerating Backward Data Gradient by Increasing Tensor Core Utilization in CUTLASS</a></li>
+<li><a href="https://www.nvidia.com/en-us/on-demand/session/gtcfall22-a41131/" rel="nofollow">CUTLASS: Python API, Enhancements, and NVIDIA Hopper</a></li>
+</ul>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Building CUTLASS</h1><a id="user-content-building-cutlass" class="anchor" aria-label="Permalink: Building CUTLASS" href="#building-cutlass"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">CUTLASS is a header-only template library and does not need to be built to be used by other
+projects. Client applications should target CUTLASS's <code>include/</code> directory in their include
+paths.</p>
+<p dir="auto">CUTLASS unit tests, examples, and utilities can be build with CMake.
+The minimum version of CMake is given in the <a href="https://docs.nvidia.com/cutlass/media/docs/cpp/quickstart.html" rel="nofollow">Quickstart guide</a>.
+Make sure the <code>CUDACXX</code> environment  variable points to NVCC in the CUDA Toolkit installed
+on your system.</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="$ export CUDACXX=${CUDA_INSTALL_PATH}/bin/nvcc"><pre>$ <span class="pl-k">export</span> CUDACXX=<span class="pl-smi">${CUDA_INSTALL_PATH}</span>/bin/nvcc</pre></div>
+<p dir="auto">Create a build directory within the CUTLASS project, then run CMake. By default CUTLASS will build kernels
+for CUDA architecture versions 5.0, 6.0, 6.1, 7.0, 7.5, 8.0, 8.6, 8.9, and 9.0.
+To reduce compile time you can specify
+the architectures to build CUTLASS for by changing the CMake configuration setting
+<code>CUTLASS_NVCC_ARCHS</code>.</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="$ mkdir build &amp;&amp; cd build
+
+$ cmake .. -DCUTLASS_NVCC_ARCHS=80               # compiles for NVIDIA's Ampere Architecture"><pre>$ mkdir build <span class="pl-k">&amp;&amp;</span> <span class="pl-c1">cd</span> build
+
+$ cmake .. -DCUTLASS_NVCC_ARCHS=80               <span class="pl-c"><span class="pl-c">#</span> compiles for NVIDIA's Ampere Architecture</span></pre></div>
+<p dir="auto">From the <code>build/</code> directory, compile and run the CUTLASS unit tests by building the target <code>test_unit</code> with make.</p>
+<p dir="auto">The unit tests are organized as several binaries mirroring the top-level namespaces of CUTLASS,
+and they may be executed in parallel via make's <code>-j</code> command line argument.</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="$ make test_unit -j
+...
+...
+...
+[----------] Global test environment tear-down
+[==========] 946 tests from 57 test cases ran. (10812 ms total)
+[  PASSED  ] 946 tests."><pre>$ make test_unit -j
+...
+...
+...
+[----------] Global <span class="pl-c1">test</span> environment tear-down
+[<span class="pl-k">==========</span>] 946 tests from 57 <span class="pl-c1">test</span> cases ran. (10812 ms total)
+[  PASSED  ] 946 tests.</pre></div>
+<p dir="auto">All tests should pass on supported platforms, though the exact number of tests may vary over time.</p>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Project Structure</h1><a id="user-content-project-structure" class="anchor" aria-label="Permalink: Project Structure" href="#project-structure"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">CUTLASS is arranged as a header-only library along with Utilities, Tools, Examples, and unit tests.
+<a href="https://nvidia.github.io/cutlass" rel="nofollow">Doxygen documentation</a> provides a complete list of files, classes,
+and template concepts defined in the CUTLASS project.</p>
+<p dir="auto">A detailed explanation of the source code organization may be found in the
+<a href="https://docs.nvidia.com/cutlass/media/docs/cpp/code_organization.html" rel="nofollow">CUTLASS documentation</a>, but several main components are summarized below.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">CUTLASS Template Library</h2><a id="user-content-cutlass-template-library" class="anchor" aria-label="Permalink: CUTLASS Template Library" href="#cutlass-template-library"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="include/                     # client applications should target this directory in their build's include paths
+
+  cutlass/                   # CUDA Templates for Linear Algebra Subroutines and Solvers - headers only
+
+    arch/                    # direct exposure of architecture features (including instruction-level GEMMs)
+
+    conv/                    # code specialized for convolution
+
+    epilogue/                # code specialized for the epilogue of gemm/convolution
+
+    gemm/                    # code specialized for general matrix product computations
+
+    layout/                  # layout definitions for matrices, tensors, and other mathematical objects in memory
+
+    platform/                # CUDA-capable Standard Library components
+
+    reduction/               # bandwidth-limited reduction kernels that do not fit the &quot;gemm&quot; model
+
+    thread/                  # simt code that can be performed within a CUDA thread
+
+    transform/               # code specialized for layout, type, and domain transformations
+
+    *                        # core vocabulary types, containers, and basic numeric operations
+
+  cute/                      # CuTe Layout, layout algebra, MMA/Copy atoms, tiled MMA/Copy
+
+    algorithm/               # Definitions of core operations such as copy, gemm, and operations on cute::tuples
+
+    arch/                    # Bare bones PTX wrapper structs for copy and math instructions
+
+    atom/                    # Meta-information either link to or built from arch/ operators
+
+      mma_atom.hpp           # cute::Mma_Atom and cute::TiledMma
+
+      copy_atom.hpp          # cute::Copy_Atom and cute::TiledCopy
+
+      *sm*.hpp               # Arch specific meta-information for copy and math operations
+
+    *                        # Core library types such as Shape, Stride, Layout, Tensor, and associated operations
+"><pre class="notranslate"><code>include/                     # client applications should target this directory in their build's include paths
+
+  cutlass/                   # CUDA Templates for Linear Algebra Subroutines and Solvers - headers only
+
+    arch/                    # direct exposure of architecture features (including instruction-level GEMMs)
+
+    conv/                    # code specialized for convolution
+
+    epilogue/                # code specialized for the epilogue of gemm/convolution
+
+    gemm/                    # code specialized for general matrix product computations
+
+    layout/                  # layout definitions for matrices, tensors, and other mathematical objects in memory
+
+    platform/                # CUDA-capable Standard Library components
+
+    reduction/               # bandwidth-limited reduction kernels that do not fit the "gemm" model
+
+    thread/                  # simt code that can be performed within a CUDA thread
+
+    transform/               # code specialized for layout, type, and domain transformations
+
+    *                        # core vocabulary types, containers, and basic numeric operations
+
+  cute/                      # CuTe Layout, layout algebra, MMA/Copy atoms, tiled MMA/Copy
+
+    algorithm/               # Definitions of core operations such as copy, gemm, and operations on cute::tuples
+
+    arch/                    # Bare bones PTX wrapper structs for copy and math instructions
+
+    atom/                    # Meta-information either link to or built from arch/ operators
+
+      mma_atom.hpp           # cute::Mma_Atom and cute::TiledMma
+
+      copy_atom.hpp          # cute::Copy_Atom and cute::TiledCopy
+
+      *sm*.hpp               # Arch specific meta-information for copy and math operations
+
+    *                        # Core library types such as Shape, Stride, Layout, Tensor, and associated operations
+
+</code></pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">CUTLASS SDK Examples</h3><a id="user-content-cutlass-sdk-examples" class="anchor" aria-label="Permalink: CUTLASS SDK Examples" href="#cutlass-sdk-examples"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><a href="https://github.com/NVIDIA/cutlass/tree/main/examples">CUTLASS SDK examples</a> apply CUTLASS templates to implement basic computations.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Tools</h3><a id="user-content-tools" class="anchor" aria-label="Permalink: Tools" href="#tools"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="tools/
+  library/                   # CUTLASS Instance Library - contains instantiations of all supported CUTLASS templates
+    include/
+      cutlass/
+        library/
+
+  profiler/                  # CUTLASS Profiler         - command-line utility for executing operations in the
+                             #                            CUTLASS Library
+
+  util/                      # CUTLASS Utilities        - contains numerous helper classes for
+    include/                 #                            managing tensors in device memory, reference
+      cutlass/               #                            implementations for GEMM, random initialization
+        util/                #                            of tensors, and I/O."><pre class="notranslate"><code>tools/
+  library/                   # CUTLASS Instance Library - contains instantiations of all supported CUTLASS templates
+    include/
+      cutlass/
+        library/
+
+  profiler/                  # CUTLASS Profiler         - command-line utility for executing operations in the
+                             #                            CUTLASS Library
+
+  util/                      # CUTLASS Utilities        - contains numerous helper classes for
+    include/                 #                            managing tensors in device memory, reference
+      cutlass/               #                            implementations for GEMM, random initialization
+        util/                #                            of tensors, and I/O.
+</code></pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Test</h3><a id="user-content-test" class="anchor" aria-label="Permalink: Test" href="#test"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The <code>test/unit/</code> directory consist of unit tests implemented with Google Test that demonstrate
+basic usage of Core API components and complete tests of the CUTLASS GEMM computations.</p>
+<p dir="auto">Instructions for building and running the Unit tests are described in the <a href="https://docs.nvidia.com/cutlass/media/docs/cpp/quickstart.html" rel="nofollow">Quickstart guide</a>.</p>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Performance Profiling</h1><a id="user-content-performance-profiling" class="anchor" aria-label="Permalink: Performance Profiling" href="#performance-profiling"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The <code>tools/profiler/</code> directory contains a command-line utility for launching each of the GEMM kernels.
+It can be built as follows:</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="$ make cutlass_profiler -j16"><pre>$ make cutlass_profiler -j16</pre></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Building all GEMM and Convolution kernels (<em>long</em> build times)</h2><a id="user-content-building-all-gemm-and-convolution-kernels-long-build-times" class="anchor" aria-label="Permalink: Building all GEMM and Convolution kernels (long build times)" href="#building-all-gemm-and-convolution-kernels-long-build-times"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">By default, only one tile size is instantiated for each data type, math instruction, and layout.
+To instantiate all, set the following environment variable when running CMake from an empty <code>build/</code> directory.
+Beware, this results in <em>tens of thousands</em> of kernels and long build times.
+This would also result in a large binary size and on some platforms linker to fail on building the library.
+Therefore, it's highly recommended to generate only a subset of kernels as demonstrated in the sub-section below.</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="$ cmake .. -DCUTLASS_NVCC_ARCHS=90a -DCUTLASS_LIBRARY_KERNELS=all
+...
+$ make cutlass_profiler -j16"><pre>$ cmake .. -DCUTLASS_NVCC_ARCHS=90a -DCUTLASS_LIBRARY_KERNELS=all
+...
+$ make cutlass_profiler -j16</pre></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Building a subset of GEMM and Convolution kernels (<em>reduced</em> build times)</h2><a id="user-content-building-a-subset-of-gemm-and-convolution-kernels-reduced-build-times" class="anchor" aria-label="Permalink: Building a subset of GEMM and Convolution kernels (reduced build times)" href="#building-a-subset-of-gemm-and-convolution-kernels-reduced-build-times"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">To compile strictly one kernel or a small set of kernels, a comma-delimited list of kernel names with
+wildcard characters may be used to reduce the set of kernels. The following examples show building exactly one
+or a subset of kernels for NVIDIA Ampere and Turing architecture:</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Building a subset Tensor Core GEMM kernels</h3><a id="user-content-building-a-subset-tensor-core-gemm-kernels" class="anchor" aria-label="Permalink: Building a subset Tensor Core GEMM kernels" href="#building-a-subset-tensor-core-gemm-kernels"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">To compile a subset of Tensor Core GEMM kernels with FP32 accumulation and FP16 input targeting NVIDIA Ampere and Turing architecture,
+use the below cmake command line:</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="$ cmake .. -DCUTLASS_NVCC_ARCHS='75;80' -DCUTLASS_LIBRARY_KERNELS=cutlass_tensorop_s*gemm_f16_*_nt_align8
+...
+$ make cutlass_profiler -j16"><pre>$ cmake .. -DCUTLASS_NVCC_ARCHS=<span class="pl-s"><span class="pl-pds">'</span>75;80<span class="pl-pds">'</span></span> -DCUTLASS_LIBRARY_KERNELS=cutlass_tensorop_s<span class="pl-k">*</span>gemm_f16_<span class="pl-k">*</span>_nt_align8
+...
+$ make cutlass_profiler -j16</pre></div>
+<p dir="auto">Example command line for profiling a subset of Tensor Core GEMM kernels is as follows:</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="./tools/profiler/cutlass_profiler --kernels=cutlass_tensorop_s*gemm_f16_*_nt_align8 --m=3456 --n=4096 --k=4096
+
+...
+=============================
+  Problem ID: 1
+
+        Provider: CUTLASS
+   OperationKind: gemm
+       Operation: cutlass_tensorop_s1688gemm_f16_256x128_32x2_nt_align8
+
+          Status: Success
+    Verification: ON
+     Disposition: Passed
+
+reference_device: Passed
+          cuBLAS: Passed
+
+       Arguments: --gemm_kind=universal --m=3456 --n=4096 --k=4096 --A=f16:column --B=f16:row --C=f32:column --alpha=1  \
+                  --beta=0 --split_k_slices=1 --batch_count=1 --op_class=tensorop --accum=f32 --cta_m=256 --cta_n=128  \
+                  --cta_k=32 --stages=2 --warps_m=4 --warps_n=2 --warps_k=1 --inst_m=16 --inst_n=8 --inst_k=8 --min_cc=75  \
+                  --max_cc=1024
+
+           Bytes: 118489088  bytes
+           FLOPs: 115992428544  flops
+
+         Runtime: 1.55948  ms
+          Memory: 70.7616 GiB/s
+
+            Math: 74378.8 GFLOP/s
+
+
+
+=============================
+..."><pre>./tools/profiler/cutlass_profiler --kernels=cutlass_tensorop_s<span class="pl-k">*</span>gemm_f16_<span class="pl-k">*</span>_nt_align8 --m=3456 --n=4096 --k=4096
+
+...
+=============================
+  Problem ID: 1
+
+        Provider: CUTLASS
+   OperationKind: gemm
+       Operation: cutlass_tensorop_s1688gemm_f16_256x128_32x2_nt_align8
+
+          Status: Success
+    Verification: ON
+     Disposition: Passed
+
+reference_device: Passed
+          cuBLAS: Passed
+
+       Arguments: --gemm_kind=universal --m=3456 --n=4096 --k=4096 --A=f16:column --B=f16:row --C=f32:column --alpha=1  \
+                  --beta=0 --split_k_slices=1 --batch_count=1 --op_class=tensorop --accum=f32 --cta_m=256 --cta_n=128  \
+                  --cta_k=32 --stages=2 --warps_m=4 --warps_n=2 --warps_k=1 --inst_m=16 --inst_n=8 --inst_k=8 --min_cc=75  \
+                  --max_cc=1024
+
+           Bytes: 118489088  bytes
+           FLOPs: 115992428544  flops
+
+         Runtime: 1.55948  ms
+          Memory: 70.7616 GiB/s
+
+            Math: 74378.8 GFLOP/s
+
+
+
+=============================
+...</pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Building one CUDA Core GEMM kernel</h3><a id="user-content-building-one-cuda-core-gemm-kernel" class="anchor" aria-label="Permalink: Building one CUDA Core GEMM kernel" href="#building-one-cuda-core-gemm-kernel"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">To compile one SGEMM kernel targeting NVIDIA Ampere and Turing architecture, use the below cmake command line:</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="$ cmake .. -DCUTLASS_NVCC_ARCHS='75;80' -DCUTLASS_LIBRARY_KERNELS=cutlass_simt_sgemm_128x128_8x2_nn_align1
+...
+$ make cutlass_profiler -j16"><pre>$ cmake .. -DCUTLASS_NVCC_ARCHS=<span class="pl-s"><span class="pl-pds">'</span>75;80<span class="pl-pds">'</span></span> -DCUTLASS_LIBRARY_KERNELS=cutlass_simt_sgemm_128x128_8x2_nn_align1
+...
+$ make cutlass_profiler -j16</pre></div>
+<p dir="auto">Example command line for profiling single SGEMM CUDA kernel is as follows:</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="$ ./tools/profiler/cutlass_profiler --kernels=sgemm --m=3456 --n=4096 --k=4096
+
+=============================
+  Problem ID: 1
+
+        Provider: CUTLASS
+   OperationKind: gemm
+       Operation: cutlass_simt_sgemm_128x128_8x2_nn_align1
+
+          Status: Success
+    Verification: ON
+     Disposition: Passed
+
+          cuBLAS: Passed
+
+       Arguments: --m=3456 --n=4096 --k=4096 --A=f32:column --B=f32:column --C=f32:column --alpha=1 --beta=0 --split_k_slices=1  \
+                  --batch_count=1 --op_class=simt --accum=f32 --cta_m=128 --cta_n=128 --cta_k=8 --stages=2 --warps_m=4  \
+                  --warps_n=2 --warps_k=1 --inst_m=1 --inst_n=1 --inst_k=1 --min_cc=50 --max_cc=1024
+
+           Bytes: 180355072  bytes
+           FLOPs: 115992428544  flops
+
+         Runtime: 6.73655  ms
+          Memory: 24.934 GiB/s
+
+            Math: 17218.4 GFLOP/s
+
+============================="><pre>$ ./tools/profiler/cutlass_profiler --kernels=sgemm --m=3456 --n=4096 --k=4096
+
+=============================
+  Problem ID: 1
+
+        Provider: CUTLASS
+   OperationKind: gemm
+       Operation: cutlass_simt_sgemm_128x128_8x2_nn_align1
+
+          Status: Success
+    Verification: ON
+     Disposition: Passed
+
+          cuBLAS: Passed
+
+       Arguments: --m=3456 --n=4096 --k=4096 --A=f32:column --B=f32:column --C=f32:column --alpha=1 --beta=0 --split_k_slices=1  \
+                  --batch_count=1 --op_class=simt --accum=f32 --cta_m=128 --cta_n=128 --cta_k=8 --stages=2 --warps_m=4  \
+                  --warps_n=2 --warps_k=1 --inst_m=1 --inst_n=1 --inst_k=1 --min_cc=50 --max_cc=1024
+
+           Bytes: 180355072  bytes
+           FLOPs: 115992428544  flops
+
+         Runtime: 6.73655  ms
+          Memory: 24.934 GiB/s
+
+            Math: 17218.4 GFLOP/s
+
+=============================</pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Building a subset of Tensor Core Convolution kernels</h3><a id="user-content-building-a-subset-of-tensor-core-convolution-kernels" class="anchor" aria-label="Permalink: Building a subset of Tensor Core Convolution kernels" href="#building-a-subset-of-tensor-core-convolution-kernels"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">To compile a subset of Tensor core convolution kernels implementing forward propagation (fprop) with FP32 accumulation
+and FP16 input targeting NVIDIA Ampere and Turing architecture, use the below cmake command line:</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="$ cmake .. -DCUTLASS_NVCC_ARCHS='75;80' -DCUTLASS_LIBRARY_KERNELS=cutlass_tensorop_s*fprop_optimized_f16
+...
+$ make cutlass_profiler -j16"><pre>$ cmake .. -DCUTLASS_NVCC_ARCHS=<span class="pl-s"><span class="pl-pds">'</span>75;80<span class="pl-pds">'</span></span> -DCUTLASS_LIBRARY_KERNELS=cutlass_tensorop_s<span class="pl-k">*</span>fprop_optimized_f16
+...
+$ make cutlass_profiler -j16</pre></div>
+<p dir="auto">Example command line for profiling a subset of Tensor Core convolution kernels is as follows:</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="$ ./tools/profiler/cutlass_profiler --kernels=cutlass_tensorop_s*fprop_optimized_f16 --n=8 --h=224 --w=224 --c=128 --k=128 --r=3 --s=3
+
+...
+=============================
+  Problem ID: 1
+
+        Provider: CUTLASS
+   OperationKind: conv2d
+       Operation: cutlass_tensorop_s16816fprop_optimized_f16_128x128_32x5_nhwc
+
+          Status: Success
+    Verification: ON
+     Disposition: Passed
+
+reference_device: Passed
+
+       Arguments: --conv_kind=fprop --n=8 --h=224 --w=224 --c=128 --k=128 --r=3 --s=3 --p=224 --q=224 --pad_h=1 --pad_w=1  \
+                  --stride_h=1 --stride_w=1 --dilation_h=1 --dilation_w=1 --Activation=f16:nhwc --Filter=f16:nhwc --Output=f32:nhwc  \
+                  --conv_mode=cross --iterator_algorithm=optimized --alpha=1 --beta=0 --split_k_mode=serial --split_k_slices=1  \
+                  --eq_gemm_provider=none --op_class=tensorop --accum=f32 --cta_m=128 --cta_n=128 --cta_k=32 --stages=5  \
+                  --warps_m=2 --warps_n=2 --warps_k=1 --inst_m=16 --inst_n=8 --inst_k=16 --min_cc=80 --max_cc=1024
+
+           Bytes: 1130659840  bytes
+           FLOPs: 118482796544  flops
+
+         Runtime: 0.711496  ms
+          Memory: 1479.99 GiB/s
+
+            Math: 166526 GFLOP/s
+
+=============================
+..."><pre>$ ./tools/profiler/cutlass_profiler --kernels=cutlass_tensorop_s<span class="pl-k">*</span>fprop_optimized_f16 --n=8 --h=224 --w=224 --c=128 --k=128 --r=3 --s=3
+
+...
+=============================
+  Problem ID: 1
+
+        Provider: CUTLASS
+   OperationKind: conv2d
+       Operation: cutlass_tensorop_s16816fprop_optimized_f16_128x128_32x5_nhwc
+
+          Status: Success
+    Verification: ON
+     Disposition: Passed
+
+reference_device: Passed
+
+       Arguments: --conv_kind=fprop --n=8 --h=224 --w=224 --c=128 --k=128 --r=3 --s=3 --p=224 --q=224 --pad_h=1 --pad_w=1  \
+                  --stride_h=1 --stride_w=1 --dilation_h=1 --dilation_w=1 --Activation=f16:nhwc --Filter=f16:nhwc --Output=f32:nhwc  \
+                  --conv_mode=cross --iterator_algorithm=optimized --alpha=1 --beta=0 --split_k_mode=serial --split_k_slices=1  \
+                  --eq_gemm_provider=none --op_class=tensorop --accum=f32 --cta_m=128 --cta_n=128 --cta_k=32 --stages=5  \
+                  --warps_m=2 --warps_n=2 --warps_k=1 --inst_m=16 --inst_n=8 --inst_k=16 --min_cc=80 --max_cc=1024
+
+           Bytes: 1130659840  bytes
+           FLOPs: 118482796544  flops
+
+         Runtime: 0.711496  ms
+          Memory: 1479.99 GiB/s
+
+            Math: 166526 GFLOP/s
+
+=============================
+...</pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Building one Convolution CUDA kernel</h3><a id="user-content-building-one-convolution-cuda-kernel" class="anchor" aria-label="Permalink: Building one Convolution CUDA kernel" href="#building-one-convolution-cuda-kernel"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">To compile and run one CUDA Core convolution kernel implementing forward propagation (fprop) with F32 accumulation
+and FP32 input targeting NVIDIA Ampere and Turing architecture, use the below cmake command line:</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="$ cmake .. -DCUTLASS_NVCC_ARCHS='75;80' -DCUTLASS_LIBRARY_KERNELS=cutlass_simt_sfprop_optimized_128x128_8x2_nhwc
+...
+$ make cutlass_profiler -j16"><pre>$ cmake .. -DCUTLASS_NVCC_ARCHS=<span class="pl-s"><span class="pl-pds">'</span>75;80<span class="pl-pds">'</span></span> -DCUTLASS_LIBRARY_KERNELS=cutlass_simt_sfprop_optimized_128x128_8x2_nhwc
+...
+$ make cutlass_profiler -j16</pre></div>
+<p dir="auto">Example command line for profiling one CUDA Core convolution kernel:</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="$ ./tools/profiler/cutlass_profiler --kernels=cutlass_simt_sfprop_optimized_128x128_8x2_nhwc --n=8 --h=224 --w=224 --c=128 --k=128 --r=3 --s=3
+
+
+=============================
+  Problem ID: 1
+
+        Provider: CUTLASS
+   OperationKind: conv2d
+       Operation: cutlass_simt_sfprop_optimized_128x128_8x2_nhwc
+
+          Status: Success
+    Verification: ON
+     Disposition: Passed
+
+reference_device: Passed
+
+       Arguments: --conv_kind=fprop --n=8 --h=224 --w=224 --c=128 --k=128 --r=3 --s=3 --p=224 --q=224 --pad_h=1 --pad_w=1  \
+                  --stride_h=1 --stride_w=1 --dilation_h=1 --dilation_w=1 --Activation=f32:nhwc --Filter=f32:nhwc --Output=f32:nhwc  \
+                  --conv_mode=cross --iterator_algorithm=optimized --alpha=1 --beta=0 --split_k_mode=serial --split_k_slices=1  \
+                  --eq_gemm_provider=none --op_class=simt --accum=f32 --cta_m=128 --cta_n=128 --cta_k=8 --stages=2 --warps_m=4  \
+                  --warps_n=2 --warps_k=1 --inst_m=1 --inst_n=1 --inst_k=1 --min_cc=50 --max_cc=1024
+
+           Bytes: 2055798784  bytes
+           FLOPs: 118482796544  flops
+
+         Runtime: 7.34266  ms
+          Memory: 260.752 GiB/s
+
+            Math: 16136.2 GFLOP/s
+
+
+=============================
+"><pre>$ ./tools/profiler/cutlass_profiler --kernels=cutlass_simt_sfprop_optimized_128x128_8x2_nhwc --n=8 --h=224 --w=224 --c=128 --k=128 --r=3 --s=3
+
+
+=============================
+  Problem ID: 1
+
+        Provider: CUTLASS
+   OperationKind: conv2d
+       Operation: cutlass_simt_sfprop_optimized_128x128_8x2_nhwc
+
+          Status: Success
+    Verification: ON
+     Disposition: Passed
+
+reference_device: Passed
+
+       Arguments: --conv_kind=fprop --n=8 --h=224 --w=224 --c=128 --k=128 --r=3 --s=3 --p=224 --q=224 --pad_h=1 --pad_w=1  \
+                  --stride_h=1 --stride_w=1 --dilation_h=1 --dilation_w=1 --Activation=f32:nhwc --Filter=f32:nhwc --Output=f32:nhwc  \
+                  --conv_mode=cross --iterator_algorithm=optimized --alpha=1 --beta=0 --split_k_mode=serial --split_k_slices=1  \
+                  --eq_gemm_provider=none --op_class=simt --accum=f32 --cta_m=128 --cta_n=128 --cta_k=8 --stages=2 --warps_m=4  \
+                  --warps_n=2 --warps_k=1 --inst_m=1 --inst_n=1 --inst_k=1 --min_cc=50 --max_cc=1024
+
+           Bytes: 2055798784  bytes
+           FLOPs: 118482796544  flops
+
+         Runtime: 7.34266  ms
+          Memory: 260.752 GiB/s
+
+            Math: 16136.2 GFLOP/s
+
+
+=============================
+</pre></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">More Details on Compiling CUTLASS Kernels and CUTLASS Profiler</h2><a id="user-content-more-details-on-compiling-cutlass-kernels-and-cutlass-profiler" class="anchor" aria-label="Permalink: More Details on Compiling CUTLASS Kernels and CUTLASS Profiler" href="#more-details-on-compiling-cutlass-kernels-and-cutlass-profiler"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li>Please follow the links for more CMake examples on selectively compiling CUTLASS kernels:
+<ul dir="auto">
+<li><a href="https://docs.nvidia.com/cutlass/media/docs/cpp/quickstart.html#gemm-cmake-examples" rel="nofollow">GEMM CMake Examples</a></li>
+<li><a href="https://docs.nvidia.com/cutlass/media/docs/cpp/quickstart.html#convolution-cmake-examples" rel="nofollow">Implicit GEMM convolution CMake Examples</a></li>
+</ul>
+</li>
+<li><a href="https://docs.nvidia.com/cutlass/media/docs/cpp/profiler.html" rel="nofollow">Further details about the CUTLASS Profiler are described here.</a></li>
+</ul>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">About</h1><a id="user-content-about" class="anchor" aria-label="Permalink: About" href="#about"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">CUTLASS is released by NVIDIA Corporation as Open Source software under the
+<a href="LICENSE.txt">3-clause "New" BSD license</a>.</p>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Contributors</h1><a id="user-content-contributors" class="anchor" aria-label="Permalink: Contributors" href="#contributors"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The official list of CUTLASS developers and contributors is available here: <a href="CONTRIBUTORS.md">CONTRIBUTORS</a>.</p>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Copyright</h1><a id="user-content-copyright" class="anchor" aria-label="Permalink: Copyright" href="#copyright"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Copyright (c) 2017 - 2025 NVIDIA CORPORATION &amp; AFFILIATES. All rights reserved.
+SPDX-License-Identifier: BSD-3-Clause</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="  Redistribution and use in source and binary forms, with or without
+  modification, are permitted provided that the following conditions are met:
+
+  1. Redistributions of source code must retain the above copyright notice, this
+  list of conditions and the following disclaimer.
+
+  2. Redistributions in binary form must reproduce the above copyright notice,
+  this list of conditions and the following disclaimer in the documentation
+  and/or other materials provided with the distribution.
+
+  3. Neither the name of the copyright holder nor the names of its
+  contributors may be used to endorse or promote products derived from
+  this software without specific prior written permission.
+
+  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot;
+  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+  DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+  FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+  DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+  SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+  CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE."><pre class="notranslate"><code>  Redistribution and use in source and binary forms, with or without
+  modification, are permitted provided that the following conditions are met:
+
+  1. Redistributions of source code must retain the above copyright notice, this
+  list of conditions and the following disclaimer.
+
+  2. Redistributions in binary form must reproduce the above copyright notice,
+  this list of conditions and the following disclaimer in the documentation
+  and/or other materials provided with the distribution.
+
+  3. Neither the name of the copyright holder nor the names of its
+  contributors may be used to endorse or promote products derived from
+  this software without specific prior written permission.
+
+  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+  DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+  FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+  DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+  SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+  CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+</code></pre></div>
+</article></div>

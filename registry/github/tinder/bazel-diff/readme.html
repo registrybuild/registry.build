@@ -1,0 +1,555 @@
+<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">bazel-diff</h1><a id="user-content-bazel-diff" class="anchor" aria-label="Permalink: bazel-diff" href="#bazel-diff"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><a href="https://github.com/Tinder/bazel-diff/actions/workflows/ci.yaml"><img src="https://github.com/Tinder/bazel-diff/actions/workflows/ci.yaml/badge.svg?branch=master" alt="Build status" style="max-width: 100%;"></a></p>
+<p dir="auto"><code>bazel-diff</code> is a command line tool for Bazel projects that allows users to determine the exact affected set of impacted targets between two Git revisions. Using this set, users can test or build the exact modified set of targets.</p>
+<p dir="auto"><code>bazel-diff</code> offers several key advantages over rolling your own target diffing solution</p>
+<ol dir="auto">
+<li><code>bazel-diff</code> is designed for very large Bazel projects. We use Java Protobuf's <code>parseDelimitedFrom</code> method alongside Bazel Query's <code>streamed_proto</code> output option. These two together allow you to parse Gigabyte or larger protobuf messages. We have tested it with projects containing tens of thousands of targets.</li>
+<li>We avoid usage of large command line query lists when interacting with Bazel, <a href="https://github.com/bazelbuild/bazel/issues/8609" data-hovercard-type="issue" data-hovercard-url="/bazelbuild/bazel/issues/8609/hovercard">issue here</a>. When you interact with Bazel with thousands of query parameters you can reach an upper maximum limit, seeing this error <code>bash: /usr/local/bin/bazel: Argument list too long</code>. <code>bazel-diff</code> is smart enough to avoid these errors.</li>
+<li><code>bazel-diff</code> has been tested with file renames, deletions, and modifications. Works on <code>bzl</code> files, <code>WORKSPACE</code> files, <code>BUILD</code> files and regular files</li>
+</ol>
+<p dir="auto">Track the feature request for target diffing in Bazel <a href="https://github.com/bazelbuild/bazel/issues/7962" data-hovercard-type="issue" data-hovercard-url="/bazelbuild/bazel/issues/7962/hovercard">here</a></p>
+<p dir="auto">This approach was inspired by the <a href="https://www.youtube.com/watch?v=9Dk7mtIm7_A" rel="nofollow">following BazelConf talk</a> by Benjamin Peterson.</p>
+<blockquote>
+<p dir="auto">There are simpler and faster ways to approximate the affected set of targets.
+However an incorrect solution can result in a system you can't trust,
+because tests could be broken at a commit where you didn't select to run them.
+Then you can't rely on green-to-red (or red-to-green) transitions and
+lose much of the value from your CI system as breakages can be discovered
+later on unrelated commits.</p>
+</blockquote>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Prerequisites</h2><a id="user-content-prerequisites" class="anchor" aria-label="Permalink: Prerequisites" href="#prerequisites"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li>Git</li>
+<li>Bazel 3.3.0 or higher</li>
+<li>Java 8 JDK or higher (Bazel requires this)</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Getting Started</h2><a id="user-content-getting-started" class="anchor" aria-label="Permalink: Getting Started" href="#getting-started"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">To start using <code>bazel-diff</code> immediately, simply clone down the repo and then run the example shell script:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="git clone https://github.com/Tinder/bazel-diff.git
+cd bazel-diff
+./bazel-diff-example.sh WORKSPACE_PATH BAZEL_PATH START_GIT_REVISION END_GIT_REVISION"><pre lang="terminal" class="notranslate"><code>git clone https://github.com/Tinder/bazel-diff.git
+cd bazel-diff
+./bazel-diff-example.sh WORKSPACE_PATH BAZEL_PATH START_GIT_REVISION END_GIT_REVISION
+</code></pre></div>
+<p dir="auto">Here is a breakdown of those arguments:</p>
+<ul dir="auto">
+<li><code>WORKSPACE_PATH</code>: Path to directory containing your <code>WORKSPACE</code> file in your Bazel project.</li>
+<li><code>BAZEL_PATH</code>: Path to your Bazel executable</li>
+<li><code>START_GIT_REVISION</code>: Starting Git Branch or SHA for your desired commit range</li>
+<li><code>END_GIT_REVISION</code>: Final Git Branch or SHA for your desired commit range</li>
+</ul>
+<p dir="auto">You can see the example shell script in action below:</p>
+<p dir="auto"><a target="_blank" rel="noopener noreferrer" href="demo.gif"><img src="demo.gif" alt="Demo" data-animated-image="" style="max-width: 100%;"></a></p>
+<p dir="auto">Open <code>bazel-diff-example.sh</code> to see how this is implemented. This is purely an example use-case, but it is a great starting point to using <code>bazel-diff</code>.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">How it works</h2><a id="user-content-how-it-works" class="anchor" aria-label="Permalink: How it works" href="#how-it-works"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><code>bazel-diff</code> works as follows</p>
+<ul dir="auto">
+<li>
+<p dir="auto">The previous revision is checked out, then we run <code>generate-hashes</code>. This gives us the hashmap representation for the entire Bazel graph, then we write this JSON to a file.</p>
+</li>
+<li>
+<p dir="auto">Next we checkout the initial revision, then we run <code>generate-hashes</code> and write that JSON to a file. Now we have our final hashmap representation for the Bazel graph.</p>
+</li>
+<li>
+<p dir="auto">We run <code>bazel-diff</code> on the starting and final JSON hash filepaths to get our impacted set of targets. This impacted set of targets is written to a file.</p>
+</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Build Graph Distance Metrics</h2><a id="user-content-build-graph-distance-metrics" class="anchor" aria-label="Permalink: Build Graph Distance Metrics" href="#build-graph-distance-metrics"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><code>bazel-diff</code> can optionally compute build graph distance metrics between two revisions. This is
+useful for understanding the impact of a change on the build graph. Directly impacted targets are
+targets that have had their rule attributes or source file dependencies changed. Indirectly impacted
+targets are that are impacted only due to a change in one of their target dependencies.</p>
+<p dir="auto">For each target, the following metrics are computed:</p>
+<ul dir="auto">
+<li><code>target_distance</code>: The number of dependency hops that it takes to get from an impacted target to a directly impacted target.</li>
+<li><code>package_distance</code>: The number of dependency hops that cross a package boundary to get from an impacted target to a directly impacted target.</li>
+</ul>
+<p dir="auto">Build graph distance metrics can be used by downstream tools to power features such as:</p>
+<ul dir="auto">
+<li>Only running sanitizers on impacted tests that are in the same package as a directly impacted target.</li>
+<li>Only running large-sized tests that are within a few package hops of a directly impacted target.</li>
+<li>Only running computationally expensive jobs when an impacted target is within a certain distance of a directly impacted target.</li>
+</ul>
+<p dir="auto">To enable this feature, you must generate a dependency mapping on your final revision when computing hashes, then pass it into the <code>get-impacted-targets</code> command.</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="git checkout BASE_REV
+bazel-diff generate-hashes [...]
+
+git checkout FINAL_REV
+bazel-diff generate-hashes --depEdgesFile deps.json [...]
+
+bazel-diff get-impacted-targets --depEdgesFile deps.json [...]"><pre>git checkout BASE_REV
+bazel-diff generate-hashes [...]
+
+git checkout FINAL_REV
+bazel-diff generate-hashes --depEdgesFile deps.json [...]
+
+bazel-diff get-impacted-targets --depEdgesFile deps.json [...]</pre></div>
+<p dir="auto">This will produce an impacted targets json list with target label, target distance, and package distance:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="[
+  {&quot;label&quot;: &quot;//foo:bar&quot;, &quot;targetDistance&quot;: 0, &quot;packageDistance&quot;: 0},
+  {&quot;label&quot;: &quot;//foo:baz&quot;, &quot;targetDistance&quot;: 1, &quot;packageDistance&quot;: 0},
+  {&quot;label&quot;: &quot;//bar:qux&quot;, &quot;targetDistance&quot;: 1, &quot;packageDistance&quot;: 1}
+]"><pre lang="text" class="notranslate"><code>[
+  {"label": "//foo:bar", "targetDistance": 0, "packageDistance": 0},
+  {"label": "//foo:baz", "targetDistance": 1, "packageDistance": 0},
+  {"label": "//bar:qux", "targetDistance": 1, "packageDistance": 1}
+]
+</code></pre></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">CLI Interface</h2><a id="user-content-cli-interface" class="anchor" aria-label="Permalink: CLI Interface" href="#cli-interface"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><code>bazel-diff</code> Command</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="Usage: bazel-diff [-hvV] [COMMAND]
+Writes to a file the impacted targets between two Bazel graph JSON files
+  -h, --help      Show this help message and exit.
+  -v, --verbose   Display query string, missing files and elapsed time
+  -V, --version   Print version information and exit.
+Commands:
+  generate-hashes       Writes to a file the SHA256 hashes for each Bazel
+                          Target in the provided workspace.
+  get-impacted-targets  Command-line utility to analyze the state of the bazel
+                          build graph"><pre lang="terminal" class="notranslate"><code>Usage: bazel-diff [-hvV] [COMMAND]
+Writes to a file the impacted targets between two Bazel graph JSON files
+  -h, --help      Show this help message and exit.
+  -v, --verbose   Display query string, missing files and elapsed time
+  -V, --version   Print version information and exit.
+Commands:
+  generate-hashes       Writes to a file the SHA256 hashes for each Bazel
+                          Target in the provided workspace.
+  get-impacted-targets  Command-line utility to analyze the state of the bazel
+                          build graph
+</code></pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto"><code>generate-hashes</code> command</h3><a id="user-content-generate-hashes-command" class="anchor" aria-label="Permalink: generate-hashes command" href="#generate-hashes-command"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="Usage: bazel-diff generate-hashes [-hkvV] [--[no-]useCquery] [-b=&lt;bazelPath&gt;]
+                                  [--[no-]excludeExternalTargets]
+                                  [--[no-]includeTargetType]
+                                  [--contentHashPath=&lt;contentHashPath&gt;]
+                                  [-s=&lt;seedFilepaths&gt;] -w=&lt;workspacePath&gt;
+                                  [-co=&lt;bazelCommandOptions&gt;]...
+                                  [--cqueryCommandOptions=&lt;cqueryCommandOptions&gt;
+                                  ]...
+                                  [--fineGrainedHashExternalRepos=&lt;fineGrainedHa
+                                  shExternalRepos&gt;]...
+                                  [-so=&lt;bazelStartupOptions&gt;]... &lt;outputPath&gt;
+Writes to a file the SHA256 hashes for each Bazel Target in the provided
+workspace.
+      &lt;outputPath&gt;        The filepath to write the resulting JSON to.
+                            If not specified, the JSON will be written to STDOUT.
+
+                            By default the JSON schema is a dictionary of target =&gt; SHA-256 values.
+                            Example:
+                                 {
+                                    &quot;//cli:bazel-diff_deploy.jar&quot;:  &quot;4ae310f8ad2bc728934e3509b6102ca658e828b9cd668f79990e95c6663f9633&quot;
+                                    ...
+                                 }
+
+                            If --includeTargetType is specified, the JSON schema will include the target type (SourceFile/Rule/GeneratedFile)
+                            Example:
+                                {
+                                  &quot;//cli:src/test/resources/fixture/integration-test-1.zip&quot;: &quot;SourceFile#c259eba8539f4c14e4536c61975457c2990e090067893f4a2981e7bb5f4ef4cf&quot;,
+                                  &quot;//external:android_gmaven_r8&quot;: &quot;Rule#795f583449a40814c05e1cc5d833002afed8d12bce5b835579c7f139c2462d61&quot;,
+                                  &quot;//cli:bazel-diff_deploy.jar&quot;: &quot;GeneratedFile#4ae310f8ad2bc728934e3509b6102ca658e828b9cd668f79990e95c6663f9633&quot;,
+                                  ...
+                                }
+      --[no-]excludeExternalTargets
+                          If true, exclude external targets. This must be
+                            switched on when using `--noenable_workspace` Bazel
+                            command line option. Defaults to `false`.
+      --[no-]includeTargetType
+                          Whether include target type in the generated JSON or not.
+                            If false, the generate JSON schema is: {&quot;&lt;target&gt;&quot;: &quot;&lt;sha256&gt;&quot;}
+                            If true, the generate JSON schema is: {&quot;&lt;target&gt;&quot;: &quot;&lt;type&gt;#&lt;sha256&gt;&quot;
+      -tt, --targetType=&lt;targetType&gt;
+                          The type of targets to filter, available options are SourceFile/Rule/GeneratedFile
+                          Only works if the JSON was generated with `--includeTargetType` enabled.
+                          If not specified, all types of impacted targets will be returned.
+      -b, --bazelPath=&lt;bazelPath&gt;
+                          Path to Bazel binary. If not specified, the Bazel
+                            binary available in PATH will be used.
+      -co, --bazelCommandOptions=&lt;bazelCommandOptions&gt;
+                          Additional space separated Bazel command options used
+                            when invoking `bazel query`
+      --contentHashPath=&lt;contentHashPath&gt;
+                          Path to content hash json file. It's a map which maps
+                            relative file path from workspace path to its
+                            content hash. Files in this map will skip content
+                            hashing and use provided value
+      --cqueryCommandOptions=&lt;cqueryCommandOptions&gt;
+                          Additional space separated Bazel command options used
+                            when invoking `bazel cquery`. This flag is has no
+                            effect if `--useCquery`is false.
+      --fineGrainedHashExternalRepos=&lt;fineGrainedHashExternalRepos&gt;
+                          Comma separate list of external repos in which
+                            fine-grained hashes are computed for the targets.
+                            By default, external repos are treated as an opaque
+                            blob. If an external repo is specified here,
+                            bazel-diff instead computes the hash for individual
+                            targets. For example, one wants to specify `@maven`
+                            here if they use rules_jvm_external so that
+                            individual third party dependency change won't
+                            invalidate all targets in the mono repo. Note that
+                            if `--useCquery` is true; or `--useCquery` is false but
+                            `--bazelCommandOptions=--consistent_labels` is provided,
+                            the canonical repo name must be provided,
+                            e.g. `@@maven` or `@@rules_jvm_external~~maven~maven` (bzlmod)
+                            instead of apparent name `@maven`
+  -h, --help              Show this help message and exit.
+      --ignoredRuleHashingAttributes=&lt;ignoredRuleHashingAttributes&gt;
+                          Attributes that should be ignored when hashing rule
+                            targets.
+  -k, --[no-]keep_going   This flag controls if `bazel query` will be executed
+                            with the `--keep_going` flag or not. Disabling this
+                            flag allows you to catch configuration issues in
+                            your Bazel graph, but may not work for some Bazel
+                            setups. Defaults to `true`
+  -s, --seed-filepaths=&lt;seedFilepaths&gt;
+                          A text file containing a newline separated list of
+                            filepaths, each of these filepaths will be read and
+                            used as a seed for all targets.
+      -so, --bazelStartupOptions=&lt;bazelStartupOptions&gt;
+                          Additional space separated Bazel client startup
+                            options used when invoking Bazel
+      --[no-]useCquery    If true, use cquery instead of query when generating
+                            dependency graphs. Using cquery would yield more
+                            accurate build graph at the cost of slower query
+                            execution. When this is set, one usually also wants
+                            to set `--cqueryCommandOptions` to specify a
+                            targeting platform. Note that this flag only works
+                            with Bazel 6.2.0 or above because lower versions
+                            does not support `--query_file` flag.
+  -v, --verbose           Display query string, missing files and elapsed time
+  -V, --version           Print version information and exit.
+  -w, --workspacePath=&lt;workspacePath&gt;
+                          Path to Bazel workspace directory."><pre lang="terminal" class="notranslate"><code>Usage: bazel-diff generate-hashes [-hkvV] [--[no-]useCquery] [-b=&lt;bazelPath&gt;]
+                                  [--[no-]excludeExternalTargets]
+                                  [--[no-]includeTargetType]
+                                  [--contentHashPath=&lt;contentHashPath&gt;]
+                                  [-s=&lt;seedFilepaths&gt;] -w=&lt;workspacePath&gt;
+                                  [-co=&lt;bazelCommandOptions&gt;]...
+                                  [--cqueryCommandOptions=&lt;cqueryCommandOptions&gt;
+                                  ]...
+                                  [--fineGrainedHashExternalRepos=&lt;fineGrainedHa
+                                  shExternalRepos&gt;]...
+                                  [-so=&lt;bazelStartupOptions&gt;]... &lt;outputPath&gt;
+Writes to a file the SHA256 hashes for each Bazel Target in the provided
+workspace.
+      &lt;outputPath&gt;        The filepath to write the resulting JSON to.
+                            If not specified, the JSON will be written to STDOUT.
+
+                            By default the JSON schema is a dictionary of target =&gt; SHA-256 values.
+                            Example:
+                                 {
+                                    "//cli:bazel-diff_deploy.jar":  "4ae310f8ad2bc728934e3509b6102ca658e828b9cd668f79990e95c6663f9633"
+                                    ...
+                                 }
+
+                            If --includeTargetType is specified, the JSON schema will include the target type (SourceFile/Rule/GeneratedFile)
+                            Example:
+                                {
+                                  "//cli:src/test/resources/fixture/integration-test-1.zip": "SourceFile#c259eba8539f4c14e4536c61975457c2990e090067893f4a2981e7bb5f4ef4cf",
+                                  "//external:android_gmaven_r8": "Rule#795f583449a40814c05e1cc5d833002afed8d12bce5b835579c7f139c2462d61",
+                                  "//cli:bazel-diff_deploy.jar": "GeneratedFile#4ae310f8ad2bc728934e3509b6102ca658e828b9cd668f79990e95c6663f9633",
+                                  ...
+                                }
+      --[no-]excludeExternalTargets
+                          If true, exclude external targets. This must be
+                            switched on when using `--noenable_workspace` Bazel
+                            command line option. Defaults to `false`.
+      --[no-]includeTargetType
+                          Whether include target type in the generated JSON or not.
+                            If false, the generate JSON schema is: {"&lt;target&gt;": "&lt;sha256&gt;"}
+                            If true, the generate JSON schema is: {"&lt;target&gt;": "&lt;type&gt;#&lt;sha256&gt;"
+      -tt, --targetType=&lt;targetType&gt;
+                          The type of targets to filter, available options are SourceFile/Rule/GeneratedFile
+                          Only works if the JSON was generated with `--includeTargetType` enabled.
+                          If not specified, all types of impacted targets will be returned.
+      -b, --bazelPath=&lt;bazelPath&gt;
+                          Path to Bazel binary. If not specified, the Bazel
+                            binary available in PATH will be used.
+      -co, --bazelCommandOptions=&lt;bazelCommandOptions&gt;
+                          Additional space separated Bazel command options used
+                            when invoking `bazel query`
+      --contentHashPath=&lt;contentHashPath&gt;
+                          Path to content hash json file. It's a map which maps
+                            relative file path from workspace path to its
+                            content hash. Files in this map will skip content
+                            hashing and use provided value
+      --cqueryCommandOptions=&lt;cqueryCommandOptions&gt;
+                          Additional space separated Bazel command options used
+                            when invoking `bazel cquery`. This flag is has no
+                            effect if `--useCquery`is false.
+      --fineGrainedHashExternalRepos=&lt;fineGrainedHashExternalRepos&gt;
+                          Comma separate list of external repos in which
+                            fine-grained hashes are computed for the targets.
+                            By default, external repos are treated as an opaque
+                            blob. If an external repo is specified here,
+                            bazel-diff instead computes the hash for individual
+                            targets. For example, one wants to specify `@maven`
+                            here if they use rules_jvm_external so that
+                            individual third party dependency change won't
+                            invalidate all targets in the mono repo. Note that
+                            if `--useCquery` is true; or `--useCquery` is false but
+                            `--bazelCommandOptions=--consistent_labels` is provided,
+                            the canonical repo name must be provided,
+                            e.g. `@@maven` or `@@rules_jvm_external~~maven~maven` (bzlmod)
+                            instead of apparent name `@maven`
+  -h, --help              Show this help message and exit.
+      --ignoredRuleHashingAttributes=&lt;ignoredRuleHashingAttributes&gt;
+                          Attributes that should be ignored when hashing rule
+                            targets.
+  -k, --[no-]keep_going   This flag controls if `bazel query` will be executed
+                            with the `--keep_going` flag or not. Disabling this
+                            flag allows you to catch configuration issues in
+                            your Bazel graph, but may not work for some Bazel
+                            setups. Defaults to `true`
+  -s, --seed-filepaths=&lt;seedFilepaths&gt;
+                          A text file containing a newline separated list of
+                            filepaths, each of these filepaths will be read and
+                            used as a seed for all targets.
+      -so, --bazelStartupOptions=&lt;bazelStartupOptions&gt;
+                          Additional space separated Bazel client startup
+                            options used when invoking Bazel
+      --[no-]useCquery    If true, use cquery instead of query when generating
+                            dependency graphs. Using cquery would yield more
+                            accurate build graph at the cost of slower query
+                            execution. When this is set, one usually also wants
+                            to set `--cqueryCommandOptions` to specify a
+                            targeting platform. Note that this flag only works
+                            with Bazel 6.2.0 or above because lower versions
+                            does not support `--query_file` flag.
+  -v, --verbose           Display query string, missing files and elapsed time
+  -V, --version           Print version information and exit.
+  -w, --workspacePath=&lt;workspacePath&gt;
+                          Path to Bazel workspace directory.
+</code></pre></div>
+<p dir="auto"><strong>Note</strong>: <code>--useCquery</code> flag may not work with very large repos due to limitation
+of Bazel. You may want to fallback to use normal query mode in that case.
+See <a class="issue-link js-issue-link" data-error-text="Failed to load title" data-id="1620019394" data-permission-text="Title is private" data-url="https://github.com/bazelbuild/bazel/issues/17743" data-hovercard-type="issue" data-hovercard-url="/bazelbuild/bazel/issues/17743/hovercard" href="https://github.com/bazelbuild/bazel/issues/17743">bazelbuild/bazel#17743</a> for more details.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">What does the SHA256 value of <code>generate-hashes</code> represent?</h3><a id="user-content-what-does-the-sha256-value-of-generate-hashes-represent" class="anchor" aria-label="Permalink: What does the SHA256 value of generate-hashes represent?" href="#what-does-the-sha256-value-of-generate-hashes-represent"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><code>generate-hashes</code> is a canonical SHA256 value representing all attributes and inputs into a target. These inputs
+are the summation of the rule implementation hash, the SHA256 value
+for every attribute of the rule and then the summation of the SHA256 value for
+all <code>rule_inputs</code> using the same exact algorithm. For source_file inputs the
+content of the file are converted into a SHA256 value.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto"><code>get-impacted-targets</code> command</h3><a id="user-content-get-impacted-targets-command" class="anchor" aria-label="Permalink: get-impacted-targets command" href="#get-impacted-targets-command"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="Usage: bazel-diff get-impacted-targets [-v] -fh=&lt;finalHashesJSONPath&gt;
+                                       -o=&lt;outputPath&gt;
+                                       -tt=&lt;targetType&gt;
+                                       -sh=&lt;startingHashesJSONPath&gt;
+Command-line utility to analyze the state of the bazel build graph
+      -fh, --finalHashes=&lt;finalHashesJSONPath&gt;
+                  The path to the JSON file of target hashes for the final
+                    revision. Run 'generate-hashes' to get this value.
+      -o, --output=&lt;outputPath&gt;
+                  Filepath to write the impacted Bazel targets to, newline
+                    separated
+      -sh, --startingHashes=&lt;startingHashesJSONPath&gt;
+                  The path to the JSON file of target hashes for the initial
+                    revision. Run 'generate-hashes' to get this value.
+      -tt, --targetType=&lt;targetType&gt;
+                  The type of targets to filter, available options are SourceFile/Rule/GeneratedFile
+                  Only works if the JSON was generated with `--includeTargetType` enabled.
+                  If not specified, all types of impacted targets will be returned.
+      -v, --verbose
+                  Display query string, missing files and elapsed time"><pre lang="terminal" class="notranslate"><code>Usage: bazel-diff get-impacted-targets [-v] -fh=&lt;finalHashesJSONPath&gt;
+                                       -o=&lt;outputPath&gt;
+                                       -tt=&lt;targetType&gt;
+                                       -sh=&lt;startingHashesJSONPath&gt;
+Command-line utility to analyze the state of the bazel build graph
+      -fh, --finalHashes=&lt;finalHashesJSONPath&gt;
+                  The path to the JSON file of target hashes for the final
+                    revision. Run 'generate-hashes' to get this value.
+      -o, --output=&lt;outputPath&gt;
+                  Filepath to write the impacted Bazel targets to, newline
+                    separated
+      -sh, --startingHashes=&lt;startingHashesJSONPath&gt;
+                  The path to the JSON file of target hashes for the initial
+                    revision. Run 'generate-hashes' to get this value.
+      -tt, --targetType=&lt;targetType&gt;
+                  The type of targets to filter, available options are SourceFile/Rule/GeneratedFile
+                  Only works if the JSON was generated with `--includeTargetType` enabled.
+                  If not specified, all types of impacted targets will be returned.
+      -v, --verbose
+                  Display query string, missing files and elapsed time
+</code></pre></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Installing</h2><a id="user-content-installing" class="anchor" aria-label="Permalink: Installing" href="#installing"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Integrate into your project (recommended)</h3><a id="user-content-integrate-into-your-project-recommended" class="anchor" aria-label="Permalink: Integrate into your project (recommended)" href="#integrate-into-your-project-recommended"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">First, add the following snippet to your project:</p>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Bzlmod snippet</h4><a id="user-content-bzlmod-snippet" class="anchor" aria-label="Permalink: Bzlmod snippet" href="#bzlmod-snippet"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel_dep(name = &quot;bazel-diff&quot;, version = &quot;11.0.1&quot;)"><pre><span class="pl-en">bazel_dep</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"bazel-diff"</span>, <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"11.0.1"</span>)</pre></div>
+<p dir="auto">You can now run the tool with:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="bazel run @bazel-diff//cli:bazel-diff"><pre lang="terminal" class="notranslate"><code>bazel run @bazel-diff//cli:bazel-diff
+</code></pre></div>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">WORKSPACE snippet</h4><a id="user-content-workspace-snippet" class="anchor" aria-label="Permalink: WORKSPACE snippet" href="#workspace-snippet"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="http_jar = use_repo_rule(&quot;@bazel_tools//tools/build_defs/repo:http.bzl&quot;, &quot;http_jar&quot;)
+http_jar(
+    name = &quot;bazel-diff&quot;,
+    urls = [
+        &quot;https://github.com/Tinder/bazel-diff/releases/download/7.0.0/bazel-diff_deploy.jar&quot;
+    ],
+    sha256 = &quot;0b9e32f9c20e570846b083743fe967ae54d13e2a1f7364983e0a7792979442be&quot;,
+)"><pre><span class="pl-s1">http_jar</span> <span class="pl-c1">=</span> <span class="pl-en">use_repo_rule</span>(<span class="pl-s">"@bazel_tools//tools/build_defs/repo:http.bzl"</span>, <span class="pl-s">"http_jar"</span>)
+<span class="pl-en">http_jar</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"bazel-diff"</span>,
+    <span class="pl-s1">urls</span> <span class="pl-c1">=</span> [
+        <span class="pl-s">"https://github.com/Tinder/bazel-diff/releases/download/7.0.0/bazel-diff_deploy.jar"</span>
+    ],
+    <span class="pl-s1">sha256</span> <span class="pl-c1">=</span> <span class="pl-s">"0b9e32f9c20e570846b083743fe967ae54d13e2a1f7364983e0a7792979442be"</span>,
+)</pre></div>
+<p dir="auto">Second, add in your root <code>BUILD.bazel</code> file:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@rules_java//java:defs.bzl&quot;, &quot;java_binary&quot;)
+
+java_binary(
+    name = &quot;bazel-diff&quot;,
+    main_class = &quot;com.bazel_diff.Main&quot;,
+    runtime_deps = [&quot;@bazel-diff//jar&quot;],
+)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@rules_java//java:defs.bzl"</span>, <span class="pl-s">"java_binary"</span>)
+
+<span class="pl-en">java_binary</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"bazel-diff"</span>,
+    <span class="pl-s1">main_class</span> <span class="pl-c1">=</span> <span class="pl-s">"com.bazel_diff.Main"</span>,
+    <span class="pl-s1">runtime_deps</span> <span class="pl-c1">=</span> [<span class="pl-s">"@bazel-diff//jar"</span>],
+)</pre></div>
+<p dir="auto">That's it! You can now run the tool with:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="bazel run //:bazel-diff"><pre lang="terminal" class="notranslate"><code>bazel run //:bazel-diff
+</code></pre></div>
+<blockquote>
+<p dir="auto">Note, in releases prior to 2.0.0 the value for the <code>main_class</code> attribute is just <code>BazelDiff</code></p>
+</blockquote>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Run Via JAR Release</h3><a id="user-content-run-via-jar-release" class="anchor" aria-label="Permalink: Run Via JAR Release" href="#run-via-jar-release"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="curl -Lo bazel-diff.jar https://github.com/Tinder/bazel-diff/releases/latest/download/bazel-diff_deploy.jar
+java -jar bazel-diff.jar -h"><pre lang="terminal" class="notranslate"><code>curl -Lo bazel-diff.jar https://github.com/Tinder/bazel-diff/releases/latest/download/bazel-diff_deploy.jar
+java -jar bazel-diff.jar -h
+</code></pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Build from Source</h3><a id="user-content-build-from-source" class="anchor" aria-label="Permalink: Build from Source" href="#build-from-source"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">After cloning down the repo, you are good to go, Bazel will handle the rest</p>
+<p dir="auto">To run the project</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="bazel run :bazel-diff -- bazel-diff -h"><pre lang="terminal" class="notranslate"><code>bazel run :bazel-diff -- bazel-diff -h
+</code></pre></div>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Debugging (when running from source)</h4><a id="user-content-debugging-when-running-from-source" class="anchor" aria-label="Permalink: Debugging (when running from source)" href="#debugging-when-running-from-source"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">To run <code>bazel-diff</code> with debug logging, run your commands with the <code>verbose</code> config like so:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="bazel run :bazel-diff --config=verbose -- bazel-diff -h"><pre lang="terminal" class="notranslate"><code>bazel run :bazel-diff --config=verbose -- bazel-diff -h
+</code></pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Build your own deployable JAR</h3><a id="user-content-build-your-own-deployable-jar" class="anchor" aria-label="Permalink: Build your own deployable JAR" href="#build-your-own-deployable-jar"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="bazel build //cli:bazel-diff_deploy.jar
+java -jar bazel-bin/cli/bazel-diff_deploy.jar # This JAR can be run anywhere"><pre lang="terminal" class="notranslate"><code>bazel build //cli:bazel-diff_deploy.jar
+java -jar bazel-bin/cli/bazel-diff_deploy.jar # This JAR can be run anywhere
+</code></pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Build from source in your Bazel Project</h3><a id="user-content-build-from-source-in-your-bazel-project" class="anchor" aria-label="Permalink: Build from source in your Bazel Project" href="#build-from-source-in-your-bazel-project"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Add the following to your <code>WORKSPACE</code> file to add the external repositories, replacing the <code>RELEASE_ARCHIVE_URL</code> with the archive url of the bazel-diff release you wish to depend on:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@bazel_tools//tools/build_defs/repo:http.bzl&quot;, &quot;http_archive&quot;)
+
+http_archive(
+  name = &quot;bazel-diff&quot;,
+  urls = [
+        &quot;RELEASE_ARCHIVE_URL&quot;,
+    ],
+    sha256 = &quot;UPDATE_ME&quot;,
+    strip_prefix = &quot;UPDATE_ME&quot;
+)
+
+load(&quot;@bazel-diff//:repositories.bzl&quot;, &quot;bazel_diff_dependencies&quot;)
+
+bazel_diff_dependencies()
+
+load(&quot;@rules_jvm_external//:defs.bzl&quot;, &quot;maven_install&quot;)
+load(&quot;@bazel-diff//:artifacts.bzl&quot;, &quot;BAZEL_DIFF_MAVEN_ARTIFACTS&quot;)
+
+maven_install(
+    name = &quot;bazel_diff_maven&quot;,
+    artifacts = BAZEL_DIFF_MAVEN_ARTIFACTS,
+    repositories = [
+        &quot;http://uk.maven.org/maven2&quot;,
+        &quot;https://jcenter.bintray.com/&quot;,
+    ],
+)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@bazel_tools//tools/build_defs/repo:http.bzl"</span>, <span class="pl-s">"http_archive"</span>)
+
+<span class="pl-en">http_archive</span>(
+  <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"bazel-diff"</span>,
+  <span class="pl-s1">urls</span> <span class="pl-c1">=</span> [
+        <span class="pl-s">"RELEASE_ARCHIVE_URL"</span>,
+    ],
+    <span class="pl-s1">sha256</span> <span class="pl-c1">=</span> <span class="pl-s">"UPDATE_ME"</span>,
+    <span class="pl-s1">strip_prefix</span> <span class="pl-c1">=</span> <span class="pl-s">"UPDATE_ME"</span>
+)
+
+<span class="pl-en">load</span>(<span class="pl-s">"@bazel-diff//:repositories.bzl"</span>, <span class="pl-s">"bazel_diff_dependencies"</span>)
+
+<span class="pl-en">bazel_diff_dependencies</span>()
+
+<span class="pl-en">load</span>(<span class="pl-s">"@rules_jvm_external//:defs.bzl"</span>, <span class="pl-s">"maven_install"</span>)
+<span class="pl-en">load</span>(<span class="pl-s">"@bazel-diff//:artifacts.bzl"</span>, <span class="pl-s">"BAZEL_DIFF_MAVEN_ARTIFACTS"</span>)
+
+<span class="pl-en">maven_install</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"bazel_diff_maven"</span>,
+    <span class="pl-s1">artifacts</span> <span class="pl-c1">=</span> <span class="pl-c1">BAZEL_DIFF_MAVEN_ARTIFACTS</span>,
+    <span class="pl-s1">repositories</span> <span class="pl-c1">=</span> [
+        <span class="pl-s">"http://uk.maven.org/maven2"</span>,
+        <span class="pl-s">"https://jcenter.bintray.com/"</span>,
+    ],
+)</pre></div>
+<p dir="auto">Now you can simply run <code>bazel-diff</code> from your project:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="bazel run @bazel-diff//cli:bazel-diff -- bazel-diff -h"><pre lang="terminal" class="notranslate"><code>bazel run @bazel-diff//cli:bazel-diff -- bazel-diff -h
+</code></pre></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Learn More</h2><a id="user-content-learn-more" class="anchor" aria-label="Permalink: Learn More" href="#learn-more"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Take a look at the following bazelcon talks to learn more about <code>bazel-diff</code>:</p>
+<ul dir="auto">
+<li><a href="https://www.youtube.com/watch?v=QYAbmE_1fSo" rel="nofollow">BazelCon 2023: Improving CI efficiency with Bazel querying and bazel-diff</a></li>
+<li><a href="https://youtu.be/Or0o0Q7Zc1w?si=nIIkTH6TP-pcPoRx" rel="nofollow">BazelCon 2024: Not Going the Distance: Filtering Tests by Build Graph Distance</a></li>
+</ul>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Running the tests</h2><a id="user-content-running-the-tests" class="anchor" aria-label="Permalink: Running the tests" href="#running-the-tests"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">To run the tests simply run</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="bazel test //..."><pre lang="terminal" class="notranslate"><code>bazel test //...
+</code></pre></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Versioning</h2><a id="user-content-versioning" class="anchor" aria-label="Permalink: Versioning" href="#versioning"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">We use <a href="http://semver.org/" rel="nofollow">SemVer</a> for versioning. For the versions available,
+see the <a href="https://github.com/Tinder/bazel-diff/tags">tags on this repository</a>.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">License</h2><a id="user-content-license" class="anchor" aria-label="Permalink: License" href="#license"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<hr>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="Copyright (c) 2020, Match Group, LLC
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+    * Redistributions of source code must retain the above copyright
+      notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above copyright
+      notice, this list of conditions and the following disclaimer in the
+      documentation and/or other materials provided with the distribution.
+    * Neither the name of Match Group, LLC nor the names of its contributors
+      may be used to endorse or promote products derived from this software
+      without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot; AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL MATCH GROUP, LLC BE LIABLE FOR ANY
+DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE."><pre lang="text" class="notranslate"><code>Copyright (c) 2020, Match Group, LLC
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+    * Redistributions of source code must retain the above copyright
+      notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above copyright
+      notice, this list of conditions and the following disclaimer in the
+      documentation and/or other materials provided with the distribution.
+    * Neither the name of Match Group, LLC nor the names of its contributors
+      may be used to endorse or promote products derived from this software
+      without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL MATCH GROUP, LLC BE LIABLE FOR ANY
+DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+</code></pre></div>
+</article></div>
