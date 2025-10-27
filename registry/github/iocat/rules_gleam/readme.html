@@ -62,6 +62,9 @@ use_repo(gleam, &quot;hex_gleam_json&quot;, &quot;hex_gleam_stdlib&quot;, &quot;
 <span class="pl-s1">gleam</span>.<span class="pl-c1">deps</span>(<span class="pl-s1">gleam_toml</span> <span class="pl-c1">=</span> <span class="pl-s">"//:gleam.toml"</span>)
 <span class="pl-en">use_repo</span>(<span class="pl-s1">gleam</span>, <span class="pl-s">"hex_gleam_json"</span>, <span class="pl-s">"hex_gleam_stdlib"</span>, <span class="pl-s">"hex_gleeunit"</span>)</pre></div>
 </li>
+</ol>
+<p dir="auto">The <code>use_repo</code> calls can be managed by hand, or you can call <code>bazel mod tidy</code> to have bazel manages it.</p>
+<ol start="4" dir="auto">
 <li>
 <p dir="auto"><strong>Use Dependencies in <code>BUILD.bazel</code></strong>: You can now reference the Hex packages in your <code>BUILD.bazel</code> file.</p>
 <div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="# BUILD.bazel
@@ -134,37 +137,49 @@ gleam_binary(
 )</pre></div>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Rules</h2><a id="user-content-rules" class="anchor" aria-label="Permalink: Rules" href="#rules"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto"><code>gleam_library</code></h3><a id="user-content-gleam_library" class="anchor" aria-label="Permalink: gleam_library" href="#gleam_library"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<p dir="auto">Builds a Gleam library.</p>
+<p dir="auto">Compiles Gleam source files into a library of Erlang modules.</p>
 <p dir="auto"><strong>Attributes:</strong></p>
 <ul dir="auto">
 <li><code>name</code> (mandatory): A unique name for this target.</li>
 <li><code>srcs</code> (mandatory): A list of <code>.gleam</code> source files to be compiled.</li>
-<li><code>deps</code>: A list of other <code>gleam_library</code> targets that this library depends on.</li>
+<li><code>deps</code>: A list of other <code>gleam_library</code> or <code>gleam_erl_library</code> targets that this library depends on.</li>
 <li><code>data</code>: A list of data files needed by the library at runtime.</li>
-<li><code>strip_src_prefix</code>: A string to strip from the beginning of the source file paths.</li>
+<li><code>strip_src_prefix</code>: A string to strip from the beginning of source file paths when determining the Gleam module name. For example, with <code>strip_src_prefix = "src"</code>, a file at <code>src/my/module.gleam</code> will be compiled as the <code>my/module</code> module.</li>
 </ul>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto"><code>gleam_binary</code></h3><a id="user-content-gleam_binary" class="anchor" aria-label="Permalink: gleam_binary" href="#gleam_binary"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<p dir="auto">Builds a Gleam binary.</p>
+<p dir="auto">Creates an executable script to run a Gleam application. This rule compiles the specified sources and their dependencies and generates a runner that invokes the <code>main</code> function in the specified <code>main_module</code>.</p>
 <p dir="auto"><strong>Attributes:</strong></p>
 <ul dir="auto">
 <li><code>name</code> (mandatory): A unique name for this target.</li>
 <li><code>srcs</code> (mandatory): A list of <code>.gleam</code> source files to be compiled.</li>
-<li><code>main_module</code> (mandatory): The name of the module containing the <code>main</code> function.</li>
-<li><code>deps</code>: A list of <code>gleam_library</code> targets that this binary depends on.</li>
+<li><code>main_module</code> (mandatory): The name of the Gleam module containing the <code>main</code> function (e.g., <code>"my_app/main"</code>).
+Default to the only gleam source. Must be provided if there are multiple Gleam modules.</li>
+<li><code>deps</code>: A list of <code>gleam_library</code> or <code>gleam_erl_library</code> targets that this binary depends on.</li>
 <li><code>data</code>: A list of data files needed by the binary at runtime.</li>
-<li><code>strip_src_prefix</code>: A string to strip from the beginning of the source file paths.</li>
+<li><code>strip_src_prefix</code>: A string to strip from the beginning of source file paths when determining the Gleam module name.</li>
 </ul>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto"><code>gleam_test</code></h3><a id="user-content-gleam_test" class="anchor" aria-label="Permalink: gleam_test" href="#gleam_test"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<p dir="auto">Builds and runs a Gleam test.</p>
+<p dir="auto">Builds and runs a Gleam test using the <code>gleeunit</code> test runner. This rule compiles the test sources and their dependencies and executes them as a Bazel test.</p>
 <p dir="auto"><strong>Attributes:</strong></p>
 <ul dir="auto">
 <li><code>name</code> (mandatory): A unique name for this target.</li>
 <li><code>srcs</code> (mandatory): A list of <code>.gleam</code> test files. Test file names must end with <code>_test.gleam</code> or <code>_tests.gleam</code>.</li>
-<li><code>deps</code>: A list of <code>gleam_library</code> targets that the test depends on.</li>
+<li><code>deps</code>: A list of <code>gleam_library</code> or <code>gleam_erl_library</code> targets that the test depends on.</li>
 <li><code>size</code>: The size of the test. Can be <code>small</code>, <code>medium</code>, <code>large</code>, or <code>enormous</code>.</li>
 <li><code>timeout</code>: The timeout for the test. Can be <code>short</code>, <code>moderate</code>, <code>long</code>, or <code>eternal</code>.</li>
 <li><code>data</code>: A list of data files needed by the test at runtime.</li>
-<li><code>strip_src_prefix</code>: A string to strip from the beginning of the source file paths.</li>
+<li><code>strip_src_prefix</code>: A string to strip from the beginning of source file paths when determining the Gleam module name. Used for external Hex module.</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto"><code>gleam_erl_library</code></h3><a id="user-content-gleam_erl_library" class="anchor" aria-label="Permalink: gleam_erl_library" href="#gleam_erl_library"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Builds a library from raw Erlang source files for use as a Foreign Function Interface (FFI) with Gleam.</p>
+<p dir="auto">This rule is useful for integrating existing Erlang code into your Gleam project. The compiled Erlang modules can be called from Gleam using the external function syntax.</p>
+<p dir="auto"><strong>Note on Module Namespacing:</strong> Unlike <code>gleam_library</code>, this rule does not namespace the compiled modules. The resulting BEAM files are placed at the root of the package. This means you must ensure that your Erlang module names are unique across your entire project and its dependencies to avoid conflicts.</p>
+<p dir="auto"><strong>Attributes:</strong></p>
+<ul dir="auto">
+<li><code>name</code> (mandatory): A unique name for this target.</li>
+<li><code>srcs</code> (mandatory): A list of <code>.erl</code> source files to be compiled.</li>
+<li><code>deps</code>: A list of other <code>gleam_library</code> or <code>gleam_erl_library</code> targets that this library depends on.</li>
+<li><code>data</code>: A list of data files needed by the library at runtime.</li>
 </ul>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Gazelle Integration</h2><a id="user-content-gazelle-integration" class="anchor" aria-label="Permalink: Gazelle Integration" href="#gazelle-integration"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">This repository provides a Gazelle extension that can automatically generate <code>BUILD.bazel</code> files for your Gleam projects.</p>
