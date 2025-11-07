@@ -14,6 +14,23 @@ of controlling mtimes, uid, symlinks, etc.</li>
 <p dir="auto">The <code>tar</code> binary is hermetic and fully statically-linked. See Design Notes below.</p>
 <p dir="auto">This rule was originally developed within bazel-lib.
 Thanks to all the contributors who made it possible!</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Remote cache and RBE</h2><a id="user-content-remote-cache-and-rbe" class="anchor" aria-label="Permalink: Remote cache and RBE" href="#remote-cache-and-rbe"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The <code>Tar</code> mnemonic is used for actions that produce the tar file outputs.
+Depending on the inputs provided, these can be very large.</p>
+<p dir="auto">If you use Remote Build Execution, the tar files should generally be written to the remote cache,
+and never downloaded to the host machine running Bazel (sometimes called "Build without the Bytes").
+Subsequent actions or tests which use them as inputs will have to stage the files on an executor.
+Be careful to tune the size of the remote cache to handle the artifacts you store.</p>
+<p dir="auto">If you do NOT use Remote Build Execution, then you should avoid uploading the tar outputs to the remote cache.
+It is commonly faster to re-run the <code>Tar</code> actions locally on the input files than to download a remote cache hit, especially if compression is not used.
+Large tar files consume storage and network bandwidth of the cache, and can lead to overload.
+Use a snippet like the following in <code>.bazelrc</code>:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="# Avoid overloading the remote cache with tar outputs.
+# See https://github.com/bazel-contrib/tar.bzl/blob/main/README.md#remote-cache-and-rbe
+common --execution_requirements=Tar=+no-remote-cache"><pre class="notranslate"><code># Avoid overloading the remote cache with tar outputs.
+# See https://github.com/bazel-contrib/tar.bzl/blob/main/README.md#remote-cache-and-rbe
+common --execution_requirements=Tar=+no-remote-cache
+</code></pre></div>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Examples</h2><a id="user-content-examples" class="anchor" aria-label="Permalink: Examples" href="#examples"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <ul dir="auto">
 <li>Migrate from <code>pkg_tar</code>: <a href="https://github.com/bazel-contrib/tar.bzl/blob/main/examples/migrate-rules_pkg/BUILD">https://github.com/bazel-contrib/tar.bzl/blob/main/examples/migrate-rules_pkg/BUILD</a></li>
@@ -30,7 +47,14 @@ See <a href="https://registry.bazel.build/modules/rules_tar" rel="nofollow">http
 <ol dir="auto">
 <li>We start from libarchive, which is on the BCR: <a href="https://registry.bazel.build/modules/libarchive" rel="nofollow">https://registry.bazel.build/modules/libarchive</a></li>
 <li>You could choose to register a toolchain that builds from source, but most users want a pre-built tar binary: <a href="https://github.com/aspect-build/bsdtar-prebuilt">https://github.com/aspect-build/bsdtar-prebuilt</a></li>
-<li>bazel-lib defines the toolchain type, and registers a sensible default toolchain: <a href="https://github.com/bazel-contrib/bazel-lib/blob/main/lib/private/tar_toolchain.bzl">https://github.com/bazel-contrib/bazel-lib/blob/main/lib/private/tar_toolchain.bzl</a></li>
-<li>This repo then contains just the starlark rule code for invoking <code>tar</code> within Bazel actions (aka. build steps)</li>
+<li>This repo defines toolchain types</li>
+</ol>
+<ul dir="auto">
+<li><code>@tar.bzl//tar/toolchain:type</code> for exec platform to use in build actions</li>
+<li><code>@tar.bzl//tar/toolchain:target_type</code> for including a <code>tar</code> binary in the output tree</li>
+</ul>
+<ol dir="auto">
+<li>We register a sensible default toolchain using the pre-built binary: <a href="https://github.com/bazel-contrib/tar.bzl/blob/main/tar/private/toolchain/toolchain.bzl">https://github.com/bazel-contrib/tar.bzl/blob/main/tar/private/toolchain/toolchain.bzl</a></li>
+<li>Finally we provide a thin layer of starlark rule code for invoking <code>tar</code> within Bazel actions (aka. build steps)</li>
 </ol>
 </article></div>
