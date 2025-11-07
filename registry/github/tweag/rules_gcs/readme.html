@@ -6,7 +6,7 @@
 <li>Can fetch large amounts of objects lazily from a bucket using the <code>gcs_bucket</code> module extension</li>
 <li>Supports fetching from private buckets using a credential helper</li>
 <li>Uses Bazel's downloader and the repository cache</li>
-<li>No dependencies like <code>gsutil</code> need to be installed<sup><a href="#user-content-fn-1-3f2435bb5addbd011e825feab44510da" id="user-content-fnref-1-3f2435bb5addbd011e825feab44510da" data-footnote-ref="" aria-describedby="footnote-label">1</a></sup></li>
+<li>No dependencies like <code>gsutil</code> need to be installed<sup><a href="#user-content-fn-1-575bc482e92aeaf169657b5e2e0d093c" id="user-content-fnref-1-575bc482e92aeaf169657b5e2e0d093c" data-footnote-ref="" aria-describedby="footnote-label">1</a></sup></li>
 </ul>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Installation</h2><a id="user-content-installation" class="anchor" aria-label="Permalink: Installation" href="#installation"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">You can find the latest version of <a href="https://registry.bazel.build/modules/rules_gcs" rel="nofollow"><code>rules_gcs</code> on the Bazel Central Registry</a>. Installation works by adding a <code>bazel_dep</code> line to <code>MODULE.bazel</code>.</p>
@@ -371,6 +371,11 @@ Suppose your code depends on a collection of large assets that are used during c
       &quot;trainingdata/model/very_large.bin&quot;: {
           &quot;remote_path&quot;: &quot;weird/nested/path/extra/model/very_large.bin&quot;,
           &quot;integrity&quot;: &quot;sha256-Oibw8PV3cDY84HKv3sAWIEuk+R2s8Hwhvlg6qg4H7uY=&quot;
+      },
+      &quot;trainingdata/model/very_large.bin.old&quot;: {
+          &quot;remote_path&quot;: &quot;weird/nested/path/extra/model/very_large.bin&quot;,
+          &quot;generation&quot;: &quot;1721216992694798&quot;,
+          &quot;integrity&quot;: &quot;sha256-Oibw8PV3cDY84HKv3sAWIEuk+R2s8Hwhvlg6qg4H7uY=&quot;
       }
   }"><pre>  {
       <span class="pl-ent">"trainingdata/model/small.bin"</span>: {
@@ -385,6 +390,11 @@ Suppose your code depends on a collection of large assets that are used during c
       <span class="pl-ent">"trainingdata/model/very_large.bin"</span>: {
           <span class="pl-ent">"remote_path"</span>: <span class="pl-s"><span class="pl-pds">"</span>weird/nested/path/extra/model/very_large.bin<span class="pl-pds">"</span></span>,
           <span class="pl-ent">"integrity"</span>: <span class="pl-s"><span class="pl-pds">"</span>sha256-Oibw8PV3cDY84HKv3sAWIEuk+R2s8Hwhvlg6qg4H7uY=<span class="pl-pds">"</span></span>
+      },
+      <span class="pl-ent">"trainingdata/model/very_large.bin.old"</span>: {
+          <span class="pl-ent">"remote_path"</span>: <span class="pl-s"><span class="pl-pds">"</span>weird/nested/path/extra/model/very_large.bin<span class="pl-pds">"</span></span>,
+          <span class="pl-ent">"generation"</span>: <span class="pl-s"><span class="pl-pds">"</span>1721216992694798<span class="pl-pds">"</span></span>,
+          <span class="pl-ent">"integrity"</span>: <span class="pl-s"><span class="pl-pds">"</span>sha256-Oibw8PV3cDY84HKv3sAWIEuk+R2s8Hwhvlg6qg4H7uY=<span class="pl-pds">"</span></span>
       }
   }</pre></div>
 <p dir="auto">The exact format for the lockfile is a JSON object where each key is a path to a local file in the repository and the value is a JSON object with the following keys:</p>
@@ -392,6 +402,7 @@ Suppose your code depends on a collection of large assets that are used during c
 <li><code>sha256</code>: the expected sha256 hash of the file. Required unless <code>integrity</code> is used.</li>
 <li><code>integrity</code>: the expected SRI value of the file. Required unless <code>sha256</code> is used.</li>
 <li><code>remote_path</code>: name of the object within the bucket. If not set, the local path is used.</li>
+<li><code>generation</code>: generation number to a specific version of the object in the bucket. If not set the <code>live</code> generation is used.</li>
 </ul>
 <p dir="auto">Targets in the main repository can depend on this target if the
 following lines are added to <code>MODULE.bazel</code>:</p>
@@ -497,8 +508,8 @@ gcs_bucket.from_file(
 <p dir="auto"><em><code>rules_gcs</code> was initially developed by <a href="https://www.imax.com/en/us/sct" rel="nofollow">IMAX</a> and is maintained by Tweag.</em></p>
 <section data-footnotes="" class="footnotes"><h2 id="footnote-label" class="sr-only" dir="auto">Footnotes</h2>
 <ol dir="auto">
-<li id="user-content-fn-1-3f2435bb5addbd011e825feab44510da">
-<p dir="auto">The <code>gcloud</code> CLI tool is still required to obtain authentication tokens when using the provided shell script as a credential helper. We recommend <a href="https://github.com/tweag/credential-helper"><code>tweag-credential-helper</code></a>, which doesn't depend on <code>gcloud</code>. <a href="#user-content-fnref-1-3f2435bb5addbd011e825feab44510da" data-footnote-backref="" aria-label="Back to reference 1" class="data-footnote-backref">↩</a></p>
+<li id="user-content-fn-1-575bc482e92aeaf169657b5e2e0d093c">
+<p dir="auto">The <code>gcloud</code> CLI tool is still required to obtain authentication tokens when using the provided shell script as a credential helper. We recommend <a href="https://github.com/tweag/credential-helper"><code>tweag-credential-helper</code></a>, which doesn't depend on <code>gcloud</code>. <a href="#user-content-fnref-1-575bc482e92aeaf169657b5e2e0d093c" data-footnote-backref="" aria-label="Back to reference 1" class="data-footnote-backref">↩</a></p>
 </li>
 </ol>
 </section>
