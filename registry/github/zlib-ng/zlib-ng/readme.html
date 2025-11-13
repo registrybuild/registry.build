@@ -41,11 +41,11 @@ aka Dead2 (zlib-ng àt circlestorm dót org)</p>
 <li>Deflate medium and quick algorithms based on Intel’s zlib fork</li>
 <li>Support for CPU intrinsics when available
 <ul dir="auto">
-<li>Adler32 implementation using SSSE3, AVX2, AVX512, AVX512-VNNI, Neon, VMX &amp; VSX, LSX, LASX</li>
-<li>CRC32-B implementation using PCLMULQDQ, VPCLMULQDQ, ARMv8, &amp; IBM Z, LoongArch</li>
-<li>Slide hash implementations using SSE2, AVX2, ARMv6, Neon, VMX &amp; VSX, LSX, LASX</li>
-<li>Compare256 implementations using SSE2, AVX2, Neon, POWER9 &amp; RVV, LSX, LASX</li>
-<li>Inflate chunk copying using SSE2, SSSE3, AVX, Neon &amp; VSX, LSX, LASX</li>
+<li>Adler32 implementation using SSSE3, SSE4.2, AVX2, AVX512, AVX512-VNNI, Neon, VMX &amp; VSX, LSX, LASX, RVV</li>
+<li>CRC32-B implementation using SSE2, SSE4.1, (V)PCLMULQDQ, ARMv8, Power8, IBM Z, LoongArch, ZBC</li>
+<li>Slide hash implementations using SSE2, AVX2, ARMv6, Neon, Power8, VMX &amp; VSX, LSX, LASX</li>
+<li>Compare256 implementations using SSE2, AVX2, AVX512, Neon, Power9, LSX, LASX, RVV</li>
+<li>Inflate chunk copying using SSE2, SSSE3, AVX2, AVX512, Neon, Power8, VSX, LSX, LASX, RVV</li>
 <li>Support for hardware-accelerated deflate using IBM Z DFLTCC</li>
 </ul>
 </li>
@@ -116,7 +116,19 @@ make test
 <td>OFF</td>
 </tr>
 <tr>
+<td align="left">ZLIB_ALIASES</td>
+<td align="left"></td>
+<td align="left">Provide zlib compatible CMake targets</td>
+<td>ON</td>
+</tr>
+<tr>
 <td align="left">ZLIB_ENABLE_TESTS</td>
+<td align="left"></td>
+<td align="left">Tests masterswitch, does not enable any tests by itself</td>
+<td>ON</td>
+</tr>
+<tr>
+<td align="left">ZLIBNG_ENABLE_TESTS</td>
 <td align="left"></td>
 <td align="left">Build test binaries</td>
 <td>ON</td>
@@ -140,51 +152,33 @@ make test
 <td>ON</td>
 </tr>
 <tr>
-<td align="left">WITH_NATIVE_INSTRUCTIONS</td>
+<td align="left">WITH_CRC32_CHORBA</td>
 <td align="left"></td>
-<td align="left">Compiles with full instruction set supported on this host (gcc/clang -march=native)</td>
-<td>OFF</td>
-</tr>
-<tr>
-<td align="left">WITH_RUNTIME_CPU_DETECTION</td>
-<td align="left"></td>
-<td align="left">Compiles with runtime CPU detection</td>
+<td align="left">Build with Chorba optimized CRC32</td>
 <td>ON</td>
 </tr>
 <tr>
-<td align="left">WITH_SANITIZER</td>
-<td align="left"></td>
-<td align="left">Build with sanitizer (memory, address, undefined)</td>
+<td align="left">WITH_REDUCED_MEM</td>
+<td align="left">--with-reduced-mem</td>
+<td align="left">Reduce zlib-ng memory usage, affects performance and compression ratio</td>
 <td>OFF</td>
 </tr>
 <tr>
 <td align="left">WITH_GTEST</td>
 <td align="left"></td>
-<td align="left">Build gtest_zlib</td>
+<td align="left">Build tests using GTest framework</td>
 <td>ON</td>
-</tr>
-<tr>
-<td align="left">WITH_FUZZERS</td>
-<td align="left"></td>
-<td align="left">Build test/fuzz</td>
-<td>OFF</td>
 </tr>
 <tr>
 <td align="left">WITH_BENCHMARKS</td>
 <td align="left"></td>
-<td align="left">Build test/benchmarks</td>
+<td align="left">Build benchmarks using Google Benchmark framework</td>
 <td>OFF</td>
 </tr>
 <tr>
-<td align="left">WITH_MAINTAINER_WARNINGS</td>
+<td align="left">INSTALL_UTILS</td>
 <td align="left"></td>
-<td align="left">Build with project maintainer warnings</td>
-<td>OFF</td>
-</tr>
-<tr>
-<td align="left">WITH_CODE_COVERAGE</td>
-<td align="left"></td>
-<td align="left">Enable code coverage reporting</td>
+<td align="left">Copy minigzip and minideflate during install</td>
 <td>OFF</td>
 </tr>
 </tbody>
@@ -249,106 +243,148 @@ The deflate and zlib specifications were written by L. Peter Deutsch.</p>
 </thead>
 <tbody>
 <tr>
-<td align="left">WITH_AVX2</td>
+<td align="left">WITH_NATIVE_INSTRUCTIONS</td>
 <td align="left"></td>
-<td align="left">Build with AVX2 intrinsics</td>
-<td>ON</td>
+<td align="left">Compiles with full instruction set supported on this host (gcc/clang -march=native)</td>
+<td>OFF</td>
 </tr>
 <tr>
-<td align="left">WITH_AVX512</td>
+<td align="left">WITH_RUNTIME_CPU_DETECTION</td>
 <td align="left"></td>
-<td align="left">Build with AVX512 intrinsics</td>
-<td>ON</td>
-</tr>
-<tr>
-<td align="left">WITH_AVX512VNNI</td>
-<td align="left"></td>
-<td align="left">Build with AVX512VNNI intrinsics</td>
+<td align="left">Compiles with runtime CPU detection</td>
 <td>ON</td>
 </tr>
 <tr>
 <td align="left">WITH_SSE2</td>
 <td align="left"></td>
-<td align="left">Build with SSE2 intrinsics</td>
+<td align="left">x86: Build with SSE2 intrinsics</td>
 <td>ON</td>
 </tr>
 <tr>
 <td align="left">WITH_SSSE3</td>
 <td align="left"></td>
-<td align="left">Build with SSSE3 intrinsics</td>
+<td align="left">x86: Build with SSSE3 intrinsics</td>
+<td>ON</td>
+</tr>
+<tr>
+<td align="left">WITH_SSE41</td>
+<td align="left"></td>
+<td align="left">x86: Build with SSE41 intrinsics</td>
 <td>ON</td>
 </tr>
 <tr>
 <td align="left">WITH_SSE42</td>
 <td align="left"></td>
-<td align="left">Build with SSE42 intrinsics</td>
+<td align="left">x86: Build with SSE42 intrinsics</td>
 <td>ON</td>
 </tr>
 <tr>
 <td align="left">WITH_PCLMULQDQ</td>
 <td align="left"></td>
-<td align="left">Build with PCLMULQDQ intrinsics</td>
+<td align="left">x86: Build with PCLMULQDQ intrinsics</td>
+<td>ON</td>
+</tr>
+<tr>
+<td align="left">WITH_AVX2</td>
+<td align="left"></td>
+<td align="left">x86: Build with AVX2 intrinsics</td>
+<td>ON</td>
+</tr>
+<tr>
+<td align="left">WITH_AVX512</td>
+<td align="left"></td>
+<td align="left">x86: Build with AVX512 intrinsics</td>
+<td>ON</td>
+</tr>
+<tr>
+<td align="left">WITH_AVX512VNNI</td>
+<td align="left"></td>
+<td align="left">x86: Build with AVX512VNNI intrinsics</td>
 <td>ON</td>
 </tr>
 <tr>
 <td align="left">WITH_VPCLMULQDQ</td>
-<td align="left">--without-vpclmulqdq</td>
-<td align="left">Build with VPCLMULQDQ intrinsics</td>
-<td>ON</td>
-</tr>
-<tr>
-<td align="left">WITH_ARMV8</td>
-<td align="left">--without-armv8</td>
-<td align="left">Build with ARMv8 intrinsics</td>
-<td>ON</td>
-</tr>
-<tr>
-<td align="left">WITH_NEON</td>
-<td align="left">--without-neon</td>
-<td align="left">Build with NEON intrinsics</td>
+<td align="left"></td>
+<td align="left">x86: Build with VPCLMULQDQ intrinsics</td>
 <td>ON</td>
 </tr>
 <tr>
 <td align="left">WITH_ARMV6</td>
 <td align="left">--without-armv6</td>
-<td align="left">Build with ARMv6 intrinsics</td>
+<td align="left">arm: Build with ARMv6 intrinsics</td>
+<td>ON</td>
+</tr>
+<tr>
+<td align="left">WITH_ARMV8</td>
+<td align="left">--without-armv8</td>
+<td align="left">arm: Build with ARMv8 intrinsics</td>
+<td>ON</td>
+</tr>
+<tr>
+<td align="left">WITH_NEON</td>
+<td align="left">--without-neon</td>
+<td align="left">arm: Build with NEON intrinsics</td>
 <td>ON</td>
 </tr>
 <tr>
 <td align="left">WITH_ALTIVEC</td>
 <td align="left">--without-altivec</td>
-<td align="left">Build with AltiVec (VMX) intrinsics</td>
+<td align="left">ppc: Build with AltiVec (VMX) intrinsics</td>
 <td>ON</td>
 </tr>
 <tr>
 <td align="left">WITH_POWER8</td>
 <td align="left">--without-power8</td>
-<td align="left">Build with POWER8 optimisations</td>
+<td align="left">ppc: Build with POWER8 intrinsics</td>
+<td>ON</td>
+</tr>
+<tr>
+<td align="left">WITH_POWER9</td>
+<td align="left">--without-power9</td>
+<td align="left">ppc: Build with POWER9 intrinsics</td>
 <td>ON</td>
 </tr>
 <tr>
 <td align="left">WITH_RVV</td>
-<td align="left"></td>
-<td align="left">Build with RVV intrinsics</td>
+<td align="left">--without-rvv</td>
+<td align="left">riscv: Build with RVV intrinsics</td>
+<td>ON</td>
+</tr>
+<tr>
+<td align="left">WITH_RISCV_ZBC</td>
+<td align="left">--without-zbc</td>
+<td align="left">riscv: Build with RiscV ZBC intrinsics</td>
 <td>ON</td>
 </tr>
 <tr>
 <td align="left">WITH_CRC32_VX</td>
 <td align="left">--without-crc32-vx</td>
-<td align="left">Build with vectorized CRC32 on IBM Z</td>
+<td align="left">s390x: Build with vectorized CRC32 on IBM Z</td>
 <td>ON</td>
 </tr>
 <tr>
 <td align="left">WITH_DFLTCC_DEFLATE</td>
 <td align="left">--with-dfltcc-deflate</td>
-<td align="left">Build with DFLTCC intrinsics for compression on IBM Z</td>
+<td align="left">s390x: Build with DFLTCC intrinsics for compression on IBM Z</td>
 <td>OFF</td>
 </tr>
 <tr>
 <td align="left">WITH_DFLTCC_INFLATE</td>
 <td align="left">--with-dfltcc-inflate</td>
-<td align="left">Build with DFLTCC intrinsics for decompression on IBM Z</td>
+<td align="left">s390x: Build with DFLTCC intrinsics for decompression on IBM Z</td>
 <td>OFF</td>
+</tr>
+<tr>
+<td align="left">WITH_LSX</td>
+<td align="left"></td>
+<td align="left">loongarch: Build with LSX intrinsics</td>
+<td>ON</td>
+</tr>
+<tr>
+<td align="left">WITH_CRC32_LA</td>
+<td align="left">--without-crc32-la</td>
+<td align="left">loongarch: Build with vectorized CRC32</td>
+<td>ON</td>
 </tr>
 <tr>
 <td align="left">WITH_INFLATE_STRICT</td>
@@ -363,21 +399,39 @@ The deflate and zlib specifications were written by L. Peter Deutsch.</p>
 <td>OFF</td>
 </tr>
 <tr>
-<td align="left">INSTALL_UTILS</td>
+<td align="left">WITH_BENCHMARK_APPS</td>
 <td align="left"></td>
-<td align="left">Copy minigzip and minideflate during install</td>
+<td align="left">Build benchmark apps (currently libpng)</td>
 <td>OFF</td>
-</tr>
-<tr>
-<td align="left">ZLIBNG_ENABLE_TESTS</td>
-<td align="left"></td>
-<td align="left">Test zlib-ng specific API</td>
-<td>ON</td>
 </tr>
 <tr>
 <td align="left">WITH_ALL_FALLBACKS</td>
 <td align="left"></td>
 <td align="left">Build with all c-fallbacks (useful for Gbench comparisons)</td>
+<td>OFF</td>
+</tr>
+<tr>
+<td align="left">WITH_MAINTAINER_WARNINGS</td>
+<td align="left"></td>
+<td align="left">Build with project maintainer warnings</td>
+<td>OFF</td>
+</tr>
+<tr>
+<td align="left">WITH_SANITIZER</td>
+<td align="left"></td>
+<td align="left">Build with sanitizer (memory, address, undefined)</td>
+<td>OFF</td>
+</tr>
+<tr>
+<td align="left">WITH_FUZZERS</td>
+<td align="left"></td>
+<td align="left">Build test/fuzz</td>
+<td>OFF</td>
+</tr>
+<tr>
+<td align="left">WITH_CODE_COVERAGE</td>
+<td align="left"></td>
+<td align="left">Enable code coverage reporting</td>
 <td>OFF</td>
 </tr>
 </tbody>

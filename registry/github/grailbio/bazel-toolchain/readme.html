@@ -143,6 +143,35 @@ supporting <code>&lt;</code>, <code>&lt;=</code>, <code>&gt;</code>, <code>&gt;=
 <li><code>latest:&gt;17.0.4,!=19.1.7,&lt;=20.1.0</code></li>
 <li><code>first:&gt;=15.0.6,&lt;16</code></li>
 </ul>
+<p dir="auto">It is further possible to provide the version or requirement from an environment
+variable with a fallback version or requirement. In this case it is important to
+also use the bazel flag <code>--repo_env=LLVM_VERSION=version_or_requirement</code>. It is
+important to use both correctly because otherwise the resulting builds are not
+reproducible. The main purpose of using an environment variable to encode the
+version for integration or batch testing on multiple platforms where multiple
+LLVM versions should be tested.</p>
+<ul dir="auto">
+<li><code>getenv(ENVIRONMENT_VARIABLE_NAME,fallback)</code></li>
+</ul>
+<p dir="auto">Example <code>MODULE.bazel</code></p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="llvm.toolchain(
+    name = &quot;llvm_toolchain&quot;,
+    llvm_versions = {
+        &quot;&quot;: &quot;getenv(LLVM_VERSION,latest:&gt;=17.0.0,&lt;20)&quot;,
+        &quot;darwin-x86_64&quot;: &quot;15.0.7&quot;,  # Verify this works as opposed to using one version.
+    },
+)"><pre><span class="pl-s1">llvm</span>.<span class="pl-c1">toolchain</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"llvm_toolchain"</span>,
+    <span class="pl-s1">llvm_versions</span> <span class="pl-c1">=</span> {
+        <span class="pl-s">""</span>: <span class="pl-s">"getenv(LLVM_VERSION,latest:&gt;=17.0.0,&lt;20)"</span>,
+        <span class="pl-s">"darwin-x86_64"</span>: <span class="pl-s">"15.0.7"</span>,  <span class="pl-c"># Verify this works as opposed to using one version.</span>
+    },
+)</pre></div>
+<p dir="auto">In this example, MacOS x86 machines have their LLVM version hard-coded to
+<code>15.0.7</code>. For all other targets the LLVM version is read from the environment
+variable <code>LLVM_VERSION</code> which must be referenced on the Bazel command line as
+explained above. If the variable is not present, then the LLVM version defaults
+to the requirement expression <code>latest:&gt;=17.0.0,&lt;20</code>.</p>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Selecting Toolchains</h3><a id="user-content-selecting-toolchains" class="anchor" aria-label="Permalink: Selecting Toolchains" href="#selecting-toolchains"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">If toolchains are registered (see Quickstart section above), you do not need to
 do anything special for bazel to find the toolchain. You may want to check once

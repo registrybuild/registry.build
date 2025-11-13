@@ -1,0 +1,276 @@
+<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Senders - A Standard Model for Asynchronous Execution in C++</h1><a id="user-content-senders---a-standard-model-for-asynchronous-execution-in-c" class="anchor" aria-label="Permalink: Senders - A Standard Model for Asynchronous Execution in C++" href="#senders---a-standard-model-for-asynchronous-execution-in-c"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><code>stdexec</code> is an experimental reference implementation of the <em>Senders</em> model of asynchronous programming proposed by <a href="http://wg21.link/p2300" rel="nofollow"><strong>P2300 - <code>std::execution</code></strong></a> for adoption into the C++ Standard.</p>
+<p dir="auto"><strong>Purpose of this Repository:</strong></p>
+<ol dir="auto">
+<li>Provide a proof-of-concept implementation of the design proposed in <a href="http://wg21.link/p2300" rel="nofollow">P2300</a>.</li>
+<li>Provide early access to developers looking to experiment with the Sender model.</li>
+<li>Collaborate with those interested in participating or contributing to the design of P2300 (contributions welcome!).</li>
+</ol>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Disclaimer</h2><a id="user-content-disclaimer" class="anchor" aria-label="Permalink: Disclaimer" href="#disclaimer"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><code>stdexec</code> is experimental in nature and subject to change without warning.
+The authors and NVIDIA do not guarantee that this code is fit for any purpose whatsoever.</p>
+<p dir="auto"><a href="https://github.com/NVIDIA/stdexec/actions/workflows/ci.cpu.yml"><img src="https://github.com/NVIDIA/stdexec/actions/workflows/ci.cpu.yml/badge.svg" alt="CI (CPU)" style="max-width: 100%;"></a>
+<a href="https://github.com/NVIDIA/stdexec/actions/workflows/ci.gpu.yml"><img src="https://github.com/NVIDIA/stdexec/actions/workflows/ci.gpu.yml/badge.svg" alt="CI (GPU)" style="max-width: 100%;"></a></p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Example</h2><a id="user-content-example" class="anchor" aria-label="Permalink: Example" href="#example"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Below is a simple program that executes three senders concurrently on a thread pool.
+Try it live on <a href="https://godbolt.org/z/3cseorf7M" rel="nofollow">godbolt!</a>.</p>
+<div class="highlight highlight-source-c++ notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="#include &lt;stdexec/execution.hpp&gt;
+#include &lt;exec/static_thread_pool.hpp&gt;
+
+int main()
+{
+    // Declare a pool of 3 worker threads:
+    exec::static_thread_pool pool(3);
+
+    // Get a handle to the thread pool:
+    auto sched = pool.get_scheduler();
+
+    // Describe some work:
+    // Creates 3 sender pipelines that are executed concurrently by passing to `when_all`
+    // Each sender is scheduled on `sched` using `on` and starts with `just(n)` that creates a
+    // Sender that just forwards `n` to the next sender.
+    // After `just(n)`, we chain `then(fun)` which invokes `fun` using the value provided from `just()`
+    // Note: No work actually happens here. Everything is lazy and `work` is just an object that statically
+    // represents the work to later be executed
+    auto fun = [](int i) { return i*i; };
+    auto work = stdexec::when_all(
+        stdexec::starts_on(sched, stdexec::just(0) | stdexec::then(fun)),
+        stdexec::starts_on(sched, stdexec::just(1) | stdexec::then(fun)),
+        stdexec::starts_on(sched, stdexec::just(2) | stdexec::then(fun))
+    );
+
+    // Launch the work and wait for the result
+    auto [i, j, k] = stdexec::sync_wait(std::move(work)).value();
+
+    // Print the results:
+    std::printf(&quot;%d %d %d\n&quot;, i, j, k);
+}"><pre>#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>stdexec/execution.hpp<span class="pl-pds">&gt;</span></span>
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>exec/static_thread_pool.hpp<span class="pl-pds">&gt;</span></span>
+
+<span class="pl-k">int</span> <span class="pl-en">main</span>()
+{
+    <span class="pl-c"><span class="pl-c">//</span> Declare a pool of 3 worker threads:</span>
+    exec::static_thread_pool <span class="pl-smi">pool</span>(<span class="pl-c1">3</span>);
+
+    <span class="pl-c"><span class="pl-c">//</span> Get a handle to the thread pool:</span>
+    <span class="pl-k">auto</span> sched = pool.<span class="pl-c1">get_scheduler</span>();
+
+    <span class="pl-c"><span class="pl-c">//</span> Describe some work:</span>
+    <span class="pl-c"><span class="pl-c">//</span> Creates 3 sender pipelines that are executed concurrently by passing to `when_all`</span>
+    <span class="pl-c"><span class="pl-c">//</span> Each sender is scheduled on `sched` using `on` and starts with `just(n)` that creates a</span>
+    <span class="pl-c"><span class="pl-c">//</span> Sender that just forwards `n` to the next sender.</span>
+    <span class="pl-c"><span class="pl-c">//</span> After `just(n)`, we chain `then(fun)` which invokes `fun` using the value provided from `just()`</span>
+    <span class="pl-c"><span class="pl-c">//</span> Note: No work actually happens here. Everything is lazy and `work` is just an object that statically</span>
+    <span class="pl-c"><span class="pl-c">//</span> represents the work to later be executed</span>
+    <span class="pl-k">auto</span> fun = [](<span class="pl-k">int</span> i) { <span class="pl-k">return</span> i*i; };
+    <span class="pl-k">auto</span> work = <span class="pl-c1">stdexec::when_all</span>(
+        <span class="pl-c1">stdexec::starts_on</span>(sched, <span class="pl-c1">stdexec::just</span>(<span class="pl-c1">0</span>) | <span class="pl-c1">stdexec::then</span>(fun)),
+        <span class="pl-c1">stdexec::starts_on</span>(sched, <span class="pl-c1">stdexec::just</span>(<span class="pl-c1">1</span>) | <span class="pl-c1">stdexec::then</span>(fun)),
+        <span class="pl-c1">stdexec::starts_on</span>(sched, <span class="pl-c1">stdexec::just</span>(<span class="pl-c1">2</span>) | <span class="pl-c1">stdexec::then</span>(fun))
+    );
+
+    <span class="pl-c"><span class="pl-c">//</span> Launch the work and wait for the result</span>
+    <span class="pl-k">auto</span> [i, j, k] = <span class="pl-c1">stdexec::sync_wait</span>(<span class="pl-c1">std::move</span>(work)).<span class="pl-c1">value</span>();
+
+    <span class="pl-c"><span class="pl-c">//</span> Print the results:</span>
+    <span class="pl-c1">std::printf</span>(<span class="pl-s"><span class="pl-pds">"</span>%d %d %d<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>, i, j, k);
+}</pre></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Resources</h2><a id="user-content-resources" class="anchor" aria-label="Permalink: Resources" href="#resources"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li><a href="https://www.youtube.com/watch?v=xLboNIf7BTg" rel="nofollow">Working with Asynchrony Generically: A Tour of Executors: Part 1</a> (<a href="https://www.youtube.com/watch?v=6a0zzUBUNW4" rel="nofollow">Part 2</a>) (Video): A comprehensive introduction to Senders and structured concurrency</li>
+<li><a href="https://ericniebler.com/2024/02/04/what-are-senders-good-for-anyway/" rel="nofollow">What are Senders Good For, Anyway?</a> (Blog): Demonstrates the value of a standard async programming model by wrapping a C-style async API in a sender</li>
+<li><a href="https://www.youtube.com/watch?v=xiaqNvqRB2E" rel="nofollow">From Zero to Sender/Receiver in ~60 Minutes</a> (Video): Live-coding a toy sender/receiver implementation from scratch</li>
+<li><a href="https://www.youtube.com/watch?v=h-ExnuD6jms" rel="nofollow">A Unifying Abstraction for Async in C++</a> (Video): A simple introduction to the concepts behind P2300</li>
+<li><a href="https://cor3ntin.github.io/posts/executors/" rel="nofollow">A Universal Async Abstraction for C++</a> (Blog): An introduction to Senders</li>
+<li><a href="https://cor3ntin.github.io/posts/iouring/" rel="nofollow">A Universal I/O Abstraction for C++</a> (Blog): A look at how the Senders concepts interact with <code>io_uring</code> on Linux</li>
+<li><a href="https://www.youtube.com/watch?v=1Wy5sq3s2rg" rel="nofollow">Structured Concurrency</a> (Video): An explanation of structured concurrency in C++ and its benefits</li>
+<li><a href="https://accu.org/journals/overload/29/165/teodorescu/" rel="nofollow">Executors: a Change of Perspective</a> (Article): An article about the computational completeness of Senders</li>
+<li><a href="https://accu.org/journals/overload/30/168/teodorescu/" rel="nofollow">Structured Concurrency in C++</a> (Article): An article about how Senders manifest the principles of structured concurrency</li>
+<li><a href="https://www.youtube.com/watch?v=XaNajUp-sGY" rel="nofollow">Structured Networking in C++</a> (Video): A look at what a P2300-style networking library could look like</li>
+<li><a href="https://www.hpcwire.com/2022/12/05/new-c-sender-library-enables-portable-asynchrony/" rel="nofollow">HPCWire Article</a>: Provides a high-level overview of the Sender model and its benefits</li>
+<li><a href="https://docs.nvidia.com/hpc-sdk/index.html" rel="nofollow">NVIDIA HPC SDK Documentation</a>: Documentation for the NVIDIA HPC SDK</li>
+<li><a href="https://wg21.link/p2300" rel="nofollow">P2300 - <code>std::execution</code></a>: Senders proposal to C++ Standard</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Structure</h2><a id="user-content-structure" class="anchor" aria-label="Permalink: Structure" href="#structure"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">This library is header-only, so all the source code can be found in the <code>include/</code> directory. The physical and logical structure of the code can be summarized by the following table:</p>
+<markdown-accessiblity-table><table>
+<thead>
+<tr>
+<th>Kind</th>
+<th>Path</th>
+<th>Namespace</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Things approved for the C++ standard</td>
+<td><code>&lt;stdexec/...&gt;</code></td>
+<td><code>::stdexec</code></td>
+</tr>
+<tr>
+<td>Generic additions and extensions</td>
+<td><code>&lt;exec/...&gt;</code></td>
+<td><code>::exec</code></td>
+</tr>
+<tr>
+<td>NVIDIA-specific extensions and customizations</td>
+<td><code>&lt;nvexec/...&gt;</code></td>
+<td><code>::nvexec</code></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">How to get <code>stdexec</code></h2><a id="user-content-how-to-get-stdexec" class="anchor" aria-label="Permalink: How to get stdexec" href="#how-to-get-stdexec"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">There are a few ways to get <code>stdexec</code>:</p>
+<ol dir="auto">
+<li>Clone from GitHub
+<ul dir="auto">
+<li><code>git clone https://github.com/NVIDIA/stdexec.git</code></li>
+</ul>
+</li>
+<li>Download the <a href="https://developer.nvidia.com/nvidia-hpc-sdk-releases" rel="nofollow">NVIDIA HPC SDK starting with 22.11</a></li>
+<li>(Recommended) Use <a href="https://github.com/cpm-cmake/CPM.cmake">CMake Package Manager (CPM)</a> to automatically pull <code>stdexec</code> as part of your CMake project. <a href="#cmake-package-manager-cpm">See below</a> for more information.</li>
+</ol>
+<p dir="auto">You can also try it directly on <a href="https://godbolt.org/z/acaE93xq3" rel="nofollow">godbolt.org</a> where it is available as a C++ library or via the nvc++ compiler starting with version 22.11 (<a href="#nvhpc-sdk">see below</a> for more details).</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Using <code>stdexec</code></h2><a id="user-content-using-stdexec" class="anchor" aria-label="Permalink: Using stdexec" href="#using-stdexec"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Requirements</h3><a id="user-content-requirements" class="anchor" aria-label="Permalink: Requirements" href="#requirements"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><code>stdexec</code> requires compiling with C++20 (<code>-std=c++20</code>) but otherwise does not have any dependencies and only requires a sufficiently new compiler:</p>
+<ul dir="auto">
+<li>gcc 11+</li>
+<li>clang 16+</li>
+<li>XCode 16+</li>
+<li><a href="https://developer.nvidia.com/nvidia-hpc-sdk-releases" rel="nofollow">nvc++ 22.11+</a> (required for <a href="#gpu-support">GPU support</a>). If using <code>stdexec</code> from GitHub, then nvc++ 23.3+ is required.</li>
+</ul>
+<p dir="auto">How you configure your environment to use <code>stdexec</code> depends on how you got <code>stdexec</code>.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">NVHPC SDK</h3><a id="user-content-nvhpc-sdk" class="anchor" aria-label="Permalink: NVHPC SDK" href="#nvhpc-sdk"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Starting with the 22.11 release of the <a href="https://developer.nvidia.com/nvidia-hpc-sdk-releases" rel="nofollow">NVHPC SDK</a>, <code>stdexec</code> is available as an experimental, opt-in feature. Specifying the <code>--experimental-stdpar</code> flag to <code>nvc++</code> makes the <code>stdexec</code> headers available on the include path. You can then include any <code>stdexec</code> header as normal: <code>#include &lt;stdexec/...&gt;</code>, <code>#include &lt;nvexec/...&gt;</code>.  See <a href="https://godbolt.org/z/qc1h3sqEv" rel="nofollow">godbolt example</a>.</p>
+<p dir="auto">GPU features additionally require specifying <code>-stdpar=gpu</code>. For more details, see <a href="#gpu-support">GPU Support</a>.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">GitHub</h3><a id="user-content-github" class="anchor" aria-label="Permalink: GitHub" href="#github"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">As a header-only C++ library, technically all one needs to do is add the <code>stdexec</code> <code>include/</code> directory to your include path as <code>-I&lt;stdexec root&gt;/include</code> in addition to specifying any necessary compile options.</p>
+<p dir="auto">For simplicity, we recommend using the <a href="#cmake">CMake targets</a> that <code>stdexec</code> provides as they encapsulate the necessary configuration.</p>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">cmake</h4><a id="user-content-cmake" class="anchor" aria-label="Permalink: cmake" href="#cmake"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">If your project uses CMake, then after cloning <code>stdexec</code> simply add the following to your <code>CMakeLists.txt</code>:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="add_subdirectory(&lt;stdexec root&gt;)"><pre class="notranslate"><code>add_subdirectory(&lt;stdexec root&gt;)
+</code></pre></div>
+<p dir="auto">This will make the <code>STDEXEC::stdexec</code> target available to link with your project:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="target_link_libraries(my_project PRIVATE STDEXEC::stdexec)"><pre class="notranslate"><code>target_link_libraries(my_project PRIVATE STDEXEC::stdexec)
+</code></pre></div>
+<p dir="auto">This target encapsulates all of the necessary configuration and compiler flags for using <code>stdexec</code>.</p>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">CMake Package Manager (CPM)</h4><a id="user-content-cmake-package-manager-cpm" class="anchor" aria-label="Permalink: CMake Package Manager (CPM)" href="#cmake-package-manager-cpm"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">To further simplify obtaining and including <code>stdexec</code> in your CMake project, we recommend using <a href="https://github.com/cpm-cmake/CPM.cmake">CMake Package Manager (CPM)</a> to fetch and configure <code>stdexec</code>.</p>
+<p dir="auto">Complete example:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="cmake_minimum_required(VERSION 3.25.0 FATAL_ERROR)
+
+project(stdexecExample)
+
+# Get CPM
+# For more information on how to add CPM to your project, see: https://github.com/cpm-cmake/CPM.cmake#adding-cpm
+include(CPM.cmake)
+
+CPMAddPackage(
+  NAME stdexec
+  GITHUB_REPOSITORY NVIDIA/stdexec
+  GIT_TAG main # This will always pull the latest code from the `main` branch. You may also use a specific release version or tag
+)
+
+add_executable(main example.cpp)
+
+target_link_libraries(main STDEXEC::stdexec)"><pre class="notranslate"><code>cmake_minimum_required(VERSION 3.25.0 FATAL_ERROR)
+
+project(stdexecExample)
+
+# Get CPM
+# For more information on how to add CPM to your project, see: https://github.com/cpm-cmake/CPM.cmake#adding-cpm
+include(CPM.cmake)
+
+CPMAddPackage(
+  NAME stdexec
+  GITHUB_REPOSITORY NVIDIA/stdexec
+  GIT_TAG main # This will always pull the latest code from the `main` branch. You may also use a specific release version or tag
+)
+
+add_executable(main example.cpp)
+
+target_link_libraries(main STDEXEC::stdexec)
+</code></pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">GPU Support</h3><a id="user-content-gpu-support" class="anchor" aria-label="Permalink: GPU Support" href="#gpu-support"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><code>stdexec</code> provides schedulers that enable execution on NVIDIA GPUs:</p>
+<ul dir="auto">
+<li><code>nvexec::stream_scheduler</code>
+<ul dir="auto">
+<li>Single GPU scheduler that executes on the first available GPU (device 0)</li>
+<li>Defined in <a href="https://github.com/NVIDIA/stdexec/blob/main/include/nvexec/stream_context.cuh"><code>&lt;nvexec/stream_context.cuh&gt;</code></a></li>
+</ul>
+</li>
+<li><code>nvexec::multi_gpu_stream_scheduler</code>
+<ul dir="auto">
+<li>Executes on all visible GPUs</li>
+<li>Defined in <a href="https://github.com/NVIDIA/stdexec/blob/main/include/nvexec/multi_gpu_context.cuh"><code>&lt;nvexec/multi_gpu_context.cuh&gt;</code></a></li>
+</ul>
+</li>
+</ul>
+<p dir="auto">These schedulers are only supported when using the <code>nvc++</code> compiler with <code>-stdpar=gpu</code>.</p>
+<p dir="auto">Example: <a href="https://godbolt.org/z/4cEMqY8r9" rel="nofollow">https://godbolt.org/z/4cEMqY8r9</a></p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Building</h2><a id="user-content-building" class="anchor" aria-label="Permalink: Building" href="#building"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><code>stdexec</code> is a header-only library and does not require building anything.</p>
+<p dir="auto">This section is only relevant if you wish to build the <code>stdexec</code> tests or examples.</p>
+<p dir="auto">The following tools are needed:</p>
+<ul dir="auto">
+<li><a href="https://cmake.org/" rel="nofollow"><code>CMake</code></a></li>
+<li>One of the following supported C++ compilers:
+<ul dir="auto">
+<li>GCC 11+</li>
+<li>clang 12+</li>
+<li>nvc++ 22.11 (nvc++ 23.3+ for <code>stdexec</code> from GitHub)</li>
+</ul>
+</li>
+</ul>
+<p dir="auto">Perform the following actions:</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="# Configure the project
+cmake -S . -B build -G&lt;gen&gt;
+# Build the project
+cmake --build build"><pre><span class="pl-c"><span class="pl-c">#</span> Configure the project</span>
+cmake -S <span class="pl-c1">.</span> -B build -G<span class="pl-k">&lt;</span>gen<span class="pl-k">&gt;</span>
+<span class="pl-c"><span class="pl-c">#</span> Build the project</span>
+cmake --build build</pre></div>
+<p dir="auto">Here, <code>&lt;gen&gt;</code> can be <code>Ninja</code>, <code>"Unix Makefiles"</code>, <code>XCode</code>, <code>"Visual Studio 15 Win64"</code>, etc.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Specifying the compiler</h3><a id="user-content-specifying-the-compiler" class="anchor" aria-label="Permalink: Specifying the compiler" href="#specifying-the-compiler"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">You can set the C++ compiler via <code>-D CMAKE_CXX_COMPILER</code>:</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="# Use GCC:
+cmake -S . -B build/g++ -DCMAKE_CXX_COMPILER=$(which g++)
+cmake --build build/g++
+
+# Or clang:
+cmake -S . -B build/clang++ -DCMAKE_CXX_COMPILER=$(which clang++)
+cmake --build build/clang++"><pre><span class="pl-c"><span class="pl-c">#</span> Use GCC:</span>
+cmake -S <span class="pl-c1">.</span> -B build/g++ -DCMAKE_CXX_COMPILER=<span class="pl-s"><span class="pl-pds">$(</span>which g++<span class="pl-pds">)</span></span>
+cmake --build build/g++
+
+<span class="pl-c"><span class="pl-c">#</span> Or clang:</span>
+cmake -S <span class="pl-c1">.</span> -B build/clang++ -DCMAKE_CXX_COMPILER=<span class="pl-s"><span class="pl-pds">$(</span>which clang++<span class="pl-pds">)</span></span>
+cmake --build build/clang++</pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Specifying the stdlib</h3><a id="user-content-specifying-the-stdlib" class="anchor" aria-label="Permalink: Specifying the stdlib" href="#specifying-the-stdlib"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">If you want to use <code>libc++</code> with clang instead of <code>libstdc++</code>, you can specify the standard library as follows:</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="# Do the actual build
+cmake -S . -B build/clang++ -G&lt;gen&gt; \
+    -DCMAKE_CXX_FLAGS=-stdlib=libc++ \
+    -DCMAKE_CXX_COMPILER=$(which clang++)
+
+cmake --build build/clang++"><pre><span class="pl-c"><span class="pl-c">#</span> Do the actual build</span>
+cmake -S <span class="pl-c1">.</span> -B build/clang++ -G<span class="pl-k">&lt;</span>gen<span class="pl-k">&gt;</span> \
+    -DCMAKE_CXX_FLAGS=-stdlib=libc++ \
+    -DCMAKE_CXX_COMPILER=<span class="pl-s"><span class="pl-pds">$(</span>which clang++<span class="pl-pds">)</span></span>
+
+cmake --build build/clang++</pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Tooling</h3><a id="user-content-tooling" class="anchor" aria-label="Permalink: Tooling" href="#tooling"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">For users of <strong>VSCode</strong>, stdexec provides a
+<a href="https://marketplace.visualstudio.com/items?itemName=ericniebler.erics-build-output-colorizer" rel="nofollow">VSCode extension</a>
+that colorizes compiler output. The highlighter recognizes the diagnostics
+generated by the stdexec library, styling them to make them easier to pick
+out. Details about how to configure the extension can be found
+<a href="https://github.com/ericniebler/buildoutputcolorizer">here</a>.</p>
+</article></div>
