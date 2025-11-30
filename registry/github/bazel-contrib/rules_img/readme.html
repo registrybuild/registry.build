@@ -19,7 +19,7 @@
 </ul>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Installation</h2><a id="user-content-installation" class="anchor" aria-label="Permalink: Installation" href="#installation"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">Add to your <code>MODULE.bazel</code>:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel_dep(name = &quot;rules_img&quot;, version = &quot;0.2.9&quot;)"><pre><span class="pl-en">bazel_dep</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_img"</span>, <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"0.2.9"</span>)</pre></div>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel_dep(name = &quot;rules_img&quot;, version = &quot;0.2.10&quot;)"><pre><span class="pl-en">bazel_dep</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_img"</span>, <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"0.2.10"</span>)</pre></div>
 <details>
 <summary>Configure default settings (optional) in <code>.bazelrc</code></summary>
 <div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="# The compression algorithm to use (&quot;gzip&quot; or &quot;zstd&quot;)
@@ -41,6 +41,11 @@ common --@rules_img//img/settings:compression_level=auto
 # Support for seekable eStargz layers
 # with the containerd stargz-snapshotter
 common --@rules_img//img/settings:estargz=enabled
+
+# Create parent directory entries in tar files for all files
+# When enabled, parent directories are automatically created in the tar for all file entries.
+# This is disabled by default to avoid overwriting existing directory permissions in lower layers.
+common --@rules_img//img/settings:create_parent_directories=disabled
 
 # Opt-in to stamping of image_push rules
 common --@rules_img//img/settings:stamp=disabled
@@ -66,7 +71,13 @@ common --@rules_img//img/settings:remote_cache=grpcs://remote.buildbuddy.io
 # in some push strategies.
 # This can be the same as Bazel's credential helper.
 # Falls back to $IMG_CREDENTIAL_HELPER env var.
-common --@rules_img//img/settings:credential_helper=tweag-credential-helper"><pre class="notranslate"><code># The compression algorithm to use ("gzip" or "zstd")
+common --@rules_img//img/settings:credential_helper=tweag-credential-helper
+
+# Path to Docker configuration file for registry authentication.
+# If set, this will be used as REGISTRY_AUTH_FILE for authenticating to registries
+# when downloading image layers during build time (e.g., for lazy base image pulling).
+# Typically set to ~/.docker/config.json or similar.
+common --@rules_img//img/settings:docker_config_path=/home/user/.docker/config.json"><pre class="notranslate"><code># The compression algorithm to use ("gzip" or "zstd")
 common --@rules_img//img/settings:compress=zstd
 
 # Number of parallel compression workers (gzip only)
@@ -85,6 +96,11 @@ common --@rules_img//img/settings:compression_level=auto
 # Support for seekable eStargz layers
 # with the containerd stargz-snapshotter
 common --@rules_img//img/settings:estargz=enabled
+
+# Create parent directory entries in tar files for all files
+# When enabled, parent directories are automatically created in the tar for all file entries.
+# This is disabled by default to avoid overwriting existing directory permissions in lower layers.
+common --@rules_img//img/settings:create_parent_directories=disabled
 
 # Opt-in to stamping of image_push rules
 common --@rules_img//img/settings:stamp=disabled
@@ -111,6 +127,12 @@ common --@rules_img//img/settings:remote_cache=grpcs://remote.buildbuddy.io
 # This can be the same as Bazel's credential helper.
 # Falls back to $IMG_CREDENTIAL_HELPER env var.
 common --@rules_img//img/settings:credential_helper=tweag-credential-helper
+
+# Path to Docker configuration file for registry authentication.
+# If set, this will be used as REGISTRY_AUTH_FILE for authenticating to registries
+# when downloading image layers during build time (e.g., for lazy base image pulling).
+# Typically set to ~/.docker/config.json or similar.
+common --@rules_img//img/settings:docker_config_path=/home/user/.docker/config.json
 </code></pre></div>
 </details>
 <br>
@@ -303,6 +325,25 @@ docker login -u myusername registry.example.com</pre></div>
 <p dir="auto">If you're using Podman, credentials are stored in a different location:</p>
 <div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="podman login registry.example.com"><pre>podman login registry.example.com</pre></div>
 <p dir="auto">This stores credentials in <code>${XDG_RUNTIME_DIR}/containers/auth.json</code>, which <code>rules_img</code> also automatically discovers.</p>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Bazel Sandbox and Authentication</h4><a id="user-content-bazel-sandbox-and-authentication" class="anchor" aria-label="Permalink: Bazel Sandbox and Authentication" href="#bazel-sandbox-and-authentication"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">When Bazel runs actions in a sandbox (which is the default behavior), it may hide certain environment information like the current username and home directory. This can prevent <code>rules_img</code> from automatically finding your Docker credential files.</p>
+<p dir="auto">If you encounter authentication failures, you can explicitly configure the path to your Docker configuration file:</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="# In your .bazelrc or on the command line
+common --@rules_img//img/settings:docker_config_path=/home/username/.docker/config.json"><pre><span class="pl-c"><span class="pl-c">#</span> In your .bazelrc or on the command line</span>
+common --@rules_img//img/settings:docker_config_path=/home/username/.docker/config.json</pre></div>
+<p dir="auto">Replace <code>/home/username/</code> with your actual home directory path. This setting affects:</p>
+<ol dir="auto">
+<li><strong>Build-time blob downloads</strong>: When downloading image layers during builds (e.g., lazy base image pulling or the <code>download_blobs</code> rule), the <code>REGISTRY_AUTH_FILE</code> environment variable is set to this path.</li>
+<li><strong>Push operations</strong>: When running <code>image_push</code> targets with <code>bazel run</code>, this ensures authentication works correctly.</li>
+<li><strong>Load operations</strong>: When running <code>image_load</code> targets with <code>bazel run</code>, credentials are available for any required registry access.</li>
+<li><strong>Multi-deploy operations</strong>: When running <code>multi_deploy</code> targets, all combined operations can authenticate properly.</li>
+</ol>
+<p dir="auto">Additionally, the <code>DOCKER_CONFIG</code> environment variable is inherited from your shell environment for all push, load, and multi_deploy operations. This means you can also use the standard Docker environment variable as an alternative:</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="# Alternative: use DOCKER_CONFIG environment variable
+export DOCKER_CONFIG=/path/to/docker/config/dir
+bazel run //:push_image"><pre><span class="pl-c"><span class="pl-c">#</span> Alternative: use DOCKER_CONFIG environment variable</span>
+<span class="pl-k">export</span> DOCKER_CONFIG=/path/to/docker/config/dir
+bazel run //:push_image</pre></div>
 <div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Troubleshooting</h4><a id="user-content-troubleshooting" class="anchor" aria-label="Permalink: Troubleshooting" href="#troubleshooting"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">If you're experiencing authentication issues:</p>
 <ol dir="auto">
@@ -310,6 +351,7 @@ docker login -u myusername registry.example.com</pre></div>
 <li><strong>Check permissions</strong>: Ensure the credential file is readable by the user running Bazel</li>
 <li><strong>Environment variables</strong>: If using <code>$DOCKER_CONFIG</code>, ensure it points to a directory containing <code>config.json</code></li>
 <li><strong>Test with Docker/Podman</strong>: If <code>docker pull</code> or <code>podman pull</code> works, <code>rules_img</code> should work too</li>
+<li><strong>Bazel sandbox issues</strong>: If authentication works outside Bazel but fails during builds, try setting <code>--@rules_img//img/settings:docker_config_path</code> to your Docker config file path</li>
 </ol>
 <p dir="auto">For advanced authentication scenarios (credential helpers, custom authentication), refer to the <a href="https://github.com/google/go-containerregistry/blob/main/cmd/crane/doc/crane.md#authenticating">go-containerregistry authentication documentation</a>.</p>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Language-specific examples</h3><a id="user-content-language-specific-examples" class="anchor" aria-label="Permalink: Language-specific examples" href="#language-specific-examples"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
