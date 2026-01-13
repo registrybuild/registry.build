@@ -108,16 +108,16 @@ do the following.  In a <code>&lt;workspace&gt;/BUILD.bazel</code> file define t
 
 define_kt_toolchain(
     name = &quot;kotlin_toolchain&quot;,
-    api_version = KOTLIN_LANGUAGE_LEVEL,  # &quot;1.1&quot;, &quot;1.2&quot;, &quot;1.3&quot;, &quot;1.4&quot;, &quot;1.5&quot; &quot;1.6&quot;, &quot;1.7&quot;, &quot;1.8&quot;, or &quot;1.9&quot;
-    jvm_target = JAVA_LANGUAGE_LEVEL, # &quot;1.6&quot;, &quot;1.8&quot;, &quot;9&quot;, &quot;10&quot;, &quot;11&quot;, &quot;12&quot;, &quot;13&quot;, &quot;15&quot;, &quot;16&quot;, &quot;17&quot;, &quot;18&quot;, &quot;19&quot;, &quot;20&quot; or &quot;21&quot;
-    language_version = KOTLIN_LANGUAGE_LEVEL,  # &quot;1.1&quot;, &quot;1.2&quot;, &quot;1.3&quot;, &quot;1.4&quot;, &quot;1.5&quot; &quot;1.6&quot;, &quot;1.7&quot;, &quot;1.8&quot;, or &quot;1.9&quot;
+    api_version = KOTLIN_LANGUAGE_LEVEL,  # &quot;1.9&quot;, &quot;2.0&quot;, &quot;2.1&quot;, &quot;2.2&quot;, or &quot;2.3&quot;
+    jvm_target = JAVA_LANGUAGE_LEVEL, # &quot;1.8&quot;, &quot;9&quot;, &quot;10&quot;, &quot;11&quot;, &quot;12&quot;, &quot;13&quot;, &quot;15&quot;, &quot;16&quot;, &quot;17&quot;, &quot;18&quot;, &quot;19&quot;, &quot;20&quot;, &quot;21&quot;, or &quot;22&quot;
+    language_version = KOTLIN_LANGUAGE_LEVEL,  # &quot;1.9&quot;, &quot;2.0&quot;, &quot;2.1&quot;, &quot;2.2&quot;, or &quot;2.3&quot;
 )"><pre><span class="pl-en">load</span>(<span class="pl-s">"@rules_kotlin//kotlin:core.bzl"</span>, <span class="pl-s">"define_kt_toolchain"</span>)
 
 <span class="pl-en">define_kt_toolchain</span>(
     <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"kotlin_toolchain"</span>,
-    <span class="pl-s1">api_version</span> <span class="pl-c1">=</span> <span class="pl-c1">KOTLIN_LANGUAGE_LEVEL</span>,  <span class="pl-c"># "1.1", "1.2", "1.3", "1.4", "1.5" "1.6", "1.7", "1.8", or "1.9"</span>
-    <span class="pl-s1">jvm_target</span> <span class="pl-c1">=</span> <span class="pl-c1">JAVA_LANGUAGE_LEVEL</span>, <span class="pl-c"># "1.6", "1.8", "9", "10", "11", "12", "13", "15", "16", "17", "18", "19", "20" or "21"</span>
-    <span class="pl-s1">language_version</span> <span class="pl-c1">=</span> <span class="pl-c1">KOTLIN_LANGUAGE_LEVEL</span>,  <span class="pl-c"># "1.1", "1.2", "1.3", "1.4", "1.5" "1.6", "1.7", "1.8", or "1.9"</span>
+    <span class="pl-s1">api_version</span> <span class="pl-c1">=</span> <span class="pl-c1">KOTLIN_LANGUAGE_LEVEL</span>,  <span class="pl-c"># "1.9", "2.0", "2.1", "2.2", or "2.3"</span>
+    <span class="pl-s1">jvm_target</span> <span class="pl-c1">=</span> <span class="pl-c1">JAVA_LANGUAGE_LEVEL</span>, <span class="pl-c"># "1.8", "9", "10", "11", "12", "13", "15", "16", "17", "18", "19", "20", "21", or "22"</span>
+    <span class="pl-s1">language_version</span> <span class="pl-c1">=</span> <span class="pl-c1">KOTLIN_LANGUAGE_LEVEL</span>,  <span class="pl-c"># "1.9", "2.0", "2.1", "2.2", or "2.3"</span>
 )</pre></div>
 <p dir="auto">and then in your <code>WORKSPACE</code> file, instead of <code>kt_register_toolchains()</code> do</p>
 <div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="register_toolchains(&quot;//:kotlin_toolchain&quot;)"><pre><span class="pl-en">register_toolchains</span>(<span class="pl-s">"//:kotlin_toolchain"</span>)</pre></div>
@@ -282,22 +282,34 @@ kt_jvm_library(
     <span class="pl-s1">javac_opts</span> <span class="pl-c1">=</span> <span class="pl-s">"//:kt_javac_options_for_package_name"</span>,
     <span class="pl-s1">deps</span> <span class="pl-c1">=</span> [<span class="pl-s">"//path/to/dependency"</span>],
 )</pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Lambda Bytecode Generation</h3><a id="user-content-lambda-bytecode-generation" class="anchor" aria-label="Permalink: Lambda Bytecode Generation" href="#lambda-bytecode-generation"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Note: <code>kt_kotlinc_options</code> defaults <code>x_lambdas</code> and <code>x_sam_conversions</code> to <code>"class"</code>, which differs from Kotlin 2.x and Gradle's default of <code>"indy"</code> (invokedynamic). If you encounter issues with bytecode analysis tools expecting invokedynamic-based lambdas, configure these options:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="kt_kotlinc_options(
+    name = &quot;kt_kotlinc_options&quot;,
+    x_lambdas = &quot;indy&quot;,
+    x_sam_conversions = &quot;indy&quot;,
+)"><pre><span class="pl-en">kt_kotlinc_options</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"kt_kotlinc_options"</span>,
+    <span class="pl-s1">x_lambdas</span> <span class="pl-c1">=</span> <span class="pl-s">"indy"</span>,
+    <span class="pl-s1">x_sam_conversions</span> <span class="pl-c1">=</span> <span class="pl-s">"indy"</span>,
+)</pre></div>
 <p dir="auto">Additionally, you can add options for both tracing and timing of the bazel build using the <code>kt_trace</code> and <code>kt_timings</code> flags, for example:</p>
 <ul dir="auto">
 <li><code>bazel build --define=kt_trace=1</code></li>
 <li><code>bazel build --define=kt_timings=1</code></li>
 </ul>
 <p dir="auto"><code>kt_trace=1</code> will allow you to inspect the full kotlinc commandline invocation, while <code>kt_timings=1</code> will report the high level time taken for each step.</p>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Build Tools API</h1><a id="user-content-build-tools-api" class="anchor" aria-label="Permalink: Build Tools API" href="#build-tools-api"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The Build Tools API is a modern compilation interface provided by JetBrains for invoking the Kotlin compiler. It offers better integration and is required for incremental compilation support.</p>
+<p dir="auto"><strong>This feature is enabled by default.</strong></p>
+<p dir="auto">To disable the Build Tools API and use the legacy compilation approach, add the following flag to your build:</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel build --@rules_kotlin//kotlin/settings:experimental_build_tools_api=false //your:target"><pre>bazel build --@rules_kotlin//kotlin/settings:experimental_build_tools_api=false //your:target</pre></div>
+<p dir="auto">Or add it to your <code>.bazelrc</code> file:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="build --@rules_kotlin//kotlin/settings:experimental_build_tools_api=false"><pre class="notranslate"><code>build --@rules_kotlin//kotlin/settings:experimental_build_tools_api=false
+</code></pre></div>
 <div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">KSP (Kotlin Symbol Processing)</h1><a id="user-content-ksp-kotlin-symbol-processing" class="anchor" aria-label="Permalink: KSP (Kotlin Symbol Processing)" href="#ksp-kotlin-symbol-processing"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">KSP is officially supported as of <code>rules_kotlin</code> 1.8 and can be declared using the new
 <code>kt_ksp_plugin</code> rule.</p>
-<p dir="auto">Note:</p>
-<ul dir="auto">
-<li>KSP is <a href="https://github.com/google/ksp/issues/1385" data-hovercard-type="issue" data-hovercard-url="/google/ksp/issues/1385/hovercard">not yet thread safe</a> and will likely fail if you are using it in a build that has multiplex workers enabled. To work around this add the following flag to your Bazelrc:
-<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="build --experimental_worker_max_multiplex_instances=KotlinKsp=1"><pre class="notranslate"><code>build --experimental_worker_max_multiplex_instances=KotlinKsp=1
-</code></pre></div>
-</li>
-</ul>
 <div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@rules_kotlin//kotlin:core.bzl&quot;, &quot;kt_ksp_plugin&quot;)
 load(&quot;@rules_kotlin//kotlin:jvm.bzl&quot;, &quot;kt_jvm_library&quot;)
 
