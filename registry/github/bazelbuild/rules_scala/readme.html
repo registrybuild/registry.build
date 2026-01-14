@@ -34,7 +34,7 @@ Bazel version.</p>
 <p dir="auto">Add the following configuration snippet to your <code>MODULE.bazel</code> file and update
 the release <code>&lt;VERSION&gt;</code> as specified on the <a href="https://github.com/bazelbuild/rules_scala/releases">rules_scala releases
 page</a>.</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="# MODULE.bazel
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="# MODULE.bazel
 
 # You can add `repo_name = &quot;io_bazel_rules_scala&quot;` if you still need it.
 bazel_dep(name = &quot;rules_scala&quot;, version = &quot;&lt;VERSION&gt;&quot;)
@@ -108,85 +108,86 @@ single_version_override(
     patch_strip = 1,
     patches = [&quot;//:protobuf.patch&quot;],
     version = &quot;30.2&quot;,
-)"><pre><span class="pl-c"># MODULE.bazel</span>
+)"><pre lang="py" class="notranslate"><code># MODULE.bazel
 
-<span class="pl-c"># You can add `repo_name = "io_bazel_rules_scala"` if you still need it.</span>
-<span class="pl-en">bazel_dep</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_scala"</span>, <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"&lt;VERSION&gt;"</span>)
+# You can add `repo_name = "io_bazel_rules_scala"` if you still need it.
+bazel_dep(name = "rules_scala", version = "&lt;VERSION&gt;")
 
-<span class="pl-c"># Selects the Scala version and other configuration parameters.</span>
-<span class="pl-c">#</span>
-<span class="pl-c"># 2.12 is the default version. Use other versions by passing them explicitly, as</span>
-<span class="pl-c"># illustrated below.</span>
-<span class="pl-c">#</span>
-<span class="pl-c"># See the documentation of `_settings_attrs` in `scala/extensions/config.bzl`</span>
-<span class="pl-c"># for other available parameters.</span>
-<span class="pl-c">#</span>
-<span class="pl-c"># You may define your own custom toolchain using Maven artifact dependencies</span>
-<span class="pl-c"># configured by your `WORKSPACE` file, imported using an external loader like</span>
-<span class="pl-c"># https://github.com/bazelbuild/rules_jvm_external. See docs/scala_toolchain.md.</span>
-<span class="pl-s1">scala_config</span> <span class="pl-c1">=</span> <span class="pl-en">use_extension</span>(
-    <span class="pl-s">"@rules_scala//scala/extensions:config.bzl"</span>,
-    <span class="pl-s">"scala_config"</span>,
+# Selects the Scala version and other configuration parameters.
+#
+# 2.12 is the default version. Use other versions by passing them explicitly, as
+# illustrated below.
+#
+# See the documentation of `_settings_attrs` in `scala/extensions/config.bzl`
+# for other available parameters.
+#
+# You may define your own custom toolchain using Maven artifact dependencies
+# configured by your `WORKSPACE` file, imported using an external loader like
+# https://github.com/bazelbuild/rules_jvm_external. See docs/scala_toolchain.md.
+scala_config = use_extension(
+    "@rules_scala//scala/extensions:config.bzl",
+    "scala_config",
 )
-<span class="pl-s1">scala_config</span>.<span class="pl-c1">settings</span>(<span class="pl-s1">scala_version</span> <span class="pl-c1">=</span> <span class="pl-s">"2.13.17"</span>)
+scala_config.settings(scala_version = "2.13.17")
 
-<span class="pl-c"># See the `scala/extensions/deps.bzl` docstring for a high level description of</span>
-<span class="pl-c"># the tag classes exported by this module extension.</span>
-<span class="pl-s1">scala_deps</span> <span class="pl-c1">=</span> <span class="pl-en">use_extension</span>(
-    <span class="pl-s">"@rules_scala//scala/extensions:deps.bzl"</span>,
-    <span class="pl-s">"scala_deps"</span>,
-)
-
-<span class="pl-c"># Defines a default toolchain repo for the configured Scala version that loads</span>
-<span class="pl-c"># Maven deps like the Scala compiler and standard libs. Enable and configure</span>
-<span class="pl-c"># other builtin toolchains by instantiating their corresponding tag classes.</span>
-<span class="pl-c"># See the documentation in `scala/extensions/deps.bzl` for all builtin</span>
-<span class="pl-c"># toolchain configuration options.</span>
-<span class="pl-c">#</span>
-<span class="pl-c"># On production projects, you may consider defining a custom toolchain to use</span>
-<span class="pl-c"># your project's required dependencies instead. In that case, you can omit using</span>
-<span class="pl-c"># the module extension and this next line altogether. Or, you can still use the</span>
-<span class="pl-c"># module extension to instantiate other optional `rules_scala` toolchains</span>
-<span class="pl-c"># without it.</span>
-<span class="pl-s1">scala_deps</span>.<span class="pl-c1">scala</span>()
-
-<span class="pl-c"># The remaining items are optional, enabling the precompiled protocol compiler</span>
-<span class="pl-c"># toolchain via `--incompatible_enable_proto_toolchain_resolution`. See the</span>
-<span class="pl-c"># "Using a precompiled protocol compiler" section below.</span>
-<span class="pl-s1">scala_protoc</span> <span class="pl-c1">=</span> <span class="pl-en">use_extension</span>(
-    <span class="pl-s">"@rules_scala//scala/extensions:protoc.bzl"</span>,
-    <span class="pl-s">"scala_protoc"</span>,
-    <span class="pl-s1">dev_dependency</span> <span class="pl-c1">=</span> <span class="pl-c1">True</span>,
-)
-<span class="pl-en">use_repo</span>(<span class="pl-s1">scala_protoc</span>, <span class="pl-s">"rules_scala_protoc_toolchains"</span>)
-
-<span class="pl-c"># Register this toolchain before any others in the file. Still safe even when</span>
-<span class="pl-c"># `--incompatible_enable_proto_toolchain_resolution` is `False`.</span>
-<span class="pl-en">register_toolchains</span>(
-    <span class="pl-s">"@rules_scala_protoc_toolchains//...:all"</span>,
-    <span class="pl-s1">dev_dependency</span> <span class="pl-c1">=</span> <span class="pl-c1">True</span>,
+# See the `scala/extensions/deps.bzl` docstring for a high level description of
+# the tag classes exported by this module extension.
+scala_deps = use_extension(
+    "@rules_scala//scala/extensions:deps.bzl",
+    "scala_deps",
 )
 
-<span class="pl-c"># Temporarily required for protocol compiler toolchainization until resolution</span>
-<span class="pl-c"># of protocolbuffers/protobuf#19679. Assumes having copied</span>
-<span class="pl-c"># `protoc/0001-protobuf-19679-rm-protoc-dep.patch` from `rules_scala` to</span>
-<span class="pl-c"># `protobuf.patch` in the root package. See the "Using a precompiled protocol</span>
-<span class="pl-c"># compiler" section below.</span>
-<span class="pl-en">bazel_dep</span>(
-    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"protobuf"</span>,
-    <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"30.2"</span>,
-    <span class="pl-s1">repo_name</span> <span class="pl-c1">=</span> <span class="pl-s">"com_google_protobuf"</span>,
+# Defines a default toolchain repo for the configured Scala version that loads
+# Maven deps like the Scala compiler and standard libs. Enable and configure
+# other builtin toolchains by instantiating their corresponding tag classes.
+# See the documentation in `scala/extensions/deps.bzl` for all builtin
+# toolchain configuration options.
+#
+# On production projects, you may consider defining a custom toolchain to use
+# your project's required dependencies instead. In that case, you can omit using
+# the module extension and this next line altogether. Or, you can still use the
+# module extension to instantiate other optional `rules_scala` toolchains
+# without it.
+scala_deps.scala()
+
+# The remaining items are optional, enabling the precompiled protocol compiler
+# toolchain via `--incompatible_enable_proto_toolchain_resolution`. See the
+# "Using a precompiled protocol compiler" section below.
+scala_protoc = use_extension(
+    "@rules_scala//scala/extensions:protoc.bzl",
+    "scala_protoc",
+    dev_dependency = True,
 )
-<span class="pl-en">single_version_override</span>(
-    <span class="pl-s1">module_name</span> <span class="pl-c1">=</span> <span class="pl-s">"protobuf"</span>,
-    <span class="pl-s1">patch_strip</span> <span class="pl-c1">=</span> <span class="pl-c1">1</span>,
-    <span class="pl-s1">patches</span> <span class="pl-c1">=</span> [<span class="pl-s">"//:protobuf.patch"</span>],
-    <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"30.2"</span>,
-)</pre></div>
+use_repo(scala_protoc, "rules_scala_protoc_toolchains")
+
+# Register this toolchain before any others in the file. Still safe even when
+# `--incompatible_enable_proto_toolchain_resolution` is `False`.
+register_toolchains(
+    "@rules_scala_protoc_toolchains//...:all",
+    dev_dependency = True,
+)
+
+# Temporarily required for protocol compiler toolchainization until resolution
+# of protocolbuffers/protobuf#19679. Assumes having copied
+# `protoc/0001-protobuf-19679-rm-protoc-dep.patch` from `rules_scala` to
+# `protobuf.patch` in the root package. See the "Using a precompiled protocol
+# compiler" section below.
+bazel_dep(
+    name = "protobuf",
+    version = "30.2",
+    repo_name = "com_google_protobuf",
+)
+single_version_override(
+    module_name = "protobuf",
+    patch_strip = 1,
+    patches = ["//:protobuf.patch"],
+    version = "30.2",
+)
+</code></pre></div>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Resolving <code>protobuf</code> conflicts</h3><a id="user-content-resolving-protobuf-conflicts" class="anchor" aria-label="Permalink: Resolving protobuf conflicts" href="#resolving-protobuf-conflicts"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">If a newer <code>protobuf</code> version in the module graph breaks your build, use
 <a href="https://bazel.build/external/module#single-version_override" rel="nofollow"><code>single_version_override</code></a> or <a href="https://bazel.build/external/module#multiple-version_override" rel="nofollow"><code>multiple_version_override</code></a> to fix it:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel_dep(
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="bazel_dep(
     name = &quot;protobuf&quot;,
     version = &quot;25.5&quot;,
     repo_name = &quot;com_google_protobuf&quot;,
@@ -194,15 +195,16 @@ single_version_override(
 single_version_override(
     module_name = &quot;protobuf&quot;,
     version = &quot;25.5&quot;,
-)"><pre><span class="pl-en">bazel_dep</span>(
-    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"protobuf"</span>,
-    <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"25.5"</span>,
-    <span class="pl-s1">repo_name</span> <span class="pl-c1">=</span> <span class="pl-s">"com_google_protobuf"</span>,
+)"><pre lang="py" class="notranslate"><code>bazel_dep(
+    name = "protobuf",
+    version = "25.5",
+    repo_name = "com_google_protobuf",
 )
-<span class="pl-en">single_version_override</span>(
-    <span class="pl-s1">module_name</span> <span class="pl-c1">=</span> <span class="pl-s">"protobuf"</span>,
-    <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"25.5"</span>,
-)</pre></div>
+single_version_override(
+    module_name = "protobuf",
+    version = "25.5",
+)
+</code></pre></div>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Legacy <code>WORKSPACE</code> configuration</h3><a id="user-content-legacy-workspace-configuration" class="anchor" aria-label="Permalink: Legacy WORKSPACE configuration" href="#legacy-workspace-configuration"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto"><code>rules_scala</code> 7.x enables existing users to migrate to Bzlmod. <code>WORKSPACE</code>
 continues to work for Bazel <a href="#6.5.0">6.5.0 (for now)</a>, 7.6.1, and 8, but
@@ -213,7 +215,7 @@ page</a>. This snippet is designed to ensure that users pick up the
 correct order of dependencies for <code>rules_scala</code>. If you want to override any of
 the following dependency versions, make sure to <code>load()</code> them before calling
 <code>rules_scala_dependencies()</code>.</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="# WORKSPACE
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="# WORKSPACE
 load(&quot;@bazel_tools//tools/build_defs/repo:http.bzl&quot;, &quot;http_archive&quot;)
 
 # See https://github.com/bazelbuild/rules_scala/releases for up to date version
@@ -349,143 +351,144 @@ load(
 # instantiate other builtin toolchains.
 scala_toolchains()
 
-scala_register_toolchains()"><pre><span class="pl-c"># WORKSPACE</span>
-<span class="pl-en">load</span>(<span class="pl-s">"@bazel_tools//tools/build_defs/repo:http.bzl"</span>, <span class="pl-s">"http_archive"</span>)
+scala_register_toolchains()"><pre lang="py" class="notranslate"><code># WORKSPACE
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
-<span class="pl-c"># See https://github.com/bazelbuild/rules_scala/releases for up to date version</span>
-<span class="pl-c"># information, including `&lt;VERSION&gt;` and `&lt;SHA256&gt;` values.</span>
-<span class="pl-en">http_archive</span>(
-    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_scala"</span>,  <span class="pl-c"># Can be "io_bazel_rules_scala" if you still need it.</span>
-    <span class="pl-s1">sha256</span> <span class="pl-c1">=</span> <span class="pl-s">"&lt;SHA256&gt;"</span>,
-    <span class="pl-s1">strip_prefix</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_scala-&lt;VERSION&gt;"</span>,
-    <span class="pl-s1">url</span> <span class="pl-c1">=</span> <span class="pl-s">"https://github.com/bazelbuild/rules_scala/releases/download/&lt;VERSION&gt;/rules_scala-&lt;VERSION&gt;.tar.gz"</span>,
+# See https://github.com/bazelbuild/rules_scala/releases for up to date version
+# information, including `&lt;VERSION&gt;` and `&lt;SHA256&gt;` values.
+http_archive(
+    name = "rules_scala",  # Can be "io_bazel_rules_scala" if you still need it.
+    sha256 = "&lt;SHA256&gt;",
+    strip_prefix = "rules_scala-&lt;VERSION&gt;",
+    url = "https://github.com/bazelbuild/rules_scala/releases/download/&lt;VERSION&gt;/rules_scala-&lt;VERSION&gt;.tar.gz",
 )
 
-<span class="pl-c"># This imports the minimum versions supported by the minimum supported Bazel</span>
-<span class="pl-c"># version, plus `rules_java` 8.5.0. If you use `rules_java` 7 or an earlier</span>
-<span class="pl-c"># `rules_java` 8 version, the corresponding `load` statements are slightly</span>
-<span class="pl-c"># different. See the `WORKSPACE` snippet from</span>
-<span class="pl-c"># https://github.com/bazelbuild/rules_java/releases corresponding to the</span>
-<span class="pl-c"># `rules_java` version for details.</span>
-<span class="pl-c">#</span>
-<span class="pl-c"># Also, this imports `rules_proto` 6.0.2, though 6.0.0 will work. This is</span>
-<span class="pl-c"># because the `WORKSPACE` snippets for different versions of `rules_proto` vary</span>
-<span class="pl-c"># somewhat, and the 6.0.2 snippet works with the latest version. See</span>
-<span class="pl-c"># https://github.com/bazelbuild/rules_proto/releases for the corresponding</span>
-<span class="pl-c"># `rules_proto` release for details.</span>
-<span class="pl-c">#</span>
-<span class="pl-c"># If you want the latest dependency versions, change `deps.bzl` to</span>
-<span class="pl-c"># `latest_deps.bzl`.</span>
-<span class="pl-en">load</span>(<span class="pl-s">"@rules_scala//scala:deps.bzl"</span>, <span class="pl-s">"rules_scala_dependencies"</span>)
+# This imports the minimum versions supported by the minimum supported Bazel
+# version, plus `rules_java` 8.5.0. If you use `rules_java` 7 or an earlier
+# `rules_java` 8 version, the corresponding `load` statements are slightly
+# different. See the `WORKSPACE` snippet from
+# https://github.com/bazelbuild/rules_java/releases corresponding to the
+# `rules_java` version for details.
+#
+# Also, this imports `rules_proto` 6.0.2, though 6.0.0 will work. This is
+# because the `WORKSPACE` snippets for different versions of `rules_proto` vary
+# somewhat, and the 6.0.2 snippet works with the latest version. See
+# https://github.com/bazelbuild/rules_proto/releases for the corresponding
+# `rules_proto` release for details.
+#
+# If you want the latest dependency versions, change `deps.bzl` to
+# `latest_deps.bzl`.
+load("@rules_scala//scala:deps.bzl", "rules_scala_dependencies")
 
-<span class="pl-en">rules_scala_dependencies</span>()
+rules_scala_dependencies()
 
-<span class="pl-c"># Only include the next two statements if using</span>
-<span class="pl-c"># `--incompatible_enable_proto_toolchain_resolution`.</span>
-<span class="pl-c"># See the "Using a precompiled protocol compiler" section below.</span>
-<span class="pl-en">load</span>(<span class="pl-s">"@platforms//host:extension.bzl"</span>, <span class="pl-s">"host_platform_repo"</span>)
+# Only include the next two statements if using
+# `--incompatible_enable_proto_toolchain_resolution`.
+# See the "Using a precompiled protocol compiler" section below.
+load("@platforms//host:extension.bzl", "host_platform_repo")
 
-<span class="pl-c"># Instantiates the `@host_platform` repo to work around:</span>
-<span class="pl-c"># - https://github.com/bazelbuild/bazel/issues/22558</span>
-<span class="pl-en">host_platform_repo</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"host_platform"</span>)
+# Instantiates the `@host_platform` repo to work around:
+# - https://github.com/bazelbuild/bazel/issues/22558
+host_platform_repo(name = "host_platform")
 
-<span class="pl-c"># This is optional, but register this toolchain before any others. Requires</span>
-<span class="pl-c"># invoking the `scala_protoc_toolchains` repo rule, but is safe to include even</span>
-<span class="pl-c"># `--incompatible_enable_proto_toolchain_resolution` is `False`.</span>
-<span class="pl-c"># See the "Using a precompiled protocol compiler" section below.</span>
-<span class="pl-en">register_toolchains</span>(<span class="pl-s">"@rules_scala_protoc_toolchains//...:all"</span>)
+# This is optional, but register this toolchain before any others. Requires
+# invoking the `scala_protoc_toolchains` repo rule, but is safe to include even
+# `--incompatible_enable_proto_toolchain_resolution` is `False`.
+# See the "Using a precompiled protocol compiler" section below.
+register_toolchains("@rules_scala_protoc_toolchains//...:all")
 
-<span class="pl-en">load</span>(<span class="pl-s">"@rules_java//java:rules_java_deps.bzl"</span>, <span class="pl-s">"rules_java_dependencies"</span>)
+load("@rules_java//java:rules_java_deps.bzl", "rules_java_dependencies")
 
-<span class="pl-en">rules_java_dependencies</span>()
+rules_java_dependencies()
 
-<span class="pl-en">load</span>(<span class="pl-s">"@bazel_features//:deps.bzl"</span>, <span class="pl-s">"bazel_features_deps"</span>)
+load("@bazel_features//:deps.bzl", "bazel_features_deps")
 
-<span class="pl-en">bazel_features_deps</span>()
+bazel_features_deps()
 
-<span class="pl-en">load</span>(<span class="pl-s">"@bazel_skylib//:workspace.bzl"</span>, <span class="pl-s">"bazel_skylib_workspace"</span>)
+load("@bazel_skylib//:workspace.bzl", "bazel_skylib_workspace")
 
-<span class="pl-en">bazel_skylib_workspace</span>()
+bazel_skylib_workspace()
 
-<span class="pl-c"># If you need a specific `rules_python` version, specify it here.</span>
-<span class="pl-c"># Otherwise you may get the version defined in the `com_google_protobuf` repo.</span>
-<span class="pl-en">http_archive</span>(
-    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_python"</span>,
-    <span class="pl-s1">sha256</span> <span class="pl-c1">=</span> <span class="pl-s">"2ef40fdcd797e07f0b6abda446d1d84e2d9570d234fddf8fcd2aa262da852d1c"</span>,
-    <span class="pl-s1">strip_prefix</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_python-1.2.0"</span>,
-    <span class="pl-s1">url</span> <span class="pl-c1">=</span> <span class="pl-s">"https://github.com/bazelbuild/rules_python/releases/download/1.2.0/rules_python-1.2.0.tar.gz"</span>,
+# If you need a specific `rules_python` version, specify it here.
+# Otherwise you may get the version defined in the `com_google_protobuf` repo.
+http_archive(
+    name = "rules_python",
+    sha256 = "2ef40fdcd797e07f0b6abda446d1d84e2d9570d234fddf8fcd2aa262da852d1c",
+    strip_prefix = "rules_python-1.2.0",
+    url = "https://github.com/bazelbuild/rules_python/releases/download/1.2.0/rules_python-1.2.0.tar.gz",
 )
 
-<span class="pl-en">load</span>(<span class="pl-s">"@rules_python//python:repositories.bzl"</span>, <span class="pl-s">"py_repositories"</span>)
+load("@rules_python//python:repositories.bzl", "py_repositories")
 
-<span class="pl-en">py_repositories</span>()
+py_repositories()
 
-<span class="pl-c"># Note that `rules_java` 8.x suggests loading `protobuf_deps()` after</span>
-<span class="pl-c"># `rules_java_dependencies` and before `rules_java_toolchains()`:</span>
-<span class="pl-c"># - https://github.com/bazelbuild/rules_java/releases/tag/8.9.0</span>
-<span class="pl-c">#</span>
-<span class="pl-c"># `rules_java` 7.x also works with this ordering.</span>
-<span class="pl-en">load</span>(<span class="pl-s">"@com_google_protobuf//:protobuf_deps.bzl"</span>, <span class="pl-s">"protobuf_deps"</span>)
+# Note that `rules_java` 8.x suggests loading `protobuf_deps()` after
+# `rules_java_dependencies` and before `rules_java_toolchains()`:
+# - https://github.com/bazelbuild/rules_java/releases/tag/8.9.0
+#
+# `rules_java` 7.x also works with this ordering.
+load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
 
-<span class="pl-en">protobuf_deps</span>()
+protobuf_deps()
 
-<span class="pl-en">load</span>(<span class="pl-s">"@rules_java//java:repositories.bzl"</span>, <span class="pl-s">"rules_java_toolchains"</span>)
+load("@rules_java//java:repositories.bzl", "rules_java_toolchains")
 
-<span class="pl-en">rules_java_toolchains</span>()
+rules_java_toolchains()
 
-<span class="pl-en">load</span>(<span class="pl-s">"@rules_proto//proto:repositories.bzl"</span>, <span class="pl-s">"rules_proto_dependencies"</span>)
+load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies")
 
-<span class="pl-en">rules_proto_dependencies</span>()
+rules_proto_dependencies()
 
-<span class="pl-en">load</span>(<span class="pl-s">"@rules_proto//proto:setup.bzl"</span>, <span class="pl-s">"rules_proto_setup"</span>)
+load("@rules_proto//proto:setup.bzl", "rules_proto_setup")
 
-<span class="pl-en">rules_proto_setup</span>()
+rules_proto_setup()
 
-<span class="pl-en">load</span>(<span class="pl-s">"@rules_proto//proto:toolchains.bzl"</span>, <span class="pl-s">"rules_proto_toolchains"</span>)
+load("@rules_proto//proto:toolchains.bzl", "rules_proto_toolchains")
 
-<span class="pl-en">rules_proto_toolchains</span>()
+rules_proto_toolchains()
 
-<span class="pl-c"># Include this after loading `platforms`, `com_google_protobuf`, and</span>
-<span class="pl-c"># `rules_proto` to enable the `//protoc` precompiled protocol compiler</span>
-<span class="pl-c"># toolchains. Requires at least `protobuf` v29.0. See the "Using a precompiled</span>
-<span class="pl-c"># protocol compiler" section below.</span>
-<span class="pl-en">load</span>(<span class="pl-s">"@rules_scala//protoc:toolchains.bzl"</span>, <span class="pl-s">"scala_protoc_toolchains"</span>)
+# Include this after loading `platforms`, `com_google_protobuf`, and
+# `rules_proto` to enable the `//protoc` precompiled protocol compiler
+# toolchains. Requires at least `protobuf` v29.0. See the "Using a precompiled
+# protocol compiler" section below.
+load("@rules_scala//protoc:toolchains.bzl", "scala_protoc_toolchains")
 
-<span class="pl-c"># This name can be anything, but we recommend `rules_scala_protoc_toolchains`.</span>
-<span class="pl-en">scala_protoc_toolchains</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_scala_protoc_toolchains"</span>)
+# This name can be anything, but we recommend `rules_scala_protoc_toolchains`.
+scala_protoc_toolchains(name = "rules_scala_protoc_toolchains")
 
-<span class="pl-en">load</span>(<span class="pl-s">"@rules_scala//:scala_config.bzl"</span>, <span class="pl-s">"scala_config"</span>)
+load("@rules_scala//:scala_config.bzl", "scala_config")
 
-<span class="pl-c"># Stores the selected Scala version and other configuration parameters.</span>
-<span class="pl-c">#</span>
-<span class="pl-c"># 2.12 is the default version. Use other versions by passing them explicitly:</span>
-<span class="pl-c">#</span>
-<span class="pl-c">#   scala_config(scala_version = "2.13.17")</span>
-<span class="pl-c">#</span>
-<span class="pl-c"># You may define your own custom toolchain using Maven artifact dependencies</span>
-<span class="pl-c"># configured by your `WORKSPACE` file, imported using an external loader like</span>
-<span class="pl-c"># https://github.com/bazelbuild/rules_jvm_external. See docs/scala_toolchain.md.</span>
-<span class="pl-en">scala_config</span>()
+# Stores the selected Scala version and other configuration parameters.
+#
+# 2.12 is the default version. Use other versions by passing them explicitly:
+#
+#   scala_config(scala_version = "2.13.17")
+#
+# You may define your own custom toolchain using Maven artifact dependencies
+# configured by your `WORKSPACE` file, imported using an external loader like
+# https://github.com/bazelbuild/rules_jvm_external. See docs/scala_toolchain.md.
+scala_config()
 
-<span class="pl-en">load</span>(
-    <span class="pl-s">"@rules_scala//scala:toolchains.bzl"</span>,
-    <span class="pl-s">"scala_register_toolchains"</span>,
-    <span class="pl-s">"scala_toolchains"</span>,
+load(
+    "@rules_scala//scala:toolchains.bzl",
+    "scala_register_toolchains",
+    "scala_toolchains",
 )
 
-<span class="pl-c"># Defines a default toolchain repo for the configured Scala version that loads</span>
-<span class="pl-c"># Maven deps like the Scala compiler and standard libs. Enable other builtin</span>
-<span class="pl-c"># toolchains by setting their corresponding parameters to `True`. See the</span>
-<span class="pl-c"># `scala_toolchains()` docstring for all builtin toolchain configuration</span>
-<span class="pl-c"># options.</span>
-<span class="pl-c">#</span>
-<span class="pl-c"># On production projects, you may consider defining a custom toolchain to use</span>
-<span class="pl-c"># your project's required dependencies instead. In that case, you can omit</span>
-<span class="pl-c"># `scala_toolchains()` or explicitly set `scala = False` if you use it to</span>
-<span class="pl-c"># instantiate other builtin toolchains.</span>
-<span class="pl-en">scala_toolchains</span>()
+# Defines a default toolchain repo for the configured Scala version that loads
+# Maven deps like the Scala compiler and standard libs. Enable other builtin
+# toolchains by setting their corresponding parameters to `True`. See the
+# `scala_toolchains()` docstring for all builtin toolchain configuration
+# options.
+#
+# On production projects, you may consider defining a custom toolchain to use
+# your project's required dependencies instead. In that case, you can omit
+# `scala_toolchains()` or explicitly set `scala = False` if you use it to
+# instantiate other builtin toolchains.
+scala_toolchains()
 
-<span class="pl-en">scala_register_toolchains</span>()</pre></div>
+scala_register_toolchains()
+</code></pre></div>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Important changes in <code>rules_scala</code> v7.0.0 configuration</h3><a id="user-content-important-changes-in-rules_scala-v700-configuration" class="anchor" aria-label="Permalink: Important changes in rules_scala v7.0.0 configuration" href="#important-changes-in-rules_scala-v700-configuration"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">The above configuration snippet reflects important changes since <code>rules_scala</code>
 v6.x:</p>
@@ -512,17 +515,18 @@ section below.</p>
 </ul>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Loading the <code>scala_*</code> rules</h3><a id="user-content-loading-the-scala_-rules" class="anchor" aria-label="Permalink: Loading the scala_* rules" href="#loading-the-scala_-rules"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">Add the following to your <code>BUILD</code> files to make the <code>scala_*</code> rules available:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(
     &quot;@rules_scala//scala:scala.bzl&quot;,
     &quot;scala_binary&quot;,
     &quot;scala_library&quot;,
     &quot;scala_test&quot;,
-)"><pre><span class="pl-en">load</span>(
-    <span class="pl-s">"@rules_scala//scala:scala.bzl"</span>,
-    <span class="pl-s">"scala_binary"</span>,
-    <span class="pl-s">"scala_library"</span>,
-    <span class="pl-s">"scala_test"</span>,
-)</pre></div>
+)"><pre lang="py" class="notranslate"><code>load(
+    "@rules_scala//scala:scala.bzl",
+    "scala_binary",
+    "scala_library",
+    "scala_test",
+)
+</code></pre></div>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto"><a id="user-content-protoc"></a>Using a precompiled protocol compiler</h3><a id="user-content-using-a-precompiled-protocol-compiler" class="anchor" aria-label="Permalink: Using a precompiled protocol compiler" href="#using-a-precompiled-protocol-compiler"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto"><code>rules_scala</code> now supports the
 <a href="https://bazel.build/reference/command-line-reference#flag--incompatible_enable_proto_toolchain_resolution" rel="nofollow"><code>--incompatible_enable_proto_toolchain_resolution</code></a> flag when using <a href="#why-proto-v29">protobuf
@@ -577,65 +581,69 @@ specified in <a href="#compatible-bazel-versions">Compatible Bazel versions</a>.
 </table></markdown-accessiblity-table>
 <div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Common setup</h4><a id="user-content-common-setup" class="anchor" aria-label="Permalink: Common setup" href="#common-setup"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">To set the flag in your <code>.bazelrc</code> file:</p>
-<div class="highlight highlight-text-adblock notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="# .bazelrc
-common --incompatible_enable_proto_toolchain_resolution"><pre><span class="pl-c"># .bazelrc</span>
-common --incompatible_enable_proto_toolchain_resolution</pre></div>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="# .bazelrc
+common --incompatible_enable_proto_toolchain_resolution"><pre lang="txt" class="notranslate"><code># .bazelrc
+common --incompatible_enable_proto_toolchain_resolution
+</code></pre></div>
 <p dir="auto">In both <code>MODULE.bazel</code> and <code>WORKSPACE</code>, you must register the protocol compiler
 toolchains <em>before</em> any other toolchains. It's safe to use even when
 <code>--incompatible_enable_proto_toolchain_resolution</code> is <code>False</code>.</p>
 <p dir="auto">It is OK to call <code>register_toolchains</code> before using the <code>scala_protoc</code> extension
 under Bzlmod, and before the <code>scala_protoc_toolchains()</code> repo rule under
 <code>WORKSPACE</code>.</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="# MODULE.bazel
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="# MODULE.bazel
 register_toolchains(
     &quot;@rules_scala_protoc_toolchains//...:all&quot;,
     dev_dependency = True,
 )
 
 # WORKSPACE
-register_toolchains(&quot;@rules_scala_protoc_toolchains//...:all&quot;)"><pre><span class="pl-c"># MODULE.bazel</span>
-<span class="pl-en">register_toolchains</span>(
-    <span class="pl-s">"@rules_scala_protoc_toolchains//...:all"</span>,
-    <span class="pl-s1">dev_dependency</span> <span class="pl-c1">=</span> <span class="pl-c1">True</span>,
+register_toolchains(&quot;@rules_scala_protoc_toolchains//...:all&quot;)"><pre lang="py" class="notranslate"><code># MODULE.bazel
+register_toolchains(
+    "@rules_scala_protoc_toolchains//...:all",
+    dev_dependency = True,
 )
 
-<span class="pl-c"># WORKSPACE</span>
-<span class="pl-en">register_toolchains</span>(<span class="pl-s">"@rules_scala_protoc_toolchains//...:all"</span>)</pre></div>
+# WORKSPACE
+register_toolchains("@rules_scala_protoc_toolchains//...:all")
+</code></pre></div>
 <div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Using the <code>scala_protoc</code> module extension under Bzlmod</h4><a id="user-content-using-the-scala_protoc-module-extension-under-bzlmod" class="anchor" aria-label="Permalink: Using the scala_protoc module extension under Bzlmod" href="#using-the-scala_protoc-module-extension-under-bzlmod"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">The <code>scala_protoc</code> module extension instantiates the protocol compiler
 toolchain under Bzlmod. It <em>must</em> be marked as a <code>dev_dependency</code>.</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="# MODULE.bazel
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="# MODULE.bazel
 
 scala_protoc = use_extension(
     &quot;@rules_scala//scala/extensions:protoc.bzl&quot;,
     &quot;scala_protoc&quot;,
     dev_dependency = True,
 )
-use_repo(scala_protoc, &quot;rules_scala_protoc_toolchains&quot;)"><pre><span class="pl-c"># MODULE.bazel</span>
+use_repo(scala_protoc, &quot;rules_scala_protoc_toolchains&quot;)"><pre lang="py" class="notranslate"><code># MODULE.bazel
 
-<span class="pl-s1">scala_protoc</span> <span class="pl-c1">=</span> <span class="pl-en">use_extension</span>(
-    <span class="pl-s">"@rules_scala//scala/extensions:protoc.bzl"</span>,
-    <span class="pl-s">"scala_protoc"</span>,
-    <span class="pl-s1">dev_dependency</span> <span class="pl-c1">=</span> <span class="pl-c1">True</span>,
+scala_protoc = use_extension(
+    "@rules_scala//scala/extensions:protoc.bzl",
+    "scala_protoc",
+    dev_dependency = True,
 )
-<span class="pl-en">use_repo</span>(<span class="pl-s1">scala_protoc</span>, <span class="pl-s">"rules_scala_protoc_toolchains"</span>)</pre></div>
+use_repo(scala_protoc, "rules_scala_protoc_toolchains")
+</code></pre></div>
 <div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Invoking the <code>scala_protoc_toolchains()</code> repo rule under <code>WORKSPACE</code></h4><a id="user-content-invoking-the-scala_protoc_toolchains-repo-rule-under-workspace" class="anchor" aria-label="Permalink: Invoking the scala_protoc_toolchains() repo rule under WORKSPACE" href="#invoking-the-scala_protoc_toolchains-repo-rule-under-workspace"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">The <code>scala_protoc_toolchains</code> repo rule instantiates the protocol compiler
 toolchain. The repo name can be anything, but we recommend
 <code>rules_scala_protoc_toolchains</code>.</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="# WORKSPACE
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="# WORKSPACE
 
 # Include this after loading `platforms`, `com_google_protobuf`, and
 # `rules_proto`.
 load(&quot;@rules_scala//protoc:toolchains.bzl&quot;, &quot;scala_protoc_toolchains&quot;)
 
-scala_protoc_toolchains(name = &quot;rules_scala_protoc_toolchains&quot;)"><pre><span class="pl-c"># WORKSPACE</span>
+scala_protoc_toolchains(name = &quot;rules_scala_protoc_toolchains&quot;)"><pre lang="py" class="notranslate"><code># WORKSPACE
 
-<span class="pl-c"># Include this after loading `platforms`, `com_google_protobuf`, and</span>
-<span class="pl-c"># `rules_proto`.</span>
-<span class="pl-en">load</span>(<span class="pl-s">"@rules_scala//protoc:toolchains.bzl"</span>, <span class="pl-s">"scala_protoc_toolchains"</span>)
+# Include this after loading `platforms`, `com_google_protobuf`, and
+# `rules_proto`.
+load("@rules_scala//protoc:toolchains.bzl", "scala_protoc_toolchains")
 
-<span class="pl-en">scala_protoc_toolchains</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_scala_protoc_toolchains"</span>)</pre></div>
+scala_protoc_toolchains(name = "rules_scala_protoc_toolchains")
+</code></pre></div>
 <div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Specifying additional <code>protoc</code> platforms</h4><a id="user-content-specifying-additional-protoc-platforms" class="anchor" aria-label="Permalink: Specifying additional protoc platforms" href="#specifying-additional-protoc-platforms"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">Use the <code>platforms</code> parameter to specify additional <a href="https://bazel.build/extending/platforms" rel="nofollow">platforms</a> if the
 execution platform may differ from the host platform, as when building with
@@ -646,27 +654,29 @@ host platform.</p>
 the remote execution platform is Linux running on an x86 processor.
 <code>rules_scala</code> configures the <code>"osx-aarch_64"</code> platform automatically. Then in
 <code>MODULE.bazel</code> you would include:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="# MODULE.bazel
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="# MODULE.bazel
 
 scala_protoc.toolchains(
     platforms = [&quot;linux-x86_64&quot;],
-)"><pre><span class="pl-c"># MODULE.bazel</span>
+)"><pre lang="py" class="notranslate"><code># MODULE.bazel
 
-<span class="pl-s1">scala_protoc</span>.<span class="pl-c1">toolchains</span>(
-    <span class="pl-s1">platforms</span> <span class="pl-c1">=</span> [<span class="pl-s">"linux-x86_64"</span>],
-)</pre></div>
+scala_protoc.toolchains(
+    platforms = ["linux-x86_64"],
+)
+</code></pre></div>
 <p dir="auto">In <code>WORKSPACE</code> you would include:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="# WORKSPACE
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="# WORKSPACE
 
 scala_protoc_toolchains(
     name = &quot;rules_scala_protoc_toolchains&quot;,
     platforms = [&quot;linux-x86_64&quot;],
-)"><pre><span class="pl-c"># WORKSPACE</span>
+)"><pre lang="py" class="notranslate"><code># WORKSPACE
 
-<span class="pl-en">scala_protoc_toolchains</span>(
-    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_scala_protoc_toolchains"</span>,
-    <span class="pl-s1">platforms</span> <span class="pl-c1">=</span> [<span class="pl-s">"linux-x86_64"</span>],
-)</pre></div>
+scala_protoc_toolchains(
+    name = "rules_scala_protoc_toolchains",
+    platforms = ["linux-x86_64"],
+)
+</code></pre></div>
 <div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Temporary required <code>protobuf</code> patch</h4><a id="user-content-temporary-required-protobuf-patch" class="anchor" aria-label="Permalink: Temporary required protobuf patch" href="#temporary-required-protobuf-patch"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">At the moment, enabling protocol compiler toolchainization requires applying
 <a href="./protoc/0001-protobuf-19679-rm-protoc-dep.patch">protoc/0001-protobuf-19679-rm-protoc-dep.patch</a>. It is the <code>git diff</code> output
@@ -682,7 +692,7 @@ words, neither <code>@rules_scala//protoc:0001-protobuf-19679-rm-protoc-dep.patc
 nor an <a href="https://bazel.build/reference/be/general#alias" rel="nofollow"><code>alias</code></a> to it will work.</p>
 <p dir="auto">Assuming you've copied the patch to a file called <code>protobuf.patch</code> in the root
 package of your repository, add the following to your <code>MODULE.bazel</code>:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="# MODULE.bazel
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="# MODULE.bazel
 
 # Required for protocol compiler toolchainization until resolution of
 # protocolbuffers/protobuf#19679.
@@ -696,28 +706,29 @@ single_version_override(
     patch_strip = 1,
     patches = [&quot;//:protobuf.patch&quot;],
     version = &quot;30.2&quot;,
-)"><pre><span class="pl-c"># MODULE.bazel</span>
+)"><pre lang="py" class="notranslate"><code># MODULE.bazel
 
-<span class="pl-c"># Required for protocol compiler toolchainization until resolution of</span>
-<span class="pl-c"># protocolbuffers/protobuf#19679.</span>
-<span class="pl-en">bazel_dep</span>(
-    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"protobuf"</span>,
-    <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"30.2"</span>,
-    <span class="pl-s1">repo_name</span> <span class="pl-c1">=</span> <span class="pl-s">"com_google_protobuf"</span>,
+# Required for protocol compiler toolchainization until resolution of
+# protocolbuffers/protobuf#19679.
+bazel_dep(
+    name = "protobuf",
+    version = "30.2",
+    repo_name = "com_google_protobuf",
 )
-<span class="pl-en">single_version_override</span>(
-    <span class="pl-s1">module_name</span> <span class="pl-c1">=</span> <span class="pl-s">"protobuf"</span>,
-    <span class="pl-s1">patch_strip</span> <span class="pl-c1">=</span> <span class="pl-c1">1</span>,
-    <span class="pl-s1">patches</span> <span class="pl-c1">=</span> [<span class="pl-s">"//:protobuf.patch"</span>],
-    <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"30.2"</span>,
-)</pre></div>
+single_version_override(
+    module_name = "protobuf",
+    patch_strip = 1,
+    patches = ["//:protobuf.patch"],
+    version = "30.2",
+)
+</code></pre></div>
 <div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto"><code>protobuf</code> patch setup under <code>WORKSPACE</code></h4><a id="user-content-protobuf-patch-setup-under-workspace" class="anchor" aria-label="Permalink: protobuf patch setup under WORKSPACE" href="#protobuf-patch-setup-under-workspace"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto"><a href="./scala/latest-deps.bzl"><code>scala/latest-deps.bzl</code></a> currently applies the
 <code>protobuf</code> patch to <code>protobuf</code> v30.2.</p>
 <p dir="auto">If you need to apply the patch to a different version of <code>protobuf</code>, copy it to
 your repo as described in the Bzlmod setup above. Then apply it in your own
 <code>http_archive</code> call:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="http_archive(
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="http_archive(
     name = &quot;com_google_protobuf&quot;,
     sha256 = &quot;07a43d88fe5a38e434c7f94129cad56a4c43a51f99336074d0799c2f7d4e44c5&quot;,
     strip_prefix = &quot;protobuf-30.2&quot;,
@@ -725,29 +736,31 @@ your repo as described in the Bzlmod setup above. Then apply it in your own
     repo_mapping = {&quot;@com_google_absl&quot;: &quot;@abseil-cpp&quot;},
     patches = [&quot;//protobuf.patch&quot;],
     patch_args = [&quot;-p1&quot;],
-)"><pre><span class="pl-en">http_archive</span>(
-    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"com_google_protobuf"</span>,
-    <span class="pl-s1">sha256</span> <span class="pl-c1">=</span> <span class="pl-s">"07a43d88fe5a38e434c7f94129cad56a4c43a51f99336074d0799c2f7d4e44c5"</span>,
-    <span class="pl-s1">strip_prefix</span> <span class="pl-c1">=</span> <span class="pl-s">"protobuf-30.2"</span>,
-    <span class="pl-s1">url</span> <span class="pl-c1">=</span> <span class="pl-s">"https://github.com/protocolbuffers/protobuf/archive/refs/tags/v30.2.tar.gz"</span>,
-    <span class="pl-s1">repo_mapping</span> <span class="pl-c1">=</span> {<span class="pl-s">"@com_google_absl"</span>: <span class="pl-s">"@abseil-cpp"</span>},
-    <span class="pl-s1">patches</span> <span class="pl-c1">=</span> [<span class="pl-s">"//protobuf.patch"</span>],
-    <span class="pl-s1">patch_args</span> <span class="pl-c1">=</span> [<span class="pl-s">"-p1"</span>],
-)</pre></div>
+)"><pre lang="py" class="notranslate"><code>http_archive(
+    name = "com_google_protobuf",
+    sha256 = "07a43d88fe5a38e434c7f94129cad56a4c43a51f99336074d0799c2f7d4e44c5",
+    strip_prefix = "protobuf-30.2",
+    url = "https://github.com/protocolbuffers/protobuf/archive/refs/tags/v30.2.tar.gz",
+    repo_mapping = {"@com_google_absl": "@abseil-cpp"},
+    patches = ["//protobuf.patch"],
+    patch_args = ["-p1"],
+)
+</code></pre></div>
 <div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Setting up the <code>@host_platform</code> repo under <code>WORKSPACE</code></h4><a id="user-content-setting-up-the-host_platform-repo-under-workspace" class="anchor" aria-label="Permalink: Setting up the @host_platform repo under WORKSPACE" href="#setting-up-the-host_platform-repo-under-workspace"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto"><code>WORKSPACE</code> must include the <code>host_platform_repo</code> snippet from
 <a href="#getting-started">Getting started</a> to work around <a class="issue-link js-issue-link" data-error-text="Failed to load title" data-id="2319742942" data-permission-text="Title is private" data-url="https://github.com/bazelbuild/bazel/issues/22558" data-hovercard-type="issue" data-hovercard-url="/bazelbuild/bazel/issues/22558/hovercard" href="https://github.com/bazelbuild/bazel/issues/22558">bazelbuild/bazel#22558</a>:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="# WORKSPACE
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="# WORKSPACE
 load(&quot;@platforms//host:extension.bzl&quot;, &quot;host_platform_repo&quot;)
 
 # Instantiates the `@host_platform` repo to work around:
 # - https://github.com/bazelbuild/bazel/issues/22558
-host_platform_repo(name = &quot;host_platform&quot;)"><pre><span class="pl-c"># WORKSPACE</span>
-<span class="pl-en">load</span>(<span class="pl-s">"@platforms//host:extension.bzl"</span>, <span class="pl-s">"host_platform_repo"</span>)
+host_platform_repo(name = &quot;host_platform&quot;)"><pre lang="py" class="notranslate"><code># WORKSPACE
+load("@platforms//host:extension.bzl", "host_platform_repo")
 
-<span class="pl-c"># Instantiates the `@host_platform` repo to work around:</span>
-<span class="pl-c"># - https://github.com/bazelbuild/bazel/issues/22558</span>
-<span class="pl-en">host_platform_repo</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"host_platform"</span>)</pre></div>
+# Instantiates the `@host_platform` repo to work around:
+# - https://github.com/bazelbuild/bazel/issues/22558
+host_platform_repo(name = "host_platform")
+</code></pre></div>
 <div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto"><a id="user-content-why-proto-v29"></a>Why this requires <code>protobuf</code> v29 or later</h4><a id="user-content-why-this-requires-protobuf-v29-or-later" class="anchor" aria-label="Permalink: Why this requires protobuf v29 or later" href="#why-this-requires-protobuf-v29-or-later"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">Using <code>--incompatible_enable_proto_toolchain_resolution</code> with versions of
 <code>protobuf</code> before v29 causes build failures due to a missing internal Bazel
@@ -756,7 +769,7 @@ dependency.</p>
 with a <a href="https://bazel.build/extending/toolchains#writing-rules-toolchains" rel="nofollow"><code>toolchain_type</code></a> of <code>@rules_java//java/proto:toolchain_type</code>.
 Experimentation with <code>protobuf</code> v28.2 using both Bazel 6.5.0 and 7.5.0 led to
 the following error:</p>
-<div class="highlight highlight-text-adblock notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="ERROR: .../external/bazel_tools/src/main/protobuf/BUILD:28:15:
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="ERROR: .../external/bazel_tools/src/main/protobuf/BUILD:28:15:
   in @@_builtins//:common/java/proto/java_proto_library.bzl%bazel_java_proto_aspect
   aspect on proto_library rule
   @@bazel_tools//src/main/protobuf:worker_protocol_proto:
@@ -770,7 +783,7 @@ Error in fail: No toolchains registered for
   '@rules_java//java/proto:toolchain_type'.
 
 ERROR: Analysis of target
-  '@@bazel_tools//src/main/protobuf:worker_protocol_proto' failed"><pre>ERROR: .../external/bazel_tools/src/main/protobuf/BUILD:28:15:
+  '@@bazel_tools//src/main/protobuf:worker_protocol_proto' failed"><pre lang="txt" class="notranslate"><code>ERROR: .../external/bazel_tools/src/main/protobuf/BUILD:28:15:
   in @@_builtins//:common/java/proto/java_proto_library.bzl%bazel_java_proto_aspect
   aspect on proto_library rule
   @@bazel_tools//src/main/protobuf:worker_protocol_proto:
@@ -784,12 +797,14 @@ Error in fail: No toolchains registered for
   '@rules_java//java/proto:toolchain_type'.
 
 ERROR: Analysis of target
-  '@@bazel_tools//src/main/protobuf:worker_protocol_proto' failed</pre></div>
+  '@@bazel_tools//src/main/protobuf:worker_protocol_proto' failed
+</code></pre></div>
 <p dir="auto">See <a class="issue-link js-issue-link" data-error-text="Failed to load title" data-id="2888049085" data-permission-text="Title is private" data-url="https://github.com/bazel-contrib/rules_scala/issues/1710" data-hovercard-type="pull_request" data-hovercard-url="/bazel-contrib/rules_scala/pull/1710/hovercard" href="https://github.com/bazel-contrib/rules_scala/pull/1710">#1710</a> for details of the experiment.</p>
 <p dir="auto">For <code>protobuf</code> v29.0, <a class="issue-link js-issue-link" data-error-text="Failed to load title" data-id="2524888687" data-permission-text="Title is private" data-url="https://github.com/protocolbuffers/protobuf/issues/18308" data-hovercard-type="pull_request" data-hovercard-url="/protocolbuffers/protobuf/pull/18308/hovercard" href="https://github.com/protocolbuffers/protobuf/pull/18308">protocolbuffers/protobuf#18308</a> added the
 <a href="https://github.com/protocolbuffers/protobuf/blob/v29.0/bazel/private/toolchains/BUILD.bazel"><code>@protobuf//bazel/private/toolchains</code></a> package and updated
 <code>protobuf_deps()</code> from <code>@protobuf//:protobuf_deps.bzl</code> to register it:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="native.register_toolchains(&quot;//bazel/private/toolchains:all&quot;)"><pre><span class="pl-s1">native</span>.<span class="pl-c1">register_toolchains</span>(<span class="pl-s">"//bazel/private/toolchains:all"</span>)</pre></div>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="native.register_toolchains(&quot;//bazel/private/toolchains:all&quot;)"><pre lang="py" class="notranslate"><code>native.register_toolchains("//bazel/private/toolchains:all")
+</code></pre></div>
 <p dir="auto"><a class="issue-link js-issue-link" data-error-text="Failed to load title" data-id="2537526713" data-permission-text="Title is private" data-url="https://github.com/protocolbuffers/protobuf/issues/18435" data-hovercard-type="pull_request" data-hovercard-url="/protocolbuffers/protobuf/pull/18435/hovercard" href="https://github.com/protocolbuffers/protobuf/pull/18435">protocolbuffers/protobuf#18435</a> then introduced
 <a href="https://github.com/protocolbuffers/protobuf/blob/v29.0/bazel/private/toolchains/BUILD.bazel#L50-L74"><code>java_source_toolchain_bazel7</code></a> with the required
 <code>toolchain_type</code>.</p>
@@ -811,30 +826,33 @@ ERROR: Analysis of target
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Persistent workers</h3><a id="user-content-persistent-workers" class="anchor" aria-label="Permalink: Persistent workers" href="#persistent-workers"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">To run with a persistent worker (much faster), add the following to
 your <code>.bazelrc</code> file:</p>
-<div class="highlight highlight-text-adblock notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="build --strategy=Scalac=worker
-build --worker_sandboxing"><pre>build --strategy=Scalac=worker
-build --worker_sandboxing</pre></div>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="build --strategy=Scalac=worker
+build --worker_sandboxing"><pre lang="txt" class="notranslate"><code>build --strategy=Scalac=worker
+build --worker_sandboxing
+</code></pre></div>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Coverage support</h2><a id="user-content-coverage-support" class="anchor" aria-label="Permalink: Coverage support" href="#coverage-support"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">To produce a combined coverage report:</p>
-<div class="highlight highlight-text-adblock notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel coverage \
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="bazel coverage \
   --combined_report=lcov \
   --coverage_report_generator=&quot;@bazel_tools//tools/test/CoverageOutputGenerator/java/com/google/devtools/coverageoutputgenerator:Main&quot; \
-  //..."><pre>bazel coverage \
+  //..."><pre lang="txt" class="notranslate"><code>bazel coverage \
   --combined_report=lcov \
   --coverage_report_generator="@bazel_tools//tools/test/CoverageOutputGenerator/java/com/google/devtools/coverageoutputgenerator:Main" \
-  //...</pre></div>
+  //...
+</code></pre></div>
 <p dir="auto">This should produce a single <code>bazel-out/_coverage/_coverage_report.dat</code> from all coverage files that are generated.</p>
 <p dir="auto">You can extract information from your coverage reports with
 <a href="https://github.com/linux-test-project/lcov"><code>lcov</code></a>:</p>
-<div class="highlight highlight-text-adblock notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="# For a summary:
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="# For a summary:
 lcov --summary your-coverage-report.dat
 
 # For details:
-lcov --list your-coverage-report.dat"><pre><span class="pl-c"># For a summary:</span>
+lcov --list your-coverage-report.dat"><pre lang="txt" class="notranslate"><code># For a summary:
 lcov --summary your-coverage-report.dat
 
-<span class="pl-c"># For details:</span>
-lcov --list your-coverage-report.dat</pre></div>
+# For details:
+lcov --list your-coverage-report.dat
+</code></pre></div>
 <p dir="auto">If you prefer an HTML report, then you can use <code>genhtml</code> provided also by the <code>lcov</code> package.</p>
 <p dir="auto">Coverage support has been only tested with <a href="http://www.scalatest.org/" rel="nofollow">ScalaTest</a>.</p>
 <p dir="auto">Please check <a href="docs/coverage.md">coverage.md</a> for more details on coverage support.</p>
@@ -933,21 +951,22 @@ doesn't break, as it saves time by avoiding frequent <code>protoc</code> recompi
 the <a href="#protoc">Using a precompiled protocol compiler</a> section for details.</p>
 <p dir="auto">Otherwise, if migrating to Bazel 8 isn't an immediate option, you will need to
 set the following compiler flags in <code>.bazelrc</code> per <a class="issue-link js-issue-link" data-error-text="Failed to load title" data-id="2647796826" data-permission-text="Title is private" data-url="https://github.com/bazel-contrib/rules_scala/issues/1647" data-hovercard-type="issue" data-hovercard-url="/bazel-contrib/rules_scala/issues/1647/hovercard" href="https://github.com/bazel-contrib/rules_scala/issues/1647">#1647</a>:</p>
-<div class="highlight highlight-text-adblock notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="common --enable_platform_specific_config
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="common --enable_platform_specific_config
 
 common:linux --cxxopt=-std=c++17
 common:linux --host_cxxopt=-std=c++17
 common:macos --cxxopt=-std=c++17
 common:macos --host_cxxopt=-std=c++17
 common:windows --cxxopt=/std=c++17
-common:windows --host_cxxopt=/std=c++17"><pre>common --enable_platform_specific_config
+common:windows --host_cxxopt=/std=c++17"><pre lang="txt" class="notranslate"><code>common --enable_platform_specific_config
 
 common:linux --cxxopt=-std=c++17
 common:linux --host_cxxopt=-std=c++17
 common:macos --cxxopt=-std=c++17
 common:macos --host_cxxopt=-std=c++17
 common:windows --cxxopt=/std=c++17
-common:windows --host_cxxopt=/std=c++17</pre></div>
+common:windows --host_cxxopt=/std=c++17
+</code></pre></div>
 <p dir="auto">Note that this example uses <code>common:</code> config settings instead of <code>build:</code>. This
 seems to prevent invalidating the action cache between <code>bazel</code> runs, which
 improves performance.</p>
@@ -955,7 +974,7 @@ improves performance.</p>
 <p dir="auto">Bazel-deps allows you to generate bazel dependencies transitively for maven artifacts. Generally we don't want bazel-deps to fetch
 scala artifacts from maven but instead use the ones we get from calling <code>scala_repositories</code>. The artifacts can be overridden in the
 dependencies file used by bazel-deps:</p>
-<div class="highlight highlight-source-yaml notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="replacements:
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="replacements:
   org.scala-lang:
     scala-library:
       lang: scala/unmangled
@@ -975,27 +994,28 @@ dependencies file used by bazel-deps:</p>
     scala-xml:
       lang: scala
       target:
-        &quot;@io_bazel_rules_scala_scala_xml//:io_bazel_rules_scala_scala_xml&quot;"><pre><span class="pl-ent">replacements</span>:
-  <span class="pl-ent">org.scala-lang</span>:
-    <span class="pl-ent">scala-library</span>:
-      <span class="pl-ent">lang</span>: <span class="pl-s">scala/unmangled</span>
-      <span class="pl-ent">target</span>: <span class="pl-s"><span class="pl-pds">"</span>@io_bazel_rules_scala_scala_library//:io_bazel_rules_scala_scala_library<span class="pl-pds">"</span></span>
-    <span class="pl-ent">scala-reflect</span>:
-      <span class="pl-ent">lang</span>: <span class="pl-s">scala/unmangled</span>
-      <span class="pl-ent">target</span>: <span class="pl-s"><span class="pl-pds">"</span>@io_bazel_rules_scala_scala_reflect//:io_bazel_rules_scala_scala_reflect<span class="pl-pds">"</span></span>
-    <span class="pl-ent">scala-compiler</span>:
-      <span class="pl-ent">lang</span>: <span class="pl-s">scala/unmangled</span>
-      <span class="pl-ent">target</span>: <span class="pl-s"><span class="pl-pds">"</span>@io_bazel_rules_scala_scala_compiler//:io_bazel_rules_scala_scala_compiler<span class="pl-pds">"</span></span>
+        &quot;@io_bazel_rules_scala_scala_xml//:io_bazel_rules_scala_scala_xml&quot;"><pre lang="yaml" class="notranslate"><code>replacements:
+  org.scala-lang:
+    scala-library:
+      lang: scala/unmangled
+      target: "@io_bazel_rules_scala_scala_library//:io_bazel_rules_scala_scala_library"
+    scala-reflect:
+      lang: scala/unmangled
+      target: "@io_bazel_rules_scala_scala_reflect//:io_bazel_rules_scala_scala_reflect"
+    scala-compiler:
+      lang: scala/unmangled
+      target: "@io_bazel_rules_scala_scala_compiler//:io_bazel_rules_scala_scala_compiler"
 
-  <span class="pl-ent">org.scala-lang.modules</span>:
-    <span class="pl-ent">scala-parser-combinators</span>:
-      <span class="pl-ent">lang</span>: <span class="pl-s">scala</span>
-      <span class="pl-ent">target</span>:
-        <span class="pl-s"><span class="pl-pds">"</span>@io_bazel_rules_scala_scala_parser_combinators//:io_bazel_rules_scala_scala_parser_combinators<span class="pl-pds">"</span></span>
-    <span class="pl-ent">scala-xml</span>:
-      <span class="pl-ent">lang</span>: <span class="pl-s">scala</span>
-      <span class="pl-ent">target</span>:
-        <span class="pl-s"><span class="pl-pds">"</span>@io_bazel_rules_scala_scala_xml//:io_bazel_rules_scala_scala_xml<span class="pl-pds">"</span></span></pre></div>
+  org.scala-lang.modules:
+    scala-parser-combinators:
+      lang: scala
+      target:
+        "@io_bazel_rules_scala_scala_parser_combinators//:io_bazel_rules_scala_scala_parser_combinators"
+    scala-xml:
+      lang: scala
+      target:
+        "@io_bazel_rules_scala_scala_xml//:io_bazel_rules_scala_scala_xml"
+</code></pre></div>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Publishing to Maven repository</h2><a id="user-content-publishing-to-maven-repository" class="anchor" aria-label="Permalink: Publishing to Maven repository" href="#publishing-to-maven-repository"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">See <a href="docs/publish_to_maven.md">Publish your Scala Libraries to a Maven Repository</a>.</p>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Dependency Tracking</h2><a id="user-content-dependency-tracking" class="anchor" aria-label="Permalink: Dependency Tracking" href="#dependency-tracking"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
@@ -1018,11 +1038,14 @@ default phases.</li>
 </ul>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Building from source</h2><a id="user-content-building-from-source" class="anchor" aria-label="Permalink: Building from source" href="#building-from-source"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">Build main sources only:</p>
-<div class="highlight highlight-text-adblock notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel build //src/..."><pre>bazel build //src/...</pre></div>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="bazel build //src/..."><pre lang="txt" class="notranslate"><code>bazel build //src/...
+</code></pre></div>
 <p dir="auto">Run all smaller tests:</p>
-<div class="highlight highlight-text-adblock notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel test //test/..."><pre>bazel test //test/...</pre></div>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="bazel test //test/..."><pre lang="txt" class="notranslate"><code>bazel test //test/...
+</code></pre></div>
 <p dir="auto">To run the full test suite:</p>
-<div class="highlight highlight-text-adblock notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bash test_all.sh"><pre>bash test_all.sh</pre></div>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="bash test_all.sh"><pre lang="txt" class="notranslate"><code>bash test_all.sh
+</code></pre></div>
 <p dir="auto">Note: <strong><code>bazel test //...</code> will not work</strong> since we have a sub-folder on the
 root folder which is meant to be used in a failure scenario in the integration
 tests. Similarly, to only build you should use <code>bazel build //src/...</code> due to
@@ -1062,7 +1085,7 @@ macros with the combination of <code>rules_scala_dependencies()</code>,
 <li><code>twitter_scrooge()</code></li>
 </ul>
 <p dir="auto">Replace toolchain configurations like the following:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(
     &quot;@rules_scala//scala:scala.bzl&quot;,
     &quot;rules_scala_setup&quot;,
     &quot;rules_scala_toolchain_deps_repositories&quot;,
@@ -1096,44 +1119,45 @@ load(
 
 scalafmt_default_config()
 
-scalafmt_repositories()"><pre><span class="pl-en">load</span>(
-    <span class="pl-s">"@rules_scala//scala:scala.bzl"</span>,
-    <span class="pl-s">"rules_scala_setup"</span>,
-    <span class="pl-s">"rules_scala_toolchain_deps_repositories"</span>,
+scalafmt_repositories()"><pre lang="py" class="notranslate"><code>load(
+    "@rules_scala//scala:scala.bzl",
+    "rules_scala_setup",
+    "rules_scala_toolchain_deps_repositories",
 )
 
-<span class="pl-en">rules_scala_setup</span>()
+rules_scala_setup()
 
-<span class="pl-en">rules_scala_toolchain_deps_repositories</span>(<span class="pl-s1">fetch_sources</span> <span class="pl-c1">=</span> <span class="pl-c1">True</span>)
+rules_scala_toolchain_deps_repositories(fetch_sources = True)
 
-<span class="pl-c"># Other dependency declarations...</span>
+# Other dependency declarations...
 
-<span class="pl-en">load</span>(<span class="pl-s">"@rules_scala//:scala_config.bzl"</span>, <span class="pl-s">"scala_config"</span>)
+load("@rules_scala//:scala_config.bzl", "scala_config")
 
-<span class="pl-en">scala_config</span>(<span class="pl-s1">scala_version</span> <span class="pl-c1">=</span> <span class="pl-s">"2.13.17"</span>)
+scala_config(scala_version = "2.13.17")
 
-<span class="pl-en">load</span>(
-    <span class="pl-s">"//testing:scalatest.bzl"</span>,
-    <span class="pl-s">"scalatest_repositories"</span>,
-    <span class="pl-s">"scalatest_toolchain"</span>,
+load(
+    "//testing:scalatest.bzl",
+    "scalatest_repositories",
+    "scalatest_toolchain",
 )
 
-<span class="pl-en">scalatest_repositories</span>()
+scalatest_repositories()
 
-<span class="pl-en">scalatest_toolchain</span>()
+scalatest_toolchain()
 
-<span class="pl-en">load</span>(
-    <span class="pl-s">"//scala/scalafmt:scalafmt_repositories.bzl"</span>,
-    <span class="pl-s">"scalafmt_default_config"</span>,
-    <span class="pl-s">"scalafmt_repositories"</span>,
+load(
+    "//scala/scalafmt:scalafmt_repositories.bzl",
+    "scalafmt_default_config",
+    "scalafmt_repositories",
 )
 
-<span class="pl-en">scalafmt_default_config</span>()
+scalafmt_default_config()
 
-<span class="pl-en">scalafmt_repositories</span>()</pre></div>
+scalafmt_repositories()
+</code></pre></div>
 <p dir="auto">with calls to <code>rules_scala_dependencies()</code>, <code>scala_toolchains()</code> (with the
 appropriate parameters set), and <code>scala_register_toolchains()</code>:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@rules_scala//scala:deps.bzl&quot;, &quot;rules_scala_dependencies&quot;)
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(&quot;@rules_scala//scala:deps.bzl&quot;, &quot;rules_scala_dependencies&quot;)
 
 rules_scala_dependencies()
 
@@ -1155,29 +1179,30 @@ scala_toolchains(
     scalatest = True,
 )
 
-scala_register_toolchains()"><pre><span class="pl-en">load</span>(<span class="pl-s">"@rules_scala//scala:deps.bzl"</span>, <span class="pl-s">"rules_scala_dependencies"</span>)
+scala_register_toolchains()"><pre lang="py" class="notranslate"><code>load("@rules_scala//scala:deps.bzl", "rules_scala_dependencies")
 
-<span class="pl-en">rules_scala_dependencies</span>()
+rules_scala_dependencies()
 
-<span class="pl-c"># See the `WORKSPACE` configuration snippet from the "Getting started" section</span>
-<span class="pl-c"># above for other dependency declarations.</span>
+# See the `WORKSPACE` configuration snippet from the "Getting started" section
+# above for other dependency declarations.
 
-<span class="pl-en">load</span>(<span class="pl-s">"@rules_scala//:scala_config.bzl"</span>, <span class="pl-s">"scala_config"</span>)
+load("@rules_scala//:scala_config.bzl", "scala_config")
 
-<span class="pl-en">scala_config</span>(<span class="pl-s1">scala_version</span> <span class="pl-c1">=</span> <span class="pl-s">"2.13.17"</span>)
+scala_config(scala_version = "2.13.17")
 
-<span class="pl-en">load</span>(
-    <span class="pl-s">"@rules_scala//scala:toolchains.bzl"</span>,
-    <span class="pl-s">"scala_register_toolchains"</span>,
-    <span class="pl-s">"scala_toolchains"</span>,
+load(
+    "@rules_scala//scala:toolchains.bzl",
+    "scala_register_toolchains",
+    "scala_toolchains",
 )
 
-<span class="pl-en">scala_toolchains</span>(
-    <span class="pl-s1">scalafmt</span> <span class="pl-c1">=</span> <span class="pl-c1">True</span>,
-    <span class="pl-s1">scalatest</span> <span class="pl-c1">=</span> <span class="pl-c1">True</span>,
+scala_toolchains(
+    scalafmt = True,
+    scalatest = True,
 )
 
-<span class="pl-en">scala_register_toolchains</span>()</pre></div>
+scala_register_toolchains()
+</code></pre></div>
 <p dir="auto">See the <a href="./scala/toolchains.bzl"><code>scala_toolchains()</code></a> docstring for the
 parameter list, which is almost in complete correspondence with parameters from
 the previous macros. The <code>WORKSPACE</code> files in this repository also provide many
@@ -1189,7 +1214,7 @@ toolchains configured using the <code>scala_deps</code> module extension under B
 There are two toolchain macro replacements that require special handling.</p>
 <p dir="auto">The first is replacing <code>scala_proto_register_enable_all_options_toolchain()</code>
 with the following:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="# MODULE.bazel
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="# MODULE.bazel
 
 scala_deps.scala_proto(
     &quot;default_gen_opts&quot; = [
@@ -1208,33 +1233,35 @@ scala_toolchains(
             &quot;single_line_to_proto_string&quot;,
         ],
     },
-)"><pre><span class="pl-c"># MODULE.bazel</span>
+)"><pre lang="py" class="notranslate"><code># MODULE.bazel
 
-<span class="pl-s1">scala_deps</span>.<span class="pl-c1">scala_proto</span>(
-    <span class="pl-s">"default_gen_opts"</span> <span class="pl-c1">=</span> [
-        <span class="pl-s">"flat_package"</span>,
-        <span class="pl-s">"grpc"</span>,
-        <span class="pl-s">"single_line_to_proto_string"</span>,
+scala_deps.scala_proto(
+    "default_gen_opts" = [
+        "flat_package",
+        "grpc",
+        "single_line_to_proto_string",
     ],
 )
 
-<span class="pl-c"># WORKSPACE</span>
-<span class="pl-en">scala_toolchains</span>(
-    <span class="pl-s1">scala_proto</span> <span class="pl-c1">=</span> {
-        <span class="pl-s">"default_gen_opts"</span>: [
-            <span class="pl-s">"flat_package"</span>,
-            <span class="pl-s">"grpc"</span>,
-            <span class="pl-s">"single_line_to_proto_string"</span>,
+# WORKSPACE
+scala_toolchains(
+    scala_proto = {
+        "default_gen_opts": [
+            "flat_package",
+            "grpc",
+            "single_line_to_proto_string",
         ],
     },
-)</pre></div>
+)
+</code></pre></div>
 <p dir="auto">The other is replacing <code>scala_register_unused_deps_toolchains()</code> with an
 explicit <code>register_toolchains()</code> call:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="register_toolchains(
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="register_toolchains(
     &quot;@rules_scala//scala:unused_dependency_checker_error_toolchain&quot;,
-)"><pre><span class="pl-en">register_toolchains</span>(
-    <span class="pl-s">"@rules_scala//scala:unused_dependency_checker_error_toolchain"</span>,
-)</pre></div>
+)"><pre lang="py" class="notranslate"><code>register_toolchains(
+    "@rules_scala//scala:unused_dependency_checker_error_toolchain",
+)
+</code></pre></div>
 <p dir="auto">In <code>WORKSPACE</code>, this <code>register_toolchains()</code> call must come before calling
 <code>scala_register_toolchains()</code> to ensure this toolchain takes precedence. The
 same exact call will also work in <code>MODULE.bazel</code>.</p>
@@ -1245,7 +1272,7 @@ toolchains.</p>
 <p dir="auto">If you do need other builtin toolchains when using Bzlmod, then use the module
 extension and only instantiate the tag classes to the corresponding toolchains.</p>
 <p dir="auto">If you do need other builtin toolchains when using <code>WORKSPACE</code>, then set <code>scala = False</code>.</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="# MODULE.bazel
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="# MODULE.bazel
 scala_deps.scala_proto()
 scala_deps.twitter_scrooge()
 # ...other scala_deps tag class instantations...
@@ -1256,18 +1283,19 @@ scala_toolchains(
     scala_proto = True,
     twitter_scrooge = True,
     # ...other toolchain parameters...
-)"><pre><span class="pl-c"># MODULE.bazel</span>
-<span class="pl-s1">scala_deps</span>.<span class="pl-c1">scala_proto</span>()
-<span class="pl-s1">scala_deps</span>.<span class="pl-c1">twitter_scrooge</span>()
-<span class="pl-c"># ...other scala_deps tag class instantations...</span>
+)"><pre lang="py" class="notranslate"><code># MODULE.bazel
+scala_deps.scala_proto()
+scala_deps.twitter_scrooge()
+# ...other scala_deps tag class instantations...
 
-<span class="pl-c"># WORKSPACE</span>
-<span class="pl-en">scala_toolchains</span>(
-    <span class="pl-s1">scala</span> <span class="pl-c1">=</span> <span class="pl-c1">False</span>,
-    <span class="pl-s1">scala_proto</span> <span class="pl-c1">=</span> <span class="pl-c1">True</span>,
-    <span class="pl-s1">twitter_scrooge</span> <span class="pl-c1">=</span> <span class="pl-c1">True</span>,
-    <span class="pl-c"># ...other toolchain parameters...</span>
-)</pre></div>
+# WORKSPACE
+scala_toolchains(
+    scala = False,
+    scala_proto = True,
+    twitter_scrooge = True,
+    # ...other toolchain parameters...
+)
+</code></pre></div>
 <p dir="auto">This avoids instantiating the default Scala toolchain and compiler JAR
 repositories, and disables the corresponding Scala version check, which may
 otherwise fail. This is equivalent to two ways in which the previous API avoided
@@ -1290,7 +1318,7 @@ details.</p>
 <p dir="auto">The Bzlmod implementation funnels through the <code>scala_toolchains()</code> macro as
 well, ensuring maximum compatibility with <code>WORKSPACE</code> configurations. The
 equivalent Bzlmod snippet for the <code>scala_toolchains()</code> snippet above would be:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel_dep(name = &quot;rules_scala&quot;, version = &quot;7.0.0&quot;)
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="bazel_dep(name = &quot;rules_scala&quot;, version = &quot;7.0.0&quot;)
 
 scala_config = use_extension(
     &quot;@rules_scala//scala/extensions:config.bzl&quot;,
@@ -1304,21 +1332,22 @@ scala_deps = use_extension(
 )
 scala_deps.scala()
 scala_deps.scalafmt()
-scala_deps.scalatest()"><pre><span class="pl-en">bazel_dep</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_scala"</span>, <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"7.0.0"</span>)
+scala_deps.scalatest()"><pre lang="py" class="notranslate"><code>bazel_dep(name = "rules_scala", version = "7.0.0")
 
-<span class="pl-s1">scala_config</span> <span class="pl-c1">=</span> <span class="pl-en">use_extension</span>(
-    <span class="pl-s">"@rules_scala//scala/extensions:config.bzl"</span>,
-    <span class="pl-s">"scala_config"</span>,
+scala_config = use_extension(
+    "@rules_scala//scala/extensions:config.bzl",
+    "scala_config",
 )
-<span class="pl-s1">scala_config</span>.<span class="pl-c1">settings</span>(<span class="pl-s1">scala_version</span> <span class="pl-c1">=</span> <span class="pl-s">"2.13.17"</span>)
+scala_config.settings(scala_version = "2.13.17")
 
-<span class="pl-s1">scala_deps</span> <span class="pl-c1">=</span> <span class="pl-en">use_extension</span>(
-    <span class="pl-s">"@rules_scala//scala/extensions:deps.bzl"</span>,
-    <span class="pl-s">"scala_deps"</span>,
+scala_deps = use_extension(
+    "@rules_scala//scala/extensions:deps.bzl",
+    "scala_deps",
 )
-<span class="pl-s1">scala_deps</span>.<span class="pl-c1">scala</span>()
-<span class="pl-s1">scala_deps</span>.<span class="pl-c1">scalafmt</span>()
-<span class="pl-s1">scala_deps</span>.<span class="pl-c1">scalatest</span>()</pre></div>
+scala_deps.scala()
+scala_deps.scalafmt()
+scala_deps.scalatest()
+</code></pre></div>
 <p dir="auto">The module extensions call <code>scala_config()</code> and <code>scala_toolchains()</code>
 respectively. The <code>MODULE.bazel</code> file for <code>rules_scala</code> declares its own
 dependencies via <code>bazel_dep()</code>, allowing Bazel to resolve versions according to
@@ -1334,11 +1363,12 @@ toolchains that you want to take precedence over the toolchains configured by
 <code>scala_deps</code>. This includes any <a href="./docs/scala_toolchain.md"><code>scala_toolchain</code></a>
 targets defined in your project, or optional <code>rules_scala</code> toolchains like the
 dependency checker error toolchain from above:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="register_toolchains(
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="register_toolchains(
     &quot;@rules_scala//scala:unused_dependency_checker_error_toolchain&quot;,
-)"><pre><span class="pl-en">register_toolchains</span>(
-    <span class="pl-s">"@rules_scala//scala:unused_dependency_checker_error_toolchain"</span>,
-)</pre></div>
+)"><pre lang="py" class="notranslate"><code>register_toolchains(
+    "@rules_scala//scala:unused_dependency_checker_error_toolchain",
+)
+</code></pre></div>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto"><code>@io_bazel_rules_scala_config</code> is now <code>@rules_scala_config</code></h3><a id="user-content-io_bazel_rules_scala_config-is-now-rules_scala_config" class="anchor" aria-label="Permalink: @io_bazel_rules_scala_config is now @rules_scala_config" href="#io_bazel_rules_scala_config-is-now-rules_scala_config"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">Since <code>@io_bazel_rules_scala</code> is no longer hardcoded in <code>rules_scala</code> internals,
 we've shortened <code>@io_bazel_rules_scala_config</code> to <code>@rules_scala_config</code>. This
@@ -1348,15 +1378,16 @@ shouldn't affect most users, but it may break some builds using
 <code>@rules_scala_config</code> for your own project via <a href="https://bazel.build/rules/lib/globals/module#use_repo" rel="nofollow"><code>use_repo()</code></a>. Use this only if
 updating your project's own <code>@io_bazel_rules_scala_config</code> references isn't
 immediately feasible.</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="scala_config = use_extension(
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="scala_config = use_extension(
     &quot;@rules_scala//scala/extensions:config.bzl&quot;,
     &quot;scala_config&quot;,
 )
-use_repo(scala_config, io_bazel_rules_scala_config = &quot;rules_scala_config&quot;)"><pre><span class="pl-s1">scala_config</span> <span class="pl-c1">=</span> <span class="pl-en">use_extension</span>(
-    <span class="pl-s">"@rules_scala//scala/extensions:config.bzl"</span>,
-    <span class="pl-s">"scala_config"</span>,
+use_repo(scala_config, io_bazel_rules_scala_config = &quot;rules_scala_config&quot;)"><pre lang="py" class="notranslate"><code>scala_config = use_extension(
+    "@rules_scala//scala/extensions:config.bzl",
+    "scala_config",
 )
-<span class="pl-en">use_repo</span>(<span class="pl-s1">scala_config</span>, <span class="pl-s1">io_bazel_rules_scala_config</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_scala_config"</span>)</pre></div>
+use_repo(scala_config, io_bazel_rules_scala_config = "rules_scala_config")
+</code></pre></div>
 <p dir="auto">If your project uses <code>WORKSPACE</code> you <em>must</em> update all
 <code>@io_bazel_rules_scala_config</code> references to <code>@rules_scala_config</code>. There is no
 <code>use_repo()</code> equivalent.</p>
@@ -1367,48 +1398,51 @@ translating <code>@rules_scala</code> to <code>@io_bazel_rules_scala</code>.</p>
 <div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Bzlmod</h4><a id="user-content-bzlmod" class="anchor" aria-label="Permalink: Bzlmod" href="#bzlmod"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">For module extensions, use <a href="https://bazel.build/rules/lib/globals/module#override_repo" rel="nofollow"><code>override_repo()</code></a> to override
 <code>@io_bazel_rules_scala_config</code> with <code>@rules_scala_config</code>:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel_dep(name = &quot;foo&quot;, version = &quot;1.0.0&quot;)
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="bazel_dep(name = &quot;foo&quot;, version = &quot;1.0.0&quot;)
 
 foo_ext = use_extension(&quot;@foo//:ext.bzl&quot;, &quot;foo_ext&quot;)
-override_repo(foo_ext, io_bazel_rules_scala_config = &quot;rules_scala_config&quot;)"><pre><span class="pl-en">bazel_dep</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"foo"</span>, <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"1.0.0"</span>)
+override_repo(foo_ext, io_bazel_rules_scala_config = &quot;rules_scala_config&quot;)"><pre lang="py" class="notranslate"><code>bazel_dep(name = "foo", version = "1.0.0")
 
-<span class="pl-s1">foo_ext</span> <span class="pl-c1">=</span> <span class="pl-en">use_extension</span>(<span class="pl-s">"@foo//:ext.bzl"</span>, <span class="pl-s">"foo_ext"</span>)
-<span class="pl-en">override_repo</span>(<span class="pl-s1">foo_ext</span>, <span class="pl-s1">io_bazel_rules_scala_config</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_scala_config"</span>)</pre></div>
+foo_ext = use_extension("@foo//:ext.bzl", "foo_ext")
+override_repo(foo_ext, io_bazel_rules_scala_config = "rules_scala_config")
+</code></pre></div>
 <p dir="auto"><a href="https://bazel.build/rules/lib/globals/module#bazel_dep" rel="nofollow"><code>bazel_dep()</code></a> dependencies may still require <code>@io_bazel_rules_scala_config</code>
 (or <code>@io_bazel_rules_scala</code>) outside of a module extension. In this case, to
 avoid using the old name in your own project, use <a href="https://bazel.build/rules/lib/globals/module#archive_override" rel="nofollow"><code>archive_override()</code></a> or
 <a href="https://bazel.build/rules/lib/globals/module#git_override" rel="nofollow"><code>git_override()</code></a> with the <code>repo_mapping</code> attribute. These overrides pass the
 <code>repo_mapping</code> through to the underlying <a href="https://bazel.build/rules/lib/repo/http#http_archive-repo_mapping" rel="nofollow"><code>http_archive()</code></a> and
 <a href="https://bazel.build/rules/lib/repo/git#git_repository-repo_mapping" rel="nofollow"><code>git_repository()</code></a> rules:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="archive_override(
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="archive_override(
     ...
     repo_mapping = {
         &quot;@io_bazel_rules_scala_config&quot;: &quot;@rules_scala_config&quot;,
     }
     ...
-)"><pre><span class="pl-en">archive_override</span>(
+)"><pre lang="py" class="notranslate"><code>archive_override(
     ...
-    <span class="pl-s1">repo_mapping</span> <span class="pl-c1">=</span> {
-        <span class="pl-s">"@io_bazel_rules_scala_config"</span>: <span class="pl-s">"@rules_scala_config"</span>,
+    repo_mapping = {
+        "@io_bazel_rules_scala_config": "@rules_scala_config",
     }
     ...
-)</pre></div>
+)
+</code></pre></div>
 <div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto"><code>WORKSPACE</code></h4><a id="user-content-workspace" class="anchor" aria-label="Permalink: WORKSPACE" href="#workspace"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">For dependencies, use the <code>repo_mapping</code> attribute of <a href="https://bazel.build/rules/lib/repo/http#http_archive-repo_mapping" rel="nofollow"><code>http_archive()</code></a> or
 <a href="https://bazel.build/rules/lib/repo/git#git_repository-repo_mapping" rel="nofollow"><code>git_repository()</code></a>:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="http_archive(
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="http_archive(
     ...
     repo_mapping = {
         &quot;@io_bazel_rules_scala_config&quot;: &quot;@rules_scala_config&quot;,
     }
     ...
-)"><pre><span class="pl-en">http_archive</span>(
+)"><pre lang="py" class="notranslate"><code>http_archive(
     ...
-    <span class="pl-s1">repo_mapping</span> <span class="pl-c1">=</span> {
-        <span class="pl-s">"@io_bazel_rules_scala_config"</span>: <span class="pl-s">"@rules_scala_config"</span>,
+    repo_mapping = {
+        "@io_bazel_rules_scala_config": "@rules_scala_config",
     }
     ...
-)</pre></div>
+)
+</code></pre></div>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto"><a id="user-content-protoc-msvc"></a>Windows MSVC builds of <code>protobuf</code> broken by default</h3><a id="user-content-windows-msvc-builds-of-protobuf-broken-by-default" class="anchor" aria-label="Permalink: Windows MSVC builds of protobuf broken by default" href="#windows-msvc-builds-of-protobuf-broken-by-default"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">MSVC builds of recent <code>protobuf</code> versions started failing, as first noted in
 <a class="issue-link js-issue-link" data-error-text="Failed to load title" data-id="2888049085" data-permission-text="Title is private" data-url="https://github.com/bazel-contrib/rules_scala/issues/1710" data-hovercard-type="pull_request" data-hovercard-url="/bazel-contrib/rules_scala/pull/1710/hovercard" href="https://github.com/bazel-contrib/rules_scala/pull/1710">#1710</a>. On top of that, <code>protobuf</code> is planning to stop
@@ -1498,7 +1532,7 @@ unless the <code>MODULE.bazel</code> file brings them into scope with
 <a href="https://bazel.build/rules/lib/globals/module#use_repo" rel="nofollow"><code>use_repo()</code></a>. This can
 lead to errors like those from the following example, which <a href="https://github.com/michalbogacz/scala-bazel-monorepo/blob/17f0890a4345529e09b9ce83bcb2e3d15687c522/BUILD.bazel">originally called
 'setup_scala_toolchain()' under Bzlmod</a>:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@rules_scala//scala:scala.bzl&quot;, &quot;setup_scala_toolchain&quot;)
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(&quot;@rules_scala//scala:scala.bzl&quot;, &quot;setup_scala_toolchain&quot;)
 
 setup_scala_toolchain(
     name = &quot;custom_scala_toolchain&quot;,
@@ -1507,38 +1541,40 @@ setup_scala_toolchain(
     ],
     strict_deps_mode = &quot;error&quot;,
     unused_dependency_checker_mode = &quot;warn&quot;,
-)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@rules_scala//scala:scala.bzl"</span>, <span class="pl-s">"setup_scala_toolchain"</span>)
+)"><pre lang="py" class="notranslate"><code>load("@rules_scala//scala:scala.bzl", "setup_scala_toolchain")
 
-<span class="pl-en">setup_scala_toolchain</span>(
-    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"custom_scala_toolchain"</span>,
-    <span class="pl-s1">scalacopts</span> <span class="pl-c1">=</span> [
-        <span class="pl-s">"-Wunused:all"</span>,
+setup_scala_toolchain(
+    name = "custom_scala_toolchain",
+    scalacopts = [
+        "-Wunused:all",
     ],
-    <span class="pl-s1">strict_deps_mode</span> <span class="pl-c1">=</span> <span class="pl-s">"error"</span>,
-    <span class="pl-s1">unused_dependency_checker_mode</span> <span class="pl-c1">=</span> <span class="pl-s">"warn"</span>,
-)</pre></div>
+    strict_deps_mode = "error",
+    unused_dependency_checker_mode = "warn",
+)
+</code></pre></div>
 <p dir="auto"><code>setup_scala_toolchains</code> is a macro that can take user specified classpath
 targets as described in <a href="./docs/scala_toolchain.md">docs/scala_toolchain.md</a>.
 Without explicit <code>*_classpath</code> or <code>*_deps</code> arguments, <code>setup_scala_toolchain()</code>
 defaults to using dependency repositories generated by <code>rules_scala</code> itself.
 This worked under <code>WORKSPACE</code>, but breaks under Bzlmod, because the builtin
 toolchain dependency repos are no longer in the project's scope by default:</p>
-<div class="highlight highlight-text-adblock notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="ERROR: no such package
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="ERROR: no such package
     '@@[unknown repo 'org_scala_sbt_compiler_interface_3_3_5'
         requested from @@]//':
     The repository '@@[unknown repo 'org_scala_sbt_compiler_interface_3_3_5'
         requested from @@]' could not be resolved:
-    No repository visible as '@org_scala_sbt_compiler_interface_3_3_5'"><pre>ERROR: no such package
+    No repository visible as '@org_scala_sbt_compiler_interface_3_3_5'"><pre lang="txt" class="notranslate"><code>ERROR: no such package
     '@@[unknown repo 'org_scala_sbt_compiler_interface_3_3_5'
         requested from @@]//':
     The repository '@@[unknown repo 'org_scala_sbt_compiler_interface_3_3_5'
         requested from @@]' could not be resolved:
-    No repository visible as '@org_scala_sbt_compiler_interface_3_3_5'</pre></div>
+    No repository visible as '@org_scala_sbt_compiler_interface_3_3_5'
+</code></pre></div>
 <p dir="auto">In this case, where the toolchain only sets different compiler options, the best
 fix is to <a href="https://github.com/michalbogacz/scala-bazel-monorepo/blob/2cac860f386dcaa1c3be56cd25a84b247d335743/BUILD.bazel">use the 'scala_toolchain' rule directly instead</a>.
 Its underlying <code>BUILD</code> rule uses builtin toolchain dependencies via existing
 targets visible within <code>rules_scala</code>, without forcing users to import them:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@rules_scala//scala:scala_toolchain.bzl&quot;, &quot;scala_toolchain&quot;)
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(&quot;@rules_scala//scala:scala_toolchain.bzl&quot;, &quot;scala_toolchain&quot;)
 
 scala_toolchain(
     name = &quot;custom_scala_toolchain_impl&quot;,
@@ -1554,23 +1590,24 @@ toolchain(
     toolchain = &quot;:custom_scala_toolchain_impl&quot;,
     toolchain_type = &quot;@rules_scala//scala:toolchain_type&quot;,
     visibility = [&quot;//visibility:public&quot;],
-)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@rules_scala//scala:scala_toolchain.bzl"</span>, <span class="pl-s">"scala_toolchain"</span>)
+)"><pre lang="py" class="notranslate"><code>load("@rules_scala//scala:scala_toolchain.bzl", "scala_toolchain")
 
-<span class="pl-en">scala_toolchain</span>(
-    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"custom_scala_toolchain_impl"</span>,
-    <span class="pl-s1">scalacopts</span> <span class="pl-c1">=</span> [
-        <span class="pl-s">"-Ywarn-unused"</span>,
+scala_toolchain(
+    name = "custom_scala_toolchain_impl",
+    scalacopts = [
+        "-Ywarn-unused",
     ],
-    <span class="pl-s1">strict_deps_mode</span> <span class="pl-c1">=</span> <span class="pl-s">"error"</span>,
-    <span class="pl-s1">unused_dependency_checker_mode</span> <span class="pl-c1">=</span> <span class="pl-s">"warn"</span>,
+    strict_deps_mode = "error",
+    unused_dependency_checker_mode = "warn",
 )
 
-<span class="pl-en">toolchain</span>(
-    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"custom_scala_toolchain"</span>,
-    <span class="pl-s1">toolchain</span> <span class="pl-c1">=</span> <span class="pl-s">":custom_scala_toolchain_impl"</span>,
-    <span class="pl-s1">toolchain_type</span> <span class="pl-c1">=</span> <span class="pl-s">"@rules_scala//scala:toolchain_type"</span>,
-    <span class="pl-s1">visibility</span> <span class="pl-c1">=</span> [<span class="pl-s">"//visibility:public"</span>],
-)</pre></div>
+toolchain(
+    name = "custom_scala_toolchain",
+    toolchain = ":custom_scala_toolchain_impl",
+    toolchain_type = "@rules_scala//scala:toolchain_type",
+    visibility = ["//visibility:public"],
+)
+</code></pre></div>
 <p dir="auto">A big part of the Bzlmodification work involved enabling <code>rules_scala</code> to
 generate and register toolchains <em>without</em> forcing users to bring their
 dependencies into scope. However, another way to fix this specific problem is to
@@ -1622,7 +1659,7 @@ attributes:</p>
 </ul>
 <p dir="auto">Now each generator (plugin) will get a corresponding name
 that can be used for further plugin options setup:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="scala_proto_toolchain(
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="scala_proto_toolchain(
     name = &quot;example&quot;,
     generators = {
         &quot;scala&quot;: &quot;scripts.ScalaPbCodeGenerator&quot;,
@@ -1638,28 +1675,29 @@ that can be used for further plugin options setup:</p>
             &quot;single_line_to_proto_string&quot;,
         ],
     },
-)"><pre><span class="pl-en">scala_proto_toolchain</span>(
-    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"example"</span>,
-    <span class="pl-s1">generators</span> <span class="pl-c1">=</span> {
-        <span class="pl-s">"scala"</span>: <span class="pl-s">"scripts.ScalaPbCodeGenerator"</span>,
-        <span class="pl-s">"jvm_extra_protobuf_generator"</span>: <span class="pl-s">"scalarules.test.extra_protobuf_generator.ExtraProtobufGenerator"</span>,
+)"><pre lang="py" class="notranslate"><code>scala_proto_toolchain(
+    name = "example",
+    generators = {
+        "scala": "scripts.ScalaPbCodeGenerator",
+        "jvm_extra_protobuf_generator": "scalarules.test.extra_protobuf_generator.ExtraProtobufGenerator",
     },
-    <span class="pl-s1">generators_opts</span> <span class="pl-c1">=</span> {
-        <span class="pl-s">"scala"</span>: [
-            <span class="pl-s">"grpc"</span>,
-            <span class="pl-s">"single_line_to_proto_string"</span>,
+    generators_opts = {
+        "scala": [
+            "grpc",
+            "single_line_to_proto_string",
         ],
-        <span class="pl-s">"jvm_extra_protobuf_generator"</span>: [
-            <span class="pl-s">"grpc"</span>,
-            <span class="pl-s">"single_line_to_proto_string"</span>,
+        "jvm_extra_protobuf_generator": [
+            "grpc",
+            "single_line_to_proto_string",
         ],
     },
-)</pre></div>
+)
+</code></pre></div>
 <p dir="auto"><code>scalapb_grpc_deps</code> no longer exists since it's now the user's responsibility
 to configure dependencies based on the provided generators and their options.</p>
 <p dir="auto">The new <code>scalapb_toolchain</code> convenience macro wraps <code>scala_proto_toolchain</code>
 to provide the default <a href="https://scalapb.github.io/" rel="nofollow">ScalaPB</a> implementation:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;//scala_proto:scala_proto_toolchain.bzl&quot;, &quot;scalapb_toolchain&quot;)
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(&quot;//scala_proto:scala_proto_toolchain.bzl&quot;, &quot;scalapb_toolchain&quot;)
 
 scalapb_toolchain(
     name = &quot;my_toolchain&quot;,
@@ -1668,16 +1706,17 @@ scalapb_toolchain(
         &quot;single_line_to_proto_string&quot;,
     ],
     visibility = [&quot;//visibility:public&quot;],
-)"><pre><span class="pl-en">load</span>(<span class="pl-s">"//scala_proto:scala_proto_toolchain.bzl"</span>, <span class="pl-s">"scalapb_toolchain"</span>)
+)"><pre lang="py" class="notranslate"><code>load("//scala_proto:scala_proto_toolchain.bzl", "scalapb_toolchain")
 
-<span class="pl-en">scalapb_toolchain</span>(
-    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"my_toolchain"</span>,
-    <span class="pl-s1">opts</span> <span class="pl-c1">=</span> [
-        <span class="pl-s">"grpc"</span>,
-        <span class="pl-s">"single_line_to_proto_string"</span>,
+scalapb_toolchain(
+    name = "my_toolchain",
+    opts = [
+        "grpc",
+        "single_line_to_proto_string",
     ],
-    <span class="pl-s1">visibility</span> <span class="pl-c1">=</span> [<span class="pl-s">"//visibility:public"</span>],
-)</pre></div>
+    visibility = ["//visibility:public"],
+)
+</code></pre></div>
 <p dir="auto">Similarly, <code>setup_scala_proto_toolchains()</code> now uses a <code>default_gen_opts</code>
 parameter to replace the previous boolean <code>enable_all_options</code> parameter.</p>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Removal of <code>bind()</code> aliases for <code>twitter_scrooge</code> dependencies</h3><a id="user-content-removal-of-bind-aliases-for-twitter_scrooge-dependencies" class="anchor" aria-label="Permalink: Removal of bind() aliases for twitter_scrooge dependencies" href="#removal-of-bind-aliases-for-twitter_scrooge-dependencies"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
@@ -1733,7 +1772,7 @@ can replace them with the following repository references:</p>
 </table></markdown-accessiblity-table>
 <p dir="auto">To access these repositories under Bzlmod, you'll need to add the following to
 your <code>MODULE.bazel</code> file:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="scala_deps.twitter_scrooge()
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="scala_deps.twitter_scrooge()
 use_repo(
     scala_deps,
     &quot;io_bazel_rules_scala_guava&quot;,
@@ -1745,19 +1784,20 @@ use_repo(
     &quot;io_bazel_rules_scala_util_core&quot;,
     &quot;io_bazel_rules_scala_util_logging&quot;,
     &quot;libthrift&quot;,
-)"><pre><span class="pl-s1">scala_deps</span>.<span class="pl-c1">twitter_scrooge</span>()
-<span class="pl-en">use_repo</span>(
-    <span class="pl-s1">scala_deps</span>,
-    <span class="pl-s">"io_bazel_rules_scala_guava"</span>,
-    <span class="pl-s">"io_bazel_rules_scala_javax_annotation_api"</span>,
-    <span class="pl-s">"io_bazel_rules_scala_mustache"</span>,
-    <span class="pl-s">"io_bazel_rules_scala_scopt"</span>,
-    <span class="pl-s">"io_bazel_rules_scala_scrooge_core"</span>,
-    <span class="pl-s">"io_bazel_rules_scala_scrooge_generator"</span>,
-    <span class="pl-s">"io_bazel_rules_scala_util_core"</span>,
-    <span class="pl-s">"io_bazel_rules_scala_util_logging"</span>,
-    <span class="pl-s">"libthrift"</span>,
-)</pre></div>
+)"><pre lang="py" class="notranslate"><code>scala_deps.twitter_scrooge()
+use_repo(
+    scala_deps,
+    "io_bazel_rules_scala_guava",
+    "io_bazel_rules_scala_javax_annotation_api",
+    "io_bazel_rules_scala_mustache",
+    "io_bazel_rules_scala_scopt",
+    "io_bazel_rules_scala_scrooge_core",
+    "io_bazel_rules_scala_scrooge_generator",
+    "io_bazel_rules_scala_util_core",
+    "io_bazel_rules_scala_util_logging",
+    "libthrift",
+)
+</code></pre></div>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Bazel module compatibility levels</h3><a id="user-content-bazel-module-compatibility-levels" class="anchor" aria-label="Permalink: Bazel module compatibility levels" href="#bazel-module-compatibility-levels"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto"><code>rules_scala</code> 7.0.0 will set the
 <a href="https://bazel.build/external/module#compatibility_level" rel="nofollow"><code>compatibility_level</code></a>
