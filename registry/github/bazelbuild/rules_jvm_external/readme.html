@@ -43,7 +43,7 @@ versions.</p>
 bzlmod tag classes in [docs/bzlmod.md]</p>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Usage</h2><a id="user-content-usage" class="anchor" aria-label="Permalink: Usage" href="#usage"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">See <a href="./docs/bzlmod.md">bzlmod.md</a> for complete usage instructions.</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="# MODULE.bazel
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="# MODULE.bazel
 
 bazel_dep(name = &quot;rules_jvm_external&quot;, version = &quot;7.0.0&quot;)
 
@@ -62,26 +62,27 @@ maven.install(
         &quot;https://repo1.maven.org/maven2&quot;,
     ],
     lock_file = &quot;//:maven_install.json&quot;,
-)"><pre><span class="pl-c"># MODULE.bazel</span>
+)"><pre lang="starlark" class="notranslate"><code># MODULE.bazel
 
-<span class="pl-en">bazel_dep</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_jvm_external"</span>, <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"7.0.0"</span>)
+bazel_dep(name = "rules_jvm_external", version = "7.0.0")
 
-<span class="pl-s1">maven</span> <span class="pl-c1">=</span> <span class="pl-en">use_extension</span>(<span class="pl-s">"@rules_jvm_external//:extensions.bzl"</span>, <span class="pl-s">"maven"</span>)
+maven = use_extension("@rules_jvm_external//:extensions.bzl", "maven")
 
-<span class="pl-s1">maven</span>.<span class="pl-c1">install</span>(
-    <span class="pl-s1">artifacts</span> <span class="pl-c1">=</span> [
-        <span class="pl-s">"junit:junit:4.12"</span>,
-        <span class="pl-s">"androidx.test.espresso:espresso-core:3.1.1"</span>,
-        <span class="pl-s">"org.hamcrest:hamcrest-library:1.3"</span>,
+maven.install(
+    artifacts = [
+        "junit:junit:4.12",
+        "androidx.test.espresso:espresso-core:3.1.1",
+        "org.hamcrest:hamcrest-library:1.3",
     ],
-    <span class="pl-s1">repositories</span> <span class="pl-c1">=</span> [
-        <span class="pl-c"># Private repositories are supported through HTTP Basic auth</span>
-        <span class="pl-s">"http://username:password@localhost:8081/artifactory/my-repository"</span>,
-        <span class="pl-s">"https://maven.google.com"</span>,
-        <span class="pl-s">"https://repo1.maven.org/maven2"</span>,
+    repositories = [
+        # Private repositories are supported through HTTP Basic auth
+        "http://username:password@localhost:8081/artifactory/my-repository",
+        "https://maven.google.com",
+        "https://repo1.maven.org/maven2",
     ],
-    <span class="pl-s1">lock_file</span> <span class="pl-c1">=</span> <span class="pl-s">"//:maven_install.json"</span>,
-)</pre></div>
+    lock_file = "//:maven_install.json",
+)
+</code></pre></div>
 <p dir="auto">Credentials for private repositories can also be specified using a property file
 or environment variables. See the <a href="https://get-coursier.io/docs/other-credentials.html#property-file" rel="nofollow">Coursier
 documentation</a>
@@ -103,7 +104,7 @@ the required files.</li>
 used in the dependency resolution. <code>rules_jvm_external</code> will fail the build and
 notify you if a repin is ever required.</p>
 <p dir="auto">Next, reference the artifacts in the BUILD file with their versionless label:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="java_library(
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="java_library(
     name = &quot;java_test_deps&quot;,
     exports = [
         &quot;@maven//:junit_junit&quot;,
@@ -117,21 +118,22 @@ android_library(
         &quot;@maven//:junit_junit&quot;,
         &quot;@maven//:androidx_test_espresso_espresso_core&quot;,
     ],
-)"><pre><span class="pl-en">java_library</span>(
-    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"java_test_deps"</span>,
-    <span class="pl-s1">exports</span> <span class="pl-c1">=</span> [
-        <span class="pl-s">"@maven//:junit_junit"</span>,
-        <span class="pl-s">"@maven//:org_hamcrest_hamcrest_library"</span>,
+)"><pre lang="python" class="notranslate"><code>java_library(
+    name = "java_test_deps",
+    exports = [
+        "@maven//:junit_junit",
+        "@maven//:org_hamcrest_hamcrest_library",
     ],
 )
 
-<span class="pl-en">android_library</span>(
-    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"android_test_deps"</span>,
-    <span class="pl-s1">exports</span> <span class="pl-c1">=</span> [
-        <span class="pl-s">"@maven//:junit_junit"</span>,
-        <span class="pl-s">"@maven//:androidx_test_espresso_espresso_core"</span>,
+android_library(
+    name = "android_test_deps",
+    exports = [
+        "@maven//:junit_junit",
+        "@maven//:androidx_test_espresso_espresso_core",
     ],
-)</pre></div>
+)
+</code></pre></div>
 <p dir="auto">The default label syntax for an artifact <code>foo.bar:baz-qux:1.2.3</code> is <code>@maven//:foo_bar_baz_qux</code>. That is,</p>
 <ul dir="auto">
 <li>All non-alphanumeric characters are substituted with underscores.</li>
@@ -165,13 +167,14 @@ initial <code>maven_install.json</code> at the root of your Bazel workspace:</p>
 <div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="$ bazel run @maven//:pin"><pre class="notranslate"><code>$ bazel run @maven//:pin
 </code></pre></div>
 <p dir="auto">Then, specify <code>lock_file</code> in your <code>maven.install</code> in <code>MODULE.bazel</code>:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="maven.install(
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="maven.install(
     # artifacts, repositories, ...
     lock_file = &quot;//:maven_install.json&quot;,
-)"><pre><span class="pl-s1">maven</span>.<span class="pl-c1">install</span>(
-    <span class="pl-c"># artifacts, repositories, ...</span>
-    <span class="pl-s1">lock_file</span> <span class="pl-c1">=</span> <span class="pl-s">"//:maven_install.json"</span>,
-)</pre></div>
+)"><pre lang="starlark" class="notranslate"><code>maven.install(
+    # artifacts, repositories, ...
+    lock_file = "//:maven_install.json",
+)
+</code></pre></div>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Updating <code>maven_install.json</code></h3><a id="user-content-updating-maven_installjson" class="anchor" aria-label="Permalink: Updating maven_install.json" href="#updating-maven_installjson"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">Whenever you make a change to the list of <code>artifacts</code> or <code>repositories</code> and want
 to update <code>maven_install.json</code>, run this command to re-pin the unpinned <code>@maven</code>
@@ -188,15 +191,16 @@ the build when this happens, but by setting the
 <code>fail_if_repin_required</code> attribute to <code>True</code>, this will be treated as
 a build error, causing the build to fail. When this attribute is set,
 it is possible to update the <code>maven_install.json</code> file using:</p>
-<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="# To repin everything:
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="# To repin everything:
 REPIN=1 bazel run @maven//:pin
 
 # To only repin rules_jvm_external:
-RULES_JVM_EXTERNAL_REPIN=1 bazel run @maven//:pin"><pre><span class="pl-c"><span class="pl-c">#</span> To repin everything:</span>
+RULES_JVM_EXTERNAL_REPIN=1 bazel run @maven//:pin"><pre lang="shell" class="notranslate"><code># To repin everything:
 REPIN=1 bazel run @maven//:pin
 
-<span class="pl-c"><span class="pl-c">#</span> To only repin rules_jvm_external:</span>
-RULES_JVM_EXTERNAL_REPIN=1 bazel run @maven//:pin</pre></div>
+# To only repin rules_jvm_external:
+RULES_JVM_EXTERNAL_REPIN=1 bazel run @maven//:pin
+</code></pre></div>
 <p dir="auto">Alternatively, it is also possible to modify the
 <code>fail_if_repin_required</code> attribute in your <code>MODULE.bazel</code> file, run
 <code>bazel run @maven//:pin</code> and then reset the
@@ -204,17 +208,18 @@ RULES_JVM_EXTERNAL_REPIN=1 bazel run @maven//:pin</pre></div>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Custom location for <code>maven_install.json</code></h3><a id="user-content-custom-location-for-maven_installjson" class="anchor" aria-label="Permalink: Custom location for maven_install.json" href="#custom-location-for-maven_installjson"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">You can specify a custom location for <code>maven_install.json</code> by changing the
 <code>lock_file</code> attribute value to point to the new file label. For example:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="maven.install(
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="maven.install(
     name = &quot;maven_install_in_custom_location&quot;,
     artifacts = [&quot;com.google.guava:guava:27.0-jre&quot;],
     repositories = [&quot;https://repo1.maven.org/maven2&quot;],
     lock_file = &quot;//tests/custom_maven_install:maven_install.json&quot;,
-)"><pre><span class="pl-s1">maven</span>.<span class="pl-c1">install</span>(
-    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"maven_install_in_custom_location"</span>,
-    <span class="pl-s1">artifacts</span> <span class="pl-c1">=</span> [<span class="pl-s">"com.google.guava:guava:27.0-jre"</span>],
-    <span class="pl-s1">repositories</span> <span class="pl-c1">=</span> [<span class="pl-s">"https://repo1.maven.org/maven2"</span>],
-    <span class="pl-s1">lock_file</span> <span class="pl-c1">=</span> <span class="pl-s">"//tests/custom_maven_install:maven_install.json"</span>,
-)</pre></div>
+)"><pre lang="starlark" class="notranslate"><code>maven.install(
+    name = "maven_install_in_custom_location",
+    artifacts = ["com.google.guava:guava:27.0-jre"],
+    repositories = ["https://repo1.maven.org/maven2"],
+    lock_file = "//tests/custom_maven_install:maven_install.json",
+)
+</code></pre></div>
 <p dir="auto"><strong>Note:</strong> The <code>//:maven_install.json</code> label assumes you have a BUILD file in
 your project's root directory. If you do not have one, create an empty BUILD
 file to fix issues you may see. See
@@ -229,7 +234,7 @@ directory location.</p>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Multiple <code>maven_install.json</code> files</h3><a id="user-content-multiple-maven_installjson-files" class="anchor" aria-label="Permalink: Multiple maven_install.json files" href="#multiple-maven_installjson-files"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">If you have multiple <code>maven.install</code> declarations, each should have a unique
 <code>name</code> and its own <code>lock_file</code>:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="maven.install(
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="maven.install(
     name = &quot;foo&quot;,
     lock_file = &quot;//:foo_maven_install.json&quot;,
     # ...
@@ -239,20 +244,21 @@ maven.install(
     name = &quot;bar&quot;,
     lock_file = &quot;//:bar_maven_install.json&quot;,
     # ...
-)"><pre><span class="pl-s1">maven</span>.<span class="pl-c1">install</span>(
-    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"foo"</span>,
-    <span class="pl-s1">lock_file</span> <span class="pl-c1">=</span> <span class="pl-s">"//:foo_maven_install.json"</span>,
-    <span class="pl-c"># ...</span>
+)"><pre lang="starlark" class="notranslate"><code>maven.install(
+    name = "foo",
+    lock_file = "//:foo_maven_install.json",
+    # ...
 )
 
-<span class="pl-s1">maven</span>.<span class="pl-c1">install</span>(
-    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"bar"</span>,
-    <span class="pl-s1">lock_file</span> <span class="pl-c1">=</span> <span class="pl-s">"//:bar_maven_install.json"</span>,
-    <span class="pl-c"># ...</span>
-)</pre></div>
+maven.install(
+    name = "bar",
+    lock_file = "//:bar_maven_install.json",
+    # ...
+)
+</code></pre></div>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Support for Maven BOM files</h2><a id="user-content-support-for-maven-bom-files" class="anchor" aria-label="Permalink: Support for Maven BOM files" href="#support-for-maven-bom-files"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">Maven BOMs can be used by using the <code>boms</code> attribute, for example:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="maven.install(
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="maven.install(
     boms = [
         &quot;org.seleniumhq.selenium:selenium-bom:4.18.1&quot;,
     ],
@@ -260,18 +266,19 @@ maven.install(
         # This dependency is included in the `selenium-bom`, so we can omit the version number
         &quot;org.seleniumhq.selenium:selenium-java&quot;,
     ],
-)"><pre><span class="pl-s1">maven</span>.<span class="pl-c1">install</span>(
-    <span class="pl-s1">boms</span> <span class="pl-c1">=</span> [
-        <span class="pl-s">"org.seleniumhq.selenium:selenium-bom:4.18.1"</span>,
+)"><pre lang="starlark" class="notranslate"><code>maven.install(
+    boms = [
+        "org.seleniumhq.selenium:selenium-bom:4.18.1",
     ],
-    <span class="pl-s1">artifacts</span> <span class="pl-c1">=</span> [
-        <span class="pl-c"># This dependency is included in the `selenium-bom`, so we can omit the version number</span>
-        <span class="pl-s">"org.seleniumhq.selenium:selenium-java"</span>,
+    artifacts = [
+        # This dependency is included in the `selenium-bom`, so we can omit the version number
+        "org.seleniumhq.selenium:selenium-java",
     ],
-)</pre></div>
+)
+</code></pre></div>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Generated targets</h2><a id="user-content-generated-targets" class="anchor" aria-label="Permalink: Generated targets" href="#generated-targets"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">For the <code>junit:junit</code> example, using <code>bazel query @maven//:all --output=build</code>, we can see that the rule generated these targets:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="alias(
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="alias(
   name = &quot;junit_junit_4_12&quot;,
   actual = &quot;@maven//:junit_junit&quot;,
 )
@@ -290,26 +297,27 @@ jvm_import(
   srcjar = &quot;@maven//:https/repo1.maven.org/maven2/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3-sources.jar&quot;,
   deps = [],
   tags = [&quot;maven_coordinates=org.hamcrest:hamcrest.library:1.3&quot;],
-)"><pre><span class="pl-en">alias</span>(
-  <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"junit_junit_4_12"</span>,
-  <span class="pl-s1">actual</span> <span class="pl-c1">=</span> <span class="pl-s">"@maven//:junit_junit"</span>,
+)"><pre lang="python" class="notranslate"><code>alias(
+  name = "junit_junit_4_12",
+  actual = "@maven//:junit_junit",
 )
 
-<span class="pl-en">jvm_import</span>(
-  <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"junit_junit"</span>,
-  <span class="pl-s1">jars</span> <span class="pl-c1">=</span> [<span class="pl-s">"@maven//:https/repo1.maven.org/maven2/junit/junit/4.12/junit-4.12.jar"</span>],
-  <span class="pl-s1">srcjar</span> <span class="pl-c1">=</span> <span class="pl-s">"@maven//:https/repo1.maven.org/maven2/junit/junit/4.12/junit-4.12-sources.jar"</span>,
-  <span class="pl-s1">deps</span> <span class="pl-c1">=</span> [<span class="pl-s">"@maven//:org_hamcrest_hamcrest_core"</span>],
-  <span class="pl-s1">tags</span> <span class="pl-c1">=</span> [<span class="pl-s">"maven_coordinates=junit:junit:4.12"</span>],
+jvm_import(
+  name = "junit_junit",
+  jars = ["@maven//:https/repo1.maven.org/maven2/junit/junit/4.12/junit-4.12.jar"],
+  srcjar = "@maven//:https/repo1.maven.org/maven2/junit/junit/4.12/junit-4.12-sources.jar",
+  deps = ["@maven//:org_hamcrest_hamcrest_core"],
+  tags = ["maven_coordinates=junit:junit:4.12"],
 )
 
-<span class="pl-en">jvm_import</span>(
-  <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"org_hamcrest_hamcrest_core"</span>,
-  <span class="pl-s1">jars</span> <span class="pl-c1">=</span> [<span class="pl-s">"@maven//:https/repo1.maven.org/maven2/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar"</span>],
-  <span class="pl-s1">srcjar</span> <span class="pl-c1">=</span> <span class="pl-s">"@maven//:https/repo1.maven.org/maven2/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3-sources.jar"</span>,
-  <span class="pl-s1">deps</span> <span class="pl-c1">=</span> [],
-  <span class="pl-s1">tags</span> <span class="pl-c1">=</span> [<span class="pl-s">"maven_coordinates=org.hamcrest:hamcrest.library:1.3"</span>],
-)</pre></div>
+jvm_import(
+  name = "org_hamcrest_hamcrest_core",
+  jars = ["@maven//:https/repo1.maven.org/maven2/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar"],
+  srcjar = "@maven//:https/repo1.maven.org/maven2/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3-sources.jar",
+  deps = [],
+  tags = ["maven_coordinates=org.hamcrest:hamcrest.library:1.3"],
+)
+</code></pre></div>
 <p dir="auto">These targets can be referenced by:</p>
 <ul dir="auto">
 <li><code>@maven//:junit_junit</code></li>
@@ -332,7 +340,7 @@ example</a> for more information.</p>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Advanced usage</h2><a id="user-content-advanced-usage" class="anchor" aria-label="Permalink: Advanced usage" href="#advanced-usage"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Fetch source JARs</h3><a id="user-content-fetch-source-jars" class="anchor" aria-label="Permalink: Fetch source JARs" href="#fetch-source-jars"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">To download the source JAR alongside the main artifact JAR, set <code>fetch_sources = True</code> in <code>maven_install</code>:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="maven_install(
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="maven_install(
     artifacts = [
         # ...
     ],
@@ -340,20 +348,21 @@ example</a> for more information.</p>
         # ...
     ],
     fetch_sources = True,
-)"><pre><span class="pl-en">maven_install</span>(
-    <span class="pl-s1">artifacts</span> <span class="pl-c1">=</span> [
-        <span class="pl-c"># ...</span>
+)"><pre lang="python" class="notranslate"><code>maven_install(
+    artifacts = [
+        # ...
     ],
-    <span class="pl-s1">repositories</span> <span class="pl-c1">=</span> [
-        <span class="pl-c"># ...</span>
+    repositories = [
+        # ...
     ],
-    <span class="pl-s1">fetch_sources</span> <span class="pl-c1">=</span> <span class="pl-c1">True</span>,
-)</pre></div>
+    fetch_sources = True,
+)
+</code></pre></div>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Checksum verification</h3><a id="user-content-checksum-verification" class="anchor" aria-label="Permalink: Checksum verification" href="#checksum-verification"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">Artifact resolution will fail if a <code>SHA-1</code> or <code>MD5</code> checksum file for the
 artifact is missing in the repository. To disable this behavior, set
 <code>fail_on_missing_checksum = False</code> in <code>maven_install</code>:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="maven_install(
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="maven_install(
     artifacts = [
         # ...
     ],
@@ -361,15 +370,16 @@ artifact is missing in the repository. To disable this behavior, set
         # ...
     ],
     fail_on_missing_checksum = False,
-)"><pre><span class="pl-en">maven_install</span>(
-    <span class="pl-s1">artifacts</span> <span class="pl-c1">=</span> [
-        <span class="pl-c"># ...</span>
+)"><pre lang="python" class="notranslate"><code>maven_install(
+    artifacts = [
+        # ...
     ],
-    <span class="pl-s1">repositories</span> <span class="pl-c1">=</span> [
-        <span class="pl-c"># ...</span>
+    repositories = [
+        # ...
     ],
-    <span class="pl-s1">fail_on_missing_checksum</span> <span class="pl-c1">=</span> <span class="pl-c1">False</span>,
-)</pre></div>
+    fail_on_missing_checksum = False,
+)
+</code></pre></div>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Using a custom Coursier download url</h3><a id="user-content-using-a-custom-coursier-download-url" class="anchor" aria-label="Permalink: Using a custom Coursier download url" href="#using-a-custom-coursier-download-url"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">By default bazel bootstraps Coursier via <a href="private/versions.bzl">the urls specificed in versions.bzl</a>.
 However in case they are not directly accessible in your environment, you can also specify a custom
@@ -378,11 +388,12 @@ url to download Coursier. For example:</p>
 </code></pre></div>
 <p dir="auto">Please note it still requires the SHA to match.</p>
 <p dir="auto">To use a different Coursier version entirely, you can override both the URL and SHA256:</p>
-<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="$ bazel build @maven//... \
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="$ bazel build @maven//... \
   --repo_env=COURSIER_URL='https://github.com/coursier/coursier/releases/download/v2.1.25-M23/coursier.jar' \
-  --repo_env=COURSIER_SHA256='&lt;sha256-of-the-jar&gt;'"><pre>$ bazel build @maven//... \
-  --repo_env=COURSIER_URL=<span class="pl-s"><span class="pl-pds">'</span>https://github.com/coursier/coursier/releases/download/v2.1.25-M23/coursier.jar<span class="pl-pds">'</span></span> \
-  --repo_env=COURSIER_SHA256=<span class="pl-s"><span class="pl-pds">'</span>&lt;sha256-of-the-jar&gt;<span class="pl-pds">'</span></span></pre></div>
+  --repo_env=COURSIER_SHA256='&lt;sha256-of-the-jar&gt;'"><pre lang="shell" class="notranslate"><code>$ bazel build @maven//... \
+  --repo_env=COURSIER_URL='https://github.com/coursier/coursier/releases/download/v2.1.25-M23/coursier.jar' \
+  --repo_env=COURSIER_SHA256='&lt;sha256-of-the-jar&gt;'
+</code></pre></div>
 <p dir="auto">Note: rules_jvm_external is tested against a specific Coursier version. Using a
 different version is not officially supported and compatibility is not guaranteed.</p>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto"><code>artifact</code> helper macro</h3><a id="user-content-artifact-helper-macro" class="anchor" aria-label="Permalink: artifact helper macro" href="#artifact-helper-macro"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
@@ -394,7 +405,8 @@ which includes the transitive dependencies specified in the top level artifact's
 POM file.</p>
 <p dir="auto">For example, <code>@maven//:junit_junit</code> is equivalent to <code>artifact("junit:junit")</code>.</p>
 <p dir="auto">To use it, add the load statement to the top of your BUILD file:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@rules_jvm_external//:defs.bzl&quot;, &quot;artifact&quot;)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@rules_jvm_external//:defs.bzl"</span>, <span class="pl-s">"artifact"</span>)</pre></div>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(&quot;@rules_jvm_external//:defs.bzl&quot;, &quot;artifact&quot;)"><pre lang="python" class="notranslate"><code>load("@rules_jvm_external//:defs.bzl", "artifact")
+</code></pre></div>
 <p dir="auto">Full <code>group:artifact:[packaging:[classifier:]]version</code> maven coordinates are also
 supported and translate to corresponding versionless target.</p>
 <p dir="auto">Note that usage of this macro makes BUILD file refactoring with tools like
@@ -406,19 +418,20 @@ to run an annotation procesor from a particular artifact.</p>
 <p dir="auto">For example, if you pull <code>com.google.auto.value:auto-value</code> into a
 <code>maven_install</code>, you can use the <code>java_plugin_artifact</code> macro in the <code>plugins</code>
 attribute of a target like <code>java_library</code>:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="java_library(
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="java_library(
     name = &quot;some_lib&quot;,
     srcs = [&quot;SrcUsingAuto.java&quot;],
     plugins = [
         java_plugin_artifact(&quot;com.google.auto.value:auto-value&quot;, &quot;com.google.auto.value.processor.AutoValueProcessor&quot;),
     ],
-)"><pre><span class="pl-en">java_library</span>(
-    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"some_lib"</span>,
-    <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> [<span class="pl-s">"SrcUsingAuto.java"</span>],
-    <span class="pl-s1">plugins</span> <span class="pl-c1">=</span> [
-        <span class="pl-en">java_plugin_artifact</span>(<span class="pl-s">"com.google.auto.value:auto-value"</span>, <span class="pl-s">"com.google.auto.value.processor.AutoValueProcessor"</span>),
+)"><pre lang="python" class="notranslate"><code>java_library(
+    name = "some_lib",
+    srcs = ["SrcUsingAuto.java"],
+    plugins = [
+        java_plugin_artifact("com.google.auto.value:auto-value", "com.google.auto.value.processor.AutoValueProcessor"),
     ],
-)</pre></div>
+)
+</code></pre></div>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Multiple <code>maven_install</code> declarations for isolated artifact version trees</h3><a id="user-content-multiple-maven_install-declarations-for-isolated-artifact-version-trees" class="anchor" aria-label="Permalink: Multiple maven_install declarations for isolated artifact version trees" href="#multiple-maven_install-declarations-for-isolated-artifact-version-trees"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">If your project has several components that use different versions of the
 same artifact, you can specify multiple <code>maven.install</code> declarations in
@@ -426,7 +439,7 @@ same artifact, you can specify multiple <code>maven.install</code> declarations 
 <p dir="auto">For example, if you want to use the JRE version of Guava for a server app, and
 the Android version for an Android app, you can specify two <code>maven.install</code>
 declarations:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="maven.install(
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="maven.install(
     name = &quot;server_app&quot;,
     artifacts = [
         &quot;com.google.guava:guava:27.0-jre&quot;,
@@ -438,24 +451,25 @@ maven.install(
     artifacts = [
         &quot;com.google.guava:guava:27.0-android&quot;,
     ],
-)"><pre><span class="pl-s1">maven</span>.<span class="pl-c1">install</span>(
-    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"server_app"</span>,
-    <span class="pl-s1">artifacts</span> <span class="pl-c1">=</span> [
-        <span class="pl-s">"com.google.guava:guava:27.0-jre"</span>,
+)"><pre lang="starlark" class="notranslate"><code>maven.install(
+    name = "server_app",
+    artifacts = [
+        "com.google.guava:guava:27.0-jre",
     ],
 )
 
-<span class="pl-s1">maven</span>.<span class="pl-c1">install</span>(
-    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"android_app"</span>,
-    <span class="pl-s1">artifacts</span> <span class="pl-c1">=</span> [
-        <span class="pl-s">"com.google.guava:guava:27.0-android"</span>,
+maven.install(
+    name = "android_app",
+    artifacts = [
+        "com.google.guava:guava:27.0-android",
     ],
-)</pre></div>
+)
+</code></pre></div>
 <p dir="auto">This way, <code>rules_jvm_external</code> will invoke coursier to resolve artifact versions for
 both repositories independent of each other. Coursier will fail if it encounters
 version conflicts that it cannot resolve. The two Guava targets can then be used
 in BUILD files like so:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="java_binary(
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="java_binary(
     name = &quot;my_server_app&quot;,
     srcs = ...
     deps = [
@@ -471,23 +485,24 @@ android_binary(
         # a versionless alias to @android_app//:com_google_guava_guava_27_0_android
         &quot;@android_app//:com_google_guava_guava&quot;,
     ]
-)"><pre><span class="pl-en">java_binary</span>(
-    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"my_server_app"</span>,
-    <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> ...
-    <span class="pl-s1">deps</span> <span class="pl-c1">=</span> [
-        <span class="pl-c"># a versionless alias to @server_app//:com_google_guava_guava_27_0_jre</span>
-        <span class="pl-s">"@server_app//:com_google_guava_guava"</span>,
+)"><pre lang="python" class="notranslate"><code>java_binary(
+    name = "my_server_app",
+    srcs = ...
+    deps = [
+        # a versionless alias to @server_app//:com_google_guava_guava_27_0_jre
+        "@server_app//:com_google_guava_guava",
     ]
 )
 
-<span class="pl-en">android_binary</span>(
-    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"my_android_app"</span>,
-    <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> ...
-    <span class="pl-s1">deps</span> <span class="pl-c1">=</span> [
-        <span class="pl-c"># a versionless alias to @android_app//:com_google_guava_guava_27_0_android</span>
-        <span class="pl-s">"@android_app//:com_google_guava_guava"</span>,
+android_binary(
+    name = "my_android_app",
+    srcs = ...
+    deps = [
+        # a versionless alias to @android_app//:com_google_guava_guava_27_0_android
+        "@android_app//:com_google_guava_guava",
     ]
-)</pre></div>
+)
+</code></pre></div>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Detailed dependency information specifications</h3><a id="user-content-detailed-dependency-information-specifications" class="anchor" aria-label="Permalink: Detailed dependency information specifications" href="#detailed-dependency-information-specifications"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">Although you can always give a dependency as a Maven coordinate string,
 occasionally special handling is required in the form of additional directives
@@ -500,7 +515,7 @@ information than the coordinate strings can, so internally the coordinate
 strings are parsed into the artifact map with default values for the additional
 items. To assist in generating the maps, you can use either the <code>artifact</code> or
 <code>amend_artifact</code> tags. An example:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="maven.install(
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="maven.install(
     artifacts = [
         &quot;junit:junit:4.12&quot;,
     ],
@@ -518,31 +533,32 @@ maven.artifact(
 maven.amend_artifact(
     coordinates = &quot;junit:junit&quot;,
     testonly = &quot;true&quot;,
-)"><pre><span class="pl-s1">maven</span>.<span class="pl-c1">install</span>(
-    <span class="pl-s1">artifacts</span> <span class="pl-c1">=</span> [
-        <span class="pl-s">"junit:junit:4.12"</span>,
+)"><pre lang="python" class="notranslate"><code>maven.install(
+    artifacts = [
+        "junit:junit:4.12",
     ],
 )
 
-<span class="pl-s1">maven</span>.<span class="pl-c1">artifact</span>(
-    <span class="pl-s1">group</span> <span class="pl-c1">=</span> <span class="pl-s">"com.google.guava"</span>,
-    <span class="pl-s1">artifact</span> <span class="pl-c1">=</span> <span class="pl-s">"guava"</span>,
-    <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"27.0-android"</span>,
-    <span class="pl-s1">exclusions</span> <span class="pl-c1">=</span> [
+maven.artifact(
+    group = "com.google.guava",
+    artifact = "guava",
+    version = "27.0-android",
+    exclusions = [
         ...
     ]
 )
 
-<span class="pl-s1">maven</span>.<span class="pl-c1">amend_artifact</span>(
-    <span class="pl-s1">coordinates</span> <span class="pl-c1">=</span> <span class="pl-s">"junit:junit"</span>,
-    <span class="pl-s1">testonly</span> <span class="pl-c1">=</span> <span class="pl-s">"true"</span>,
-)</pre></div>
+maven.amend_artifact(
+    coordinates = "junit:junit",
+    testonly = "true",
+)
+</code></pre></div>
 <p dir="auto">See <a href="docs/bzlmod.md">bzlmod.md</a> for more details.</p>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Artifact exclusion</h3><a id="user-content-artifact-exclusion" class="anchor" aria-label="Permalink: Artifact exclusion" href="#artifact-exclusion"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">If you want to exclude an artifact from the transitive closure of a top level
 artifact, specify its <code>group-id:artifact-id</code> in the <code>exclusions</code> attribute of
 the <code>maven.artifact</code> helper:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="maven.artifact(
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="maven.artifact(
     group = &quot;com.google.guava&quot;,
     artifact = &quot;guava&quot;,
     version = &quot;27.0-jre&quot;,
@@ -550,55 +566,59 @@ the <code>maven.artifact</code> helper:</p>
         &quot;org.codehaus.mojo:animal-sniffer-annotations&quot;,
         &quot;com.google.j2objc:j2objc-annotations&quot;,
     ],
-)"><pre><span class="pl-s1">maven</span>.<span class="pl-c1">artifact</span>(
-    <span class="pl-s1">group</span> <span class="pl-c1">=</span> <span class="pl-s">"com.google.guava"</span>,
-    <span class="pl-s1">artifact</span> <span class="pl-c1">=</span> <span class="pl-s">"guava"</span>,
-    <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"27.0-jre"</span>,
-    <span class="pl-s1">exclusions</span> <span class="pl-c1">=</span> [
-        <span class="pl-s">"org.codehaus.mojo:animal-sniffer-annotations"</span>,
-        <span class="pl-s">"com.google.j2objc:j2objc-annotations"</span>,
+)"><pre lang="starlark" class="notranslate"><code>maven.artifact(
+    group = "com.google.guava",
+    artifact = "guava",
+    version = "27.0-jre",
+    exclusions = [
+        "org.codehaus.mojo:animal-sniffer-annotations",
+        "com.google.j2objc:j2objc-annotations",
     ],
-)</pre></div>
+)
+</code></pre></div>
 <p dir="auto">You can also exclude artifacts globally using the <code>excluded_artifacts</code>
 attribute in the <code>install</code> tag:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="maven.install(
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="maven.install(
     artifacts = [
         # ...
     ],
     excluded_artifacts = [
         &quot;com.google.guava:guava&quot;,
     ],
-)"><pre><span class="pl-s1">maven</span>.<span class="pl-c1">install</span>(
-    <span class="pl-s1">artifacts</span> <span class="pl-c1">=</span> [
-        <span class="pl-c"># ...</span>
+)"><pre lang="python" class="notranslate"><code>maven.install(
+    artifacts = [
+        # ...
     ],
-    <span class="pl-s1">excluded_artifacts</span> <span class="pl-c1">=</span> [
-        <span class="pl-s">"com.google.guava:guava"</span>,
+    excluded_artifacts = [
+        "com.google.guava:guava",
     ],
-)</pre></div>
+)
+</code></pre></div>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Compile-only dependencies</h3><a id="user-content-compile-only-dependencies" class="anchor" aria-label="Permalink: Compile-only dependencies" href="#compile-only-dependencies"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">If you want to mark certain artifacts as compile-only dependencies, use the
 <code>neverlink</code> attribute in the <code>artifact</code> or <code>amend_artifact</code> tag:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="maven.amend_artifact(
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="maven.amend_artifact(
     coordinates = &quot;com.squareup:javapoet&quot;,
     neverlink = &quot;true&quot;,
-)    "><pre><span class="pl-s1">maven</span>.<span class="pl-c1">amend_artifact</span>(
-    <span class="pl-s1">coordinates</span> <span class="pl-c1">=</span> <span class="pl-s">"com.squareup:javapoet"</span>,
-    <span class="pl-s1">neverlink</span> <span class="pl-c1">=</span> <span class="pl-s">"true"</span>,
-)    </pre></div>
+)    "><pre lang="starlark" class="notranslate"><code>maven.amend_artifact(
+    coordinates = "com.squareup:javapoet",
+    neverlink = "true",
+)    
+</code></pre></div>
 <p dir="auto">This instructs <code>rules_jvm_external</code> to mark the generated target for
 <code>com.squareup:javapoet</code> with the <code>neverlink = True</code> attribute, making the
 artifact available only for compilation and not at runtime.</p>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Test-only dependencies</h3><a id="user-content-test-only-dependencies" class="anchor" aria-label="Permalink: Test-only dependencies" href="#test-only-dependencies"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">If you want to mark certain artifacts as test-only dependencies, use the
 <code>testonly</code> attribute in the <code>artifact</code> or <code>amend_artifact</code> tag:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="maven.amend_artifact(
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="maven.amend_artifact(
     coordinates = &quot;junit:junit&quot;,
     testonly = &quot;true&quot;,
-)"><pre><span class="pl-s1">maven</span>.<span class="pl-c1">amend_artifact</span>(
-    <span class="pl-s1">coordinates</span> <span class="pl-c1">=</span> <span class="pl-s">"junit:junit"</span>,
-    <span class="pl-s1">testonly</span> <span class="pl-c1">=</span> <span class="pl-s">"true"</span>,
-)</pre></div>
+)"><pre lang="starlark" class="notranslate"><code>maven.amend_artifact(
+    coordinates = "junit:junit",
+    testonly = "true",
+)
+</code></pre></div>
 <p dir="auto">This instructs <code>rules_jvm_external</code> to mark the generated target for
 <code>junit:junit</code> with the <code>testonly = True</code> attribute, making the
 artifact available only for tests (e.g. <code>java_test</code>), or targets specifically
@@ -613,17 +633,18 @@ for version handling.</p>
 <p dir="auto"><code>pinned</code>: pin the versions of the artifacts that are explicitly specified in <code>maven_install</code>.</p>
 <p dir="auto">For example, pulling in guava transitively via google-cloud-storage resolves to
 guava-26.0-android.</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="maven.install(
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="maven.install(
     name = &quot;pinning&quot;,
     artifacts = [
         &quot;com.google.cloud:google-cloud-storage:1.66.0&quot;,
     ],
-)"><pre><span class="pl-s1">maven</span>.<span class="pl-c1">install</span>(
-    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"pinning"</span>,
-    <span class="pl-s1">artifacts</span> <span class="pl-c1">=</span> [
-        <span class="pl-s">"com.google.cloud:google-cloud-storage:1.66.0"</span>,
+)"><pre lang="starlark" class="notranslate"><code>maven.install(
+    name = "pinning",
+    artifacts = [
+        "com.google.cloud:google-cloud-storage:1.66.0",
     ],
-)</pre></div>
+)
+</code></pre></div>
 <div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="$ bazel query @pinning//:all | grep guava_guava
 @pinning//:com_google_guava_guava
 @pinning//:com_google_guava_guava_26_0_android"><pre class="notranslate"><code>$ bazel query @pinning//:all | grep guava_guava
@@ -631,19 +652,20 @@ guava-26.0-android.</p>
 @pinning//:com_google_guava_guava_26_0_android
 </code></pre></div>
 <p dir="auto">Pulling in guava-27.0-android directly works as expected.</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="maven.install(
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="maven.install(
     name = &quot;pinning&quot;,
     artifacts = [
         &quot;com.google.cloud:google-cloud-storage:1.66.0&quot;,
         &quot;com.google.guava:guava:27.0-android&quot;,
     ],
-)"><pre><span class="pl-s1">maven</span>.<span class="pl-c1">install</span>(
-    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"pinning"</span>,
-    <span class="pl-s1">artifacts</span> <span class="pl-c1">=</span> [
-        <span class="pl-s">"com.google.cloud:google-cloud-storage:1.66.0"</span>,
-        <span class="pl-s">"com.google.guava:guava:27.0-android"</span>,
+)"><pre lang="starlark" class="notranslate"><code>maven.install(
+    name = "pinning",
+    artifacts = [
+        "com.google.cloud:google-cloud-storage:1.66.0",
+        "com.google.guava:guava:27.0-android",
     ],
-)</pre></div>
+)
+</code></pre></div>
 <div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="$ bazel query @pinning//:all | grep guava_guava
 @pinning//:com_google_guava_guava
 @pinning//:com_google_guava_guava_27_0_android"><pre class="notranslate"><code>$ bazel query @pinning//:all | grep guava_guava
@@ -651,19 +673,20 @@ guava-26.0-android.</p>
 @pinning//:com_google_guava_guava_27_0_android
 </code></pre></div>
 <p dir="auto">Pulling in guava-25.0-android (a lower version), resolves to guava-26.0-android. This is the default version conflict policy in action, where artifacts are resolved to the highest version.</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="maven.install(
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="maven.install(
     name = &quot;pinning&quot;,
     artifacts = [
         &quot;com.google.cloud:google-cloud-storage:1.66.0&quot;,
         &quot;com.google.guava:guava:25.0-android&quot;,
     ],
-)"><pre><span class="pl-s1">maven</span>.<span class="pl-c1">install</span>(
-    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"pinning"</span>,
-    <span class="pl-s1">artifacts</span> <span class="pl-c1">=</span> [
-        <span class="pl-s">"com.google.cloud:google-cloud-storage:1.66.0"</span>,
-        <span class="pl-s">"com.google.guava:guava:25.0-android"</span>,
+)"><pre lang="starlark" class="notranslate"><code>maven.install(
+    name = "pinning",
+    artifacts = [
+        "com.google.cloud:google-cloud-storage:1.66.0",
+        "com.google.guava:guava:25.0-android",
     ],
-)</pre></div>
+)
+</code></pre></div>
 <div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="$ bazel query @pinning//:all | grep guava_guava
 @pinning//:com_google_guava_guava
 @pinning//:com_google_guava_guava_26_0_android"><pre class="notranslate"><code>$ bazel query @pinning//:all | grep guava_guava
@@ -671,21 +694,22 @@ guava-26.0-android.</p>
 @pinning//:com_google_guava_guava_26_0_android
 </code></pre></div>
 <p dir="auto">Now, if we add <code>version_conflict_policy = "pinned"</code>, we should see guava-25.0-android getting pulled instead. The rest of non-specified artifacts still resolve to the highest version in the case of version conflicts.</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="maven.install(
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="maven.install(
     name = &quot;pinning&quot;,
     artifacts = [
         &quot;com.google.cloud:google-cloud-storage:1.66.0&quot;,
         &quot;com.google.guava:guava:25.0-android&quot;,
     ],
     version_conflict_policy = &quot;pinned&quot;,
-)"><pre><span class="pl-s1">maven</span>.<span class="pl-c1">install</span>(
-    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"pinning"</span>,
-    <span class="pl-s1">artifacts</span> <span class="pl-c1">=</span> [
-        <span class="pl-s">"com.google.cloud:google-cloud-storage:1.66.0"</span>,
-        <span class="pl-s">"com.google.guava:guava:25.0-android"</span>,
+)"><pre lang="starlark" class="notranslate"><code>maven.install(
+    name = "pinning",
+    artifacts = [
+        "com.google.cloud:google-cloud-storage:1.66.0",
+        "com.google.guava:guava:25.0-android",
     ],
-    <span class="pl-s1">version_conflict_policy</span> <span class="pl-c1">=</span> <span class="pl-s">"pinned"</span>,
-)</pre></div>
+    version_conflict_policy = "pinned",
+)
+</code></pre></div>
 <div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="$ bazel query @pinning//:all | grep guava_guava
 @pinning//:com_google_guava_guava
 @pinning//:com_google_guava_guava_25_0_android"><pre class="notranslate"><code>$ bazel query @pinning//:all | grep guava_guava
@@ -696,7 +720,7 @@ guava-26.0-android.</p>
 want one specific dependency to be pinned, no matter what. In these
 cases, you can use the <code>force_version</code> attribute on the
 <code>artifact</code> or <code>amend_artifact</code> helper to ensure this happens.</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="maven.install(
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="maven.install(
     name = &quot;forcing_versions&quot;,
     artifacts = [
         # And something that depends on a more recent version of guava
@@ -711,35 +735,37 @@ maven.artifact(
     force_version = &quot;true&quot;,
     group = &quot;com.google.guava&quot;,
     version = &quot;23.3-jre&quot;,
-)"><pre><span class="pl-s1">maven</span>.<span class="pl-c1">install</span>(
-    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"forcing_versions"</span>,
-    <span class="pl-s1">artifacts</span> <span class="pl-c1">=</span> [
-        <span class="pl-c"># And something that depends on a more recent version of guava</span>
-        <span class="pl-s">"xyz.rogfam:littleproxy:2.1.0"</span>,
+)"><pre lang="starlark" class="notranslate"><code>maven.install(
+    name = "forcing_versions",
+    artifacts = [
+        # And something that depends on a more recent version of guava
+        "xyz.rogfam:littleproxy:2.1.0",
     ],
 )
 
-<span class="pl-c"># Specify an ancient version of guava, and force its use. If we try to use `[23.3-jre]` as the version,</span>
-<span class="pl-c"># the resolution will fail when using `coursier`</span>
-<span class="pl-s1">maven</span>.<span class="pl-c1">artifact</span>(
-    <span class="pl-s1">artifact</span> <span class="pl-c1">=</span> <span class="pl-s">"guava"</span>,
-    <span class="pl-s1">force_version</span> <span class="pl-c1">=</span> <span class="pl-s">"true"</span>,
-    <span class="pl-s1">group</span> <span class="pl-c1">=</span> <span class="pl-s">"com.google.guava"</span>,
-    <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"23.3-jre"</span>,
-)</pre></div>
+# Specify an ancient version of guava, and force its use. If we try to use `[23.3-jre]` as the version,
+# the resolution will fail when using `coursier`
+maven.artifact(
+    artifact = "guava",
+    force_version = "true",
+    group = "com.google.guava",
+    version = "23.3-jre",
+)
+</code></pre></div>
 <p dir="auto">In this case, once pinning is complete, guava <code>23.3-jre</code> will be selected.</p>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Overriding generated targets</h3><a id="user-content-overriding-generated-targets" class="anchor" aria-label="Permalink: Overriding generated targets" href="#overriding-generated-targets"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">You can override the generated targets for artifacts with a target label of your
 choice. For instance, if you want to provide your own definition of
 <code>@maven//:com_google_guava_guava</code> at <code>//third_party/guava:guava</code>, use the
 <code>maven.override</code> tag:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="maven.override(
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="maven.override(
     coordinates = &quot;com.google.guava:guava&quot;,
     target = &quot;@//third_party/guava:guava&quot;,
-)"><pre><span class="pl-s1">maven</span>.<span class="pl-c1">override</span>(
-    <span class="pl-s1">coordinates</span> <span class="pl-c1">=</span> <span class="pl-s">"com.google.guava:guava"</span>,
-    <span class="pl-s1">target</span> <span class="pl-c1">=</span> <span class="pl-s">"@//third_party/guava:guava"</span>,
-)</pre></div>
+)"><pre lang="starlark" class="notranslate"><code>maven.override(
+    coordinates = "com.google.guava:guava",
+    target = "@//third_party/guava:guava",
+)
+</code></pre></div>
 <p dir="auto">Note that the target label contains <code>@//</code>, which tells Bazel to reference the
 target relative to your main workspace, instead of the <code>@maven</code> workspace.</p>
 <p dir="auto">The dependency that has been overridden is made available prefixed with
@@ -765,7 +791,7 @@ referenced using <code>@com_google_guava_guava//jar</code>.</p>
 <p dir="auto">The artifacts can also be referenced using the style used by
 <code>java_import_external</code> as <code>@group_artifact//:group_artifact</code> or
 <code>@group_artifact</code> for short.</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="maven.install(
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="maven.install(
     artifacts = [
         # ...
     ],
@@ -773,22 +799,23 @@ referenced using <code>@com_google_guava_guava//jar</code>.</p>
         # ...
     ],
     generate_compat_repositories = True,
-)"><pre><span class="pl-s1">maven</span>.<span class="pl-c1">install</span>(
-    <span class="pl-s1">artifacts</span> <span class="pl-c1">=</span> [
-        <span class="pl-c"># ...</span>
+)"><pre lang="starlark" class="notranslate"><code>maven.install(
+    artifacts = [
+        # ...
     ],
-    <span class="pl-s1">repositories</span> <span class="pl-c1">=</span> [
-        <span class="pl-c"># ...</span>
+    repositories = [
+        # ...
     ],
-    <span class="pl-s1">generate_compat_repositories</span> <span class="pl-c1">=</span> <span class="pl-c1">True</span>,
-)</pre></div>
+    generate_compat_repositories = True,
+)
+</code></pre></div>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Hiding transitive dependencies</h3><a id="user-content-hiding-transitive-dependencies" class="anchor" aria-label="Permalink: Hiding transitive dependencies" href="#hiding-transitive-dependencies"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">As a convenience, transitive dependencies are visible to your build rules.
 However, this can lead to surprises when updating <code>maven_install</code>'s <code>artifacts</code>
 list, since doing so may eliminate transitive dependencies from the build
 graph.  To force rule authors to explicitly declare all directly referenced
 artifacts, use the <code>strict_visibility</code> attribute in <code>maven_install</code>:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="maven.install(
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="maven.install(
     artifacts = [
         # ...
     ],
@@ -796,15 +823,16 @@ artifacts, use the <code>strict_visibility</code> attribute in <code>maven_insta
         # ...
     ],
     strict_visibility = True
-)"><pre><span class="pl-s1">maven</span>.<span class="pl-c1">install</span>(
-    <span class="pl-s1">artifacts</span> <span class="pl-c1">=</span> [
-        <span class="pl-c"># ...</span>
+)"><pre lang="starlark" class="notranslate"><code>maven.install(
+    artifacts = [
+        # ...
     ],
-    <span class="pl-s1">repositories</span> <span class="pl-c1">=</span> [
-        <span class="pl-c"># ...</span>
+    repositories = [
+        # ...
     ],
-    <span class="pl-s1">strict_visibility</span> <span class="pl-c1">=</span> <span class="pl-c1">True</span>
-)</pre></div>
+    strict_visibility = True
+)
+</code></pre></div>
 <p dir="auto">It is also possible to change strict visibility value from default <code>//visibility:private</code>
 to a value specified by <code>strict_visibility_value</code> attribute.</p>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Accessing transitive dependencies list</h3><a id="user-content-accessing-transitive-dependencies-list" class="anchor" aria-label="Permalink: Accessing transitive dependencies list" href="#accessing-transitive-dependencies-list"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
@@ -812,7 +840,7 @@ to a value specified by <code>strict_visibility_value</code> attribute.</p>
 transitive, source, javadoc and other artifacts. <code>maven_artifacts</code> list contains full
 versioned maven coordinate strings of all dependencies.</p>
 <p dir="auto">For example:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@maven//:defs.bzl&quot;, &quot;maven_artifacts&quot;)
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(&quot;@maven//:defs.bzl&quot;, &quot;maven_artifacts&quot;)
 
 load(&quot;@rules_jvm_external//:defs.bzl&quot;, &quot;artifact&quot;)
 load(&quot;@rules_jvm_external//:specs.bzl&quot;, &quot;parse&quot;)
@@ -823,23 +851,24 @@ all_jar_targets = [artifact(c) for c in all_jar_coordinates]
 java_library(
   name = &quot;depends_on_everything&quot;,
   runtime_deps = all_jar_targets,
-)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@maven//:defs.bzl"</span>, <span class="pl-s">"maven_artifacts"</span>)
+)"><pre lang="starlark" class="notranslate"><code>load("@maven//:defs.bzl", "maven_artifacts")
 
-<span class="pl-en">load</span>(<span class="pl-s">"@rules_jvm_external//:defs.bzl"</span>, <span class="pl-s">"artifact"</span>)
-<span class="pl-en">load</span>(<span class="pl-s">"@rules_jvm_external//:specs.bzl"</span>, <span class="pl-s">"parse"</span>)
+load("@rules_jvm_external//:defs.bzl", "artifact")
+load("@rules_jvm_external//:specs.bzl", "parse")
 
-<span class="pl-s1">all_jar_coordinates</span> <span class="pl-c1">=</span> [<span class="pl-s1">c</span> <span class="pl-k">for</span> <span class="pl-s1">c</span> <span class="pl-c1">in</span> <span class="pl-s1">maven_artifacts</span> <span class="pl-k">if</span> <span class="pl-s1">parse</span>.<span class="pl-c1">parse_maven_coordinate</span>(<span class="pl-s1">c</span>).<span class="pl-c1">get</span>(<span class="pl-s">"packaging"</span>, <span class="pl-s">"jar"</span>) <span class="pl-c1">==</span> <span class="pl-s">"jar"</span>]
-<span class="pl-s1">all_jar_targets</span> <span class="pl-c1">=</span> [<span class="pl-en">artifact</span>(<span class="pl-s1">c</span>) <span class="pl-k">for</span> <span class="pl-s1">c</span> <span class="pl-c1">in</span> <span class="pl-s1">all_jar_coordinates</span>]
+all_jar_coordinates = [c for c in maven_artifacts if parse.parse_maven_coordinate(c).get("packaging", "jar") == "jar"]
+all_jar_targets = [artifact(c) for c in all_jar_coordinates]
 
-<span class="pl-en">java_library</span>(
-  <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"depends_on_everything"</span>,
-  <span class="pl-s1">runtime_deps</span> <span class="pl-c1">=</span> <span class="pl-s1">all_jar_targets</span>,
-)</pre></div>
+java_library(
+  name = "depends_on_everything",
+  runtime_deps = all_jar_targets,
+)
+</code></pre></div>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Fetch and resolve timeout</h3><a id="user-content-fetch-and-resolve-timeout" class="anchor" aria-label="Permalink: Fetch and resolve timeout" href="#fetch-and-resolve-timeout"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">The default timeout to fetch and resolve artifacts is 600 seconds.  If you need
 to change this to resolve a large number of artifacts you can set the
 <code>resolve_timeout</code> attribute in <code>maven_install</code>:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="maven.install(
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="maven.install(
     artifacts = [
         # ...
     ],
@@ -847,21 +876,22 @@ to change this to resolve a large number of artifacts you can set the
         # ...
     ],
     resolve_timeout = 900
-)"><pre><span class="pl-s1">maven</span>.<span class="pl-c1">install</span>(
-    <span class="pl-s1">artifacts</span> <span class="pl-c1">=</span> [
-        <span class="pl-c"># ...</span>
+)"><pre lang="starlark" class="notranslate"><code>maven.install(
+    artifacts = [
+        # ...
     ],
-    <span class="pl-s1">repositories</span> <span class="pl-c1">=</span> [
-        <span class="pl-c"># ...</span>
+    repositories = [
+        # ...
     ],
-    <span class="pl-s1">resolve_timeout</span> <span class="pl-c1">=</span> <span class="pl-c1">900</span>
-)</pre></div>
+    resolve_timeout = 900
+)
+</code></pre></div>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Ignoring empty jars</h3><a id="user-content-ignoring-empty-jars" class="anchor" aria-label="Permalink: Ignoring empty jars" href="#ignoring-empty-jars"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">By default, if any fetched jar is empty (has 0 bytes) the corresponding artifact will still be included in the dependency tree.</p>
 <p dir="auto">If you would like to avoid such artifacts, and treat jars that are empty (i.e. their checksum equals the checksum of an
 empty file) as if they were not found, you can set the <code>ignore_empty_files</code> attribute in <code>maven_install</code> to remove such
 artifacts from coursier's output:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="maven.install(
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="maven.install(
     artifacts = [
         # ...
     ],
@@ -870,39 +900,43 @@ artifacts from coursier's output:</p>
     ],
     # ...
     ignore_empty_files = True
-)"><pre><span class="pl-s1">maven</span>.<span class="pl-c1">install</span>(
-    <span class="pl-s1">artifacts</span> <span class="pl-c1">=</span> [
-        <span class="pl-c"># ...</span>
+)"><pre lang="starlark" class="notranslate"><code>maven.install(
+    artifacts = [
+        # ...
     ],
-    <span class="pl-s1">repositories</span> <span class="pl-c1">=</span> [
-        <span class="pl-c"># ...</span>
+    repositories = [
+        # ...
     ],
-    <span class="pl-c"># ...</span>
-    <span class="pl-s1">ignore_empty_files</span> <span class="pl-c1">=</span> <span class="pl-c1">True</span>
-)</pre></div>
+    # ...
+    ignore_empty_files = True
+)
+</code></pre></div>
 <p dir="auto">This option may be useful if you see empty source jars when <code>fetch_sources</code> is enabled.</p>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Duplicate artifact warning</h3><a id="user-content-duplicate-artifact-warning" class="anchor" aria-label="Permalink: Duplicate artifact warning" href="#duplicate-artifact-warning"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">By default you will be warned if there are duplicate artifacts in your artifact list. The <code>duplicate_version_warning</code> setting can be used to change this behavior. Use "none" to disable the warning and "error" to fail the build instead of warn.</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="maven.install(
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="maven.install(
     artifacts = [
         # ...
     ],
     duplicate_version_warning = &quot;error&quot;
-)"><pre><span class="pl-s1">maven</span>.<span class="pl-c1">install</span>(
-    <span class="pl-s1">artifacts</span> <span class="pl-c1">=</span> [
-        <span class="pl-c"># ...</span>
+)"><pre lang="starlark" class="notranslate"><code>maven.install(
+    artifacts = [
+        # ...
     ],
-    <span class="pl-s1">duplicate_version_warning</span> <span class="pl-c1">=</span> <span class="pl-s">"error"</span>
-)</pre></div>
+    duplicate_version_warning = "error"
+)
+</code></pre></div>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Provide JVM options for artifact resolution</h3><a id="user-content-provide-jvm-options-for-artifact-resolution" class="anchor" aria-label="Permalink: Provide JVM options for artifact resolution" href="#provide-jvm-options-for-artifact-resolution"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">You can set the <code>JDK_JAVA_OPTIONS</code> environment variable to provide additional JVM options to the artifact resolver.</p>
-<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="build --repo_env=JDK_JAVA_OPTIONS=-Djavax.net.ssl.trustStore=&lt;path-to-cacerts&gt;"><pre>build --repo_env=JDK_JAVA_OPTIONS=-Djavax.net.ssl.trustStore=<span class="pl-k">&lt;</span>path-to-cacerts<span class="pl-k">&gt;</span></pre></div>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="build --repo_env=JDK_JAVA_OPTIONS=-Djavax.net.ssl.trustStore=&lt;path-to-cacerts&gt;"><pre lang="bash" class="notranslate"><code>build --repo_env=JDK_JAVA_OPTIONS=-Djavax.net.ssl.trustStore=&lt;path-to-cacerts&gt;
+</code></pre></div>
 <p dir="auto">can be added to your .bazelrc file if you need to specify custom cacerts for artifact resolution.</p>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Provide JVM options for Coursier with <code>COURSIER_OPTS</code></h3><a id="user-content-provide-jvm-options-for-coursier-with-coursier_opts" class="anchor" aria-label="Permalink: Provide JVM options for Coursier with COURSIER_OPTS" href="#provide-jvm-options-for-coursier-with-coursier_opts"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">You can set up <code>COURSIER_OPTS</code> environment variable to provide some additional JVM options for Coursier.
 This is a space-separated list of options.</p>
 <p dir="auto">Assume you'd like to override Coursier's memory settings:</p>
-<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="COURSIER_OPTS=&quot;-Xms1g -Xmx4g&quot;"><pre>COURSIER_OPTS=<span class="pl-s"><span class="pl-pds">"</span>-Xms1g -Xmx4g<span class="pl-pds">"</span></span></pre></div>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="COURSIER_OPTS=&quot;-Xms1g -Xmx4g&quot;"><pre lang="bash" class="notranslate"><code>COURSIER_OPTS="-Xms1g -Xmx4g"
+</code></pre></div>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Resolving issues with nonstandard system default JDKs</h3><a id="user-content-resolving-issues-with-nonstandard-system-default-jdks" class="anchor" aria-label="Permalink: Resolving issues with nonstandard system default JDKs" href="#resolving-issues-with-nonstandard-system-default-jdks"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">Try to use OpenJDK explicitly if your machine or environment is set up to use a non-standard default implementation of the JDK and you encounter errors similar to the following:</p>
 <div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="java.lang.NullPointerException
@@ -980,7 +1014,7 @@ layering.</p>
 must first create a <code>java_export</code> target. This is similar to a regular
 <code>java_library</code>, but allows two additional parameters: the maven coordinates
 and an optional template file to use for the <code>pom.xml</code> file.</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="# user_project/BUILD
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="# user_project/BUILD
 load(&quot;@rules_jvm_external//:defs.bzl&quot;, &quot;java_export&quot;)
 
 java_export(
@@ -992,47 +1026,51 @@ java_export(
     &quot;//user_project/utils&quot;,
     &quot;@maven//:com_google_guava_guava&quot;,
   ],
-)"><pre><span class="pl-c"># user_project/BUILD</span>
-<span class="pl-en">load</span>(<span class="pl-s">"@rules_jvm_external//:defs.bzl"</span>, <span class="pl-s">"java_export"</span>)
+)"><pre lang="python" class="notranslate"><code># user_project/BUILD
+load("@rules_jvm_external//:defs.bzl", "java_export")
 
-<span class="pl-en">java_export</span>(
-  <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"exported_lib"</span>,
-  <span class="pl-s1">maven_coordinates</span> <span class="pl-c1">=</span> <span class="pl-s">"com.example:project:0.0.1"</span>,
-  <span class="pl-s1">pom_template</span> <span class="pl-c1">=</span> <span class="pl-s">"pom.tmpl"</span>,  <span class="pl-c"># You can omit this</span>
-  <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> <span class="pl-en">glob</span>([<span class="pl-s">"*.java"</span>]),
-  <span class="pl-s1">deps</span> <span class="pl-c1">=</span> [
-    <span class="pl-s">"//user_project/utils"</span>,
-    <span class="pl-s">"@maven//:com_google_guava_guava"</span>,
+java_export(
+  name = "exported_lib",
+  maven_coordinates = "com.example:project:0.0.1",
+  pom_template = "pom.tmpl",  # You can omit this
+  srcs = glob(["*.java"]),
+  deps = [
+    "//user_project/utils",
+    "@maven//:com_google_guava_guava",
   ],
-)</pre></div>
+)
+</code></pre></div>
 <p dir="auto">If you wish to publish an artifact with Kotlin source code to a maven repository
 you can use <code>kt_jvm_export</code>. This rule has the same arguments and generated
 rules as <code>java_export</code>, but uses <code>kt_jvm_library</code> instead of <code>java_library</code>.</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="# user_project/BUILD
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="# user_project/BUILD
 load(&quot;@rules_jvm_external//:kt_defs.bzl&quot;, &quot;kt_jvm_export&quot;)
 
 kt_jvm_export(
   name = &quot;exported_kt_lib&quot;,
   maven_coordinates = &quot;com.example:project:0.0.1&quot;,
   srcs = glob([&quot;*.kt&quot;]),
-)"><pre><span class="pl-c"># user_project/BUILD</span>
-<span class="pl-en">load</span>(<span class="pl-s">"@rules_jvm_external//:kt_defs.bzl"</span>, <span class="pl-s">"kt_jvm_export"</span>)
+)"><pre lang="python" class="notranslate"><code># user_project/BUILD
+load("@rules_jvm_external//:kt_defs.bzl", "kt_jvm_export")
 
-<span class="pl-en">kt_jvm_export</span>(
-  <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"exported_kt_lib"</span>,
-  <span class="pl-s1">maven_coordinates</span> <span class="pl-c1">=</span> <span class="pl-s">"com.example:project:0.0.1"</span>,
-  <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> <span class="pl-en">glob</span>([<span class="pl-s">"*.kt"</span>]),
-)</pre></div>
+kt_jvm_export(
+  name = "exported_kt_lib",
+  maven_coordinates = "com.example:project:0.0.1",
+  srcs = glob(["*.kt"]),
+)
+</code></pre></div>
 <p dir="auto">In order to publish the artifact, use <code>bazel run</code>:</p>
-<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel run --define &quot;maven_repo=file://$HOME/.m2/repository&quot; //user_project:exported_lib.publish"><pre>bazel run --define <span class="pl-s"><span class="pl-pds">"</span>maven_repo=file://<span class="pl-smi">$HOME</span>/.m2/repository<span class="pl-pds">"</span></span> //user_project:exported_lib.publish</pre></div>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="bazel run --define &quot;maven_repo=file://$HOME/.m2/repository&quot; //user_project:exported_lib.publish"><pre lang="bash" class="notranslate"><code>bazel run --define "maven_repo=file://$HOME/.m2/repository" //user_project:exported_lib.publish
+</code></pre></div>
 <p dir="auto">Or, to publish to (eg) Sonatype's OSS repo:</p>
-<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="MAVEN_USER=example_user MAVEN_PASSWORD=hunter2 bazel run --stamp \
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="MAVEN_USER=example_user MAVEN_PASSWORD=hunter2 bazel run --stamp \
   --define &quot;maven_repo=https://oss.sonatype.org/service/local/staging/deploy/maven2&quot; \
   --define gpg_sign=true \
-  //user_project:exported_lib.publish`"><pre>MAVEN_USER=example_user MAVEN_PASSWORD=hunter2 bazel run --stamp \
-  --define <span class="pl-s"><span class="pl-pds">"</span>maven_repo=https://oss.sonatype.org/service/local/staging/deploy/maven2<span class="pl-pds">"</span></span> \
+  //user_project:exported_lib.publish`"><pre lang="shell" class="notranslate"><code>MAVEN_USER=example_user MAVEN_PASSWORD=hunter2 bazel run --stamp \
+  --define "maven_repo=https://oss.sonatype.org/service/local/staging/deploy/maven2" \
   --define gpg_sign=true \
-  //user_project:exported_lib.publish<span class="pl-s"><span class="pl-pds">`</span></span></pre></div>
+  //user_project:exported_lib.publish`
+</code></pre></div>
 <p dir="auto">Or, to publish to a Google Cloud Storage:</p>
 <p dir="auto"><code>bazel run --define "maven_repo=gs://example-bucket/repository" //user_project:exported_lib.publish</code></p>
 <p dir="auto">Or, to publish to an Amazon S3 bucket:</p>
