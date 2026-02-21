@@ -6,21 +6,23 @@
 All the magic to set up Qt6 should be done by Bazel with as little effort as possible.</p>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Why rules and not a simple dependency?</h2><a id="user-content-why-rules-and-not-a-simple-dependency" class="anchor" aria-label="Permalink: Why rules and not a simple dependency?" href="#why-rules-and-not-a-simple-dependency"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">To get Qt working with C++, you need different tools, e.g., the Meta-Object Compiler (moc).
-This is needed since Qt introduces some language extensions to C++, such as the signal, slot concept.
+This is needed since Qt introduces some language extensions to C++, such as the signal &amp; slot concept.
 There is also the User Interface Compiler (uic), Resource Compiler (rcc), and translation tools.
 To get all of those things working, Qt is a bit more than a simple third-party dependency.
 The idea of this project is to introduce own rules that simplify the usage of Qt using Bazel.</p>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Current status</h2><a id="user-content-current-status" class="anchor" aria-label="Permalink: Current status" href="#current-status"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<p dir="auto">These rules were tested with Bazel 8.x.
-There is a chance that you also get this working with Bazel 7.x.
+<p dir="auto">These rules were tested with Bazel 9.x.
+There is a chance that you also get this working with Bazel 7.x, and 8.x.
 If you need support for older versions of Bazel, please check out an older state of this repository.
 Initially, this repository had support for Bazel 4.x.</p>
 <p dir="auto">When using these rules,
 a prebuild version of Qt is fetched from <a href="https://download.qt.io/" rel="nofollow">download.qt.io</a>.
 Previously a prebuild version of Qt was fetched from <a href="https://vertexwahn.de/" rel="nofollow">vertexwahn.de</a> (this approach was taken for example in release 0.0.4 of these rules).
-There is a vaiable <code>QT_BASE_DOWNLOAD_URL</code> that you can change to fetch qt from a different source.</p>
+There is a variable <code>QT_BASE_DOWNLOAD_URL</code> that you can change to fetch Qt from a different source location.</p>
 <p dir="auto">I created a <a href="tests/.bazelrc"><code>.bazelrc</code></a> file that contains different configs: <code>vs2019</code>, <code>vs2022</code>, <code>gcc11</code>, <code>gcc13</code>, and <code>macos</code>.
-This is necessary since Qt6 requires at least C++17 standard to be enabled, and different C++ compilers require different flags to enable this.</p>
+This is necessary since Qt6 requires at least C++17 standard to be enabled, and different C++ compilers require different flags to enable this.
+Default C++ toolchains of Bazel 8 and newer have C++17 support.
+Therefore, when not working with older versions the <code>.bazelrc</code> and the above configs could be dropped.</p>
 <p dir="auto">The current targeted version of these rules is Qt 6.8.3. Qt 6.8 is the latest LTS version.
 Also, there is the idea that these rules can support different versions of Qt,
 but currently, only version 6.8.3 is tested and supported. When checking the code of these rules,
@@ -59,13 +61,13 @@ cd rules_qt6/tests"><pre>git clone https://github.com/Vertexwahn/rules_qt6
 <p dir="auto"><a target="_blank" rel="noopener noreferrer" href="/docs/screenshots/hello_world_macOS15_M1.png"><img src="/docs/screenshots/hello_world_macOS15_M1.png" alt="Screenshot of HelloWorld demo on macOS" style="max-width: 100%;"></a></p>
 <p dir="auto"><strong>More Examples</strong></p>
 <p dir="auto">More examples can be found in the <a href="tests">tests</a> directory.</p>
-<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Contributions</h2><a id="user-content-contributions" class="anchor" aria-label="Permalink: Contributions" href="#contributions"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<p dir="auto">Any improvements to the Qt6 build experience using Bazel are welcome.
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Contributions are welcomed</h2><a id="user-content-contributions-are-welcomed" class="anchor" aria-label="Permalink: Contributions are welcomed" href="#contributions-are-welcomed"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Any improvements to the Qt6 build experience using Bazel are always welcome.
 Maybe you have solved this problem already.
 In this case,
 I would appreciate it if you could share your efforts under some permissive license.
 If you name no specific license, I assume you are fine with the current used license of this project (Apache 2.0 License).</p>
-<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Similar projects</h2><a id="user-content-similar-projects" class="anchor" aria-label="Permalink: Similar projects" href="#similar-projects"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Related projects</h2><a id="user-content-related-projects" class="anchor" aria-label="Permalink: Related projects" href="#related-projects"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <markdown-accessiblity-table><table>
 <thead>
 <tr>
@@ -73,7 +75,7 @@ If you name no specific license, I assume you are fine with the current used lic
 <th>Bzlmod Support</th>
 <th>Platform Support</th>
 <th>Build Type</th>
-<th>Last Commit</th>
+<th>Last Commit Checked</th>
 </tr>
 </thead>
 <tbody>
@@ -144,4 +146,6 @@ See <a href="https://github.com/justbuchanan/bazel_rules_qt/graphs/contributors"
  <a href="https://github.com/Vertexwahn/rules_qt6/graphs/contributors">
    <img src="https://camo.githubusercontent.com/f7b82bb9d843fd9c3b3fc48960dea007c431a5d0d4af210b1e2fddeb6b3f7968/68747470733a2f2f636f6e747269622e726f636b732f696d6167653f7265706f3d5665727465787761686e2f72756c65735f717436" data-canonical-src="https://contrib.rocks/image?repo=Vertexwahn/rules_qt6" style="max-width: 100%;">
  </a>
+<p dir="auto">This would not have been possible without all the effort from the contributors of this and the related projects.
+Some initial work of the related projects dates back more than ten years by now.</p>
 </article></div>
