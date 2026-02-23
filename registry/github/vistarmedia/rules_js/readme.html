@@ -3,7 +3,7 @@
 run with Node, library targets produce concise binary build artifacts.</p>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Rules</h2><a id="user-content-rules" class="anchor" aria-label="Permalink: Rules" href="#rules"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">There are two public module rules</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load('@com_vistarmedia_rules_js//js:def.bzl',
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load('@com_vistarmedia_rules_js//js:def.bzl',
   'js_binary',
   'js_library')
 
@@ -16,27 +16,29 @@ js_binary(
   name = 'bin',
   srcs = ['main.js'],
   deps = [':lib'],
-)"><pre><span class="pl-en">load</span>(<span class="pl-s">'@com_vistarmedia_rules_js//js:def.bzl'</span>,
-  <span class="pl-s">'js_binary'</span>,
-  <span class="pl-s">'js_library'</span>)
+)"><pre lang="bzl" class="notranslate"><code>load('@com_vistarmedia_rules_js//js:def.bzl',
+  'js_binary',
+  'js_library')
 
-<span class="pl-en">js_library</span>(
-  <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">'lib'</span>,
-  <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> [<span class="pl-s">'lib.js'</span>]
+js_library(
+  name = 'lib',
+  srcs = ['lib.js']
 )
 
-<span class="pl-en">js_binary</span>(
-  <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">'bin'</span>,
-  <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> [<span class="pl-s">'main.js'</span>],
-  <span class="pl-s1">deps</span> <span class="pl-c1">=</span> [<span class="pl-s">':lib'</span>],
-)</pre></div>
+js_binary(
+  name = 'bin',
+  srcs = ['main.js'],
+  deps = [':lib'],
+)
+</code></pre></div>
 <p dir="auto">There is a WORKSPACE rule to install modules from NPM, optionally include their
 typescript definitions. <code>npm_install</code> will also take a <code>sha256</code> argument to
 verify against what's published on NPM as well as a <code>type_sha256</code> for the type
 declaration.</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load('@com_vistarmedia_rules_js//js:def.bzl', 'npm_install')
-npm_install('immutable', version='3.8.1', type_version='3.8.1')"><pre><span class="pl-en">load</span>(<span class="pl-s">'@com_vistarmedia_rules_js//js:def.bzl'</span>, <span class="pl-s">'npm_install'</span>)
-<span class="pl-en">npm_install</span>(<span class="pl-s">'immutable'</span>, <span class="pl-s1">version</span><span class="pl-c1">=</span><span class="pl-s">'3.8.1'</span>, <span class="pl-s1">type_version</span><span class="pl-c1">=</span><span class="pl-s">'3.8.1'</span>)</pre></div>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load('@com_vistarmedia_rules_js//js:def.bzl', 'npm_install')
+npm_install('immutable', version='3.8.1', type_version='3.8.1')"><pre lang="bzl" class="notranslate"><code>load('@com_vistarmedia_rules_js//js:def.bzl', 'npm_install')
+npm_install('immutable', version='3.8.1', type_version='3.8.1')
+</code></pre></div>
 <p dir="auto">The resulting library will be available as <code>@immutable//:lib</code>.</p>
 <p dir="auto">Because the rule will create your <code>BUILD</code> file for you, it needs to include all
 specified dependencies. Occasionally, a library will have some functionality you
@@ -83,21 +85,22 @@ of TypeScript where <code>.d.ts</code> files are emitted, and those are the only
 required to <em>compile</em> other libraries which depend on this one. The runtime is
 still needed to execute.</p>
 <p dir="auto">The metadata is as follows:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="struct(
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="struct(
   files = &lt;runtime jsar + compile-time jsar&gt;
   jsar  = &lt;this library's runtime code&gt;
   cjsar = &lt;this library's compile-time definitions&gt;
 
   runtime_deps = &lt;transitive set of runtime dependencies&gt;
   compile_deps = &lt;transitive set of compile-time dependencies&gt;
-)"><pre><span class="pl-en">struct</span>(
-  <span class="pl-s1">files</span> <span class="pl-c1">=</span> <span class="pl-c1">&lt;</span><span class="pl-s1">runtime</span> <span class="pl-s1">jsar</span> <span class="pl-c1">+</span> <span class="pl-s1">compile</span><span class="pl-c1">-</span><span class="pl-s1">time</span> <span class="pl-s1">jsar</span><span class="pl-c1">&gt;</span>
-  <span class="pl-s1">jsar</span>  <span class="pl-c1">=</span> <span class="pl-c1">&lt;</span><span class="pl-s1">this</span> <span class="pl-s1">library</span>'<span class="pl-s1">s</span> <span class="pl-s1">runtime</span> <span class="pl-s1">code</span><span class="pl-c1">&gt;</span>
-  <span class="pl-s1">cjsar</span> <span class="pl-c1">=</span> <span class="pl-c1">&lt;</span><span class="pl-s1">this</span> <span class="pl-s1">library</span>'<span class="pl-s1">s</span> <span class="pl-s1">compile</span><span class="pl-c1">-</span><span class="pl-s1">time</span> <span class="pl-s1">definitions</span><span class="pl-c1">&gt;</span>
+)"><pre lang="bzl" class="notranslate"><code>struct(
+  files = &lt;runtime jsar + compile-time jsar&gt;
+  jsar  = &lt;this library's runtime code&gt;
+  cjsar = &lt;this library's compile-time definitions&gt;
 
-  <span class="pl-s1">runtime_deps</span> <span class="pl-c1">=</span> <span class="pl-c1">&lt;</span><span class="pl-s1">transitive</span> <span class="pl-s1">set</span> <span class="pl-s1">of</span> <span class="pl-s1">runtime</span> <span class="pl-s1">dependencies</span><span class="pl-c1">&gt;</span>
-  <span class="pl-s1">compile_deps</span> <span class="pl-c1">=</span> <span class="pl-c1">&lt;</span><span class="pl-s1">transitive</span> <span class="pl-s1">set</span> <span class="pl-s1">of</span> <span class="pl-s1">compile</span><span class="pl-c1">-</span><span class="pl-s1">time</span> <span class="pl-s1">dependencies</span><span class="pl-c1">&gt;</span>
-)</pre></div>
+  runtime_deps = &lt;transitive set of runtime dependencies&gt;
+  compile_deps = &lt;transitive set of compile-time dependencies&gt;
+)
+</code></pre></div>
 <p dir="auto">A <code>js_binary</code> target will create a "fat" archive -- its local code, and the code
 of all its transitive dependencies. It will also create a runner script which
 will extract these files to a local <code>./node_modules</code>, invoke each <code>src</code> file,

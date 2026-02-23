@@ -46,7 +46,7 @@ and <code>kt_android</code> typically applied to the rules.</p>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto"><code>WORKSPACE</code></h3><a id="user-content-workspace" class="anchor" aria-label="Permalink: WORKSPACE" href="#workspace"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">In the project's <code>WORKSPACE</code>, declare the external repository and initialize the toolchains, like
 this:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@bazel_tools//tools/build_defs/repo:http.bzl&quot;, &quot;http_archive&quot;)
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(&quot;@bazel_tools//tools/build_defs/repo:http.bzl&quot;, &quot;http_archive&quot;)
 
 rules_kotlin_version = &quot;1.9.0&quot;
 rules_kotlin_sha = &quot;5766f1e599acf551aa56f49dab9ab9108269b03c557496c54acaf41f98e2b8d6&quot;
@@ -60,24 +60,25 @@ load(&quot;@rules_kotlin//kotlin:repositories.bzl&quot;, &quot;kotlin_repositori
 kotlin_repositories() # if you want the default. Otherwise see custom kotlinc distribution below
 
 load(&quot;@rules_kotlin//kotlin:core.bzl&quot;, &quot;kt_register_toolchains&quot;)
-kt_register_toolchains() # to use the default toolchain, otherwise see toolchains below"><pre><span class="pl-en">load</span>(<span class="pl-s">"@bazel_tools//tools/build_defs/repo:http.bzl"</span>, <span class="pl-s">"http_archive"</span>)
+kt_register_toolchains() # to use the default toolchain, otherwise see toolchains below"><pre lang="python" class="notranslate"><code>load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
-<span class="pl-s1">rules_kotlin_version</span> <span class="pl-c1">=</span> <span class="pl-s">"1.9.0"</span>
-<span class="pl-s1">rules_kotlin_sha</span> <span class="pl-c1">=</span> <span class="pl-s">"5766f1e599acf551aa56f49dab9ab9108269b03c557496c54acaf41f98e2b8d6"</span>
-<span class="pl-en">http_archive</span>(
-    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_kotlin"</span>,
-    <span class="pl-s1">urls</span> <span class="pl-c1">=</span> [<span class="pl-s">"https://github.com/bazelbuild/rules_kotlin/releases/download/v%s/rules_kotlin-v%s.tar.gz"</span> <span class="pl-c1">%</span> (<span class="pl-s1">rules_kotlin_version</span>, <span class="pl-s1">rules_kotlin_version</span>)],
-    <span class="pl-s1">sha256</span> <span class="pl-c1">=</span> <span class="pl-s1">rules_kotlin_sha</span>,
+rules_kotlin_version = "1.9.0"
+rules_kotlin_sha = "5766f1e599acf551aa56f49dab9ab9108269b03c557496c54acaf41f98e2b8d6"
+http_archive(
+    name = "rules_kotlin",
+    urls = ["https://github.com/bazelbuild/rules_kotlin/releases/download/v%s/rules_kotlin-v%s.tar.gz" % (rules_kotlin_version, rules_kotlin_version)],
+    sha256 = rules_kotlin_sha,
 )
 
-<span class="pl-en">load</span>(<span class="pl-s">"@rules_kotlin//kotlin:repositories.bzl"</span>, <span class="pl-s">"kotlin_repositories"</span>)
-<span class="pl-en">kotlin_repositories</span>() <span class="pl-c"># if you want the default. Otherwise see custom kotlinc distribution below</span>
+load("@rules_kotlin//kotlin:repositories.bzl", "kotlin_repositories")
+kotlin_repositories() # if you want the default. Otherwise see custom kotlinc distribution below
 
-<span class="pl-en">load</span>(<span class="pl-s">"@rules_kotlin//kotlin:core.bzl"</span>, <span class="pl-s">"kt_register_toolchains"</span>)
-<span class="pl-en">kt_register_toolchains</span>() <span class="pl-c"># to use the default toolchain, otherwise see toolchains below</span></pre></div>
+load("@rules_kotlin//kotlin:core.bzl", "kt_register_toolchains")
+kt_register_toolchains() # to use the default toolchain, otherwise see toolchains below
+</code></pre></div>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto"><code>BUILD</code> files</h2><a id="user-content-build-files" class="anchor" aria-label="Permalink: BUILD files" href="#build-files"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">In your project's <code>BUILD</code> files, load the Kotlin rules and use them like so:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@rules_kotlin//kotlin:jvm.bzl&quot;, &quot;kt_jvm_library&quot;)
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(&quot;@rules_kotlin//kotlin:jvm.bzl&quot;, &quot;kt_jvm_library&quot;)
 
 kt_jvm_library(
     name = &quot;package_name&quot;,
@@ -85,95 +86,102 @@ kt_jvm_library(
     deps = [
         &quot;//path/to/dependency&quot;,
     ],
-)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@rules_kotlin//kotlin:jvm.bzl"</span>, <span class="pl-s">"kt_jvm_library"</span>)
+)"><pre lang="python" class="notranslate"><code>load("@rules_kotlin//kotlin:jvm.bzl", "kt_jvm_library")
 
-<span class="pl-en">kt_jvm_library</span>(
-    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"package_name"</span>,
-    <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> <span class="pl-en">glob</span>([<span class="pl-s">"*.kt"</span>]),
-    <span class="pl-s1">deps</span> <span class="pl-c1">=</span> [
-        <span class="pl-s">"//path/to/dependency"</span>,
+kt_jvm_library(
+    name = "package_name",
+    srcs = glob(["*.kt"]),
+    deps = [
+        "//path/to/dependency",
     ],
-)</pre></div>
+)
+</code></pre></div>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Custom toolchain</h2><a id="user-content-custom-toolchain" class="anchor" aria-label="Permalink: Custom toolchain" href="#custom-toolchain"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">To enable a custom toolchain (to configure language level, etc.)
 do the following.  In a <code>&lt;workspace&gt;/BUILD.bazel</code> file define the following:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@rules_kotlin//kotlin:core.bzl&quot;, &quot;define_kt_toolchain&quot;)
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(&quot;@rules_kotlin//kotlin:core.bzl&quot;, &quot;define_kt_toolchain&quot;)
 
 define_kt_toolchain(
     name = &quot;kotlin_toolchain&quot;,
     api_version = KOTLIN_LANGUAGE_LEVEL,  # &quot;1.9&quot;, &quot;2.0&quot;, &quot;2.1&quot;, &quot;2.2&quot;, or &quot;2.3&quot;
     jvm_target = JAVA_LANGUAGE_LEVEL, # &quot;1.8&quot;, &quot;9&quot;, &quot;10&quot;, &quot;11&quot;, &quot;12&quot;, &quot;13&quot;, &quot;14&quot;, &quot;15&quot;, &quot;16&quot;, &quot;17&quot;, &quot;18&quot;, &quot;19&quot;, &quot;20&quot;, &quot;21&quot;, &quot;22&quot;, &quot;23&quot;, &quot;24&quot;, or &quot;25&quot;
     language_version = KOTLIN_LANGUAGE_LEVEL,  # &quot;1.9&quot;, &quot;2.0&quot;, &quot;2.1&quot;, &quot;2.2&quot;, or &quot;2.3&quot;
-)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@rules_kotlin//kotlin:core.bzl"</span>, <span class="pl-s">"define_kt_toolchain"</span>)
+)"><pre lang="python" class="notranslate"><code>load("@rules_kotlin//kotlin:core.bzl", "define_kt_toolchain")
 
-<span class="pl-en">define_kt_toolchain</span>(
-    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"kotlin_toolchain"</span>,
-    <span class="pl-s1">api_version</span> <span class="pl-c1">=</span> <span class="pl-c1">KOTLIN_LANGUAGE_LEVEL</span>,  <span class="pl-c"># "1.9", "2.0", "2.1", "2.2", or "2.3"</span>
-    <span class="pl-s1">jvm_target</span> <span class="pl-c1">=</span> <span class="pl-c1">JAVA_LANGUAGE_LEVEL</span>, <span class="pl-c"># "1.8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", or "25"</span>
-    <span class="pl-s1">language_version</span> <span class="pl-c1">=</span> <span class="pl-c1">KOTLIN_LANGUAGE_LEVEL</span>,  <span class="pl-c"># "1.9", "2.0", "2.1", "2.2", or "2.3"</span>
-)</pre></div>
+define_kt_toolchain(
+    name = "kotlin_toolchain",
+    api_version = KOTLIN_LANGUAGE_LEVEL,  # "1.9", "2.0", "2.1", "2.2", or "2.3"
+    jvm_target = JAVA_LANGUAGE_LEVEL, # "1.8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", or "25"
+    language_version = KOTLIN_LANGUAGE_LEVEL,  # "1.9", "2.0", "2.1", "2.2", or "2.3"
+)
+</code></pre></div>
 <p dir="auto">and then in your <code>WORKSPACE</code> file, instead of <code>kt_register_toolchains()</code> do</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="register_toolchains(&quot;//:kotlin_toolchain&quot;)"><pre><span class="pl-en">register_toolchains</span>(<span class="pl-s">"//:kotlin_toolchain"</span>)</pre></div>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="register_toolchains(&quot;//:kotlin_toolchain&quot;)"><pre lang="python" class="notranslate"><code>register_toolchains("//:kotlin_toolchain")
+</code></pre></div>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Custom <code>kotlinc</code> distribution (and version)</h2><a id="user-content-custom-kotlinc-distribution-and-version" class="anchor" aria-label="Permalink: Custom kotlinc distribution (and version)" href="#custom-kotlinc-distribution-and-version"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">To choose a different <code>kotlinc</code> distribution (1.3 and 1.4 variants supported), do the following
 in your <code>WORKSPACE</code> file (or import from a <code>.bzl</code> file:</p>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto"><code>MODULE.bazel</code></h3><a id="user-content-modulebazel" class="anchor" aria-label="Permalink: MODULE.bazel" href="#modulebazel"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="rules_kotlin_extensions = use_extension(&quot;@rules_kotlin//src/main/starlark/core/repositories:bzlmod_setup.bzl&quot;, &quot;rules_kotlin_extensions&quot;)
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="rules_kotlin_extensions = use_extension(&quot;@rules_kotlin//src/main/starlark/core/repositories:bzlmod_setup.bzl&quot;, &quot;rules_kotlin_extensions&quot;)
 rules_kotlin_extensions.kotlinc_version(
     version = &quot;2.1.20&quot;,
     sha256 = &quot;a118197b0de55ffab2bc8d5cd03a5e39033cfb53383d6931bc761dec0784891a&quot;
 )
-use_repo(rules_kotlin_extensions, &quot;com_github_google_ksp&quot;, &quot;com_github_jetbrains_kotlin&quot;, &quot;com_github_jetbrains_kotlin_git&quot;, &quot;com_github_pinterest_ktlint&quot;, &quot;kotlinx_serialization_core_jvm&quot;, &quot;kotlinx_serialization_json&quot;, &quot;kotlinx_serialization_json_jvm&quot;)"><pre><span class="pl-s1">rules_kotlin_extensions</span> <span class="pl-c1">=</span> <span class="pl-en">use_extension</span>(<span class="pl-s">"@rules_kotlin//src/main/starlark/core/repositories:bzlmod_setup.bzl"</span>, <span class="pl-s">"rules_kotlin_extensions"</span>)
-<span class="pl-s1">rules_kotlin_extensions</span>.<span class="pl-c1">kotlinc_version</span>(
-    <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"2.1.20"</span>,
-    <span class="pl-s1">sha256</span> <span class="pl-c1">=</span> <span class="pl-s">"a118197b0de55ffab2bc8d5cd03a5e39033cfb53383d6931bc761dec0784891a"</span>
+use_repo(rules_kotlin_extensions, &quot;com_github_google_ksp&quot;, &quot;com_github_jetbrains_kotlin&quot;, &quot;com_github_jetbrains_kotlin_git&quot;, &quot;com_github_pinterest_ktlint&quot;, &quot;kotlinx_serialization_core_jvm&quot;, &quot;kotlinx_serialization_json&quot;, &quot;kotlinx_serialization_json_jvm&quot;)"><pre lang="python" class="notranslate"><code>rules_kotlin_extensions = use_extension("@rules_kotlin//src/main/starlark/core/repositories:bzlmod_setup.bzl", "rules_kotlin_extensions")
+rules_kotlin_extensions.kotlinc_version(
+    version = "2.1.20",
+    sha256 = "a118197b0de55ffab2bc8d5cd03a5e39033cfb53383d6931bc761dec0784891a"
 )
-<span class="pl-en">use_repo</span>(<span class="pl-s1">rules_kotlin_extensions</span>, <span class="pl-s">"com_github_google_ksp"</span>, <span class="pl-s">"com_github_jetbrains_kotlin"</span>, <span class="pl-s">"com_github_jetbrains_kotlin_git"</span>, <span class="pl-s">"com_github_pinterest_ktlint"</span>, <span class="pl-s">"kotlinx_serialization_core_jvm"</span>, <span class="pl-s">"kotlinx_serialization_json"</span>, <span class="pl-s">"kotlinx_serialization_json_jvm"</span>)</pre></div>
+use_repo(rules_kotlin_extensions, "com_github_google_ksp", "com_github_jetbrains_kotlin", "com_github_jetbrains_kotlin_git", "com_github_pinterest_ktlint", "kotlinx_serialization_core_jvm", "kotlinx_serialization_json", "kotlinx_serialization_json_jvm")
+</code></pre></div>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto"><code>WORKSPACE</code></h3><a id="user-content-workspace-1" class="anchor" aria-label="Permalink: WORKSPACE" href="#workspace-1"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@rules_kotlin//kotlin:repositories.bzl&quot;, &quot;kotlin_repositories&quot;, &quot;kotlinc_version&quot;)
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(&quot;@rules_kotlin//kotlin:repositories.bzl&quot;, &quot;kotlin_repositories&quot;, &quot;kotlinc_version&quot;)
 
 kotlin_repositories(
     compiler_release = kotlinc_version(
         release = &quot;2.1.20&quot;,
         sha256 = &quot;a118197b0de55ffab2bc8d5cd03a5e39033cfb53383d6931bc761dec0784891a&quot;
     )
-)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@rules_kotlin//kotlin:repositories.bzl"</span>, <span class="pl-s">"kotlin_repositories"</span>, <span class="pl-s">"kotlinc_version"</span>)
+)"><pre lang="python" class="notranslate"><code>load("@rules_kotlin//kotlin:repositories.bzl", "kotlin_repositories", "kotlinc_version")
 
-<span class="pl-en">kotlin_repositories</span>(
-    <span class="pl-s1">compiler_release</span> <span class="pl-c1">=</span> <span class="pl-en">kotlinc_version</span>(
-        <span class="pl-s1">release</span> <span class="pl-c1">=</span> <span class="pl-s">"2.1.20"</span>,
-        <span class="pl-s1">sha256</span> <span class="pl-c1">=</span> <span class="pl-s">"a118197b0de55ffab2bc8d5cd03a5e39033cfb53383d6931bc761dec0784891a"</span>
+kotlin_repositories(
+    compiler_release = kotlinc_version(
+        release = "2.1.20",
+        sha256 = "a118197b0de55ffab2bc8d5cd03a5e39033cfb53383d6931bc761dec0784891a"
     )
-)</pre></div>
+)
+</code></pre></div>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Third party dependencies</h2><a id="user-content-third-party-dependencies" class="anchor" aria-label="Permalink: Third party dependencies" href="#third-party-dependencies"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto"><em>(e.g. Maven artifacts)</em></p>
 <p dir="auto">Third party (external) artifacts can be brought in with systems such as <a href="https://github.com/bazelbuild/rules_jvm_external"><code>rules_jvm_external</code></a> or <a href="https://github.com/square/bazel_maven_repository"><code>bazel_maven_repository</code></a> or <a href="https://github.com/johnynek/bazel-deps"><code>bazel-deps</code></a>, but make sure the version you use doesn't naively use <code>java_import</code>, as this will cause bazel to make an interface-only (<code>ijar</code>), or ABI jar, and the native <code>ijar</code> tool does not know about kotlin metadata with respect to inlined functions, and will remove method bodies inappropriately.  Recent versions of <code>rules_jvm_external</code> and <code>bazel_maven_repository</code> are known to work with Kotlin.</p>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Development Setup</h2><a id="user-content-development-setup" class="anchor" aria-label="Permalink: Development Setup" href="#development-setup"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">For local development of rules_kotlin:</p>
 <div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">With Bzlmod</h4><a id="user-content-with-bzlmod" class="anchor" aria-label="Permalink: With Bzlmod" href="#with-bzlmod"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="local_path_override(
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="local_path_override(
     module_name = &quot;rules_kotlin&quot;,
     path = &quot;../path/to/rules_kotlin_clone/&quot;,
-)"><pre><span class="pl-en">local_path_override</span>(
-    <span class="pl-s1">module_name</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_kotlin"</span>,
-    <span class="pl-s1">path</span> <span class="pl-c1">=</span> <span class="pl-s">"../path/to/rules_kotlin_clone/"</span>,
-)</pre></div>
+)"><pre lang="python" class="notranslate"><code>local_path_override(
+    module_name = "rules_kotlin",
+    path = "../path/to/rules_kotlin_clone/",
+)
+</code></pre></div>
 <div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">From HEAD (Bzlmod)</h4><a id="user-content-from-head-bzlmod" class="anchor" aria-label="Permalink: From HEAD (Bzlmod)" href="#from-head-bzlmod"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="_RULES_KOTLIN_COMMIT = &quot;HEAD_COMMIT_SHA&quot;
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="_RULES_KOTLIN_COMMIT = &quot;HEAD_COMMIT_SHA&quot;
 
 archive_override(
     module_name = &quot;rules_kotlin&quot;,
     integrity = &quot;sha256-...&quot;,
     strip_prefix = &quot;rules_kotlin-%s&quot; % _RULES_KOTLIN_COMMIT,
     urls = [&quot;https://github.com/bazelbuild/rules_kotlin/archive/%s.tar.gz&quot; % _RULES_KOTLIN_COMMIT],
-)"><pre><span class="pl-s1">_RULES_KOTLIN_COMMIT</span> <span class="pl-c1">=</span> <span class="pl-s">"HEAD_COMMIT_SHA"</span>
+)"><pre lang="python" class="notranslate"><code>_RULES_KOTLIN_COMMIT = "HEAD_COMMIT_SHA"
 
-<span class="pl-en">archive_override</span>(
-    <span class="pl-s1">module_name</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_kotlin"</span>,
-    <span class="pl-s1">integrity</span> <span class="pl-c1">=</span> <span class="pl-s">"sha256-..."</span>,
-    <span class="pl-s1">strip_prefix</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_kotlin-%s"</span> <span class="pl-c1">%</span> <span class="pl-s1">_RULES_KOTLIN_COMMIT</span>,
-    <span class="pl-s1">urls</span> <span class="pl-c1">=</span> [<span class="pl-s">"https://github.com/bazelbuild/rules_kotlin/archive/%s.tar.gz"</span> <span class="pl-c1">%</span> <span class="pl-s1">_RULES_KOTLIN_COMMIT</span>],
-)</pre></div>
+archive_override(
+    module_name = "rules_kotlin",
+    integrity = "sha256-...",
+    strip_prefix = "rules_kotlin-%s" % _RULES_KOTLIN_COMMIT,
+    urls = ["https://github.com/bazelbuild/rules_kotlin/archive/%s.tar.gz" % _RULES_KOTLIN_COMMIT],
+)
+</code></pre></div>
 <div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Debugging native actions</h1><a id="user-content-debugging-native-actions" class="anchor" aria-label="Permalink: Debugging native actions" href="#debugging-native-actions"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">To attach debugger and step through native action code when using local checkout of rules_kotlin repo :</p>
 <ol dir="auto">
@@ -190,7 +198,7 @@ archive_override(
 <p dir="auto">The <code>kt_kotlinc_options</code> and <code>kt_javac_options</code> rules allows passing compiler flags to kotlinc and javac.</p>
 <p dir="auto">Note: Not all compiler flags are supported in all language versions. When this happens, the rules will fail.</p>
 <p dir="auto">For example you can define global compiler flags by doing:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@rules_kotlin//kotlin:core.bzl&quot;, &quot;kt_kotlinc_options&quot;, &quot;kt_javac_options&quot;, &quot;define_kt_toolchain&quot;)
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(&quot;@rules_kotlin//kotlin:core.bzl&quot;, &quot;kt_kotlinc_options&quot;, &quot;kt_javac_options&quot;, &quot;define_kt_toolchain&quot;)
 
 kt_kotlinc_options(
     name = &quot;kt_kotlinc_options&quot;,
@@ -207,28 +215,29 @@ define_kt_toolchain(
     name = &quot;kotlin_toolchain&quot;,
     kotlinc_options = &quot;//:kt_kotlinc_options&quot;,
     javac_options = &quot;//:kt_javac_options&quot;,
-)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@rules_kotlin//kotlin:core.bzl"</span>, <span class="pl-s">"kt_kotlinc_options"</span>, <span class="pl-s">"kt_javac_options"</span>, <span class="pl-s">"define_kt_toolchain"</span>)
+)"><pre lang="python" class="notranslate"><code>load("@rules_kotlin//kotlin:core.bzl", "kt_kotlinc_options", "kt_javac_options", "define_kt_toolchain")
 
-<span class="pl-en">kt_kotlinc_options</span>(
-    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"kt_kotlinc_options"</span>,
-    <span class="pl-s1">x_no_param_assertions</span> <span class="pl-c1">=</span> <span class="pl-c1">True</span>,
-    <span class="pl-s1">jvm_target</span> <span class="pl-c1">=</span> <span class="pl-s">"1.8"</span>,
+kt_kotlinc_options(
+    name = "kt_kotlinc_options",
+    x_no_param_assertions = True,
+    jvm_target = "1.8",
 )
 
-<span class="pl-en">kt_javac_options</span>(
-    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"kt_javac_options"</span>,
-    <span class="pl-s1">warn</span> <span class="pl-c1">=</span> <span class="pl-s">"off"</span>,
+kt_javac_options(
+    name = "kt_javac_options",
+    warn = "off",
 )
 
-<span class="pl-en">define_kt_toolchain</span>(
-    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"kotlin_toolchain"</span>,
-    <span class="pl-s1">kotlinc_options</span> <span class="pl-c1">=</span> <span class="pl-s">"//:kt_kotlinc_options"</span>,
-    <span class="pl-s1">javac_options</span> <span class="pl-c1">=</span> <span class="pl-s">"//:kt_javac_options"</span>,
-)</pre></div>
+define_kt_toolchain(
+    name = "kotlin_toolchain",
+    kotlinc_options = "//:kt_kotlinc_options",
+    javac_options = "//:kt_javac_options",
+)
+</code></pre></div>
 <p dir="auto">You can optionally override compiler flags at the target level by providing an alternative set of <code>kt_kotlinc_options</code> or <code>kt_javac_options</code> in your target definitions.</p>
 <p dir="auto">Compiler flags that are passed to the rule definitions will be taken over the toolchain definition.</p>
 <p dir="auto">Example:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@rules_kotlin//kotlin:core.bzl&quot;, &quot;kt_kotlinc_options&quot;, &quot;kt_javac_options&quot;)
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(&quot;@rules_kotlin//kotlin:core.bzl&quot;, &quot;kt_kotlinc_options&quot;, &quot;kt_javac_options&quot;)
 load(&quot;@rules_kotlin//kotlin:jvm.bzl&quot;, &quot;kt_jvm_library&quot;)
 
 kt_kotlinc_options(
@@ -251,41 +260,43 @@ kt_jvm_library(
     kotlinc_opts = &quot;//:kt_kotlinc_options_for_package_name&quot;,
     javac_opts = &quot;//:kt_javac_options_for_package_name&quot;,
     deps = [&quot;//path/to/dependency&quot;],
-)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@rules_kotlin//kotlin:core.bzl"</span>, <span class="pl-s">"kt_kotlinc_options"</span>, <span class="pl-s">"kt_javac_options"</span>)
-<span class="pl-en">load</span>(<span class="pl-s">"@rules_kotlin//kotlin:jvm.bzl"</span>, <span class="pl-s">"kt_jvm_library"</span>)
+)"><pre lang="python" class="notranslate"><code>load("@rules_kotlin//kotlin:core.bzl", "kt_kotlinc_options", "kt_javac_options")
+load("@rules_kotlin//kotlin:jvm.bzl", "kt_jvm_library")
 
-<span class="pl-en">kt_kotlinc_options</span>(
-    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"kt_kotlinc_options_for_package_name"</span>,
-    <span class="pl-s1">x_no_param_assertions</span> <span class="pl-c1">=</span> <span class="pl-c1">True</span>,
-    <span class="pl-s1">x_optin</span> <span class="pl-c1">=</span> [
-        <span class="pl-s">"kotlin.Experimental"</span>,
-        <span class="pl-s">"kotlin.ExperimentalStdlibApi"</span>,
+kt_kotlinc_options(
+    name = "kt_kotlinc_options_for_package_name",
+    x_no_param_assertions = True,
+    x_optin = [
+        "kotlin.Experimental",
+        "kotlin.ExperimentalStdlibApi",
     ],
 )
 
-<span class="pl-en">kt_javac_options</span>(
-    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"kt_javac_options_for_package_name"</span>,
-    <span class="pl-s1">warn</span> <span class="pl-c1">=</span> <span class="pl-s">"off"</span>
+kt_javac_options(
+    name = "kt_javac_options_for_package_name",
+    warn = "off"
 )
 
-<span class="pl-en">kt_jvm_library</span>(
-    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"package_name"</span>,
-    <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> <span class="pl-en">glob</span>([<span class="pl-s">"*.kt"</span>]),
-    <span class="pl-s1">kotlinc_opts</span> <span class="pl-c1">=</span> <span class="pl-s">"//:kt_kotlinc_options_for_package_name"</span>,
-    <span class="pl-s1">javac_opts</span> <span class="pl-c1">=</span> <span class="pl-s">"//:kt_javac_options_for_package_name"</span>,
-    <span class="pl-s1">deps</span> <span class="pl-c1">=</span> [<span class="pl-s">"//path/to/dependency"</span>],
-)</pre></div>
+kt_jvm_library(
+    name = "package_name",
+    srcs = glob(["*.kt"]),
+    kotlinc_opts = "//:kt_kotlinc_options_for_package_name",
+    javac_opts = "//:kt_javac_options_for_package_name",
+    deps = ["//path/to/dependency"],
+)
+</code></pre></div>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Lambda Bytecode Generation</h3><a id="user-content-lambda-bytecode-generation" class="anchor" aria-label="Permalink: Lambda Bytecode Generation" href="#lambda-bytecode-generation"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">Note: <code>kt_kotlinc_options</code> defaults <code>x_lambdas</code> and <code>x_sam_conversions</code> to <code>"class"</code>, which differs from Kotlin 2.x and Gradle's default of <code>"indy"</code> (invokedynamic). If you encounter issues with bytecode analysis tools expecting invokedynamic-based lambdas, configure these options:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="kt_kotlinc_options(
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="kt_kotlinc_options(
     name = &quot;kt_kotlinc_options&quot;,
     x_lambdas = &quot;indy&quot;,
     x_sam_conversions = &quot;indy&quot;,
-)"><pre><span class="pl-en">kt_kotlinc_options</span>(
-    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"kt_kotlinc_options"</span>,
-    <span class="pl-s1">x_lambdas</span> <span class="pl-c1">=</span> <span class="pl-s">"indy"</span>,
-    <span class="pl-s1">x_sam_conversions</span> <span class="pl-c1">=</span> <span class="pl-s">"indy"</span>,
-)</pre></div>
+)"><pre lang="python" class="notranslate"><code>kt_kotlinc_options(
+    name = "kt_kotlinc_options",
+    x_lambdas = "indy",
+    x_sam_conversions = "indy",
+)
+</code></pre></div>
 <p dir="auto">Additionally, you can add options for both tracing and timing of the bazel build using the <code>kt_trace</code> and <code>kt_timings</code> flags, for example:</p>
 <ul dir="auto">
 <li><code>bazel build --define=kt_trace=1</code></li>
@@ -296,14 +307,15 @@ kt_jvm_library(
 <p dir="auto">The Build Tools API is a modern compilation interface provided by JetBrains for invoking the Kotlin compiler. It offers better integration and is required for incremental compilation support.</p>
 <p dir="auto"><strong>This feature is enabled by default.</strong></p>
 <p dir="auto">To disable the Build Tools API and use the legacy compilation approach, add the following flag to your build:</p>
-<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel build --@rules_kotlin//kotlin/settings:experimental_build_tools_api=false //your:target"><pre>bazel build --@rules_kotlin//kotlin/settings:experimental_build_tools_api=false //your:target</pre></div>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="bazel build --@rules_kotlin//kotlin/settings:experimental_build_tools_api=false //your:target"><pre lang="bash" class="notranslate"><code>bazel build --@rules_kotlin//kotlin/settings:experimental_build_tools_api=false //your:target
+</code></pre></div>
 <p dir="auto">Or add it to your <code>.bazelrc</code> file:</p>
 <div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="build --@rules_kotlin//kotlin/settings:experimental_build_tools_api=false"><pre class="notranslate"><code>build --@rules_kotlin//kotlin/settings:experimental_build_tools_api=false
 </code></pre></div>
 <div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">KSP (Kotlin Symbol Processing)</h1><a id="user-content-ksp-kotlin-symbol-processing" class="anchor" aria-label="Permalink: KSP (Kotlin Symbol Processing)" href="#ksp-kotlin-symbol-processing"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">KSP is officially supported as of <code>rules_kotlin</code> 1.8 and can be declared using the new
 <code>kt_ksp_plugin</code> rule.</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@rules_kotlin//kotlin:core.bzl&quot;, &quot;kt_ksp_plugin&quot;)
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(&quot;@rules_kotlin//kotlin:core.bzl&quot;, &quot;kt_ksp_plugin&quot;)
 load(&quot;@rules_kotlin//kotlin:jvm.bzl&quot;, &quot;kt_jvm_library&quot;)
 
 kt_ksp_plugin(
@@ -320,58 +332,61 @@ kt_jvm_library(
     name = &quot;lib&quot;,
     srcs = glob([&quot;*.kt&quot;]),
     plugins = [&quot;//:moshi-kotlin-codegen&quot;],
-)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@rules_kotlin//kotlin:core.bzl"</span>, <span class="pl-s">"kt_ksp_plugin"</span>)
-<span class="pl-en">load</span>(<span class="pl-s">"@rules_kotlin//kotlin:jvm.bzl"</span>, <span class="pl-s">"kt_jvm_library"</span>)
+)"><pre lang="python" class="notranslate"><code>load("@rules_kotlin//kotlin:core.bzl", "kt_ksp_plugin")
+load("@rules_kotlin//kotlin:jvm.bzl", "kt_jvm_library")
 
-<span class="pl-en">kt_ksp_plugin</span>(
-    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"moshi-kotlin-codegen"</span>,
-    <span class="pl-s1">processor_class</span> <span class="pl-c1">=</span> <span class="pl-s">"com.squareup.moshi.kotlin.codegen.ksp.JsonClassSymbolProcessorProvider"</span>,
-    <span class="pl-s1">deps</span> <span class="pl-c1">=</span> [
-        <span class="pl-s">"@maven//:com_squareup_moshi_moshi"</span>,
-        <span class="pl-s">"@maven//:com_squareup_moshi_moshi_kotlin"</span>,
-        <span class="pl-s">"@maven//:com_squareup_moshi_moshi_kotlin_codegen"</span>,
+kt_ksp_plugin(
+    name = "moshi-kotlin-codegen",
+    processor_class = "com.squareup.moshi.kotlin.codegen.ksp.JsonClassSymbolProcessorProvider",
+    deps = [
+        "@maven//:com_squareup_moshi_moshi",
+        "@maven//:com_squareup_moshi_moshi_kotlin",
+        "@maven//:com_squareup_moshi_moshi_kotlin_codegen",
     ],
 )
 
-<span class="pl-en">kt_jvm_library</span>(
-    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"lib"</span>,
-    <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> <span class="pl-en">glob</span>([<span class="pl-s">"*.kt"</span>]),
-    <span class="pl-s1">plugins</span> <span class="pl-c1">=</span> [<span class="pl-s">"//:moshi-kotlin-codegen"</span>],
-)</pre></div>
+kt_jvm_library(
+    name = "lib",
+    srcs = glob(["*.kt"]),
+    plugins = ["//:moshi-kotlin-codegen"],
+)
+</code></pre></div>
 <p dir="auto">To choose a different <code>ksp_version</code> distribution,
 do the following in your repository.</p>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto"><code>MODULE.bazel</code></h3><a id="user-content-modulebazel-1" class="anchor" aria-label="Permalink: MODULE.bazel" href="#modulebazel-1"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="rules_kotlin_extensions = use_extension(&quot;@rules_kotlin//src/main/starlark/core/repositories:bzlmod_setup.bzl&quot;, &quot;rules_kotlin_extensions&quot;)
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="rules_kotlin_extensions = use_extension(&quot;@rules_kotlin//src/main/starlark/core/repositories:bzlmod_setup.bzl&quot;, &quot;rules_kotlin_extensions&quot;)
 rules_kotlin_extensions.ksp_version(
     version = &quot;1.8.22-1.0.11&quot;,
     sha256 = &quot;2ce5a08fddd20ef07ac051615905453fe08c3ba3ce5afa5dc43a9b77aa64507d&quot;,
 )
-use_repo(rules_kotlin_extensions, &quot;com_github_google_ksp&quot;, &quot;com_github_jetbrains_kotlin&quot;, &quot;com_github_jetbrains_kotlin_git&quot;, &quot;com_github_pinterest_ktlint&quot;, &quot;kotlinx_serialization_core_jvm&quot;, &quot;kotlinx_serialization_json&quot;, &quot;kotlinx_serialization_json_jvm&quot;)"><pre><span class="pl-s1">rules_kotlin_extensions</span> <span class="pl-c1">=</span> <span class="pl-en">use_extension</span>(<span class="pl-s">"@rules_kotlin//src/main/starlark/core/repositories:bzlmod_setup.bzl"</span>, <span class="pl-s">"rules_kotlin_extensions"</span>)
-<span class="pl-s1">rules_kotlin_extensions</span>.<span class="pl-c1">ksp_version</span>(
-    <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"1.8.22-1.0.11"</span>,
-    <span class="pl-s1">sha256</span> <span class="pl-c1">=</span> <span class="pl-s">"2ce5a08fddd20ef07ac051615905453fe08c3ba3ce5afa5dc43a9b77aa64507d"</span>,
+use_repo(rules_kotlin_extensions, &quot;com_github_google_ksp&quot;, &quot;com_github_jetbrains_kotlin&quot;, &quot;com_github_jetbrains_kotlin_git&quot;, &quot;com_github_pinterest_ktlint&quot;, &quot;kotlinx_serialization_core_jvm&quot;, &quot;kotlinx_serialization_json&quot;, &quot;kotlinx_serialization_json_jvm&quot;)"><pre lang="python" class="notranslate"><code>rules_kotlin_extensions = use_extension("@rules_kotlin//src/main/starlark/core/repositories:bzlmod_setup.bzl", "rules_kotlin_extensions")
+rules_kotlin_extensions.ksp_version(
+    version = "1.8.22-1.0.11",
+    sha256 = "2ce5a08fddd20ef07ac051615905453fe08c3ba3ce5afa5dc43a9b77aa64507d",
 )
-<span class="pl-en">use_repo</span>(<span class="pl-s1">rules_kotlin_extensions</span>, <span class="pl-s">"com_github_google_ksp"</span>, <span class="pl-s">"com_github_jetbrains_kotlin"</span>, <span class="pl-s">"com_github_jetbrains_kotlin_git"</span>, <span class="pl-s">"com_github_pinterest_ktlint"</span>, <span class="pl-s">"kotlinx_serialization_core_jvm"</span>, <span class="pl-s">"kotlinx_serialization_json"</span>, <span class="pl-s">"kotlinx_serialization_json_jvm"</span>)</pre></div>
+use_repo(rules_kotlin_extensions, "com_github_google_ksp", "com_github_jetbrains_kotlin", "com_github_jetbrains_kotlin_git", "com_github_pinterest_ktlint", "kotlinx_serialization_core_jvm", "kotlinx_serialization_json", "kotlinx_serialization_json_jvm")
+</code></pre></div>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto"><code>WORKSPACE</code> (or import from a <code>.bzl</code> file):</h3><a id="user-content-workspace-or-import-from-a-bzl-file" class="anchor" aria-label="Permalink: WORKSPACE (or import from a .bzl file):" href="#workspace-or-import-from-a-bzl-file"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@rules_kotlin//kotlin:repositories.bzl&quot;, &quot;kotlin_repositories&quot;, &quot;ksp_version&quot;)
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(&quot;@rules_kotlin//kotlin:repositories.bzl&quot;, &quot;kotlin_repositories&quot;, &quot;ksp_version&quot;)
 
 kotlin_repositories(
     ksp_compiler_release = ksp_version(
         release = &quot;1.8.22-1.0.11&quot;,
         sha256 = &quot;2ce5a08fddd20ef07ac051615905453fe08c3ba3ce5afa5dc43a9b77aa64507d&quot;,
     ),
-)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@rules_kotlin//kotlin:repositories.bzl"</span>, <span class="pl-s">"kotlin_repositories"</span>, <span class="pl-s">"ksp_version"</span>)
+)"><pre lang="python" class="notranslate"><code>load("@rules_kotlin//kotlin:repositories.bzl", "kotlin_repositories", "ksp_version")
 
-<span class="pl-en">kotlin_repositories</span>(
-    <span class="pl-s1">ksp_compiler_release</span> <span class="pl-c1">=</span> <span class="pl-en">ksp_version</span>(
-        <span class="pl-s1">release</span> <span class="pl-c1">=</span> <span class="pl-s">"1.8.22-1.0.11"</span>,
-        <span class="pl-s1">sha256</span> <span class="pl-c1">=</span> <span class="pl-s">"2ce5a08fddd20ef07ac051615905453fe08c3ba3ce5afa5dc43a9b77aa64507d"</span>,
+kotlin_repositories(
+    ksp_compiler_release = ksp_version(
+        release = "1.8.22-1.0.11",
+        sha256 = "2ce5a08fddd20ef07ac051615905453fe08c3ba3ce5afa5dc43a9b77aa64507d",
     ),
-)</pre></div>
+)
+</code></pre></div>
 <div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Kotlin compiler plugins</h1><a id="user-content-kotlin-compiler-plugins" class="anchor" aria-label="Permalink: Kotlin compiler plugins" href="#kotlin-compiler-plugins"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">The <code>kt_compiler_plugin</code> rule allows running Kotlin compiler plugins, such as no-arg, sam-with-receiver and allopen.</p>
 <p dir="auto">For example, you can add allopen to your project like this:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@rules_kotlin//kotlin:core.bzl&quot;, &quot;kt_compiler_plugin&quot;)
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(&quot;@rules_kotlin//kotlin:core.bzl&quot;, &quot;kt_compiler_plugin&quot;)
 load(&quot;@rules_kotlin//kotlin:jvm.bzl&quot;, &quot;kt_jvm_library&quot;)
 
 kt_compiler_plugin(
@@ -394,30 +409,31 @@ kt_jvm_library(
     deps = [
         &quot;:open_for_testing&quot;, # This contains the annotation (plugin.allopen.OpenForTesting)
     ],
-)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@rules_kotlin//kotlin:core.bzl"</span>, <span class="pl-s">"kt_compiler_plugin"</span>)
-<span class="pl-en">load</span>(<span class="pl-s">"@rules_kotlin//kotlin:jvm.bzl"</span>, <span class="pl-s">"kt_jvm_library"</span>)
+)"><pre lang="python" class="notranslate"><code>load("@rules_kotlin//kotlin:core.bzl", "kt_compiler_plugin")
+load("@rules_kotlin//kotlin:jvm.bzl", "kt_jvm_library")
 
-<span class="pl-en">kt_compiler_plugin</span>(
-    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"open_for_testing_plugin"</span>,
-    <span class="pl-s1">id</span> <span class="pl-c1">=</span> <span class="pl-s">"org.jetbrains.kotlin.allopen"</span>,
-    <span class="pl-s1">options</span> <span class="pl-c1">=</span> {
-        <span class="pl-s">"annotation"</span>: <span class="pl-s">"plugin.allopen.OpenForTesting"</span>,
+kt_compiler_plugin(
+    name = "open_for_testing_plugin",
+    id = "org.jetbrains.kotlin.allopen",
+    options = {
+        "annotation": "plugin.allopen.OpenForTesting",
     },
-    <span class="pl-s1">deps</span> <span class="pl-c1">=</span> [
-        <span class="pl-s">"//kotlin/compiler:allopen-compiler-plugin"</span>,
+    deps = [
+        "//kotlin/compiler:allopen-compiler-plugin",
     ],
 )
 
-<span class="pl-en">kt_jvm_library</span>(
-    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"user"</span>,
-    <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> [<span class="pl-s">"User.kt"</span>], <span class="pl-c"># The User class is annotated with OpenForTesting</span>
-    <span class="pl-s1">plugins</span> <span class="pl-c1">=</span> [
-        <span class="pl-s">":open_for_testing_plugin"</span>,
+kt_jvm_library(
+    name = "user",
+    srcs = ["User.kt"], # The User class is annotated with OpenForTesting
+    plugins = [
+        ":open_for_testing_plugin",
     ],
-    <span class="pl-s1">deps</span> <span class="pl-c1">=</span> [
-        <span class="pl-s">":open_for_testing"</span>, <span class="pl-c"># This contains the annotation (plugin.allopen.OpenForTesting)</span>
+    deps = [
+        ":open_for_testing", # This contains the annotation (plugin.allopen.OpenForTesting)
     ],
-)</pre></div>
+)
+</code></pre></div>
 <p dir="auto">Full examples of using compiler plugins can be found <a href="examples/plugin">here</a>.</p>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Creating Rule Releases</h2><a id="user-content-creating-rule-releases" class="anchor" aria-label="Permalink: Creating Rule Releases" href="#creating-rule-releases"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">A new release can be published by just pushing a tag.</p>
