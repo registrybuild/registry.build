@@ -48,11 +48,10 @@
 <p dir="auto">This approach ensures reproducible builds and allows you to review dependency changes before committing them.</p>
 <div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Step 1: Add Mabel to your MODULE.bazel</h4><a id="user-content-step-1-add-mabel-to-your-modulebazel" class="anchor" aria-label="Permalink: Step 1: Add Mabel to your MODULE.bazel" href="#step-1-add-mabel-to-your-modulebazel"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">Add <code>mabel</code> as dependencies:</p>
-<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="bazel_dep(name = &quot;mabel&quot;, version = &quot;0.31.0&quot;)  # Check latest release"><pre lang="python" class="notranslate"><code>bazel_dep(name = "mabel", version = "0.31.0")  # Check latest release
-</code></pre></div>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel_dep(name = &quot;mabel&quot;, version = &quot;0.31.0&quot;)  # Check latest release"><pre><span class="pl-en">bazel_dep</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"mabel"</span>, <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"0.31.0"</span>)  <span class="pl-c"># Check latest release</span></pre></div>
 <div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Step 2: Define Dependencies in BUILD.bazel</h4><a id="user-content-step-2-define-dependencies-in-buildbazel" class="anchor" aria-label="Permalink: Step 2: Define Dependencies in BUILD.bazel" href="#step-2-define-dependencies-in-buildbazel"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">In your module's <code>BUILD.bazel</code> file (e.g., <code>//third_party:BUILD.bazel</code>), load the <code>mabel_rule</code> and <code>artifact</code> symbols, and define a <code>mabel_rule</code> target with the list of your dependencies:</p>
-<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(&quot;@mabel//rules:mabel.bzl&quot;, &quot;mabel_rule&quot;, &quot;artifact&quot;)
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@mabel//rules:mabel.bzl&quot;, &quot;mabel_rule&quot;, &quot;artifact&quot;)
 
 mabel_rule(
     name = &quot;maven_deps&quot;,
@@ -62,18 +61,17 @@ mabel_rule(
         artifact(&quot;org.apache.commons:commons-lang3:3.14.0&quot;),
         artifact(&quot;com.google.code.findbugs:jsr305:3.0.2&quot;),
     ],
-)"><pre lang="python" class="notranslate"><code>load("@mabel//rules:mabel.bzl", "mabel_rule", "artifact")
+)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@mabel//rules:mabel.bzl"</span>, <span class="pl-s">"mabel_rule"</span>, <span class="pl-s">"artifact"</span>)
 
-mabel_rule(
-    name = "maven_deps",
-    lockfile_path = "third_party/maven_install.json",
-    maven_deps = [
-        artifact("com.google.guava:guava:33.0.0-jre"),
-        artifact("org.apache.commons:commons-lang3:3.14.0"),
-        artifact("com.google.code.findbugs:jsr305:3.0.2"),
+<span class="pl-en">mabel_rule</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"maven_deps"</span>,
+    <span class="pl-s1">lockfile_path</span> <span class="pl-c1">=</span> <span class="pl-s">"third_party/maven_install.json"</span>,
+    <span class="pl-s1">maven_deps</span> <span class="pl-c1">=</span> [
+        <span class="pl-en">artifact</span>(<span class="pl-s">"com.google.guava:guava:33.0.0-jre"</span>),
+        <span class="pl-en">artifact</span>(<span class="pl-s">"org.apache.commons:commons-lang3:3.14.0"</span>),
+        <span class="pl-en">artifact</span>(<span class="pl-s">"com.google.code.findbugs:jsr305:3.0.2"</span>),
     ],
-)
-</code></pre></div>
+)</pre></div>
 <p dir="auto"><strong>Attributes:</strong></p>
 <ul dir="auto">
 <li>
@@ -107,8 +105,7 @@ mabel_rule(
 </ul>
 <div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Step 3: Generate the Lockfile</h4><a id="user-content-step-3-generate-the-lockfile" class="anchor" aria-label="Permalink: Step 3: Generate the Lockfile" href="#step-3-generate-the-lockfile"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">Run the <code>mabel_rule</code> target to resolve all transitive dependencies and generate the lockfile:</p>
-<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="bazel run //third_party:maven_deps"><pre lang="bash" class="notranslate"><code>bazel run //third_party:maven_deps
-</code></pre></div>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel run //third_party:maven_deps"><pre>bazel run //third_party:maven_deps</pre></div>
 <p dir="auto">This will:</p>
 <ol dir="auto">
 <li>Resolve all transitive dependencies from the specified Maven coordinates</li>
@@ -117,7 +114,7 @@ mabel_rule(
 <li>Generate <code>third_party/maven_install.json</code> containing all resolved dependency metadata</li>
 </ol>
 <p dir="auto">The lockfile is a JSON file with the following structure:</p>
-<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="{
+<div class="highlight highlight-source-json notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="{
   &quot;version&quot;: &quot;1.0&quot;,
   &quot;artifacts&quot;: {
     &quot;com.google.guava:guava:33.0.0-jre&quot;: {
@@ -132,27 +129,26 @@ mabel_rule(
       &quot;licenses&quot;: [...]
     }
   }
-}"><pre lang="json" class="notranslate"><code>{
-  "version": "1.0",
-  "artifacts": {
-    "com.google.guava:guava:33.0.0-jre": {
-      "repo_name": "com_google_guava__guava__33_0_0_jre",
-      "url": "https://repo1.maven.org/maven2/...",
-      "sha256": "...",
-      "dependencies": ["com_google_code_findbugs__jsr305__3_0_2", ...],
-      "exports": [...],
-      "runtime_deps": [...],
-      "test_only": false,
-      "target_type": "jar",
-      "licenses": [...]
+}"><pre>{
+  <span class="pl-ent">"version"</span>: <span class="pl-s"><span class="pl-pds">"</span>1.0<span class="pl-pds">"</span></span>,
+  <span class="pl-ent">"artifacts"</span>: {
+    <span class="pl-ent">"com.google.guava:guava:33.0.0-jre"</span>: {
+      <span class="pl-ent">"repo_name"</span>: <span class="pl-s"><span class="pl-pds">"</span>com_google_guava__guava__33_0_0_jre<span class="pl-pds">"</span></span>,
+      <span class="pl-ent">"url"</span>: <span class="pl-s"><span class="pl-pds">"</span>https://repo1.maven.org/maven2/...<span class="pl-pds">"</span></span>,
+      <span class="pl-ent">"sha256"</span>: <span class="pl-s"><span class="pl-pds">"</span>...<span class="pl-pds">"</span></span>,
+      <span class="pl-ent">"dependencies"</span>: [<span class="pl-s"><span class="pl-pds">"</span>com_google_code_findbugs__jsr305__3_0_2<span class="pl-pds">"</span></span>, <span class="pl-ii">...</span>],
+      <span class="pl-ent">"exports"</span>: [<span class="pl-ii">...</span>],
+      <span class="pl-ent">"runtime_deps"</span>: [<span class="pl-ii">...</span>],
+      <span class="pl-ent">"test_only"</span>: <span class="pl-c1">false</span>,
+      <span class="pl-ent">"target_type"</span>: <span class="pl-s"><span class="pl-pds">"</span>jar<span class="pl-pds">"</span></span>,
+      <span class="pl-ent">"licenses"</span>: [<span class="pl-ii">...</span>]
     }
   }
-}
-</code></pre></div>
+}</pre></div>
 <p dir="auto"><strong>Important:</strong> Commit this lockfile to your version control system. It should be treated like <code>package-lock.json</code> in npm or <code>Cargo.lock</code> in Rust.</p>
 <div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Step 4: Configure the Module Extension</h4><a id="user-content-step-4-configure-the-module-extension" class="anchor" aria-label="Permalink: Step 4: Configure the Module Extension" href="#step-4-configure-the-module-extension"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">In your <code>MODULE.bazel</code>, configure the <code>mabel</code> extension to read the lockfile:</p>
-<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="mabel = use_extension(&quot;@mabel//rules:extensions.bzl&quot;, &quot;mabel&quot;)
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="mabel = use_extension(&quot;@mabel//rules:extensions.bzl&quot;, &quot;mabel&quot;)
 mabel.install(
     lockfile = &quot;//third_party:maven_install.json&quot;,
     aliases_repo = &quot;maven&quot;,
@@ -166,22 +162,21 @@ use_repo(mabel,
     &quot;com_google_guava__guava__33_0_0_jre&quot;,
     &quot;org_apache_commons__commons_lang3__3_14_0&quot;,
     &quot;com_google_code_findbugs__jsr305__3_0_2&quot;,
-)"><pre lang="python" class="notranslate"><code>mabel = use_extension("@mabel//rules:extensions.bzl", "mabel")
-mabel.install(
-    lockfile = "//third_party:maven_install.json",
-    aliases_repo = "maven",
+)"><pre><span class="pl-s1">mabel</span> <span class="pl-c1">=</span> <span class="pl-en">use_extension</span>(<span class="pl-s">"@mabel//rules:extensions.bzl"</span>, <span class="pl-s">"mabel"</span>)
+<span class="pl-s1">mabel</span>.<span class="pl-c1">install</span>(
+    <span class="pl-s1">lockfile</span> <span class="pl-c1">=</span> <span class="pl-s">"//third_party:maven_install.json"</span>,
+    <span class="pl-s1">aliases_repo</span> <span class="pl-c1">=</span> <span class="pl-s">"maven"</span>,
 )
 
-# Import the maven alias repository for convenient access
-use_repo(mabel, "maven")
+<span class="pl-c"># Import the maven alias repository for convenient access</span>
+<span class="pl-en">use_repo</span>(<span class="pl-s1">mabel</span>, <span class="pl-s">"maven"</span>)
 
-# Optionally (but discouraged) import specific versioned repositories if needed
-use_repo(mabel,
-    "com_google_guava__guava__33_0_0_jre",
-    "org_apache_commons__commons_lang3__3_14_0",
-    "com_google_code_findbugs__jsr305__3_0_2",
-)
-</code></pre></div>
+<span class="pl-c"># Optionally (but discouraged) import specific versioned repositories if needed</span>
+<span class="pl-en">use_repo</span>(<span class="pl-s1">mabel</span>,
+    <span class="pl-s">"com_google_guava__guava__33_0_0_jre"</span>,
+    <span class="pl-s">"org_apache_commons__commons_lang3__3_14_0"</span>,
+    <span class="pl-s">"com_google_code_findbugs__jsr305__3_0_2"</span>,
+)</pre></div>
 <p dir="auto">The <code>mabel.install()</code> tag accepts:</p>
 <ul dir="auto">
 <li><code>lockfile</code> - Label pointing to the JSON lockfile generated in Step 3.</li>
@@ -190,26 +185,24 @@ use_repo(mabel,
 <p dir="auto">The <code>use_repo()</code> call imports the repository rules created by the extension. The <code>"maven"</code> repository is an alias repository that provides convenient access to all dependencies. Repository names follow the <code>{group_id}__{artifact_id}__{version}</code> pattern, where dots, hyphens, and other special characters are replaced with underscores.</p>
 <p dir="auto"><strong>How to find repository names:</strong></p>
 <p dir="auto">You can find the exact repository names in the lockfile under the <code>repo_name</code> field for each artifact, or use this command:</p>
-<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="cat third_party/maven_install.json | grep -o '&quot;repo_name&quot;: &quot;[^&quot;]*&quot;' | cut -d'&quot;' -f4 | sort"><pre lang="bash" class="notranslate"><code>cat third_party/maven_install.json | grep -o '"repo_name": "[^"]*"' | cut -d'"' -f4 | sort
-</code></pre></div>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="cat third_party/maven_install.json | grep -o '&quot;repo_name&quot;: &quot;[^&quot;]*&quot;' | cut -d'&quot;' -f4 | sort"><pre>cat third_party/maven_install.json <span class="pl-k">|</span> grep -o <span class="pl-s"><span class="pl-pds">'</span>"repo_name": "[^"]*"<span class="pl-pds">'</span></span> <span class="pl-k">|</span> cut -d<span class="pl-s"><span class="pl-pds">'</span>"<span class="pl-pds">'</span></span> -f4 <span class="pl-k">|</span> sort</pre></div>
 <div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Step 5: Use in Your Targets</h4><a id="user-content-step-5-use-in-your-targets" class="anchor" aria-label="Permalink: Step 5: Use in Your Targets" href="#step-5-use-in-your-targets"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">Reference the dependencies in your Bazel targets using the <code>@maven</code> alias repository:</p>
-<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="java_library(
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="java_library(
     name = &quot;mylib&quot;,
     srcs = [&quot;MyLib.java&quot;],
     deps = [
         &quot;@maven//com/google/guava/guava&quot;,
         &quot;@maven//org/apache/commons/commons-lang3&quot;,
     ],
-)"><pre lang="python" class="notranslate"><code>java_library(
-    name = "mylib",
-    srcs = ["MyLib.java"],
-    deps = [
-        "@maven//com/google/guava/guava",
-        "@maven//org/apache/commons/commons-lang3",
+)"><pre><span class="pl-en">java_library</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"mylib"</span>,
+    <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> [<span class="pl-s">"MyLib.java"</span>],
+    <span class="pl-s1">deps</span> <span class="pl-c1">=</span> [
+        <span class="pl-s">"@maven//com/google/guava/guava"</span>,
+        <span class="pl-s">"@maven//org/apache/commons/commons-lang3"</span>,
     ],
-)
-</code></pre></div>
+)</pre></div>
 <p dir="auto">The <code>@maven</code> repository provides clean, version-free paths to your dependencies using the pattern <code>@maven//group/id/artifact-id</code>.</p>
 <div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Updating Dependencies</h4><a id="user-content-updating-dependencies" class="anchor" aria-label="Permalink: Updating Dependencies" href="#updating-dependencies"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">When you need to update dependencies:</p>
@@ -222,7 +215,7 @@ use_repo(mabel,
 </ol>
 <div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Working with Multiple Dependency Sets</h4><a id="user-content-working-with-multiple-dependency-sets" class="anchor" aria-label="Permalink: Working with Multiple Dependency Sets" href="#working-with-multiple-dependency-sets"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">You can define multiple <code>mabel_rule</code> targets for different dependency sets (e.g., separate sets for main code, tests, or different modules):</p>
-<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="mabel_rule(
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="mabel_rule(
     name = &quot;main_deps&quot;,
     lockfile_path = &quot;third_party/main_install.json&quot;,
     maven_deps = [
@@ -237,25 +230,24 @@ mabel_rule(
         artifact(&quot;junit:junit:4.13.2&quot;, test_only = True),
         artifact(&quot;org.mockito:mockito-core:5.0.0&quot;, test_only = True),
     ],
-)"><pre lang="python" class="notranslate"><code>mabel_rule(
-    name = "main_deps",
-    lockfile_path = "third_party/main_install.json",
-    maven_deps = [
-        artifact("com.google.guava:guava:33.0.0-jre"),
+)"><pre><span class="pl-en">mabel_rule</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"main_deps"</span>,
+    <span class="pl-s1">lockfile_path</span> <span class="pl-c1">=</span> <span class="pl-s">"third_party/main_install.json"</span>,
+    <span class="pl-s1">maven_deps</span> <span class="pl-c1">=</span> [
+        <span class="pl-en">artifact</span>(<span class="pl-s">"com.google.guava:guava:33.0.0-jre"</span>),
     ],
 )
 
-mabel_rule(
-    name = "test_deps",
-    lockfile_path = "third_party/test_install.json",
-    maven_deps = [
-        artifact("junit:junit:4.13.2", test_only = True),
-        artifact("org.mockito:mockito-core:5.0.0", test_only = True),
+<span class="pl-en">mabel_rule</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"test_deps"</span>,
+    <span class="pl-s1">lockfile_path</span> <span class="pl-c1">=</span> <span class="pl-s">"third_party/test_install.json"</span>,
+    <span class="pl-s1">maven_deps</span> <span class="pl-c1">=</span> [
+        <span class="pl-en">artifact</span>(<span class="pl-s">"junit:junit:4.13.2"</span>, <span class="pl-s1">test_only</span> <span class="pl-c1">=</span> <span class="pl-c1">True</span>),
+        <span class="pl-en">artifact</span>(<span class="pl-s">"org.mockito:mockito-core:5.0.0"</span>, <span class="pl-s1">test_only</span> <span class="pl-c1">=</span> <span class="pl-c1">True</span>),
     ],
-)
-</code></pre></div>
+)</pre></div>
 <p dir="auto">Then configure multiple lockfiles in <code>MODULE.bazel</code>:</p>
-<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="mabel = use_extension(&quot;@mabel//rules:extensions.bzl&quot;, &quot;mabel&quot;)
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="mabel = use_extension(&quot;@mabel//rules:extensions.bzl&quot;, &quot;mabel&quot;)
 mabel.install(
     lockfile = &quot;//third_party:main_install.json&quot;,
     aliases_repo = &quot;maven&quot;,
@@ -267,20 +259,19 @@ mabel.install(
 use_repo(mabel,
     &quot;maven&quot;,       # Alias repository for main dependencies
     &quot;maven_test&quot;,  # Alias repository for test dependencies
-)"><pre lang="python" class="notranslate"><code>mabel = use_extension("@mabel//rules:extensions.bzl", "mabel")
-mabel.install(
-    lockfile = "//third_party:main_install.json",
-    aliases_repo = "maven",
+)"><pre><span class="pl-s1">mabel</span> <span class="pl-c1">=</span> <span class="pl-en">use_extension</span>(<span class="pl-s">"@mabel//rules:extensions.bzl"</span>, <span class="pl-s">"mabel"</span>)
+<span class="pl-s1">mabel</span>.<span class="pl-c1">install</span>(
+    <span class="pl-s1">lockfile</span> <span class="pl-c1">=</span> <span class="pl-s">"//third_party:main_install.json"</span>,
+    <span class="pl-s1">aliases_repo</span> <span class="pl-c1">=</span> <span class="pl-s">"maven"</span>,
 )
-mabel.install(
-    lockfile = "//third_party:test_install.json",
-    aliases_repo = "maven_test",
+<span class="pl-s1">mabel</span>.<span class="pl-c1">install</span>(
+    <span class="pl-s1">lockfile</span> <span class="pl-c1">=</span> <span class="pl-s">"//third_party:test_install.json"</span>,
+    <span class="pl-s1">aliases_repo</span> <span class="pl-c1">=</span> <span class="pl-s">"maven_test"</span>,
 )
-use_repo(mabel,
-    "maven",       # Alias repository for main dependencies
-    "maven_test",  # Alias repository for test dependencies
-)
-</code></pre></div>
+<span class="pl-en">use_repo</span>(<span class="pl-s1">mabel</span>,
+    <span class="pl-s">"maven"</span>,       <span class="pl-c"># Alias repository for main dependencies</span>
+    <span class="pl-s">"maven_test"</span>,  <span class="pl-c"># Alias repository for test dependencies</span>
+)</pre></div>
 <p dir="auto">Each <code>mabel.install()</code> creates its own alias repository, allowing you to organize dependencies by category. You can use <code>@maven//...</code> for main dependencies and <code>@maven_test//...</code> for test dependencies.</p>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Maven Alias Repository</h2><a id="user-content-maven-alias-repository" class="anchor" aria-label="Permalink: Maven Alias Repository" href="#maven-alias-repository"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">The <code>@maven</code> alias repository provides a convenient way to reference Maven artifacts without needing to specify versions in your BUILD files.</p>
@@ -360,8 +351,7 @@ use_repo(mabel,
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Troubleshooting</h2><a id="user-content-troubleshooting" class="anchor" aria-label="Permalink: Troubleshooting" href="#troubleshooting"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Repository names not found</h3><a id="user-content-repository-names-not-found" class="anchor" aria-label="Permalink: Repository names not found" href="#repository-names-not-found"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">If you get errors about missing repositories, make sure all repository names are listed in the <code>use_repo()</code> call. You can extract all repository names from the lockfile:</p>
-<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="cat third_party/maven_install.json | grep -o '&quot;repo_name&quot;: &quot;[^&quot;]*&quot;' | cut -d'&quot;' -f4 | sort"><pre lang="bash" class="notranslate"><code>cat third_party/maven_install.json | grep -o '"repo_name": "[^"]*"' | cut -d'"' -f4 | sort
-</code></pre></div>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="cat third_party/maven_install.json | grep -o '&quot;repo_name&quot;: &quot;[^&quot;]*&quot;' | cut -d'&quot;' -f4 | sort"><pre>cat third_party/maven_install.json <span class="pl-k">|</span> grep -o <span class="pl-s"><span class="pl-pds">'</span>"repo_name": "[^"]*"<span class="pl-pds">'</span></span> <span class="pl-k">|</span> cut -d<span class="pl-s"><span class="pl-pds">'</span>"<span class="pl-pds">'</span></span> -f4 <span class="pl-k">|</span> sort</pre></div>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Version conflicts</h3><a id="user-content-version-conflicts" class="anchor" aria-label="Permalink: Version conflicts" href="#version-conflicts"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">Mabel resolves version conflicts using the configured strategy (<code>latest_version</code> by default). If you encounter issues:</p>
 <ol dir="auto">
