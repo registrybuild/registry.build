@@ -21,28 +21,29 @@ The example below selects <code>15.0.6</code> as the default version for all tar
 specified explicitly. This is like providing <code>llvm_version = "15.0.6"</code>, just
 like in the example on the top. However, here we provide two more entries that
 map their respective target to a distinct version:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="llvm_toolchain(
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="llvm_toolchain(
     name = &quot;llvm_toolchain&quot;,
     llvm_versions = {
         &quot;&quot;: &quot;15.0.6&quot;,
         &quot;darwin-aarch64&quot;: &quot;15.0.7&quot;,
         &quot;darwin-x86_64&quot;: &quot;15.0.7&quot;,
     },
-)"><pre><span class="pl-en">llvm_toolchain</span>(
-    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"llvm_toolchain"</span>,
-    <span class="pl-s1">llvm_versions</span> <span class="pl-c1">=</span> {
-        <span class="pl-s">""</span>: <span class="pl-s">"15.0.6"</span>,
-        <span class="pl-s">"darwin-aarch64"</span>: <span class="pl-s">"15.0.7"</span>,
-        <span class="pl-s">"darwin-x86_64"</span>: <span class="pl-s">"15.0.7"</span>,
+)"><pre lang="starlark" class="notranslate"><code>llvm_toolchain(
+    name = "llvm_toolchain",
+    llvm_versions = {
+        "": "15.0.6",
+        "darwin-aarch64": "15.0.7",
+        "darwin-x86_64": "15.0.7",
     },
-)</pre></div>
+)
+</code></pre></div>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Customizations</h3><a id="user-content-customizations" class="anchor" aria-label="Permalink: Customizations" href="#customizations"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">We currently offer limited customizability through attributes of the
 <a href="toolchain/rules.bzl">llvm_toolchain_* rules</a>. You can send us a PR to add
 more configuration attributes.</p>
 <p dir="auto">The <code>MODULE.bazel</code> example below demonstrates how to add new LLVM distributions before the toolchain has
 been updated. They can easily be computed using the provided checksum tool (see <code>llvm_checksums.sh -h</code>).</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="llvm = use_extension(&quot;@toolchains_llvm//toolchain/extensions:llvm.bzl&quot;, &quot;llvm&quot;, dev_dependency = True)
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="llvm = use_extension(&quot;@toolchains_llvm//toolchain/extensions:llvm.bzl&quot;, &quot;llvm&quot;, dev_dependency = True)
 llvm.toolchain(
     name = &quot;llvm_toolchain&quot;,
     llvm_version = &quot;20.1.4&quot;,
@@ -52,20 +53,21 @@ llvm.toolchain(
         &quot;LLVM-20.1.4-macOS-ARM64.tar.xz&quot;: &quot;debb43b7b364c5cf864260d84ba1b201d49b6460fe84b76eaa65688dfadf19d2&quot;,
         &quot;clang+llvm-20.1.4-x86_64-pc-windows-msvc.tar.xz&quot;: &quot;2b12ac1a0689e29a38a7c98c409cbfa83f390aea30c60b7a06e4ed73f82d2457&quot;,
     },
-)"><pre><span class="pl-s1">llvm</span> <span class="pl-c1">=</span> <span class="pl-en">use_extension</span>(<span class="pl-s">"@toolchains_llvm//toolchain/extensions:llvm.bzl"</span>, <span class="pl-s">"llvm"</span>, <span class="pl-s1">dev_dependency</span> <span class="pl-c1">=</span> <span class="pl-c1">True</span>)
-<span class="pl-s1">llvm</span>.<span class="pl-c1">toolchain</span>(
-    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"llvm_toolchain"</span>,
-    <span class="pl-s1">llvm_version</span> <span class="pl-c1">=</span> <span class="pl-s">"20.1.4"</span>,
-    <span class="pl-s1">extra_llvm_distributions</span> <span class="pl-c1">=</span> {
-        <span class="pl-s">"LLVM-20.1.4-Linux-ARM64.tar.xz"</span>: <span class="pl-s">"4de80a332eecb06bf55097fd3280e1c69ed80f222e5bdd556221a6ceee02721a"</span>,
-        <span class="pl-s">"LLVM-20.1.4-Linux-X64.tar.xz"</span>: <span class="pl-s">"113b54c397adb2039fa45e38dc8107b9ec5a0baead3a3bac8ccfbb65b2340caa"</span>,
-        <span class="pl-s">"LLVM-20.1.4-macOS-ARM64.tar.xz"</span>: <span class="pl-s">"debb43b7b364c5cf864260d84ba1b201d49b6460fe84b76eaa65688dfadf19d2"</span>,
-        <span class="pl-s">"clang+llvm-20.1.4-x86_64-pc-windows-msvc.tar.xz"</span>: <span class="pl-s">"2b12ac1a0689e29a38a7c98c409cbfa83f390aea30c60b7a06e4ed73f82d2457"</span>,
+)"><pre lang="starlark" class="notranslate"><code>llvm = use_extension("@toolchains_llvm//toolchain/extensions:llvm.bzl", "llvm", dev_dependency = True)
+llvm.toolchain(
+    name = "llvm_toolchain",
+    llvm_version = "20.1.4",
+    extra_llvm_distributions = {
+        "LLVM-20.1.4-Linux-ARM64.tar.xz": "4de80a332eecb06bf55097fd3280e1c69ed80f222e5bdd556221a6ceee02721a",
+        "LLVM-20.1.4-Linux-X64.tar.xz": "113b54c397adb2039fa45e38dc8107b9ec5a0baead3a3bac8ccfbb65b2340caa",
+        "LLVM-20.1.4-macOS-ARM64.tar.xz": "debb43b7b364c5cf864260d84ba1b201d49b6460fe84b76eaa65688dfadf19d2",
+        "clang+llvm-20.1.4-x86_64-pc-windows-msvc.tar.xz": "2b12ac1a0689e29a38a7c98c409cbfa83f390aea30c60b7a06e4ed73f82d2457",
     },
-)</pre></div>
+)
+</code></pre></div>
 <p dir="auto">The following <code>WORKSPACE</code> snippet shows how to add a specific version for a specific target before
 the version was added to <a href="toolchain/internal/llvm_distributions.bzl">llvm_distributions.bzl</a>.</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="llvm_toolchain(
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="llvm_toolchain(
     name = &quot;llvm_toolchain&quot;,
     llvm_version = &quot;19.1.6&quot;,
     sha256 = {&quot;linux-x86_64&quot;: &quot;d55dcbb309de7ade4e3073ec3ac3fac4d3ff236d54df3c4de04464fe68bec531&quot;},
@@ -77,25 +79,27 @@ the version was added to <a href="toolchain/internal/llvm_distributions.bzl">llv
             &quot;https://github.com/llvm/llvm-project/releases/download/llvmorg-19.1.6/LLVM-19.1.6-Linux-X64.tar.xz&quot;,
         ],
     },
-)"><pre><span class="pl-en">llvm_toolchain</span>(
-    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"llvm_toolchain"</span>,
-    <span class="pl-s1">llvm_version</span> <span class="pl-c1">=</span> <span class="pl-s">"19.1.6"</span>,
-    <span class="pl-s1">sha256</span> <span class="pl-c1">=</span> {<span class="pl-s">"linux-x86_64"</span>: <span class="pl-s">"d55dcbb309de7ade4e3073ec3ac3fac4d3ff236d54df3c4de04464fe68bec531"</span>},
-    <span class="pl-s1">strip_prefix</span> <span class="pl-c1">=</span> {
-        <span class="pl-s">"linux-x86_64"</span>: <span class="pl-s">"LLVM-19.1.6-Linux-X64"</span>,
+)"><pre lang="starlark" class="notranslate"><code>llvm_toolchain(
+    name = "llvm_toolchain",
+    llvm_version = "19.1.6",
+    sha256 = {"linux-x86_64": "d55dcbb309de7ade4e3073ec3ac3fac4d3ff236d54df3c4de04464fe68bec531"},
+    strip_prefix = {
+        "linux-x86_64": "LLVM-19.1.6-Linux-X64",
     },
-    <span class="pl-s1">urls</span> <span class="pl-c1">=</span> {
-        <span class="pl-s">"linux-x86_64"</span>: [
-            <span class="pl-s">"https://github.com/llvm/llvm-project/releases/download/llvmorg-19.1.6/LLVM-19.1.6-Linux-X64.tar.xz"</span>,
+    urls = {
+        "linux-x86_64": [
+            "https://github.com/llvm/llvm-project/releases/download/llvmorg-19.1.6/LLVM-19.1.6-Linux-X64.tar.xz",
         ],
     },
-)</pre></div>
+)
+</code></pre></div>
 <p dir="auto">A majority of the complexity of this project is to make it generic for multiple
 use cases. For one-off experiments with new architectures, cross-compilations,
 new compiler features, etc., my advice would be to look at the toolchain
 configurations generated by this repo, and copy-paste/edit to make your own in
 any package in your own workspace.</p>
-<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel query --output=build @llvm_toolchain//:all | grep -v -e '^#' -e '^  generator'"><pre>bazel query --output=build @llvm_toolchain//:all <span class="pl-k">|</span> grep -v -e <span class="pl-s"><span class="pl-pds">'</span>^#<span class="pl-pds">'</span></span> -e <span class="pl-s"><span class="pl-pds">'</span>^  generator<span class="pl-pds">'</span></span></pre></div>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="bazel query --output=build @llvm_toolchain//:all | grep -v -e '^#' -e '^  generator'"><pre lang="sh" class="notranslate"><code>bazel query --output=build @llvm_toolchain//:all | grep -v -e '^#' -e '^  generator'
+</code></pre></div>
 <p dir="auto">Besides defining your toolchain in your package BUILD file, and until this
 <a href="https://github.com/bazelbuild/bazel/issues/7746" data-hovercard-type="issue" data-hovercard-url="/bazelbuild/bazel/issues/7746/hovercard">issue</a> is resolved, you would
 also need a way for bazel to access the tools in LLVM distribution as relative
@@ -104,7 +108,7 @@ create a symlink that uses up-references to point to the LLVM distribution
 directory, and also create a wrapper script for clang such that the actual
 clang invocation is not through the symlinked path. See the files in the
 <code>@llvm_toolchain//:</code> package as a reference.</p>
-<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="# See generated files for reference.
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="# See generated files for reference.
 ls -lR &quot;$(bazel info output_base)/external/llvm_toolchain&quot;
 
 # Create symlink to LLVM distribution.
@@ -114,17 +118,18 @@ ln -s ../....../external/llvm_toolchain_llvm llvm
 # Create CC wrapper script.
 mkdir bin
 cp &quot;$(bazel info output_base)/external/llvm_toolchain/bin/cc_wrapper.sh&quot; bin/cc_wrapper.sh
-vim bin/cc_wrapper.sh # Review to ensure relative paths, etc. are good."><pre><span class="pl-c"><span class="pl-c">#</span> See generated files for reference.</span>
-ls -lR <span class="pl-s"><span class="pl-pds">"</span><span class="pl-s"><span class="pl-pds">$(</span>bazel info output_base<span class="pl-pds">)</span></span>/external/llvm_toolchain<span class="pl-pds">"</span></span>
+vim bin/cc_wrapper.sh # Review to ensure relative paths, etc. are good."><pre lang="sh" class="notranslate"><code># See generated files for reference.
+ls -lR "$(bazel info output_base)/external/llvm_toolchain"
 
-<span class="pl-c"><span class="pl-c">#</span> Create symlink to LLVM distribution.</span>
-<span class="pl-c1">cd</span> _your_package_directory_
+# Create symlink to LLVM distribution.
+cd _your_package_directory_
 ln -s ../....../external/llvm_toolchain_llvm llvm
 
-<span class="pl-c"><span class="pl-c">#</span> Create CC wrapper script.</span>
+# Create CC wrapper script.
 mkdir bin
-cp <span class="pl-s"><span class="pl-pds">"</span><span class="pl-s"><span class="pl-pds">$(</span>bazel info output_base<span class="pl-pds">)</span></span>/external/llvm_toolchain/bin/cc_wrapper.sh<span class="pl-pds">"</span></span> bin/cc_wrapper.sh
-vim bin/cc_wrapper.sh <span class="pl-c"><span class="pl-c">#</span> Review to ensure relative paths, etc. are good.</span></pre></div>
+cp "$(bazel info output_base)/external/llvm_toolchain/bin/cc_wrapper.sh" bin/cc_wrapper.sh
+vim bin/cc_wrapper.sh # Review to ensure relative paths, etc. are good.
+</code></pre></div>
 <p dir="auto">See <a href="https://docs.bazel.build/versions/main/tutorial/cc-toolchain-config.html" rel="nofollow">bazel
 tutorial</a>
 for how CC toolchains work in general.</p>
@@ -154,19 +159,20 @@ LLVM versions should be tested.</p>
 <li><code>getenv(ENVIRONMENT_VARIABLE_NAME,fallback)</code></li>
 </ul>
 <p dir="auto">Example <code>MODULE.bazel</code></p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="llvm.toolchain(
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="llvm.toolchain(
     name = &quot;llvm_toolchain&quot;,
     llvm_versions = {
         &quot;&quot;: &quot;getenv(LLVM_VERSION,latest:&gt;=17.0.0,&lt;20)&quot;,
         &quot;darwin-x86_64&quot;: &quot;15.0.7&quot;,  # Verify this works as opposed to using one version.
     },
-)"><pre><span class="pl-s1">llvm</span>.<span class="pl-c1">toolchain</span>(
-    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"llvm_toolchain"</span>,
-    <span class="pl-s1">llvm_versions</span> <span class="pl-c1">=</span> {
-        <span class="pl-s">""</span>: <span class="pl-s">"getenv(LLVM_VERSION,latest:&gt;=17.0.0,&lt;20)"</span>,
-        <span class="pl-s">"darwin-x86_64"</span>: <span class="pl-s">"15.0.7"</span>,  <span class="pl-c"># Verify this works as opposed to using one version.</span>
+)"><pre lang="starlark" class="notranslate"><code>llvm.toolchain(
+    name = "llvm_toolchain",
+    llvm_versions = {
+        "": "getenv(LLVM_VERSION,latest:&gt;=17.0.0,&lt;20)",
+        "darwin-x86_64": "15.0.7",  # Verify this works as opposed to using one version.
     },
-)</pre></div>
+)
+</code></pre></div>
 <p dir="auto">In this example, MacOS x86 machines have their LLVM version hard-coded to
 <code>15.0.7</code>. For all other targets the LLVM version is read from the environment
 variable <code>LLVM_VERSION</code> which must be referenced on the Bazel command line as
@@ -237,13 +243,14 @@ Then, when cross-compiling, explicitly specify the toolchain with the sysroot
 and the target platform. For example, see the <a href="tests/MODULE.bazel">MODULE.bazel</a>
 file for <code>llvm_toolchain_with_sysroot</code> and the <a href="tests/scripts/run_xcompile_tests.sh">test
 script</a> for cross-compilation.</p>
-<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel build \
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="bazel build \
   --platforms=@toolchains_llvm//platforms:linux-x86_64 \
   --extra_toolchains=@llvm_toolchain_with_sysroot//:cc-toolchain-x86_64-linux \
-  //..."><pre>bazel build \
+  //..."><pre lang="sh" class="notranslate"><code>bazel build \
   --platforms=@toolchains_llvm//platforms:linux-x86_64 \
   --extra_toolchains=@llvm_toolchain_with_sysroot//:cc-toolchain-x86_64-linux \
-  //...</pre></div>
+  //...
+</code></pre></div>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Multi-platform builds</h3><a id="user-content-multi-platform-builds" class="anchor" aria-label="Permalink: Multi-platform builds" href="#multi-platform-builds"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">The toolchain supports multi-platform builds through the combination of the
 <code>exec_os</code>, <code>exec_arch</code> attribute pair, and either the <code>distribution</code> attribute,
@@ -253,15 +260,16 @@ remote build execution (RBE). For example, see the <a href="tests/MODULE.bazel">
 file for <code>llvm_toolchain_linux_exec</code> and the <a href="tests/scripts/run_docker_exec_test.sh">test
 script</a> for running the build actions on
 Linux even if the build is being run from macOS.</p>
-<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel build \
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="bazel build \
   --platforms=@toolchains_llvm//platforms:linux-x86_64 \
   --extra_execution_platforms=@toolchains_llvm//platforms:linux-x86_64 \
   --extra_toolchains=@llvm_toolchain_linux_exec//:cc-toolchain-x86_64-linux \
-  //..."><pre>bazel build \
+  //..."><pre lang="sh" class="notranslate"><code>bazel build \
   --platforms=@toolchains_llvm//platforms:linux-x86_64 \
   --extra_execution_platforms=@toolchains_llvm//platforms:linux-x86_64 \
   --extra_toolchains=@llvm_toolchain_linux_exec//:cc-toolchain-x86_64-linux \
-  //...</pre></div>
+  //...
+</code></pre></div>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Supporting New Target Platforms</h3><a id="user-content-supporting-new-target-platforms" class="anchor" aria-label="Permalink: Supporting New Target Platforms" href="#supporting-new-target-platforms"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">The following is a rough (untested) list of steps:</p>
 <ol dir="auto">

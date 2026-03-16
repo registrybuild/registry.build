@@ -26,7 +26,7 @@
 need to pull it in via <code>archive_override</code>. Be sure to replace <code>&lt;COMMIT&gt;</code> with  latest commit on
 <code>master</code> and <code>&lt;INTEGRITY&gt;</code> with the hash suggested by Bazel after the dependency is first loaded.</p>
 <p dir="auto"><em>/MODULE.bazel</em></p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel_dep(name = &quot;rules_twirl&quot;)
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="bazel_dep(name = &quot;rules_twirl&quot;)
 
 rules_twirl_version = &quot;&lt;COMMIT&gt;&quot;
 
@@ -35,34 +35,37 @@ archive_override(
     integrity = &quot;&lt;INTEGRITY&gt;&quot;,
     strip_prefix = &quot;rules_twirl-{}&quot;.format(rules_twirl_version),
     urls = [&quot;https://github.com/lucidsoftware/rules_twirl/archive/refs/heads/{}.zip&quot;.format(rules_twirl_version)],
-)"><pre><span class="pl-en">bazel_dep</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_twirl"</span>)
+)"><pre lang="starlark" class="notranslate"><code>bazel_dep(name = "rules_twirl")
 
-<span class="pl-s1">rules_twirl_version</span> <span class="pl-c1">=</span> <span class="pl-s">"&lt;COMMIT&gt;"</span>
+rules_twirl_version = "&lt;COMMIT&gt;"
 
-<span class="pl-en">archive_override</span>(
-    <span class="pl-s1">module_name</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_twirl"</span>,
-    <span class="pl-s1">integrity</span> <span class="pl-c1">=</span> <span class="pl-s">"&lt;INTEGRITY&gt;"</span>,
-    <span class="pl-s1">strip_prefix</span> <span class="pl-c1">=</span> <span class="pl-s">"rules_twirl-{}"</span>.<span class="pl-c1">format</span>(<span class="pl-s1">rules_twirl_version</span>),
-    <span class="pl-s1">urls</span> <span class="pl-c1">=</span> [<span class="pl-s">"https://github.com/lucidsoftware/rules_twirl/archive/refs/heads/{}.zip"</span>.<span class="pl-c1">format</span>(<span class="pl-s1">rules_twirl_version</span>)],
-)</pre></div>
+archive_override(
+    module_name = "rules_twirl",
+    integrity = "&lt;INTEGRITY&gt;",
+    strip_prefix = "rules_twirl-{}".format(rules_twirl_version),
+    urls = ["https://github.com/lucidsoftware/rules_twirl/archive/refs/heads/{}.zip".format(rules_twirl_version)],
+)
+</code></pre></div>
 <p dir="auto">By default, the Scala 3 version of the Twirl compiler will be used. To change the default to
 Scala 2.13, add the <code>--@rules_twirl//twirl-toolchain=twirl-2-13</code> flag to your <code>.bazelrc</code> file.</p>
 <p dir="auto">If you want to use a custom Twirl compiler, you can set up a custom toolchain like so:</p>
 <p dir="auto"><em>/BUILD.bazel</em></p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@rules_twirl//twirl-toolchain:create-toolchain.bzl&quot;, &quot;create_twirl_toolchain&quot;)
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(&quot;@rules_twirl//twirl-toolchain:create-toolchain.bzl&quot;, &quot;create_twirl_toolchain&quot;)
 
 create_twirl_toolchain(
     name = &quot;twirl-custom&quot;,
     twirl_compiler = &quot;&lt;label of your custom Twirl templates compiler&gt;&quot;,
-)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@rules_twirl//twirl-toolchain:create-toolchain.bzl"</span>, <span class="pl-s">"create_twirl_toolchain"</span>)
+)"><pre lang="starlark" class="notranslate"><code>load("@rules_twirl//twirl-toolchain:create-toolchain.bzl", "create_twirl_toolchain")
 
-<span class="pl-en">create_twirl_toolchain</span>(
-    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"twirl-custom"</span>,
-    <span class="pl-s1">twirl_compiler</span> <span class="pl-c1">=</span> <span class="pl-s">"&lt;label of your custom Twirl templates compiler&gt;"</span>,
-)</pre></div>
+create_twirl_toolchain(
+    name = "twirl-custom",
+    twirl_compiler = "&lt;label of your custom Twirl templates compiler&gt;",
+)
+</code></pre></div>
 <p dir="auto">Then, register your toolchain with Bazel and set it as the default in your <code>.bazelrc</code> file:</p>
 <p dir="auto"><em>/MODULE.bazel</em></p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="register_toolchains(&quot;//:twirl-custom&quot;)"><pre><span class="pl-en">register_toolchains</span>(<span class="pl-s">"//:twirl-custom"</span>)</pre></div>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="register_toolchains(&quot;//:twirl-custom&quot;)"><pre lang="starlark" class="notranslate"><code>register_toolchains("//:twirl-custom")
+</code></pre></div>
 <p dir="auto"><em>/.bazelrc</em></p>
 <div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="common --@rules_twirl//twirl-toolchain=twirl-custom"><pre class="notranslate"><code>common --@rules_twirl//twirl-toolchain=twirl-custom
 </code></pre></div>
@@ -71,7 +74,7 @@ create_twirl_toolchain(
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Usage</h2><a id="user-content-usage" class="anchor" aria-label="Permalink: Usage" href="#usage"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">The <code>twirl_templates</code> rule compiles Twirl templates to a source jar that can be used with the
 <code>rules_scala</code> rules. For example,</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="twirl_templates(
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="twirl_templates(
     name = &quot;twirl-templates&quot;,
     source_directory = &quot;app&quot;,
     srcs = glob([&quot;app/**/*.scala.html&quot;])
@@ -85,28 +88,29 @@ scala_binary(
     srcs = glob([&quot;app/**/*.scala&quot;]) + [&quot;:twirl-templates&quot;],
     main_class = &quot;foo.server.RunServer&quot;,
     deps = [...],
-)"><pre><span class="pl-en">twirl_templates</span>(
-    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"twirl-templates"</span>,
-    <span class="pl-s1">source_directory</span> <span class="pl-c1">=</span> <span class="pl-s">"app"</span>,
-    <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> <span class="pl-en">glob</span>([<span class="pl-s">"app/**/*.scala.html"</span>])
-        <span class="pl-c1">+</span> <span class="pl-en">glob</span>([<span class="pl-s">"app/**/*.scala.xml"</span>])
-        <span class="pl-c1">+</span> <span class="pl-en">glob</span>([<span class="pl-s">"app/**/*.scala.js"</span>])
-        <span class="pl-c1">+</span> <span class="pl-en">glob</span>([<span class="pl-s">"app/**/*.scala.txt"</span>]),
+)"><pre lang="starlark" class="notranslate"><code>twirl_templates(
+    name = "twirl-templates",
+    source_directory = "app",
+    srcs = glob(["app/**/*.scala.html"])
+        + glob(["app/**/*.scala.xml"])
+        + glob(["app/**/*.scala.js"])
+        + glob(["app/**/*.scala.txt"]),
 )
 
-<span class="pl-en">scala_binary</span>(
-    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"foo-service"</span>,
-    <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> <span class="pl-en">glob</span>([<span class="pl-s">"app/**/*.scala"</span>]) <span class="pl-c1">+</span> [<span class="pl-s">":twirl-templates"</span>],
-    <span class="pl-s1">main_class</span> <span class="pl-c1">=</span> <span class="pl-s">"foo.server.RunServer"</span>,
-    <span class="pl-s1">deps</span> <span class="pl-c1">=</span> [...],
-)</pre></div>
+scala_binary(
+    name = "foo-service",
+    srcs = glob(["app/**/*.scala"]) + [":twirl-templates"],
+    main_class = "foo.server.RunServer",
+    deps = [...],
+)
+</code></pre></div>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Overriding the default Twirl compiler</h3><a id="user-content-overriding-the-default-twirl-compiler" class="anchor" aria-label="Permalink: Overriding the default Twirl compiler" href="#overriding-the-default-twirl-compiler"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">To override the default Twirl compiler for a single target, you can change the
 <code>twirl_toolchain_name</code> attribute on the <code>twirl_routes</code> target. That attribute can be set to the name
 of any <code>twirl_toolchain</code> registered with <code>twirl_register_toolchains</code> (and created using
 <code>create_twirl_toolchain</code>). By default <code>twirl-3</code> and <code>twirl-2-13</code> are valid values.</p>
 <p dir="auto">For example:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="twirl_templates(
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="twirl_templates(
     name = &quot;twirl-templates&quot;,
     source_directory = &quot;app&quot;,
     srcs = glob([&quot;app/**/*.scala.html&quot;])
@@ -114,22 +118,23 @@ of any <code>twirl_toolchain</code> registered with <code>twirl_register_toolcha
         + glob([&quot;app/**/*.scala.js&quot;])
         + glob([&quot;app/**/*.scala.txt&quot;]),
     twirl_toolchain_name = &quot;twirl-2-13&quot;,
-)"><pre><span class="pl-en">twirl_templates</span>(
-    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"twirl-templates"</span>,
-    <span class="pl-s1">source_directory</span> <span class="pl-c1">=</span> <span class="pl-s">"app"</span>,
-    <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> <span class="pl-en">glob</span>([<span class="pl-s">"app/**/*.scala.html"</span>])
-        <span class="pl-c1">+</span> <span class="pl-en">glob</span>([<span class="pl-s">"app/**/*.scala.xml"</span>])
-        <span class="pl-c1">+</span> <span class="pl-en">glob</span>([<span class="pl-s">"app/**/*.scala.js"</span>])
-        <span class="pl-c1">+</span> <span class="pl-en">glob</span>([<span class="pl-s">"app/**/*.scala.txt"</span>]),
-    <span class="pl-s1">twirl_toolchain_name</span> <span class="pl-c1">=</span> <span class="pl-s">"twirl-2-13"</span>,
-)</pre></div>
+)"><pre lang="starlark" class="notranslate"><code>twirl_templates(
+    name = "twirl-templates",
+    source_directory = "app",
+    srcs = glob(["app/**/*.scala.html"])
+        + glob(["app/**/*.scala.xml"])
+        + glob(["app/**/*.scala.js"])
+        + glob(["app/**/*.scala.txt"]),
+    twirl_toolchain_name = "twirl-2-13",
+)
+</code></pre></div>
 <p dir="auto">See the <a href="docs/stardoc/twirl.md">Stardoc documentation</a> for the full list of options for
 <code>twirl_templates</code>.</p>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Use with the Play Framework</h3><a id="user-content-use-with-the-play-framework" class="anchor" aria-label="Permalink: Use with the Play Framework" href="#use-with-the-play-framework"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto"><code>twirl_templates</code> can be used with the
 <a href="https://github.com/lucidsoftware/rules_play_routes"><code>rules_play_routes</code></a> to run a Play Framework
 service. For example</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="twirl_templates(
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="twirl_templates(
     name = &quot;twirl-templates&quot;,
     source_directory = &quot;app&quot;,
     include_play_imports = True,
@@ -161,62 +166,69 @@ scala_binary(
     	  &quot;-Dapplication.name=foo-service&quot;,
     ],
     deps = [...],
-)"><pre><span class="pl-en">twirl_templates</span>(
-    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"twirl-templates"</span>,
-    <span class="pl-s1">source_directory</span> <span class="pl-c1">=</span> <span class="pl-s">"app"</span>,
-    <span class="pl-s1">include_play_imports</span> <span class="pl-c1">=</span> <span class="pl-c1">True</span>,
-    <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> <span class="pl-en">glob</span>([<span class="pl-s">"app/**/*.scala.html"</span>])
-        <span class="pl-c1">+</span> <span class="pl-en">glob</span>([<span class="pl-s">"app/**/*.scala.xml"</span>])
-        <span class="pl-c1">+</span> <span class="pl-en">glob</span>([<span class="pl-s">"app/**/*.scala.js"</span>])
-        <span class="pl-c1">+</span> <span class="pl-en">glob</span>([<span class="pl-s">"app/**/*.scala.txt"</span>]),
-    <span class="pl-s1">additional_imports</span> <span class="pl-c1">=</span> [...],
+)"><pre lang="starlark" class="notranslate"><code>twirl_templates(
+    name = "twirl-templates",
+    source_directory = "app",
+    include_play_imports = True,
+    srcs = glob(["app/**/*.scala.html"])
+        + glob(["app/**/*.scala.xml"])
+        + glob(["app/**/*.scala.js"])
+        + glob(["app/**/*.scala.txt"]),
+    additional_imports = [...],
 )
 
-<span class="pl-en">play_routes</span>(
-    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"play-routes"</span>,
-    <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> [<span class="pl-s">"conf/routes"</span>] <span class="pl-c1">+</span> <span class="pl-en">glob</span>([<span class="pl-s">"conf/*.routes"</span>]),
-    <span class="pl-s1">include_play_imports</span> <span class="pl-c1">=</span> <span class="pl-c1">True</span>,
-    <span class="pl-s1">generate_reverse_router</span> <span class="pl-c1">=</span> <span class="pl-c1">True</span>,
-    <span class="pl-s1">routes_imports</span> <span class="pl-c1">=</span> [...],
+play_routes(
+    name = "play-routes",
+    srcs = ["conf/routes"] + glob(["conf/*.routes"]),
+    include_play_imports = True,
+    generate_reverse_router = True,
+    routes_imports = [...],
 )
 
-<span class="pl-en">scala_binary</span>(
-    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"foo-service"</span>,
-    <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> <span class="pl-en">glob</span>([<span class="pl-s">"app/**/*.scala"</span>])  <span class="pl-c1">+</span> [<span class="pl-s">":twirl-templates"</span>, <span class="pl-s">":play-routes"</span>],
-    <span class="pl-s1">visibility</span> <span class="pl-c1">=</span> [<span class="pl-s">"//visibility:public"</span>],
-    <span class="pl-s1">main_class</span> <span class="pl-c1">=</span> <span class="pl-s">"play.core.server.ProdServerStart"</span>,
-    <span class="pl-s1">resources</span> <span class="pl-c1">=</span> [<span class="pl-s">"conf/logback.xml"</span>] <span class="pl-c1">+</span> <span class="pl-en">glob</span>([<span class="pl-s">"conf/resources/**/*"</span>]),
-    <span class="pl-s1">resource_strip_prefix</span> <span class="pl-c1">=</span> <span class="pl-s1">native</span>.<span class="pl-c1">package_name</span>(),
-    <span class="pl-s1">classpath_resources</span> <span class="pl-c1">=</span> [<span class="pl-s">"conf/application.conf"</span>],
-    <span class="pl-s1">jvm_flags</span> <span class="pl-c1">=</span> [
-    	  <span class="pl-s">"-Dhttp.port=9000"</span>,
-    	  <span class="pl-s">"-Dapplication.name=foo-service"</span>,
+scala_binary(
+    name = "foo-service",
+    srcs = glob(["app/**/*.scala"])  + [":twirl-templates", ":play-routes"],
+    visibility = ["//visibility:public"],
+    main_class = "play.core.server.ProdServerStart",
+    resources = ["conf/logback.xml"] + glob(["conf/resources/**/*"]),
+    resource_strip_prefix = native.package_name(),
+    classpath_resources = ["conf/application.conf"],
+    jvm_flags = [
+    	  "-Dhttp.port=9000",
+    	  "-Dapplication.name=foo-service",
     ],
-    <span class="pl-s1">deps</span> <span class="pl-c1">=</span> [...],
-)</pre></div>
+    deps = [...],
+)
+</code></pre></div>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Development</h2><a id="user-content-development" class="anchor" aria-label="Permalink: Development" href="#development"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Command Line Twirl Compiler</h3><a id="user-content-command-line-twirl-compiler" class="anchor" aria-label="Permalink: Command Line Twirl Compiler" href="#command-line-twirl-compiler"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">This project consists of the Twirl Bazel rules and a command line Twirl compiler. The
 command line compiler can be built with</p>
-<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel build //twirl-compiler"><pre>bazel build //twirl-compiler</pre></div>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="bazel build //twirl-compiler"><pre lang="bash" class="notranslate"><code>bazel build //twirl-compiler
+</code></pre></div>
 <p dir="auto">It can be run with</p>
-<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel run //twirl-compiler"><pre>bazel run //twirl-compiler</pre></div>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="bazel run //twirl-compiler"><pre lang="bash" class="notranslate"><code>bazel run //twirl-compiler
+</code></pre></div>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Testing</h3><a id="user-content-testing" class="anchor" aria-label="Permalink: Testing" href="#testing"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">All tests can be run using</p>
-<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="test/run_all_tests.sh"><pre>test/run_all_tests.sh</pre></div>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="test/run_all_tests.sh"><pre lang="bash" class="notranslate"><code>test/run_all_tests.sh
+</code></pre></div>
 <p dir="auto">They can also be run using</p>
-<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel test //test/..."><pre>bazel <span class="pl-c1">test</span> //test/...</pre></div>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="bazel test //test/..."><pre lang="bash" class="notranslate"><code>bazel test //test/...
+</code></pre></div>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Updating Third Party Dependencies</h3><a id="user-content-updating-third-party-dependencies" class="anchor" aria-label="Permalink: Updating Third Party Dependencies" href="#updating-third-party-dependencies"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">We use <a href="https://github.com/bazelbuild/rules_jvm_external">rules_jvm_external</a> to import
 third party dependencies.</p>
 <p dir="auto">To make changes to the dependencies, simply update the appropriate <code>maven.install</code> call in
 <code>MODULE.bazel</code>, and then update the dependencies json file used by <code>rules_jvm_external</code> by running
 the following script:</p>
-<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="scripts/gen-deps.sh"><pre>scripts/gen-deps.sh</pre></div>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="scripts/gen-deps.sh"><pre lang="bash" class="notranslate"><code>scripts/gen-deps.sh
+</code></pre></div>
 <p dir="auto">Never modify the dependencies json file directly.</p>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Updating Stardoc</h3><a id="user-content-updating-stardoc" class="anchor" aria-label="Permalink: Updating Stardoc" href="#updating-stardoc"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">Before pushing your changes, make sure you update the documentation by running the following script:</p>
-<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="scripts/gen-docs.sh"><pre>scripts/gen-docs.sh</pre></div>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="scripts/gen-docs.sh"><pre lang="bash" class="notranslate"><code>scripts/gen-docs.sh
+</code></pre></div>
 <p dir="auto">Failure to do so will result in CI failing.</p>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Releasing</h2><a id="user-content-releasing" class="anchor" aria-label="Permalink: Releasing" href="#releasing"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">To release a new version to Maven Central:</p>
