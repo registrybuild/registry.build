@@ -1,97 +1,530 @@
-<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Aspect's Bazel rules for Python</h1><a id="user-content-aspects-bazel-rules-for-python" class="anchor" aria-label="Permalink: Aspect's Bazel rules for Python" href="#aspects-bazel-rules-for-python"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<p dir="auto"><code>aspect_rules_py</code> is a layer on top of <a href="https://github.com/bazel-contrib/rules_python">rules_python</a>, the reference Python ruleset.</p>
-<p dir="auto">The bottom layer of <code>rules_python</code> is currently reused, which supports interpreter toolchains, interop providers, and other details.</p>
-<p dir="auto"><code>rules_py</code> can be used with the <code>pip</code> machinery in rules_python. However we also provide an alternative using <code>uv</code>, see below for details.</p>
-<p dir="auto"><code>rules_py</code> introduces new implementations of the end-user rules, <code>py_library</code>, <code>py_binary</code>, <code>py_test</code>.</p>
-<p dir="auto">Finally, we pre-compile the Python gazelle extension into our <a href="https://github.com/aspect-build/aspect-gazelle">https://github.com/aspect-build/aspect-gazelle</a>,
-this gives developers a faster path to updating BUILD files without requiring a functional cgo toolchain.</p>
-<p dir="auto">Our philosophy is to behave more like idiomatic python ecosystem tools, where rules_python is closely
-tied to the way Google does Python development in their internal monorepo, google3.
-However we try to maintain compatibility with rules_python's rules for most use cases.</p>
+<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">aspect_rules_py</h1><a id="user-content-aspect_rules_py" class="anchor" aria-label="Permalink: aspect_rules_py" href="#aspect_rules_py"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><code>aspect_rules_py</code> is a high-performance alternative to <a href="https://github.com/bazelbuild/rules_python">rules_python</a>, the
+reference Python ruleset for Bazel.</p>
+<p dir="auto">It provides drop-in replacements for <code>py_binary</code>, <code>py_library</code>, and <code>py_test</code> that prioritize:</p>
+<ul dir="auto">
+<li><strong>Blazing-fast dependency resolution</strong> via native <code>uv</code> integration</li>
+<li><strong>Strict hermeticity</strong> with isolated Python execution and Bash-based launchers</li>
+<li><strong>Idiomatic Python layouts</strong> using standard <code>site-packages</code> symlink trees</li>
+<li><strong>Seamless IDE compatibility</strong> via virtualenv-native structures</li>
+<li><strong>Production-ready containers</strong> with optimized OCI image layers</li>
+</ul>
+<p dir="auto">Unlike <code>rules_python</code>, which maintains strict compatibility with Google's internal monorepo semantics (google3),
+<code>aspect_rules_py</code> optimizes for modern Python development workflows, large-scale monorepos, and Remote Build Execution (
+RBE) environments.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Advantages Over <code>rules_python</code></h2><a id="user-content-advantages-over-rules_python" class="anchor" aria-label="Permalink: Advantages Over rules_python" href="#advantages-over-rules_python"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <markdown-accessiblity-table><table>
 <thead>
 <tr>
-<th>Layer</th>
-<th>Legacy</th>
-<th>Recommended</th>
+<th align="left">Feature</th>
+<th align="left">rules_python</th>
+<th align="left">rules_py</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>toolchain: fetch hermetic interpreter</td>
-<td>rules_python</td>
-<td>rules_python</td>
+<td align="left">Dependency resolution</td>
+<td align="left"><code>pip.parse</code> (repo rules, loading phase)</td>
+<td align="left">Build-action wheel installs (<code>whl_install</code>)</td>
 </tr>
 <tr>
-<td>deps: fetch and install from pypi</td>
-<td>rules_python</td>
-<td><strong>aspect_rules_py//uv</strong></td>
+<td align="left">uv integration</td>
+<td align="left"><code>uv pip compile</code> → <code>requirements.txt</code> → <code>pip.parse</code></td>
+<td align="left">Native <code>uv.lock</code> consumption</td>
 </tr>
 <tr>
-<td>rules: user-facing implementations</td>
-<td>rules_python</td>
-<td><strong>aspect_rules_py//py</strong></td>
+<td align="left">Cross-platform lockfile</td>
+<td align="left">Per-platform <code>requirements_*.txt</code></td>
+<td align="left">Single <code>uv.lock</code> for all platforms</td>
 </tr>
 <tr>
-<td>gazelle: generate BUILD files</td>
-<td>rules_python</td>
-<td><a href="https://github.com/aspect-build/aspect-gazelle">aspect-gazelle</a></td>
+<td align="left">sdist / PEP 517 builds</td>
+<td align="left">Not supported (<a href="https://github.com/bazel-contrib/rules_python/issues/2410" data-hovercard-type="issue" data-hovercard-url="/bazel-contrib/rules_python/issues/2410/hovercard">#2410</a>, open since Nov 2024)</td>
+<td align="left">Build actions (<code>pep517_whl</code>, <code>pep517_native_whl</code>)</td>
+</tr>
+<tr>
+<td align="left">Interpreter provisioning</td>
+<td align="left">Download via rules_python extension</td>
+<td align="left">Own <a href="https://github.com/astral-sh/python-build-standalone">python-build-standalone</a> extension — no rules_python required</td>
+</tr>
+<tr>
+<td align="left">Site-packages layout</td>
+<td align="left"><code>sys.path</code> / <code>PYTHONPATH</code> manipulation</td>
+<td align="left">Standard <code>site-packages</code> symlink tree</td>
+</tr>
+<tr>
+<td align="left">Cross-compilation</td>
+<td align="left">Limited</td>
+<td align="left">Native platform transitions (e.g. arm64 image on amd64 host)</td>
+</tr>
+<tr>
+<td align="left">Virtual dependencies</td>
+<td align="left">No</td>
+<td align="left"><code>virtual_deps</code> — swap implementations at binary level</td>
+</tr>
+<tr>
+<td align="left">PEP 735 dependency groups</td>
+<td align="left">No</td>
+<td align="left"><code>--@pypi//venv=prod</code> flag</td>
 </tr>
 </tbody>
 </table></markdown-accessiblity-table>
-<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Starter repo</h3><a id="user-content-starter-repo" class="anchor" aria-label="Permalink: Starter repo" href="#starter-repo"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<p dir="auto">The fastest way to try this in an empty project is to click the green "Use this template" button on <a href="https://github.com/bazel-starters/py">https://github.com/bazel-starters/py</a>.</p>
-<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Learn about it</h2><a id="user-content-learn-about-it" class="anchor" aria-label="Permalink: Learn about it" href="#learn-about-it"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<p dir="auto">Aspect provides a Bazel training course based on rules_py: <a href="https://training.aspect.build/bazel-102" rel="nofollow">Bazel 102: Python</a></p>
-<p dir="auto">Watch Alex's talk from Monorepo World for a quick demo on how rules_py makes it easy to do Python with Bazel:</p>
-<p dir="auto"><a href="https://www.youtube.com/watch?v=en3ep4rw0oA" rel="nofollow"><img src="https://camo.githubusercontent.com/5e23f4ebb8dec40652f2d77859f1cf1fc299552a6f33678b15bf80408f90cbee/68747470733a2f2f696d672e796f75747562652e636f6d2f76692f656e336570347277306f412f302e6a7067" alt="Python Monorepo World" data-canonical-src="https://img.youtube.com/vi/en3ep4rw0oA/0.jpg" style="max-width: 100%;"></a></p>
-<p dir="auto"><em>Need help?</em> This ruleset has paid support available, see <a href="https://aspect.build/services#support" rel="nofollow">https://aspect.build/services#support</a></p>
-<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Differences</h2><a id="user-content-differences" class="anchor" aria-label="Permalink: Differences" href="#differences"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<p dir="auto">We think you'll love rules_py because it fixes many issues with rules_python's rule implementations:</p>
-<ul dir="auto">
-<li>The launcher uses the Bash toolchain rather than Python, so we have no dependency on a system interpreter. Fixes:
-<ul dir="auto">
-<li><a href="https://github.com/bazelbuild/rules_python/issues/691" data-hovercard-type="issue" data-hovercard-url="/bazel-contrib/rules_python/issues/691/hovercard">py_binary with hermetic toolchain requires a system interpreter</a></li>
-</ul>
-</li>
-<li>We don't mess with the Python <code>sys.path</code>/<code>$PYTHONPATH</code>. Instead we use the standard <code>site-packages</code> folder layout produced by <code>uv pip install</code>. This avoids problems like package naming collisions with built-ins (e.g. <code>collections</code>) or where <code>argparse</code> comes from a transitive dependency instead. Fixes:
-<ul dir="auto">
-<li><a href="https://github.com/bazelbuild/rules_python/issues/1221" data-hovercard-type="issue" data-hovercard-url="/bazel-contrib/rules_python/issues/1221/hovercard">Issues with PYTHONPATH resolution in recent python/rules_python versions</a></li>
-</ul>
-</li>
-<li>We run python in isolated mode so we don't accidentally break out of Bazel's action sandbox. Fixes:
-<ul dir="auto">
-<li><a href="https://github.com/bazelbuild/rules_python/issues/27" data-hovercard-type="issue" data-hovercard-url="/bazel-contrib/rules_python/issues/27/hovercard">pypi libraries installed to system python are implicitly available to builds</a></li>
-<li><a href="https://github.com/bazelbuild/rules_python/issues/382" data-hovercard-type="issue" data-hovercard-url="/bazel-contrib/rules_python/issues/382/hovercard">sys.path[0] breaks out of runfile tree.</a></li>
-<li><a href="https://github.com/bazelbuild/rules_python/issues/1059" data-hovercard-type="issue" data-hovercard-url="/bazel-contrib/rules_python/issues/1059/hovercard">User site-packages directory should be ignored</a></li>
-</ul>
-</li>
-<li>We create a python-idiomatic virtualenv to run actions, which means better compatibility with userland implementations of <a href="https://docs.python.org/3/library/importlib.html" rel="nofollow">importlib</a>.</li>
-<li>Thanks to the virtualenv, you can open the project in an editor like PyCharm or VSCode and have working auto-complete, jump-to-definition, etc.
-<ul dir="auto">
-<li>Fixes <a href="https://github.com/bazelbuild/rules_python/issues/1401" data-hovercard-type="issue" data-hovercard-url="/bazel-contrib/rules_python/issues/1401/hovercard">Smooth IDE support for python_rules</a></li>
-</ul>
-</li>
-</ul>
-<div class="markdown-alert markdown-alert-note" dir="auto"><p class="markdown-alert-title" dir="auto"><svg class="octicon octicon-info mr-2" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</p><p dir="auto">What about the "starlarkification" effort in rules_python?</p>
-<p dir="auto">We think this is only useful within Google, because the semantics of the rules will remain identical.
-Even though the code will live in bazelbuild/rules_python rather than
-bazelbuild/bazel, it still cannot change without breaking Google-internal usage, and has all the ergonomic bugs
-above due to the way the runtime is stubbed.</p>
+<div class="markdown-alert markdown-alert-note" dir="auto"><p class="markdown-alert-title" dir="auto"><svg class="octicon octicon-info mr-2" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</p><p dir="auto"><strong>rules_python's uv support</strong>: <code>rules_python</code>'s uv integration runs <code>uv pip compile</code> as a build action to
+generate a <code>requirements.txt</code>—it is a faster <code>pip-compile</code> replacement. The result still feeds into <code>pip.parse()</code> →
+<code>whl_library</code> repository rules at loading phase. There is no <code>uv.lock</code> consumption; the rules_python maintainer has
+<a href="https://github.com/bazel-contrib/rules_python/discussions/3391" data-hovercard-type="discussion" data-hovercard-url="/bazel-contrib/rules_python/discussions/3391/hovercard">suggested</a> this work belongs in a dedicated project.</p>
 </div>
-<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Installation</h2><a id="user-content-installation" class="anchor" aria-label="Permalink: Installation" href="#installation"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<p dir="auto">Follow instructions from the release you wish to use:
-<a href="https://github.com/aspect-build/rules_py/releases">https://github.com/aspect-build/rules_py/releases</a></p>
-<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Using with Gazelle</h3><a id="user-content-using-with-gazelle" class="anchor" aria-label="Permalink: Using with Gazelle" href="#using-with-gazelle"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<p dir="auto">In any ancestor <code>BUILD</code> file of the Python code, add these lines to instruct <a href="https://github.com/bazelbuild/rules_python/blob/main/gazelle/README.md">Gazelle</a> to create <code>rules_py</code> variants of the <code>py_*</code> rules:</p>
-<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="# gazelle:map_kind py_library py_library @aspect_rules_py//py:defs.bzl
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Native <code>uv.lock</code> Dependency Resolution</h3><a id="user-content-native-uvlock-dependency-resolution" class="anchor" aria-label="Permalink: Native uv.lock Dependency Resolution" href="#native-uvlock-dependency-resolution"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Instead of relying on legacy <code>pip</code> machinery, we provide native integration with <a href="https://github.com/astral-sh/uv">uv</a>,
+a Rust-native Python package resolver.</p>
+<ul dir="auto">
+<li><strong>Build-action installs</strong>: Wheel extraction runs as Bazel execution-phase actions—not repo rules—so they are
+cacheable, sandboxed, and compatible with RBE. Crucially, wheels are no longer resolved against the host machine
+architecture: a single build can fetch and extract wheels for any exec or target platform, enabling true
+cross-platform builds (e.g. building Linux <code>aarch64</code> wheels on a macOS <code>x86_64</code> host)</li>
+<li><strong>Native <code>uv.lock</code> parsing</strong>: Consumes <code>uv.lock</code> directly; no <code>requirements.txt</code> generation step</li>
+<li><strong>Universal lockfiles</strong>: A single <code>uv.lock</code> works across all platforms—no more <code>requirements_linux.txt</code>,
+<code>requirements_mac.txt</code>, <code>requirements_windows.txt</code></li>
+<li><strong>sdist / PEP 517 builds</strong>: Build source distributions as Bazel actions (rules_python has no equivalent;
+<a href="https://github.com/bazel-contrib/rules_python/issues/2410" data-hovercard-type="issue" data-hovercard-url="/bazel-contrib/rules_python/issues/2410/hovercard">#2410</a> open since November 2024)</li>
+<li><strong>PEP 735 dependency groups</strong>: Define <code>prod</code>, <code>dev</code>, <code>test</code> dependency groups and switch between them with a flag</li>
+<li><strong>Editable requirements</strong>: Override locked packages with local <code>py_library</code> targets via <code>uv.override_package()</code></li>
+<li><strong>Lazy downloads</strong>: All fetching happens during the build phase, not repository loading—fully compatible with private
+mirrors and RBE</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Own Python Interpreter Provisioning</h3><a id="user-content-own-python-interpreter-provisioning" class="anchor" aria-label="Permalink: Own Python Interpreter Provisioning" href="#own-python-interpreter-provisioning"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><code>aspect_rules_py</code> ships its own <a href="https://github.com/astral-sh/python-build-standalone">python-build-standalone</a>
+interpreter extension—rules_python is not required as a toolchain provider.</p>
+<div class="markdown-alert markdown-alert-note" dir="auto"><p class="markdown-alert-title" dir="auto"><svg class="octicon octicon-info mr-2" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</p><p dir="auto">The <code>//py/unstable</code> and <code>//uv/unstable</code> extension paths indicate that the extension API may evolve across
+releases—not that the features are unstable.</p>
+</div>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="interpreters = use_extension(&quot;@aspect_rules_py//py/unstable:extension.bzl&quot;, &quot;python_interpreters&quot;)
+interpreters.toolchain(python_version = &quot;3.12&quot;, is_default = True)
+use_repo(interpreters, &quot;python_interpreters&quot;)
+register_toolchains(&quot;@python_interpreters//:all&quot;)"><pre><span class="pl-s1">interpreters</span> <span class="pl-c1">=</span> <span class="pl-en">use_extension</span>(<span class="pl-s">"@aspect_rules_py//py/unstable:extension.bzl"</span>, <span class="pl-s">"python_interpreters"</span>)
+<span class="pl-s1">interpreters</span>.<span class="pl-c1">toolchain</span>(<span class="pl-s1">python_version</span> <span class="pl-c1">=</span> <span class="pl-s">"3.12"</span>, <span class="pl-s1">is_default</span> <span class="pl-c1">=</span> <span class="pl-c1">True</span>)
+<span class="pl-en">use_repo</span>(<span class="pl-s1">interpreters</span>, <span class="pl-s">"python_interpreters"</span>)
+<span class="pl-en">register_toolchains</span>(<span class="pl-s">"@python_interpreters//:all"</span>)</pre></div>
+<p dir="auto">This enables cross-compilation from any host to any target without host-installed Python, and is the foundation for
+correct toolchain selection in RBE environments.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Idiomatic <code>site-packages</code> Layout</h3><a id="user-content-idiomatic-site-packages-layout" class="anchor" aria-label="Permalink: Idiomatic site-packages Layout" href="#idiomatic-site-packages-layout"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">We do not manipulate <code>sys.path</code> or <code>$PYTHONPATH</code>. Instead, we generate a standard <code>site-packages</code> directory structure
+using symlink trees:</p>
+<ul dir="auto">
+<li>Prevents module name collisions (e.g., standard library <code>collections</code> vs. a transitive dependency named <code>collections</code>)</li>
+<li>Matches standard Python expectations—tools just work</li>
+<li>Native IDE compatibility: VSCode, PyCharm, and language servers resolve jump-to-definition correctly into the Bazel
+sandbox</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Strict Sandbox Isolation</h3><a id="user-content-strict-sandbox-isolation" class="anchor" aria-label="Permalink: Strict Sandbox Isolation" href="#strict-sandbox-isolation"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li><strong>Isolated mode</strong>: Python executes with <code>-I</code> flag, preventing implicit loading of user site-packages or host
+environment variables</li>
+<li><strong>Hermetic launchers</strong>: Our launcher uses the Bazel Bash toolchain, not the host Python, this ensures 100% hermetic
+execution across local machines and RBE nodes</li>
+<li><strong>No host Python leakage</strong>: Breaks the implicit dependency on system Python during the boot sequence</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Cross-Platform &amp; Cross-Build Native</h3><a id="user-content-cross-platform--cross-build-native" class="anchor" aria-label="Permalink: Cross-Platform &amp; Cross-Build Native" href="#cross-platform--cross-build-native"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li><strong>Effortless cross-compilation</strong>: Build Linux container images from macOS (or vice versa) using standard Bazel
+platform transitions</li>
+<li><strong>Multi-architecture OCI images</strong>: Native support for building <code>amd64</code> and <code>arm64</code> container images</li>
+<li><strong>Platform-agnostic queries</strong>: All hub labels are always available—no more "target incompatible" errors when querying
+on a different OS</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Virtual Dependencies for Monorepos</h3><a id="user-content-virtual-dependencies-for-monorepos" class="anchor" aria-label="Permalink: Virtual Dependencies for Monorepos" href="#virtual-dependencies-for-monorepos"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><code>virtual_deps</code> allow external Python dependencies to be specified by package name rather than by label:</p>
+<ul dir="auto">
+<li>Individual projects within a monorepo can upgrade dependencies independently</li>
+<li>Test against multiple versions of the same dependency</li>
+<li>Swap implementations at the binary level (e.g., use <code>cowsnake</code> instead of <code>cowsay</code>)</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Production Container Support</h3><a id="user-content-production-container-support" class="anchor" aria-label="Permalink: Production Container Support" href="#production-container-support"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Built-in rules for creating optimized container images:</p>
+<ul dir="auto">
+<li><a href="py/defs.bzl"><code>py_image_layer</code></a>: Creates layered tar files compatible with <code>rules_oci</code></li>
+<li>Cross-platform builds with automatic platform transitions</li>
+<li>Optimized layer caching—dependencies and application code are separated</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Native Pytest Integration</h3><a id="user-content-native-pytest-integration" class="anchor" aria-label="Permalink: Native Pytest Integration" href="#native-pytest-integration"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li>First-class pytest support with <code>py_pytest_main</code></li>
+<li>Automatic test discovery with proper import handling</li>
+<li>Compatible with <code>pytest-mock</code>, <code>pytest-xdist</code>, and other plugins</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Installation and Configuration</h2><a id="user-content-installation-and-configuration" class="anchor" aria-label="Permalink: Installation and Configuration" href="#installation-and-configuration"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel_dep(name = &quot;aspect_rules_py&quot;, version = &quot;1.11.2&quot;)"><pre><span class="pl-en">bazel_dep</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"aspect_rules_py"</span>, <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"1.11.2"</span>)</pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Quick Start</h3><a id="user-content-quick-start" class="anchor" aria-label="Permalink: Quick Start" href="#quick-start"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Load rules from <code>aspect_rules_py</code> in your <code>BUILD</code> files:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@aspect_rules_py//py:defs.bzl&quot;, &quot;py_binary&quot;, &quot;py_library&quot;, &quot;py_test&quot;)
+
+py_library(
+    name = &quot;lib&quot;,
+    srcs = [&quot;lib.py&quot;],
+    deps = [&quot;@pypi//requests&quot;],
+)
+
+py_binary(
+    name = &quot;app&quot;,
+    srcs = [&quot;main.py&quot;],
+    main = &quot;main.py&quot;,
+    deps = [&quot;:lib&quot;],
+)
+
+py_test(
+    name = &quot;test&quot;,
+    srcs = [&quot;test.py&quot;],
+    deps = [&quot;:lib&quot;],
+)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@aspect_rules_py//py:defs.bzl"</span>, <span class="pl-s">"py_binary"</span>, <span class="pl-s">"py_library"</span>, <span class="pl-s">"py_test"</span>)
+
+<span class="pl-en">py_library</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"lib"</span>,
+    <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> [<span class="pl-s">"lib.py"</span>],
+    <span class="pl-s1">deps</span> <span class="pl-c1">=</span> [<span class="pl-s">"@pypi//requests"</span>],
+)
+
+<span class="pl-en">py_binary</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"app"</span>,
+    <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> [<span class="pl-s">"main.py"</span>],
+    <span class="pl-s1">main</span> <span class="pl-c1">=</span> <span class="pl-s">"main.py"</span>,
+    <span class="pl-s1">deps</span> <span class="pl-c1">=</span> [<span class="pl-s">":lib"</span>],
+)
+
+<span class="pl-en">py_test</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"test"</span>,
+    <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> [<span class="pl-s">"test.py"</span>],
+    <span class="pl-s1">deps</span> <span class="pl-c1">=</span> [<span class="pl-s">":lib"</span>],
+)</pre></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Dependency Resolution with <code>uv</code></h2><a id="user-content-dependency-resolution-with-uv" class="anchor" aria-label="Permalink: Dependency Resolution with uv" href="#dependency-resolution-with-uv"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><code>aspect_rules_py//uv</code> is our alternative to <code>rules_python</code>'s <code>pip.parse</code>:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="uv = use_extension(&quot;@aspect_rules_py//uv/unstable:extension.bzl&quot;, &quot;uv&quot;)
+
+# 1. Declare a hub (a shared dependency namespace)
+uv.declare_hub(
+    hub_name = &quot;pypi&quot;,
+)
+
+# 2. Register projects (lockfiles) into the hub
+uv.project(
+    hub_name = &quot;pypi&quot;,
+    lock = &quot;//:uv.lock&quot;,
+    pyproject = &quot;//:pyproject.toml&quot;,
+    # Build tools injected for sdist packages that need them (e.g. maturin, setuptools)
+    default_build_dependencies = [&quot;build&quot;, &quot;setuptools&quot;],
+)
+
+# 3a. (Optional) Replace a package with a local Bazel target
+uv.override_package(
+    name = &quot;some_package&quot;,
+    lock = &quot;//:uv.lock&quot;,
+    target = &quot;//third_party/some_package&quot;,
+)
+
+# 3b. (Optional) Patch an installed wheel's file tree after unpacking
+uv.override_package(
+    name = &quot;some_other_package&quot;,
+    lock = &quot;//:uv.lock&quot;,
+    post_install_patches = [&quot;//third_party/patches:fix_some_other_package.patch&quot;],
+    post_install_patch_strip = 1,
+)
+
+use_repo(uv, &quot;pypi&quot;)"><pre><span class="pl-s1">uv</span> <span class="pl-c1">=</span> <span class="pl-en">use_extension</span>(<span class="pl-s">"@aspect_rules_py//uv/unstable:extension.bzl"</span>, <span class="pl-s">"uv"</span>)
+
+<span class="pl-c"># 1. Declare a hub (a shared dependency namespace)</span>
+<span class="pl-s1">uv</span>.<span class="pl-c1">declare_hub</span>(
+    <span class="pl-s1">hub_name</span> <span class="pl-c1">=</span> <span class="pl-s">"pypi"</span>,
+)
+
+<span class="pl-c"># 2. Register projects (lockfiles) into the hub</span>
+<span class="pl-s1">uv</span>.<span class="pl-c1">project</span>(
+    <span class="pl-s1">hub_name</span> <span class="pl-c1">=</span> <span class="pl-s">"pypi"</span>,
+    <span class="pl-s1">lock</span> <span class="pl-c1">=</span> <span class="pl-s">"//:uv.lock"</span>,
+    <span class="pl-s1">pyproject</span> <span class="pl-c1">=</span> <span class="pl-s">"//:pyproject.toml"</span>,
+    <span class="pl-c"># Build tools injected for sdist packages that need them (e.g. maturin, setuptools)</span>
+    <span class="pl-s1">default_build_dependencies</span> <span class="pl-c1">=</span> [<span class="pl-s">"build"</span>, <span class="pl-s">"setuptools"</span>],
+)
+
+<span class="pl-c"># 3a. (Optional) Replace a package with a local Bazel target</span>
+<span class="pl-s1">uv</span>.<span class="pl-c1">override_package</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"some_package"</span>,
+    <span class="pl-s1">lock</span> <span class="pl-c1">=</span> <span class="pl-s">"//:uv.lock"</span>,
+    <span class="pl-s1">target</span> <span class="pl-c1">=</span> <span class="pl-s">"//third_party/some_package"</span>,
+)
+
+<span class="pl-c"># 3b. (Optional) Patch an installed wheel's file tree after unpacking</span>
+<span class="pl-s1">uv</span>.<span class="pl-c1">override_package</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"some_other_package"</span>,
+    <span class="pl-s1">lock</span> <span class="pl-c1">=</span> <span class="pl-s">"//:uv.lock"</span>,
+    <span class="pl-s1">post_install_patches</span> <span class="pl-c1">=</span> [<span class="pl-s">"//third_party/patches:fix_some_other_package.patch"</span>],
+    <span class="pl-s1">post_install_patch_strip</span> <span class="pl-c1">=</span> <span class="pl-c1">1</span>,
+)
+
+<span class="pl-en">use_repo</span>(<span class="pl-s1">uv</span>, <span class="pl-s">"pypi"</span>)</pre></div>
+<p dir="auto">Requirements are declared in standard <code>pyproject.toml</code>:</p>
+<div class="highlight highlight-source-toml notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="[project]
+name = &quot;myapp&quot;
+version = &quot;1.0.0&quot;
+requires-python = &quot;&gt;= 3.11&quot;
+dependencies = [
+    &quot;requests&gt;=2.28&quot;,
+    &quot;pydantic&gt;=2.0&quot;,
+]
+
+[dependency-groups]
+dev = [&quot;pytest&quot;, &quot;black&quot;, &quot;mypy&quot;]"><pre>[<span class="pl-en">project</span>]
+<span class="pl-smi">name</span> = <span class="pl-s"><span class="pl-pds">"</span>myapp<span class="pl-pds">"</span></span>
+<span class="pl-smi">version</span> = <span class="pl-s"><span class="pl-pds">"</span>1.0.0<span class="pl-pds">"</span></span>
+<span class="pl-smi">requires-python</span> = <span class="pl-s"><span class="pl-pds">"</span>&gt;= 3.11<span class="pl-pds">"</span></span>
+<span class="pl-smi">dependencies</span> = [
+    <span class="pl-s"><span class="pl-pds">"</span>requests&gt;=2.28<span class="pl-pds">"</span></span>,
+    <span class="pl-s"><span class="pl-pds">"</span>pydantic&gt;=2.0<span class="pl-pds">"</span></span>,
+]
+
+[<span class="pl-en">dependency-groups</span>]
+<span class="pl-smi">dev</span> = [<span class="pl-s"><span class="pl-pds">"</span>pytest<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>black<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>mypy<span class="pl-pds">"</span></span>]</pre></div>
+<p dir="auto">Generate the lockfile with uv:</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="uv lock"><pre>uv lock</pre></div>
+<p dir="auto">Switch between dependency groups:</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="# Default: use all dependencies
+bazel run //:app
+
+# Use only production dependencies
+bazel run //:app --@pypi//venv=prod"><pre><span class="pl-c"><span class="pl-c">#</span> Default: use all dependencies</span>
+bazel run //:app
+
+<span class="pl-c"><span class="pl-c">#</span> Use only production dependencies</span>
+bazel run //:app --@pypi//venv=prod</pre></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Virtual Dependencies</h2><a id="user-content-virtual-dependencies" class="anchor" aria-label="Permalink: Virtual Dependencies" href="#virtual-dependencies"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Declare virtual dependencies in libraries:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="py_library(
+    name = &quot;greet_lib&quot;,
+    srcs = [&quot;greet.py&quot;],
+    virtual_deps = [&quot;cowsay&quot;],  # Not a label—just a package name
+)"><pre><span class="pl-en">py_library</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"greet_lib"</span>,
+    <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> [<span class="pl-s">"greet.py"</span>],
+    <span class="pl-s1">virtual_deps</span> <span class="pl-c1">=</span> [<span class="pl-s">"cowsay"</span>],  <span class="pl-c"># Not a label—just a package name</span>
+)</pre></div>
+<p dir="auto">Resolve them in binaries:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="py_binary(
+    name = &quot;app&quot;,
+    srcs = [&quot;main.py&quot;],
+    deps = [&quot;:greet_lib&quot;],
+    resolutions = {
+        &quot;cowsay&quot;: &quot;@pypi//cowsay&quot;,
+    },
+)
+
+# Or use a different implementation!
+py_binary(
+    name = &quot;app_snake&quot;,
+    srcs = [&quot;main.py&quot;],
+    deps = [&quot;:greet_lib&quot;],
+    resolutions = {
+        &quot;cowsay&quot;: &quot;//cowsnake&quot;,  # Swapped implementation
+    },
+)"><pre><span class="pl-en">py_binary</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"app"</span>,
+    <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> [<span class="pl-s">"main.py"</span>],
+    <span class="pl-s1">deps</span> <span class="pl-c1">=</span> [<span class="pl-s">":greet_lib"</span>],
+    <span class="pl-s1">resolutions</span> <span class="pl-c1">=</span> {
+        <span class="pl-s">"cowsay"</span>: <span class="pl-s">"@pypi//cowsay"</span>,
+    },
+)
+
+<span class="pl-c"># Or use a different implementation!</span>
+<span class="pl-en">py_binary</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"app_snake"</span>,
+    <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> [<span class="pl-s">"main.py"</span>],
+    <span class="pl-s1">deps</span> <span class="pl-c1">=</span> [<span class="pl-s">":greet_lib"</span>],
+    <span class="pl-s1">resolutions</span> <span class="pl-c1">=</span> {
+        <span class="pl-s">"cowsay"</span>: <span class="pl-s">"//cowsnake"</span>,  <span class="pl-c"># Swapped implementation</span>
+    },
+)</pre></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Container Images</h2><a id="user-content-container-images" class="anchor" aria-label="Permalink: Container Images" href="#container-images"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Build optimized OCI images with layer caching:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@aspect_rules_py//py:defs.bzl&quot;, &quot;py_binary&quot;, &quot;py_image_layer&quot;)
+load(&quot;@rules_oci//oci:defs.bzl&quot;, &quot;oci_image&quot;, &quot;oci_load&quot;)
+
+py_binary(
+    name = &quot;app_bin&quot;,
+    srcs = [&quot;main.py&quot;],
+    deps = [&quot;//:lib&quot;],
+)
+
+py_image_layer(
+    name = &quot;app_layers&quot;,
+    binary = &quot;:app_bin&quot;,
+)
+
+oci_image(
+    name = &quot;image&quot;,
+    base = &quot;@ubuntu&quot;,
+    tars = [&quot;:app_layers&quot;],
+    entrypoint = [&quot;/app/app_bin&quot;],
+)
+
+oci_load(
+    name = &quot;image_load&quot;,
+    image = &quot;:image&quot;,
+    repo_tags = [&quot;myapp:latest&quot;],
+)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@aspect_rules_py//py:defs.bzl"</span>, <span class="pl-s">"py_binary"</span>, <span class="pl-s">"py_image_layer"</span>)
+<span class="pl-en">load</span>(<span class="pl-s">"@rules_oci//oci:defs.bzl"</span>, <span class="pl-s">"oci_image"</span>, <span class="pl-s">"oci_load"</span>)
+
+<span class="pl-en">py_binary</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"app_bin"</span>,
+    <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> [<span class="pl-s">"main.py"</span>],
+    <span class="pl-s1">deps</span> <span class="pl-c1">=</span> [<span class="pl-s">"//:lib"</span>],
+)
+
+<span class="pl-en">py_image_layer</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"app_layers"</span>,
+    <span class="pl-s1">binary</span> <span class="pl-c1">=</span> <span class="pl-s">":app_bin"</span>,
+)
+
+<span class="pl-en">oci_image</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"image"</span>,
+    <span class="pl-s1">base</span> <span class="pl-c1">=</span> <span class="pl-s">"@ubuntu"</span>,
+    <span class="pl-s1">tars</span> <span class="pl-c1">=</span> [<span class="pl-s">":app_layers"</span>],
+    <span class="pl-s1">entrypoint</span> <span class="pl-c1">=</span> [<span class="pl-s">"/app/app_bin"</span>],
+)
+
+<span class="pl-en">oci_load</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"image_load"</span>,
+    <span class="pl-s1">image</span> <span class="pl-c1">=</span> <span class="pl-s">":image"</span>,
+    <span class="pl-s1">repo_tags</span> <span class="pl-c1">=</span> [<span class="pl-s">"myapp:latest"</span>],
+)</pre></div>
+<p dir="auto">Cross-compile for Linux from macOS:</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel build //:image --platforms=//platforms:linux_amd64"><pre>bazel build //:image --platforms=//platforms:linux_amd64</pre></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">IDE Integration</h2><a id="user-content-ide-integration" class="anchor" aria-label="Permalink: IDE Integration" href="#ide-integration"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><code>aspect_rules_py</code> generates standard virtualenv structures that IDEs understand:</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="# Creates a .venv symlink for the target
+bazel run //:my_app.venv"><pre><span class="pl-c"><span class="pl-c">#</span> Creates a .venv symlink for the target</span>
+bazel run //:my_app.venv</pre></div>
+<p dir="auto">Then point your IDE to the generated virtualenv:</p>
+<ul dir="auto">
+<li><strong>VSCode</strong>: Set <code>python.defaultInterpreterPath</code> to the <code>.venv</code> path</li>
+<li><strong>PyCharm</strong>: Add the <code>.venv</code> as a Python interpreter</li>
+<li><strong>Neovim/LSP</strong>: Configure <code>python-lsp-server</code> or <code>pyright</code> to use the virtualenv</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Debugger Support (VSCode/PyCharm)</h3><a id="user-content-debugger-support-vscodepycharm" class="anchor" aria-label="Permalink: Debugger Support (VSCode/PyCharm)" href="#debugger-support-vscodepycharm"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Attach debuggers using <code>debugpy</code>:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="# In debug mode, wraps the binary with debugpy listener
+py_binary(
+    name = &quot;app_debug&quot;,
+    srcs = [&quot;main.py&quot;],
+    deps = [&quot;//:lib&quot;, &quot;@pypi//debugpy&quot;],
+    env = {&quot;DEBUGPY_WAIT&quot;: &quot;1&quot;},  # Wait for IDE attachment
+)"><pre><span class="pl-c"># In debug mode, wraps the binary with debugpy listener</span>
+<span class="pl-en">py_binary</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"app_debug"</span>,
+    <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> [<span class="pl-s">"main.py"</span>],
+    <span class="pl-s1">deps</span> <span class="pl-c1">=</span> [<span class="pl-s">"//:lib"</span>, <span class="pl-s">"@pypi//debugpy"</span>],
+    <span class="pl-s1">env</span> <span class="pl-c1">=</span> {<span class="pl-s">"DEBUGPY_WAIT"</span>: <span class="pl-s">"1"</span>},  <span class="pl-c"># Wait for IDE attachment</span>
+)</pre></div>
+<p dir="auto">VSCode <code>launch.json</code>:</p>
+<div class="highlight highlight-source-json notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="{
+  &quot;name&quot;: &quot;Attach to Bazel py_binary&quot;,
+  &quot;type&quot;: &quot;debugpy&quot;,
+  &quot;request&quot;: &quot;attach&quot;,
+  &quot;connect&quot;: {
+    &quot;host&quot;: &quot;127.0.0.1&quot;,
+    &quot;port&quot;: 5678
+  }
+}"><pre>{
+  <span class="pl-ent">"name"</span>: <span class="pl-s"><span class="pl-pds">"</span>Attach to Bazel py_binary<span class="pl-pds">"</span></span>,
+  <span class="pl-ent">"type"</span>: <span class="pl-s"><span class="pl-pds">"</span>debugpy<span class="pl-pds">"</span></span>,
+  <span class="pl-ent">"request"</span>: <span class="pl-s"><span class="pl-pds">"</span>attach<span class="pl-pds">"</span></span>,
+  <span class="pl-ent">"connect"</span>: {
+    <span class="pl-ent">"host"</span>: <span class="pl-s"><span class="pl-pds">"</span>127.0.0.1<span class="pl-pds">"</span></span>,
+    <span class="pl-ent">"port"</span>: <span class="pl-c1">5678</span>
+  }
+}</pre></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Gazelle Integration</h2><a id="user-content-gazelle-integration" class="anchor" aria-label="Permalink: Gazelle Integration" href="#gazelle-integration"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Generate <code>BUILD</code> files automatically with the Gazelle extension:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="# MODULE.bazel
+bazel_dep(name = &quot;gazelle&quot;, version = &quot;0.42.0&quot;)
+bazel_dep(name = &quot;aspect_rules_py&quot;, version = &quot;1.11.2&quot;)
+
+# In your BUILD file
+# gazelle:map_kind py_library py_library @aspect_rules_py//py:defs.bzl
 # gazelle:map_kind py_binary py_binary @aspect_rules_py//py:defs.bzl
-# gazelle:map_kind py_test py_test @aspect_rules_py//py:defs.bzl"><pre class="notranslate"><code># gazelle:map_kind py_library py_library @aspect_rules_py//py:defs.bzl
-# gazelle:map_kind py_binary py_binary @aspect_rules_py//py:defs.bzl
-# gazelle:map_kind py_test py_test @aspect_rules_py//py:defs.bzl
-</code></pre></div>
-<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Public API</h1><a id="user-content-public-api" class="anchor" aria-label="Permalink: Public API" href="#public-api"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<p dir="auto">See <a href="https://registry.bazel.build/docs/aspect_rules_py" rel="nofollow">https://registry.bazel.build/docs/aspect_rules_py</a></p>
-<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Telemetry &amp; privacy policy</h1><a id="user-content-telemetry--privacy-policy" class="anchor" aria-label="Permalink: Telemetry &amp; privacy policy" href="#telemetry--privacy-policy"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<p dir="auto">This ruleset collects limited usage data via <a href="https://github.com/aspect-build/tools_telemetry"><code>tools_telemetry</code></a>, which is reported to Aspect Build Inc and governed by our <a href="https://www.aspect.build/privacy-policy" rel="nofollow">privacy policy</a>.</p>
+# gazelle:map_kind py_test py_test @aspect_rules_py//py:defs.bzl"><pre><span class="pl-c"># MODULE.bazel</span>
+<span class="pl-en">bazel_dep</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"gazelle"</span>, <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"0.42.0"</span>)
+<span class="pl-en">bazel_dep</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"aspect_rules_py"</span>, <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"1.11.2"</span>)
+
+<span class="pl-c"># In your BUILD file</span>
+<span class="pl-c"># gazelle:map_kind py_library py_library @aspect_rules_py//py:defs.bzl</span>
+<span class="pl-c"># gazelle:map_kind py_binary py_binary @aspect_rules_py//py:defs.bzl</span>
+<span class="pl-c"># gazelle:map_kind py_test py_test @aspect_rules_py//py:defs.bzl</span></pre></div>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="# Generate BUILD files
+bazel run //:gazelle"><pre><span class="pl-c"><span class="pl-c">#</span> Generate BUILD files</span>
+bazel run //:gazelle</pre></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Migration from <code>rules_python</code></h2><a id="user-content-migration-from-rules_python" class="anchor" aria-label="Permalink: Migration from rules_python" href="#migration-from-rules_python"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><code>aspect_rules_py</code> is designed for incremental adoption:</p>
+<ol dir="auto">
+<li><strong>Swap the rules</strong>: Load <code>py_binary</code>, <code>py_library</code>, <code>py_test</code> from <code>@aspect_rules_py//py:defs.bzl</code> instead of
+<code>@rules_python//python:defs.bzl</code></li>
+<li><strong>Migrate dependencies</strong>: Replace <code>pip.parse</code> with <code>uv.hub</code> and generate a <code>uv.lock</code></li>
+<li><strong>Optionally migrate toolchains</strong>: Replace <code>rules_python</code> interpreter provisioning with
+the <code>aspect_rules_py</code> interpreter extension for fully independent hermetic interpreters</li>
+</ol>
+<p dir="auto">For detailed migration guidance, see <a href="docs/migrating.md">docs/migrating.md</a>.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Documentation</h2><a id="user-content-documentation" class="anchor" aria-label="Permalink: Documentation" href="#documentation"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li><a href="docs/uv.md">Dependency resolution with <code>uv</code></a></li>
+<li><a href="docs/virtual_deps.md">Virtual dependencies</a></li>
+<li><a href="docs/interpreter.md">Interpreter configuration</a></li>
+<li><a href="docs/migrating.md">Migration guide</a></li>
+<li><a href="CONTRIBUTING.md">Contributing</a></li>
+</ul>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Users</h2><a id="user-content-users" class="anchor" aria-label="Permalink: Users" href="#users"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li><a href="https://github.com/openai/codex">OpenAI</a></li>
+<li><a href="https://www.physicalintelligence.company/" rel="nofollow">Physical Intelligence</a></li>
+<li><a href="https://www.rai.ac/" rel="nofollow">RAI Institute</a></li>
+<li><a href="https://github.com/NVIDIA/OSMO">NVIDIA OSMO</a></li>
+<li><a href="https://github.com/zml/zml">ZML</a></li>
+<li><a href="https://github.com/eclipse-score/score">Eclipse SCORE</a></li>
+<li><a href="https://github.com/intrinsic-opensource/ros-central-registry">Intrinsic</a></li>
+<li><a href="https://github.com/enfabrica/enkit">Enfabrica</a></li>
+<li><a href="https://github.com/resim-ai/open-core">ReSim AI</a></li>
+<li><a href="https://github.com/stackav-oss/clockwork">StackAV</a></li>
+<li><a href="https://github.com/NKI-AI/direct">Netherlands Cancer Institute</a></li>
+<li><a href="https://github.com/pyrovelocity/pyrovelocity">pyrovelocity</a></li>
+</ul>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Architecture</h2><a id="user-content-architecture" class="anchor" aria-label="Permalink: Architecture" href="#architecture"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<markdown-accessiblity-table><table>
+<thead>
+<tr>
+<th align="left">Layer</th>
+<th align="left">Implementation</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left"><strong>Toolchains</strong></td>
+<td align="left"><code>@aspect_rules_py//py</code></td>
+<td align="left">Own python-build-standalone interpreter provisioning; <code>@rules_python</code> optional</td>
+</tr>
+<tr>
+<td align="left"><strong>Resolution</strong></td>
+<td align="left"><code>@aspect_rules_py//uv</code></td>
+<td align="left">Fast, lockfile-backed dependency resolution with <code>uv</code></td>
+</tr>
+<tr>
+<td align="left"><strong>Execution</strong></td>
+<td align="left"><code>@aspect_rules_py//py</code></td>
+<td align="left">Drop-in replacements for <code>py_binary</code>, <code>py_library</code>, <code>py_test</code> with sandbox isolation</td>
+</tr>
+<tr>
+<td align="left"><strong>Generation</strong></td>
+<td align="left"><code>aspect-gazelle</code></td>
+<td align="left">Pre-compiled Gazelle extension—no CGO toolchain required</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">License</h2><a id="user-content-license" class="anchor" aria-label="Permalink: License" href="#license"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Apache 2.0 - see <a href="LICENSE">LICENSE</a></p>
 </article></div>
