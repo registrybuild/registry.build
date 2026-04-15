@@ -9,8 +9,7 @@ reference Python ruleset for Bazel.</p>
 <li><strong>Seamless IDE compatibility</strong> via virtualenv-native structures</li>
 <li><strong>Production-ready containers</strong> with optimized OCI image layers</li>
 </ul>
-<p dir="auto">Unlike <code>rules_python</code>, which maintains strict compatibility with Google's internal monorepo semantics (google3),
-<code>aspect_rules_py</code> optimizes for modern Python development workflows, large-scale monorepos, and Remote Build Execution (
+<p dir="auto"><code>aspect_rules_py</code> optimizes for modern Python development workflows, large-scale monorepos, and Remote Build Execution (
 RBE) environments.</p>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Advantages Over <code>rules_python</code></h2><a id="user-content-advantages-over-rules_python" class="anchor" aria-label="Permalink: Advantages Over rules_python" href="#advantages-over-rules_python"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <markdown-accessiblity-table><table>
@@ -34,8 +33,8 @@ RBE) environments.</p>
 </tr>
 <tr>
 <td align="left">Cross-platform lockfile</td>
-<td align="left">Per-platform <code>requirements_*.txt</code></td>
-<td align="left">Single <code>uv.lock</code> for all platforms</td>
+<td align="left"><code>requirements.txt</code> (<code>uv.lock</code> via <code>uv pip compile</code>)</td>
+<td align="left">Native single <code>uv.lock</code> consumption</td>
 </tr>
 <tr>
 <td align="left">sdist / PEP 517 builds</td>
@@ -49,7 +48,7 @@ RBE) environments.</p>
 </tr>
 <tr>
 <td align="left">Site-packages layout</td>
-<td align="left"><code>sys.path</code> / <code>PYTHONPATH</code> manipulation</td>
+<td align="left">Standard <code>site-packages</code> layout (flag-enabled)</td>
 <td align="left">Standard <code>site-packages</code> symlink tree</td>
 </tr>
 <tr>
@@ -79,12 +78,11 @@ generate a <code>requirements.txt</code>—it is a faster <code>pip-compile</cod
 a Rust-native Python package resolver.</p>
 <ul dir="auto">
 <li><strong>Build-action installs</strong>: Wheel extraction runs as Bazel execution-phase actions—not repo rules—so they are
-cacheable, sandboxed, and compatible with RBE. Crucially, wheels are no longer resolved against the host machine
+sandboxed and compatible with RBE. Crucially, wheels are no longer resolved against the host machine
 architecture: a single build can fetch and extract wheels for any exec or target platform, enabling true
 cross-platform builds (e.g. building Linux <code>aarch64</code> wheels on a macOS <code>x86_64</code> host)</li>
 <li><strong>Native <code>uv.lock</code> parsing</strong>: Consumes <code>uv.lock</code> directly; no <code>requirements.txt</code> generation step</li>
-<li><strong>Universal lockfiles</strong>: A single <code>uv.lock</code> works across all platforms—no more <code>requirements_linux.txt</code>,
-<code>requirements_mac.txt</code>, <code>requirements_windows.txt</code></li>
+<li><strong>Universal lockfiles</strong>: A single <code>uv.lock</code> works across all platforms</li>
 <li><strong>sdist / PEP 517 builds</strong>: Build source distributions as Bazel actions (rules_python has no equivalent;
 <a href="https://github.com/bazel-contrib/rules_python/issues/2410" data-hovercard-type="issue" data-hovercard-url="/bazel-contrib/rules_python/issues/2410/hovercard">#2410</a> open since November 2024)</li>
 <li><strong>PEP 735 dependency groups</strong>: Define <code>prod</code>, <code>dev</code>, <code>test</code> dependency groups and switch between them with a flag</li>
