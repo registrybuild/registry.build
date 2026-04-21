@@ -3,14 +3,59 @@
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Overview</h2><a id="user-content-overview" class="anchor" aria-label="Permalink: Overview" href="#overview"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">This repository is the home of the core Python rules -- <code>py_library</code>,
 <code>py_binary</code>, <code>py_test</code>, and related symbols that provide the basis for Python
-support in Bazel. It also contains package installation rules for integrating with PyPI and other indices.</p>
+support in Bazel. It also contains package installation rules for integrating
+with PyPI and other indices.</p>
 <p dir="auto">Documentation for rules_python is at <a href="https://rules-python.readthedocs.io" rel="nofollow">https://rules-python.readthedocs.io</a> and in the
 <a href="https://docs.bazel.build/versions/master/be/python.html" rel="nofollow">Bazel Build Encyclopedia</a>.</p>
 <p dir="auto">Examples live in the <a href="examples">examples</a> directory.</p>
 <p dir="auto">The core rules are stable. Their implementation is subject to Bazel's
 <a href="https://docs.bazel.build/versions/master/backward-compatibility.html" rel="nofollow">backward compatibility policy</a>.
 This repository aims to follow <a href="https://semver.org" rel="nofollow">semantic versioning</a>.</p>
-<p dir="auto">The Bazel community maintains this repository. Neither Google nor the Bazel team provides support for the code. However, this repository is part of the test suite used to vet new Bazel releases. See <a href="CONTRIBUTING.md">How to contribute</a> page for information on our development workflow.</p>
+<p dir="auto">The Bazel community maintains this repository. Neither Google nor the Bazel team
+provides support for the code. However, this repository is part of the test
+suite used to vet new Bazel releases. See <a href="CONTRIBUTING.md">How to contribute</a>
+page for information on our development workflow.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Design</h2><a id="user-content-design" class="anchor" aria-label="Permalink: Design" href="#design"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li>Supported OSes - as per our supported platform policy, we strive for support
+on all of the platforms that we have CI for. Some platforms do not have the
+same backwards compatibility guarantees, but we hope the community can step in
+where needed to make the support more robust.</li>
+<li><code>requirements.txt</code> is how users have been defining dependencies for a long
+time. We support this to support legacy usecases or package managers that we
+don't support directly. Any additional information that we need will be
+retrieved from the SimpleAPI during the <code>bzlmod</code> extension evaluation phase.
+Then it will be written to the <code>MODULE.bazel.lock</code> file for future reuse. We
+have plans to support <code>uv.lock</code> file directly. <code>uv</code> is recommended for
+generating a fully locked <code>requirements.txt</code> file and we do provide a rule for
+it.</li>
+<li>The <code>py_binary</code>, <code>py_test</code> rules should scale to large monorepos and we work
+hard to minimize the work done during analysis and build phase. What is more,
+the space requirements for should be minimal, so we strive to use symlinks
+rather than extracting wheels at build time. This means that for different
+configurations of the same build, we are not extracting the wheel multiple
+times thus scaling better over the time. From <code>2.0</code> onwards we are creating a
+virtual env for each target by creating an actual minimal virtual environment
+using symlinks. We plan on creating the traditional <code>site-packages</code> layout in
+the future by default.</li>
+<li>Support for standards - we strive to first implement any standards needed
+within <code>rules_python</code> and this has resulted in a few PEPs supported within
+pure starlark - PEP440, PEP509.</li>
+</ul>
+<p dir="auto">Common misconceptions:</p>
+<ul dir="auto">
+<li><code>rules_python</code> has to keep backwards compatibility with <code>google3</code>. Whilst this
+might have been true in the past, <code>rules_python</code> is an open source project and
+any compatibility needs should come from the community - we have no
+requirement to keep this compatibility and are allowed to make our decisions.
+However, we do want to keep backwards compatibility as long as possible to not
+upset users with never ending migrations.</li>
+<li><code>rules_python</code> is not caching pip downloads. With 2.0, we use Bazel's
+downloader by default and rely on bazel to provide the repository caching
+mechanisms. This means that for simpler setups this should result in
+transparent and scalable caching with the most recent bazel versions unless
+there are issues in the bazel itself.</li>
+</ul>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Documentation</h2><a id="user-content-documentation" class="anchor" aria-label="Permalink: Documentation" href="#documentation"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">For detailed documentation, see <a href="https://rules-python.readthedocs.io" rel="nofollow">https://rules-python.readthedocs.io</a></p>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Bzlmod support</h2><a id="user-content-bzlmod-support" class="anchor" aria-label="Permalink: Bzlmod support" href="#bzlmod-support"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
