@@ -11,34 +11,38 @@ dependencies, and then loads your modules into an interpreter.</p>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Overview</h2><a id="user-content-overview" class="anchor" aria-label="Permalink: Overview" href="#overview"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">To use <code>hrepl</code>, first <code>cd</code> into this repository, build the <code>//hrepl</code> target and
 save the resulting binary somewhere convenient:</p>
-<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="$ bazel build //hrepl
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="$ bazel build //hrepl
 $ cp --no-preserve=mode bazel-bin/hrepl/hrepl ~/.local/bin
-$ chmod +x ~/.local/bin/hrepl"><pre>$ bazel build //hrepl
-$ cp --no-preserve=mode bazel-bin/hrepl/hrepl <span class="pl-k">~</span>/.local/bin
-$ chmod +x <span class="pl-k">~</span>/.local/bin/hrepl</pre></div>
+$ chmod +x ~/.local/bin/hrepl"><pre lang="shell" class="notranslate"><code>$ bazel build //hrepl
+$ cp --no-preserve=mode bazel-bin/hrepl/hrepl ~/.local/bin
+$ chmod +x ~/.local/bin/hrepl
+</code></pre></div>
 <p dir="auto">You should also use a recent enough verson of <code>rules_haskell</code> in your
 project's <code>WORKSPACE</code> file.  (See this repository's <code>WORKSPACE</code> file for an
 example.)</p>
 <p dir="auto">Then, to load one or more targets in the interpreter, run <code>hrepl</code> within
 your own Bazel project.  You may specify the Bazel label(s) of any Haskell libraries,
 binaries or tests. For example, in the <code>rules_haskell</code> repository itself:</p>
-<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="$ hrepl tests/binary-with-lib:lib
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="$ hrepl tests/binary-with-lib:lib
 ...
-*Lib Lib&gt;"><pre>$ hrepl tests/binary-with-lib:lib
+*Lib Lib&gt;"><pre lang="shell" class="notranslate"><code>$ hrepl tests/binary-with-lib:lib
 ...
-<span class="pl-k">*</span>Lib Lib<span class="pl-k">&gt;</span></pre></div>
+*Lib Lib&gt;
+</code></pre></div>
 <p dir="auto">Or, within a subdirectory and with <a href="#multiple-build-targets">multiple targets</a>:</p>
-<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="$ cd tests/binary-with-lib
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="$ cd tests/binary-with-lib
 $ hrepl :lib :binary-with-lib
-*Lib Lib Main&gt;"><pre>$ <span class="pl-c1">cd</span> tests/binary-with-lib
+*Lib Lib Main&gt;"><pre lang="shell" class="notranslate"><code>$ cd tests/binary-with-lib
 $ hrepl :lib :binary-with-lib
-<span class="pl-k">*</span>Lib Lib Main<span class="pl-k">&gt;</span></pre></div>
+*Lib Lib Main&gt;
+</code></pre></div>
 <p dir="auto">You may also specify individual source files, which will cause hrepl to load
 targets that declare those files in their srcs. (If there is more than one
 possibility, it will choose arbitrarily.)</p>
-<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="$ hrepl tests/binary-with-lib/Lib.hs
-*Lib Lib&gt;"><pre>$ hrepl tests/binary-with-lib/Lib.hs
-<span class="pl-k">*</span>Lib Lib<span class="pl-k">&gt;</span></pre></div>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="$ hrepl tests/binary-with-lib/Lib.hs
+*Lib Lib&gt;"><pre lang="shell" class="notranslate"><code>$ hrepl tests/binary-with-lib/Lib.hs
+*Lib Lib&gt;
+</code></pre></div>
 <p dir="auto">After you modify the interpreted module(s), the <code>:reload</code> command will pick up
 any changes. This approach is much faster than rebuilding with Bazel each time.</p>
 <p dir="auto">For more information about <code>hrepl</code>'s command-line flags, run <code>hrepl --help</code>.</p>
@@ -47,11 +51,12 @@ any changes. This approach is much faster than rebuilding with Bazel each time.<
 <p dir="auto">By default, <code>hrepl</code> will compile any dependencies of your target(s) with Bazel
 before starting the interpreter. You may load those dependencies with <code>:module</code>
 or <code>import</code>. For example:</p>
-<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="$ hrepl //some:library  # depends on the &quot;split&quot; package
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="$ hrepl //some:library  # depends on the &quot;split&quot; package
 Prelude Library&gt; import Data.List.Split
-Prelude Library Data.List.Split&gt;"><pre>$ hrepl //some:library  <span class="pl-c"><span class="pl-c">#</span> depends on the "split" package</span>
-Prelude Library<span class="pl-k">&gt;</span> import Data.List.Split
-Prelude Library Data.List.Split<span class="pl-k">&gt;</span></pre></div>
+Prelude Library Data.List.Split&gt;"><pre lang="shell" class="notranslate"><code>$ hrepl //some:library  # depends on the "split" package
+Prelude Library&gt; import Data.List.Split
+Prelude Library Data.List.Split&gt;
+</code></pre></div>
 <p dir="auto">However, since those modules are compiled, the interpreter will not be aware of
 the source files of those dependencies, and will not pick up changes to them on
 <code>:reload</code>. Instead, you will need to <code>:quit</code> and restart <code>gghci</code>. The same is
@@ -65,7 +70,8 @@ dependency in the interpreter, pass <code>--package //label/of:dep</code>.</p>
 dependencies. The <code>--interpret-deps=PACKAGE</code> flag specifies any dependencies
 that are under the given <code>PACKAGE</code> (either directly, or as a subpackage). For
 example:</p>
-<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="$ hrepl //some/project:target --interpret-deps=//some/project"><pre>$ hrepl //some/project:target --interpret-deps=//some/project</pre></div>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="$ hrepl //some/project:target --interpret-deps=//some/project"><pre lang="shell" class="notranslate"><code>$ hrepl //some/project:target --interpret-deps=//some/project
+</code></pre></div>
 <p dir="auto">That will load not just <code>:target</code> into the interpreter, but also any source
 files from dependencies of <code>:target</code> that are in <code>some/project/BUILD</code> or
 any other <code>BUILD</code> file in a subdirectory of <code>some/project</code>.</p>
@@ -78,9 +84,10 @@ GHC extension, it may not be possible to interpret both of them at once.</p>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Multiple build targets</h3><a id="user-content-multiple-build-targets" class="anchor" aria-label="Permalink: Multiple build targets" href="#multiple-build-targets"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">You may load zero or more Bazel targets in the interpeter at once. For example,
 to load two targets:</p>
-<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="$ hrepl //your:target1 //another:target2
-Prelude Target1 Target2&gt;"><pre>$ hrepl //your:target1 //another:target2
-Prelude Target1 Target<span class="pl-k">2&gt;</span></pre></div>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="$ hrepl //your:target1 //another:target2
+Prelude Target1 Target2&gt;"><pre lang="shell" class="notranslate"><code>$ hrepl //your:target1 //another:target2
+Prelude Target1 Target2&gt;
+</code></pre></div>
 <p dir="auto"><code>hrepl</code> will also interpret (i.e., not compile) any "intermediate" targets. For
 example, suppose that <code>:target1</code> depends on <code>:dep</code> and <code>:dep</code> depends on
 <code>:target2</code>. Then <code>hrepl</code> will interpret <code>:dep</code> as well, and <code>:reload</code> will pick
@@ -88,22 +95,25 @@ up any changes to <code>:dep</code> as well as to <code>:target1</code> and <cod
 <code>hrepl</code> will not expose the definitions in <code>:dep</code> by default. If you want to use
 them, either specify those targets on the command-line or call <code>import</code>. For
 example:</p>
-<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="$ hrepl //your:target1 //another:target2
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="$ hrepl //your:target1 //another:target2
 Prelude Target1 Target2&gt; import Dep
-Prelude Target1 Target2 Dep&gt;"><pre>$ hrepl //your:target1 //another:target2
-Prelude Target1 Target<span class="pl-k">2&gt;</span> import Dep
-Prelude Target1 Target2 Dep<span class="pl-k">&gt;</span></pre></div>
+Prelude Target1 Target2 Dep&gt;"><pre lang="shell" class="notranslate"><code>$ hrepl //your:target1 //another:target2
+Prelude Target1 Target2&gt; import Dep
+Prelude Target1 Target2 Dep&gt;
+</code></pre></div>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Additional Compiled Targets</h3><a id="user-content-additional-compiled-targets" class="anchor" aria-label="Permalink: Additional Compiled Targets" href="#additional-compiled-targets"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">Alternately, you may tell <code>hrepl</code> to compile an unrelated target with the
 <code>--package</code> flag. For example:</p>
-<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="$ hrepl //your/haskell:target --package @stackage//:split
-Prelude Target&gt;"><pre>$ hrepl //your/haskell:target --package @stackage//:split
-Prelude Target<span class="pl-k">&gt;</span></pre></div>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="$ hrepl //your/haskell:target --package @stackage//:split
+Prelude Target&gt;"><pre lang="shell" class="notranslate"><code>$ hrepl //your/haskell:target --package @stackage//:split
+Prelude Target&gt;
+</code></pre></div>
 <p dir="auto">In that case, <code>@stackage//:split</code> will be compiled and available for
 <code>import</code> in the interpreter:</p>
-<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="Prelude Target&gt; import Data.List.Split
-Prelude Target Data.List.Split&gt;"><pre>Prelude Target<span class="pl-k">&gt;</span> import Data.List.Split
-Prelude Target Data.List.Split<span class="pl-k">&gt;</span></pre></div>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="Prelude Target&gt; import Data.List.Split
+Prelude Target Data.List.Split&gt;"><pre lang="shell" class="notranslate"><code>Prelude Target&gt; import Data.List.Split
+Prelude Target Data.List.Split&gt;
+</code></pre></div>
 <p dir="auto">Similar to any dependencies of <code>:target</code>, it won't be reloaded unless you
 manually <code>:quit</code> and restart the interpreter.</p>
 <p dir="auto">You may also use this flag to expose a dependency of a target without also compiling it.</p>
@@ -115,7 +125,8 @@ manually <code>:quit</code> and restart the interpreter.</p>
 </code></pre></div>
 <p dir="auto">To pass <a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/runtime_control.html#setting-rts-options-on-the-command-line" rel="nofollow">RTS options</a> to GHC, use the <code>--with-rtsopts</code> flag, which takes a
 space-separated list of flags. For example:</p>
-<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="$ hrepl --with-rtsopts='-t -S'  //some:target"><pre>$ hrepl --with-rtsopts=<span class="pl-s"><span class="pl-pds">'</span>-t -S<span class="pl-pds">'</span></span>  //some:target</pre></div>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="$ hrepl --with-rtsopts='-t -S'  //some:target"><pre lang="shell" class="notranslate"><code>$ hrepl --with-rtsopts='-t -S'  //some:target
+</code></pre></div>
 <p dir="auto">does the equivalent of <code>ghc +RTS -t -S -RTS</code>.</p>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">To Bazel</h3><a id="user-content-to-bazel" class="anchor" aria-label="Permalink: To Bazel" href="#to-bazel"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">You can use <code>--bazel-args=--some-bazel-params</code> to make <code>hrepl</code> pass certain
@@ -125,7 +136,8 @@ multiple times, the values will accumulate. For example, <code>--bazel-args='-c 
 is equivalent to <code>--bazel-args=-c --bazel-args=-opt</code>. As a special shortcut,
 <code>hrepl</code> supports directly passing the Bazel <code>-c</code> flag to it.</p>
 <p dir="auto">For example:</p>
-<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="$ hrepl --bazel-args='-c opt' //your/haskell:library
-$ hrepl -c opt //your/haskell:library`"><pre>$ hrepl --bazel-args=<span class="pl-s"><span class="pl-pds">'</span>-c opt<span class="pl-pds">'</span></span> //your/haskell:library
-$ hrepl -c opt //your/haskell:library<span class="pl-s"><span class="pl-pds">`</span></span></pre></div>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="$ hrepl --bazel-args='-c opt' //your/haskell:library
+$ hrepl -c opt //your/haskell:library`"><pre lang="shell" class="notranslate"><code>$ hrepl --bazel-args='-c opt' //your/haskell:library
+$ hrepl -c opt //your/haskell:library`
+</code></pre></div>
 </article></div>
