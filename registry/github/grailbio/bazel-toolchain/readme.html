@@ -40,8 +40,10 @@ map their respective target to a distinct version:</p>
 <p dir="auto">We currently offer limited customizability through attributes of the
 <a href="toolchain/rules.bzl">llvm_toolchain_* rules</a>. You can send us a PR to add
 more configuration attributes.</p>
-<p dir="auto">The <code>MODULE.bazel</code> example below demonstrates how to add new LLVM distributions before the toolchain has
-been updated. They can easily be computed using the provided checksum tool (see <code>llvm_checksums.sh -h</code>).</p>
+<p dir="auto">The <code>MODULE.bazel</code> example below demonstrates how to use an LLVM release that
+is not yet present in the bundled distribution table. The required SHA-256s
+can be obtained with <code>utils/extra_distributions.sh -v &lt;version&gt;</code>
+(see <a href="#distribution-data-and-scripts">Distribution data and scripts</a> below).</p>
 <div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="llvm = use_extension(&quot;@toolchains_llvm//toolchain/extensions:llvm.bzl&quot;, &quot;llvm&quot;, dev_dependency = True)
 llvm.toolchain(
     name = &quot;llvm_toolchain&quot;,
@@ -64,7 +66,8 @@ llvm.toolchain(
     },
 )</pre></div>
 <p dir="auto">The following <code>WORKSPACE</code> snippet shows how to add a specific version for a specific target before
-the version was added to <a href="toolchain/internal/llvm_distributions.bzl">llvm_distributions.bzl</a>.</p>
+the version was added to the bundled distribution data under
+<a href="toolchain/distributions"><code>toolchain/distributions/</code></a>.</p>
 <div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="llvm_toolchain(
     name = &quot;llvm_toolchain&quot;,
     llvm_version = &quot;19.1.6&quot;,
@@ -317,6 +320,82 @@ then they can be referenced as:</p>
 deps (also known as "depend on what you use") for <code>cc_*</code> rules. This feature
 can be enabled by enabling the <code>layering_check</code> feature on a per-target,
 per-package or global basis.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Distribution data and scripts</h2><a id="user-content-distribution-data-and-scripts" class="anchor" aria-label="Permalink: Distribution data and scripts" href="#distribution-data-and-scripts"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The list of LLVM releases this toolchain knows about lives as JSONC data
+under <a href="toolchain/distributions"><code>toolchain/distributions/</code></a>. A repository
+rule merges every JSONC file into a single lookup table at module-load time:</p>
+<markdown-accessiblity-table><table>
+<thead>
+<tr>
+<th>file</th>
+<th>role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="toolchain/distributions/pre_github.jsonc"><code>pre_github.jsonc</code></a></td>
+<td>LLVM 6.x–9.x hosted on releases.llvm.org. Hand-maintained, frozen.</td>
+</tr>
+<tr>
+<td><a href="toolchain/distributions/github_legacy.jsonc"><code>github_legacy.jsonc</code></a></td>
+<td>LLVM 10.x–18.x with pre-19.x irregular naming. Hand-maintained, frozen.</td>
+</tr>
+<tr>
+<td><a href="toolchain/distributions/github.jsonc"><code>github.jsonc</code></a></td>
+<td>LLVM 19.x and newer. Regenerated end-to-end by <code>utils/update_distributions.sh</code>.</td>
+</tr>
+<tr>
+<td><a href="toolchain/distributions/extra.jsonc"><code>extra.jsonc</code></a></td>
+<td>Empty by default. Downstream slot for additional bundled releases; loaded last, so any key here overrides the same key in the other files.</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p dir="auto">Each file has the shape:</p>
+<div class="highlight highlight-source-json-comments notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="{
+  &quot;_meta&quot;: {
+    &quot;description&quot;: &quot;...&quot;,
+    &quot;base_url&quot;: { &quot;&lt;version&gt;&quot;: &quot;&lt;url-prefix&gt;&quot; }   // optional
+  },
+  &quot;&lt;tarball-basename&gt;&quot;: &quot;&lt;sha256&gt;&quot;,
+  &quot;&lt;tarball-basename&gt;&quot;: &quot;&lt;sha256&gt;&quot;,
+  ...
+}"><pre>{
+  <span class="pl-ent">"_meta"</span>: {
+    <span class="pl-ent">"description"</span>: <span class="pl-s"><span class="pl-pds">"</span>...<span class="pl-pds">"</span></span>,
+    <span class="pl-ent">"base_url"</span>: { <span class="pl-ent">"&lt;version&gt;"</span>: <span class="pl-s"><span class="pl-pds">"</span>&lt;url-prefix&gt;<span class="pl-pds">"</span></span> }   <span class="pl-c"><span class="pl-c">//</span> optional</span>
+  },
+  <span class="pl-ent">"&lt;tarball-basename&gt;"</span>: <span class="pl-s"><span class="pl-pds">"</span>&lt;sha256&gt;<span class="pl-pds">"</span></span>,
+  <span class="pl-ent">"&lt;tarball-basename&gt;"</span>: <span class="pl-s"><span class="pl-pds">"</span>&lt;sha256&gt;<span class="pl-pds">"</span></span>,
+  <span class="pl-ii">...</span>
+}</pre></div>
+<p dir="auto">Comments are stripped before parsing.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Two helper scripts</h3><a id="user-content-two-helper-scripts" class="anchor" aria-label="Permalink: Two helper scripts" href="#two-helper-scripts"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li>
+<p dir="auto"><strong><code>utils/update_distributions.sh</code></strong> — refreshes
+<a href="toolchain/distributions/github.jsonc"><code>toolchain/distributions/github.jsonc</code></a>
+by paging through the GitHub releases API for <code>llvm/llvm-project</code> and
+rewriting the file in place. Use this when contributing a new LLVM release
+to the bundled list. The script also regenerates the test golden file so
+the diff stays self-contained. No tarballs are downloaded — checksums come
+from GitHub's release-asset <code>.digest</code> field, with existing values
+preserved for older assets that predate that field. Set <code>GITHUB_TOKEN</code> to
+avoid the unauthenticated API rate limit. See <code>-h</code> for details.</p>
+</li>
+<li>
+<p dir="auto"><strong><code>utils/extra_distributions.sh</code></strong> — prints checksums for a single LLVM
+release, formatted to paste straight into the <code>extra_llvm_distributions</code>
+attribute shown earlier. Use this only when the version you want is <em>not
+yet bundled</em> in <code>github.jsonc</code>; if it is, just bump <code>llvm_version</code> and let
+the toolchain pick up the existing entries. Falls back to downloading
+tarballs and computing SHA-256 locally for older assets that don't have a
+<code>.digest</code>. See <code>-h</code> for details.</p>
+</li>
+</ul>
+<p dir="auto">Both scripts run on Linux, macOS, and on Windows under Git Bash / MSYS2 /
+WSL. They require <code>bash</code>, <code>curl</code>, <code>jq</code>, and <code>awk</code>;
+<code>utils/extra_distributions.sh</code> additionally needs <code>sha256sum</code> (Linux, Git
+Bash) or <code>shasum</code> (macOS).</p>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Prior Art</h2><a id="user-content-prior-art" class="anchor" aria-label="Permalink: Prior Art" href="#prior-art"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">Other examples of toolchain configuration:</p>
 <p dir="auto"><a href="https://bazel.build/tutorials/ccp-toolchain-config" rel="nofollow">https://bazel.build/tutorials/ccp-toolchain-config</a></p>
