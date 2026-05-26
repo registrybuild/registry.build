@@ -400,16 +400,56 @@ oci_load(
 <p dir="auto">Cross-compile for Linux from macOS:</p>
 <div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel build //:image --platforms=//platforms:linux_amd64"><pre>bazel build //:image --platforms=//platforms:linux_amd64</pre></div>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">IDE Integration</h2><a id="user-content-ide-integration" class="anchor" aria-label="Permalink: IDE Integration" href="#ide-integration"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<p dir="auto"><code>aspect_rules_py</code> generates standard virtualenv structures that IDEs understand:</p>
-<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="# Creates a .venv symlink for the target
-bazel run //:my_app.venv"><pre><span class="pl-c"><span class="pl-c">#</span> Creates a .venv symlink for the target</span>
-bazel run //:my_app.venv</pre></div>
-<p dir="auto">Then point your IDE to the generated virtualenv:</p>
+<p dir="auto"><code>aspect_rules_py</code> generates standard virtualenv structures that IDEs understand.
+In v2.0 the venv targets that the v1.x docs auto-emitted alongside every
+<code>py_binary</code> are opt-in — declare them on the targets you actually want your
+IDE to follow.</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@aspect_rules_py//py:defs.bzl&quot;, &quot;py_binary&quot;, &quot;py_venv_link&quot;)
+
+py_binary(
+    name = &quot;my_app&quot;,
+    srcs = [&quot;main.py&quot;],
+    main = &quot;main.py&quot;,
+    expose_venv = True,        # publishes :my_app.venv
+)
+
+py_venv_link(
+    name = &quot;my_app.venv_link&quot;,
+    venv = &quot;:my_app.venv&quot;,
+)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@aspect_rules_py//py:defs.bzl"</span>, <span class="pl-s">"py_binary"</span>, <span class="pl-s">"py_venv_link"</span>)
+
+<span class="pl-en">py_binary</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"my_app"</span>,
+    <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> [<span class="pl-s">"main.py"</span>],
+    <span class="pl-s1">main</span> <span class="pl-c1">=</span> <span class="pl-s">"main.py"</span>,
+    <span class="pl-s1">expose_venv</span> <span class="pl-c1">=</span> <span class="pl-c1">True</span>,        <span class="pl-c"># publishes :my_app.venv</span>
+)
+
+<span class="pl-en">py_venv_link</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"my_app.venv_link"</span>,
+    <span class="pl-s1">venv</span> <span class="pl-c1">=</span> <span class="pl-s">":my_app.venv"</span>,
+)</pre></div>
+<p dir="auto">Two distinct targets, two distinct purposes:</p>
 <ul dir="auto">
-<li><strong>VSCode</strong>: Set <code>python.defaultInterpreterPath</code> to the <code>.venv</code> path</li>
-<li><strong>PyCharm</strong>: Add the <code>.venv</code> as a Python interpreter</li>
+<li><code>bazel run //:my_app.venv</code> — drops you into the hermetic interpreter REPL
+with the venv activated. Useful for ad-hoc Python sessions matching your
+binary's deps.</li>
+<li><code>bazel run //:my_app.venv_link</code> — materialises a workspace-local symlink
+pointing at the venv tree under <code>bazel-bin</code>. <strong>This is what your IDE should
+point at.</strong></li>
+</ul>
+<p dir="auto">Then point your IDE to the symlinked virtualenv:</p>
+<ul dir="auto">
+<li><strong>VSCode</strong>: Set <code>python.defaultInterpreterPath</code> to the symlinked path</li>
+<li><strong>PyCharm</strong>: Add the symlinked venv as a Python interpreter</li>
 <li><strong>Neovim/LSP</strong>: Configure <code>python-lsp-server</code> or <code>pyright</code> to use the virtualenv</li>
 </ul>
+<blockquote>
+<p dir="auto"><strong>Migrating from v1.x?</strong> <code>py_binary</code> no longer auto-emits a <code>.venv</code> sibling.
+The runnable-symlink behavior of v1.x's <code>bazel run //:my_app.venv</code> is now
+split into <code>expose_venv = True</code> (publish the venv target) + a separate
+<code>py_venv_link</code> (publish the symlink-creation runnable).</p>
+</blockquote>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Debugger Support (VSCode/PyCharm)</h3><a id="user-content-debugger-support-vscodepycharm" class="anchor" aria-label="Permalink: Debugger Support (VSCode/PyCharm)" href="#debugger-support-vscodepycharm"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">Attach debuggers using <code>debugpy</code>:</p>
 <div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="# In debug mode, wraps the binary with debugpy listener
