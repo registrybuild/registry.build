@@ -354,21 +354,33 @@ rule merges every JSONC file into a single lookup table at module-load time:</p>
 <div class="highlight highlight-source-json-comments notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="{
   &quot;_meta&quot;: {
     &quot;description&quot;: &quot;...&quot;,
-    &quot;base_url&quot;: { &quot;&lt;version&gt;&quot;: &quot;&lt;url-prefix&gt;&quot; }   // optional
+    &quot;base_url&quot;: {
+      &quot;&quot;: &quot;https://example.com/llvm-{version}/&quot;,
+      &quot;&lt;version&gt;&quot;: &quot;https://override/{version}/&quot;, // optional per-version
+    },
   },
   &quot;&lt;tarball-basename&gt;&quot;: &quot;&lt;sha256&gt;&quot;,
-  &quot;&lt;tarball-basename&gt;&quot;: &quot;&lt;sha256&gt;&quot;,
-  ...
+  &quot;&lt;full-url-or-path&gt;&quot;: &quot;&lt;sha256&gt;&quot;,
 }"><pre>{
   <span class="pl-ent">"_meta"</span>: {
     <span class="pl-ent">"description"</span>: <span class="pl-s"><span class="pl-pds">"</span>...<span class="pl-pds">"</span></span>,
-    <span class="pl-ent">"base_url"</span>: { <span class="pl-ent">"&lt;version&gt;"</span>: <span class="pl-s"><span class="pl-pds">"</span>&lt;url-prefix&gt;<span class="pl-pds">"</span></span> }   <span class="pl-c"><span class="pl-c">//</span> optional</span>
+    <span class="pl-ent">"base_url"</span>: {
+      <span class="pl-ent">""</span>: <span class="pl-s"><span class="pl-pds">"</span>https://example.com/llvm-{version}/<span class="pl-pds">"</span></span>,
+      <span class="pl-ent">"&lt;version&gt;"</span>: <span class="pl-s"><span class="pl-pds">"</span>https://override/{version}/<span class="pl-pds">"</span></span>, <span class="pl-c"><span class="pl-c">//</span> optional per-version</span>
+    },
   },
   <span class="pl-ent">"&lt;tarball-basename&gt;"</span>: <span class="pl-s"><span class="pl-pds">"</span>&lt;sha256&gt;<span class="pl-pds">"</span></span>,
-  <span class="pl-ent">"&lt;tarball-basename&gt;"</span>: <span class="pl-s"><span class="pl-pds">"</span>&lt;sha256&gt;<span class="pl-pds">"</span></span>,
-  <span class="pl-ii">...</span>
+  <span class="pl-ent">"&lt;full-url-or-path&gt;"</span>: <span class="pl-s"><span class="pl-pds">"</span>&lt;sha256&gt;<span class="pl-pds">"</span></span>,
 }</pre></div>
-<p dir="auto">Comments are stripped before parsing.</p>
+<p dir="auto"><code>base_url</code> is optional. Its <code>""</code> key sets a per-file default URL template;
+the optional <code>"&lt;version&gt;"</code> keys override individual releases. Templates may
+contain <code>{version}</code> (substituted at materialization time) and should end
+with <code>/</code> — the basename is appended directly. Files that omit <code>base_url</code>
+fall back to the standard GitHub release URL
+(<code>https://github.com/llvm/llvm-project/releases/download/llvmorg-{version}/</code>).</p>
+<p dir="auto">Entry keys are either a tarball <strong>basename</strong> (URL derived via <code>base_url</code>)
+or a <strong>full URL/path</strong> (used verbatim, bypassing <code>base_url</code>). Comments are
+stripped before parsing, and trailing commas are tolerated.</p>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Two helper scripts</h3><a id="user-content-two-helper-scripts" class="anchor" aria-label="Permalink: Two helper scripts" href="#two-helper-scripts"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <ul dir="auto">
 <li>
