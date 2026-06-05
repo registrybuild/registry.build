@@ -247,6 +247,35 @@ script</a> for cross-compilation.</p>
   --platforms=@toolchains_llvm//platforms:linux-x86_64 \
   --extra_toolchains=@llvm_toolchain_with_sysroot//:cc-toolchain-x86_64-linux \
   //...</pre></div>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">Per-target toolchain root</h4><a id="user-content-per-target-toolchain-root" class="anchor" aria-label="Permalink: Per-target toolchain root" href="#per-target-toolchain-root"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">By default a single LLVM distribution (the "toolchain root") provides both the
+clang/lld binaries that run (the <em>exec</em> configuration) and the libraries that
+get linked into the produced binaries (the <em>target</em> configuration). When the
+target needs a different distribution than the exec tools (for example a
+target-arch build of libc++ or compiler-rt), specify it separately through the
+<code>target_toolchain_roots</code> attribute (without bzlmod) or the
+<code>target_toolchain_root</code> module extension tag (with bzlmod). It is the
+per-target counterpart of <code>toolchain_roots</code> / <code>toolchain_root</code>, and falls back
+to the exec toolchain root when unset.</p>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">libstdc++ and Yocto sysroot layouts</h4><a id="user-content-libstdc-and-yocto-sysroot-layouts" class="anchor" aria-label="Permalink: libstdc++ and Yocto sysroot layouts" href="#libstdc-and-yocto-sysroot-layouts"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">When linking against libstdc++ from a sysroot, three attributes (each keyed by
+target OS/arch pair) tune how it is found and linked:</p>
+<ul dir="auto">
+<li><code>stdlib</code>: in addition to the values described under
+<a href="#sysroots">Sysroots</a>, <code>dynamic-stdc++</code> (optionally <code>dynamic-stdc++-&lt;ver&gt;</code>)
+behaves like <code>stdc++</code> but links <code>libstdc++.so</code> instead of the default static
+<code>libstdc++.a</code>.</li>
+<li><code>multiarch</code>: overrides the multiarch tuple used to construct the sysroot
+include and library paths. Useful when the sysroot uses a non-standard tuple,
+e.g. Yocto's <code>aarch64-oe4t-linux</code>.</li>
+<li><code>cxx_include_layout</code>: selects how libstdc++ headers and the gcc runtime libs
+are laid out in the sysroot. <code>debian</code> (the default) expects
+<code>/usr/include/&lt;multiarch&gt;/c++/&lt;ver&gt;</code> and <code>/usr/lib/gcc/&lt;multiarch&gt;/&lt;ver&gt;</code>;
+<code>yocto</code> expects <code>/usr/include/c++/&lt;ver&gt;/&lt;multiarch&gt;</code> and
+<code>/usr/lib/&lt;multiarch&gt;/&lt;ver&gt;</code>.</li>
+</ul>
+<p dir="auto">All three are optional: omit them to get static libstdc++ linking, the builtin
+multiarch tuple, and the <code>debian</code> layout.</p>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Multi-platform builds</h3><a id="user-content-multi-platform-builds" class="anchor" aria-label="Permalink: Multi-platform builds" href="#multi-platform-builds"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">The toolchain supports multi-platform builds through the combination of the
 <code>exec_os</code>, <code>exec_arch</code> attribute pair, and either the <code>distribution</code> attribute,
