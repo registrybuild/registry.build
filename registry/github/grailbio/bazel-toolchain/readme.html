@@ -349,6 +349,72 @@ then they can be referenced as:</p>
 deps (also known as "depend on what you use") for <code>cc_*</code> rules. This feature
 can be enabled by enabling the <code>layering_check</code> feature on a per-target,
 per-package or global basis.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Sanitizers</h3><a id="user-content-sanitizers" class="anchor" aria-label="Permalink: Sanitizers" href="#sanitizers"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The toolchain can build with AddressSanitizer, UndefinedBehaviorSanitizer,
+ThreadSanitizer, or MemorySanitizer. Enable at most one at a time, via Bazel
+features:</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel build //... --features=asan
+bazel build //... --features=ubsan
+bazel build //... --features=tsan
+bazel build //... --features=msan   # Linux only; see below"><pre>bazel build //... --features=asan
+bazel build //... --features=ubsan
+bazel build //... --features=tsan
+bazel build //... --features=msan   <span class="pl-c"><span class="pl-c">#</span> Linux only; see below</span></pre></div>
+<p dir="auto"><code>asan</code>, <code>ubsan</code>, and <code>tsan</code> are rules_cc's stock sanitizer features and work
+with the regular standard library. Enabling sanitizers as features means Bazel
+resets them to <code>--host_features</code> in the exec configuration, so build tools stay
+uninstrumented. For finer-grained control, combine with
+<code>--copt=-fsanitize-ignorelist=...</code> (the provided file is made available to
+compile actions via the <code>extra_compiler_files</code> attribute).</p>
+<p dir="auto">MemorySanitizer additionally swaps in an instrumented libc++ (see below).</p>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">MemorySanitizer and the instrumented libc++</h4><a id="user-content-memorysanitizer-and-the-instrumented-libc" class="anchor" aria-label="Permalink: MemorySanitizer and the instrumented libc++" href="#memorysanitizer-and-the-instrumented-libc"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">MemorySanitizer is Linux-only and is enabled with <code>--features=msan</code>. A feature
+is used so Bazel resets it to <code>--host_features</code> in the exec configuration,
+keeping build tools uninstrumented.</p>
+<p dir="auto">MemorySanitizer reports false positives unless the C++ standard library is also
+instrumented, so <code>msan</code> swaps the toolchain's libc++ for an instrumented build
+(headers under <code>libcxx-msan/include</code>, libraries under <code>libcxx-msan/lib</code>).
+There is no official prebuilt instrumented libc++; you must build one from the
+matching LLVM sources and point the distribution at it with the <code>libcxx_url</code>
+and <code>libcxx_sha256</code> attributes (<code>llvm</code>/<code>llvm_toolchain</code> rules, or the
+<code>llvm.toolchain</code> module extension tag):</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="llvm(
+    name = &quot;llvm_toolchain_llvm&quot;,
+    llvm_version = &quot;20.1.0&quot;,
+    libcxx_url = &quot;https://example.com/libcxx-msan-20.1.0-x86_64-linux-gnu.tar.zst&quot;,
+    libcxx_sha256 = &quot;&lt;sha256&gt;&quot;,
+)"><pre><span class="pl-en">llvm</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"llvm_toolchain_llvm"</span>,
+    <span class="pl-s1">llvm_version</span> <span class="pl-c1">=</span> <span class="pl-s">"20.1.0"</span>,
+    <span class="pl-s1">libcxx_url</span> <span class="pl-c1">=</span> <span class="pl-s">"https://example.com/libcxx-msan-20.1.0-x86_64-linux-gnu.tar.zst"</span>,
+    <span class="pl-s1">libcxx_sha256</span> <span class="pl-c1">=</span> <span class="pl-s">"&lt;sha256&gt;"</span>,
+)</pre></div>
+<p dir="auto">Build the instrumented libc++ following the <a href="https://github.com/google/sanitizers/wiki/MemorySanitizerLibcxxHowTo">MemorySanitizer libc++
+how-to</a>,
+e.g.:</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="cmake -GNinja &lt;llvm-src&gt;/runtimes \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DLLVM_ENABLE_RUNTIMES=&quot;libcxx;libcxxabi;libunwind&quot; \
+  -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ \
+  -DLLVM_USE_SANITIZER=MemoryWithOrigins \
+  -DLLVM_ENABLE_PIC=ON \
+  -DCMAKE_INSTALL_PREFIX=&lt;prefix&gt;
+ninja &amp;&amp; ninja install
+# Archive the resulting &lt;prefix&gt;/lib and &lt;prefix&gt;/include directories; that is
+# the layout extracted into libcxx-msan/. libunwind itself is too low-level to
+# instrument, so overwrite the instrumented libunwind.* with the uninstrumented
+# one from your clang distribution before archiving."><pre>cmake -GNinja <span class="pl-k">&lt;</span>llvm-src<span class="pl-k">&gt;</span>/runtimes \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DLLVM_ENABLE_RUNTIMES=<span class="pl-s"><span class="pl-pds">"</span>libcxx;libcxxabi;libunwind<span class="pl-pds">"</span></span> \
+  -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ \
+  -DLLVM_USE_SANITIZER=MemoryWithOrigins \
+  -DLLVM_ENABLE_PIC=ON \
+  -DCMAKE_INSTALL_PREFIX=<span class="pl-k">&lt;</span>prefix<span class="pl-k">&gt;</span>
+ninja <span class="pl-k">&amp;&amp;</span> ninja install
+<span class="pl-c"><span class="pl-c">#</span> Archive the resulting &lt;prefix&gt;/lib and &lt;prefix&gt;/include directories; that is</span>
+<span class="pl-c"><span class="pl-c">#</span> the layout extracted into libcxx-msan/. libunwind itself is too low-level to</span>
+<span class="pl-c"><span class="pl-c">#</span> instrument, so overwrite the instrumented libunwind.* with the uninstrumented</span>
+<span class="pl-c"><span class="pl-c">#</span> one from your clang distribution before archiving.</span></pre></div>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Distribution data and scripts</h2><a id="user-content-distribution-data-and-scripts" class="anchor" aria-label="Permalink: Distribution data and scripts" href="#distribution-data-and-scripts"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">The list of LLVM releases this toolchain knows about lives as JSONC data
 under <a href="toolchain/distributions"><code>toolchain/distributions/</code></a>. A repository
