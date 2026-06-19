@@ -468,20 +468,27 @@ Add <code>expose_venv_link = True</code> for the equivalent IDE-symlink behavior
 or use the explicit two-target form when you want fine-grained control.</p>
 </blockquote>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Debugger Support (VSCode/PyCharm)</h3><a id="user-content-debugger-support-vscodepycharm" class="anchor" aria-label="Permalink: Debugger Support (VSCode/PyCharm)" href="#debugger-support-vscodepycharm"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<p dir="auto">Attach debuggers using <code>debugpy</code>:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="# In debug mode, wraps the binary with debugpy listener
-py_binary(
-    name = &quot;app_debug&quot;,
-    srcs = [&quot;main.py&quot;],
-    deps = [&quot;//:lib&quot;, &quot;@pypi//debugpy&quot;],
-    env = {&quot;DEBUGPY_WAIT&quot;: &quot;1&quot;},  # Wait for IDE attachment
-)"><pre><span class="pl-c"># In debug mode, wraps the binary with debugpy listener</span>
-<span class="pl-en">py_binary</span>(
-    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"app_debug"</span>,
-    <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> [<span class="pl-s">"main.py"</span>],
-    <span class="pl-s1">deps</span> <span class="pl-c1">=</span> [<span class="pl-s">"//:lib"</span>, <span class="pl-s">"@pypi//debugpy"</span>],
-    <span class="pl-s1">env</span> <span class="pl-c1">=</span> {<span class="pl-s">"DEBUGPY_WAIT"</span>: <span class="pl-s">"1"</span>},  <span class="pl-c"># Wait for IDE attachment</span>
-)</pre></div>
+<p dir="auto">Attach DAP-compatible debuggers (VSCode, PyCharm, Neovim, etc.) using
+<a href="https://github.com/microsoft/debugpy">debugpy</a>. This requires a wrapper
+entrypoint that starts a debugpy listener before running your application —
+simply adding <code>debugpy</code> to <code>deps</code> is not enough.</p>
+<p dir="auto">See the <a href="examples/debugger/">complete debugger example</a> for a working
+setup, including a <code>py_debuggable_binary</code> macro that handles the wrapper
+generation automatically.</p>
+<p dir="auto">Quick overview:</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="cd examples/debugger
+
+# Start with debugpy listener, wait for IDE to attach:
+DEBUGPY_WAIT=1 bazel run //:app
+
+# Release mode — no debugpy, runs directly:
+bazel run //:app --config=release"><pre><span class="pl-c1">cd</span> examples/debugger
+
+<span class="pl-c"><span class="pl-c">#</span> Start with debugpy listener, wait for IDE to attach:</span>
+DEBUGPY_WAIT=1 bazel run //:app
+
+<span class="pl-c"><span class="pl-c">#</span> Release mode — no debugpy, runs directly:</span>
+bazel run //:app --config=release</pre></div>
 <p dir="auto">VSCode <code>launch.json</code>:</p>
 <div class="highlight highlight-source-json notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="{
   &quot;name&quot;: &quot;Attach to Bazel py_binary&quot;,
