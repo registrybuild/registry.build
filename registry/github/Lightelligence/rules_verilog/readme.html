@@ -1,44 +1,383 @@
 <div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Verilog rules for Bazel</h1><a id="user-content-verilog-rules-for-bazel" class="anchor" aria-label="Permalink: Verilog rules for Bazel" href="#verilog-rules-for-bazel"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">This repository pins Bazel 7.7.1 in <code>.bazelversion</code>. The final supported host is
+Red Hat Linux with Python 3.12; macOS checks are useful for rule generation but
+do not replace licensed VCS/Xcelium runs on Red Hat.</p>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Setup</h2><a id="user-content-setup" class="anchor" aria-label="Permalink: Setup" href="#setup"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">Add the following to your <code>WORKSPACE</code> file:</p>
 <div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(&quot;@bazel_tools//tools/build_defs/repo:http.bzl&quot;, &quot;http_archive&quot;)
-http_archive(                                                                                                                                                                            
+
+RULES_VERILOG_COMMIT = &quot;&lt;40-character commit SHA&gt;&quot;
+
+http_archive(
     name = &quot;rules_verilog&quot;,
-    urls = [&quot;https://github.com/Lightelligence/rules_verilog/archive/v0.0.0.tar.gz&quot;],
-    sha256 = &quot;ab64a872410d22accb383c7ffc6d42e90f4de40a7cd92f43f4c26471c4f14908&quot;,
-    strip_prefix = &quot;rules_verilog-0.0.0&quot;,
+    urls = [&quot;https://github.com/justin371/new_rules_verilog/archive/{}.tar.gz&quot;.format(RULES_VERILOG_COMMIT)],
+    sha256 = &quot;&lt;sha256 of the archive&gt;&quot;,
+    strip_prefix = &quot;new_rules_verilog-{}&quot;.format(RULES_VERILOG_COMMIT),
 )
+
 load(&quot;@rules_verilog//:deps.bzl&quot;, &quot;verilog_dependencies&quot;)
-verilog_dependencies()"><pre lang="skylark" class="notranslate"><code>load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
-http_archive(                                                                                                                                                                            
+verilog_dependencies()
+
+load(&quot;@rules_python//python:repositories.bzl&quot;, &quot;py_repositories&quot;)
+py_repositories()"><pre lang="skylark" class="notranslate"><code>load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
+RULES_VERILOG_COMMIT = "&lt;40-character commit SHA&gt;"
+
+http_archive(
     name = "rules_verilog",
-    urls = ["https://github.com/Lightelligence/rules_verilog/archive/v0.0.0.tar.gz"],
-    sha256 = "ab64a872410d22accb383c7ffc6d42e90f4de40a7cd92f43f4c26471c4f14908",
-    strip_prefix = "rules_verilog-0.0.0",
+    urls = ["https://github.com/justin371/new_rules_verilog/archive/{}.tar.gz".format(RULES_VERILOG_COMMIT)],
+    sha256 = "&lt;sha256 of the archive&gt;",
+    strip_prefix = "new_rules_verilog-{}".format(RULES_VERILOG_COMMIT),
 )
+
 load("@rules_verilog//:deps.bzl", "verilog_dependencies")
 verilog_dependencies()
+
+load("@rules_python//python:repositories.bzl", "py_repositories")
+py_repositories()
 </code></pre></div>
-<p dir="auto"><strong>Note</strong>: Update commit and sha256 as needed.</p>
-<p dir="auto">Cadence Xcelium needs both HOME and LM_LICENESE_FILE environment variables, add them to your <code>.bazelrc</code> file:</p>
+<p dir="auto">The second load/call initializes the pinned rules_python 0.40 repositories after
+<code>verilog_dependencies</code> declares <code>@rules_python</code>. Pin a reviewed commit and its
+archive SHA rather than tracking <code>main</code> directly.</p>
+<p dir="auto">The rules use the workstation Python 3.12 environment so simulator-side Python
+packages remain available. Ensure <code>python3.12</code> is on <code>PATH</code>, then add:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="build --incompatible_use_python_toolchains=false
+build --python_path=python3.12
+build --action_env=PATH"><pre lang="bazelrc" class="notranslate"><code>build --incompatible_use_python_toolchains=false
+build --python_path=python3.12
+build --action_env=PATH
+</code></pre></div>
+<p dir="auto">Cadence Xcelium needs both <code>HOME</code> and <code>LM_LICENSE_FILE</code>; add them to your <code>.bazelrc</code> file:</p>
 <div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="test --action_env=HOME
 test --action_env=LM_LICENSE_FILE"><pre class="notranslate"><code>test --action_env=HOME
 test --action_env=LM_LICENSE_FILE
 </code></pre></div>
-<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Python Dependencies</h3><a id="user-content-python-dependencies" class="anchor" aria-label="Permalink: Python Dependencies" href="#python-dependencies"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<p dir="auto">rules_verilog is also dependent on several python libraries. These are defined in requirements.txt and maybe installed in the package manager of your choice. The recommended flow is to install them via the pip_install rule in your <code>WORKSPACE</code> file:</p>
-<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="load(&quot;@rules_python//python:pip.bzl&quot;, &quot;pip_install&quot;)
-
-pip_install(
-    name = &quot;pip_deps&quot;,
-    requirements = &quot;@rules_verilog//:requirements.txt&quot;,
-)"><pre lang="skylark" class="notranslate"><code>load("@rules_python//python:pip.bzl", "pip_install")
-
-pip_install(
-    name = "pip_deps",
-    requirements = "@rules_verilog//:requirements.txt",
-)
+<p dir="auto">For Synopsys VCS flows, you can add a named Bazel config in <code>.bazelrc</code> and invoke it explicitly. Example:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="build:vcs --@rules_verilog//:verilog_unit_test_simulator=VCS
+build:vcs --@rules_verilog//:verilog_dv_unit_test_command_vcs=&quot;runmod vcs -- vcs&quot;
+build:vcs --@rules_verilog//:verilog_rtl_lint_test_command_vcs=&quot;runmod vcs -- vcs&quot;
+build:vcs --@rules_verilog//:verilog_rtl_svunit_test_command_vcs=&quot;runmod vcs --&quot;
+build:vcs --@rules_verilog//:verilog_rtl_unit_test_command_vcs=&quot;runmod vcs -- vcs&quot;
+build:vcs --@rules_verilog//:verilog_vcs_unit_test_runner=&quot;runmod vcs --&quot;"><pre lang="bazelrc" class="notranslate"><code>build:vcs --@rules_verilog//:verilog_unit_test_simulator=VCS
+build:vcs --@rules_verilog//:verilog_dv_unit_test_command_vcs="runmod vcs -- vcs"
+build:vcs --@rules_verilog//:verilog_rtl_lint_test_command_vcs="runmod vcs -- vcs"
+build:vcs --@rules_verilog//:verilog_rtl_svunit_test_command_vcs="runmod vcs --"
+build:vcs --@rules_verilog//:verilog_rtl_unit_test_command_vcs="runmod vcs -- vcs"
+build:vcs --@rules_verilog//:verilog_vcs_unit_test_runner="runmod vcs --"
 </code></pre></div>
+<p dir="auto">Then run the test suite with VCS selected for one-step unit tests and RTL lint
+tests that do not set <code>simulator</code> explicitly:</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bsub -I -q syn bazel test --config=vcs //... --test_tag_filters=-no_ci_gate \
+  --cache_test_results=no --jobs 8 --test_output=all 2&gt;&amp;1"><pre>bsub -I -q syn bazel <span class="pl-c1">test</span> --config=vcs //... --test_tag_filters=-no_ci_gate \
+  --cache_test_results=no --jobs 8 --test_output=all <span class="pl-k">2&gt;&amp;1</span></pre></div>
+<p dir="auto">An explicit <code>simulator = "XRUN"</code> or <code>simulator = "VCS"</code> on a target takes
+precedence over the config default. VCS one-step unit tests compile with <code>vcs</code>
+and then execute the generated <code>simv</code> through <code>verilog_vcs_unit_test_runner</code>,
+so the compile and runtime processes share the same tool environment. VCS
+one-step FSDB dumping is currently disabled; the wave commands remain in the
+Synopsys templates as comments.</p>
+<p dir="auto">The bundled SVUnit template follows the configured simulator. Under VCS it
+uses <code>runSVUnit -s vcs</code> through <code>verilog_rtl_svunit_test_command_vcs</code>; explicit
+<code>simulator = "XRUN"</code> still takes precedence.</p>
+<p dir="auto">For RTL unit tests, put compile/elaboration controls in <code>pre_flist_args</code> or
+<code>post_flist_args</code> and runtime plusargs in <code>run_args</code>. The VCS compatibility
+path also moves legacy non-compiler plusargs from the flist argument attributes
+to the generated <code>simv</code> invocation.</p>
+<p dir="auto">For RTL lint, legacy <code>rulefile</code> values remain associated with Cadence/HAL when
+VCS is selected by <code>--config=vcs</code>; rules_verilog uses its built-in VCS policy
+instead. Set <code>rulefile_vcs</code> when a target needs project-specific VCS lint
+options. Targets that explicitly set <code>simulator = "VCS"</code> may continue using
+<code>rulefile</code> for backward compatibility.</p>
+<p dir="auto">For <code>simmer</code> VCS runs, <code>--simulator VCS</code> is enough. The VCS, <code>simv</code>, and Verdi launcher prefix defaults to <code>runmod vcs --</code>.</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="simmer -t //hw/dv/project_benches/sys/tb:some_vcs_test --simulator VCS"><pre>simmer -t //hw/dv/project_benches/sys/tb:some_vcs_test --simulator VCS</pre></div>
+<p dir="auto">Override the launcher with <code>RV_VCS_RUNNER</code> or <code>--vcs-runner</code> only when a project needs a different module wrapper.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Interrupting a regression</h3><a id="user-content-interrupting-a-regression" class="anchor" aria-label="Permalink: Interrupting a regression" href="#interrupting-a-regression"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">During an interactive run, <code>Ctrl-C</code> opens a terminal menu. Choose <code>stop</code> for bounded SIGTERM/SIGKILL cleanup and
+interrupted-history persistence, <code>pause</code> to stop active process groups and prevent new jobs from launching, <code>continue</code>
+to keep running, or <code>status/logs</code> to print active job directories and log paths. A paused regression can then be resumed
+or stopped. Non-interactive runs stop immediately so batch jobs and CI never wait for input.</p>
+<p dir="auto">Large VCS regressions continue to use the reusable two-step
+<code>verilog_dv_tb</code> + <code>simmer</code> flow. Bazel one-step DV and RTL unit tests support
+both Xcelium and VCS.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">VCS FSDB wave dumping</h3><a id="user-content-vcs-fsdb-wave-dumping" class="anchor" aria-label="Permalink: VCS FSDB wave dumping" href="#vcs-fsdb-wave-dumping"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">VCS wave capture uses FSDB. These commands cover the generated simmer flow:</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="# Default hdl_top scope, all hierarchy, full simulation.
+simmer -t 'sys_tb:smoke_test@1' --simulator VCS --waves
+
+# Selected scopes at UCLI depth 8: each scope plus seven nested levels.
+simmer -t 'sys_tb:smoke_test@1' --simulator VCS \
+  --waves hdl_top.dut hdl_top.env --wave-depth 8
+
+# Capture only the 1000 ns through 50000 ns interval.
+simmer -t 'sys_tb:smoke_test@1' --simulator VCS \
+  --waves hdl_top.dut --wave-start 1000 --wave-end 50000
+
+# Use a project-owned UCLI file for per-scope depth and advanced FSDB controls.
+simmer -t 'sys_tb:smoke_test@1' --simulator VCS --waves \
+  --wave-tcl ./debug/vcs_fsdb_dump.tcl"><pre><span class="pl-c"><span class="pl-c">#</span> Default hdl_top scope, all hierarchy, full simulation.</span>
+simmer -t <span class="pl-s"><span class="pl-pds">'</span>sys_tb:smoke_test@1<span class="pl-pds">'</span></span> --simulator VCS --waves
+
+<span class="pl-c"><span class="pl-c">#</span> Selected scopes at UCLI depth 8: each scope plus seven nested levels.</span>
+simmer -t <span class="pl-s"><span class="pl-pds">'</span>sys_tb:smoke_test@1<span class="pl-pds">'</span></span> --simulator VCS \
+  --waves hdl_top.dut hdl_top.env --wave-depth 8
+
+<span class="pl-c"><span class="pl-c">#</span> Capture only the 1000 ns through 50000 ns interval.</span>
+simmer -t <span class="pl-s"><span class="pl-pds">'</span>sys_tb:smoke_test@1<span class="pl-pds">'</span></span> --simulator VCS \
+  --waves hdl_top.dut --wave-start 1000 --wave-end 50000
+
+<span class="pl-c"><span class="pl-c">#</span> Use a project-owned UCLI file for per-scope depth and advanced FSDB controls.</span>
+simmer -t <span class="pl-s"><span class="pl-pds">'</span>sys_tb:smoke_test@1<span class="pl-pds">'</span></span> --simulator VCS --waves \
+  --wave-tcl ./debug/vcs_fsdb_dump.tcl</pre></div>
+<p dir="auto">The generated FSDB controls are:</p>
+<markdown-accessiblity-table><table>
+<thead>
+<tr>
+<th>simmer argument</th>
+<th>Effect</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--waves [scope ...]</code></td>
+<td>Enables FSDB, glitch capture, and force/release/deposit metadata; no scope defaults to <code>hdl_top</code>.</td>
+</tr>
+<tr>
+<td><code>--wave-depth N</code></td>
+<td>Applies depth <code>N</code> to every selected scope. The default captures all hierarchy.</td>
+</tr>
+<tr>
+<td><code>--wave-start NS</code></td>
+<td>Starts dumping at an absolute, non-negative simulation time in ns.</td>
+</tr>
+<tr>
+<td><code>--wave-end NS</code></td>
+<td>Stops dumping at an absolute time in ns; it must be greater than <code>--wave-start</code>.</td>
+</tr>
+<tr>
+<td><code>--wave-tcl FILE</code></td>
+<td>Uses a VCS UCLI file instead of generated scope, depth, and time commands.</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p dir="auto">Copy the <a href="docs/examples/vcs_fsdb_dump.tcl">VCS FSDB Tcl example</a> when different
+scopes need different depths or when <code>dump -add</code> needs advanced UCLI options.
+The generated flow keeps <code>-aggregates</code> and
+<code>-fsdb_opt +packedmda+struct+parameter</code>; <code>-fsdb_opt</code> is still needed to select
+those object types and is independent of glitch and force capture. Other useful
+revisions include <code>-ports</code>/<code>-in</code>/<code>-out</code>/<code>-inout</code> and <code>-fsdb_opt</code> values such as
+<code>+mda</code>, <code>+sva</code>, <code>+strength</code>, <code>+Reg_Only</code>, <code>+IO_Only</code>, or <code>+by_file=&lt;file&gt;</code>.
+UCLI also supports <code>dump -suppress_file</code>, <code>dump -suppress_instance</code>, and
+<code>dump -deltaCycle</code>; follow the installed VCS guide because ordering and setup
+requirements vary by option.</p>
+<p dir="auto">For generated Tcl, simmer passes <code>+fsdb+glitch=0</code> and <code>+fsdb+force</code>, then runs
+<code>dump -glitch on</code> on the returned FSDB file ID. <code>+fsdb+force</code> records force,
+release, and deposit information for Verdi; UCLI <code>dump -forceEvent</code> is VPD-only
+and must not be used for FSDB.</p>
+<p dir="auto">With <code>--wave-tcl</code>, the Tcl file owns scopes, depths, dump timing, and the
+file-ID-specific <code>dump -glitch on</code> command. Simmer still passes both runtime
+FSDB options. Keep the output at <code>$::env(SIMRESULTS)/waves.fsdb</code> so simmer can
+find it and generate <code>run_waves.sh</code>. Open Verdi locally or through the site LSF
+queue:</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="./run_waves.sh
+SIMMER_WAVE_LAUNCHER=&quot;bsub -I -q syn&quot; ./run_waves.sh"><pre>./run_waves.sh
+SIMMER_WAVE_LAUNCHER=<span class="pl-s"><span class="pl-pds">"</span>bsub -I -q syn<span class="pl-pds">"</span></span> ./run_waves.sh</pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Bazel unit tests</h3><a id="user-content-bazel-unit-tests" class="anchor" aria-label="Permalink: Bazel unit tests" href="#bazel-unit-tests"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">One-step unit-test targets can select a simulator explicitly:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="verilog_rtl_unit_test(
+    name = &quot;counter_test_xrun&quot;,
+    deps = [&quot;:counter_test_top&quot;],
+    simulator = &quot;XRUN&quot;,
+)
+"><pre><span class="pl-en">verilog_rtl_unit_test</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"counter_test_xrun"</span>,
+    <span class="pl-s1">deps</span> <span class="pl-c1">=</span> [<span class="pl-s">":counter_test_top"</span>],
+    <span class="pl-s1">simulator</span> <span class="pl-c1">=</span> <span class="pl-s">"XRUN"</span>,
+)</pre></div>
+<p dir="auto">Configure the Xcelium site wrappers independently from the VCS regression flow:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="build:xrun --@rules_verilog//:verilog_dv_unit_test_command=&quot;runmod -t xrun --&quot;
+build:xrun --@rules_verilog//:verilog_rtl_unit_test_command=&quot;runmod -t xrun --&quot;"><pre lang="bazelrc" class="notranslate"><code>build:xrun --@rules_verilog//:verilog_dv_unit_test_command="runmod -t xrun --"
+build:xrun --@rules_verilog//:verilog_rtl_unit_test_command="runmod -t xrun --"
+</code></pre></div>
+<p dir="auto">Run the Xcelium unit test on the Red Hat workstation:</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel test --config=xrun //path/to:counter_test_xrun"><pre>bazel <span class="pl-c1">test</span> --config=xrun //path/to:counter_test_xrun</pre></div>
+<p dir="auto">To let <code>--config=vcs</code> select VCS for RTL/DV unit tests and RTL lint tests,
+omit the target-level <code>simulator</code> attribute and use the VCS build settings shown
+above.
+The bundled SVUnit template supports Xcelium and VCS. A project-specific custom
+template remains simulator-specific unless it implements both backends.</p>
+<p dir="auto"><code>runmod</code> is a site-provided command from a separate repository and is assumed
+to be available on <code>PATH</code>.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">VCS Partition Compile</h3><a id="user-content-vcs-partition-compile" class="anchor" aria-label="Permalink: VCS Partition Compile" href="#vcs-partition-compile"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">VCS enables automatic compile fingerprint reuse and Partition Compile by
+default. An unchanged fingerprint bypasses VCS; a changed build uses the
+allocation-aware partition flow. The writable partition database is
+<code>&lt;tb&gt;__VCS_VCOMP/partitionlib</code>; <code>--waves</code> and <code>--gui</code> use sibling
+<code>partitionlib_waves</code> and <code>partitionlib_gui</code> databases so incompatible KDB
+options do not invalidate each other. Stable third-party IP/VIP
+partitions are reused while changed project RTL and testbench partitions are
+rebuilt. Tune parallel compilation after measuring the workstation:</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="simmer -t 'sys_tb:smoke_test@1' --simulator VCS \
+  --vcs-partcomp-jobs 16 --vcs-profile"><pre>simmer -t <span class="pl-s"><span class="pl-pds">'</span>sys_tb:smoke_test@1<span class="pl-pds">'</span></span> --simulator VCS \
+  --vcs-partcomp-jobs 16 --vcs-profile</pre></div>
+<p dir="auto">Use <code>--no-vcs-partcomp</code> for an unsupported VCS release or a regular <code>-Mupdate</code>
+comparison. Use <code>--no-vcs-auto-compile-cache</code> to invoke VCS even when the
+fingerprint matches. Shared partition databases and the full compatibility
+guidance are documented in <a href="docs/simmer_vcs_xcelium.md#vcs-partition-compile">VCS and Xcelium
+workflow</a>.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">VCS ICO and VSO.ai</h3><a id="user-content-vcs-ico-and-vsoai" class="anchor" aria-label="Permalink: VCS ICO and VSO.ai" href="#vcs-ico-and-vsoai"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">ICO, VSO.ai CSO and VSO.ai Coverage Directed Solver are separate opt-in flows:</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="simmer -t 'sys_tb:*@20' --simulator VCS --ico \
+  --ico-shared-record /nfs/project/ico/shared_record
+
+simmer -t 'sys_tb:*@100' --simulator VCS --vso --vso-cbv --vcs-cm line \
+  --vso-dbdir /nfs/project/vso/model --vso-phase stress:3
+
+simmer -t 'sys_tb:*@20' --simulator VCS --vso-ccex \
+  --vso-ccex-auto-merge-dir /nfs/project/ccex/shared"><pre>simmer -t <span class="pl-s"><span class="pl-pds">'</span>sys_tb:*@20<span class="pl-pds">'</span></span> --simulator VCS --ico \
+  --ico-shared-record /nfs/project/ico/shared_record
+
+simmer -t <span class="pl-s"><span class="pl-pds">'</span>sys_tb:*@100<span class="pl-pds">'</span></span> --simulator VCS --vso --vso-cbv --vcs-cm line \
+  --vso-dbdir /nfs/project/vso/model --vso-phase stress:3
+
+simmer -t <span class="pl-s"><span class="pl-pds">'</span>sys_tb:*@20<span class="pl-pds">'</span></span> --simulator VCS --vso-ccex \
+  --vso-ccex-auto-merge-dir /nfs/project/ccex/shared</pre></div>
+<p dir="auto">ICO uses the runtime-only shared-CDB model from the Y-2026.03 ICO Guide. VSO.ai
+CSO uses the documented simplified init/ask-all/execute/finalize+merge model;
+CCEX adds <code>-vso ccex</code> at compile and runtime. They cannot be combined in one
+invocation and still require licensed Red Hat validation.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Xcelium MSIE gatesim</h3><a id="user-content-xcelium-msie-gatesim" class="anchor" aria-label="Permalink: Xcelium MSIE gatesim" href="#xcelium-msie-gatesim"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">For heavy gate-level simulation, keep the stable gate netlist in
+<code>msie_primary_deps</code> and the changing testbench/tests in
+<code>msie_incremental_deps</code>. Simmer generates both Xcelium filelists through Bazel;
+do not maintain source-tree <code>msie/*_prim.f</code> or <code>*_incr.f</code> files.</p>
+<p dir="auto">Run the same test target with the same <code>SIMRESULTS</code> and <code>--dir-suffix</code> through
+the three multi-step stages:</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="MSIE_KEY='XCELIUM-25.03:netlist-r42:sdf_wc'
+simmer -t 'gate_tb:smoke_test@1' --simulator XRUN \
+  --msie-href dut --dir-suffix _sdf_wc
+simmer -t 'gate_tb:smoke_test@1' --simulator XRUN \
+  --msie-prim dut --msie-primary-name dut_sdf_wc \
+  --msie-primary-key &quot;$MSIE_KEY&quot; --dir-suffix _sdf_wc
+simmer -t 'gate_tb:smoke_test@1' --simulator XRUN \
+  --msie-incr dut_sdf_wc --msie-primary-key &quot;$MSIE_KEY&quot; \
+  --dir-suffix _sdf_wc"><pre>MSIE_KEY=<span class="pl-s"><span class="pl-pds">'</span>XCELIUM-25.03:netlist-r42:sdf_wc<span class="pl-pds">'</span></span>
+simmer -t <span class="pl-s"><span class="pl-pds">'</span>gate_tb:smoke_test@1<span class="pl-pds">'</span></span> --simulator XRUN \
+  --msie-href dut --dir-suffix _sdf_wc
+simmer -t <span class="pl-s"><span class="pl-pds">'</span>gate_tb:smoke_test@1<span class="pl-pds">'</span></span> --simulator XRUN \
+  --msie-prim dut --msie-primary-name dut_sdf_wc \
+  --msie-primary-key <span class="pl-s"><span class="pl-pds">"</span><span class="pl-smi">$MSIE_KEY</span><span class="pl-pds">"</span></span> --dir-suffix _sdf_wc
+simmer -t <span class="pl-s"><span class="pl-pds">'</span>gate_tb:smoke_test@1<span class="pl-pds">'</span></span> --simulator XRUN \
+  --msie-incr dut_sdf_wc --msie-primary-key <span class="pl-s"><span class="pl-pds">"</span><span class="pl-smi">$MSIE_KEY</span><span class="pl-pds">"</span></span> \
+  --dir-suffix _sdf_wc</pre></div>
+<p dir="auto">The incremental stage validates the primary top/name, corner key, generated
+filelist, primary inputs, href/externs, coverage/debug configuration and
+Xcelium environment before XRUN starts. Full BUILD configuration, coverage
+rules and rebuild instructions are in the
+<a href="docs/simmer_vcs_xcelium.md#xcelium-msie-gatesim">Xcelium MSIE gatesim workflow</a>.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Regression dashboard</h3><a id="user-content-regression-dashboard" class="anchor" aria-label="Permalink: Regression dashboard" href="#regression-dashboard"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The retained static HTML dashboard is generated by default when a <code>simmer</code>
+regression plans more than one simulation. A single test/iteration does not
+generate a report unless <code>--report</code> is explicit; <code>--no-report</code> disables reports
+for a regression. Always quote test globs so the shell does not expand them.
+Override the report root for a VCS or Xcelium regression with:</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="simmer -t 'sys_tb:*@2' --simulator VCS \
+  --report-dir &quot;$PWD/report-output&quot;
+
+simmer -t 'sys_tb:*@2' --simulator XRUN \
+  --report-dir &quot;$PWD/report-output&quot;"><pre>simmer -t <span class="pl-s"><span class="pl-pds">'</span>sys_tb:*@2<span class="pl-pds">'</span></span> --simulator VCS \
+  --report-dir <span class="pl-s"><span class="pl-pds">"</span><span class="pl-smi">$PWD</span>/report-output<span class="pl-pds">"</span></span>
+
+simmer -t <span class="pl-s"><span class="pl-pds">'</span>sys_tb:*@2<span class="pl-pds">'</span></span> --simulator XRUN \
+  --report-dir <span class="pl-s"><span class="pl-pds">"</span><span class="pl-smi">$PWD</span>/report-output<span class="pl-pds">"</span></span></pre></div>
+<p dir="auto">Add simulator-specific coverage when coverage results should appear in the
+dashboard:</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="simmer -t 'sys_tb:*@10' --simulator VCS --vcs-cm A \
+  --report-dir &quot;$PWD/report-output&quot;
+
+simmer -t 'sys_tb:*@10' --simulator XRUN --coverage A \
+  --report-dir &quot;$PWD/report-output&quot;"><pre>simmer -t <span class="pl-s"><span class="pl-pds">'</span>sys_tb:*@10<span class="pl-pds">'</span></span> --simulator VCS --vcs-cm A \
+  --report-dir <span class="pl-s"><span class="pl-pds">"</span><span class="pl-smi">$PWD</span>/report-output<span class="pl-pds">"</span></span>
+
+simmer -t <span class="pl-s"><span class="pl-pds">'</span>sys_tb:*@10<span class="pl-pds">'</span></span> --simulator XRUN --coverage A \
+  --report-dir <span class="pl-s"><span class="pl-pds">"</span><span class="pl-smi">$PWD</span>/report-output<span class="pl-pds">"</span></span></pre></div>
+<p dir="auto">For VCS, <code>--vcs-cm-cond obs+event</code>, <code>--vcs-cm-tgl portsonly</code>,
+<code>--vcs-urg-parallel</code>, and <code>--vcs-urg-show-tests</code> expose the documented coverage
+collection and merge controls without leaking them into XRUN.</p>
+<p dir="auto">Configure coverage files on the matching testbench target: use <code>vcs_cm_hier</code>
+for VCS or <code>xcelium_covfile</code> for Xcelium, plus <code>dut_top</code>/<code>dut_instance</code> when the
+defaults do not match the design hierarchy. Failed tests and stale databases
+are excluded from the current-run coverage merge; unavailable metrics display
+as <code>N/A</code> rather than a false zero.</p>
+<p dir="auto">Coverage totals follow the two-level average used by OpenTitan's pinned DVSim
+1.34.1. Code Coverage is the arithmetic mean of the available Line/Statement,
+Branch, Condition/Expression, Toggle and FSM metrics; Block is shown when
+reported but is not part of that average. Total Coverage is the arithmetic mean
+of the available Code Coverage, Assertion Coverage and Functional CoverGroup
+Coverage values. Missing values are omitted from each denominator. A simulator
+<code>SCORE</code>/<code>Overall</code> value is retained as <code>cov_vendor_score</code> in <code>regressions.json</code>
+for reference, but is not used as Code Coverage or Total Coverage.</p>
+<p dir="auto">The dashboard entry point and drill-down pages are written under:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="&lt;report-dir&gt;/regression_report/index.html
+&lt;report-dir&gt;/regression_report/&lt;project&gt;/index.html
+&lt;report-dir&gt;/regression_report/&lt;project&gt;/&lt;bench&gt;/index.html
+&lt;report-dir&gt;/regression_report/&lt;project&gt;/&lt;bench&gt;/&lt;timestamp&gt;.html
+&lt;report-dir&gt;/regression_report/open_&lt;timestamp&gt;.sh"><pre lang="text" class="notranslate"><code>&lt;report-dir&gt;/regression_report/index.html
+&lt;report-dir&gt;/regression_report/&lt;project&gt;/index.html
+&lt;report-dir&gt;/regression_report/&lt;project&gt;/&lt;bench&gt;/index.html
+&lt;report-dir&gt;/regression_report/&lt;project&gt;/&lt;bench&gt;/&lt;timestamp&gt;.html
+&lt;report-dir&gt;/regression_report/open_&lt;timestamp&gt;.sh
+</code></pre></div>
+<p dir="auto">At completion, <code>simmer</code> prints the executable launcher for that exact run. Open
+the report on a Red Hat workstation with the printed command, for example:</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="/path/to/regression_report/project/open_reports/open_20260716_140000_000001.sh"><pre>/path/to/regression_report/project/open_reports/open_20260716_140000_000001.sh</pre></div>
+<p dir="auto">For a remote workstation, serve the static files on its loopback interface:</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="python3.12 -m http.server 8000 \
+  --bind 127.0.0.1 \
+  --directory &quot;$PWD/report-output/regression_report&quot;"><pre>python3.12 -m http.server 8000 \
+  --bind 127.0.0.1 \
+  --directory <span class="pl-s"><span class="pl-pds">"</span><span class="pl-smi">$PWD</span>/report-output/regression_report<span class="pl-pds">"</span></span></pre></div>
+<p dir="auto">Forward that port from the local machine, then open <code>http://localhost:8000/</code>:</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="ssh -N -L 8000:127.0.0.1:8000 user@redhat-host"><pre>ssh -N -L 8000:127.0.0.1:8000 user@redhat-host</pre></div>
+<p dir="auto">The default report root is <code>&lt;regression-dir&gt;/regression_results</code>, derived from
+the current user's simulation result directory and checkout. It is not a fixed
+user or project path. Override the report per command with <code>--report-dir</code>, or
+configure shared result and report locations and a public URL:</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="export SIMRESULTS=/nfs/regression
+export SIMMER_REPORT_DIR=&quot;$SIMRESULTS/webroot&quot;
+export SIMMER_REPORT_URL=https://regression.example.com/regression_report
+simmer -t 'sys_tb:*' --simulator VCS"><pre><span class="pl-k">export</span> SIMRESULTS=/nfs/regression
+<span class="pl-k">export</span> SIMMER_REPORT_DIR=<span class="pl-s"><span class="pl-pds">"</span><span class="pl-smi">$SIMRESULTS</span>/webroot<span class="pl-pds">"</span></span>
+<span class="pl-k">export</span> SIMMER_REPORT_URL=https://regression.example.com/regression_report
+simmer -t <span class="pl-s"><span class="pl-pds">'</span>sys_tb:*<span class="pl-pds">'</span></span> --simulator VCS</pre></div>
+<p dir="auto"><code>SIMMER_REPORT_URL</code> only changes the report link printed by <code>simmer</code>; a web
+server must expose <code>&lt;SIMMER_REPORT_DIR&gt;/regression_report</code> at that URL. Run
+<code>simmer --help</code> for the complete CLI. From this repository, the same help is
+available without installing a wrapper:</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel run //bin:simmer -- --help"><pre>bazel run //bin:simmer -- --help</pre></div>
+<p dir="auto">The <a href="docs/simmer_vcs_xcelium.md#command-cookbook">simmer command cookbook</a>
+collects ready-to-adapt commands for normal runs, reuse, waves, coverage,
+reporting, MSIE, Palladium, ICO, VSO.ai and CCEX.</p>
+<p dir="auto"><code>--no-compile</code> reuse is rejected when source/runfile content, an external
+compile configuration, or the selected simulator tool environment changes.
+Recent normal-run compile/start failures remain visible through <code>simmer --history</code>.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Python Dependencies</h3><a id="user-content-python-dependencies" class="anchor" aria-label="Permalink: Python Dependencies" href="#python-dependencies"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">rules_verilog uses the Python libraries listed in <code>requirements.txt</code>, but it
+does not create a pip repository or install them. The top-level project owns
+Python dependency installation so that every external rules repository shares
+the same environment. Install the requirements into the Python 3.12 environment
+used by Bazel before running <code>simmer</code>:</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="python3.12 -m pip install -r path/to/rules_verilog/requirements.txt"><pre>python3.12 -m pip install -r path/to/rules_verilog/requirements.txt</pre></div>
+<p dir="auto">rules_verilog BUILD packages intentionally avoid workspace-owned Python
+requirement labels so <code>@rules_verilog//bin:simmer</code> can be loaded from an
+external repository.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Red Hat validation</h3><a id="user-content-red-hat-validation" class="anchor" aria-label="Permalink: Red Hat validation" href="#red-hat-validation"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The workstation must expose Python 3.12 as <code>python3.12</code> and Bazel 7.7.1 as
+<code>bazel</code>. Run the no-license portability checks before licensed VCS/Xcelium
+tests:</p>
+<div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="./tests/redhat_smoke.sh"><pre>./tests/redhat_smoke.sh</pre></div>
+<p dir="auto">The script prints the failing line and command before it exits. Licensed unit
+tests still need to be run separately with both <code>--config=xrun</code> and
+<code>--config=vcs</code> on the configured Red Hat EDA host.</p>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Rules</h2><a id="user-content-rules" class="anchor" aria-label="Permalink: Rules" href="#rules"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">RTL</h3><a id="user-content-rtl" class="anchor" aria-label="Permalink: RTL" href="#rtl"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">Load rules into your <code>BUILD</code> files from <a href="verilog/defs.bzl">@rules_verilog//verilog:defs.bzl</a></p>
@@ -60,8 +399,11 @@ pip_install(
 </ul>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Generic Verilog</h3><a id="user-content-generic-verilog" class="anchor" aria-label="Permalink: Generic Verilog" href="#generic-verilog"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">Load rules into your <code>BUILD</code> files from <a href="verilog/defs.bzl">@rules_verilog//verilog:defs.bzl</a></p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Migration Notes</h3><a id="user-content-migration-notes" class="anchor" aria-label="Permalink: Migration Notes" href="#migration-notes"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <ul dir="auto">
-<li><a href="docs/defs.md#verilog_test">verilog_test</a></li>
+<li><a href="docs/simulator_migration_checklist.md">Simulator migration checklist</a></li>
+<li><a href="docs/simmer_vcs_xcelium.md">Simmer VCS and Xcelium flow</a></li>
+<li><a href="docs/eda_workflow_review.md">EDA workflow review and low-use features</a></li>
 </ul>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Caveats</h2><a id="user-content-caveats" class="anchor" aria-label="Permalink: Caveats" href="#caveats"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <ul dir="auto">
@@ -76,5 +418,9 @@ pip_install(
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Vendor Support</h3><a id="user-content-vendor-support" class="anchor" aria-label="Permalink: Vendor Support" href="#vendor-support"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">These rules were written with the Cadence and Synopsys tools as the underlying compiler and simulator. Abstraction leaks are prevalent throughout the rules.</p>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">UVM Testbenches</h3><a id="user-content-uvm-testbenches" class="anchor" aria-label="Permalink: UVM Testbenches" href="#uvm-testbenches"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<p dir="auto">While rules for unit tests exist, the <a href="docs/defs.md#verilog_dv_tb">verilog_dv_tb</a> and <a href="docs/defs.md#verilog_dv_test_cfg">verilog_dv_test_cfg</a> rules are intended to work in conjunction with an external script capable of spawning many parallel simulations. Documentation throughout this codebase refers to a tool called <code>simmer</code> which may be released in a future version.</p>
+<p dir="auto">Use one-step <code>verilog_dv_unit_test</code>/<code>verilog_rtl_unit_test</code> for small Xcelium
+or VCS tests. Large VCS simulations should use
+<a href="docs/defs.md#verilog_dv_tb">verilog_dv_tb</a>,
+<a href="docs/defs.md#verilog_dv_test_cfg">verilog_dv_test_cfg</a>, and <code>simmer</code> so the
+compiled <code>simv</code> can be reused across tests.</p>
 </article></div>
