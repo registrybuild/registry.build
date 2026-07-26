@@ -224,6 +224,21 @@ comparison. Use <code>--no-vcs-auto-compile-cache</code> to invoke VCS even when
 fingerprint matches. Shared partition databases and the full compatibility
 guidance are documented in <a href="docs/simmer_vcs_xcelium.md#vcs-partition-compile">VCS and Xcelium
 workflow</a>.</p>
+<p dir="auto">When a real project source edit still makes the VCS two-step frontend parse
+large frozen VIP filelists, opt the testbench into
+<code>verilog_dv_tb(vcs_three_step = True, ...)</code>. The three-step flow runs one
+<code>vlogan -incr_vlogan</code> command for the dependencies selected by
+<code>vcs_vlogan_precompile_deps</code> and another for the remaining project filelists.
+The frozen group can skip analysis after a project edit while preserving
+cross-file macro state inside each group. Before the project group, the flow
+replays top-level <code>.vh</code> and <code>.svh</code> entries from frozen filelists so generated
+RTL wrapper macros remain available without editing RTL sources. Other macro
+state does not cross the group boundary, so downstream sources must import
+compiled packages rather than depend on nested include-guard side effects from
+the frozen group. Analysis and elaboration arguments must be split between
+<code>vcs_vlogan_args</code> and <code>vcs_elab_args</code>; see the
+<a href="docs/simmer_vcs_xcelium.md#vcs-three-step-incremental-analysis">three-step incremental analysis
+workflow</a>.</p>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">VCS ICO and VSO.ai</h3><a id="user-content-vcs-ico-and-vsoai" class="anchor" aria-label="Permalink: VCS ICO and VSO.ai" href="#vcs-ico-and-vsoai"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">ICO, VSO.ai CSO and VSO.ai Coverage Directed Solver are separate opt-in flows:</p>
 <div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="simmer -t 'sys_tb:*@20' --simulator VCS --ico \
