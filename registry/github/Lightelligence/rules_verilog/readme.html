@@ -96,6 +96,12 @@ options. Targets that explicitly set <code>simulator = "VCS"</code> may continue
 interrupted-history persistence, <code>pause</code> to stop active process groups and prevent new jobs from launching, <code>continue</code>
 to keep running, or <code>status/logs</code> to print active job directories and log paths. A paused regression can then be resumed
 or stopped. Non-interactive runs stop immediately so batch jobs and CI never wait for input.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Inspecting active runs</h3><a id="user-content-inspecting-active-runs" class="anchor" aria-label="Permalink: Inspecting active runs" href="#inspecting-active-runs"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Use <code>simmer --status</code> or its short alias <code>simmer --st</code> to print every active simmer run for the current project. The
+query exits before discovery and shows the reconstructed <code>bsub</code> command, LSF job/queue/host metadata, compile log, and
+the single-test result log or multi-test regression log. Multi-test runs show aggregate finished/active/queued counts
+without expanding individual cases. Active records are isolated under <code>.simmer/runs/</code> and removed when their owning
+process exits.</p>
 <p dir="auto">Large VCS regressions continue to use the reusable two-step
 <code>verilog_dv_tb</code> + <code>simmer</code> flow. Bazel one-step DV and RTL unit tests support
 both Xcelium and VCS.</p>
@@ -377,7 +383,9 @@ reporting, MSIE, Palladium, ICO, VSO.ai and CCEX.</p>
 <p dir="auto"><code>--no-compile</code> reuse is rejected when source/runfile content, an external
 compile configuration, or the selected simulator tool environment changes.
 Completed and interrupted simulations remain visible through <code>simmer --history</code>;
-failures that prevent every test from starting are not recorded.</p>
+failures that prevent every test from starting are not recorded. Local history
+is stored in <code>.simmer/results.json</code>; older project-root <code>.simmer_results.json</code>
+files migrate automatically.</p>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Python Dependencies</h3><a id="user-content-python-dependencies" class="anchor" aria-label="Permalink: Python Dependencies" href="#python-dependencies"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">rules_verilog uses the Python libraries listed in <code>requirements.txt</code>, but it
 does not create a pip repository or install them. The top-level project owns
