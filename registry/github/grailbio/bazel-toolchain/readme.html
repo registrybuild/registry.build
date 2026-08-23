@@ -40,10 +40,17 @@ map their respective target to a distinct version:</p>
 <p dir="auto">We currently offer limited customizability through attributes of the
 <a href="toolchain/rules.bzl">llvm_toolchain_* rules</a>. You can send us a PR to add
 more configuration attributes.</p>
-<p dir="auto">The <code>MODULE.bazel</code> example below demonstrates how to use an LLVM release that
-is not yet present in the bundled distribution table. The required SHA-256s
-can be obtained with <code>utils/extra_distributions.sh -v &lt;version&gt;</code>
-(see <a href="#distribution-data-and-scripts">Distribution data and scripts</a> below).</p>
+<p dir="auto">Each toolchains_llvm release contains a snapshot of the LLVM distributions
+known when it was published. You do not have to wait for another
+toolchains_llvm release to use a newer LLVM release, an LLVM prerelease, or a
+custom build. Add its archive names and SHA-256s to
+<code>extra_llvm_distributions</code>, then select the version normally with
+<code>llvm_version</code>.</p>
+<p dir="auto">For an official LLVM release that is not in the bundled table, archive
+basenames are sufficient: the standard LLVM GitHub release URL is inferred.
+The required SHA-256s can be obtained with
+<code>utils/extra_distributions.sh -v &lt;version&gt;</code> (see
+<a href="#distribution-data-and-scripts">Distribution data and scripts</a> below):</p>
 <div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="llvm = use_extension(&quot;@toolchains_llvm//toolchain/extensions:llvm.bzl&quot;, &quot;llvm&quot;, dev_dependency = True)
 llvm.toolchain(
     name = &quot;llvm_toolchain&quot;,
@@ -65,12 +72,9 @@ llvm.toolchain(
         <span class="pl-s">"clang+llvm-20.1.4-x86_64-pc-windows-msvc.tar.xz"</span>: <span class="pl-s">"2b12ac1a0689e29a38a7c98c409cbfa83f390aea30c60b7a06e4ed73f82d2457"</span>,
     },
 )</pre></div>
-<p dir="auto">Prereleases can be selected by their exact version and supplied through
-<code>extra_llvm_distributions</code> in the same way. Following the common SemVer range
-convention, they are excluded from <code>latest</code>, <code>first</code>, and stable-only version
-requirements. A requirement explicitly opts in by naming a prerelease with
-the same major/minor/patch tuple; for example, <code>latest:&gt;=23.1.0-rc1</code> can select
-<code>23.1.0-rc3</code>, while <code>latest:&gt;=23</code> and <code>latest:&gt;22</code> cannot:</p>
+<p dir="auto">The same mechanism works for a prerelease that is newer than the distribution
+snapshot. For example, the following configuration made 23.1.0-rc3 available
+before it was bundled with toolchains_llvm:</p>
 <div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="llvm.toolchain(
     name = &quot;llvm_toolchain&quot;,
     llvm_version = &quot;23.1.0-rc3&quot;,
@@ -88,10 +92,80 @@ the same major/minor/patch tuple; for example, <code>latest:&gt;=23.1.0-rc1</cod
         <span class="pl-s">"LLVM-23.1.0-rc3-macOS-ARM64.tar.xz"</span>: <span class="pl-s">"d23dc0baf29225e2975447f29bbc98b4fc3779001e91adc4a5d7d95854681e79"</span>,
     },
 )</pre></div>
-<p dir="auto">Run <code>utils/extra_distributions.sh -v 23.1.0-rc3</code> to obtain the entries
-published for a particular prerelease. An asset is usable only when its
-filename contains that logical release version; LLVM occasionally publishes
-platform assets under a different product version.</p>
+<p dir="auto">Prereleases must be requested explicitly. Following the common SemVer range
+convention, they are excluded from <code>latest</code>, <code>first</code>, and stable-only version
+requirements. An exact <code>llvm_version = "23.1.0-rc3"</code> selects that release, and
+a requirement opts in by naming a prerelease with the same
+major/minor/patch tuple. Thus <code>latest:&gt;=23.1.0-rc1</code> can select <code>23.1.0-rc3</code>,
+while <code>latest:&gt;=23</code> and <code>latest:&gt;22</code> cannot select it.</p>
+<p dir="auto"><code>extra_llvm_distributions</code> is not limited to official LLVM artifacts. Its keys
+may also be complete download URLs or absolute local paths, so internally
+built, repackaged, or third-party LLVM distributions can be registered
+directly. Alternatively, keep basename keys and use
+<code>alternative_llvm_sources</code> to provide one or more mirror URL templates. In
+either case, use the usual <code>LLVM-&lt;version&gt;-...</code> or
+<code>clang+llvm-&lt;version&gt;-...</code> archive naming so version and host-platform
+selection can recognize the distribution. An asset is usable for a requested
+version only when its filename contains that logical version; LLVM
+occasionally publishes platform assets under a different product version.</p>
+<p dir="auto">By default, extra distributions are merged with the bundled table. An extra
+entry with the same basename replaces the bundled checksum; use a complete URL
+or local path as the key to replace its source as well. When equivalent
+compression variants coexist, <code>.tar.zst</code> is preferred over <code>.tar.xz</code> and
+<code>.tar.gz</code>.</p>
+<p dir="auto">Set <code>use_builtin_llvm_distributions = False</code> only when the bundled distribution
+table must be ignored completely. It removes all bundled checksums and URLs
+from version and host-platform selection; the toolchain can then select only
+artifacts supplied through <code>extra_llvm_distributions</code> or
+<code>extra_llvm_distribution_files</code>. This is useful for patched releases that
+retain an upstream version, private allowlists, or configurations that must use
+only explicitly declared artifacts. It is not needed merely to add a newer
+release or prerelease. At least one matching extra distribution must be
+provided when this option is disabled.</p>
+<p dir="auto">Downstream maintainers who patch or vendor toolchains_llvm itself can instead
+put persistent bundle additions in
+<a href="toolchain/distributions/extra.jsonc"><code>toolchain/distributions/extra.jsonc</code></a>.
+That file is intentionally empty upstream and is loaded after
+<code>pre_github.jsonc</code>, <code>github_legacy.jsonc</code>, and <code>github.jsonc</code>, so an identical
+key replaces the earlier checksum. Its <code>_meta.base_url</code> can also redirect the
+entries it contains to a downstream release server. The file can be changed
+in a fork or patched into the module with <code>single_version_override</code> or
+<code>archive_override</code>. Unlike the <code>extra_llvm_distributions</code> attribute, which is
+scoped to one toolchain declaration, <code>extra.jsonc</code> changes the bundled table
+for every consumer of that patched toolchains_llvm source.</p>
+<p dir="auto">A workspace can keep its distributions in independent JSON or JSONC files
+without patching toolchains_llvm. Export the files from a Bazel package and
+pass their labels through <code>extra_llvm_distribution_files</code>:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="# config/BUILD.bazel
+exports_files([&quot;llvm_distributions.jsonc&quot;])"><pre><span class="pl-c"># config/BUILD.bazel</span>
+<span class="pl-en">exports_files</span>([<span class="pl-s">"llvm_distributions.jsonc"</span>])</pre></div>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="# MODULE.bazel
+llvm.toolchain(
+    name = &quot;llvm_toolchain&quot;,
+    llvm_version = &quot;22.1.8&quot;,
+    use_builtin_llvm_distributions = False,
+    extra_llvm_distribution_files = [
+        &quot;//config:llvm_distributions.jsonc&quot;,
+    ],
+)"><pre><span class="pl-c"># MODULE.bazel</span>
+<span class="pl-s1">llvm</span>.<span class="pl-c1">toolchain</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"llvm_toolchain"</span>,
+    <span class="pl-s1">llvm_version</span> <span class="pl-c1">=</span> <span class="pl-s">"22.1.8"</span>,
+    <span class="pl-s1">use_builtin_llvm_distributions</span> <span class="pl-c1">=</span> <span class="pl-c1">False</span>,
+    <span class="pl-s1">extra_llvm_distribution_files</span> <span class="pl-c1">=</span> [
+        <span class="pl-s">"//config:llvm_distributions.jsonc"</span>,
+    ],
+)</pre></div>
+<p dir="auto">Here <code>use_builtin_llvm_distributions = False</code> makes the external file the
+complete distribution set rather than an addition to the bundled set. Omit the
+attribute when the file should merely extend or override bundled entries.</p>
+<p dir="auto">These files use the same schema as <code>extra.jsonc</code> and may also come from
+another repository, for example
+<code>@company_toolchains//llvm:distributions.jsonc</code>. Multiple files are merged in
+list order; later files replace earlier checksums and covered URL templates.
+The inline <code>extra_llvm_distributions</code> dictionary is merged last.</p>
+<p dir="auto">For complete control over the archive selected for each execution platform,
+use the lower-level <code>urls</code>, <code>sha256</code>, and <code>strip_prefix</code> attributes instead.</p>
 <p dir="auto">The following <code>WORKSPACE</code> snippet shows how to add a specific version for a specific target before
 the version was added to the bundled distribution data under
 <a href="toolchain/distributions"><code>toolchain/distributions/</code></a>.</p>
@@ -503,6 +577,9 @@ fall back to the standard GitHub release URL
 <p dir="auto">Entry keys are either a tarball <strong>basename</strong> (URL derived via <code>base_url</code>)
 or a <strong>full URL/path</strong> (used verbatim, bypassing <code>base_url</code>). Comments are
 stripped before parsing, and trailing commas are tolerated.</p>
+<p dir="auto">LLVM archives compressed as <code>.tar.zst</code>, <code>.tar.xz</code>, or <code>.tar.gz</code> are
+supported. When equivalent zstd and xz archives are available, automatic
+selection and the helper scripts prefer the much faster-to-extract zstd form.</p>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Two helper scripts</h3><a id="user-content-two-helper-scripts" class="anchor" aria-label="Permalink: Two helper scripts" href="#two-helper-scripts"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <ul dir="auto">
 <li>
