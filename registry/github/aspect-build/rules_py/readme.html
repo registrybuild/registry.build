@@ -417,6 +417,102 @@ oci_load(
 )</pre></div>
 <p dir="auto">Cross-compile for Linux from macOS:</p>
 <div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel build //:image --platforms=//platforms:linux_amd64"><pre>bazel build //:image --platforms=//platforms:linux_amd64</pre></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Layer compression</h3><a id="user-content-layer-compression" class="anchor" aria-label="Permalink: Layer compression" href="#layer-compression"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Layers are written by bsdtar, so any libarchive write filter can compress them:
+<code>none</code>, <code>gzip</code> (the default, level 6), <code>bzip2</code>, <code>xz</code>, <code>lzma</code>, <code>lzop</code>, <code>lz4</code>,
+<code>lrzip</code>, <code>zstd</code>, and <code>compress</code>. The file extension follows the filter, which is
+what image tooling reads the layer's media type from.</p>
+<p dir="auto"><strong>The OCI image spec only defines <code>tar</code>, <code>+gzip</code> and <code>+zstd</code> layers</strong>, so those
+are the three you can put in an image. <code>rules_oci</code> identifies a layer's
+compression by sniffing its magic; a codec it cannot sniff is labelled an
+uncompressed tar and keeps the <em>compressed</em> digest as its <code>diffid</code>, which builds
+successfully and produces an invalid image. <code>py_image_layer</code> and <code>py_layer_tier</code>
+therefore reject the other filters unless you set <code>allow_non_oci_layers = True</code>,
+which declares that the tars are going somewhere other than an OCI image.</p>
+<p dir="auto"><code>py_layer_tier</code> sets compression for the layers it names — pip packages, the
+interpreter, and first-party groups:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@aspect_rules_py//py:defs.bzl&quot;, &quot;py_layer_tier&quot;)
+
+py_layer_tier(
+    name = &quot;tier&quot;,
+    groups = {
+        &quot;@pip//torch&quot;: &quot;heavy&quot;,
+        &quot;//src/common&quot;: &quot;common&quot;,
+    },
+    interpreter_group = &quot;interpreter&quot;,
+    compression = {
+        &quot;heavy&quot;: [&quot;zstd&quot;, &quot;19&quot;],   # [algorithm, level]
+        &quot;common&quot;: [&quot;gzip&quot;],        # level omitted: libarchive's default
+        &quot;interpreter&quot;: [&quot;none&quot;],   # an uncompressed layer
+    },
+)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@aspect_rules_py//py:defs.bzl"</span>, <span class="pl-s">"py_layer_tier"</span>)
+
+<span class="pl-en">py_layer_tier</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"tier"</span>,
+    <span class="pl-s1">groups</span> <span class="pl-c1">=</span> {
+        <span class="pl-s">"@pip//torch"</span>: <span class="pl-s">"heavy"</span>,
+        <span class="pl-s">"//src/common"</span>: <span class="pl-s">"common"</span>,
+    },
+    <span class="pl-s1">interpreter_group</span> <span class="pl-c1">=</span> <span class="pl-s">"interpreter"</span>,
+    <span class="pl-s1">compression</span> <span class="pl-c1">=</span> {
+        <span class="pl-s">"heavy"</span>: [<span class="pl-s">"zstd"</span>, <span class="pl-s">"19"</span>],   <span class="pl-c"># [algorithm, level]</span>
+        <span class="pl-s">"common"</span>: [<span class="pl-s">"gzip"</span>],        <span class="pl-c"># level omitted: libarchive's default</span>
+        <span class="pl-s">"interpreter"</span>: [<span class="pl-s">"none"</span>],   <span class="pl-c"># an uncompressed layer</span>
+    },
+)</pre></div>
+<p dir="auto"><code>py_image_layer</code> sets compression for the layers it creates itself — the
+<code>groups</code> tars, the squashed pip layer (<code>"packages"</code>), and the source layer
+(<code>"default"</code>) — and takes precedence over the tier for a group both name:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="py_image_layer(
+    name = &quot;app_layers&quot;,
+    binary = &quot;:app_bin&quot;,
+    layer_tier = &quot;:tier&quot;,
+    group_compression = {&quot;default&quot;: [&quot;zstd&quot;, &quot;3&quot;]},
+)"><pre><span class="pl-en">py_image_layer</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"app_layers"</span>,
+    <span class="pl-s1">binary</span> <span class="pl-c1">=</span> <span class="pl-s">":app_bin"</span>,
+    <span class="pl-s1">layer_tier</span> <span class="pl-c1">=</span> <span class="pl-s">":tier"</span>,
+    <span class="pl-s1">group_compression</span> <span class="pl-c1">=</span> {<span class="pl-s">"default"</span>: [<span class="pl-s">"zstd"</span>, <span class="pl-s">"3"</span>]},
+)</pre></div>
+<p dir="auto">For a different implementation of a codec — <code>pigz</code>, a tuned <code>zstd</code> — declare a
+<code>py_layer_compressor</code>. bsdtar pipes the archive through the program, so anything
+that reads stdin and writes compressed bytes to stdout works. The <code>extension</code> is
+how you declare what it emits, and it decides whether the result is OCI-valid:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@aspect_rules_py//py:defs.bzl&quot;, &quot;py_layer_compressor&quot;)
+
+py_layer_compressor(
+    name = &quot;pigz&quot;,
+    tool = &quot;//tools:pigz&quot;,
+    args = [&quot;-11&quot;],
+    extension = &quot;.tar.gz&quot;,  # gzip bytes, so a valid OCI layer
+)
+
+py_layer_tier(
+    name = &quot;tier&quot;,
+    groups = {&quot;@pip//torch&quot;: &quot;heavy&quot;},
+    compressors = {&quot;:pigz&quot;: &quot;heavy&quot;},
+)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@aspect_rules_py//py:defs.bzl"</span>, <span class="pl-s">"py_layer_compressor"</span>)
+
+<span class="pl-en">py_layer_compressor</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"pigz"</span>,
+    <span class="pl-s1">tool</span> <span class="pl-c1">=</span> <span class="pl-s">"//tools:pigz"</span>,
+    <span class="pl-s1">args</span> <span class="pl-c1">=</span> [<span class="pl-s">"-11"</span>],
+    <span class="pl-s1">extension</span> <span class="pl-c1">=</span> <span class="pl-s">".tar.gz"</span>,  <span class="pl-c"># gzip bytes, so a valid OCI layer</span>
+)
+
+<span class="pl-en">py_layer_tier</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"tier"</span>,
+    <span class="pl-s1">groups</span> <span class="pl-c1">=</span> {<span class="pl-s">"@pip//torch"</span>: <span class="pl-s">"heavy"</span>},
+    <span class="pl-s1">compressors</span> <span class="pl-c1">=</span> {<span class="pl-s">":pigz"</span>: <span class="pl-s">"heavy"</span>},
+)</pre></div>
+<p dir="auto">A compressor declaring anything other than <code>.tar</code>, <code>.tar.gz</code> or <code>.tar.zst</code> is
+treated as non-OCI and needs <code>allow_non_oci_layers = True</code> — the program's bytes
+are opaque, so the extension is the only claim available about what an image
+consumer would find.</p>
+<p dir="auto"><code>py_image_layer</code> accepts the same mapping as <code>group_compressors</code> for its own
+tars. Note that <code>lzop</code> and <code>lrzip</code> are the two filters libarchive implements by
+shelling out to a same-named binary, which a sandboxed action is not guaranteed
+to have — prefer a <code>py_layer_compressor</code> there.</p>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">IDE Integration</h2><a id="user-content-ide-integration" class="anchor" aria-label="Permalink: IDE Integration" href="#ide-integration"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto"><code>aspect_rules_py</code> generates standard virtualenv structures that IDEs understand.
 In v2.0 the venv targets that the v1.x docs auto-emitted alongside every
