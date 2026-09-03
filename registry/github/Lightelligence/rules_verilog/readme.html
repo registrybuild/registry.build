@@ -96,6 +96,14 @@ options. Targets that explicitly set <code>simulator = "VCS"</code> may continue
 interrupted-history persistence, <code>pause</code> to stop active process groups and prevent new jobs from launching, <code>continue</code>
 to keep running, or <code>status/logs</code> to print active job directories and log paths. A paused regression can then be resumed
 or stopped. Non-interactive runs stop immediately so batch jobs and CI never wait for input.</p>
+<p dir="auto">Sending <code>SIGTERM</code> to simmer (for example, <code>kill -TERM &lt;simmer-pid&gt;</code>) also performs bounded cleanup, without
+opening the menu. After cleanup, both Ctrl-C <code>stop</code> and SIGTERM print a final snapshot to the terminal and
+<code>simmer.log</code>: passed/failed/interrupted/not-run counts, interrupted or failed cases with seeds and elapsed
+times, and available compile/simulation logs and wave-viewer paths. This also works without wave capture;
+unknown simulation time is shown as <code>-</code>. The snapshot is printed even if saving history fails.
+Repeated SIGINT/SIGTERM signals are ignored during cleanup. Ctrl-C exits with status 130; SIGTERM exits
+with status 143. <code>kill -9</code>, a subsequent forced kill by the scheduler, or host loss cannot guarantee this output.
+This does not change how an EDA process terminated independently of simmer is classified.</p>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Inspecting active runs</h3><a id="user-content-inspecting-active-runs" class="anchor" aria-label="Permalink: Inspecting active runs" href="#inspecting-active-runs"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">Use <code>simmer --status</code> or its short alias <code>simmer --st</code> to print every active simmer run for the current project. The
 query exits before discovery and shows the reconstructed <code>bsub</code> command, LSF job/queue/host metadata, compile log, and
@@ -185,9 +193,12 @@ release, and deposit information for Verdi; UCLI <code>dump -forceEvent</code> i
 and must not be used for FSDB.</p>
 <p dir="auto">With <code>--wave-tcl</code>, the Tcl file owns scopes, depths, dump timing, and the
 file-ID-specific <code>dump -glitch on</code> command. Simmer still passes both runtime
-FSDB options. Keep the output at <code>$::env(SIMRESULTS)/waves.fsdb</code> so simmer can
-find it and generate <code>run_waves.sh</code>. Open Verdi locally or through the site LSF
-queue:</p>
+FSDB options. Keep the output at <code>$::env(SIMRESULTS)/waves.fsdb</code>, the path opened
+by <code>run_waves.sh</code>. For both VCS and Xcelium, <code>--waves</code> generates this viewer
+script before simulation starts and retains it after interruption. It attempts
+to open whatever data is available, without guaranteeing an intact or complete
+database; if the wave artifact does not exist yet, it reports its path.
+Open Verdi locally or through the site LSF queue:</p>
 <div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="./run_waves.sh
 SIMMER_WAVE_LAUNCHER=&quot;bsub -I -q syn&quot; ./run_waves.sh"><pre>./run_waves.sh
 SIMMER_WAVE_LAUNCHER=<span class="pl-s"><span class="pl-pds">"</span>bsub -I -q syn<span class="pl-pds">"</span></span> ./run_waves.sh</pre></div>
