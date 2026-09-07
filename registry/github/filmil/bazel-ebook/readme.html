@@ -32,7 +32,7 @@
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Introduction</h2><a id="user-content-introduction" class="anchor" aria-label="Permalink: Introduction" href="#introduction"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">This repository is a set of <a href="https://bazel.io" rel="nofollow">bazel</a> build rules that allow you to write
 a moderately complex book in the Markdown text format, and produce EPUB and
-Kindle's MOBI formats from them.  You can also produce a PDF format book, which
+Kindle's AZW3 formats from them.  You can also produce a PDF format book, which
 allows you to preview the results slightly more convenient than by reading the
 resulting books.</p>
 <p dir="auto">The documentation is available in the following formats:</p>
@@ -47,6 +47,43 @@ LaTeX supported is somewhat limited).</p>
 <p dir="auto">This is not an officially supported Google product.  Even though Google owns
 the copyright. I just happened to work there while I worked on this tool.</p>
 </blockquote>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Usage</h2><a id="user-content-usage" class="anchor" aria-label="Permalink: Usage" href="#usage"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><code>bazel_ebook</code> and several of its dependencies are published in
+<a href="https://github.com/filmil/bazel-registry">my Bazel registry</a> rather than the Bazel Central Registry, so a project
+that depends on it must declare both registries.</p>
+<p dir="auto">Add the registry to your <code>.bazelrc</code> file.</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="common --registry=https://raw.githubusercontent.com/filmil/bazel-registry/main
+common --registry=https://bcr.bazel.build"><pre class="notranslate"><code>common --registry=https://raw.githubusercontent.com/filmil/bazel-registry/main
+common --registry=https://bcr.bazel.build
+</code></pre></div>
+<p dir="auto">Bazel consults registries in the order listed and takes the first one that has
+the module, so the custom registry goes <strong>first</strong>: that lets it override a
+module that also exists in the Bazel Central Registry. This matches this
+repo's own <code>.bazelrc</code> and <code>integration/.bazelrc</code>.</p>
+<p dir="auto">Then declare the dependency in <code>MODULE.bazel</code>:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel_dep(name = &quot;bazel_ebook&quot;, version = &quot;2.0.15&quot;)
+
+bazel_ebook_extension = use_extension(
+    &quot;@bazel_ebook//:extensions.bzl&quot;,
+    &quot;bazel_ebook_extension&quot;,
+)
+use_repo(
+    bazel_ebook_extension,
+    &quot;pandoc_crossref&quot;,
+    &quot;pandoc_ext_include_files&quot;,
+)"><pre><span class="pl-en">bazel_dep</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"bazel_ebook"</span>, <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"2.0.15"</span>)
+
+<span class="pl-s1">bazel_ebook_extension</span> <span class="pl-c1">=</span> <span class="pl-en">use_extension</span>(
+    <span class="pl-s">"@bazel_ebook//:extensions.bzl"</span>,
+    <span class="pl-s">"bazel_ebook_extension"</span>,
+)
+<span class="pl-en">use_repo</span>(
+    <span class="pl-s1">bazel_ebook_extension</span>,
+    <span class="pl-s">"pandoc_crossref"</span>,
+    <span class="pl-s">"pandoc_ext_include_files"</span>,
+)</pre></div>
+<p dir="auto">Without the extra <code>--registry</code> line the build fails at module resolution with
+<code>module bazel_ebook@... not found in registries</code>.</p>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Prerequisites</h2><a id="user-content-prerequisites" class="anchor" aria-label="Permalink: Prerequisites" href="#prerequisites"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <ul dir="auto">
 <li><a href="https://docker.io" rel="nofollow">docker</a>, because part of the bazel build process needs
@@ -105,7 +142,7 @@ quick list is here:</p>
 </tr>
 <tr>
 <td><code>ebook_kindle(name, deps, metadata_xml, title_yaml, args)</code></td>
-<td>This build rule assembles all <code>markdown_lib</code> rules in sequence and produces a book named <code>[name].mobi</code></td>
+<td>This build rule assembles all <code>markdown_lib</code> rules in sequence and produces a book named <code>[name].azw3</code></td>
 </tr>
 <tr>
 <td><code>ebook_pdf(name, deps, metadata_xml, title_yaml, args, additional_inputs)</code></td>
