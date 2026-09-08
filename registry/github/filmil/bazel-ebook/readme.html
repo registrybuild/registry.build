@@ -189,6 +189,39 @@ built.  The actual workhorses for building are <a href="https://www.docker.io" r
 <a href="https://asymptote.sourceforge.io" rel="nofollow">Asymptote</a>, <a href="https://drawtiming.sourceforge.net/" rel="nofollow">drawtiming</a> and <a href="https://plantuml.com" rel="nofollow">PlantUML</a>.</p>
 <p dir="auto">I used automated coding assistance (Claude Code) to rework my prior setup
 requiring docker, into a plain, fully hermetic setup.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Releasing and publishing</h2><a id="user-content-releasing-and-publishing" class="anchor" aria-label="Permalink: Releasing and publishing" href="#releasing-and-publishing"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><code>Tag and Release</code> in <code>.github/workflows/tag-and-release.yml</code> runs weekly and
+on <code>workflow_dispatch</code>.
+It releases only when a commit landed since the last tag, computes the
+version from the conventional-commit titles since that tag, and pushes it.
+The release itself goes through bazel-contrib's <code>release_ruleset.yaml</code>:
+it runs <code>bazel test //...</code> at the tag, has
+<code>.github/workflows/release_prep.sh</code> build <code>bazel-ebook-&lt;tag&gt;.zip</code> and the
+release notes, and attests the archive's provenance.
+A release then lists the archive and <code>bazel-ebook-&lt;tag&gt;.zip.intoto.jsonl</code>.</p>
+<p dir="auto">The same run publishes the release to <a href="https://github.com/filmil/bazel-registry">my Bazel registry</a> as a pull
+request, through <code>.github/workflows/publish-my-bcr.yml</code>.
+When the repository variable <code>PUBLISH_TO_BCR</code> is <code>true</code>, it also opens a
+pull request against the Bazel Central Registry through
+<code>.github/workflows/publish-official-bcr.yml</code>, with attested <code>MODULE.bazel</code>
+and <code>source.json</code>, which is what the BCR presubmit verifies with
+<code>slsa-verifier</code>.
+Only that publish attests: two attesting publishes would overwrite each
+other's attestation files on the release.
+The variable stays <code>false</code> until every dependency is on the Bazel Central
+Registry.</p>
+<p dir="auto">To check a release the way the BCR does, with the archive downloaded from
+the release:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="slsa-verifier verify-github-attestation \
+  --attestation-path bazel-ebook-&lt;tag&gt;.zip.intoto.jsonl \
+  --source-uri github.com/filmil/bazel-ebook \
+  --builder-id https://github.com/bazel-contrib/.github/.github/workflows/release_ruleset.yaml \
+  bazel-ebook-&lt;tag&gt;.zip"><pre class="notranslate"><code>slsa-verifier verify-github-attestation \
+  --attestation-path bazel-ebook-&lt;tag&gt;.zip.intoto.jsonl \
+  --source-uri github.com/filmil/bazel-ebook \
+  --builder-id https://github.com/bazel-contrib/.github/.github/workflows/release_ruleset.yaml \
+  bazel-ebook-&lt;tag&gt;.zip
+</code></pre></div>
 <div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Limitations</h2><a id="user-content-limitations" class="anchor" aria-label="Permalink: Limitations" href="#limitations"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">There are a few constraints to note however:</p>
 <ol dir="auto">
