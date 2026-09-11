@@ -10,9 +10,9 @@ RULES_VERILOG_COMMIT = &quot;&lt;40-character commit SHA&gt;&quot;
 
 http_archive(
     name = &quot;rules_verilog&quot;,
-    urls = [&quot;https://github.com/justin371/new_rules_verilog/archive/{}.tar.gz&quot;.format(RULES_VERILOG_COMMIT)],
+    urls = [&quot;https://github.com/Lightelligence/rules_verilog/archive/{}.tar.gz&quot;.format(RULES_VERILOG_COMMIT)],
     sha256 = &quot;&lt;sha256 of the archive&gt;&quot;,
-    strip_prefix = &quot;new_rules_verilog-{}&quot;.format(RULES_VERILOG_COMMIT),
+    strip_prefix = &quot;rules_verilog-{}&quot;.format(RULES_VERILOG_COMMIT),
 )
 
 load(&quot;@rules_verilog//:deps.bzl&quot;, &quot;verilog_dependencies&quot;)
@@ -25,9 +25,9 @@ RULES_VERILOG_COMMIT = "&lt;40-character commit SHA&gt;"
 
 http_archive(
     name = "rules_verilog",
-    urls = ["https://github.com/justin371/new_rules_verilog/archive/{}.tar.gz".format(RULES_VERILOG_COMMIT)],
+    urls = ["https://github.com/Lightelligence/rules_verilog/archive/{}.tar.gz".format(RULES_VERILOG_COMMIT)],
     sha256 = "&lt;sha256 of the archive&gt;",
-    strip_prefix = "new_rules_verilog-{}".format(RULES_VERILOG_COMMIT),
+    strip_prefix = "rules_verilog-{}".format(RULES_VERILOG_COMMIT),
 )
 
 load("@rules_verilog//:deps.bzl", "verilog_dependencies")
@@ -231,7 +231,9 @@ to be available on <code>PATH</code>.</p>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">VCS Partition Compile</h3><a id="user-content-vcs-partition-compile" class="anchor" aria-label="Permalink: VCS Partition Compile" href="#vcs-partition-compile"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">VCS enables automatic compile fingerprint reuse and Partition Compile by
 default. An unchanged fingerprint bypasses VCS; a changed build uses the
-allocation-aware partition flow. The writable partition database is
+allocation-aware partition flow (automatic single-worker allocations use
+regular <code>-Mupdate</code> as a crash safeguard; explicit partition options opt in).
+The writable partition database is
 <code>&lt;tb&gt;__VCS_VCOMP/partitionlib</code>; <code>--waves</code> and <code>--gui</code> use sibling
 <code>partitionlib_waves</code> and <code>partitionlib_gui</code> databases so incompatible KDB
 options do not invalidate each other. Stable third-party IP/VIP
@@ -392,6 +394,11 @@ server must expose <code>&lt;SIMMER_REPORT_DIR&gt;/regression_report</code> at t
 <code>simmer --help</code> for the complete CLI. From this repository, the same help is
 available without installing a wrapper:</p>
 <div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel run //bin:simmer -- --help"><pre>bazel run //bin:simmer -- --help</pre></div>
+<p dir="auto">Reports distinguish compile failures from simulation failures. An explicit
+<code>--no-run --report</code> run shows <code>Compile only</code> after successful compilation, or
+<code>Failed</code> after a compile failure; zero executed tests are never labeled <code>Passed</code>.
+Report paths are checked before writing or pruning. Malformed history entries
+are excluded from the index without deleting paths named by those entries.</p>
 <p dir="auto">The <a href="docs/simmer_vcs_xcelium.md#command-cookbook">simmer command cookbook</a>
 collects ready-to-adapt commands for normal runs, reuse, waves, coverage,
 reporting, MSIE, Palladium, ICO, VSO.ai and CCEX.</p>
