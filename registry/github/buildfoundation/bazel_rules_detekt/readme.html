@@ -6,7 +6,7 @@ for the <a href="https://bazel.build" rel="nofollow">Bazel build system</a>.</p>
 <li>configuration and baseline files;</li>
 <li>HTML, text, XML, Markdown, and SARIF reports;</li>
 <li><a href="https://detekt.dev/docs/extensions/extensions/" rel="nofollow">plugins</a>;</li>
-<li>customizable Detekt version and JVM flags;</li>
+<li>customizable Detekt version;</li>
 <li><a href="https://blog.bazel.build/2015/12/10/java-workers.html" rel="nofollow">persistent workers</a> support;</li>
 <li>baseline generation via <code>detekt_create_baseline</code>;</li>
 <li>configuration options via <a href="docs/attrs.md">attributes</a>.</li>
@@ -236,11 +236,16 @@ detekt_create_baseline(
     <span class="pl-s1">baseline</span> <span class="pl-c1">=</span> <span class="pl-s">"detekt-baseline.xml"</span>,
 )</pre></div>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Configuration Options</h3><a id="user-content-configuration-options" class="anchor" aria-label="Permalink: Configuration Options" href="#configuration-options"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<p dir="auto">All three rules share the same configuration options. In addition to <code>srcs</code>, <code>cfgs</code>, <code>baseline</code>, <code>plugins</code>,
-and report options, most attributes correspond directly to Detekt CLI flags and pass them through when explicitly set.</p>
-<p dir="auto"><code>max_issues</code> is retained for Detekt 1.x. Detekt 2.x uses <code>fail_on_severity</code> (<code>Never</code>, <code>Info</code>, <code>Warning</code>, or <code>Error</code>);
-the attributes are mutually exclusive and must match the selected Detekt major version.</p>
-<p dir="auto">More information can be found in the <a href="docs/attrs.md">attributes</a>.</p>
+<p dir="auto">All three rules share the same configuration options. In addition to <code>srcs</code>, most attributes correspond directly to
+Detekt CLI flags and pass them through when explicitly set.</p>
+<p dir="auto"><code>cfgs</code>, <code>plugins</code>, <code>build_upon_default_config</code>, <code>disable_default_rulesets</code>, <code>jvm_target</code>, <code>language_version</code>,
+<code>max_issues</code>, <code>fail_on_severity</code>, <code>parallel</code>, and the executable wrapper are configured only on <code>detekt_toolchain</code>.
+<code>srcs</code>, <code>deps</code>, <code>baseline</code>, <code>excludes</code>, <code>includes</code>, <code>all_rules</code>, <code>auto_correct</code>, <code>base_path</code>, <code>config_resource</code>,
+<code>is_android</code>, and report options remain rule-level settings.</p>
+<p dir="auto"><code>max_issues</code> is the failure policy for Detekt 1.x. Detekt 2.x uses <code>fail_on_severity</code> (<code>Never</code>, <code>Info</code>, <code>Warning</code>, or
+<code>Error</code>). Both policies cannot be active on the same toolchain; inactive values such as <code>max_issues = -1</code> may
+coexist with the other policy. Choose the active option that matches the selected Detekt major version.</p>
+<p dir="auto">See the <a href="docs/attrs.md">rule attributes</a> and <a href="docs/toolchain_attrs.md">toolchain attributes</a>.</p>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Reports</h3><a id="user-content-reports" class="anchor" aria-label="Permalink: Reports" href="#reports"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">A plain-text report (<code>{name}_detekt_report.txt</code>) is <strong>always</strong> generated. Detekt 1.x writes its native text
 report; Detekt 2.x writes captured console output to the same artifact. <code>xml_report</code> keeps the same output
@@ -304,36 +309,124 @@ use_repo(detekt, &quot;detekt_cli_all&quot;)"><pre><span class="pl-s1">detekt</s
 
 <span class="pl-en">use_repo</span>(<span class="pl-s1">detekt</span>, <span class="pl-s">"detekt_cli_all"</span>)</pre></div>
 <p dir="auto">Each template may contain <code>{version}</code> which will be replaced with the version string.</p>
-<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">JVM Flags</h3><a id="user-content-jvm-flags" class="anchor" aria-label="Permalink: JVM Flags" href="#jvm-flags"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<p dir="auto">The default toolchain uses <code>-Xms16m -Xmx128m</code>. To customize JVM flags, define your own toolchain
-in a <code>BUILD</code> file:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@rules_detekt//detekt:toolchain.bzl&quot;, &quot;detekt_toolchain&quot;)
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Toolchain Configuration and Profiles</h3><a id="user-content-toolchain-configuration-and-profiles" class="anchor" aria-label="Permalink: Toolchain Configuration and Profiles" href="#toolchain-configuration-and-profiles"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><code>detekt_toolchain</code> defines a reusable implementation profile. Its executable wrapper, shared configuration, plugins,
+and shared analysis defaults are used by rules that select the profile. The default JVM target remains <code>1.8</code>.</p>
+<p dir="auto">The wrapper is an exec-configured <code>java_binary</code>. Configure its JVM options through Bazel, for example in <code>.bazelrc</code>:</p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="build --host_jvmopt=-Xmx512m"><pre lang="text" class="notranslate"><code>build --host_jvmopt=-Xmx512m
+</code></pre></div>
+<p dir="auto">The <code>detekt_toolchain</code> rule is the implementation label used by a rule; it is not the native <code>toolchain()</code> registration
+wrapper. Register one implementation when you want it to be the fallback for rules that do not select a profile:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@rules_detekt//detekt:defs.bzl&quot;, &quot;detekt_test&quot;)
+load(&quot;@rules_detekt//detekt:toolchain.bzl&quot;, &quot;detekt_toolchain&quot;)
 
 detekt_toolchain(
-    name = &quot;my_detekt_toolchain_impl&quot;,
-    jvm_flags = [&quot;-Xms16m&quot;, &quot;-Xmx512m&quot;],
+    name = &quot;detekt_default_impl&quot;,
+    cfgs = [&quot;//:detekt.yml&quot;],
+    plugins = [&quot;@maven//:dev_detekt_detekt_rules_ktlint_wrapper&quot;],
+    build_upon_default_config = True,
+    disable_default_rulesets = True,
+    jvm_target = &quot;11&quot;,
+    language_version = &quot;2.0&quot;,
+    fail_on_severity = &quot;Error&quot;,
+    parallel = True,
 )
 
 toolchain(
-    name = &quot;my_detekt_toolchain&quot;,
-    toolchain = &quot;:my_detekt_toolchain_impl&quot;,
+    name = &quot;detekt_registered&quot;,
+    toolchain = &quot;:detekt_default_impl&quot;,
     toolchain_type = &quot;@rules_detekt//detekt:toolchain_type&quot;,
-)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@rules_detekt//detekt:toolchain.bzl"</span>, <span class="pl-s">"detekt_toolchain"</span>)
+)
+
+detekt_test(
+    name = &quot;uses_registered_profile&quot;,
+    srcs = glob([&quot;src/main/kotlin/**/*.kt&quot;]),
+)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@rules_detekt//detekt:defs.bzl"</span>, <span class="pl-s">"detekt_test"</span>)
+<span class="pl-en">load</span>(<span class="pl-s">"@rules_detekt//detekt:toolchain.bzl"</span>, <span class="pl-s">"detekt_toolchain"</span>)
 
 <span class="pl-en">detekt_toolchain</span>(
-    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"my_detekt_toolchain_impl"</span>,
-    <span class="pl-s1">jvm_flags</span> <span class="pl-c1">=</span> [<span class="pl-s">"-Xms16m"</span>, <span class="pl-s">"-Xmx512m"</span>],
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"detekt_default_impl"</span>,
+    <span class="pl-s1">cfgs</span> <span class="pl-c1">=</span> [<span class="pl-s">"//:detekt.yml"</span>],
+    <span class="pl-s1">plugins</span> <span class="pl-c1">=</span> [<span class="pl-s">"@maven//:dev_detekt_detekt_rules_ktlint_wrapper"</span>],
+    <span class="pl-s1">build_upon_default_config</span> <span class="pl-c1">=</span> <span class="pl-c1">True</span>,
+    <span class="pl-s1">disable_default_rulesets</span> <span class="pl-c1">=</span> <span class="pl-c1">True</span>,
+    <span class="pl-s1">jvm_target</span> <span class="pl-c1">=</span> <span class="pl-s">"11"</span>,
+    <span class="pl-s1">language_version</span> <span class="pl-c1">=</span> <span class="pl-s">"2.0"</span>,
+    <span class="pl-s1">fail_on_severity</span> <span class="pl-c1">=</span> <span class="pl-s">"Error"</span>,
+    <span class="pl-s1">parallel</span> <span class="pl-c1">=</span> <span class="pl-c1">True</span>,
 )
 
 <span class="pl-en">toolchain</span>(
-    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"my_detekt_toolchain"</span>,
-    <span class="pl-s1">toolchain</span> <span class="pl-c1">=</span> <span class="pl-s">":my_detekt_toolchain_impl"</span>,
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"detekt_registered"</span>,
+    <span class="pl-s1">toolchain</span> <span class="pl-c1">=</span> <span class="pl-s">":detekt_default_impl"</span>,
     <span class="pl-s1">toolchain_type</span> <span class="pl-c1">=</span> <span class="pl-s">"@rules_detekt//detekt:toolchain_type"</span>,
+)
+
+<span class="pl-en">detekt_test</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"uses_registered_profile"</span>,
+    <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> <span class="pl-en">glob</span>([<span class="pl-s">"src/main/kotlin/**/*.kt"</span>]),
 )</pre></div>
-<p dir="auto">Then register it in <code>MODULE.bazel</code>:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="register_toolchains(&quot;//mypackage:my_detekt_toolchain&quot;)"><pre><span class="pl-en">register_toolchains</span>(<span class="pl-s">"//mypackage:my_detekt_toolchain"</span>)</pre></div>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="register_toolchains(&quot;//:detekt_registered&quot;)"><pre><span class="pl-en">register_toolchains</span>(<span class="pl-s">"//:detekt_registered"</span>)</pre></div>
+<p dir="auto">Multiple profiles can coexist in one repository. Select an implementation directly with the rule’s
+<code>detekt_toolchain</code> attribute; omitting that attribute uses the registered native toolchain:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@rules_detekt//detekt:toolchain.bzl&quot;, &quot;detekt_toolchain&quot;)
+
+detekt_toolchain(
+    name = &quot;detekt_strict_impl&quot;,
+    fail_on_severity = &quot;Error&quot;,
+)
+
+detekt_toolchain(
+    name = &quot;detekt_lenient_impl&quot;,
+    fail_on_severity = &quot;Never&quot;,
+)
+
+detekt_test(
+    name = &quot;strict_profile&quot;,
+    srcs = glob([&quot;src/main/kotlin/**/*.kt&quot;]),
+    detekt_toolchain = &quot;:detekt_strict_impl&quot;,
+)
+
+detekt_test(
+    name = &quot;lenient_profile&quot;,
+    srcs = glob([&quot;src/main/kotlin/**/*.kt&quot;]),
+    detekt_toolchain = &quot;:detekt_lenient_impl&quot;,
+)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@rules_detekt//detekt:toolchain.bzl"</span>, <span class="pl-s">"detekt_toolchain"</span>)
+
+<span class="pl-en">detekt_toolchain</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"detekt_strict_impl"</span>,
+    <span class="pl-s1">fail_on_severity</span> <span class="pl-c1">=</span> <span class="pl-s">"Error"</span>,
+)
+
+<span class="pl-en">detekt_toolchain</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"detekt_lenient_impl"</span>,
+    <span class="pl-s1">fail_on_severity</span> <span class="pl-c1">=</span> <span class="pl-s">"Never"</span>,
+)
+
+<span class="pl-en">detekt_test</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"strict_profile"</span>,
+    <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> <span class="pl-en">glob</span>([<span class="pl-s">"src/main/kotlin/**/*.kt"</span>]),
+    <span class="pl-s1">detekt_toolchain</span> <span class="pl-c1">=</span> <span class="pl-s">":detekt_strict_impl"</span>,
+)
+
+<span class="pl-en">detekt_test</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"lenient_profile"</span>,
+    <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> <span class="pl-en">glob</span>([<span class="pl-s">"src/main/kotlin/**/*.kt"</span>]),
+    <span class="pl-s1">detekt_toolchain</span> <span class="pl-c1">=</span> <span class="pl-s">":detekt_lenient_impl"</span>,
+)</pre></div>
+<p dir="auto">Profiles configure the selected runtime; they do not select a Detekt version. To use the supported Detekt 1.23.8
+override, configure that version separately and use its matching 1.x plugins and <code>max_issues</code> policy.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Migrating rule-level options</h3><a id="user-content-migrating-rule-level-options" class="anchor" aria-label="Permalink: Migrating rule-level options" href="#migrating-rule-level-options"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><code>cfgs</code>, <code>plugins</code>, <code>build_upon_default_config</code>, <code>disable_default_rulesets</code>, <code>jvm_target</code>, <code>language_version</code>,
+<code>max_issues</code>, <code>fail_on_severity</code>, and <code>parallel</code> are no longer accepted by <code>detekt</code>, <code>detekt_test</code>, or
+<code>detekt_create_baseline</code>. Move them into a <code>detekt_toolchain</code> target and pass its label using <code>detekt_toolchain</code>.
+Define separate profiles when targets need different settings; there is no rule-level override or merging.
+Rules without an explicit profile use the registered toolchain.</p>
+<p dir="auto">The profile’s runtime determines which failure policy is valid: use <code>max_issues</code> with Detekt 1.23.8 and
+<code>fail_on_severity</code> with Detekt 2.0.0-alpha.6. JVM and Kotlin language versions are also validated by the selected
+runtime, and plugins must be built for the same Detekt major version.</p>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Plugins</h3><a id="user-content-plugins" class="anchor" aria-label="Permalink: Plugins" href="#plugins"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<p dir="auto">The <code>plugins</code> attribute accepts any Bazel label that provides <code>JavaInfo</code>. This covers both
+<p dir="auto">The toolchain’s <code>plugins</code> attribute accepts any Bazel label that provides <code>JavaInfo</code>. This covers both
 published Maven artifacts and locally built JARs.</p>
 <p dir="auto"><strong>Maven artifact</strong> (e.g., the <a href="https://detekt.dev/docs/rules/formatting/" rel="nofollow">formatting rule set</a>):</p>
 <div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="maven = use_extension(&quot;@rules_jvm_external//:extensions.bzl&quot;, &quot;maven&quot;)
@@ -349,25 +442,41 @@ use_repo(maven, &quot;maven&quot;)"><pre><span class="pl-s1">maven</span> <span 
     ],
 )
 <span class="pl-en">use_repo</span>(<span class="pl-s1">maven</span>, <span class="pl-s">"maven"</span>)</pre></div>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@rules_detekt//detekt:defs.bzl&quot;, &quot;detekt_test&quot;)
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@rules_detekt//detekt:toolchain.bzl&quot;, &quot;detekt_toolchain&quot;)
+
+load(&quot;@rules_detekt//detekt:defs.bzl&quot;, &quot;detekt_test&quot;)
+
+detekt_toolchain(
+    name = &quot;my_detekt_toolchain&quot;,
+    plugins = [&quot;@maven//:dev_detekt_detekt_rules_ktlint_wrapper&quot;],
+)
 
 detekt_test(
     name = &quot;my_detekt&quot;,
     srcs = glob([&quot;src/main/kotlin/**/*.kt&quot;]),
-    plugins = [&quot;@maven//:dev_detekt_detekt_rules_ktlint_wrapper&quot;],
-)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@rules_detekt//detekt:defs.bzl"</span>, <span class="pl-s">"detekt_test"</span>)
+    detekt_toolchain = &quot;:my_detekt_toolchain&quot;,
+)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@rules_detekt//detekt:toolchain.bzl"</span>, <span class="pl-s">"detekt_toolchain"</span>)
+
+<span class="pl-en">load</span>(<span class="pl-s">"@rules_detekt//detekt:defs.bzl"</span>, <span class="pl-s">"detekt_test"</span>)
+
+<span class="pl-en">detekt_toolchain</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"my_detekt_toolchain"</span>,
+    <span class="pl-s1">plugins</span> <span class="pl-c1">=</span> [<span class="pl-s">"@maven//:dev_detekt_detekt_rules_ktlint_wrapper"</span>],
+)
 
 <span class="pl-en">detekt_test</span>(
     <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"my_detekt"</span>,
     <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> <span class="pl-en">glob</span>([<span class="pl-s">"src/main/kotlin/**/*.kt"</span>]),
-    <span class="pl-s1">plugins</span> <span class="pl-c1">=</span> [<span class="pl-s">"@maven//:dev_detekt_detekt_rules_ktlint_wrapper"</span>],
+    <span class="pl-s1">detekt_toolchain</span> <span class="pl-c1">=</span> <span class="pl-s">":my_detekt_toolchain"</span>,
 )</pre></div>
 <p dir="auto">For a Detekt 1.x override, use the matching legacy coordinate instead:
 <code>io.gitlab.arturbosch.detekt:detekt-formatting:1.23.8</code>. Plugin binaries are not interchangeable
 between majors because their public API packages differ (<code>io.gitlab.arturbosch.detekt.api</code> versus
 <code>dev.detekt.api</code>).</p>
 <p dir="auto"><strong>Custom local plugin</strong> built with <a href="https://github.com/bazelbuild/rules_kotlin"><code>rules_kotlin</code></a>:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@rules_kotlin//kotlin:jvm.bzl&quot;, &quot;kt_jvm_library&quot;)
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@rules_detekt//detekt:toolchain.bzl&quot;, &quot;detekt_toolchain&quot;)
+
+load(&quot;@rules_kotlin//kotlin:jvm.bzl&quot;, &quot;kt_jvm_library&quot;)
 load(&quot;@rules_detekt//detekt:defs.bzl&quot;, &quot;detekt_test&quot;)
 
 kt_jvm_library(
@@ -375,11 +484,18 @@ kt_jvm_library(
     srcs = glob([&quot;src/main/kotlin/**/*.kt&quot;]),
 )
 
+detekt_toolchain(
+    name = &quot;my_detekt_toolchain&quot;,
+    plugins = [&quot;:my_custom_rules&quot;],
+)
+
 detekt_test(
     name = &quot;my_detekt&quot;,
     srcs = glob([&quot;src/main/kotlin/**/*.kt&quot;]),
-    plugins = [&quot;:my_custom_rules&quot;],
-)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@rules_kotlin//kotlin:jvm.bzl"</span>, <span class="pl-s">"kt_jvm_library"</span>)
+    detekt_toolchain = &quot;:my_detekt_toolchain&quot;,
+)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@rules_detekt//detekt:toolchain.bzl"</span>, <span class="pl-s">"detekt_toolchain"</span>)
+
+<span class="pl-en">load</span>(<span class="pl-s">"@rules_kotlin//kotlin:jvm.bzl"</span>, <span class="pl-s">"kt_jvm_library"</span>)
 <span class="pl-en">load</span>(<span class="pl-s">"@rules_detekt//detekt:defs.bzl"</span>, <span class="pl-s">"detekt_test"</span>)
 
 <span class="pl-en">kt_jvm_library</span>(
@@ -387,76 +503,141 @@ detekt_test(
     <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> <span class="pl-en">glob</span>([<span class="pl-s">"src/main/kotlin/**/*.kt"</span>]),
 )
 
+<span class="pl-en">detekt_toolchain</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"my_detekt_toolchain"</span>,
+    <span class="pl-s1">plugins</span> <span class="pl-c1">=</span> [<span class="pl-s">":my_custom_rules"</span>],
+)
+
 <span class="pl-en">detekt_test</span>(
     <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"my_detekt"</span>,
     <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> <span class="pl-en">glob</span>([<span class="pl-s">"src/main/kotlin/**/*.kt"</span>]),
-    <span class="pl-s1">plugins</span> <span class="pl-c1">=</span> [<span class="pl-s">":my_custom_rules"</span>],
+    <span class="pl-s1">detekt_toolchain</span> <span class="pl-c1">=</span> <span class="pl-s">":my_detekt_toolchain"</span>,
 )</pre></div>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Configuration File</h3><a id="user-content-configuration-file" class="anchor" aria-label="Permalink: Configuration File" href="#configuration-file"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
-<p dir="auto">Pass one or more Detekt YAML configuration files via <code>cfgs</code>. Files must use the <code>.yml</code> extension.
+<p dir="auto">Pass one or more Detekt YAML configuration files via the toolchain’s <code>cfgs</code> attribute. Files must use the <code>.yml</code> extension.
 You may pass raw file labels or <code>filegroup</code> targets:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="detekt_test(
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@rules_detekt//detekt:toolchain.bzl&quot;, &quot;detekt_toolchain&quot;)
+
+detekt_toolchain(
+    name = &quot;my_detekt_toolchain&quot;,
+    cfgs = [&quot;:detekt.yml&quot;],
+)
+
+detekt_test(
     name = &quot;my_detekt&quot;,
     srcs = glob([&quot;src/main/kotlin/**/*.kt&quot;]),
-    cfgs = [&quot;:detekt.yml&quot;],
-)"><pre><span class="pl-en">detekt_test</span>(
+    detekt_toolchain = &quot;:my_detekt_toolchain&quot;,
+)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@rules_detekt//detekt:toolchain.bzl"</span>, <span class="pl-s">"detekt_toolchain"</span>)
+
+<span class="pl-en">detekt_toolchain</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"my_detekt_toolchain"</span>,
+    <span class="pl-s1">cfgs</span> <span class="pl-c1">=</span> [<span class="pl-s">":detekt.yml"</span>],
+)
+
+<span class="pl-en">detekt_test</span>(
     <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"my_detekt"</span>,
     <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> <span class="pl-en">glob</span>([<span class="pl-s">"src/main/kotlin/**/*.kt"</span>]),
-    <span class="pl-s1">cfgs</span> <span class="pl-c1">=</span> [<span class="pl-s">":detekt.yml"</span>],
+    <span class="pl-s1">detekt_toolchain</span> <span class="pl-c1">=</span> <span class="pl-s">":my_detekt_toolchain"</span>,
 )</pre></div>
-<p dir="auto">To extend Detekt's built-in defaults rather than replace them, also set <code>build_upon_default_config = True</code>:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="detekt_test(
+<p dir="auto">To extend Detekt's built-in defaults rather than replace them, set <code>build_upon_default_config = True</code> on the toolchain:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@rules_detekt//detekt:toolchain.bzl&quot;, &quot;detekt_toolchain&quot;)
+
+detekt_toolchain(
     ...
     build_upon_default_config = True,
     ...
-)"><pre><span class="pl-en">detekt_test</span>(
+)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@rules_detekt//detekt:toolchain.bzl"</span>, <span class="pl-s">"detekt_toolchain"</span>)
+
+<span class="pl-en">detekt_toolchain</span>(
     ...
     <span class="pl-s1">build_upon_default_config</span> <span class="pl-c1">=</span> <span class="pl-c1">True</span>,
     ...
 )</pre></div>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">JVM Target</h3><a id="user-content-jvm-target" class="anchor" aria-label="Permalink: JVM Target" href="#jvm-target"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">Use <code>jvm_target</code> to set the JVM bytecode target version that matches what was used during compilation.
-This defaults to <code>1.8</code> if not explicitly set:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="detekt_test(
+Set it on the toolchain (default: <code>1.8</code>):</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@rules_detekt//detekt:toolchain.bzl&quot;, &quot;detekt_toolchain&quot;)
+
+detekt_toolchain(
+    name = &quot;my_detekt_toolchain&quot;,
+    jvm_target = &quot;11&quot;,
+)
+
+detekt_test(
     name = &quot;my_detekt&quot;,
     srcs = glob([&quot;src/main/kotlin/**/*.kt&quot;]),
-    jvm_target = &quot;11&quot;,
-)"><pre><span class="pl-en">detekt_test</span>(
+    detekt_toolchain = &quot;:my_detekt_toolchain&quot;,
+)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@rules_detekt//detekt:toolchain.bzl"</span>, <span class="pl-s">"detekt_toolchain"</span>)
+
+<span class="pl-en">detekt_toolchain</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"my_detekt_toolchain"</span>,
+    <span class="pl-s1">jvm_target</span> <span class="pl-c1">=</span> <span class="pl-s">"11"</span>,
+)
+
+<span class="pl-en">detekt_test</span>(
     <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"my_detekt"</span>,
     <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> <span class="pl-en">glob</span>([<span class="pl-s">"src/main/kotlin/**/*.kt"</span>]),
-    <span class="pl-s1">jvm_target</span> <span class="pl-c1">=</span> <span class="pl-s">"11"</span>,
+    <span class="pl-s1">detekt_toolchain</span> <span class="pl-c1">=</span> <span class="pl-s">":my_detekt_toolchain"</span>,
 )</pre></div>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Language Version</h3><a id="user-content-language-version" class="anchor" aria-label="Permalink: Language Version" href="#language-version"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">Detekt will report errors for any language features introduced after the specified version if
-<code>language_version</code> is specified. When unset, no compatibility restriction is applied:</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="detekt_test(
+<code>language_version</code> is specified on the toolchain:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@rules_detekt//detekt:toolchain.bzl&quot;, &quot;detekt_toolchain&quot;)
+
+detekt_toolchain(
+    name = &quot;my_detekt_toolchain&quot;,
+    language_version = &quot;2.0&quot;,
+)
+
+detekt_test(
     name = &quot;my_detekt&quot;,
     srcs = glob([&quot;src/main/kotlin/**/*.kt&quot;]),
-    language_version = &quot;2.0&quot;,
-)"><pre><span class="pl-en">detekt_test</span>(
+    detekt_toolchain = &quot;:my_detekt_toolchain&quot;,
+)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@rules_detekt//detekt:toolchain.bzl"</span>, <span class="pl-s">"detekt_toolchain"</span>)
+
+<span class="pl-en">detekt_toolchain</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"my_detekt_toolchain"</span>,
+    <span class="pl-s1">language_version</span> <span class="pl-c1">=</span> <span class="pl-s">"2.0"</span>,
+)
+
+<span class="pl-en">detekt_test</span>(
     <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"my_detekt"</span>,
     <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> <span class="pl-en">glob</span>([<span class="pl-s">"src/main/kotlin/**/*.kt"</span>]),
-    <span class="pl-s1">language_version</span> <span class="pl-c1">=</span> <span class="pl-s">"2.0"</span>,
+    <span class="pl-s1">detekt_toolchain</span> <span class="pl-c1">=</span> <span class="pl-s">":my_detekt_toolchain"</span>,
 )</pre></div>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Type Resolution</h3><a id="user-content-type-resolution" class="anchor" aria-label="Permalink: Type Resolution" href="#type-resolution"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">Type resolution enables more advanced static analysis by giving Detekt access to the full compilation classpath,
 including return types, nullability, and symbol information — capabilities that match those of the Kotlin compiler
 itself. Rules requiring it are annotated with <code>@RequiresFullAnalysis</code> in Detekt's source.</p>
-<p dir="auto">Provide the compile dependencies through <code>deps</code> and use <code>jvm_target</code> and <code>language_version</code> to match the
+<p dir="auto">Provide the compile dependencies through rule-level <code>deps</code> and set toolchain <code>jvm_target</code> and <code>language_version</code> to match the
 compilation settings of your project. With Detekt 2.x, a non-empty <code>deps</code> automatically selects full analysis;
 the Detekt 1.x runtime keeps its existing classpath behavior.</p>
-<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="detekt_test(
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="load(&quot;@rules_detekt//detekt:toolchain.bzl&quot;, &quot;detekt_toolchain&quot;)
+
+detekt_toolchain(
+    name = &quot;my_detekt_toolchain&quot;,
+    jvm_target = &quot;11&quot;,
+    language_version = &quot;2.0&quot;,
+)
+
+detekt_test(
     name = &quot;my_detekt&quot;,
     srcs = glob([&quot;src/main/kotlin/**/*.kt&quot;]),
     deps = [&quot;:my_compiled_library&quot;],
-    jvm_target = &quot;11&quot;,
-    language_version = &quot;2.0&quot;,
-)"><pre><span class="pl-en">detekt_test</span>(
+    detekt_toolchain = &quot;:my_detekt_toolchain&quot;,
+)"><pre><span class="pl-en">load</span>(<span class="pl-s">"@rules_detekt//detekt:toolchain.bzl"</span>, <span class="pl-s">"detekt_toolchain"</span>)
+
+<span class="pl-en">detekt_toolchain</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"my_detekt_toolchain"</span>,
+    <span class="pl-s1">jvm_target</span> <span class="pl-c1">=</span> <span class="pl-s">"11"</span>,
+    <span class="pl-s1">language_version</span> <span class="pl-c1">=</span> <span class="pl-s">"2.0"</span>,
+)
+
+<span class="pl-en">detekt_test</span>(
     <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"my_detekt"</span>,
     <span class="pl-s1">srcs</span> <span class="pl-c1">=</span> <span class="pl-en">glob</span>([<span class="pl-s">"src/main/kotlin/**/*.kt"</span>]),
     <span class="pl-s1">deps</span> <span class="pl-c1">=</span> [<span class="pl-s">":my_compiled_library"</span>],
-    <span class="pl-s1">jvm_target</span> <span class="pl-c1">=</span> <span class="pl-s">"11"</span>,
-    <span class="pl-s1">language_version</span> <span class="pl-c1">=</span> <span class="pl-s">"2.0"</span>,
+    <span class="pl-s1">detekt_toolchain</span> <span class="pl-c1">=</span> <span class="pl-s">":my_detekt_toolchain"</span>,
 )</pre></div>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Reports</h3><a id="user-content-reports-1" class="anchor" aria-label="Permalink: Reports" href="#reports-1"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">By default, Detekt generates a text report internally (used for console output). To export reports as build outputs,
