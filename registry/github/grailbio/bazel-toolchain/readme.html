@@ -444,6 +444,34 @@ then they can be referenced as:</p>
 <li><code>@llvm_toolchain//:clang-format</code></li>
 <li><code>@llvm_toolchain//:llvm-cov</code></li>
 </ul>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Linker selection</h3><a id="user-content-linker-selection" class="anchor" aria-label="Permalink: Linker selection" href="#linker-selection"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">By default every generated toolchain uses the LLD linker bundled with its LLVM
+distribution. The <code>linker</code> attribute can instead select the execution
+platform's native linker or an explicit local linker path. Like other
+per-target settings, it is a dictionary keyed by target OS and architecture;
+the empty key applies to every target:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="llvm.toolchain(
+    name = &quot;llvm_toolchain&quot;,
+    llvm_version = &quot;23.1.1&quot;,
+    linker = {&quot;darwin-aarch64&quot;: &quot;auto&quot;},
+)"><pre><span class="pl-s1">llvm</span>.<span class="pl-c1">toolchain</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"llvm_toolchain"</span>,
+    <span class="pl-s1">llvm_version</span> <span class="pl-c1">=</span> <span class="pl-s">"23.1.1"</span>,
+    <span class="pl-s1">linker</span> <span class="pl-c1">=</span> {<span class="pl-s">"darwin-aarch64"</span>: <span class="pl-s">"auto"</span>},
+)</pre></div>
+<p dir="auto">The accepted values are:</p>
+<ul dir="auto">
+<li><code>lld</code> (the default): use the linker bundled with LLVM.</li>
+<li><code>auto</code>: use the execution platform's native linker. On Darwin this is the
+linker selected by the active Xcode developer directory (<code>xcrun --find ld</code>);
+on Linux it is <code>ld</code> from <code>PATH</code>. Execution and target operating systems must
+match.</li>
+<li>An absolute path, such as <code>/usr/bin/ld</code>: use that executable directly.</li>
+</ul>
+<p dir="auto">Native and explicitly pathed linkers are local execution-platform dependencies.
+The same path must exist on a remote executor, so bundled LLD is preferable for
+hermetic or remote builds. An arbitrary local linker is conservatively treated
+as not supporting Bazel's start/end-lib optimization.</p>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">C++ named modules</h3><a id="user-content-c-named-modules" class="anchor" aria-label="Permalink: C++ named modules" href="#c-named-modules"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">The toolchain supports Bazel's experimental C++ named-module pipeline. A
 module interface declared with <code>cc_library.module_interfaces</code> is compiled to a
