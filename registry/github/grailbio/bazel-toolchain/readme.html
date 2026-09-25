@@ -452,11 +452,11 @@ per-target settings, it is a dictionary keyed by target OS and architecture;
 the empty key applies to every target:</p>
 <div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="llvm.toolchain(
     name = &quot;llvm_toolchain&quot;,
-    llvm_version = &quot;23.1.1&quot;,
+    llvm_version = &quot;23.1.2&quot;,
     linker = {&quot;darwin-aarch64&quot;: &quot;auto&quot;},
 )"><pre><span class="pl-s1">llvm</span>.<span class="pl-c1">toolchain</span>(
     <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"llvm_toolchain"</span>,
-    <span class="pl-s1">llvm_version</span> <span class="pl-c1">=</span> <span class="pl-s">"23.1.1"</span>,
+    <span class="pl-s1">llvm_version</span> <span class="pl-c1">=</span> <span class="pl-s">"23.1.2"</span>,
     <span class="pl-s1">linker</span> <span class="pl-c1">=</span> {<span class="pl-s">"darwin-aarch64"</span>: <span class="pl-s">"auto"</span>},
 )</pre></div>
 <p dir="auto">The accepted values are:</p>
@@ -467,12 +467,83 @@ distribution. The <code>linker</code> attribute may simply be omitted for this b
 linker selected by the active Xcode developer directory (<code>xcrun --find ld</code>);
 on Linux it is <code>ld</code> from <code>PATH</code>. Execution and target operating systems must
 match.</li>
+<li>Any other name: download a checksum-pinned executable with that name from the
+bundled linker catalogue. Its version comes from
+<code>linker_version</code>/<code>linker_versions</code>. As a convenience specific to version
+discovery, bare <code>mold</code> may instead derive its version from an injected mold
+module.</li>
 <li>An absolute path, such as <code>/usr/bin/ld</code>: use that executable directly.</li>
 </ul>
 <p dir="auto">Native and explicitly pathed linkers are local execution-platform dependencies.
 The same path must exist on a remote executor, so bundled LLD is preferable for
 hermetic or remote builds. An arbitrary local linker is conservatively treated
 as not supporting Bazel's start/end-lib optimization.</p>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">mold</h4><a id="user-content-mold" class="anchor" aria-label="Permalink: mold" href="#mold"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><a href="https://github.com/rui314/mold">mold</a> is available as an explicit, optional
+linker for Linux execution platforms and Linux/ELF targets. It is never selected
+by default or by <code>auto</code>. Depending on the mold Bazel module is entirely
+optional: without it, select a catalogue version explicitly as
+<code>linker_version</code>.</p>
+<p dir="auto">Adding and injecting the mold module enables the shorter <code>mold</code> selection. It
+also puts the version in a standard <code>bazel_dep</code>, allowing dependency-management
+tools such as Dependabot or Renovate to discover and update it. toolchains_llvm
+reads the resolved module's version and selects the corresponding catalogue
+entry:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="bazel_dep(name = &quot;mold&quot;, version = &quot;2.40.4&quot;)
+
+llvm = use_extension(&quot;@toolchains_llvm//toolchain/extensions:llvm.bzl&quot;, &quot;llvm&quot;)
+inject_repo(llvm, &quot;mold&quot;)"><pre><span class="pl-en">bazel_dep</span>(<span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"mold"</span>, <span class="pl-s1">version</span> <span class="pl-c1">=</span> <span class="pl-s">"2.40.4"</span>)
+
+<span class="pl-s1">llvm</span> <span class="pl-c1">=</span> <span class="pl-en">use_extension</span>(<span class="pl-s">"@toolchains_llvm//toolchain/extensions:llvm.bzl"</span>, <span class="pl-s">"llvm"</span>)
+<span class="pl-en">inject_repo</span>(<span class="pl-s1">llvm</span>, <span class="pl-s">"mold"</span>)</pre></div>
+<p dir="auto">Bare <code>mold</code> then downloads the matching checksum-pinned official executable,
+avoiding the linker bootstrap cycle involved in building mold with the
+toolchain that is supposed to use it:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="llvm.toolchain(
+    name = &quot;llvm_toolchain&quot;,
+    llvm_version = &quot;23.1.2&quot;,
+    linker = {
+        &quot;linux-aarch64&quot;: &quot;mold&quot;,
+        &quot;linux-x86_64&quot;: &quot;mold&quot;,
+    },
+)"><pre><span class="pl-s1">llvm</span>.<span class="pl-c1">toolchain</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"llvm_toolchain"</span>,
+    <span class="pl-s1">llvm_version</span> <span class="pl-c1">=</span> <span class="pl-s">"23.1.2"</span>,
+    <span class="pl-s1">linker</span> <span class="pl-c1">=</span> {
+        <span class="pl-s">"linux-aarch64"</span>: <span class="pl-s">"mold"</span>,
+        <span class="pl-s">"linux-x86_64"</span>: <span class="pl-s">"mold"</span>,
+    },
+)</pre></div>
+<p dir="auto">The bundled catalogue currently contains mold 2.40.4 (the version published in
+the Bazel Central Registry), 2.41.0, 2.42.0, and 2.42.1. Without a mold module,
+select one using the same version and requirement syntax as <code>llvm_version</code>:</p>
+<div class="highlight highlight-source-python notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="llvm.toolchain(
+    name = &quot;llvm_toolchain&quot;,
+    llvm_version = &quot;23.1.2&quot;,
+    linker = {&quot;&quot;: &quot;mold&quot;},
+    linker_version = &quot;latest:&gt;=2.40.0,&lt;3.0.0&quot;,
+)"><pre><span class="pl-s1">llvm</span>.<span class="pl-c1">toolchain</span>(
+    <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">"llvm_toolchain"</span>,
+    <span class="pl-s1">llvm_version</span> <span class="pl-c1">=</span> <span class="pl-s">"23.1.2"</span>,
+    <span class="pl-s1">linker</span> <span class="pl-c1">=</span> {<span class="pl-s">""</span>: <span class="pl-s">"mold"</span>},
+    <span class="pl-s1">linker_version</span> <span class="pl-c1">=</span> <span class="pl-s">"latest:&gt;=2.40.0,&lt;3.0.0"</span>,
+)</pre></div>
+<p dir="auto">For per-target requirements use <code>linker_versions</code>, keyed like the <code>linker</code>
+map. Setting both <code>linker_version</code> and <code>linker_versions</code> is an error.</p>
+<p dir="auto">Module-based version selection does not bypass the catalogue. If dependency
+management updates mold to a release that toolchains_llvm does not yet know,
+repository configuration fails and reports the supported versions. The release
+must first be added to <code>toolchain/distributions/linkers.jsonc</code> with the SHA-256
+digests of its executor-specific artifacts. toolchains_llvm deliberately does
+not synthesize a release URL and download it without a checksum: the predictable
+asset naming scheme is not a substitute for artifact verification.</p>
+<p dir="auto">The executable is copied into the generated toolchain's declared linker inputs,
+so sandboxed and remote actions receive it. The selected linker cannot be built
+with the toolchain that is supposed to use it because that would create a
+linker bootstrap cycle.</p>
+<p dir="auto">The empty linker selection—not a special linker name—selects the linker included
+in the configured LLVM archive. Consequently, <code>lld</code> is treated like every other
+catalogue name and requires a matching catalogue entry and version.</p>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">C++ named modules</h3><a id="user-content-c-named-modules" class="anchor" aria-label="Permalink: C++ named modules" href="#c-named-modules"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">The toolchain supports Bazel's experimental C++ named-module pipeline. A
 module interface declared with <code>cc_library.module_interfaces</code> is compiled to a
