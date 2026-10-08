@@ -230,6 +230,61 @@ elisp_proto_library(
 <div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Depending on external libraries</h1><a id="user-content-depending-on-external-libraries" class="anchor" aria-label="Permalink: Depending on external libraries" href="#depending-on-external-libraries"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto"><code>rules_elisp</code> provides a module extension to make it easier to depend on
   external Emacs Lisp libraries that don’t bring their own Bazel support.</p>
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Gazelle</h1><a id="user-content-gazelle" class="anchor" aria-label="Permalink: Gazelle" href="#gazelle"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">You can use the <a href="https://github.com/bazel-contrib/bazel-gazelle">Gazelle BUILD
+  file generator</a> to generate <code>elisp_library</code>, <code>elisp_proto_library</code>,
+  <code>elisp_binary</code>, <code>elisp_test</code>, and <code>elisp_manual</code> rule targets.  To do so, add a
+  dependency on the <a href="https://registry.bazel.build/modules/gazelle" rel="nofollow">=gazelle=
+  module</a> to your MODULE.bazel file, and create a <code>gazelle</code> target in some BUILD
+  file:</p>
+<pre lang="bazel-build">load("@gazelle//:def.bzl", "DEFAULT_LANGUAGES", "gazelle", "gazelle_binary")
+
+gazelle(
+    name = "gazelle",
+    gazelle = ":gazelle_binary",
+)
+
+gazelle_binary(
+    name = "gazelle_binary",
+    languages = DEFAULT_LANGUAGES + ["@rules_elisp//gazelle/elisp"],
+)
+</pre>
+<p dir="auto">The <code>DEFAULT_LANGUAGES</code> list adds support for some other languages like Go and
+  Protocol Buffers.  You can leave it out if you want.</p>
+<p dir="auto">If you want to run Gazelle as a Bazel test, use the <code>gazelle_test</code> rule:</p>
+<pre lang="bazel-build">load("@gazelle//:def.bzl", "gazelle_test")
+
+gazelle_test(
+    name = "gazelle_test",
+    gazelle = ":gazelle_binary",
+    workspace = "//:MODULE.bazel",
+)
+</pre>
+<p dir="auto">Gazelle creates a rule target for each Emacs Lisp file it encounters.  It uses
+  some heuristics to distinguish between libraries and test files; for example,
+  the file <code>foo-test.el</code> likely denotes a test file, while <code>foo.el</code> is probably a
+  library file.  If Gazelle guesses wrong, you can overwrite the heuristic by
+  adding a library header <code>Gazelle-Type</code>:</p>
+<div class="highlight highlight-source-emacs-lisp notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content=";; Gazelle-Type: library
+;; Gazelle-Type: binary
+;; Gazelle-Type: test"><pre><span class="pl-c"><span class="pl-c">;</span>; Gazelle-Type: library</span>
+<span class="pl-c"><span class="pl-c">;</span>; Gazelle-Type: binary</span>
+<span class="pl-c"><span class="pl-c">;</span>; Gazelle-Type: test</span></pre></div>
+<p dir="auto">See info:elisp#Library Headers.</p>
+<p dir="auto">Gazelle detects dependencies between libraries by scanning Emacs Lisp files for
+  <code>provide</code> and <code>require</code> forms.  If a file provides a symbol and another one
+  requires that symbol, then Gazelle will add an appropriate target to the <code>deps</code>
+  attribute of the target of the latter.</p>
+<p dir="auto">The name of the Gazelle language is <code>elisp</code>.  You can use this name in Gazelle
+  directives, for example, to restrict Gazelle to a specific set of languages, or
+  to teach Gazelle how to resolve a feature to an <code>elisp_cc_module</code> target:</p>
+<pre lang="bazel-build"># gazelle:lang go,elisp
+# gazelle:resolve elisp my-module //:my_module
+</pre>
+<p dir="auto">To suppress generation of <code>elisp_proto_library</code> rules, add a Gazelle directive</p>
+<pre lang="bazel-build"># gazelle:elisp_generate_proto false
+</pre>
+<p dir="auto">to your BUILD file.</p>
 <div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Starlark infrastructure</h1><a id="user-content-starlark-infrastructure" class="anchor" aria-label="Permalink: Starlark infrastructure" href="#starlark-infrastructure"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
 <p dir="auto">The <code>emacs_library</code>, <code>emacs_cc_module</code>, and <code>emacs_proto_library</code> return the
   <code>EmacsLispInfo</code> provider to transport information about Emacs Lisp libraries
