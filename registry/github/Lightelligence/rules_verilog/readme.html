@@ -52,7 +52,12 @@ build --action_env=PATH
 test --action_env=LM_LICENSE_FILE"><pre class="notranslate"><code>test --action_env=HOME
 test --action_env=LM_LICENSE_FILE
 </code></pre></div>
-<p dir="auto">For Synopsys VCS flows, you can add a named Bazel config in <code>.bazelrc</code> and invoke it explicitly. Example:</p>
+<p dir="auto">VCS is the default simulator for <code>simmer</code>, DV testbenches, and one-step unit
+tests and RTL lint. Explicit rule values and <code>--simulator</code> still take
+precedence; <code>SIM_PLATFORM</code> overrides the <code>simmer</code> fallback. To select XRUN for
+one-step rules that omit <code>simulator</code>, set
+<code>--@rules_verilog//:verilog_unit_test_simulator=XRUN</code>.</p>
+<p dir="auto">For site-specific Synopsys VCS launchers, you can add a named Bazel config in <code>.bazelrc</code> and invoke it explicitly. Example:</p>
 <div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="build:vcs --@rules_verilog//:verilog_unit_test_simulator=VCS
 build:vcs --@rules_verilog//:verilog_dv_unit_test_command_vcs=&quot;runmod vcs -- vcs&quot;
 build:vcs --@rules_verilog//:verilog_rtl_lint_test_command_vcs=&quot;runmod vcs -- vcs&quot;
@@ -88,7 +93,7 @@ VCS is selected by <code>--config=vcs</code>; rules_verilog uses its built-in VC
 instead. Set <code>rulefile_vcs</code> when a target needs project-specific VCS lint
 options. Targets that explicitly set <code>simulator = "VCS"</code> may continue using
 <code>rulefile</code> for backward compatibility.</p>
-<p dir="auto">For <code>simmer</code> VCS runs, <code>--simulator VCS</code> is enough. The VCS, <code>simv</code>, and Verdi launcher prefix defaults to <code>runmod vcs --</code>.</p>
+<p dir="auto">For <code>simmer</code> VCS runs, no simulator flag is needed unless overriding <code>SIM_PLATFORM</code>. The VCS, <code>simv</code>, and Verdi launcher prefix defaults to <code>runmod vcs --</code>.</p>
 <div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="simmer -t //hw/dv/project_benches/sys/tb:some_vcs_test --simulator VCS"><pre>simmer -t //hw/dv/project_benches/sys/tb:some_vcs_test --simulator VCS</pre></div>
 <p dir="auto">Override the launcher with <code>RV_VCS_RUNNER</code> or <code>--vcs-runner</code> only when a project needs a different module wrapper.</p>
 <div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">Interrupting a regression</h3><a id="user-content-interrupting-a-regression" class="anchor" aria-label="Permalink: Interrupting a regression" href="#interrupting-a-regression"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
