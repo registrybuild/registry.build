@@ -148,9 +148,11 @@ simmer -t <span class="pl-s"><span class="pl-pds">'</span>sys_tb:smoke_test@1<sp
 simmer -t <span class="pl-s"><span class="pl-pds">'</span>sys_tb:smoke_test@1<span class="pl-pds">'</span></span> --simulator VCS --waves \
   --wave-tcl ./debug/vcs_fsdb_dump.tcl</pre></div>
 <p dir="auto">The generated FSDB controls are:</p>
-<p dir="auto">All standard VCS compile paths use <code>-debug_access+r+w+f</code>, providing signal
-read/write/force access required by UVM HDL deposit/force calls and DUT memory
-backdoor loads without requiring waves. Wave builds additionally enable KDB and
+<p dir="auto">All standard VCS compile paths use <code>-debug_access+r+w+f</code> by default, providing
+signal read/write/force access required by UVM HDL deposit/force calls and DUT
+memory backdoor loads without requiring waves. Benches that need none of that
+can lower the level with <code>--vcs-debug-access {r,none}</code> or
+<code>verilog_dv_tb(vcs_debug_access = ...)</code> to cut compile and simulation cost. Wave builds additionally enable KDB and
 FSDB capture; they do not enable VPI or UVM transaction recording.</p>
 <markdown-accessiblity-table><table>
 <thead>
@@ -239,9 +241,10 @@ default. An unchanged fingerprint bypasses VCS; a changed build uses the
 allocation-aware partition flow (automatic single-worker allocations use
 regular <code>-Mupdate</code> as a crash safeguard; explicit partition options opt in).
 The writable partition database is
-<code>&lt;tb&gt;__VCS_VCOMP/partitionlib</code>; <code>--waves</code> and <code>--gui</code> use sibling
-<code>partitionlib_waves</code> and <code>partitionlib_gui</code> databases so incompatible KDB
-options do not invalidate each other. Stable third-party IP/VIP
+<code>&lt;tb&gt;__VCS_VCOMP/partitionlib</code>; <code>--waves</code> and <code>--gui</code> compile into the sibling
+<code>&lt;tb&gt;__VCS_VCOMP_WAVES</code> and <code>&lt;tb&gt;__VCS_VCOMP_GUI</code> directories, so a debug rerun
+keeps the batch <code>simv</code>, fingerprint, and partition database instead of
+rebuilding them. Stable third-party IP/VIP
 partitions are reused while changed project RTL and testbench partitions are
 rebuilt. Tune parallel compilation after measuring the workstation:</p>
 <div class="highlight highlight-source-shell notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="simmer -t 'sys_tb:smoke_test@1' --simulator VCS \
